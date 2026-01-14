@@ -23,22 +23,12 @@ Big things:
 
 
 
-
-
-
-
-
-
 ------------------------------------------------------------------------------
 server control from web:
 I could make buttons to display and change settings in a table
 
 I think I need to figure more things out, like how to get a button to do something
 with out reloading a page
-
-
-
-
 
 
 

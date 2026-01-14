@@ -6352,6 +6352,91 @@ sqlite>
 now make a page to view it
 
 
+done
+
+2026-01-14 03:19:47
+
+I have that done...now what?
+
+you can manually refresh with F5 or I have a refresh button
+
+to do:
+auto update?
+clean up table, do I need to keep old entries?
+
+
+I could get status.php to delete, but there is not guarantee the page is running...
+where else? in the server? when running delete all?
+I might leave it with no entries...
+
+what if I just left it and did not remove?
+
+I could have stats on uptime
+
+what if I kept track of server sessions?
+
+kind of like client sessions, but I would track different things.
+
+
+2026-01-14 03:34:46
+show icon for current level..done
+
+I could have a section for the current level:
+just a few things:
+level num
+icon
+level time
+enemies
+moves
+
+then I could have a section for the current clients and show them
+and make some css for this intead of borrowing from ...
+
+2026-01-14 04:49:58
+
+all done... status page looks good...
+
+now what?
+
+could I show load, disk space?
+
+looked into linux load things and I don't think they would be useful
+
+I can use my own 'cpu' which refers to the amount of time the game loop spends
+processing vs waiting...
+
+mRollingAverage[0].avg
+
+added cpu to table..
+               cpu           INT, \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

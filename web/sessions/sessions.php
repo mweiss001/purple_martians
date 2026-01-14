@@ -65,9 +65,9 @@ echo "<div class=\"div-sessions-page\">";
 
 $but = "class=\"button\" id=\"links_button\"";
    echo "<div class=\"div-sessions-page-links\">";
-   echo "<a href=\"../index.html\" $but >Back to Main Page   </a>";
-   echo "<a href=\"sessions.php\"  $but >Sessions    </a>";
-   echo "<a href=\"sessions.php\"  $but >Saved Game   </a>";
+   echo "<a href=\"../index.html\" $but >Back to Main Page</a>";
+   echo "<a href=\"sessions.php\"  $but >Sessions</a>";
+   echo "<a href=\"status.php\"  $but >Status</a>";
    echo "</div>";
 
 

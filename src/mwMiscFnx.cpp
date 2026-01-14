@@ -47,14 +47,10 @@ af:'00001000 00000000 00000000 00000000 '
 string mwMiscFnx::timestamp(const char* format)
 {
    char t[256];
-
    auto cnow = std::chrono::system_clock::now();
-   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(cnow).time_since_epoch().count() % 1000;
-
    auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
    struct tm *timenow = localtime(&now_in_time_t);
    strftime(t, sizeof(t), format, timenow);
-
    string ret(t);
    return ret;
 }

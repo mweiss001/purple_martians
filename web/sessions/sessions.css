@@ -217,6 +217,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
 #gm_tablet tr:hover { background-color:           hsl(20, 100%, 15%);}
 
 
+
 /* colors for current gm */
 #current_gm, #current_gm_button
 {
@@ -235,6 +236,56 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 #current_gm_table td { padding: 4px;  border: 1px solid hsl(271, 100%, 50%);} 
 #current_gm_table tr:hover {          background-color: hsl(271, 100%, 15%);}
+
+
+
+
+/* colors for status_page */
+#status_page, #status_page_button
+{
+   color           : hsl(260, 100%, 97%);
+   border-color    : hsl(260, 100%, 50%);
+   background-color: hsl(260, 100%, 5%);
+}
+#status_page_button:hover { border-color: hsl(260, 100%, 80%); }
+#status_page_table
+{
+   border: none;
+   border-collapse: collapse;
+   width: 100%;
+   font-family: sans-serif;
+   font-size: .8rem;
+}
+#status_page_table td { padding: 4px;  border: 1px solid hsl(260, 100%, 50%);} 
+#status_page_table tr:hover {          background-color: hsl(260, 100%, 15%);}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

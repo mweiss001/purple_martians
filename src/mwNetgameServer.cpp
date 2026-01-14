@@ -311,32 +311,21 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    int lvt = mLoop.frame_num;
    int mov = mGameMoves.entry_pos;
    int enm = mEnemy.num_enemy;
+   int cpu = mRollingAverage[0].avg;
+
+
+
+
 
    char sql[1024];
 
-   sprintf(sql, "INSERT INTO status VALUES ('%s', %d, %d, %d, %d, %d, %d)",ts.c_str(), upt, cli, lev, lvt, mov, enm );
+   sprintf(sql, "INSERT INTO status VALUES ('%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), upt, cpu, cli, lev, lvt, mov, enm );
 
    printf("%s\n", sql);
 
    mSql.execute_sql(sql, mSql.db_sessions);
 
 }
-
-/*
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
-               timestamp     TEXT PRIMARY KEY, \
-               uptime        INT, \
-               clients       INT, \
-               level         INT, \
-               level_time    INT, \
-               moves         INT, \
-               enemies       INT ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
-
-   get the server to do this...where?
-
-
-*/
 
 
 void mwNetgame::server_send_snfo_packet() // send info to remote control
