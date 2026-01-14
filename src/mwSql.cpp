@@ -117,6 +117,12 @@ void mwSql::create_tables(void)
    if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
 
 
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
+               id            INTEGER PRIMARY KEY, \
+               field         TEXT, \
+               value         INT ); ");
+   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+
 
 
 

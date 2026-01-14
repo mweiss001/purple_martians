@@ -313,20 +313,10 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    int enm = mEnemy.num_enemy;
    int cpu = mRollingAverage[0].avg;
 
-
-   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
-
-
-
-
    char sql[1024];
-
    sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cli, lev, lvt, mov, enm );
-
-   printf("%s\n", sql);
-
+   //printf("%s\n", sql);
    mSql.execute_sql(sql, mSql.db_sessions);
-
 }
 
 
@@ -359,8 +349,8 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
    // break compressed dst into smaller pieces
    int num_packets = (dst_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
-   //float cr = (float)dst_size*100 / (float)5400; // compression ratio
-   //printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
+   float cr = (float)dst_size*100 / (float)5400; // compression ratio
+   printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
 
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
@@ -770,7 +760,7 @@ void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
 
 void mwNetgame::server_send_sjrc_packet(int p)
 {
-   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjrc");
    mPacketBuffer.PacketPutDouble(data, pos, 0);
    ServerSendTo(data, pos, p);
@@ -779,7 +769,7 @@ void mwNetgame::server_send_sjrc_packet(int p)
 void mwNetgame::server_send_srrf_packet(int p, int val)
 {
    // printf("sending srrf packet with val:%d\n", val);
-   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {}; int pos;
    mPacketBuffer.PacketName(data, pos, "srrf");
    mPacketBuffer.PacketPutInt32(data, pos, val);
    ServerSendTo(data, pos, p);

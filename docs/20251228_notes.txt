@@ -6429,6 +6429,100 @@ deploy to pmh and compare...
 
 should I also do server version?...yes
 
+2026-01-14 06:00:37
+
+done, committed and deployed to pmh and all clients
+18% level 16 with 4 clients and rc and fakekey 
+
+now what?
+
+How to control the server from web page.
+
+I am thinking of making a table that the server reads periodically.
+What would it look like?
+
+maybe one step further and store some settings in the database..
+
+When the web page changes them, the server will update values and the web pages can read them
+
+will this be a major rewrite of my entire settings things?
+or can I just use it for a few things I want to control remotely?
+
+let say for now, just the player shot things
+
+
+first I will need to echo those values to the database somewhere so that the cuurent values can be displayed
+then i will need to monitor the database periodically for changes
+
+I could have a form on the web that submits the values
+
+for now just do something similar to rc
+
+tx snfo fn:[1530] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1531] size:[411] ratio:[7.61] [1 packets needed]
+tx snfo fn:[1532] size:[410] ratio:[7.59] [1 packets needed]
+tx snfo fn:[1533] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1534] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1535] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1536] size:[411] ratio:[7.61] [1 packets needed]
+tx snfo fn:[1537] size:[411] ratio:[7.61] [1 packets needed]
+tx snfo fn:[1538] size:[411] ratio:[7.61] [1 packets needed]
+tx snfo fn:[1539] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1540] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1541] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1542] size:[411] ratio:[7.61] [1 packets needed]
+tx snfo fn:[1543] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1544] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1545] size:[412] ratio:[7.63] [1 packets needed]
+tx snfo fn:[1546] size:[412] ratio:[7.63] [1 packets needed]
+
+does rc take up a client slot??
+it does not appear to...
+
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
+               id            INTEGER PRIMARY KEY, \
+               field         TEXT, \
+               value         INT ); ");
+   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+
+now get the web page to set something
+
+
+make 2 buttons
+
+pvp damage on and off
+
+get them to call a php script that inserts a record
+
+
+
+2026-01-14 06:49:16
+
+first I need to commit, then redeplot to o3000 so I have the latest version and the table created...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
