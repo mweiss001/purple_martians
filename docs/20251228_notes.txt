@@ -5504,7 +5504,6 @@ Key Concepts
 found some intererting html input types like range
 
 
-
 what do i actually want to do:
 have a page that shows the server uptime and the currently connected client
 
@@ -5586,16 +5585,11 @@ void mwLog::add_log_status_db_rows(void)
 
          // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
 
-
-
-
-
 I could simply put this into a database
 
 it would get full really quick, but then I could just delete the entries
 
 2026-01-13 04:28:19
-
 
 I have some thoughts:
 
@@ -5626,15 +5620,14 @@ git filter-repo tool. This process rewrites your repository's history, so it's e
 The process involves the following high-level steps:
 Prerequisites
 
-    Install git-filter-repo: This tool is much faster and easier to use than the older git filter-branch. You can often install it using a package manager, for example:
-    bash
+    Install git-filter-repo: This tool is much faster and easier to use than the older git filter-branch.
+    You can often install it using a package manager, for example:
 
 sudo apt install git-filter-repo
 
 Steps to Remove the File
 
     Navigate to Your Local Repository:
-    bash
 
 cd YOUR-REPOSITORY
 
@@ -6160,10 +6153,209 @@ now 130M
 
 recreate /data if not exists...done
 
-
 2026-01-13 07:38:23
+recommit from m36..done
 
-recommit from m36
+i should remove data completely from github
+
+
+
+how big is allegro dir?
+
+m@o3000:~/dev$ du -hd1 .
+74M     ./allegro5
+133M    ./purple_martians
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+now back to our regulary scheduled...
+
+
+what do i actually want to do:
+have a page that shows the server uptime and the currently connected client
+
+well then, I better have that data in the database
+
+status table
+uptime
+every second that updates
+number of connected clients
+current level
+how long in current level
+
+kind of like copying what I used to have in status and remote control
+
+
+looks like it gets sent every frame in remote control mode
+
+void mwNetgame::server_send_snfo_packet(void) // send info to remote control
+{
+   // copy values into loc
+   mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
+   mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
+   mPlayer.loc[0].srv_level = mLevel.play_level;
+   mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
+   mPlayer.loc[0].srv_extra_packets_num = mNetgame.srv_exp_num;
+   mPlayer.loc[0].srv_extra_packets_size = mNetgame.srv_exp_siz;
+   mPlayer.loc[0].srv_uptime = al_get_time();
+   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
+
+   mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
+
+   char src[5700];
+
+
+this also happens once per frame
+
+void mwLog::add_log_status_db_rows(void)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // do not log status unless at least one client is connected
+   if (mNetgame.server_num_clients == 0) return;
+
+   char d[100];
+   mMiscFnx.chr_dt(d);
+
+   int f = mLoop.frame_num;
+
+   char txt[1000];
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         int r = mPlayer.loc[p].rewind;
+         float cpu  = mPlayer.loc[p].cpu;
+         float sync = mPlayer.loc[p].pdsync*1000;
+         float ping = mPlayer.loc[p].ping*1000;
+         float difs = mPlayer.loc[p].cmp_dif_size;
+         float lcor = mPlayer.loc[p].client_loc_plr_cor;
+         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
+
+         float txbf = mPlayer.loc[p].tx_current_bytes_for_this_frame;
+         float rxbf = mPlayer.loc[p].rx_current_bytes_for_this_frame;
+         float txpf = mPlayer.loc[p].tx_current_packets_for_this_frame;
+         float rxpf = mPlayer.loc[p].rx_current_packets_for_this_frame;
+
+         // these values have no meaning for server
+         if (p == 0)
+         {
+            sync = 0;
+            ping = 0;
+            difs = 0;
+            lcor = 0;
+            rcor = 0;
+         }
+
+         sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
+                       d, f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
+
+         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
+
+I could simply put this into a database
+
+it would get full really quick, but then I could just delete the entries
+
+I have some thoughts:
+
+a web page with the lognet messages and a button to refresh
+
+
+where to start...
+
+
+I want to do status
+
+a small table
+
+
+
+server_status
+
+clients
+level
+last_update
+uptime
+
+how do I do uptime?
+
+   mPlayer.loc[0].srv_uptime = al_get_time();
+
+   al_draw_textf(mFont.pr8, mColor.pc[13], cx,     cy, 0, "Server Remote Control ");
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Version:%s  Uptime:%s", mPlayer.loc[0].srv_version, mMiscFnx.chrmhd(mPlayer.loc[0].srv_uptime, msg));
+
+
+
+
+take these values and stick them in a table
+once per second
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               uptime        INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               enemies       INT ); ");
+   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+
+get the server to do this...where?
+
+
+how big should uptime be?
+I am planning of just using seconds
+
+31,536,000 sec in a year
+
+60s * 60m * 24h * 365 = 
+
+i can use 32bit int
+
+called every frame in server control
+
+void mwNetgame::server_count_clients()
+{
+   server_num_clients = 0;
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active) server_num_clients++;
+}
+
+
+2026-01-14 01:46:49
+
+I have this getting added to the database every second
+
+20260114-014435  20260114-014435  28459   2        1      128845      5      11
+sqlite> select MAX(timestamp), * from status;
+MAX(timestamp)   timestamp        uptime  clients  level  level_time  moves  enemies
+---------------  ---------------  ------  -------  -----  ----------  -----  -------
+20260114-014502  20260114-014502  28486   2        1      129925      13     11
+sqlite>
+
+
+now make a page to view it
+
+
+
+
+
+
 
 
 

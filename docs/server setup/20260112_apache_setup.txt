@@ -1,0 +1,266 @@
+20260112
+
+sudo apt update
+sudo apt install apache2 ufw
+
+sudo apt install php libapache2-mod-php
+sudo a2enmod php8.3
+
+sudo apt install nano sqlite3 php-sqlite3
+
+
+now the database file can't be read?
+
+namei -l /home/m/dev/purple_martians/data/sessions.db
+
+m@pmh:~/dev/purple_martians/data$ namei -l /home/m/dev/purple_martians/data/sessions.db
+f: /home/m/dev/purple_martians/data/sessions.db
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--- m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxrwxrwx m    m    data
+-rwxrwxrwx m    m    sessions.db
+m@pmh:~/dev/purple_martians/data$
+
+chmod o+x /home/m
+
+m@pmh:~/dev/purple_martians/data$ chmod o+x /home/m
+m@pmh:~/dev/purple_martians/data$ namei -l /home/m/dev/purple_martians/data/sessions.db
+f: /home/m/dev/purple_martians/data/sessions.db
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--x m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxrwxrwx m    m    data
+-rwxrwxrwx m    m    sessions.db
+m@pmh:~/dev/purple_martians/data$
+
+
+
+m@pmh:~$ sudo ufw app list
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+
+m@pmh:~$ sudo ufw allow 'Apache'
+Rules updated
+Rules updated (v6)
+
+m@pmh:~$ sudo ufw status
+Status: inactive
+
+m@pmh:~$ sudo ufw allow 'OpenSSH'
+Rules updated
+Rules updated (v6)
+
+I am scared to turn it on, my server is remote...
+
+Just leave it for now..
+
+sudo ufw enable
+
+
+m@pmh:~$ sudo systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sun 2024-04-14 08:31:03 MDT; 8min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 2020 (apache2)
+      Tasks: 55 (limit: 9292)
+     Memory: 5.5M
+        CPU: 52ms
+     CGroup: /system.slice/apache2.service
+             ├─2020 /usr/sbin/apache2 -k start
+             ├─2021 /usr/sbin/apache2 -k start
+             └─2022 /usr/sbin/apache2 -k start
+
+Apr 14 08:31:03 pmh systemd[1]: Starting The Apache HTTP Server...
+Apr 14 08:31:03 pmh apachectl[2019]: AH00558: apache2: Could not reliably determine the server's fully qualified domain >
+Apr 14 08:31:03 pmh systemd[1]: Started The Apache HTTP Server.
+lines 1-16/16 (END)
+
+
+To stop your web server, type:
+
+    sudo systemctl stop apache2
+
+To start the web server when it is stopped, type:
+
+    sudo systemctl start apache2
+
+To stop and then start the service again, type:
+
+    sudo systemctl restart apache2
+
+If you are simply making configuration changes, Apache can often reload without dropping connections. To do this, use this command:
+
+    sudo systemctl reload apache2
+
+By default, Apache is configured to start automatically when the server boots. If this is not what you want, disable this behavior by typing:
+
+    sudo systemctl disable apache2
+
+To re-enable the service to start up at boot, type:
+
+sudo systemctl enable apache2
+
+/var/www/html
+
+
+----------------------------------------------------------------------------------------------------
+copy all web files to /var/www/html
+-----------------------------------------------------------------------------------------------
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
+
+
+----------------------------------------------------------------------------------------------------
+transfer files to and from the server?
+----------------------------------------------------------------------------------------------------
+
+on server make a temp dir: ~/tmp
+
+2 steps:
+
+From the a windows machine, copy to the tmp location:
+pscp -r -pw zaiden c:\pm\docs\* m@purplemartians.org:tmp
+pscp -r -pw zaiden c:\pm\docs\* m@192.168.1.146:tmp
+
+On the server, copy to the final place
+sudo cp -r ~/tmp/* /var/www/html
+
+
+----------------------------------------------------------------------------------------------------
+setup php and sqlite on server...
+----------------------------------------------------------------------------------------------------
+See C:\pm\pm_docs\server setup\20260114_sqlite_setup.txt
+----------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------
+How to enable downloads from elsewhere
+----------------------------------------------------------------------------------------------------
+
+/home/m/dev/purple_martians/savegame
+
+chmod o+x /home/m
+
+# setup "/downloads" alias
+sudo nano /etc/apache2/apache2.conf
+add to config just after the existing section with <Directory> entries
+Alias "/downloads" "/home/m/dev/purple_martians/savegame"
+<Directory "/home/m/dev/purple_martians/savegame">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride None
+    Require all granted
+</Directory>
+
+where is apache config file?
+
+m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep SERVER_CONFIG_FILE
+ -D SERVER_CONFIG_FILE="apache2.conf"
+m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep HTTPD_ROOT
+ -D HTTPD_ROOT="/etc/apache2"
+
+/etc/apache2/apache.conf
+
+add to config:
+                    
+Alias "/downloads" "/home/m/dev/purple_martians/savegame"
+
+<Directory "/home/m/dev/purple_martians/savegame">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride None
+    Require all granted
+</Directory>
+
+tail -f  /var/log/apache2/error.log
+
+[Tue Dec 30 13:12:54.255068 2025] [core:error] [pid 38411] (13)Permission denied: [client 192.168.1.36:63091]
+AH00035: access to /downloads denied (filesystem path '/home/m/dev') because search permissions are missing on a component of the path
+
+namei -l /home/m/dev/purple_martians/savegame
+
+m@o3000:~/dev/purple_martians$ namei -l /home/m/dev/purple_martians/savegame
+f: /home/m/dev/purple_martians/savegame
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--- m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxrwxrwx m    m    savegame
+m@o3000:~/dev/purple_martians$
+
+chmod o+x /home/m
+
+this was it!!!!
+
+
+-------------------------------------------------------------------------
+set up samba for easier web dev
+---------------------------------------------------
+
+!!! Don't do this on the production machine !!!
+
+1 - it is a huge security risk
+2 - it probably won't work anyway, samba over internet???
+
+sudo apt install samba
+sudo rm /etc/samba/smb.conf
+sudo nano /etc/samba/smb.conf
+
+[global]
+workgroup = WORKGROUP
+server string = %h
+map to guest = bad user
+
+[www]
+path = /var/www/html
+read only = no
+guest ok = yes
+force user = m
+
+sudo systemctl restart nmbd
+
+sudo ufw allow samba
+
+now I can see it at: \\192.168.1.146\www
+but it is read only
+
+namei -l /var/www/html
+
+m@o3000:/var/www/html/sessions$ namei -l /var/www/html
+f: /var/www/html
+drwxr-xr-x root root /
+drwxr-xr-x root root var
+drwxr-xr-x root root www
+drwxr-xr-x root root html
+m@o3000:/var/www/html/sessions$
+
+these did not work:
+sudo usermod -aG www-data m
+sudo chmod -R g+rw /var/www/html/ 
+
+hit it with a hammer:
+sudo chmod -r 777 /var/www/html/ 
+
+now it works!!!
+
+-------------------------------------------------------------------
+make sure that changes you make there get back to the dev machine
+-------------------------------------------------------------------
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+
+
+
+
+

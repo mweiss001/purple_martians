@@ -1161,7 +1161,7 @@ void mwPlayer::draw_player(int p)
          }
       }
       // player name overlay -- 0-never  1-only_remote  2-always
-      else if ((loc[p].name_display == 2) || (loc[p].name_display == 1) && (p != active_local_player))
+      else if ((loc[p].name_display == 2) || ((loc[p].name_display == 1) && (p != active_local_player)))
       {
          string name = getName(p);
          al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", name.c_str());

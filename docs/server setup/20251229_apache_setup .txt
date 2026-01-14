@@ -1,16 +1,11 @@
 20251228
 
 sudo apt update
-
 sudo apt install apache2 ufw
-
-
-
-
-
 
 sudo apt install php libapache2-mod-php
 sudo a2enmod php8.3
+
 
 now the database file can't be read?
 
@@ -40,25 +35,6 @@ drwxrwxrwx m    m    purple_martians
 drwxrwxrwx m    m    data
 -rwxrwxrwx m    m    sessions.db
 m@pmh:~/dev/purple_martians/data$
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

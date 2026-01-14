@@ -18,6 +18,9 @@ class mwMiscFnx
    int get_tag_text2(char *str, char *res, char *res1, int show);
 
 
+   string timestamp(const char* format);
+
+
    char * chr_dt(char* dt);
 
    char* chrms(int time, char* ft);

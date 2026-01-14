@@ -1,0 +1,335 @@
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+last updated and tested 20260112
+
+name: 'pmh'
+optilex 3020
+i5-4750 8G
+240G SSD
+
+-----------------------------------------------------------------------------------------------
+install ubuntu server
+-----------------------------------------------------------------------------------------------
+
+dev setup\linux\ubuntu_dev_setup_20251228.txt
+
+Started with ubuntu 24.04.2 server minimal install with openssh
+
+timedatectl
+sudo timedatectl set-timezone America/Edmonton
+
+reboot, then do all the rest of the setup over shh
+
+-----------------------------------------------------------------------------------------------
+install required packages
+-----------------------------------------------------------------------------------------------
+
+# install required packages
+sudo apt install cron nano ufw gcc git cmake build-essential libfreetype6-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-dev libxext-dev libxxf86vm-dev libxrandr-dev libxinerama-dev libxpm-dev libpulse-dev apache2 sqlite3 php-sqlite3
+
+# remove and recreate dev directory
+cd ~
+rm -rf dev
+mkdir dev
+cd dev
+
+# get and compile allegro
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+sudo make install
+
+# get pm
+cd ~/dev
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+# fix permissions
+chmod 777 ./op
+sudo ./op
+
+# compile and install libnet
+cd libnet
+make clean
+make lib
+sudo make install
+
+# build puple martians
+cd ~/dev/purple_martians
+./lin_build_all
+
+
+# this is needed to allow php to see database file and to make apache 'downloads/' alias work 
+chmod o+x /home/m
+
+
+-----------------------------------------------------------------------------------------------
+setup apache
+-----------------------------------------------------------------------------------------------
+
+# install apache (done in big line above)
+sudo apt install apache2
+
+# install and configure php to work with apache
+sudo apt install php libapache2-mod-php
+sudo a2enmod php8.3
+
+
+# setup "/downloads" alias
+sudo nano /etc/apache2/apache2.conf
+add to config just after the existing section with <Directory> entries
+Alias "/downloads" "/home/m/dev/purple_martians/savegame"
+<Directory "/home/m/dev/purple_martians/savegame">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride None
+    Require all granted
+</Directory>
+
+
+# enable apahe
+sudo systemctl enable apache2
+
+
+
+
+copy all web files to /var/www/html
+-----------------------------------------------------------------------------------------------
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
+
+
+-----------------------------------------------------------------------------------------------
+setup ufw
+-----------------------------------------------------------------------------------------------
+
+sudo ufw app list
+sudo ufw allow 'Apache'
+sudo ufw allow 'OpenSSH'
+sudo ufw allow from 96.45.0.0/20 to any port 22
+sudo ufw allow 24785
+sudo ufw enable
+sudo ufw status
+
+
+-------------------------------------
+- Using systemd to run as a service -
+-------------------------------------
+
+sudo nano /etc/systemd/system/pm.service
+
+# pm.service
+
+
+[Unit]
+Description=Purple Martians server
+Documentation=purplemartians.org
+
+[Service]
+Type=simple
+User=m
+ExecStart=/home/m/dev/purple_martians/pm -sh
+WorkingDirectory=/home/m/dev/purple_martians
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable pm
+sudo systemctl start pm
+sudo systemctl status pm
+
+
+---------------------------------------------------------------------------------------------------------------
+end of install instructions    -------     extra notes below
+---------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------
+erase all on remote server, reclone from git and compile
+----------------------------------------------------------------
+sudo rm -r /var/www/html/*
+
+cd ~
+sudo rm -r tmp
+mkdir tmp
+
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+chmod 777 ./op
+sudo ./op
+
+cd libnet
+make clean
+make lib
+sudo make install
+
+cd ~/dev/purple_martians
+./lin_build_all
+
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
+
+sudo systemctl start pm
+
+
+----------------------------------------------------------------
+copy src files to server 
+----------------------------------------------------------------
+win_copy_to_pmh.bat copy_src purplemartians.org
+win_copy_to_pmh.bat lin_build purplemartians.org
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+Things you can do from windows dev machine batch script: win_copy_to_pmh.bat
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+Erase and reclone pm (shallow) from git
+---------------------------------------
+win_copy_to_pmh.bat git_reclone purplemartians.org
+
+
+Copy things from windows dev machine to linux server
+----------------------------------------------------
+
+these all use scp
+
+win_copy_to_pmh.bat copy_all
+(uses scp recursive, also copies huge hidden .git dir...)
+
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat copy_levels
+win_copy_to_pmh.bat copy_data
+win_copy_to_pmh.bat copy_cfg
+
+
+
+
+-------------------------------------
+--- how to start and stop service ---
+-------------------------------------
+
+sudo systemctl start pm
+sudo systemctl stop pm
+sudo systemctl enable pm
+
+
+---------------------------------------------------------
+Remote control and monitoring 
+---------------------------------------------------------
+From another computer with a display
+
+start purple martians with the option -rc
+
+windows:
+pm -rc 
+
+linux
+./pm -rc 
+
+----------------------------------------------------------------
+manualy work on the server database 
+----------------------------------------------------------------
+sqlite3 /home/m/purple_martians/data/database.db
+
+.mode column
+SELECT * FROM gm;
+SELECT * FROM gm_sessions;
+SELECT id, dt_start, player_name FROM sessions;
+
+DELETE FROM gm;
+DELETE FROM gm_sessions;
+DELETE FROM sessions;
+
+
+--------------------------------------------------------------------------------------------
+make sure that changes you make on the server in /var/www/html get back to the dev machine
+--------------------------------------------------------------------------------------------
+save all files in windows and close them in editors
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+----------------------------------------------------------------
+erase all web on remote server
+----------------------------------------------------------------
+
+sudo rm -r /var/www/html/*
+
+restore:
+
+cp -r ~/dev/purple_martians/web/* /var/www/html
+
+
+----------------------------------------------------------------
+erase all on remote server, reclone from git and compile
+----------------------------------------------------------------
+sudo rm -r /var/www/html/*
+
+cd ~
+sudo rm -r tmp
+mkdir tmp
+
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+chmod 777 ./op
+sudo ./op
+
+cd libnet
+make clean
+make lib
+sudo make install
+
+cd ~/dev/purple_martians
+./lin_build_all
+
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
+
+sudo systemctl start pm
+
+
+----------------------------------------------------------------
+copy src files to server 
+----------------------------------------------------------------
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat lin_build
+
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+Things you can do from windows dev machine batch script: win_copy_to_pmh.bat
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+Erase and reclone pm (shallow) from git
+---------------------------------------
+win_copy_to_pmh.bat git_reclone
+
+
+Copy things from windows dev machine to linux server
+----------------------------------------------------
+
+these all use scp
+
+win_copy_to_pmh.bat copy_all
+(uses scp recursive, also copies huge hidden .git dir...)
+
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat copy_levels
+win_copy_to_pmh.bat copy_data
+win_copy_to_pmh.bat copy_cfg
+
+

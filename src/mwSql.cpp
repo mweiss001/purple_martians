@@ -37,26 +37,26 @@ void mwSql::create_tables(void)
    char sql[2000];
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS sessions( \
-               id                INTEGER PRIMARY KEY, \
-               dt_start          DATETIME, \
-               dt_end            DATETIME, \
-               duration          INT, \
-               ip                TEXT, \
-               port              INT, \
-               hostname          TEXT, \
-               endreason         TEXT,  \
-               cdat_rx           INT, \
-               player_num        INT, \
-               player_name       TEXT, \
-               player_color      INT, \
-               next_levels       INT, \
-               exits_activated   INT, \
-               respawns          INT, \
-               shots_fired       INT,  \
-               enemy_hits        INT, \
-               player_hits       INT, \
-               self_hits         INT, \
-               purple_coins      INT, \
+               id                        INTEGER PRIMARY KEY, \
+               dt_start                  DATETIME, \
+               dt_end                    DATETIME, \
+               duration                  INT, \
+               ip                        TEXT, \
+               port                      INT, \
+               hostname                  TEXT, \
+               endreason                 TEXT, \
+               cdat_rx                   INT, \
+               player_num                INT, \
+               player_name               TEXT, \
+               player_color              INT, \
+               next_levels               INT, \
+               exits_activated           INT, \
+               respawns                  INT, \
+               shots_fired               INT, \
+               enemy_hits                INT, \
+               player_hits               INT, \
+               self_hits                 INT, \
+               purple_coins              INT, \
                tx_bytes_total            INT, \
                tx_bytes_avg_per_sec      INT, \
                tx_bytes_max_per_frame    INT, \
@@ -70,7 +70,7 @@ void mwSql::create_tables(void)
                rx_packets_avg_per_sec    INT, \
                rx_packets_max_per_frame  INT ); ");
    if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'sessions' \n");
-   // else printf("Table 'sessions' Created Successfully\n");
+
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
                muid           TEXT PRIMARY KEY, \
@@ -81,14 +81,14 @@ void mwSql::create_tables(void)
                level          INT,  \
                num_entries    INT ); ");
    if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm' \n");
-   // else printf("Table 'gm' Created Successfully\n");
+
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
                id                INTEGER PRIMARY KEY, \
                gm_muid           TEXT, \
                session_id        INT  ); ");
    if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_sessions' \n");
-   //else printf("Table 'gm_sessions' Created Successfully\n");
+
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
@@ -102,7 +102,33 @@ void mwSql::create_tables(void)
                client          INT, \
                message         TEXT ); ");
    if (sqlite3_exec(db_logs, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'logs' \n");
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               uptime        INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               enemies       INT ); ");
+   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
 
 int single_value_callback(void *val, int count, char** data, char** columns)
 {

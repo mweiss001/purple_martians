@@ -44,7 +44,7 @@ void mwNetgame::session_flush_active_at_server_exit()
 }
 
 
-// server can complets also, but there are no sessions for server
+// server can complete level also, but 'sessions' do not apply for server
 // next_level and exits are only counted for clients
 // and are only used in sessions
 void mwNetgame::session_save_active_at_level_done()
@@ -63,6 +63,9 @@ void mwNetgame::session_save_active_at_level_done()
 
 void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
 {
+
+
+
    if (!mLog.log_types[LOG_NET_session].action) return;
    // get timestamp
    struct tm *timenow;

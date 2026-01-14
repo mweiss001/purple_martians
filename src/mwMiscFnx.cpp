@@ -39,6 +39,29 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
+
+
+
+// return timestamp from 'now' as std::string in passed format
+// YYYY-MM-DD HH:MM:SS.zzz
+string mwMiscFnx::timestamp(const char* format)
+{
+   char t[256];
+
+   auto cnow = std::chrono::system_clock::now();
+   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(cnow).time_since_epoch().count() % 1000;
+
+   auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
+   struct tm *timenow = localtime(&now_in_time_t);
+   strftime(t, sizeof(t), format, timenow);
+
+   string ret(t);
+   return ret;
+}
+
+
+
+
 // get timestamp from now in db friendly format
 // YYYY-MM-DD HH:MM:SS.zzz
 char * mwMiscFnx::chr_dt(char* dt)

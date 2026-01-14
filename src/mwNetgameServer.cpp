@@ -14,7 +14,8 @@
 #include "mwItem.h"
 #include "mwScreen.h"
 #include "mwEnemy.h"
-
+#include "mwMiscFnx.h"
+#include "mwSql.h"
 
 
 
@@ -298,7 +299,47 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    }
 }
 
-void mwNetgame::server_send_snfo_packet(void) // send info to remote control
+
+
+void mwNetgame::server_insert_status_row() // inserts row into status table
+{
+
+   string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+   int upt = al_get_time();
+   int cli = server_num_clients;
+   int lev = mLevel.play_level;
+   int lvt = mLoop.frame_num;
+   int mov = mGameMoves.entry_pos;
+   int enm = mEnemy.num_enemy;
+
+   char sql[1024];
+
+   sprintf(sql, "INSERT INTO status VALUES ('%s', %d, %d, %d, %d, %d, %d)",ts.c_str(), upt, cli, lev, lvt, mov, enm );
+
+   printf("%s\n", sql);
+
+   mSql.execute_sql(sql, mSql.db_sessions);
+
+}
+
+/*
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               uptime        INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               enemies       INT ); ");
+   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+
+   get the server to do this...where?
+
+
+*/
+
+
+void mwNetgame::server_send_snfo_packet() // send info to remote control
 {
    // copy values into loc
    mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
@@ -312,8 +353,8 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
    mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
 
-   char src[5700];
-   char dst[5700];
+   char src[5800];
+   char dst[5800];
 
    int sz=0, offset=0;
    offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);

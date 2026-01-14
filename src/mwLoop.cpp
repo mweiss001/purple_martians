@@ -1092,7 +1092,7 @@ void mwLoop::main_loop(void)
             }
             if (mNetgame.ima_server)
             {
-
+               mNetgame.server_insert_status_row();
 
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
