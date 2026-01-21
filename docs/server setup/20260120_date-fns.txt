@@ -1,0 +1,85 @@
+
+
+looks like i need to install  date-fns
+
+To install the package, run:
+
+npm install date-fns --save
+# or
+yarn add date-fns
+
+
+I am asuming this is on the server...
+
+m@o3000:/var/www/html/sessions$ sudo apt install nodejs
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libcares2 libnode109 node-acorn node-busboy node-cjs-module-lexer node-undici node-xtend nodejs-doc
+Suggested packages:
+  npm
+The following NEW packages will be installed:
+  libcares2 libnode109 node-acorn node-busboy node-cjs-module-lexer node-undici node-xtend nodejs nodejs-doc
+0 upgraded, 9 newly installed, 0 to remove and 69 not upgraded.
+Need to get 16.1 MB of archives.
+After this operation, 70.4 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+
+m@o3000:/var/www/html/sessions$ node -v
+v18.19.1
+
+sudo apt install npm
+
+npm install date-fns --save
+
+
+import { differenceInDays } from 'date-fns';
+
+const startDate = new Date(2023, 6, 15);
+const endDate = new Date(2023, 6, 22);
+
+// Calculate the number of full days between the two dates
+const daysDifference = differenceInDays(endDate, startDate);
+console.log(daysDifference); // Output: 7
+
+import { format, formatDistance, formatRelative, subDays } from 'date-fns'
+
+
+2026-01-21 03:28:11
+
+I spend hours trying to figure out how to use date-fns in my js file
+
+
+the answer:
+
+in the html file that include js
+
+you have to load the js as type module
+
+<script src="./script.js", type="module" ></script>
+
+this also means that the entire js file is interpreted as strict
+
+then in the js file you need the full path to the import like this:
+
+//import format from './date-fns/format';
+//import { format } from './date-fns' with { type: “text/html” };
+
+import format from './node_modules/date-fns/format.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

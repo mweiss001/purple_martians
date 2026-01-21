@@ -1,0 +1,36 @@
+
+
+20160117
+
+I am using php version 8.3.6 on ubuntu 24
+
+
+
+Composer is a tool for dependency management in PHP.
+
+It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.
+
+
+
+I spent a lot of time trying to figure out chartjs-php
+
+gave up, going to try something else
+
+p chart
+make a test folder...
+
+
+installing:
+sudo apt update
+sudo apt install php libapache2-mod-php php-gd php-freetype
+
+
+i think all i am missing is 
+sudo apt php-gd php-freetype
+
+pchart has not been maintained since 2011
+
+canvasjs??
+
+
+try google charts

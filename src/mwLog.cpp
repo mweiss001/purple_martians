@@ -693,11 +693,14 @@ void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p
 {
    if (!mLog.log_types[LOG_NET_CSV].action) return;
 
-   char d[100];
-   mMiscFnx.chr_dt(d);
+
+   string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
 
    char txt[1000];
-   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, d, agt, f, p, client, msg);
+   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, ts.c_str(), agt, f, p, client, msg);
 //         printf("%s", txt);
 
    int size_limit = NUM_LOG_CHAR;
@@ -727,8 +730,11 @@ void mwLog::add_log_status_db_rows(void)
    // do not log status unless at least one client is connected
    if (mNetgame.server_num_clients == 0) return;
 
-   char d[100];
-   mMiscFnx.chr_dt(d);
+   string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
 
    int f = mLoop.frame_num;
 
@@ -761,7 +767,7 @@ void mwLog::add_log_status_db_rows(void)
          }
 
          sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
-                       d, f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
+                       ts.c_str(), f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
 
          // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
 

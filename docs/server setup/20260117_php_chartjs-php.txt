@@ -1,0 +1,267 @@
+
+I wanted to use this:
+
+bbsnly/chartjs-php
+
+
+install with composer
+
+composer require bbsnly/chartjs-php
+
+Open your terminal and run the following commands to update your package list and install the required packages, including php-cli (PHP Command Line Interface), unzip, curl, git, and php-mbstring: 
+bash
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install curl php-cli php-mbstring git unzip -y
+
+Step 2: Download and install Composer globally 
+Next, use curl to download the Composer installer script and then run a PHP command to install it system-wide in the /usr/local/bin directory, making it available as a global command: 
+bash
+
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+This command automatically fetches the latest stable version of Composer. 
+Step 3: Verify the installation
+After the installation is complete, verify that it was successful by running the composer command in your terminal. You should see output displaying the Composer version and available commands: 
+bash
+
+composer
+
+these are the lines I actually used
+----------------------------------------
+sudo apt install curl php-cli php-mbstring git unzip -y
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+composer
+composer require bbsnly/chartjs-php
+----------------------------------------
+
+
+
+
+
+To start using Composer in your project, all you need is a composer.json file.
+This file describes the dependencies of your project and may contain other metadata as well.
+It typically should go in the top-most directory of your project/VCS repository.
+You can technically run Composer anywhere but if you want to publish a package to Packagist.org, it will have to be able to find the file at the top of your VCS repository.
+The require key#
+
+The first thing you specify in composer.json is the require key. You are telling Composer which packages your project depends on.
+
+{
+    "require": {
+        "monolog/monolog": "2.0.*"
+    }
+}
+
+
+
+
+
+
+2026-01-17 01:37:39
+
+
+I finally figured out a simple example:
+
+one file...
+
+index.php
+
+<?php
+
+echo <<<TEXT
+
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+TEXT;
+
+
+require 'vendor/autoload.php'; // If using Composer
+
+use Bbsnly\ChartJs\Chart;
+use Bbsnly\ChartJs\Config\Data;
+use Bbsnly\ChartJs\Config\Dataset;
+use Bbsnly\ChartJs\Config\Options;
+
+
+$chart = new Chart;
+$chart->type = 'line';
+
+$data = new Data();
+$data->labels = ['Red', 'Green', 'Blue'];
+
+$dataset = new Dataset();
+$dataset->data = [5, 10, 20];
+$data->datasets[] = $dataset;
+
+$chart->data($data);
+
+$options = new Options();
+$options->responsive = true;
+$chart->options($options);
+
+?>
+
+
+<div>
+    <?= $chart->toHtml('my_chart'); ?>
+</div>
+
+
+</body></html>
+
+in the folder where the file is, run 
+
+composer require bbsnly/chartjs-php
+
+
+now what else can I do with it?
+
+
+cant figure out how to set options...
+
+simple ones are easy:
+
+$options = new Options();
+$options->responsive = true;
+$options->indexAxis = 'y';
+
+
+I have not been able to figure out deeper ones...
+
+I think I might have figured it out:
+
+$options->scales = [
+    'x' => [
+        'type' => 'time' 
+        ]
+];
+
+// this works!!!
+$options->plugins['title'] = [
+    'display' => true,
+    'text' => 'Custom Chart Title'
+];
+
+
+<?php
+
+echo <<<TEXT
+
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+</head>
+
+<body>
+
+<h1>test chartjs-php</h1>
+
+
+
+TEXT;
+
+require 'vendor/autoload.php'; // If using Composer
+
+use Bbsnly\ChartJs\Chart;
+use Bbsnly\ChartJs\BarChart;
+use Bbsnly\ChartJs\Config\Data;
+use Bbsnly\ChartJs\Config\Dataset;
+use Bbsnly\ChartJs\Config\Options;
+
+$chart = new BarChart;
+//$chart->type = 'bar';
+
+$data = new Data();
+$data->labels = ['Red', 'Poop', 'Blue'];
+
+$dataset = new Dataset();
+$dataset->data = [5, 10, 20];
+
+/*
+$dataset->data = [
+            [ "x" => '2023-01-01T12:00:00Z', "y" => 10 ],
+            [ "x" => 1672574400000,          "y" => 20 ], // Example timestamp for Jan 1, 2023
+            [ "x" => '2023-01-02',           "y" => 15 ]
+        ];
+*/
+
+
+
+
+$data->datasets[] = $dataset;
+
+
+$chart->data($data);
+
+$options = new Options();
+$options->responsive = true;
+//$options->indexAxis = 'y';
+
+
+// this works!!!
+$options->plugins['title'] = [
+    'display' => true,
+    'text' => 'Custom Chart Title'
+];
+
+
+$chart->options($options);
+
+
+/*
+
+$options->scales = [
+    'x' => [
+        'type' => 'time' 
+        ]
+];
+
+*/  
+
+  
+/*    'y' => [
+        'type' => 'linear', // Or 'logarithmic', 'time', etc.
+        'position' => 'left',
+        'suggestedMin' => 0, // Overrides data minimum
+        'suggestedMax' => 100, // Overrides data maximum
+        'ticks' => [
+            'callback' => 'function(value, index, ticks) { return \'$\' + value; }' // Example JS callback
+        ]
+    ], */
+
+
+
+
+
+still cant get anything to work....
+
+
+2026-01-17 04:05:53
+
+
+
+
+
+
+
+
+
+
+
+
+

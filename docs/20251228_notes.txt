@@ -11157,27 +11157,150 @@ start in the c++ code
 
 actualy it has been a long time since I did a backup....
 
-copy all web stuff back and do a push first...
+copy all web stuff back and do a push first...done
+
+
+this is how I used to do it:
+
+   // get timestamp
+   struct tm *timenow;
+   time_t now = time(nullptr);
+   timenow = localtime(&now);
+   char ts[20];
+   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", timenow);
+
+
+  just replace 
+  timenow = localtime(&now);
+
+   with 
+   timenow = gm(&now);
+
+
+   // get timestamp
+   struct tm *timenow;
+   time_t now = time(nullptr);
+   timenow = gm(&now);
+   char ts[20];
+   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", timenow);
 
 
 
+while I am at it, i think earlier I want to use a more strict ISO 8601 date:
+
+not %Y%m%d-%H%M%S 
+
+but %Y-%m-%dT%H:%M:%S
+
+do it fool!!
+
+make a function to do it...
+
+I thinK I have sessions done...test it locally..
+
+2026-01-21 04:40:18
+
+1|20260121-113902|||192.168.1.155|55977|e6430|open||1|Forest|9||||||||||||||||||||
+1|20260121-113902|20260121-113943|1831183|192.168.1.155|55977|e6430|client_quit|0|1|Forest|9|0|0|0|0|0|0|0|0|637261|0|3704|178586|0|214|1689|0|3|1725|0|3
+
+looks like it is working....
+
+except it is not using 8601
+
+1|20260121-113902|20260121-113943|1831183|192.168.1.155|55977|e6430|client_quit|0|1|Forest|9|0|0|0|0|0|0|0|0|637261|0|3704|178586|0|214|1689|0|3|1725|0|3
+2|20260121-114640|2026-01-21T11:46:45|1831605|192.168.1.155|55978|e6430|client_quit|31|1|Forest|9|0|0|0|4|0|0|0|0|91669|0|3707|25464|0|214|224|0|3|258|0|3
+3|2026-01-21T11:48:22|2026-01-21T11:48:25|-25197|192.168.1.155|64947|e6430|client_quit|24|1|Forest|9|0|0|0|3|0|0|0|0|51615|0|3691|13260|0|276|116|0|3|138|0|4
+
+
+finally got that...but now duration is negative??
+
+3|2026-01-21T11:48:22|
+  2026-01-21T11:48:25|-25197|
+  
+  should be 3 seconds
+
+duration calc
+st:2026-01-21T11:54:03
+dt:2026-01-21T11:54:05
+duration:-25198
+
+7 hours = 25200
+
+fixed...
+
+now do that with gm also
+
+not filename...just db entry
+
+the header?
+
+should I just make all three the same?
+
+at least header and db must be the same...
+
+HSSUHQBBAOYITALB|20260121-054533-[80]-autosave on level done.gm|2026-01-21T12:45:28|20251231-000004|4|80|12
+MDTQPWWWQARHYKQR|20260121-054536-[81]-autosave on level done.gm|2026-01-21T12:45:34|20251231-000000|0|81|5
+
+
+muid              filename                                        dt_start             dt_end               duration  level  num_entries
+----------------  ----------------------------------------------  -------------------  -------------------  --------  -----  -----------
+HSSUHQBBAOYITALB  20260121-054533-[80]-autosave on level done.gm  2026-01-21T12:45:28  20251231-000004      4         80     12
+MDTQPWWWQARHYKQR  20260121-054536-[81]-autosave on level done.gm  2026-01-21T12:45:34  20251231-000000      0         81     5
+KRAKFMOMJQVFLDPB  20260121-055844-[80]-autosave on level done.gm  2026-01-21T12:58:37  2026-01-21T12:58:43  6         80     24
+LMIBCLBPGTZKJFWG  20260121-055848-[81]-autosave on level done.gm  2026-01-21T12:58:44  2026-01-21T12:58:47  3         81     18
+sqlite>
+
+this looks good, 
+
+PMSAVEGAME
+MUID:LMIBCLBPGTZKJFWG
+VERSION:3
+CREATE_TIMESTAMP:2026-01-21T12:58:44
+MODIFY_TIMESTAMP:2026-01-21T12:58:48
+LEVEL:81
+LAST_FRAME:157
+GAMEMOVE_NUM_ENTRIES:18
+GAMEMOVE_DATA_START:
+0,0,0,81
+1,9,0,5
+1,8389376,1627415917,7629941
+1,8390913,1701998406,29811
+34,5,1,2
+53,5,1,18
+57,5,1,16
+63,5,1,0
+69,5,1,2
+76,5,1,18
+78,5,1,16
+83,5,1,0
+102,2,1,90
+154,2,0,92
+154,2,1,92
+155,2,0,92
+156,2,0,92
+157,2,0,92
+
+
+2026-01-21 06:02:33
+
+ok I think I am done here....
+
+commit and push
+
+deploy to server and fix bugs....
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
+   
+   
+   
+   
+   
+   
+  
+  
+  
 
 
 

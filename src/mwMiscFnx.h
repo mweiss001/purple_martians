@@ -17,19 +17,19 @@ class mwMiscFnx
    void get_tag_text(char *str, char *res, int show);
    int get_tag_text2(char *str, char *res, char *res1, int show);
 
-
    string timestamp(const char* format);
+   string timestamp_UTC_ISO8601();
+   int find_duration(const char* d1, const char* d2);
 
 
-   char * chr_dt(char* dt);
+
 
    char* chrms(int time, char* ft);
 //   char* chrsi(int num, char* ft);
 
-
    char * chrmhd(int time, char* ft);
 
-   char *get_timestamp();
+
 
 
    int round20(int val);

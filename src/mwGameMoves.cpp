@@ -26,7 +26,6 @@ mwGameMoves mGameMoves;
 mwGameMoves::mwGameMoves() { initialize(); }
 
 
-
 void mwGameMoves::initialize(void)
 {
    memset(arr, 0, sizeof arr);
@@ -47,20 +46,15 @@ void mwGameMoves::initialize(void)
 }
 
 
-
-
-
-
 void mwGameMoves::new_level()
 {
    initialize();
-   HEADER_create_timestamp = mMiscFnx.get_timestamp();
+   HEADER_create_timestamp = mMiscFnx.timestamp_UTC_ISO8601();
    HEADER_muid = mMiscFnx.generate_muid();
    HEADER_level = mLevel.play_level;
    status = 1;
 
    create_gm_session_links();
-
 }
 
 
@@ -596,7 +590,8 @@ char * mwGameMoves::get_save_txt(int num, char *txt)
 void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
 {
    char filename[120];
-   sprintf(filename, "savegame/%s-[%02d]-%s.gm", mMiscFnx.get_timestamp(), mLevel.play_level, description);
+   const string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", ts.c_str(), mLevel.play_level, description);
    save_gm(filename, sendto);
 }
 
@@ -745,7 +740,7 @@ bool mwGameMoves::save_gm(const char *fname)
    HEADER_version = 3;
 
    // set modified to now
-   HEADER_modify_timestamp = mMiscFnx.get_timestamp();
+   HEADER_modify_timestamp = mMiscFnx.timestamp_UTC_ISO8601();
 
    // if HEADER_create_timestamp is not set, set it here
    if (HEADER_create_timestamp.empty())
@@ -1130,7 +1125,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
    struct tm timestart = {};
 
    // push ss into get_time, which will convert based on format and put in timestart
-   ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
+   ss >> std::get_time(&timestart, "%Y-%m-%dT%H:%M:%S");
    if (ss.fail()) printf("Error parsing time\n");
 
    // add duration to timestart
@@ -1140,7 +1135,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
    mktime(&timestart);
 
    // put the result in dte
-   strftime(dte, sizeof(dte), "%Y%m%d-%H%M%S", &timestart);
+   strftime(dte, sizeof(dte), "%Y-%m-%dT%H:%M:%S", &timestart);
 
 //   printf("dts:'%s'\n", dts);
 //   printf("dte:'%s'\n", dte);

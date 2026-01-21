@@ -1,0 +1,758 @@
+
+Google Charts with PHP, you retrieve data on the server side with PHP (often from a database),
+format it into a JSON object or a simple array, and then pass this data to the client-side JavaScript to render the chart. 
+
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            const data = google.visualization.arrayToDataTable([
+              ['Price', 'Size'],
+              [50,7],[60,8],[70,8],[80,9],[90,9],[100,9],
+              [110,10],[120,11],[130,14],[140,14],[150,15]
+              ]);
+
+            // Set Options
+            const options = {
+              title: 'House Prices vs Size',
+              hAxis: {title: 'Square Meters'},
+              vAxis: {title: 'Price in Millions'},
+              legend: 'none'
+            };
+            // Draw Chart
+            const chart = new google.visualization.LineChart(document.getElementById('myChart'));
+            chart.draw(data, options);
+        }
+    </script>
+</head>
+<body>
+    <div id="myChart"></div>
+</body>
+</html>
+
+
+got a working example...
+
+
+lets try to make a horizontal timeline chart
+
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['timeline']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+           var container = document.getElementById('myChart');
+           var chart = new google.visualization.Timeline(container);
+           var dataTable = new google.visualization.DataTable();
+
+           dataTable.addColumn({ type: 'string', id: 'President' });
+           dataTable.addColumn({ type: 'date', id: 'Start' });
+           dataTable.addColumn({ type: 'date', id: 'End' });
+           dataTable.addRows([
+             [ 'Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+             [ 'Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
+             [ 'Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]]);
+
+           chart.draw(dataTable);
+        }
+    </script>
+</head>
+<body>
+    <div id="myChart"></div>
+</body>
+</html>
+
+that was so easy
+
+
+In this code, we've inserted a new column into our data to hold the bar labels: the full name of each president.
+When there are four columns in a timeline dataTable, the first is interpreted as the row label,
+the second as the bar label, and the third and fourth as start and end.
+
+
+
+next.. how do I get my data into this table
+I have to structure it like this:
+col
+0 row label
+1 bar label
+2 tooltip
+3 start
+4 end
+
+
+
+
+
+
+
+
+make a standalone example where I get the data from sessions table (or gm)
+
+
+
+
+1768651200011
+
+
+I think I am having trouble passing json data 
+
+
+find a complete example 
+
+
+this is not valid json:
+{"cols":[{"id":"TaskName","label":"Task Name","type":"string"},{"id":"Start","label":"Start Date","type":"date"},{"id":"End","label":"End Date","type":"date"}],"rows":[{"c":[{"v":"Phase 1"},{"v":Date(2025, 1, 1)},{"v":Date(2025, 3, 31)}]},{"c":[{"v":"Phase 2"},{"v":Date(2025, 4, 8)},{"v":Date(2025, 6, 30)}]},{"c":[{"v":"Phase 3"},{"v":Date(2025, 7, 24)},{"v":Date(2025, 9, 19)}]}]}
+
+
+this is:
+{"cols":[{"id":"TaskName","label":"Task Name","type":"string"},{"id":"Start","label":"Start Date","type":"date"},{"id":"End","label":"End Date","type":"date"}],"rows":[{"c":[{"v":"Phase 1"},{"v":"Date(2025, 1, 1)"},{"v":"Date(2025, 3, 31)"}]},{"c":[{"v":"Phase 2"},{"v":"Date(2025, 4, 8)"},{"v":"Date(2025, 6, 30)"}]},{"c":[{"v":"Phase 3"},{"v":"Date(2025, 7, 24)"},{"v":"Date(2025, 9, 19)"}]}]}
+
+
+dont do this...
+// Custom function to echo the Date constructor strings without quotes
+function json_safe_encode($data) {
+    $encoded = json_encode($data);
+
+//    $encoded = preg_replace('/"Date\((\d{4}, \d{1,2}, \d{1,2})\)"/', 'Date($1)', $encoded);
+
+//   var_dump($encoded);
+
+//   echo "\n\n\n";
+
+
+    return $encoded;
+}
+
+echo json_safe_encode($dataTable);
+
+
+
+
+
+
+
+
+
+<?php
+header('Content-Type: application/json');
+
+// test data
+
+   $data = [
+       ['Phase 1', '2025-01-01', '2025-03-31'],
+       ['Phase 2', '2025-04-08', '2025-06-30'],
+       ['Phase 3', '2025-07-24', '2025-09-19']
+   ];
+
+
+$dataTable = [
+    'cols' => [
+        ['id' => 'TaskName', 'label' => 'Task Name', 'type' => 'string'],
+        ['id' => 'Start', 'label' => 'Start Date', 'type' => 'date'],
+        ['id' => 'End', 'label' => 'End Date', 'type' => 'date']
+    ],
+    'rows' => []
+];
+
+
+//   foreach ($data as $row)
+//      echo "Data $row[0] $row[1] $row[2] \n";
+
+
+   foreach ($data as $row)
+   {
+    // Google Charts requires specific date formatting for JSON output, typically using JS Date constructor
+    // Or you can format dates as 'Date(YYYY, M, D)' (month is 0-indexed)
+    // A common method is to use string manipulation to create the JS Date object in the JSON
+
+//    $sd = $row[1];
+//    $ts = strtotime($sd);
+//    $tm = "Date(" . date('Y, n, j', $ts) . ")";
+//    echo "sd:$sd  --  ts:$ts   --  tm:$tm\n";
+
+    $nm = $row[0];
+    $st = "Date(" . date('Y, n, j', strtotime($row[1])) . ")";
+    $en = "Date(" . date('Y, n, j', strtotime($row[2])) . ")";
+
+
+//    echo "sd:$sd  --  ts:$ts   --  tm:$tm\n";
+
+//    echo "st:$st  --  en:$en\n";
+
+    $temp = [
+       ['v' => $nm],
+       ['v' => $st],
+       ['v' => $en]
+   ];
+
+   $dataTable['rows'][] = ['c' => $temp];
+
+   }
+
+echo json_encode($dataTable);
+
+
+?>
+
+
+
+
+working example!!!!
+
+
+<?php
+header('Content-Type: application/json');
+
+// test data
+$data = [
+       ['Phase 1', '2025-01-01', '2025-03-31'],
+       ['Phase 2', '2025-04-08', '2025-06-30'],
+       ['Phase 3', '2025-07-24', '2025-09-19']
+];
+
+
+
+$dataTable = [
+    'cols' => [
+        ['id' => 'TaskName', 'label' => 'Task Name', 'type' => 'string'],
+        ['id' => 'Start', 'label' => 'Start Date', 'type' => 'date'],
+        ['id' => 'End', 'label' => 'End Date', 'type' => 'date']
+    ],
+    'rows' => []
+];
+
+foreach ($data as $row)
+{
+    $st = "Date(" . date('Y, n, j', strtotime($row[1])) . ")";
+    $en = "Date(" . date('Y, n, j', strtotime($row[2])) . ")";
+
+    $temp = [
+       ['v' => $row[0]],
+       ['v' => $st],
+       ['v' => $en]
+   ];
+
+   $dataTable['rows'][] = ['c' => $temp];
+}
+echo json_encode($dataTable);
+
+?>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Database to Google Timeline</title>
+    <!-- Load Google Charts libraries -->
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['timeline']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            // Use fetch API to get data from the PHP script
+            fetch('data.php')
+                .then(response => response.json())
+                .then(jsonData => {
+                    var container = document.getElementById('timeline_chart_div');
+                    var chart = new google.visualization.Timeline(container);
+                    var dataTable = new google.visualization.DataTable(jsonData);
+
+                    var options = {
+                        // Optional: add options here (e.g., height, colors)
+                        timeline: { colorByRowLabel: true }
+                    };
+
+                    chart.draw(dataTable, options);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    </script>
+</head>
+<body>
+    <h3>Project Timeline</h3>
+    <!-- Div to hold the chart -->
+    <div id="timeline_chart_div" style="height: 250px;"></div>
+</body>
+</html>
+
+
+
+2026-01-17 07:54:42
+
+
+now fix it so that months have the proper offset...
+
+
+fixed it to show time also
+
+$data = [
+       ['Phase 1', '20250101-120523', '20250101-120543'],
+       ['Phase 2', '20250101-120623', '20250101-120710'],
+       ['Phase 3', '20250101-120823', '20250101-120900']
+//       ['Phase 4', '20250102-120823', '20250103-120900']
+];
+
+
+foreach ($data as $row)
+{
+   $st_e = date('U', strtotime($row[1])) * 1000; 
+   $st = "Date( $st_e )";
+   $en_e = date('U', strtotime($row[2])) * 1000; 
+   $en = "Date( $en_e )";
+
+//    $st = "Date(" . date('Y, n, j', strtotime($row[1])) . ")";
+//    $en = "Date(" . date('Y, n, j', strtotime($row[2])) . ")";
+
+
+now to show full date on mouse over and timeline
+
+not as easy as you would hope....
+
+I have made a tooltip
+
+fuck all that...it was easy!
+
+                    var options = {
+                        timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+                        hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+                    };
+
+
+now what can I do when it gets clicked on...
+
+
+
+   // Charting
+        var container = document.getElementById('timeLineChart');
+        var chart = new google.visualization.Timeline(container);
+        chart.draw(dataTable);
+    // Event handler
+        google.visualization.events.addListener(
+            chart,
+            'select',
+            function() {
+                var row = chart.getSelection()[0].row;
+                alert('You selected ' + "\n" + dataTable.getValue(row, 0) + "\n" + dataTable.getValue(row, 1));
+            }
+        );
+    }
+
+
+
+works out of the box...
+
+
+now lets get some real data
+
+
+is o3000 dead? no
+
+
+It works!!!!
+
+I have live gm data!!!
+
+I guess the next thing is:
+- put all gm in same column
+- get sessions (all in unique columns)
+
+- figure out range controls
+
+
+later when I integrate this into the sessions page,
+It will be just a graphical representation of the table data.
+clicking on a session or gm will have the same effect as doing so from the tables..
+
+
+
+so how will i arrange the sessions now?
+
+
+
+
+
+
+
+
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"SEYRQIOLHOLWERFF"},{"v":"Date( 1768646026000 )"},{"v":"Date( 1768646033000 )"}]},{"c":[{"v":"gm"},{"v":"CNBXPXUMCMQITWQP"},{"v":"Date( 1768646074000 )"},{"v":"Date( 1768646083000 )"}]}]}m@o3000:/var/www/html/test_gchart$
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"SEYRQIOLHOLWERFF"},{"v":"Date( 1768646026000 )"},{"v":"Date( 1768646033000 )"}]},{"c":[{"v":"gm"},{"v":"CNBXPXUMCMQITWQP"},{"v":"Date( 1768646074000 )"},{"v":"Date( 1768646083000 )"}]}]}m@o3000:/var/www/html/test_gchart$
+
+
+
+
+
+works:
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"SEYRQIOLHOLWERFF"},{"v":"Date( 1768646026000 )"},{"v":"Date( 1768646033000 )"}]},{"c":[{"v":"gm"},{"v":"CNBXPXUMCMQITWQP"},{"v":"Date( 1768646074000 )"},{"v":"Date( 1768646083000 )"}]}]}
+does not work:
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"SEYRQIOLHOLWERFF"},{"v":"Date( 1768646026000 )"},{"v":"Date( 1768646033000 )"}]},{"c":[{"v":"gm"},{"v":"CNBXPXUMCMQITWQP"},{"v":"Date( 1768646074000 )"},{"v":"Date( 1768646083000 )"}]}]}m@o3000:/var/www/html/test_gchart$
+
+
+
+
+
+
+
+
+
+
+
+got it!!!!!
+
+
+
+
+<?php
+header('Content-Type: application/json');
+
+
+// convert sql date to java format
+function getJDate($sdate)
+{
+   $dt = date('U', strtotime($sdate)) * 1000; 
+   $st = "Date( $dt )";
+   return $st;
+}
+
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
+
+
+$dataTable = [
+    'cols' => [
+        ['id' => 'RowLabel', 'label' => 'RowLabel',   'type' => 'string'],
+        ['id' => 'BarLabel', 'label' => 'BarLabel',   'type' => 'string'],
+        ['id' => 'Start',    'label' => 'Start Date', 'type' => 'datetime'],
+        ['id' => 'End',      'label' => 'End Date',   'type' => 'datetime']
+    ],
+    'rows' => []
+];
+
+// get game moves
+$sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $muid        = $row['muid'];
+   $st = getJDate($row['dt_start']);
+   $en = getJDate($row['dt_end']);
+
+    $temp = [
+       ['v' => 'gm'],
+       ['v' => $muid],
+       ['v' => $st],
+       ['v' => $en]
+   ];
+   $dataTable['rows'][] = ['c' => $temp];
+}
+
+
+// get sessions
+$sql = "SELECT id, dt_start, dt_end, player_name FROM sessions";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $id       = $row['id'];
+   $name     = $row['player_name'];
+   $st = getJDate($row['dt_start']);
+   $en = getJDate($row['dt_end']);
+
+   $temp = [
+       ['v' => $name],
+       ['v' => $id],
+       ['v' => $st],
+       ['v' => $en]
+   ];
+   $dataTable['rows'][] = ['c' => $temp];
+}
+
+echo json_encode($dataTable);
+
+?>
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Database to Google Timeline</title>
+    <!-- Load Google Charts libraries -->
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['timeline']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            // Use fetch API to get data from the PHP script
+            fetch('data.php')
+                .then(response => response.json())
+                .then(jsonData => {
+                    var container = document.getElementById('timeline_chart_div');
+                    var chart = new google.visualization.Timeline(container);
+                    var dataTable = new google.visualization.DataTable(jsonData);
+
+                    var options = {
+                        timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+                        hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+                    };
+
+                    chart.draw(dataTable, options);
+                   
+                    
+                    google.visualization.events.addListener(
+                        chart,
+                        'select',
+                        function() {
+                            var row = chart.getSelection()[0].row;
+                            alert('You selected ' + "\n" + dataTable.getValue(row, 0) + "\n" + dataTable.getValue(row, 1));
+                        }
+                    );
+                    
+                    
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    </script>
+</head>
+<body>
+    <h3>Project Timeline</h3>
+    <!-- Div to hold the chart -->
+    <div id="timeline_chart_div" style="height: 250px;"></div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2026-01-17 11:31:00
+
+the next big thing:
+
+dashboards and chart range filter
+
+
+
+  <body>
+    <!--Div that will hold the dashboard-->
+    <div id="dashboard_div">
+      <!--Divs that will hold each control and chart-->
+      <div id="filter_div"></div>
+      <div id="chart_div"></div>
+    </div>
+  </body>
+</html>
+
+
+
+
+Google Charts Timeline error 'All series on a given axis must be of the same data type' only when on dashboard
+
+
+Google Charts Timeline ChartRangeFilter dashboard 
+
+
+
+I've got it in a dashboard, however the controls do not work and I get a constant error:
+'All series on a given axis must be of the same data type'
+
+
+Data format
+
+Rows: Each row in the table represents a timeline bar.
+
+Columns:
+         	Column 0 	Column 1 	Column 2 	Column 3 	Column 4
+Purpose: 	Row label 	Bar label (optional) 	Tooltip (optional) 	Start 	End
+Data Type: 	string 	string 	string 	number or date 	number or date
+Role: 	data 	data 	tooltip 	data 	data
+
+ChartRangeFilter
+
+filterColumnIndex
+
+
+
+
+
+
+
+google.charts.load('current', {'packages':['timeline', 'controls']});
+google.charts.setOnLoadCallback(drawDashboard);
+
+function drawDashboard() {
+  var dashboard = new google.visualization.Dashboard(
+    document.getElementById('dashboard_container'));
+
+  // Create a data table (example data)
+  var data = new google.visualization.DataTable();
+  data.addColumn({ type: 'string', id: 'TaskName' });
+  data.addColumn({ type: 'date', id: 'Start' });
+  data.addColumn({ type: 'date', id: 'End' });
+  data.addRows([
+    [ 'Project A', new Date(2025, 0, 1), new Date(2025, 0, 5) ],
+    [ 'Project B', new Date(2025, 0, 6), new Date(2025, 0, 10) ],
+    [ 'Project C', new Date(2025, 0, 11), new Date(2025, 0, 15) ]
+  ]);
+
+  // Define the ChartRangeFilter control
+  var control = new google.visualization.ControlWrapper({
+    'controlType': 'ChartRangeFilter',
+    'containerId': 'control_container',
+    'options': {
+      'filterColumnIndex': 1, // Filter based on the 'Start' date column
+      'ui': {
+        'chartType': 'LineChart',
+        'chartOptions': {
+          'height': 50,
+          'chartArea': {'width': '80%', 'height': '70%'},
+          'hAxis': {'baselineColor': 'none'}
+        },
+        'chartView': {'columns': [1, 2]} // Use Start and End dates for the filter's mini chart
+      }
+    }
+  });
+
+  // Define the Timeline chart
+  var chart = new google.visualization.ChartWrapper({
+    'chartType': 'Timeline',
+    'containerId': 'chart_container',
+    'options': {
+      'height': 200
+    }
+  });
+
+  // Establish dependencies and draw the dashboard
+  dashboard.bind(control, chart);
+  dashboard.draw(data);
+}
+
+
+holy fucking shit this is stupid...I have no way of setting the range?
+
+
+what if I just wrapped this all up in a neat little package and called it with a date range...
+
+my only 2 interactions with it would be receivinf clicks and setting the range...can I do this?
+
+
+rename data.php to 'get_session_chart_data.php'
+
+I will want to have a range specified somewhere, how about session variables?
+
+then I will use them as sql between thingies
+
+
+what will I do with the chart clicks?
+set some variables and refesh the page?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

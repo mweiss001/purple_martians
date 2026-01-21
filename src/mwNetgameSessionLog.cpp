@@ -63,17 +63,10 @@ void mwNetgame::session_save_active_at_level_done()
 
 void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
 {
-
-
-
    if (!mLog.log_types[LOG_NET_session].action) return;
-   // get timestamp
-   struct tm *timenow;
-   time_t now = time(nullptr);
-   timenow = localtime(&now);
-   char ts[20];
-   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", timenow);
 
+   // get timestamp
+   string ts = mMiscFnx.timestamp_UTC_ISO8601();
 
    // make a copy of address so we can play with it
    char ad[32];
@@ -96,7 +89,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    char sql[500];
    sprintf(sql,
    "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
-                          ts,       ip, port, hostname, p,          mPlayer.syn[p].color, name.c_str());
+                          ts.c_str(),   ip, port, hostname, p,          mPlayer.syn[p].color, name.c_str());
 
    mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
 
@@ -108,7 +101,6 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
 
 
 
-#include <iomanip>
 
 // called only when closing session or level done
 // adds all the player tallies, bandwidth tallies
@@ -117,14 +109,12 @@ void mwNetgame::session_update(int p, char * m_endreason)
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
 
-
    int sid = mPlayer.loc[p].session_id;
    if (!sid)
    {
       printf("session_update_sql(%d, %s) - session_id is zero! exiting\n", p, m_endreason);
       return;
    }
-
 
 
    char endreason[128];
@@ -222,24 +212,13 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    // now that I have all that....
 
-   // create at tm struct from start date
-   struct tm timestart = {};
-   std::stringstream ss(dt_start);
-   ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
-   if (ss.fail()) printf("Error parsing time\n");
-   time_t st = mktime(&timestart);
+   // get timestamp from now
+   string dt_end = mMiscFnx.timestamp_UTC_ISO8601();
 
-   char ts[20];
-   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", &timestart);
+   // find duration
+   int duration = mMiscFnx.find_duration(dt_start, dt_end.c_str());
 
-   // create a tm struct from now
-   time_t now = time(nullptr);
-   struct tm *timenow;
-   timenow = localtime(&now);
-   char dt_end[20];
-   strftime(dt_end, sizeof(dt_end), "%Y%m%d-%H%M%S", timenow);
 
-   int duration = difftime(now, st);
 
    //printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
 
@@ -328,7 +307,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
    sqlite3_bind_int(stmt,  20,  rx_packets_avg_per_sec);
    sqlite3_bind_int(stmt,  21,  rx_packets_max_per_frame);
    sqlite3_bind_int(stmt,  22,  duration);
-   sqlite3_bind_text(stmt, 23,  dt_end, -1, SQLITE_TRANSIENT);
+   sqlite3_bind_text(stmt, 23,  dt_end.c_str(), -1, SQLITE_TRANSIENT);
    sqlite3_bind_text(stmt, 24,  endreason, -1, SQLITE_TRANSIENT);
    sqlite3_bind_int(stmt,  25,  sid);
 

@@ -42,6 +42,62 @@ af:'00001000 00000000 00000000 00000000 '
 
 
 
+#include <iomanip>
+
+
+int mwMiscFnx::find_duration(const char* d1, const char* d2)
+{
+   // create tm struct from date 1
+   struct tm timestart = {};
+   std::stringstream ss(d1);
+   ss >> std::get_time(&timestart, "%Y-%m-%dT%H:%M:%S");
+   if (ss.fail()) printf("Error parsing start time: %s \n", d1);
+   time_t st = mktime(&timestart);
+   //char ts[20];
+   //strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S", &timestart);
+
+   // create tm struct from date 2
+   struct tm timeend = {};
+   std::stringstream se(d2);
+   se >> std::get_time(&timeend, "%Y-%m-%dT%H:%M:%S");
+   if (se.fail()) printf("Error parsing end time: %s \n", d2);
+   time_t et = mktime(&timeend);
+
+   //printf("duration calc\n");
+   //printf("d1:%s\nd2:%s\n", d1, d2);
+   int duration = difftime(et, st);
+   //printf("duration:%d\n", duration);
+
+   return duration;
+
+
+}
+
+
+
+
+
+
+
+
+// return ISO 8601 UTC timestamp from 'now' as std::string
+// YYYY-MM-DDTHH:MM:SS
+string mwMiscFnx::timestamp_UTC_ISO8601()
+{
+   char t[256];
+   auto cnow = std::chrono::system_clock::now();
+   auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
+   struct tm *timenow = gmtime(&now_in_time_t);
+   strftime(t, sizeof(t), "%Y-%m-%dT%H:%M:%S", timenow);
+   string ret(t);
+   return ret;
+}
+
+
+
+
+
+
 // return timestamp from 'now' as std::string in passed format
 // YYYY-MM-DD HH:MM:SS.zzz
 string mwMiscFnx::timestamp(const char* format)
@@ -58,78 +114,6 @@ string mwMiscFnx::timestamp(const char* format)
 
 
 
-// get timestamp from now in db friendly format
-// YYYY-MM-DD HH:MM:SS.zzz
-char * mwMiscFnx::chr_dt(char* dt)
-{
-   char t[256];
-
-   auto cnow = std::chrono::system_clock::now();
-   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(cnow).time_since_epoch().count() % 1000;
-
-   auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
-   struct tm *timenow = localtime(&now_in_time_t);
-   strftime(t, sizeof(t), "%Y-%m-%d %H:%M:%S", timenow);
-
-   sprintf(dt, "%s.%03d", t, ms);
-   return dt;
-
-/*
-   char t[256];
-   time_t now = time(NULL);
-   struct tm *timenow = localtime(&now);
-   strftime(t, sizeof(t), "%Y%m%d %H%M%S", timenow);
-   auto currentDateTime = std::chrono::system_clock::now();
-   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
-   sprintf(dt, "%s.%d", t, ms);
-   return dt;
-
-*/
-
-
-
-}
-
-
-/*
-
-
-#include <chrono>  // chrono::system_clock
-#include <ctime>   // localtime
-#include <sstream> // stringstream
-#include <iomanip> // put_time
-#include <string>  // string
-
-std::string return_current_time_and_date()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
-    return ss.str();
-
-
-
-
-      char filename[256];
-      time_t now = time(NULL);
-      struct tm *timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "logs/status/%Y%m%d-%H%M%S", timenow);
-
-      auto currentDateTime = std::chrono::system_clock::now();
-      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
-
-
-*/
-
-
-
-
-
-
-
-
 
 
 void mwMiscFnx::chop_first_x_char(char *str, int n)
@@ -141,14 +125,6 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
 }
 
 
-char * mwMiscFnx::get_timestamp()
-{
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(tmp_return_40, sizeof(tmp_return_40), "%Y%m%d-%H%M%S", timenow);
-   return tmp_return_40;
-}
 
 
 
