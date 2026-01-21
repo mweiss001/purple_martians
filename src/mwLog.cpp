@@ -239,22 +239,22 @@ void mwLog::log_error(const char *txt, bool dialog)
 
 void mwLog::log_append_text_to_db(int type, const char *txt)
 {
-   if (mSql.db_logs == NULL)
-   {
-      printf("Error! Cannot insert log into database. Database not open\n");
-      printf("log:%s\n", txt);
-      return;
-   }
-   char sql[1024];
-
-//   double agt = al_get_time();
-   double agt = 0;
-
-   char ts[256];
-   sprintf(ts, "%s", mMiscFnx.get_timestamp());
-   sprintf(sql, "INSERT INTO logs ( message, created, agt ) VALUES('%s', '%s', %f)" , txt, ts, agt);
-   printf("sql:%s\n", sql);
-   mSql.execute_sql(sql, mSql.db_logs);
+//    if (mSql.db_logs == NULL)
+//    {
+//       printf("Error! Cannot insert log into database. Database not open\n");
+//       printf("log:%s\n", txt);
+//       return;
+//    }
+//    char sql[1024];
+//
+// //   double agt = al_get_time();
+//    double agt = 0;
+//
+//    char ts[256];
+//    sprintf(ts, "%s", mMiscFnx.get_timestamp());
+//    sprintf(sql, "INSERT INTO logs ( message, created, agt ) VALUES('%s', '%s', %f)" , txt, ts, agt);
+//    printf("sql:%s\n", sql);
+//    mSql.execute_sql(sql, mSql.db_logs);
 }
 
 

@@ -171,6 +171,10 @@ class mwNetgame
 
    void server_insert_status_row();
 
+   void server_process_db_control();
+
+
+
    void server_send_snfo_packet();
    void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);
    void server_send_sjrc_packet(int p);

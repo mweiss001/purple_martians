@@ -145,7 +145,7 @@ void mwDemoRecord::gdt(void)
    float et = (float) ( (al_get_time() - t1) * 1);
 
 
-   printf("/ngdt took %f seconds to process %d files\n", et, mDemoMode.num_demo_filenames);
+   printf("\ngdt took %f seconds to process %d files\n", et, mDemoMode.num_demo_filenames);
 
 
 

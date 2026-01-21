@@ -2,27 +2,15 @@
 
 session_start();
 
-echo <<<TEXT
+date_default_timezone_set('America/Edmonton');
 
-<!DOCTYPE html>
-<html class="dark">
 
-<head>
-
-<link rel="stylesheet" href="./sessions.css">
-<script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
-<link rel="stylesheet" href="../assets/css/datatables.min.css" />
-<script src="../assets/js/datatables.min.js"></script>
-
-</head>
-
-<body>
-TEXT;
-
+include('show_timeline.php');
 include('show_sessions_table.php');
 include('show_current_session.php');
 include("show_gm_table.php");
 include('show_current_gm.php');
+
 
 // if passed as query string set the session variables
 if (isset($_GET['current_session_id']))   $_SESSION['current_session_id']  = $_GET['current_session_id'];
@@ -34,6 +22,12 @@ if (isset($_GET['bnd_on']))               $_SESSION['bnd_on']              = $_G
 if (isset($_GET['plr_on']))               $_SESSION['plr_on']              = $_GET['plr_on'];
 if (isset($_GET['gm_on']))                $_SESSION['gm_on']               = $_GET['gm_on'];
 if (isset($_GET['gm_set']))               $_SESSION['gm_set']              = $_GET['gm_set'];
+
+if (isset($_GET['tl_mode']))              $_SESSION['tl_mode']             = $_GET['tl_mode'];
+if (isset($_GET['tl_start']))             $_SESSION['tl_start']            = $_GET['tl_start'];
+if (isset($_GET['tl_end']))               $_SESSION['tl_end']              = $_GET['tl_end'];
+
+
 
 // set global variables
 $current_session_id = 0;
@@ -50,6 +44,13 @@ $gm_on = 1;
 if (isset($_SESSION['gm_on']))              $gm_on              = $_SESSION['gm_on'];
 
 
+$tl_mode = 1;
+if (isset($_SESSION['tl_mode']))              $tl_mode              = $_SESSION['tl_mode'];
+if (isset($_SESSION['tl_start']))             $tl_start             = $_SESSION['tl_start'];
+if (isset($_SESSION['tl_end']))               $tl_end               = $_SESSION['tl_end'];
+
+
+
 // database setup
 $db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
 if (!file_exists($db_filepath))
@@ -59,6 +60,25 @@ if (!file_exists($db_filepath))
 }
 $db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
 
+?>
+
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+
+<link rel="stylesheet" href="./sessions.css">
+<script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+<link rel="stylesheet" href="../assets/css/datatables.min.css" />
+<script src="../assets/js/datatables.min.js"></script>
+
+</head>
+
+<body>
+
+<?php
+
+setup_timeline();
 
 
 echo "<div class=\"div-sessions-page\">";
@@ -70,6 +90,7 @@ $but = "class=\"button\" id=\"links_button\"";
    echo "<a href=\"status.php\"  $but >Status</a>";
    echo "</div>";
 
+   show_timeline();
 
    show_sessions_table();
    

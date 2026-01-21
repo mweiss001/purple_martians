@@ -54,7 +54,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
 { 
    display: flex;    
    flex-direction:column;    
-   //border: 1px solid #FFFFFF;
+/*   border: 1px solid #FFFFFF; */
    gap: 10px; 
    padding: 0px;
 }
@@ -120,6 +120,15 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
+.div-section-sub-section-timeline
+{ 
+   padding: 0px, 12px;
+}
+
+
+
+
+
 .div-section-sub-section-table
 { 
    padding: 0px 12px;
@@ -137,7 +146,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
    display: block;
    font-family: monospace;
    white-space: pre;
-   padding: 4px;
+   padding: 2px 6px;
 }
 
 
@@ -162,6 +171,32 @@ a:hover { color: #FFFFFF; } /* White on hover */
    cursor: pointer;
    border: 1px solid;
 }
+
+
+
+/* colors for timeline section */
+#timeline, #timeline_button 
+{
+   color           : hsl(60, 100%, 90%);
+   border-color    : hsl(60, 100%, 50%);
+   background-color: hsl(60, 100%, 3%);
+}
+#timeline_button:hover { border-color: hsl(60, 100%, 80%); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

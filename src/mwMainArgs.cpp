@@ -1,4 +1,7 @@
 // mwMainArgs.cpp
+
+//#include <bits/ctype_base.h>
+
 #include "pm.h"
 #include "mwMain.h"
 
@@ -567,7 +570,40 @@ void mwMain::temp_test(void)
 {
 
 
-   mDemoRecord.gdt();
+
+
+   /*
+
+
+   char sql[1024];
+   sprintf(sql, "SELECT uptime, level, moves FROM status WHERE uptime=%d", 17);
+
+   std::vector<int> v;
+
+   int ret = mSql.execute_sql_and_return_first_row_as_vector_int(sql, mSql.db_sessions, v);
+   if (ret == 0)
+   {
+      int v_size = (int) v.size();
+      printf("%s\nfound %d results\n", sql, v_size);
+      for (int i=0; i<v_size; i++)
+      {
+         printf("v[%d]:%d\n", i, v[i]);
+      }
+   }
+   if (ret == 1) printf("no results : %s\n", sql);
+   if (ret == 2) printf("error: %s\n", sql);
+
+
+
+
+
+*/
+
+
+
+
+
+//   mDemoRecord.gdt();
 
 
 

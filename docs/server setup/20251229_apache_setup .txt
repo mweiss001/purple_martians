@@ -170,7 +170,7 @@ m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep SERVER_CONFIG_FILE
 m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep HTTPD_ROOT
  -D HTTPD_ROOT="/etc/apache2"
 
-/etc/apache2/apache.conf
+sudo nano /etc/apache2/apache2.conf
 
 add to config:
                     
@@ -268,6 +268,93 @@ sudo cp -r /var/www/html/* ~/tmp
 
 From the a windows machine, copy from tmp location to project:
 pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+
+
+
+
+
+
+
+
+
+
+
+
+how to enable CORS for testing:
+
+sudo a2enmod headers
+sudo service apache2 restart
+
+
+
+Enabling module headers.
+To activate the new configuration, you need to run:
+  systemctl restart apache2
+m@o3000:/var/www/html/teste$ systemctl restart apache2
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to restart 'apache2.service'.
+Authenticating as: m
+Password:
+==== AUTHENTICATION COMPLETE ====
+m@o3000:/var/www/html/teste$
+
+
+Step 2: Configure CORS Headers 
+You can configure CORS headers within specific sections of your Apache configuration files (httpd.conf, apache2.conf, or a virtual host file)
+or by using a .htaccess file in your web directory. 
+Option A: Using a Configuration File (Recommended) 
+Add the following directive inside a <Directory>, <Location>, <Files>, or <VirtualHost> block to apply it to a specific scope: 
+apache
+
+sudo nano /etc/apache2/apache2.conf
+
+
+I put this inside:
+<Directory /var/www/>
+
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+
+    * (Wildcard): This allows requests from any origin. Use this for public APIs or development, but be aware of security implications.
+    Specific Domain: For better security, replace * with the specific domain you want to allow:
+    apache
+
+    Header set Access-Control-Allow-Origin "
+
+    apache
+
+    https://www.example.com
+
+    apache
+
+    "
+
+    To allow multiple domains, you cannot use a comma-separated list directly in the Header set directive. You would need to use mod_rewrite to check the Origin header and set the appropriate response header dynamically, or use Header always set within an If statement. 
+
+
+
+Step 3: Handle Preflight Requests (OPTIONS) 
+For more complex requests (e.g., using POST, PUT, or custom headers), browsers send an automatic "preflight" OPTIONS request first. Your server needs to respond to this request correctly. 
+Add the following to your configuration file or .htaccess file along with the Access-Control-Allow-Origin header: 
+apache
+
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+Header set Access-Control-Max-Age "600"
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+</IfModule>
+
+The RewriteRule ensures that OPTIONS requests receive an HTTP 200 OK status with the appropriate CORS headers, allowing the actual request to proce
+
+did not need to do this....
+
 
 
 

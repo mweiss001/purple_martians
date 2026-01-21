@@ -119,7 +119,6 @@ class mwLevel
    };
 
 
-
    int area_array[100][2];
 
    void unlock_all_level_in_area(int area);
@@ -151,7 +150,7 @@ class mwLevel
 
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
-   void check_achievments();
+   void check_achievements();
 
    void update_level_status(int lev);
 

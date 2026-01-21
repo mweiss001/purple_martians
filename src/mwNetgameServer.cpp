@@ -319,6 +319,72 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    mSql.execute_sql(sql, mSql.db_sessions);
 }
 
+void mwNetgame::server_process_db_control()
+{
+   // read from db and check if changed
+
+   // check if key exists in db
+
+
+
+
+   // sprintf(sql, "SELECT EXISTS(SELECT 1 FROM control WHERE key='%s'", key);
+   // if (!mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
+   // {
+   //    sprintf(sql, "INSERT INTO control VALUES (NULL, '%s', %d, 0", key, mPlayer.syn[0].player_vs_player_shots);
+   //    mSql.execute_sql(sql, mSql.db_sessions);
+   // }
+   //
+   // // check if changed by web
+   // sprintf(sql, "SELECT val, mod FROM control WHERE key='%s'", key);
+
+
+   const char* key = "pvp_shots";
+   char sql[1024];
+   sprintf(sql, "SELECT val, mod FROM control WHERE key='%s'", key);
+
+   std::vector<int> v;
+   int ret = mSql.execute_sql_and_return_first_row_as_vector_int(sql, mSql.db_sessions, v);
+   if (ret == 2) printf("error: %s\n", sql);
+   if (ret == 1)
+   {
+      printf("no results : %s\n", sql);
+      sprintf(sql, "INSERT INTO control VALUES (NULL, '%s', %d, 0", key, mPlayer.syn[0].player_vs_player_shots);
+      mSql.execute_sql(sql, mSql.db_sessions);
+   }
+
+   if (ret == 0)
+   {
+      int val =  v[0];
+      int mod =  v[1];
+
+      if (mod == 1) // changed by web
+      {
+         // do something
+
+      }
+
+   }
+   /*
+
+   int new_pvp = mPlayer.syn[0].player_vs_player_shots;
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
+               id          INTEGER PRIMARY KEY, \
+               key         TEXT, \
+               val         INT, \
+               mod         INT ); ");
+
+  */
+
+
+
+}
+
+
+
+
 
 void mwNetgame::server_send_snfo_packet() // send info to remote control
 {

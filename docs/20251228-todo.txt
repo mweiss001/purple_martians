@@ -21,7 +21,50 @@ Big things:
 - level stats to use database
 - rearrange levels again (too many crappy ones polluting the good/great ones)
 - sessions timeline
+
+
+
+
 ------------------------------------------------------------------------------
+in game tools  
+
+while in a netgame I would like to be able to do things without leaving the game
+kind of like a pause menu
+
+when you press escape, instead of imediatelty exiting the game,
+pop up a simple dialog
+and make the player paused (frozen in place, still visible but invulnerable)
+the level will still play in the background
+from this pop-up menu allow a very limited set of things...
+-resume
+-quit
+- change controls
+- change sound settings
+- change bottom message options
+- change overlay options
+- change viewport
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 
 
@@ -635,7 +678,6 @@ each will have 3 sections, pre session and post
 p1 0-0 0-200 200-1000  0 200 800
 p2 0-200 200-800 800-1000 200 600 200
 p3 0-400 400-1000 1000-1000 400 600 0
-
 
 
    echo "<div id=\"current_session\" style=\" display:flex  \"  >";

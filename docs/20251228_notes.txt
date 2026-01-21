@@ -6500,7 +6500,478 @@ get them to call a php script that inserts a record
 
 2026-01-14 06:49:16
 
-first I need to commit, then redeplot to o3000 so I have the latest version and the table created...
+first I need to commit, then redeploy to o3000 so I have the latest version and the table created...
+
+removed /data before commit
+i am not creating the dir soon enough
+i fixed it another way, moved initialization of db out of constructor and called it later
+
+
+I have been thinking about this remote control thing
+
+I can send from web to server to control,
+but I will need a method from server to web to tell what value actually are.
+
+-option 1
+do what you did before and send values with status table updates
+
+-option 2
+go full out and move config to database
+
+
+I was thinking about consolidating the settings and config thing anyway, it seems like it is getting out of hand
+Currently I have:
+-the regular ini config stuff
+-settings.pm
+ - log types
+ - overlay grid
+ - mBottomMessage.fiter_event
+ 
+and now I am thinking of putting some things in the database?
+
+The good thing about the ini file is that it is human readable and editable
+
+once I moved the log file stuff to the settings.pm I lost the ability to change
+it via ini file...
+
+I would ideally like the convenience of having it all in the database
+but with some easy way of manually editing it..
+
+And maybe not all in the same database file.
+If I have to delete one to start over I don't want to delete everything.
+
+
+There is also a lot of stuff in level_data
+
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fwrite(play_data,      sizeof(play_data),     1, fp);
+      fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
+
+
+struct level_data
+{
+   char level_name[200];
+
+   int status;
+   int status_color;
+   char status_text[16];
+
+   int min_respawns;
+   int max_purple_coins_collected;
+   int tot_purple_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
+
+
+struct level_play_data
+{
+   int level;
+   double start_timestamp;
+   int timer;
+   int completed;
+   int number_players;
+   int enemies_killed;
+   int enemies_left_alive_at_exit;
+   int player_respawns;
+   int purple_coins_collected;
+};
+
+   struct level_data data[100];
+   struct level_play_data play_data[100000];
+   int play_data_num;
+   int area_locks[16];
+   int area_array[100][2];
+
+
+2026-01-14 22:58:24
+
+anyways enough thinking about all that, what am I going to do?
+
+List the control I want on the web page:
+- pvp shots (bool)
+- pvs shots (bool)
+- shot damage (signed int)
+
+- select level
+- reload current level
+- force fakekey
+
+- adjust logging
+
+that is not enough that I want to do a major rewrite
+
+implement the simple thing I was doing anyway
+
+
+I am at the point where I want to make a button that inserts into controls table
+but how am I going to get the initial value of the control?
+
+what if I rethink the table...
+
+control_name TEXT
+value INT
+
+"pvp_shots" 1
+
+the server will:
+-read from ini file at start and set values in memory
+-set those values in the database table
+
+- check every second if those values in the database table have changed
+ the ony way this would happen is if the web changed them
+- if they have changed do the change and save 
+
+
+-------------
+
+I have decided to do it the hard way...
+
+---------------
+
+maybe not...
+
+
+make the unique id the key of the value
+
+value for each key
+
+also another feild to indicate if changed
+
+
+control_name TEXT
+value INT
+changed INT (0) not changed (1) changed by web (2) changed by server
+
+"pvp_shots" 1 0
+
+
+web will read and display
+if changed, will set new values and 1 for web changed
+
+server will periodicallly check for changes from web
+if none, it will make sure the values in the db are what is currently in memory
+
+database
+- read values from db
+- is set from web flagged?
+- if yes process the change
+- if no make sure value in db matches memory
+
+
+
+
+--------------
+
+i want to learn how to use vectors...
+why am i needlessly suffering?
+
+I learned integer arrays back in the apple II days, (maybe even PET)
+and they are great, but I think vectors might be even better
+
+
+I am going to create an sql helper fuction that returns a vector list of results
+
+// returns 0 on success
+// 1 = now rows
+// 2 = error
+int mwSql::execute_sql_and_return_first_row_as_vector_int(const char *sql, sqlite3 *db, std::vector<int> &ret)
+{
+   if (db == nullptr)
+   {
+      printf("Error! Database not open.\n%s\n", sql);
+      return 2;
+   }
+
+   sqlite3_stmt* stmt;
+   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+   if (rc != SQLITE_OK)
+   {
+      printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+      return 2;
+   }
+
+   rc = sqlite3_step(stmt);
+   if (rc == SQLITE_DONE)
+   {
+      printf("No rows found. \n%s\n", sql);
+      return 1;
+   }
+
+   if (rc == SQLITE_ROW)
+   {
+      int column_count = sqlite3_column_count(stmt);
+      for (int i=0; i<column_count; i++)
+         ret.push_back(sqlite3_column_int(stmt, i));
+   }
+
+   return 0;
+
+}
+
+
+   char sql[1024];
+   sprintf(sql, "SELECT uptime, level, moves FROM status WHERE uptime=%d", 17);
+
+   std::vector<int> v;
+
+   int ret = mSql.execute_sql_and_return_first_row_as_vector_int(sql, mSql.db_sessions, v);
+   if (ret == 0)
+   {
+      int v_size = (int) v.size();
+      printf("%s\nfound %d results\n", sql, v_size);
+      for (int i=0; i<v_size; i++)
+      {
+         printf("v[%d]:%d\n", i, v[i]);
+      }
+   }
+   if (ret == 1) printf("no results : %s\n", sql);
+   if (ret == 2) printf("error: %s\n", sql);
+
+
+
+
+2026-01-15 01:19:46
+
+this is coming along....
+
+
+
+I'm going to switch gears
+
+
+I want to work on the sessions visual table view
+
+how do I imagine it?
+
+a horizontal time line (is there any other?)
+
+gm's will be is a single row (they do not over lap in time)
+there will be gaps (because I do not save gm's for overworld)
+
+sessions will be on the same timeline
+
+what time range?
+
+to start with: previuos hour
+other options might be:
+last day
+last 5 gm's
+
+I will need variables indicating the time range
+start
+end
+duration
+
+then I will need variables for each element I plan to draw
+
+start
+end
+duration
+name
+color
+
+where will all this live?
+
+in a php file
+
+sessions_timeline
+
+or just timeline
+
+
+show_timeline.php
+
+show_timeline()
+
+shown above seesion table for now..
+
+now what?
+
+get times
+
+how am I coing to save them...php datetime?
+
+$date = new DateTime("now");
+echo "\nSession log scrape: " . $date->format('Ymd-His') . "\n";
+
+
+   // echo "Add to db: filename: " . $var['filename'] . "\n";
+
+   // test if we can create a valid DateTime
+   if (!DateTime::createFromFormat('Ymd-His', $var['dt_start']))
+   {
+      echo "Error parsing dates\n";
+      foreach ($var as $x => $y) echo "$x $y\n";
+      return;
+   }
+
+   // convert the datetime to something mysql likes
+   $date2 = DateTime::createFromFormat('Ymd-His', $var['dt_start']);
+   $var['dt_start'] =  $date2->format('Y-m-d H:i:s');
+
+
+   // calculate and set dt_end
+   $dur = $var['duration'];
+   $date3 = $date2->add(DateInterval::createFromDateString("$dur seconds"));
+   $var['dt_end'] =  $date3->format('Y-m-d H:i:s');
+
+   // show the values in the array
+   //foreach ($var as $x => $y) echo "$x $y\n";
+
+
+   // first check if filename is exists in db
+   $fn = $var['filename'];
+
+
+
+
+
+$date = new DateTime("now", new DateTimeZone('America/Edmonton'));
+echo "\nDATE now:" . $date->format('Ymd-His') . "\n";
+
+$timezones = DateTimeZone::listIdentifiers();
+echo "<h1>List of Supported Timezones</h1>";
+echo "<pre>";
+print_r($timezones);
+echo "</pre>";
+
+
+
+Ok I now have 2 datetimes (and a duration of 86400s)
+
+$date = new DateTime("now", new DateTimeZone('America/Edmonton'));
+echo "\nDATE now:" . $date->format('Ymd-His') . "\n";
+$date2 = $date->sub(DateInterval::createFromDateString("86400 seconds"));
+echo "\nDATE then:" . $date2->format('Ymd-His') . "\n";
+
+DATE now:20260115-015813
+DATE then:20260114-015813
+
+
+now what?
+
+
+find gm's in that range..
+
+
+actually, before I even start:
+make range 2h
+generate some gm's
+
+
+now do sql
+
+SELECT 
+
+SELECT column_name(s)
+FROM table_name
+WHERE column_name [NOT] BETWEEN value1 AND value2;
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
+               muid           TEXT PRIMARY KEY, \
+               filename       TEXT, \
+               dt_start       TEXT, \
+               dt_end         TEXT, \
+               duration       INT,  \
+               level          INT,  \
+               num_entries    INT ); ");
+   execute_sql(sql, db_sessions);
+
+
+SELECT dt_start, dt_end, duration FROM gm WHERE dt_start BETWEEN '$date' AND '$date2';
+
+
+I should put them in a php array
+
+
+each one with start, end, and other stuff...id?
+$gms = array();
+
+
+OK i got that,now what?
+
+convert all these into offset of seconds
+
+dt_start will be zero and all others will be distance from that
+
+I already have start in datetime format, need to convert gm ones
+
+
+now when I make these things I need to make the spaces in between as well
+
+
+assumptions:
+gm's are ordered by date
+gm's do not overlap
+
+
+I am going to iterate all gms and make spacers
+
+
+1 - find the first gm start, if less than 0 clamp to 0
+if more than zero, insert a spacer from 0 to its start
+
+is the end of the gm past the entire range?
+if yes then clamp to end and done
+int not, then end is new working pos
+
+
+find next gm start
+
+insert space from working pos to start
+find end, is end past last pos
+
+
+
+first make some nice names
+
+
+for the entire range
+
+DateTimes: DT1 DT2 
+text  DT1_t DT2_t
+int seconds DT1_s DT2_s 
+
+
+Timeline
+
+DT1 (start): 20260115-030527  :  0
+DT2 (end)  : 20260115-040527  :  3600
+id:RSXBWZWQSLXJNDVQ - 3475 - 3482 - 7
+id:CJFTUIWAIJYTKNHD - 3495 - 3508 - 13
+id:NNNJHWLDBVPBQSWN - 3516 - 3539 - 23
+
+
+
+spacer           - 0 - 809 - 809 - 
+RSXBWZWQSLXJNDVQ - 809 - 816 - 7 - 
+spacer           - 816 - 829 - 13 - 
+CJFTUIWAIJYTKNHD - 829 - 842 - 13 - 
+spacer           - 842 - 850 - 8 - 
+NNNJHWLDBVPBQSWN - 850 - 873 - 23 - 
+spacer           - 873 - 3600 - 2727 - 
+
+
+I am getting closer...now what?
+
+when I make these tables what do I need?
+section sizes is all
 
 
 
@@ -6508,6 +6979,4185 @@ first I need to commit, then redeplot to o3000 so I have the latest version and 
 
 
 
+
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:0;    border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:200;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:800;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:200;  border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:600;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:200;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:400;  border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:600;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:0;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+
+
+
+
+
+
+
+chart.js
+am I going to the dark side?
+why do I not like javascript?
+
+
+
+
+
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>
+
+
+
+
+<canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+
+
+
+
+
+
+echo <<<TEXT
+
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+
+<link rel="stylesheet" href="./sessions.css">
+<script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+<link rel="stylesheet" href="../assets/css/datatables.min.css" />
+<script src="../assets/js/datatables.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+
+
+</head>
+
+<body>
+TEXT;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+<script> 
+
+var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
+var yValues = [55, 49, 44, 24, 15];
+var barColors = ["red", "green","blue","orange","brown"];
+
+new Chart("myChart", {
+  type: "bar",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {...}
+});
+
+
+</script> 
+
+
+</body></html>
+
+
+
+
+
+
+
+I am starting to learn javascript...
+
+from a very basic starting place..
+
+
+make a folder called scripts
+in that will live your javascript files *.js
+
+make one called main.js
+
+
+
+on the page you want to use it in enter this just before the closing </head>
+
+<script async src="scripts/main.js"></script>
+
+
+
+in the script
+
+
+// Store a reference to the <h1> in a variable
+const myHeading = document.querySelector("h1");
+// Update the text content of the <h1>
+myHeading.textContent = "Hello world!";
+
+
+
+
+
+const myImage = document.querySelector("img");
+
+myImage.addEventListener("click", () => {
+  const mySrc = myImage.getAttribute("src");
+  if (mySrc === "images/firefox-icon.png") {
+    myImage.setAttribute("src", "images/firefox2.png");
+  } else {
+    myImage.setAttribute("src", "images/firefox-icon.png");
+  }
+});
+
+
+
+In this code, you stored a reference to your <img> element in the myImage variable.
+Then you assigned it a click event handler function.
+Every time the <img> is clicked, the function does the following:
+
+    Retrieves the value of the image's src attribute.
+    Uses a conditional (if...else structure) to check if the src value is equal to the path of the original image:
+        If it is, the code changes the src value to the path of the second image,
+        forcing the other image to be loaded inside the <img> element.
+        If it isn't (meaning the image has already been changed), the src value swaps back to the original image path.
+
+
+
+
+
+
+
+
+
+
+2026-01-15 06:51:41
+
+
+running out of time...
+
+I would like to make the chart.js work for my chart
+
+I would like to make the buttons do things...
+
+get the existing chart to show on the other page..
+
+
+the term gantt chart is what I want
+timeline horizonatal axis
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart.js Gantt Example</title>
+    <script src="https://cdn.jsdelivr.net"></script>
+    <!-- Include a date adapter, e.g., date-fns -->
+    <script src="https://cdn.jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net"></script>
+</head>
+<body>
+    <div style="width: 800px;">
+        <canvas id="ganttChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('ganttChart').getContext('2d');
+
+        // Sample data: each data point is an array [start_date, end_date]
+        const tasksData = {
+            labels: ['Task 1', 'Task 2', 'Task 3'],
+            datasets: [{
+                label: 'Project Schedule',
+                data: [
+                    ['2025-01-15', '2025-02-10'], // Task 1 duration
+                    ['2025-02-01', '2025-03-15'], // Task 2 duration
+                    ['2025-03-10', '2025-04-01']  // Task 3 duration
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar', // Use bar chart
+            data: tasksData,
+            options: {
+                indexAxis: 'y', // Makes the bar chart horizontal
+                scales: {
+                    x: {
+                        type: 'time', // X-axis is a time scale
+                        time: {
+                            unit: 'day'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        },
+                        min: '2025-01-01', // Set a fixed start date for the scale
+                        max: '2025-04-15'  // Set a fixed end date for the scale
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tasks'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Basic Gantt Chart Example'
+                    }
+                }
+            }
+        };
+
+        const ganttChart = new Chart(ctx, config);
+    </script>
+</body>
+</html>
+
+
+
+
+looks like i need to install  date-fns
+
+To install the package, run:
+
+npm install date-fns --save
+# or
+yarn add date-fns
+
+
+I am asuming this is on the server...
+
+m@o3000:/var/www/html/sessions$ sudo apt install nodejs
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libcares2 libnode109 node-acorn node-busboy node-cjs-module-lexer node-undici node-xtend nodejs-doc
+Suggested packages:
+  npm
+The following NEW packages will be installed:
+  libcares2 libnode109 node-acorn node-busboy node-cjs-module-lexer node-undici node-xtend nodejs nodejs-doc
+0 upgraded, 9 newly installed, 0 to remove and 69 not upgraded.
+Need to get 16.1 MB of archives.
+After this operation, 70.4 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+
+m@o3000:/var/www/html/sessions$ node -v
+v18.19.1
+
+sudo apt install npm
+ 
+npm install date-fns --save
+
+
+import { differenceInDays } from 'date-fns';
+
+const startDate = new Date(2023, 6, 15);
+const endDate = new Date(2023, 6, 22);
+
+// Calculate the number of full days between the two dates
+const daysDifference = differenceInDays(endDate, startDate);
+console.log(daysDifference); // Output: 7
+
+import { format, formatDistance, formatRelative, subDays } from 'date-fns'
+
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+    <!-- 1. A canvas element for the chart -->
+    <div style="width: 700px;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- 2. Include the Chart.js library from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 3. JavaScript code to create the chart -->
+    <script>
+
+
+var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
+var yValues = [55, 49, 44, 24, 15];
+var barColors = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
+
+
+//var barColors = ["red", "green","blue","orange","brown"];
+
+        // Get the canvas element
+        const ctx = document.getElementById('myChart');
+
+
+const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            label: 'Dataset 1',
+            data: [65, 59, 80, 81, 56, 55, 40],
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            stack: 'stackGroup1' // Datasets with the same stack key will be stacked
+        },
+        {
+            label: 'Dataset 2',
+            data: [28, 48, 40, 19, 86, 27, 90],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            stack: 'stackGroup1'
+        },
+        {
+            label: 'Dataset 3', // This dataset will form a separate stack if you change the stack key
+            data: [10, 20, 30, 40, 50, 60, 70],
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            stack: 'stackGroup2'
+        }
+    ]
+};
+
+const stackedBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: data,
+    options: {
+        scales: {
+            x: {
+                stacked: true // Enable stacking on the x-axis
+            },
+            y: {
+                stacked: true // Enable stacking on the y-axis
+            }
+        }
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+there is a really cool example here:
+
+https://codesandbox.io/p/sandbox/chartjs-timeline-gantt-iwsbbu
+
+
+there are lots of parts of it I do not understand
+
+there appear to be 4 files:
+
+'index.tsx'
+
+.tsx file is a TypeScript file that contains JSX (JavaScript XML) syntax.
+It is primarily used in the development of React applications to write components
+that combine the type safety of TypeScript with the HTML-like markup of JSX. 
+
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+import { App } from './App';
+
+const rootElement = document.getElementById('root');
+createRoot(rootElement).render(<App />);
+
+
+
+'package.json'
+{
+  "main": "index.tsx",
+  "dependencies": {
+    "chart.js": "3.8.0",
+    "chartjs-adapter-date-fns": "2.0.0",
+    "chartjs-plugin-datalabels": "2.0.0",
+    "date-fns": "2.28.0",
+    "react": "18.0.0",
+    "react-chartjs-2": "4.2.0",
+    "react-dom": "18.0.0",
+    "react-scripts": "5.0.0"
+  },
+  "devDependencies": {
+    "@types/faker": "5.5.3",
+    "@types/react": "18.0.0",
+    "@types/react-dom": "18.0.0",
+    "typescript": "4.5.4"
+  }
+}
+
+
+'TestData.ts'
+
+class Event {
+  EventName: string;
+  EventSource: string;
+  Start: Date;
+  End: Date;
+}
+
+const simulateDate = (value: number) => {
+  var t = new Date();
+  t.setSeconds(t.getSeconds() + value);
+  return t;
+};
+
+const testData: Event[] = [
+  {
+    Start: simulateDate(0),
+    End: simulateDate(10),
+    EventName: "LOADING",
+    EventSource: "Group1"
+  },
+  {
+    Start: simulateDate(10),
+    End: simulateDate(16),
+    EventName: "PROCESS",
+    EventSource: "Group1"
+  },
+  {
+    Start: simulateDate(12),
+    End: simulateDate(16),
+    EventName: "TIMEOUT",
+    EventSource: "Group1"
+  },
+  {
+    Start: simulateDate(16),
+    End: simulateDate(28),
+    EventName: "UNLOADING",
+    EventSource: "Group1"
+  },
+  {
+    Start: simulateDate(0),
+    End: simulateDate(20),
+    EventName: "AUTO",
+    EventSource: "Group2"
+  },
+  {
+    Start: simulateDate(20),
+    End: simulateDate(24),
+    EventName: "MANUAL",
+    EventSource: "Group2"
+  },
+  {
+    Start: simulateDate(22),
+    End: simulateDate(28),
+    EventName: "AUTO",
+    EventSource: "Group2"
+  },
+  {
+    Start: simulateDate(0),
+    End: simulateDate(10),
+    EventName: "EMS",
+    EventSource: "Group3"
+  },
+  {
+    Start: simulateDate(5),
+    End: simulateDate(15),
+    EventName: "SAFETY",
+    EventSource: "Group3"
+  },
+  {
+    Start: simulateDate(9),
+    End: simulateDate(20),
+    EventName: "OVERRIDE",
+    EventSource: "Group3"
+  },
+  {
+    Start: simulateDate(10),
+    End: simulateDate(20),
+    EventName: "TEST",
+    EventSource: "Group3"
+  }
+];
+
+export default testData;
+
+'App.tsx'
+
+200 lines...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+        // Instantiate a new Chart
+        new Chart(ctx, {
+            type: 'bar', // Chart type (e.g., 'bar', 'line', 'pie')
+            data: {
+                labels: barColors,
+//                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3], // Your data points
+                    borderWidth: 1
+                }]
+
+
+
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+  */ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart.js Gantt Example</title>
+    <script src="https://cdn.jsdelivr.net"></script>
+    <!-- Include a date adapter, e.g., date-fns -->
+    <script src="https://cdn.jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net"></script>
+</head>
+<body>
+    <div style="width: 800px;">
+        <canvas id="ganttChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('ganttChart').getContext('2d');
+
+        // Sample data: each data point is an array [start_date, end_date]
+        const tasksData = {
+            labels: ['Task 1', 'Task 2', 'Task 3'],
+            datasets: [{
+                label: 'Project Schedule',
+                data: [
+                    ['2025-01-15', '2025-02-10'], // Task 1 duration
+                    ['2025-02-01', '2025-03-15'], // Task 2 duration
+                    ['2025-03-10', '2025-04-01']  // Task 3 duration
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar', // Use bar chart
+            data: tasksData,
+            options: {
+                indexAxis: 'y', // Makes the bar chart horizontal
+                scales: {
+                    x: {
+                        type: 'time', // X-axis is a time scale
+                        time: {
+                            unit: 'day'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        },
+                        min: '2025-01-01', // Set a fixed start date for the scale
+                        max: '2025-04-15'  // Set a fixed end date for the scale
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tasks'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Basic Gantt Chart Example'
+                    }
+                }
+            }
+        };
+
+        const ganttChart = new Chart(ctx, config);
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2026-01-16 06:06:32
+
+I am getting confused here...having trouble making anything work...
+
+Going back until I can get something working...
+
+
+this works:
+
+'test4.html'
+
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Example</title>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+</head>
+<body>
+
+   <h1>Test 4</h1>
+
+   <div style="width: 700px;"><canvas id="myChart"></canvas></div>
+      
+   <script>
+
+      const ctx = document.getElementById('myChart');
+
+      // Instantiate a new Chart
+      new Chart(ctx, {
+         type: 'bar', // Chart type (e.g., 'bar', 'line', 'pie')
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3], // Your data points
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+   </script> 
+
+</body>
+</html>
+
+
+
+
+
+do not break it!!!
+
+copy to test5 and try something else...
+
+I think this line is causing me issues...
+
+   <script src="https://cdn.jsdelivr.net"></script>
+
+
+do I need a package.json file and how do I use that?
+
+yes
+
+where does it live?
+
+
+
+this is all so complex
+
+I want simpler
+
+an add on library for php that interacts with  chart.js
+
+bbsnly/chartjs-php
+
+install with composer
+
+composer require bbsnly/chartjs-php
+
+
+Open your terminal and run the following commands to update your package list and install the required packages, including php-cli (PHP Command Line Interface), unzip, curl, git, and php-mbstring: 
+bash
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install curl php-cli php-mbstring git unzip -y
+
+Step 2: Download and install Composer globally 
+Next, use curl to download the Composer installer script and then run a PHP command to install it system-wide in the /usr/local/bin directory, making it available as a global command: 
+bash
+
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+This command automatically fetches the latest stable version of Composer. 
+Step 3: Verify the installation
+After the installation is complete, verify that it was successful by running the composer command in your terminal. You should see output displaying the Composer version and available commands: 
+bash
+
+composer
+
+these are the lines I actually used
+----------------------------------------
+sudo apt install curl php-cli php-mbstring git unzip -y
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+composer
+composer require bbsnly/chartjs-php
+----------------------------------------
+
+2026-01-16 07:15:52
+
+now lets take it for a test drive:
+
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+
+
+
+
+
+
+
+    <!-- The PHP script will output the canvas and chart initialization here -->
+
+    <?php include 'data.php'; ?>
+
+    <!-- A fallback canvas if PHP fails or for basic setup -->
+    <canvas id="myBarChart" width="400" height="200"></canvas>
+
+    <script>
+        // If data.php outputs JS, it runs automatically.
+        // If you use toJson() from PHP, you'd fetch it here with JavaScript (fetch API)
+        // and then create the chart in JS.
+    </script>
+
+
+
+
+
+
+
+2026-01-17 00:48:52
+I have a simple example in test45 working
+It simply shows how a php index file can contain another php file
+It seems very simple, but for some reason last night I was having trouble getting even that to work...
+
+'index.php'
+
+<?php
+
+echo <<<TEXT
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>inserting PHP code into html</title>
+</head>
+<body>
+   <h2>Natural rr numbers</h2>
+TEXT;
+
+include 'data.php'
+
+?>
+
+</body>
+</html>
+
+'data.php'
+
+<?php
+  $i = 1;
+  echo "the first 10 natural numbers are:";
+  for($i = 1; $i <= 10; $i++) { 
+    echo $i;
+  }
+?>
+
+bbsnly/chartjs-php
+
+
+
+
+
+
+
+
+
+2026-01-17 08:09:37
+
+why am I storing DATETIMES in sqlite as YYYYMMDD-HHMMSS?
+that is not a valid ISO8601 format
+
+The delimiter bewtween date and time cannot be anything but T
+
+removing the hyphen and colons is acceptable, but the most recommended is:
+YYYY-MM-DDTHH:MM:SS
+
+
+
+I don't know if I want to change things now...
+
+The main issue I have is I can't select from sqlite as unixepoch
+
+where do I use it?
+
+sessions and gm both have start and end
+
+I think I want to fix it:
+
+
+
+
+ 
+2026-01-17 11:23:57
+
+I got google charts to work! I have live gm data!!!
+
+
+now I need to figure out range controls
+
+- figure out range controls
+
+ChartRangeFilter
+
+
+
+
+
+later when I integrate this into the sessions page,
+It will be just a graphical representation of the table data.
+clicking on a session or gm will have the same effect as doing so from the tables..
+
+
+
+got it in the page
+
+
+now get it to use some session values
+
+
+
+2026-01-18 02:39:47
+
+wow, yesterday i was getting frustrated.
+this web design stuff is new to me
+so many thuigs to learn, many dead ends
+much uncertanty about the right way of doing things
+
+today, I want to get the timeline graph in place and working
+
+- first task:
+how can i call it, in a function, how do I see variables
+
+all the other things on the sessions page, I call a php script and they fill in their section
+
+this one, I just have a div tag and the script fills it
+
+the script runs in the header
+
+it calls this php function to get the json
+
+what if I put the div and the php fucntion all in the same file and just included that
+
+
+at the bare minimum I need to get 2 date ranged to the 
+
+
+
+
+
+2026-01-18 03:23:07
+
+I can read current session id in 'get_timeline_data'
+
+I can use it to set start and end
+
+so that only current session is shown in timeline
+
+
+how to make this better?
+
+
+what if all this were one file?
+
+
+show_timeline
+
+and it had everything:
+
+the setup, the data extraction and the div..
+
+then I could just call a function to spit out the div
+
+and maybe a nice frame...
+
+
+the data extraction whould be just a function in that page
+
+lets try to do this in small pieces
+
+first, cann I figure out how to call the data extarction like a function instead of a file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+        function drawDashboard() {
+            // Use fetch API to get data from the PHP script
+            fetch('get_timeline_data.php')
+                .then(response => response.json())
+                .then(jsonData => {
+                    var container = document.getElementById('chart_div');
+                    var chart = new google.visualization.Timeline(container);
+                    var data = new google.visualization.DataTable(jsonData);
+                    var options = {
+                        timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+                        hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+                    };
+                    chart.draw(data, options);
+                   
+                    
+                    google.visualization.events.addListener(
+                        chart,
+                        'select',
+                        function() {
+                            var row = chart.getSelection()[0].row;
+                            alert('You selected ' + "\n" + data.getValue(row, 0) + "\n" + data.getValue(row, 1));
+                        }
+                    );
+                })
+                .catch(error => console.error('Error fetching data:', error));
+*/
+
+
+
+        function drawDashboard() {
+            // Use fetch API to get data from the PHP script
+
+           $tld = getTimelineData();
+
+            var jsonData = JSON.parse("<?php echo $tld; ?>");
+
+
+
+
+/*
+<?php
+$php_string = "Hello, world!";
+$php_array = array("apple", "banana", "cherry");
+?>
+
+<script>
+    // For a simple string
+    var js_string = "<?php echo addslashes($php_string); ?>";
+    console.log(js_string); // Output: Hello, world!
+
+    // For an array or object, use JSON.parse
+    var js_array = JSON.parse('<?php echo json_encode($php_array); ?>');
+    console.log(js_array); // Output: ["apple", "banana", "cherry"]
+</script>
+
+
+
+
+            fetch('get_timeline_data.php')
+                .then(response => response.json())
+                .then(jsonData => {
+
+*/
+
+                    var container = document.getElementById('chart_div');
+                    var chart = new google.visualization.Timeline(container);
+                    var data = new google.visualization.DataTable(jsonData);
+                    var options = {
+                        timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+                        hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+                    };
+                    chart.draw(data, options);
+                   
+ /*                   
+                    google.visualization.events.addListener(
+                        chart,
+                        'select',
+                        function() {
+                            var row = chart.getSelection()[0].row;
+                            alert('You selected ' + "\n" + data.getValue(row, 0) + "\n" + data.getValue(row, 1));
+                        }
+                    );
+ 
+ */
+ 
+ 
+ 
+ 
+ //               })
+      //          .catch(error => console.error('Error fetching data:', error));
+
+
+
+it says its valid JSON
+
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"HVEUDAHSEENKQCSG"},{"v":"Date( 1768655122000 )"},{"v":"Date( 1768655128000 )"}]},{"c":[{"v":"gm"},{"v":"DFHVLXFZVFJOMKII"},{"v":"Date( 1768664218000 )"},{"v":"Date( 1768664222000 )"}]},{"c":[{"v":"gm"},{"v":"URMLLZPQRTTZPPFN"},{"v":"Date( 1768667793000 )"},{"v":"Date( 1768668307000 )"}]},{"c":[{"v":"Forest"},{"v":"Forest"},{"v":"Date( 1768655118000 )"},{"v":"Date( 1768655132000 )"}]},{"c":[{"v":"Forest"},{"v":"Forest"},{"v":"Date( 1768664212000 )"},{"v":"Date( 1768664225000 )"}]},{"c":[{"v":"Forest"},{"v":"Forest"},{"v":"Date( 1768667688000 )"},{"v":"Date( 1768668309000 )"}]}]}
+
+yet nothing draws
+
+
+
+I was returing from the function like this:
+
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+   return json_encode($dataTable);
+}
+
+then doing this:
+      <?php  $tld = getTimelineData();  ?> 
+     var jsonData = "<?php echo $tld; ?>";
+
+
+to fix it I now do this:
+
+return as php array:
+
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+   return $dataTable;
+}
+    <?php  $tld = getTimelineData(); ?> 
+    var jsonData = JSON.parse('<?php echo json_encode($tld); ?>');
+
+
+in one line:
+
+    var jsonData = JSON.parse('<?php echo json_encode(getTimelineData()); ?>');
+
+
+
+
+OK that is really coming along
+
+
+now I want to move it to its own file...if I can
+
+
+
+// convert sql date to java format
+function getJDate($d)
+{
+
+   $dt = date('U', strtotime($d)) * 1000; 
+   $st = "Date( $dt )";
+   return $st;
+}
+
+function getTimelineData()
+{
+
+   $dataTable = [
+       'cols' => [
+           ['id' => 'RowLabel', 'label' => 'RowLabel',   'type' => 'string'],
+           ['id' => 'BarLabel', 'label' => 'BarLabel',   'type' => 'string'],
+           ['id' => 'Start',    'label' => 'Start Date', 'type' => 'datetime'],
+           ['id' => 'End',      'label' => 'End Date',   'type' => 'datetime']
+       ],
+       'rows' => []
+   ];
+
+   // get game moves
+   $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm";
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $muid        = $row['muid'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+       $temp = [
+          ['v' => 'gm'],
+          ['v' => $muid],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+
+   // get sessions
+   $sql = "SELECT id, dt_start, dt_end, player_name FROM sessions";
+   //echo $sql;
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $id       = $row['id'];
+      $name     = $row['player_name'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+      $temp = [
+          ['v' => $name],
+          ['v' => $name],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+   return $dataTable;
+}
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+   google.charts.load('current', {'packages':['timeline']});
+
+   // Set a callback to run when the Google Visualization API is loaded.
+   google.charts.setOnLoadCallback(drawDashboard);
+
+   function drawDashboard()
+   {
+      var jsonData = JSON.parse('<?php echo json_encode(getTimelineData()); ?>');
+
+      var container = document.getElementById('chart_div');
+      var chart = new google.visualization.Timeline(container);
+      var data = new google.visualization.DataTable(jsonData);
+      var options =
+      {
+         timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+         hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+      };
+      chart.draw(data, options);
+   }
+
+</script>
+
+
+
+
+
+
+it does not work when it is in its own file....
+
+
+<?php
+
+session_start();
+
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
+
+
+// convert sql date to java format
+function getJDate($d)
+{
+
+   $dt = date('U', strtotime($d)) * 1000; 
+   $st = "Date( $dt )";
+   return $st;
+}
+
+function getTimelineData()
+{
+
+   $dataTable = [
+       'cols' => [
+           ['id' => 'RowLabel', 'label' => 'RowLabel',   'type' => 'string'],
+           ['id' => 'BarLabel', 'label' => 'BarLabel',   'type' => 'string'],
+           ['id' => 'Start',    'label' => 'Start Date', 'type' => 'datetime'],
+           ['id' => 'End',      'label' => 'End Date',   'type' => 'datetime']
+       ],
+       'rows' => []
+   ];
+
+   // get game moves
+   $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm";
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $muid        = $row['muid'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+       $temp = [
+          ['v' => 'gm'],
+          ['v' => $muid],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+
+   // get sessions
+   $sql = "SELECT id, dt_start, dt_end, player_name FROM sessions";
+   //echo $sql;
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $id       = $row['id'];
+      $name     = $row['player_name'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+      $temp = [
+          ['v' => $name],
+          ['v' => $name],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+   return $dataTable;
+}
+
+?>
+
+
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+   google.charts.load('current', {'packages':['timeline']});
+
+   // Set a callback to run when the Google Visualization API is loaded.
+   google.charts.setOnLoadCallback(drawDashboard);
+
+   function drawDashboard()
+   {
+      var jsonData = JSON.parse('<?php echo json_encode(getTimelineData()); ?>');
+
+      var container = document.getElementById('chart_div');
+      var chart = new google.visualization.Timeline(container);
+      var data = new google.visualization.DataTable(jsonData);
+      var options =
+      {
+         timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+         hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+      };
+      chart.draw(data, options);
+   }
+
+</script>
+
+</head>
+
+<body>
+
+
+   <div id=\"chart_div\">HERE I AM!</div>
+
+
+
+</body></html>
+
+I wonder if I could just make a function to load everything in the head and another to just show the div?
+
+yes...
+
+what I have now:
+
+<?php
+
+session_start();
+
+
+// convert sql date to java format
+function getJDate($d)
+{
+
+   $dt = date('U', strtotime($d)) * 1000; 
+   $st = "Date( $dt )";
+   return $st;
+}
+
+function getTimelineData()
+{
+   $dataTable = [
+       'cols' => [
+           ['id' => 'RowLabel', 'label' => 'RowLabel',   'type' => 'string'],
+           ['id' => 'BarLabel', 'label' => 'BarLabel',   'type' => 'string'],
+           ['id' => 'Start',    'label' => 'Start Date', 'type' => 'datetime'],
+           ['id' => 'End',      'label' => 'End Date',   'type' => 'datetime']
+       ],
+       'rows' => []
+   ];
+
+   // get gm
+   $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm";
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $muid        = $row['muid'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+       $temp = [
+          ['v' => 'gm'],
+          ['v' => $muid],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+
+   // get sessions
+   $sql = "SELECT id, dt_start, dt_end, player_name FROM sessions";
+   //echo $sql;
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $id       = $row['id'];
+      $name     = $row['player_name'];
+      $st = getJDate($row['dt_start']);
+      $en = getJDate($row['dt_end']);
+
+      $temp = [
+          ['v' => $name],
+          ['v' => $name],
+          ['v' => $st],
+          ['v' => $en]
+      ];
+      $dataTable['rows'][] = ['c' => $temp];
+   }
+   return $dataTable;
+}
+
+
+function setup_timeline()
+{
+?>
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript">
+      var jsonData = JSON.parse('<?php echo json_encode(getTimelineData()); ?>');
+      google.charts.load('current', {'packages':['timeline']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawDashboard);
+
+      function drawDashboard()
+      {
+         var container = document.getElementById('chart_div');
+         var chart = new google.visualization.Timeline(container);
+         var data = new google.visualization.DataTable(jsonData);
+         var options =
+         {
+            timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' },
+            hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+         };
+         chart.draw(data, options);
+      }
+   </script>
+<?php
+}
+
+
+function show_timeline()
+{
+   $but = "class=\"button\" id=\"current_gm_button\""; 
+
+   echo "<div id=\"current_gm\"  class=\"div-section-container\">";
+      echo "<div id=\"current_gm\"  class=\"div-section-title-section-frame\">";
+         echo "<div id=\"current_gm\"  class=\"div-section-title-section-container\">";
+            echo "<div id=\"current_gm\"  class=\"div-section-title-frame\">Sessions Timeline</div>";
+
+            echo "<div id=\"current_gm\"  class=\"div-section-title-frame-buttons-frame\">";
+
+            echo "</div>";
+
+         echo "</div>";
+      echo "</div>";
+      echo "<div id=\"current_session\"  class=\"div-section-sub-section-pretext\">";
+         echo "<div id=\"chart_div\"></div>";
+      echo "</div>";
+   echo "</div>";
+}
+
+?>
+
+
+
+I think I am going to move out a bunch of test htmp and php...done
+
+
+
+now...
+
+where do I want to control the range for the timeline
+
+I put back in where I just get it from the current session
+
+I think I want some buttons in the title bar to control stuff
+
+RANGE: ALL CURRENT SESSION DAY MONTH HOUR
+
+i want to have prev and next buttons as well
+
+I don't think I can force timeline range, so I might need to do fake timeline entried to get what I want
+
+where will I keep all these varaibles?
+
+in sessions, just like all the others...
+
+timeline_range_mode
+timeline_range_start
+timeline_range_end
+
+mode:
+0 - all
+1 - current session
+2 - current gm
+3 - hour
+4 - day
+5 - week
+
+any more than that and I would never be able to see anything
+
+
+
+
+
+array(2) {
+  ["cols"]=>
+  array(4) {
+    [0]=>
+    array(3) {
+      ["id"]=>
+      string(8) "RowLabel"
+      ["label"]=>
+      string(8) "RowLabel"
+      ["type"]=>
+      string(6) "string"
+    }
+    [1]=>
+    array(3) {
+      ["id"]=>
+      string(8) "BarLabel"
+      ["label"]=>
+      string(8) "BarLabel"
+      ["type"]=>
+      string(6) "string"
+    }
+    [2]=>
+    array(3) {
+      ["id"]=>
+      string(5) "Start"
+      ["label"]=>
+      string(10) "Start Date"
+      ["type"]=>
+      string(8) "datetime"
+    }
+    [3]=>
+    array(3) {
+      ["id"]=>
+      string(3) "End"
+      ["label"]=>
+      string(8) "End Date"
+      ["type"]=>
+      string(8) "datetime"
+    }
+  }
+  ["rows"]=>
+  array(6) {
+    [0]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(2) "gm"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(16) "HVEUDAHSEENKQCSG"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768655122000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768655128000 )"
+        }
+      }
+    }
+    [1]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(2) "gm"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(16) "DFHVLXFZVFJOMKII"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768664218000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768664222000 )"
+        }
+      }
+    }
+    [2]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(2) "gm"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(16) "URMLLZPQRTTZPPFN"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768667793000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768668307000 )"
+        }
+      }
+    }
+    [3]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768655118000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768655132000 )"
+        }
+      }
+    }
+    [4]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768664212000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768664225000 )"
+        }
+      }
+    }
+    [5]=>
+    array(1) {
+      ["c"]=>
+      array(4) {
+        [0]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [1]=>
+        array(1) {
+          ["v"]=>
+          string(6) "Forest"
+        }
+        [2]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768667688000 )"
+        }
+        [3]=>
+        array(1) {
+          ["v"]=>
+          string(21) "Date( 1768668309000 )"
+        }
+      }
+    }
+  }
+}
+{"cols":[{"id":"RowLabel","label":"RowLabel","type":"string"},{"id":"BarLabel","label":"BarLabel","type":"string"},{"id":"Start","label":"Start Date","type":"datetime"},{"id":"End","label":"End Date","type":"datetime"}],"rows":[{"c":[{"v":"gm"},{"v":"HVEUDAHSEENKQCSG"},{"v":"Date( 1768655122000 )"},{"v":"Date( 1768655128000 )"}]},{"c":[{"v":"gm"},{"v":"DFHVLXFZVFJOMKII"},{"v":"Date( 1768664218000 )"},{"v":"Date( 1768664222000 )"}]},{"c":[{"v":"gm"},{"v":"URMLLZPQR
+
+
+
+
+
+
+
+
+some other charting options....
+
+apache echarts
+
+
+https://codepen.io/luke-fnm/pen/NWYOBjE
+
+
+
+https://codepen.io/joanneccwang/pen/XWMjzGJ
+
+
+
+
+
+SELECT
+    t1.column_a,
+    t2.column_b,
+    LEAST(t1.column_a, t2.column_b) AS min_value_across_columns
+FROM
+    Table1 t1
+JOIN
+    Table2 t2 ON t1.id = t2.id; -- Join condition to link corresponding rows
+
+
+
+SELECT MIN(t.column_name) AS min_value
+FROM (
+    SELECT column_name FROM table1
+    UNION ALL
+    SELECT column_name FROM table2
+) AS t;
+
+
+2026-01-18 09:09:05
+
+
+I have the range selection buttons and the range display buttons all working
+
+next:
+
+- process clicks to set current session / gm
+- why does it take so much vertiacl space underneath?
+- style colors, tooltips, etc
+
+
+
+
+// Source - https://stackoverflow.com/a
+// Posted by WhiteHat
+// Retrieved 2026-01-18, License - CC BY-SA 3.0
+
+        var paddingHeight = 40;
+        var rowHeight = data.getNumberOfRows() * 50;
+        var chartHeight = rowHeight + paddingHeight;
+
+        var options = {
+            titlePosition: 'none',
+            width: 1400,
+
+            height: chartHeight,
+            chartArea: {
+              height: rowHeight,
+            },
+
+            legend: { position: 'top', maxLines: 3 },
+            bar: { groupWidth: '50%' },
+            isStacked: true,
+            hAxis: {
+                title: 'Business Hours (excluding weekends & holidays)'
+            },
+            colors: ['#0066ff', '#33cc33', '#ffcc00', '#ff0000'],
+            annotations: {
+                alwaysOutside: true,
+                textStyle: {
+                    color: '#000000'
+                }
+            }
+        }
+
+
+
+
+
+
+
+         var container = document.getElementById('chart_div');
+         var chart = new google.visualization.Timeline(container);
+//         var data = new google.visualization.DataTable(jsonData);
+
+
+
+
+
+    var dataTable = new google.visualization.DataTable();
+    dataTable.addColumn({ type: 'string', id: 'Role' });
+    dataTable.addColumn({ type: 'string', id: 'Name' });
+    dataTable.addColumn({ type: 'date', id: 'Start' });
+    dataTable.addColumn({ type: 'date', id: 'End' });
+    dataTable.addRows([
+      [ 'President', 'George Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+      [ 'President', 'John Adams', new Date(1797, 2, 4), new Date(1801, 2, 4) ],
+      [ 'President', 'Thomas Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4) ]]);
+
+
+        var paddingHeight = 20;
+        var rowHeight = dataTable.getNumberOfRows() * 50;
+        var chartHeight = rowHeight + paddingHeight;
+
+         var options =
+         {
+
+
+            hAxis: { textPosition: 'in', slantedText: true }, // can sometimes help, or use maxAlternation for label spacing.
+
+            height: chartHeight,
+            chartArea: {
+              height: rowHeight,
+            },
+
+
+      timeline: { groupByRowLabel: false }
+
+
+
+
+// works
+            //timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' }
+//            hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+//           height: 30,  
+
+
+
+//    The hAxis controls labels along the bottom (time). Adjust textPosition and slantedText.
+//             hAxis: { textPosition: 'out', slantedText: true } // can sometimes help, or use maxAlternation for label spacing.
+
+
+
+// these do nothing
+//            chartArea: { top: 0, bottom: 0, left: 0, right: 0, height: '30%' },
+//            chartArea: { top: 0, bottom: 0, left: 50, right: 0 },
+//            height: '50%'
+//           forceIFrame: true
+//           margins: 50 
+//         padding: 50 
+
+
+         };
+         chart.draw(dataTable, options);
+
+      }
+           
+      // Add event listener to redraw the chart on window resize
+      window.addEventListener('resize', drawChart, false);
+      
+
+
+goddman buggy piece of shit google timeline, i fucking hate it so much
+
+
+I have this unavoidable gap at the bottom.....
+
+try a minimal example to see it it is reproducible...
+
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['timeline']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({ type: 'string', id: 'President' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        dataTable.addRows([
+          [ 'Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+          [ 'Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4) ],
+          [ 'Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4) ]]);
+
+        chart.draw(dataTable);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="timeline" style="height: 180px; border: 2px solid #ff0000"  ></div>
+  </body>
+</html>
+
+
+does not happen here....
+
+
+
+
+
+
+
+
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript">
+      var jsonData = JSON.parse('<?php echo json_encode(getTimelineData()); ?>');
+      google.charts.load('current', {'packages':['timeline']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart()
+      {
+         var container = document.getElementById('chart_div');
+         var chart = new google.visualization.Timeline(container);
+//         var data = new google.visualization.DataTable(jsonData);
+
+
+
+
+
+    var dataTable = new google.visualization.DataTable();
+    dataTable.addColumn({ type: 'string', id: 'Role' });
+    dataTable.addColumn({ type: 'string', id: 'Name' });
+    dataTable.addColumn({ type: 'date', id: 'Start' });
+    dataTable.addColumn({ type: 'date', id: 'End' });
+    dataTable.addRows([
+      [ 'President', 'George Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+      [ 'President', 'John Adams', new Date(1797, 2, 4), new Date(1801, 2, 4) ],
+      [ 'President', 'Thomas Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4) ]]);
+
+
+        var paddingHeight = 20;
+        var rowHeight = dataTable.getNumberOfRows() * 50;
+        var chartHeight = rowHeight + paddingHeight;
+
+         var options =
+         {
+
+
+            hAxis: { textPosition: 'in', slantedText: true }, // can sometimes help, or use maxAlternation for label spacing.
+
+            height: chartHeight,
+            chartArea: {
+              height: rowHeight,
+            },
+
+
+      timeline: { groupByRowLabel: false }
+
+
+
+
+// works
+            //timeline: { tooltipDateFormat: 'yyyyMMdd-hh:mm:ss' }
+//            hAxis: { format: 'yyyyMMdd-hh:mm:ss'  }
+//           height: 30,  
+
+
+
+//    The hAxis controls labels along the bottom (time). Adjust textPosition and slantedText.
+//             hAxis: { textPosition: 'out', slantedText: true } // can sometimes help, or use maxAlternation for label spacing.
+
+
+
+// these do nothing
+//            chartArea: { top: 0, bottom: 0, left: 0, right: 0, height: '30%' },
+//            chartArea: { top: 0, bottom: 0, left: 50, right: 0 },
+//            height: '50%'
+//           forceIFrame: true
+//           margins: 50 
+//         padding: 50 
+
+
+         };
+         chart.draw(dataTable, options);
+
+      }
+           
+      // Add event listener to redraw the chart on window resize
+      window.addEventListener('resize', drawChart, false);
+      
+   </script>
+
+
+
+
+
+
+it does the same
+
+
+what I have found is there is not auto height, you need to specify it
+
+
+I will count the number of rows and do it that way
+
+but then I have to count the number that are in the same column...
+
+
+I could check the data just before drawing...
+
+the number of unique rows would tell me that
+
+
+getDistinctValues(columnIndex)
+
+
+
+
+it looks like each row is 41 pixels high which measures 14mm on my monitor
+
+the bottom axis area is 16mm high
+
+these values work well
+
+    dataTable.addColumn({ type: 'date', id: 'End' });
+    dataTable.addRows([
+
+      [ 'President', 'George Washington', new Date(1789, 3, 30), new Date(1797, 2, 4) ],
+      [ 'President', 'John Adams', new Date(1797, 2, 4), new Date(1801, 2, 4) ],
+      [ 'President', 'Thomas Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4) ]]);
+
+      for (let i = 0; i < 40; i++) {  dataTable.addRows([ [ 'President', 'John Adams', new Date(1797, 2, 4), new Date(1801, 2, 4) ] ]) };
+
+
+    const myArray = dataTable.getDistinctValues(0);
+    console.log("Hello");
+    for (let i = 0; i < myArray.length; i++) { console.log(myArray[i]); }
+    var paddingHeight = 50;
+    var rowHeight = dataTable.getNumberOfRows() * 41;
+    var chartHeight = rowHeight + paddingHeight;
+    console.log(chartHeight);
+    var options =
+    {
+       timeline: { groupByRowLabel: false },
+       height: chartHeight,
+       chartArea: { height: rowHeight }
+
+
+ok go implement this...
+
+I put it all back...
+
+
+now do the colors and padding
+
+
+
+colors...
+
+I want to specify them myself...
+
+can I store more data in the table than is used? absoluletly
+
+color for one
+id
+level num
+
+lets start with color
+
+I think I want to use all the columns
+
+fill it from database with php
+
+modify before sending to chart
+
+it does not look like there is any option to do that...colors cannot be set like that
+
+
+
+
+
+
+
+
+2026-01-18 13:02:16
+some other charting options....
+
+apache echarts
+
+https://codepen.io/luke-fnm/pen/NWYOBjE
+
+
+make this work:
+
+
+I now have a task...
+
+make this simple example work for my use case
+
+
+
+first of all, data structure
+
+I learned from the last one, the bare minimum is name, start, end
+
+I also want id or muid, color, level num if aplicable, player name
+
+what do echarts data structure look like and how do I get data into it?
+
+
+
+each data point will have:
+
+color
+name
+id
+
+
+sessions will have:
+id
+start
+end
+player_name
+player_color
+
+gm will have
+muid
+start
+end
+level_num
+
+
+They will have a common data structure
+DATETIME start
+DATETIME end
+int type (0 for session, 1 for player)
+
+(session only)
+int id
+int player_color
+string player_name
+
+(gm only)
+string muid
+int level_num
+
+
+
+DATETIME start
+DATETIME end
+int type (0 for session, 1 for player)
+
+(session only)
+int id
+int player_color
+string player_name
+
+(gm only)
+string muid
+int level_num
+
+2 x datetime
+2 x string
+4 x int
+
+all gm will be in the same row
+players with the same name will be in the same row (unless they overlap)
+
+
+so all my data points will not know what row they are in until they are added
+
+
+
+
+
+// Initialize the chart and show loading animation
+var myChart = echarts.init(document.getElementById('main'));
+myChart.showLoading(); // Enable loading effect
+
+// Fetch data asynchronously (using the Fetch API for modern JavaScript)
+fetch('data.json')
+    .then(response => response.json())
+    .then(data => {
+        myChart.hideLoading(); // Hide loading effect
+
+        // Update the chart options with the fetched data
+        myChart.setOption({
+            xAxis: {
+                data: data.categories // Assuming data.json has a 'categories' field
+            },
+            series: [{
+                // Update the series data
+                data: data.values // Assuming data.json has a 'values' field
+            }]
+        });
+    })
+    .catch(error => {
+        myChart.hideLoading();
+        console.error('Error fetching data:', error);
+    });
+
+
+
+
+
+I think I want to do this... call an external script that loads the data
+
+
+2026-01-18 14:58:37
+
+where do I start?
+
+you need to do this on the server
+moved to server...
+
+add this async load code..
+
+done...
+I now am getting data from my database with php, formatting it as JSON and sending it to js
+
+
+{
+  "cols": [
+    {
+      "id": "RowLabel",
+      "label": "RowLabel",
+      "type": "string"
+    },
+    {
+      "id": "BarLabel",
+      "label": "BarLabel",
+      "type": "string"
+    },
+    {
+      "id": "Start",
+      "label": "Start Date",
+      "type": "datetime"
+    },
+    {
+      "id": "End",
+      "label": "End Date",
+      "type": "datetime"
+    }
+  ],
+  "rows": [
+    {
+      "c": [
+        {
+          "v": "gm"
+        },
+        {
+          "v": "HVEUDAHSEENKQCSG"
+        },
+        {
+          "v": "Date( 1768655122000 )"
+        },
+        {
+          "v": "Date( 1768655128000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "gm"
+        },
+        {
+          "v": "DFHVLXFZVFJOMKII"
+        },
+        {
+          "v": "Date( 1768664218000 )"
+        },
+        {
+          "v": "Date( 1768664222000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "gm"
+        },
+        {
+          "v": "URMLLZPQRTTZPPFN"
+        },
+        {
+          "v": "Date( 1768667793000 )"
+        },
+        {
+          "v": "Date( 1768668307000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "gm"
+        },
+        {
+          "v": "DWDQUAEULXVOCPHS"
+        },
+        {
+          "v": "Date( 1768737900000 )"
+        },
+        {
+          "v": "Date( 1768737906000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Date( 1768655118000 )"
+        },
+        {
+          "v": "Date( 1768655132000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Date( 1768664212000 )"
+        },
+        {
+          "v": "Date( 1768664225000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Forest"
+        },
+        {
+          "v": "Date( 1768667688000 )"
+        },
+        {
+          "v": "Date( 1768668309000 )"
+        }
+      ]
+    },
+    {
+      "c": [
+        {
+          "v": "jenny!"
+        },
+        {
+          "v": "jenny!"
+        },
+        {
+          "v": "Date( 1768737848000 )"
+        },
+        {
+          "v": "Date( 1768737907000 )"
+                      1655647200000
+        }
+      ]
+    }
+  ]
+}
+
+now what format??
+
+
+
+
+it looks like the current format is:
+
+string name
+value: 3 ints
+
+var data = [
+  {
+      "name": "Valve 1",
+      "value": [
+          1655647200000,
+          1657980000000,
+          0
+      ]
+  },
+
+
+
+what don't I see if I can add more?
+
+
+this is how it is stored now:
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1655647200000,
+      1657980000000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1657980000000,
+      1659448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1675980000000,
+      1680448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1659448800000,
+      1660526144467,
+      0
+    ]
+  },
+  {
+    "name": "Valve 2",
+    "value": [
+      1655647200000,
+      1660526144467,
+      1
+    ]
+  }
+]
+
+
+
+
+
+
+
+
+
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1655647200000,
+      1657980000000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1657980000000,
+      1659448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1675980000000,
+      1680448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1659448800000,
+      1660526144467,
+      0
+    ]
+  },
+  {
+    "name": "Valve 2",
+    "value": [
+      1655647200000,
+      1660526144467,
+      1
+    ]
+  }
+]
+
+
+
+why don't I just send all data straight from data.php? no fancy names or keys
+
+type
+DATETIME start
+DATETIME end
+muid
+lev
+id
+pc
+pn
+
+
+
+
+DATETIME start
+DATETIME end
+int type (0 for session, 1 for player)
+
+(session only)
+int id
+int player_color
+string player_name
+
+(gm only)
+string muid
+int level_num
+
+2 x datetime
+2 x string
+
+
+[
+  [
+    0,
+    "Date( 1768655122000 )",
+    "Date( 1768655128000 )",
+    "HVEUDAHSEENKQCSG",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    0,
+    "Date( 1768664218000 )",
+    "Date( 1768664222000 )",
+    "DFHVLXFZVFJOMKII",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    0,
+    "Date( 1768667793000 )",
+    "Date( 1768668307000 )",
+    "URMLLZPQRTTZPPFN",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    0,
+    "Date( 1768737900000 )",
+    "Date( 1768737906000 )",
+    "DWDQUAEULXVOCPHS",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    1,
+    "Date( 1768655118000 )",
+    "Date( 1768655132000 )",
+    "",
+    1,
+    9,
+    "Forest"
+  ],
+  [
+    1,
+    "Date( 1768664212000 )",
+    "Date( 1768664225000 )",
+    "",
+    2,
+    9,
+    "Forest"
+  ],
+  [
+    1,
+    "Date( 1768667688000 )",
+    "Date( 1768668309000 )",
+    "",
+    3,
+    9,
+    "Forest"
+  ],
+  [
+    1,
+    "Date( 1768737848000 )",
+    "Date( 1768737907000 )",
+    "",
+    4,
+    7,
+    "jenny!"
+  ]
+]
+
+
+I now have the data in the js
+
+
+this is how to define date using series...
+
+option = {
+  xAxis: {
+    type: 'category',
+    data: ['Matcha Latte', 'Milk Tea', 'Cheese Cocoa', 'Walnut Brownie']
+  },
+  yAxis: {},
+  series: [
+    {
+      type: 'bar',
+      name: '2015',
+      data: [89.3, 92.1, 94.4, 85.4]
+    },
+    {
+      type: 'bar',
+      name: '2016',
+      data: [95.8, 89.4, 91.2, 76.9]
+    },
+    {
+      type: 'bar',
+      name: '2017',
+      data: [97.7, 83.1, 92.5, 78.1]
+    }
+  ]
+};
+
+
+
+the rows are called categories
+
+
+I should check the data when I am inserting it
+
+I could make sure that 0 is always for all gm's
+
+sessions will initiallly all be asigned 1
+
+at some point before sending the data to the chart I will need to
+put all sessions in their own row, except if their names match, then they can share
+
+I might need to revist this later...if the time range is long, then number of rows for sessions
+will only ever keep growing
+
+for now, lets just give each one its own row
+
+i think will realign thet data from the php
+
+make st, en, type
+
+make gm first and all 0
+
+then sessions to get unique auto incrementing numbers
+
+do it fool!!!
+
+
+[
+  [
+    "Date( 1768655122000 )",
+    "Date( 1768655128000 )",
+    0,
+    "HVEUDAHSEENKQCSG",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    "Date( 1768664218000 )",
+    "Date( 1768664222000 )",
+    0,
+    "DFHVLXFZVFJOMKII",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    "Date( 1768667793000 )",
+    "Date( 1768668307000 )",
+    0,
+    "URMLLZPQRTTZPPFN",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    "Date( 1768737900000 )",
+    "Date( 1768737906000 )",
+    0,
+    "DWDQUAEULXVOCPHS",
+    80,
+    0,
+    0,
+    ""
+  ],
+  [
+    "Date( 1768655118000 )",
+    "Date( 1768655132000 )",
+    1,
+    "",
+    1,
+    9,
+    "Forest"
+  ],
+  [
+    "Date( 1768664212000 )",
+    "Date( 1768664225000 )",
+    2,
+    "",
+    2,
+    9,
+    "Forest"
+  ],
+  [
+    "Date( 1768667688000 )",
+    "Date( 1768668309000 )",
+    3,
+    "",
+    3,
+    9,
+    "Forest"
+  ],
+  [
+    "Date( 1768737848000 )",
+    "Date( 1768737907000 )",
+    4,
+    "",
+    4,
+    7,
+    "jenny!"
+  ]
+]
+
+
+
+
+I am having trouble getting the data in the right format
+
+I'm not even sure what the right format is....
+
+I know what the existing data defined in code looks like:
+
+var data = [
+  {
+      "name": "Valve 1",
+      "value": [
+          1655647200000,
+          1657980000000,
+          0
+      ]
+  },
+  {
+      "name": "Valve 3",
+      "value": [
+          1657980000000,
+          1659448800000,
+          2
+      ]
+  },
+  {
+      "name": "Valve 3",
+      "value": [
+          1675980000000,
+          1680448800000,
+          2
+      ]
+  },
+
+and when I var_dump data, this is what I get:
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1655647200000,
+      1657980000000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1657980000000,
+      1659448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1675980000000,
+      1680448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1659448800000,
+      1660526144467,
+      0
+    ]
+  },
+  {
+    "name": "Valve 2",
+    "value": [
+      1655647200000,
+      1660526144467,
+      1
+    ]
+  }
+]
+
+
+
+all I need to do is copy that...
+
+what do I have?   exact....
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1768655122000,
+      1768655128000,
+      0,
+      "HVEUDAHSEENKQCSG",
+      80,
+      0,
+      0,
+      ""
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768664218000,
+      1768664222000,
+      0,
+      "DFHVLXFZVFJOMKII",
+      80,
+      0,
+      0,
+      ""
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768667793000,
+      1768668307000,
+      0,
+      "URMLLZPQRTTZPPFN",
+      80,
+      0,
+      0,
+      ""
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768737900000,
+      1768737906000,
+      0,
+      "DWDQUAEULXVOCPHS",
+      80,
+      0,
+      0,
+      ""
+    ]
+  }
+]
+
+
+
+
+2026-01-19 04:50:20
+
+
+I have done some more checking, I am stumped:
+
+the data format is identical
+
+I have buttons to
+- load either array into the chart
+- fetch array 2
+- show both arrays
+
+
+
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1655647200000,
+      1657980000000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1657980000000,
+      1659448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 3",
+    "value": [
+      1675980000000,
+      1680448800000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 4",
+    "value": [
+      1675980000000,
+      1680448800000,
+      3
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1659448800000,
+      1660526144467,
+      0
+    ]
+  },
+  {
+    "name": "Valve 2",
+    "value": [
+      1655647200000,
+      1660526144467,
+      3
+    ]
+  }
+]
+
+
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1768655122000,
+      1768655128000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768664218000,
+      1768664222000,
+      1
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768667793000,
+      1768668307000,
+      2
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768737900000,
+      1768737906000,
+      3
+    ]
+  }
+]
+
+
+1768655122000
+604800000
+
+1768050322000
+
+
+could it be that my data is just too skinny?
+
+      1768655122000,
+      1768655128000,
+6s
+
+      1768664218000,
+      1768664222000,
+4s
+
+      1768667793000,
+      1768668307000,
+8:34
+
+      1768737900000,
+      1768737906000,
+6s
+
+
+
+yes!!!
+
+what am I going to do about it?
+
+force a minimun width
+
+sounds good
+
+
+should I get some new data?
+yes,
+
+genarate a few from a few seconds long to 60s
+
+then I need to figure out:
+- range
+- why does only/not detect from index 1
+
+you could test this with fake data...
+
+before I blow away the old data...nevermind I already have a copy
+
+new data:
+
+20260119 6:46 AM
+5s
+13s
+34s
+
+START:
+1768805214000
+
+END:
+1768805288000
+
+
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805214000,
+      1768805219000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805232000,
+      1768805245000,
+      1
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805254000,
+      1768805288000,
+      2
+    ]
+  }
+]
+
+
+It fucking works perfectly!!!!
+
+probably because the data it not too skinny
+
+next...
+- get range from data properly
+- get data from post, not static
+
+
+
+
+
+
+
+I think I am getting somewhere,
+
+My options definition is only read once...i need to do somthing different when reloading!!
+
+
+make a base one, then a reload one
+
+
+
+
+
+
+
+
+range
+-----------------------------------------------------------------------------------------------------------
+// Example for the first x-axis
+const xAxisModel = myChart.getModel().getComponent('xAxis', 0);
+if (xAxisModel && xAxisModel.axis && xAxisModel.axis.scale) {
+    const xAxisExtent = xAxisModel.axis.scale.getExtent();
+    console.log("Full x-axis range (extent):", xAxisExtent[0], xAxisExtent[1]);
+}
+
+this is a non canon way of getting range, but it suffers fron the same problem as
+
+		xAxis:
+       {
+           min: 'dataMin', // Or a specific number/function
+           max: 'dataMax'  // Or a specific number/function
+       }
+
+
+the end works fine, but the start always chooses this value
+
+      1768805214000,
+      1768805219000, <-------------
+
+      1768805232000,
+      1768805245000,
+
+      1768805254000,
+      1768805288000,
+
+-----------------------------------------------------------------------------------------------------------
+
+I think im going to try to do it manually from the data
+
+
+what does the data look like again?
+
+[
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805214000,
+      1768805219000,
+      0
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805232000,
+      1768805245000,
+      1
+    ]
+  },
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805254000,
+      1768805288000,
+      2
+    ]
+  }
+]
+
+I need to iterate and find min value[0] and max value[1]
+
+I think I might have realize the problem here
+most charts have a single variable for x, but I have 2
+
+step one
+
+I have a reliable method to get the range
+
+
+what next?
+
+take a snapshot and then work on live data
+
+also add the sessions and all data values
+
+
+
+
+<?php
+header('Content-Type: application/json');
+
+// convert sql date to java format
+function getJDate($d)
+{
+   $dt = date('U', strtotime($d)) * 1000; 
+   $st = "$dt";
+   return $dt;
+}
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
+
+$data = array();
+
+// get game moves
+$sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
+$res = $db->query($sql);
+
+$ty = 0; // all gm's will have type 0
+
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $muid   =          $row['muid'];
+   $lv     =          $row['level'];
+//   $data[] = [ 'name' => 'Valve 1', 'value' => [$st, $en, $ty, $muid, $lv, 0, 0, '' ] ] ;
+
+   $name = "Valve $ty";
+
+   $data[] = [ 'name' => 'Valve 1', 'value' => [$st, $en, $ty ] ] ;
+
+   $ty++; // unique row
+
+}
+
+
+
+
+
+/*
+
+$dataTable = [
+    'cols' => [
+        ['id' => 'RowLabel', 'label' => 'RowLabel',   'type' => 'string'],
+        ['id' => 'BarLabel', 'label' => 'BarLabel',   'type' => 'string'],
+        ['id' => 'Start',    'label' => 'Start Date', 'type' => 'datetime'],
+        ['id' => 'End',      'label' => 'End Date',   'type' => 'datetime']
+    ],
+    'rows' => []
+];
+
+*/
+
+
+/*
+// get sessions
+$sql = "SELECT id, dt_start, dt_end, player_name, player_color FROM sessions";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $id     =          $row['id'];
+   $pc     =          $row['player_color'];
+   $pn     =          $row['player_name'];
+
+   $ty++; // each seesion to have unique row
+
+   $data[] = [ $st, $en, $ty, '', $id, $pc, $pn ] ;
+}
+*/
+
+
+//   var_dump($data);
+
+   echo json_encode($data);
+
+?>
+
+
+
+2026-01-19 18:54:59
+
+
+<?php
+header('Content-Type: application/json');
+
+// convert sql date to java format
+function getJDate($d)
+{
+   $dt = date('U', strtotime($d)) * 1000; 
+   $st = "$dt";
+   return $dt;
+}
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
+
+$data = array();
+
+// get game moves
+$sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $muid   =          $row['muid'];
+   $lv     =          $row['level'];
+   $ty = 0; // all gm's will have type 0
+   $data[] = [ 'value' => [$st, $en, $ty, $muid, $lv, 0, 0, '' ] ] ;
+}
+
+// get sessions
+$sql = "SELECT id, dt_start, dt_end, player_name, player_color FROM sessions";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $id     =          $row['id'];
+   $pc     =          $row['player_color'];
+   $pn     =          $row['player_name'];
+   $ty++; // each session to have unique row
+   $data[] = [ 'value' => [ $st, $en, $ty, '', $id, $pc, $pn ] ] ;
+}
+   echo json_encode($data);
+?>
+
+I think this is final...for now
+
+
+
+2026-01-19 19:10:47
+
+now in js
+
+do the appropriate number of rows
+
+how?
+
+manip the data in js to find unique
+
+I think I should set name in php
+
+for gm it will be muid
+
+or do it in js
+
+should I set somethings in data, or just do it all in js??
+
+2026-01-20 06:03:15
+
+got a bunch more common funtions working
+
+I want to add a few columns to the data:
+common to all
+- color
+- name of element
+- name of column
+
+for sessions:
+color: player color
+name of element and name of row will both be player_name
+
+for gm:
+name of row will all be the same
+name of element will be muid
+color will all be the same
+
+I think it would be easy to do this in data
+
+
+$data = array();
+
+// get game moves
+$sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $ty     =          0;                // all gm's will have type 0
+   $cl     =          15;               // color
+   $rn     =          'gm'              // row name
+   $en     =          $row['muid'];     // element name
+   $lv     =          $row['level'];
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $en, $lv ] ] ;
+}
+
+// get sessions
+$sql = "SELECT id, dt_start, dt_end, player_name, player_color FROM sessions";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $ty++;                                    // each session to have unique row
+   $cl     =          $row['player_color'];  // color
+   $rn     =          $row['player_name'];   // row name
+   $en     =          $row['player_name'];   // element name
+   $id     =          $row['id'];
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $en, $id ] ] ;
+}
+   echo json_encode($data);
+?>
+
+
+
+
+#bf6ce8 
+#8820ac
+#3c7fff
+#e01c48
+#ff00e8
+#ffbf7f
+#ff7f00
+#7f00ff
+#01ff7f
+#ff0000
+#01ff00
+#0000ff
+#01ffff
+#ffff00
+#ffffff
+
+const playerColors = [
+   "#bf6ce8", 
+   "#8820ac",
+   "#3c7fff",
+   "#e01c48",
+   "#ff00e8",
+   "#ffbf7f",
+   "#ff7f00",
+   "#7f00ff",
+   "#01ff7f",
+   '#ff0000",
+   '#01ff00",
+   "#0000ff",
+   "#01ffff",
+   '#ffff00",
+   '#ffffff",
+]
+
+
+
+
+
+I am now at the point that my old datasets do not work anymore
+
+get some new ones,
+
+save the one you have now and generate a new one
+
+
+[
+  {
+    "value": [
+      1768849044000,
+      1768849051000,
+      0,
+      0,
+      "gm",
+      "EOBUDITDIJQASENJ",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768849056000,
+      1768849062000,
+      0,
+      0,
+      "gm",
+      "KBMSXEJDVEPMYRHK",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768849067000,
+      1768849072000,
+      0,
+      0,
+      "gm",
+      "KWIVQARUGPIGERNM",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768849038000,
+      1768849077000,
+      1,
+      9,
+      "Forest",
+      "Forest",
+      1
+    ]
+  }
+]
+
+DELETE FROM gm;
+DELETE FROM gm_sessions;
+DELETE FROM sessions;
+
+
+make a new one:
+
+
+[
+  {
+    "value": [
+      1768891496000,
+      1768891502000,
+      0,
+      0,
+      "gm",
+      "SRZQFLTUNHZAXGQZ",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768891537000,
+      1768891547000,
+      0,
+      0,
+      "gm",
+      "WQBKMFETVCKZBKBT",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768891555000,
+      1768891577000,
+      0,
+      0,
+      "gm",
+      "QNLHHDEKXEMQGHBK",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768891489000,
+      1768891579000,
+      1,
+      9,
+      "Forest",
+      "Forest",
+      1
+    ]
+  },
+  {
+    "value": [
+      1768891530000,
+      1768891558000,
+      2,
+      7,
+      "jenny!",
+      "jenny!",
+      2
+    ]
+  },
+  {
+    "value": [
+      1768891566000,
+      1768891577000,
+      3,
+      7,
+      "jenny!",
+      "jenny!",
+      3
+    ]
+  }
+]
+
+
+
+DELETE FROM gm;
+DELETE FROM gm_sessions;
+DELETE FROM sessions;
+
+
+
+[
+  {
+    "value": [
+      1768891742000,
+      1768891751000,
+      0,
+      0,
+      "gm",
+      "ZSQNNSBKMRXRZBDK",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768891762000,
+      1768891787000,
+      0,
+      0,
+      "gm",
+      "TGTDDQKWRXDCSKVY",
+      80
+    ]
+  },
+  {
+    "value": [
+      1768891805000,
+      1768891827000,
+      0,
+      0,
+      "gm",
+      "TBAUSROTBOCSSVEL",
+      37
+    ]
+  },
+  {
+    "value": [
+      1768891724000,
+      1768891730000,
+      1,
+      9,
+      "Forest",
+      "Forest",
+      1
+    ]
+  },
+  {
+    "value": [
+      1768891736000,
+      1768891792000,
+      2,
+      9,
+      "Forest",
+      "Forest",
+      2
+    ]
+  },
+  {
+    "value": [
+      1768891757000,
+      1768891765000,
+      3,
+      7,
+      "jenny!",
+      "jenny!",
+      3
+    ]
+  },
+  {
+    "value": [
+      1768891768000,
+      1768891835000,
+      4,
+      7,
+      "jenny!",
+      "jenny!",
+      4
+    ]
+  },
+  {
+    "value": [
+      1768891777000,
+      1768891831000,
+      5,
+      4,
+      "Zaiden",
+      "Zaiden",
+      5
+    ]
+  },
+  {
+    "value": [
+      1768891796000,
+      1768891839000,
+      6,
+      9,
+      "Forest",
+      "Forest",
+      6
+    ]
+  }
+]
+
+
+
+
+2026-01-20 06:53:25
+
+now I have 3 awesome sets of data!!
+colors are working!!
+
+
+now I want to set the element name
+
+
+i think I just need to add name to the start of the array
+
+
+  {
+    "name": "Valve 1",
+    "value": [
+      1768805214000,
+
+
+It works on mouse over, but no label on rect....idc yet
+
+
+2026-01-20 07:24:25
+
+got to go...
+
+trying to figure out how to add 'name' to start of each row in array....
+
+
+what would you call this?
+
+it looks like an array of objects
+
+
+const initialArr = [{ a: 1 }, { b: 2 }];
+
+initialArr.forEach(obj => {
+  obj.isActive = true; // Using dot notation
+  obj['newKey'] = 'newValue'; // Using bracket notation for dynamic keys
+});
+
+console.log(initialArr);
+// Output: [ { a: 1, isActive: true, newKey: 'newValue' }, { b: 2, isActive: true, newKey: 'newValue' } ]
+
+
+
+this is it!!!
+
+const newArr = data.map(obj =>
+{
+  return { name: obj.value[4], ...obj  };
+});
+
+
+data = newArr;
+
+even more concise:
+
+data = data.map(obj =>
+{
+  return { name: obj.value[4], ...obj  };
+});
+
+
+
+// modify the array, add key-value 'name' and name from value 4
+data = data.map(obj => { return { name: obj.value[4], ...obj  }; });
+
+
+
+
+I need a function to iterate the data and build cetegories
+
+rules:
+
+all type 0 belong in category 0
+
+as I read others, if they exist add to existing category, if not, create new one
+
+
+can i do this in place, or should I make my own temp structure
+
+I need name and catindex
+
+I think I should make my own
+
+
+
+array of catId and name
+
+kind of like the one I have already, only with explicit numbers
+
+I could use index for that
+
+this is it!!!
+
+// iterate data and setup categories
+function setCategories(dat)
+{
+   // clear the category array
+   catArr.length = 0;
+
+   // iterate the data array
+   for (let i = 0; i < dat.length; i++)
+   {
+      // get name
+      var name = dat[i].value[4];
+
+      // check if name already exists in catArr and get index if it does
+      var catIndex = catArr.indexOf(name);
+      
+      // does not exist, create it and get index     
+      if (catIndex === -1) catIndex = catArr.push(name) - 1;
+
+      // set category index in data  
+      dat[i].value[2] = catIndex;
+   }
+
+   maxCat = catArr.length-1; 
+}
+
+
+next big thing....
+
+
+
+draw bars in other order 
+
+
+
+//            var start = api.coord([timeSpan[0], maxCat - catIndex]);
+//            var end = api.coord([timeSpan[1], maxCat -catIndex]);
+
+            var start = api.coord([timeSpan[0], catIndex]);
+            var end = api.coord([timeSpan[1], catIndex]);
+
+tooltip to show date time
+
+what did I have to do to get date-fns?
+
+
+2026-01-21 02:36:45
+
+
+I am having trouble getting date-fns working
+
+
+line 3 of script.js:
+import { format } from './date-fns';
+
+I keep getting this errors:
+Uncaught SyntaxError: import declarations may only appear at top level of a module
+
+tried 
+
+this in index.html:
+<script src="./script.js", type="module" ></script>
+
+old:
+<script src="./script.js" ></script>
+
+
+Loading module from “http://192.168.1.146/teste/date-fns” was blocked because of a disallowed MIME type (“text/html”). index.html
+
+
+Loading module from date-fns was blocked because of a disallowed MIME type (“text/html”)
+
+
+
+import data from "./data.json" with { type: "json" };
+
+
+import data from "./data.json" with { type: “text/html” };
+
+
+finally figured out a solution:
+import format from './node_modules/date-fns/format.js';
+
+
+
+
+verify you are storing to db in utc....
+
+you are not....
+
+sqlite> select * from gm;
+ZSQNNSBKMRXRZBDK|20260120-064911-[80]-autosave on level done.gm|20260120-064902|20260120-064911|9|80|46
+TGTDDQKWRXDCSKVY|20260120-064948-[80]-autosave on level done.gm|20260120-064922|20260120-064947|25|80|67
+TBAUSROTBOCSSVEL|20260120-065027-[37]-autosave on level done.gm|20260120-065005|20260120-065027|22|37|75
+
+you should be...
+
+so i need to fix all that first
+
+the proper way of handling datetimes is to store in UTC...
+then only when displaying, convert to local timezone
+
+the other things i used in the webpage worked, but now in js and date-fns, by default display in local tz and that coversion makes them off
+
+i need to do this, because I want this to work anywhere in any timezone
+
+
+start in the c++ code
+
+
+2026-01-21 03:51:19
+
+actualy it has been a long time since I did a backup....
+
+copy all web stuff back and do a push first...
 
 
 

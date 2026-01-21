@@ -99,7 +99,7 @@ void mwLevel::add_play_data_record(int lev, int type)
       calc_level_stats(lev);
    }
 
-   check_achievments();
+   check_achievements();
    save_data();
    level_stats_bmp_msg_type = 0;
 }
@@ -177,7 +177,7 @@ void mwLevel::calc_level_stats(int lev)
 }
 
 
-void mwLevel::check_achievments(void)
+void mwLevel::check_achievements(void)
 {
    int strict = 0;
    // in strict mode all levels are locked until the previous one is completed

@@ -15,7 +15,7 @@ int mwSql::init()
 }
 
 
-int mwSql::open_database(void)
+int mwSql::open_database()
 {
    char filename[256];
    sprintf(filename, "%s", "data/sessions.db");
@@ -25,18 +25,18 @@ int mwSql::open_database(void)
       sqlite3_close(db_sessions);
       return (0);
    }
-   sprintf(filename, "%s", "data/logs.db");
-   if (sqlite3_open(filename, &db_logs))
-   {
-      printf("Can't open database %s\n", filename);
-      sqlite3_close(db_logs);
-      return (0);
-   }
+   // sprintf(filename, "%s", "data/logs.db");
+   // if (sqlite3_open(filename, &db_logs))
+   // {
+   //    printf("Can't open database %s\n", filename);
+   //    sqlite3_close(db_logs);
+   //    return (0);
+   // }
    // printf("Databases open.\n");
    return (1);
 }
 
-void mwSql::create_tables(void)
+void mwSql::create_tables()
 {
    char sql[2000];
 
@@ -73,7 +73,7 @@ void mwSql::create_tables(void)
                rx_packets_total          INT, \
                rx_packets_avg_per_sec    INT, \
                rx_packets_max_per_frame  INT ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'sessions' \n");
+   execute_sql(sql, db_sessions);
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
@@ -84,29 +84,29 @@ void mwSql::create_tables(void)
                duration       INT,  \
                level          INT,  \
                num_entries    INT ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm' \n");
+   execute_sql(sql, db_sessions);
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
                id                INTEGER PRIMARY KEY, \
                gm_muid           TEXT, \
                session_id        INT  ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_sessions' \n");
+   execute_sql(sql, db_sessions);
 
+/*
 
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
-               id              INTEGER PRIMARY KEY, \
-               msg_type        INT, \
-               sub_type        INT, \
-               created         TEXT, \
-               agt             REAL, \
-               frame_num       INT, \
-               player          INT, \
-               client          INT, \
-               message         TEXT ); ");
-   if (sqlite3_exec(db_logs, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'logs' \n");
-
+   // strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
+   //             id              INTEGER PRIMARY KEY, \
+   //             msg_type        INT, \
+   //             sub_type        INT, \
+   //             created         TEXT, \
+   //             agt             REAL, \
+   //             frame_num       INT, \
+   //             player          INT, \
+   //             client          INT, \
+   //             message         TEXT ); ");
+   // execute_sql(sql, db_sessions);
+*/
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
                timestamp     TEXT PRIMARY KEY, \
@@ -118,20 +118,15 @@ void mwSql::create_tables(void)
                level_time    INT, \
                moves         INT, \
                enemies       INT ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
+   execute_sql(sql, db_sessions);
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
-               id            INTEGER PRIMARY KEY, \
-               field         TEXT, \
-               value         INT ); ");
-   if (sqlite3_exec(db_sessions, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'status' \n");
-
-
-
-
-
-
+               id          INTEGER PRIMARY KEY, \
+               key         TEXT, \
+               val         INT, \
+               mod         INT ); ");
+   execute_sql(sql, db_sessions);
 
 }
 
@@ -161,31 +156,62 @@ int callback(void* data, int argc, char** argv, char** azColName)
 
 int mwSql::execute_sql_and_return_one_int(const char* sql, sqlite3 *db)
 {
-   if (db == NULL)
+   if (db == nullptr)
    {
       printf("Error! Database not open.\n%s\n", sql);
       return 0;
    }
-   char* messaggeError;
+   char* messageError;
    int val = 0;
-   if (sqlite3_exec(db, sql, single_value_callback, &val, &messaggeError) != SQLITE_OK) printf("Error: %s\n%s\n", messaggeError, sql);
+   if (sqlite3_exec(db, sql, single_value_callback, &val, &messageError) != SQLITE_OK) printf("Error: %s\n%s\n", messageError, sql);
    return val;
 }
 
 void mwSql::execute_sql(const char* sql, sqlite3 *db)
 {
-   if (db == NULL)
+   if (db == nullptr)
    {
       printf("Error! Database not open.\n%s\n", sql);
       return;
    }
-   char* messaggeError;
-   if (sqlite3_exec(db, sql, NULL, NULL, &messaggeError) != SQLITE_OK) printf("Error: %s\n%s\n", messaggeError, sql);
+   char* messageError;
+   if (sqlite3_exec(db, sql, nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n%s\n", messageError, sql);
 }
 
+// returns 0 on success
+// 1 = now rows
+// 2 = error
+int mwSql::execute_sql_and_return_first_row_as_vector_int(const char *sql, sqlite3 *db, std::vector<int> &ret)
+{
+   if (db == nullptr)
+   {
+      printf("Error! Database not open.\n%s\n", sql);
+      return 2;
+   }
 
+   sqlite3_stmt* stmt;
+   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+   if (rc != SQLITE_OK)
+   {
+      printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+      return 2;
+   }
 
+   rc = sqlite3_step(stmt);
+   if (rc == SQLITE_DONE)
+   {
+      printf("No rows found. \n%s\n", sql);
+      return 1;
+   }
 
+   if (rc == SQLITE_ROW)
+   {
+      int column_count = sqlite3_column_count(stmt);
+      for (int i=0; i<column_count; i++)
+         ret.push_back(sqlite3_column_int(stmt, i));
+   }
 
+   return 0;
 
+}
 
