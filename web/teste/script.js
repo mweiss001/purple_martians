@@ -1,26 +1,7 @@
-
-
-
-//import { format } from './date-fns' with { type: “text/html” };
-
-import format from './node_modules/date-fns/format.js';
-
-
-
-function getClientTimezone() {
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return timeZone;
-}
-
-const userTimeZone = getClientTimezone();
-console.log('User Time Zone:', userTimeZone);
-
-
-
-
-
-//import format from './date-fns/format';
-
+import format             from './node_modules/date-fns/format.js';
+import formatDuration     from './node_modules/date-fns/formatDuration.js';
+import intervalToDuration from './node_modules/date-fns/intervalToDuration.js';
+import differenceInDays   from './node_modules/date-fns/differenceInDays.js';
 
 
 var dom = document.getElementById('chart-container');
@@ -352,66 +333,98 @@ option =
          encode: { x: [0,1], y: 0, },
       }
    ],
+
+/*
    tooltip:
    {
+        trigger: 'axis',
+        axisPointer: { // Style the axis pointer line and shadow
+            type: 'cross',
+            lineStyle: { color: '#555', type: 'dashed' }
+        },
+
+   },
+*/
+
+
+
+
+   tooltip:
+   {
+
+      backgroundColor: 'rgba(50, 50, 50, 0.7)',
+      borderColor: '#333',
+      textStyle: { color: '#fff',
+                   fontFamily: 'monospace',
+//                   fontSize: 16,
+                 },
+
       show: true,
       trigger: "item",
+
       formatter: params =>
       {
-         var st = new Date(params.data.value[0]);
+         var name = "";
+         var icon = "";
+         
+         if (params.data.value[2]) // type = session
+         {
+            icon = `/assets/icons/player_icon_${params.data.value[3]}.png`;
+            name = '<img src="' + icon + '" style="width: 20px; height: 20px; vertical-align: middle;">';
+            name += '<span style="white-space:pre"> ';
+            name += params.data.value[4]; // player name
+            name += '</span><br>';
+         }
+         else // type = gm
+         {
+            var lev = params.data.value[6];
+            var l2 = String(lev).padStart(3, '0');
+            icon = `/assets/icons/lev${l2}.png`;
+            name = '<img src="' + icon + '" style="width: 50px; height: 50px; vertical-align: middle;">';
+            name += '<span style="white-space:pre"> ';
+            name += `Level:${lev}`; // level number
+            name += '</span><br>';
+         }            
 
-         const fst = format(st, 'yyyy-MM-dd hh:mm:ss');
+         // get date objects fron start and end
+         const d1 = new Date(params.data.value[0]);
+         const d2 = new Date(params.data.value[1]);
 
-         return `${fst}`
+         // format start and end
+         const fst = format(d1, 'yyyy-MM-dd hh:mm:ss');
+         const fet = format(d2, 'yyyy-MM-dd hh:mm:ss');
+
+         // get duration
+         const dur =  getDuration(d1, d2);
 
 
-//         console.log(st);   
+        var s1 = '<span style="white-space:pre">';
+        var eol = "</span><br>"; // end of line
+
+        var txt =    name;
+        txt +=    s1 + 'Start: '    + fst  + eol;
+        txt +=    s1 + 'End:   '    + fet  + eol;
+        txt +=    s1 + 'Duration: ' + dur  + eol;
+
+        return txt;
+      },
+
+
+
+
+
 
 /*
-const formattedDate = format(st, 'MMMM do, yyyy'); // e.g., "July 29th, 2023"
-const isoDate = format(new Date(2025, 0, 8), 'yyyy-MM-dd'); // "2025-01-08" (Month is 0-indexed)
-console.log(formattedDate);
-console.log(isoDate);
-
-
-        return `${formattedDate}`
-*/
-
-
-
-
-   //      return `${st}`
-
-//        return echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', params.data.value[0]); 
-
-//        return echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', st); 
-
-
-
-
-
-
-
-
-/*
-axisLabel: {
-    formatter: function (value) {
-        return echarts.format.formatTime('{yyyy}-{MM}-{dd}', value);
-    }
-}
-
-*/
-
-
-
-
-//original line from example
-//         return `${params.data.name}<br/> ${params.data.value[0]} - ${params.data.value[1]}` //Unix timestamps should be converted to readable dates
-
-
-
-
+      axisLabel:
+      {
+         formatter: function (value)
+         {
+           return echarts.format.formatTime('{yyyy}-{MM}-{dd}', value);
+         }
       }
+
+*/
+
    },
    dataZoom:
    [
@@ -421,6 +434,40 @@ axisLabel: {
       },
    ],
 }
+
+
+
+function getDuration(d1, d2)
+{
+   const duration = intervalToDuration({ start: d1, end: d2 });
+   var returnText = "";
+   const zeroPad = (num) => String(num).padStart(2, '0');
+
+   const parts = [
+      duration.days,
+      duration.hours,
+      duration.minutes,
+      duration.seconds
+   ];
+
+   if (duration.hours   === undefined) duration.hours   = 0;
+   if (duration.minutes === undefined) duration.minutes = 0;
+   if (duration.seconds === undefined) duration.seconds = 0;
+    
+   if (duration.days !== undefined)
+   {
+      // this will only be the remaining days after accounting for full years and months, get actual days here
+      returnText = differenceInDays(d2, d1) + " ";
+   }
+  returnText += zeroPad(duration.hours) + ":" + zeroPad(duration.minutes) + ":" + zeroPad(duration.seconds);
+
+   // pad to 16 char
+   returnText = returnText.padStart(16);
+
+   return returnText;
+}
+
+
 
 
 

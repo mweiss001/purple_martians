@@ -11289,11 +11289,74 @@ commit and push
 
 deploy to server and fix bugs....
 
+sessions table uses datatables 
+- first of all there is a bug where all does not work...fixed
+time shows as UTC with T in the middle
+   
+fixed...
+
+//   $row_list_basic =       "id,   player_color, player_name,   dt_start,             duration,  ip,   hostname,   endreason,            cdat_rx";
+   $row_list_basic =       "id,   player_color, player_name,   STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dt_start,   duration,  ip,   hostname,   endreason,            cdat_rx";
+
+next current session
+
+even thought adding specific columns after * is not supposed to work, it does....
+   $res = $GLOBALS['db']->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM sessions WHERE id=$current_session_id");
+
+next gm list
+
+next current gm
 
 
-   
-   
-   
+2026-01-21 06:43:22
+
+that is all done...now back to teste
+
+
+now my time show as the local tz....
+
+
+2026-01-21 06:55:21
+
+
+gtg for now....
+
+
+2026-01-21 17:31:15
+
+tooltip show name, duration, icon
+
+
+
+
+
+            show: true,
+            position: 'top',
+            // Define custom styles for different parts of the label
+            rich: {
+                // Default style for the text (optional)
+                normal: {
+                    color: '#333',
+                    fontSize: 12,
+                    // Preserve whitespace and line breaks
+                    whiteSpace: 'pre', // Key for preserving spaces/newlines
+                    padding: [0, 0, 5, 0], // Padding below text
+                },
+                // Style for a specific part (e.g., for emphasis)
+                highlight: {
+                    color: 'red',
+                    fontWeight: 'bold',
+                    whiteSpace: 'pre', // Also apply here if needed
+                }
+            },
+            // Use a formatter to combine text and apply rich styles
+            formatter: (params) => {
+                return '{normal|Fruit: ' + params.name + '}\n{highlight|Count: ' + params.value + '}';
+            }
+        }
+    }]
+};
+
    
    
    
@@ -11302,6 +11365,246 @@ deploy to server and fix bugs....
   
   
 
+
+
+
+option = {
+  series: [
+    {
+      type: 'scatter',
+      symbolSize: 1,
+      data: [
+        {
+          value: [0, 0],
+          label: {
+            show: true,
+            formatter: [
+              'Plain text',
+              '{textBorder|textBorderColor + textBorderWidth}',
+              '{textShadow|textShadowColor + textShadowBlur + textShadowOffsetX + textShadowOffsetY}',
+              '{bg|backgroundColor + borderRadius + padding}',
+              '{border|borderColor + borderWidth + borderRadius + padding}',
+              '{shadow|shadowColor + shadowBlur + shadowOffsetX + shadowOffsetY}'
+            ].join('\n'),
+            backgroundColor: '#eee',
+            borderColor: '#333',
+            borderWidth: 2,
+            borderRadius: 5,
+            padding: 10,
+            color: '#000',
+            fontSize: 14,
+            shadowBlur: 3,
+            shadowColor: '#888',
+            shadowOffsetX: 0,
+            shadowOffsetY: 3,
+            lineHeight: 30,
+            rich: {
+              textBorder: {
+                fontSize: 20,
+                textBorderColor: '#000',
+                textBorderWidth: 3,
+                color: '#fff'
+              },
+              textShadow: {
+                fontSize: 16,
+                textShadowBlur: 5,
+                textShadowColor: '#000',
+                textShadowOffsetX: 3,
+                textShadowOffsetY: 3,
+                color: '#fff'
+              },
+              bg: {
+                backgroundColor: '#339911',
+                color: '#fff',
+                borderRadius: 15,
+                padding: 5
+              },
+              border: {
+                color: '#000',
+                borderColor: '#449911',
+                borderWidth: 1,
+                borderRadius: 3,
+                padding: 5
+              },
+              shadow: {
+                backgroundColor: '#992233',
+                padding: 5,
+                color: '#fff',
+                shadowBlur: 5,
+                shadowColor: '#336699',
+                shadowOffsetX: 6,
+                shadowOffsetY: 6
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  xAxis: {
+    show: false,
+    min: -1,
+    max: 1
+  },
+  yAxis: {
+    show: false,
+    min: -1,
+    max: 1
+  }
+};
+
+
+
+
+
+
+
+            // Define custom styles for different parts of the label
+            rich: {
+                // Default style for the text (optional)
+                normal: {
+                    color: '#333',
+                    fontSize: 12,
+                    // Preserve whitespace and line breaks
+                    whiteSpace: 'pre', // Key for preserving spaces/newlines
+    //                padding: [0, 0, 5, 0], // Padding below text
+                },
+                // Style for a specific part (e.g., for emphasis)
+                highlight: {
+                    color: 'red',
+                    fontWeight: 'bold',
+                    whiteSpace: 'pre', // Also apply here if needed
+                }
+            },
+
+
+/*
+
+
+  // Styles for the whole text block are defined here:
+  color: 'blue',
+  fontSize: 15,
+  fontFamily: 'Arial',
+
+  borderWidth: 20,
+  backgroundColor: '#000000',
+  padding: [3, 10, 10, 5],
+  lineHeight: 50,
+
+  // Styles for text fragments are defined here:
+  rich: {
+    a: {
+      color: 'red',
+      backgroundColor: '#FF0000',
+      lineHeight: 10
+    },
+
+    b: {
+      color: 'green',
+      backgroundColor: '#0000FF',
+      lineHeight: 20
+    },
+  },
+
+*/
+
+
+
+2026-01-22 04:35:37
+
+I spent way too much time trying to get rich text working for tooltip!!
+
+
+
+
+option = {
+    // ... other options
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: { // Style the axis pointer line and shadow
+            type: 'cross',
+            lineStyle: { color: '#555', type: 'dashed' }
+        },
+        formatter: function (params) {
+            // Custom HTML content with series colors
+            let tooltipContent = `<b>${params[0].name}</b><br/>`;
+            params.forEach(p => {
+                tooltipContent += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${p.color};"></span>`;
+                tooltipContent += `${p.seriesName}: ${p.value}<br/>`;
+            });
+            return tooltipContent;
+        },
+        backgroundColor: 'rgba(245, 245, 245, 0.8)', // Light background
+        borderColor: '#aaa',
+        padding: 10, // Add some padding
+        textStyle: {
+            color: '#333', // Dark text
+            fontSize: 14
+        }
+    },
+    // ... series and other config
+};
+
+
+
+
+2026-01-22 05:03:26
+
+I got it!!!
+
+
+        var jc = "</span><br>"; // join char
+        var s1 = '<span style="white-space:pre">';
+
+        var txt = s1 + 'Name:' + name + jc;
+        txt += s1 + 'Start : ' + fst + jc;
+        txt += s1 + 'End   : ' + fet + jc;
+        txt += s1 + 'Duration   : ' + fDur + jc;
+
+
+
+2026-01-22 05:56:02
+
+I now have the text formatting for the tooltip done..
+
+now see if I can get an icon...
+
+
+
+tooltip: {
+    trigger: 'item',
+    // It may be necessary to add extra CSS to handle pointer events if your tooltip has interactive elements
+    extraCssText: 'pointer-events: auto;', 
+    formatter: function (params) {
+        const name = params.name;
+        const value = params.value;
+        
+        // Define the image URL (consider security/protocol if using external URLs)
+        const imageUrl = 'https://example.com/images/my-icon.png';
+
+        // Return the custom HTML string including the image tag
+        return '<img src="' + imageUrl + '" style="width: 15px; height: 15px; vertical-align: middle;"> ' + name + ': ' + value;
+    }
+}
+
+2026-01-22 06:40:56
+
+I now have a nice icon and name for my tooltips
+
+what next?
+
+get some more data to test with:
+
+do a backup...
+
+this takes a lot of stuff from date-fns
+
+
+could I do with less??
+
+
+date fns folder has
+5326 files 20M (38M on disk)
 
 
 

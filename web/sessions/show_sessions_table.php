@@ -16,19 +16,12 @@ function setup_columns()
    $col_set = 0; // default
    if (isset($_SESSION['col_set'])) $col_set = $_SESSION['col_set'];
 
-   $col_list_basic = array("id", "Player",     "player_name", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
-   $row_list_basic =       "id,   player_color, player_name,   dt_start,             duration,  ip,   hostname,   endreason,            cdat_rx";
+   $col_list_basic = array("id", "Player",     "player_name", "Start Time",                                                       "duration", "ip", "host",     "Session End Reason", "cdat"    );
+   $row_list_basic =       "id,   player_color, player_name,   STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dt_start,   duration,  ip,   hostname,   endreason,            cdat_rx";
 
 
-
-//   $col_list_basic = array("id", "Player",     "player_name", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
-//   $row_list_basic =       "id,   player_color, player_name,   dt_start, SEC_TO_TIME(duration),  ip,   hostname,   endreason,            cdat_rx";
-
-
-
-
-   $col_list_basic2 = array("id", "Date",     "ip", "port", "host",     "endreason",            "duration",  "cdat");
-   $row_list_basic2 =       "id,   dt_start,   ip,   port,   hostname,   endreason,  SEC_TO_TIME(duration),   cdat_rx";
+   $col_list_basic2 = array("id", "Date",     "ip", "port", "host",     "endreason", "duration",  "cdat");
+   $row_list_basic2 =       "id,   dt_start,   ip,   port,   hostname,   endreason,   duration,   cdat_rx";
 
    $col_list_player = array("player number", "next levels", "exits activated", "respawns", "shots fired", "enemy hits", "player hits", "self hits", "purple coins");
    $row_list_player =       "player_num,      next_levels,   exits_activated,   respawns,   shots_fired,   enemy_hits,   player_hits,   self_hits,   purple_coins";

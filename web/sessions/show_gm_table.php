@@ -47,7 +47,9 @@ function show_gm_table()
    if (!$gm_on) return;
 
    $title = "All Save Game Files";
-   $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
+   $sql = "SELECT gm.muid, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, level, duration, filename FROM gm ";
+
+
 
    if ($gm_set == 1)
    {
@@ -104,7 +106,7 @@ function show_gm_table()
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
                   $muid     = $row['muid'];
-                  $dt_start = $row['dt_start'];
+                  $dts      = $row['dts'];
                   $duration = secondsToHMS($row['duration']);
                   $level    = $row['level'];
 
@@ -114,7 +116,7 @@ function show_gm_table()
                   // if not set, set to the first one in the table
                   if ($GLOBALS['current_gm_muid'] == 0) $GLOBALS['current_gm_muid'] = $muid;
                   echo "<tr>";
-                     echo "<td>$dt_start</td>";
+                     echo "<td>$dts</td>";
                      echo "<td>$duration</td>";
 
                      echo "<td>";

@@ -26,7 +26,10 @@ function show_current_session()
    $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM sessions WHERE id=$current_session_id");
    if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found \n";  return; } 
 
-   $res = $GLOBALS['db']->query("SELECT * FROM sessions WHERE id=$current_session_id");
+
+   $res = $GLOBALS['db']->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM sessions WHERE id=$current_session_id");
+   
+   
    $row = $res->fetch(PDO::FETCH_ASSOC);
 
    $col    = $row['player_color'];
@@ -64,8 +67,14 @@ function show_current_session()
 
          echo "<hr>";
 
-         echo "Start           : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
-         echo "End             : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
+//         echo "Start           : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
+//         echo "End             : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
+
+
+         echo "Start           : "            . date('Y-m-d h:i:s', strtotime($row['dts'])) . "\n";
+         echo "End             : "            . date('Y-m-d h:i:s', strtotime($row['dte'])) . "\n";
+
+
          echo "Duration        :            " . secondsToHMS($row['duration']) . "\n";
          echo "End Reason      : "            . $row['endreason']    . "\n";
 

@@ -48,25 +48,25 @@ import { format, formatDistance, formatRelative, subDays } from 'date-fns'
 
 2026-01-21 03:28:11
 
-I spend hours trying to figure out how to use date-fns in my js file
-
+I spent hours trying to figure out how to use date-fns in my js file
 
 the answer:
 
-in the html file that include js
+in bash go to the folder when the js file is
 
-you have to load the js as type module
+npm install date-fns
 
+
+in the html file that uses the .js file, you have to load the js as type module
 <script src="./script.js", type="module" ></script>
 
 this also means that the entire js file is interpreted as strict
 
 then in the js file you need the full path to the import like this:
-
+import format from './node_modules/date-fns/format.js';
 //import format from './date-fns/format';
 //import { format } from './date-fns' with { type: “text/html” };
 
-import format from './node_modules/date-fns/format.js';
 
 
 

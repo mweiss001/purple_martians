@@ -30,7 +30,7 @@ function show_current_gm()
    $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
    if ($res->fetchColumn() == 0)  { echo " muid: [$current_gm_muid] not found \n";  return; } 
 
-   $res = $GLOBALS['db']->query("SELECT * FROM gm WHERE muid='$current_gm_muid'");
+   $res = $GLOBALS['db']->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$current_gm_muid'");
    $row = $res->fetch(PDO::FETCH_ASSOC);
 
 
@@ -61,8 +61,8 @@ function show_current_gm()
             echo "Filename : "            . $row['filename']         . "\n";
             echo "Level    : "            . $row['level']            . "\n";
             echo "Moves    : "            . $row['num_entries']      . "\n";
-            echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
-            echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
+            echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dts'])) . "\n";
+            echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dte'])) . "\n";
             echo "Duration :            " . secondsToHMS($row['duration']) . "\n";
          echo "</div>";
 
