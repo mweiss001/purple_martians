@@ -18,9 +18,33 @@
 <div> <button id="fetchDataButton">Fetch Date</button> </div>
 
 
+<div> <button id="testButton">Test</button> </div>
+
+
+
+<label for="range-select">Range:</label>
+<select name="range" id="range-select">
+    <option value="0">All</option>
+    <option value="1">Last Hour</option>
+    <option value="2">Last Day</option>
+    <option value="3">Most Recent Session</option>
+</select>
+
+
+
+
+
+
 <div id="chart-container" style="height:600px"></div>
 
 <script src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
+
+
+
+
+
 
 </body>
 </html>

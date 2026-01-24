@@ -5,10 +5,6 @@ BUGS!!
 ------------------------------------------------------------------------------
 on server, once rc quits it never stops sending rc packets
 
-
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -21,7 +17,6 @@ Big things:
 - level stats to use database
 - rearrange levels again (too many crappy ones polluting the good/great ones)
 - sessions timeline
-
 
 
 OMG!!!! add level name to header!!!!
@@ -52,21 +47,6 @@ from this pop-up menu allow a very limited set of things...
 
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------

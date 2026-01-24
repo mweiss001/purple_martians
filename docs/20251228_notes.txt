@@ -11606,6 +11606,553 @@ could I do with less??
 date fns folder has
 5326 files 20M (38M on disk)
 
+dont commit that...
+
+2026-01-22 07:11:35
+
+I now have it all comitted and some new test data
+
+its looking good!!!
+
+how far am I from patching it into the rest?
+
+- figure out how to use less of date-fns
+- figure out how to 
+
+
+
+
+2026-01-22 21:42:05
+
+I use php to read database then pass to js, can js read database?
+
+AI Overview
+JavaScript cannot directly read databases due to security restrictions and the
+nature of client-side execution [1, 2]. The model you described—using PHP on the
+server-side to fetch data from the database and then passing that data to JavaScript
+—is the standard, secure, and correct approach [1, 2]. 
+
+Here's a breakdown of why this approach works and is necessary:
+
+    Security: Databases contain sensitive information and require specific credentials
+    for access. Direct access from client-side JavaScript would expose these
+    credentials to anyone using the website, creating a major security vulnerability [1, 2].
+    
+    Environment: PHP runs on the server, where it has secure access to the database. 
+    JavaScript primarily runs in the user's web browser, which is isolated from the
+    server's backend infrastructure for safety [1, 2].
+    
+    Your Method (The correct way): You use PHP to perform the secure database
+    operations. PHP then formats the data (commonly as JSON) and sends it to the
+    browser. JavaScript running in the browser can then interpret and use this data to
+    dynamically update the webpage [1, 2]. 
+
+In summary, you are already using the appropriate and secure method for handling database data with JavaScript.
+
+
+
+
+next...
+
+can I create html with js, just like I do now with php...yes
+
+why?
+
+
+this all stems from wanting to not have to refresh the whole page everytime I change a variable
+
+I'm trying to visualize the overall structure...
+
+
+- page in html with place holders for each section
+
+- js keeps all variables and handles drawing and updating and user input
+
+
+
+
+I am thinking of trying vue...
+
+react - meta
+angular - google
+vue open-source community
+
+that says it all...
+
+What am I trying to do here?
+
+It is a huge rabbit hole to go down to do this...
+
+
+2026-01-23 01:12:30
+
+
+spent some time customizing the charts
+
+took quite a while to figure out axisPointer
+
+change toolTip to uyse 24H time to match axis and pointers..done
+
+it does not look like I can use css with echarts...
+
+so figure out what looks good
+
+
+2026-01-24 05:05:46
+
+make funtions to convert color formats...
+I have playerColors array in format:
+
+const playerColors = [
+   "#888888", 
+   "#bf6ce8", 
+   "#8820ac",
+   "#3c7fff",
+   "#e01c48",
+   "#ff00e8",
+
+I want to generate:
+
+var playerColorsHSL = [
+   [280, 73, 67],
+   [0, 73, 67],
+   
+   
+or should I just do it once then make it static?
+
+yes do that...
+
+const playerColors = [
+   "#888888", 
+   "#bf6ce8", 
+   "#8820ac",
+   "#3c7fff",
+   "#e01c48",
+   "#ff00e8",
+   "#ffbf7f",
+   "#ff7f00",
+   "#7f00ff",
+   "#01ff7f",
+   "#ff0000",
+   "#01ff00",
+   "#0000ff",
+   "#01ffff",
+   "#ffff00",
+   "#ffffff",
+]
+
+const playerColorsHSL = [
+  [   0, 0, 53],
+  [ 280,   73,   67 ],
+  [ 285,   69,   40 ],
+  [ 219,  100,   62 ],
+  [ 347,   78,   49 ],
+  [ 305,  100,   50 ],
+  [  30,  100,   75 ],
+  [  30,  100,   50 ],
+  [ 270,  100,   50 ],
+  [ 150,  100,   50 ],
+  [   0,  100,   50 ],
+  [ 120,  100,   50 ],
+  [ 240,  100,   50 ],
+  [ 180,  100,   50 ],
+  [  60,  100,   50 ],
+  [   0,    0,  100 ]
+]
+
+
+
+function test()
+{
+   
+//   playerColorsHSL.length = 0;
+   
+   /*
+   // iterate the data array
+   for (let i = 0; i < 16; i++)
+   {
+      console.log(playerColors[i]);
+
+      var h = hexToRgbVal(playerColors[i]);
+   
+      
+      console.log(h);
+//      console.log(h[0], h[1], h[2]);
+
+      var hsl = rgbToHsl(h[0], h[1], h[2]);
+
+      var line = [hsl[0], hsl[1], hsl[2]];
+       
+      playerColorsHSL.push(line);
+
+      console.log(hsl);
+  
+   }
+*/
+   
+   console.log(playerColorsHSL);
+   
+   
+   
+   
+   
+   
+}
+
+
+
+
+
+// takes #XXXXXX and returns rgb(xxx, xxx, xxx)
+function hexToRgbText(hex)
+{
+   let alpha = false,
+
+   h = hex.slice(hex.startsWith('#') ? 1 : 0);
+
+   if (h.length === 3) h = [...h].map(x => x + x).join('');
+   else if (h.length === 8) alpha = true;
+   h = parseInt(h, 16);
+   return(
+      'rgb' +
+      (alpha ? 'a' : '') +
+      '(' +
+      (h >>> (alpha ? 24 : 16)) +
+      ', ' +
+      ((h & (alpha ? 0x00ff0000 : 0x00ff00)) >>> (alpha ? 16 : 8)) +
+      ', ' +
+      ((h & (alpha ? 0x0000ff00 : 0x0000ff)) >>> (alpha ? 8 : 0)) +
+      (alpha ? `, ${h & 0x000000ff}` : '') +
+      ')'
+   );
+}
+
+
+// takes #XXXXXX and returns xxx, xxx, xxx
+function hexToRgbVal(hex)
+{
+   var h = hex.slice(hex.startsWith('#') ? 1 : 0);
+   if (h.length === 3) h = [...h].map(x => x + x).join('');
+   h = parseInt(h, 16);
+
+   let r = h >>> 16;
+   let g = ((h & 0x00ff00) >>> 8);
+   let b = ((h & 0x0000ff) >>> 0);
+
+   var rgb = [r, g, b];
+   return rgb;
+
+}
+
+
+
+
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+
+
+removed all this code....
+
+
+
+2026-01-24 05:22:18
+
+now what?
+
+do something with this
+function to return hsl(
+
+
+
+2026-01-24 06:15:18
+
+that is working great, but I cannot seem to get linear gradients to work on both x and y axis at the same time:
+
+I have 2 different methods, but they both do the same thing...
+
+either x or y, but if I do both I get x only
+
+               style:
+               {
+                  fill:
+//                  {
+
+            new echarts.graphic.LinearGradient(0, 0, 1, 1, [{
+                offset: 0,
+                color: 'rgb(255, 158, 68)' // Color at the top (offset 0)
+            }, {
+                offset: 1,
+                color: 'rgb(255, 70, 131)' // Color at the bottom (offset 1)
+            }])
+
+/*
+                     
+                     type: 'linear',
+                     x: 0, y: 0, x2: 0, y2: 1,
+                     colorStops:
+                     [
+
+                        { offset: 0.0, color: getHSL(api.value(3), 0.3) },
+                        { offset: 0.5, color: getHSL(api.value(3), 1.0) },
+                        { offset: 1.0, color: getHSL(api.value(3), 0.3) }
+
+                    ]
+
+
+*/
+
+
+
+  //                }
+
+
+
+2026-01-24 06:46:11
+
+figure out draw overlay on bar
+
+series: [{
+    type: 'custom',
+    renderItem: function (params, api) {
+        // Get coordinates for data point
+        var categoryIndex = api.value(0);
+        var start = api.coord([categoryIndex, 0]);
+        var end = api.coord([categoryIndex, api.value(1)]);
+        var width = api.size([0, 1])[0] * 0.6; // Bar width
+
+        return {
+            type: 'group',
+            children: [{
+                type: 'rect',
+                shape: {
+                    x: start[0] - width / 2,
+                    y: start[1],
+                    width: width,
+                    height: end[1] - start[1]
+                },
+                style: api.style()
+            }, {
+                type: 'text',
+                style: {
+                    text: 'Label', // Text content
+                    x: start[0], // Center horizontally
+                    y: start[1] + 10, // Offset vertically
+                    fill: '#000',
+                    textAlign: 'center',
+                    textVerticalAlign: 'top'
+                }
+            }]
+        };
+    },
+    data: [[10, 20], [20, 30]] // Example data
+}]
+
+
+
+
+2026-01-24 08:53:02
+
+I think I am ready for the range buttons
+
+Just like the old one..
+
+display start and end
+
+current session
+last hour
+last day
+all
+
+do a drop down control..done
+
+
+
+pass to data to control select
+
+
+pass what?
+
+?range=all
+?range=last_time@min=60
+?range=last_session
+
+// show the range (just did it on the axis...)
+
+
+
+
+Enter ".help" for usage hints.
+sqlite> .mode column
+sqlite> select * from gm;
+muid              filename                                        dt_start             dt_end               duration  level  num_entries
+----------------  ----------------------------------------------  -------------------  -------------------  --------  -----  -----------
+MIAGCXYHSZZRMJWX  20260122-070451-[80]-autosave on level done.gm  2026-01-22T14:04:01  2026-01-22T14:04:33  32        80     88
+XSDXTBRIVFBWRHOL  20260122-070542-[37]-autosave on level done.gm  2026-01-22T14:05:04  2026-01-22T14:05:27  23        37     77
+DZLGYVRDJDONWCJM  20260122-081415-[37]-autosave on level done.gm  2026-01-22T14:14:15  2026-01-22T14:14:51  36        37     180
+RXKJBZVTYYEDXYFO  20260122-213637-[37]-autosave on level done.gm  2026-01-23T04:35:57  2026-01-23T04:36:22  25        37     119
+IJHSMIYSYVEUWASB  20260124-052510-[37]-autosave on level done.gm  2026-01-24T12:24:32  2026-01-24T12:24:54  22        37     100
+sqlite>
+
+
+
+m@o3000:/var/www/html/teste$
+m@o3000:/var/www/html/teste$
+m@o3000:/var/www/html/teste$
+m@o3000:/var/www/html/teste$ php data.php range=min min=500
+
+
+range=min    min=500
+
+sql_where: WHERE dt_start BETWEEN '2026-01-24T09:07:49' AND '2026-01-24T17:27:49'
+
+m@o3000:/var/www/html/teste$
+
+
+
+
+
+range=min    min=60
+
+sql_where: WHERE dt_start BETWEEN '2026-01-24T16:31:40' AND '2026-01-24T17:31:40'
+
+m@o3000:/var/www/html/teste$
+
+
+sqlite> select * from gm;
+muid              filename                                        dt_start             dt_end               duration  level  num_entries
+----------------  ----------------------------------------------  -------------------  -------------------  --------  -----  -----------
+MIAGCXYHSZZRMJWX  20260122-070451-[80]-autosave on level done.gm  2026-01-22T14:04:01  2026-01-22T14:04:33  32        80     88
+XSDXTBRIVFBWRHOL  20260122-070542-[37]-autosave on level done.gm  2026-01-22T14:05:04  2026-01-22T14:05:27  23        37     77
+DZLGYVRDJDONWCJM  20260122-081415-[37]-autosave on level done.gm  2026-01-22T14:14:15  2026-01-22T14:14:51  36        37     180
+RXKJBZVTYYEDXYFO  20260122-213637-[37]-autosave on level done.gm  2026-01-23T04:35:57  2026-01-23T04:36:22  25        37     119
+IJHSMIYSYVEUWASB  20260124-052510-[37]-autosave on level done.gm  2026-01-24T12:24:32  2026-01-24T12:24:54  22        37     100
+SKHZMXRWLIRSFCVK  20260124-103127-[37]-autosave on level done.gm  2026-01-24T17:30:46  2026-01-24T17:31:11  25        37     133
+sqlite>
+
+
+2026-01-24T16:31:40
+
+2026-01-24T17:31:40
+
+
+
+2026-01-24T17:30:46  2026-01-24T17:31:11
+
+
+
+2026-01-24 11:30:16
+
+
+when reloading, always read range and send
+
+
+fetch is top level and it calls
+
+
+2026-01-24 12:26:48
+
+I think I have eneough features ready that I want to put this in the main page..
+
+but first...
+
+can I reduce date-fns?
+
+import format             from './node_modules/date-fns/format.js';
+import intervalToDuration from './node_modules/date-fns/intervalToDuration.js';
+import differenceInDays   from './node_modules/date-fns/differenceInDays.js';
+
+
+<script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script> 96k
+
+
+do a commit....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
