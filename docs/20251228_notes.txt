@@ -12676,257 +12676,134 @@ make a static html page
 
 2026-01-25 16:55:12
 
-I think it is time for a backup....
+I think it is time for a backup....done
 
+now what?
 
 
+when the page is initially loaded it looks bad
 
+current session is not set
+view says title only, but that is not what is set
 
+Fetch error: HTTP error! Status: 500 script.js:688:15
+    fetchDataSessionsTable http://192.168.1.146/sessions/script.js:688
 
 
+then current session, then current gm
+what should I do if current session id is not set?
+when I try to load the page
+if I cannot read from session variables, call php script to get the data
+did that for all the variables
 
 
 
+2026-01-25 18:20:21
 
+hook in a test button to see if more than one item has 8
 
+it appears that only 1 is active, but the chart shows more...
 
 
+trace what happens when clicked..
 
 
 
+does fetch data also call a reload
 
 
 
+function setCurrentSession(id)
+{
+   currentSessionId = id;
+   sessionStorage.setItem("currentSessionId", JSON.stringify(currentSessionId));
+   fetchDataCurrentSession();
+   fetchDataGmTable();
 
+   // reload timeline if range is set to current session 
+   if (timelineRange === 3) fetchDataTimeline();
+   else
+   {
+      // iterate the array and set current selection
+      for (let i = 0; i < data.length; i++)
+      {
+         data[i].value[8] = 0; // unset
+         if (data[i].value[2] && (data[i].value[6] === currentSessionId)) data[i].value[8] = 1;
+      }
+      myChart.setOption( { series: [ { data: data } ]}, false);
+   }
+}
 
+fetch data calla reload chart which then iterates and does the check...
 
 
+2026-01-26 04:04:48
 
+what do I want to fix about the timeline chart?
+- tooltip gets in the way of clicking
+- i would like to do a nice outline for highlight
+- show number of items in the toolbar..done
+- adjustable height
+- show only sessions, or sessions and gm??
 
 
 
+2026-01-26 05:43:15
+figured out variables in css and relative colors
 
+tooltip back to top, works well
 
+did some padding and rounded corners and hr to separate bottom text
 
 
+now i want to make the level icon bigger and have 2 lines of text to the right
+level number and download link
+orig:
 
+            var lev = params.data.value[6];
+            var l2 = String(lev).padStart(3, '0');
+            icon = `/assets/icons/lev${l2}.png`;
 
+            var filename = params.data.value[7];
+            var fullpath = "/downloads/" + filename;
+            var lnk = `<div style="text-align: center"><a href="${fullpath}" download="${filename}">Download</a></div>`;
 
+            name = '<img src="' + icon + '" style="width: 50px; height: 50px; vertical-align: middle;">';
+            name += '<span style="white-space:pre"> ';
+            name += `Level:${lev}`; // level number
+            name += '</span><br>';
+            name += lnk + "<hr>";
 
 
+flexbox to the rescue!!!
 
+            var lev = params.data.value[6];
+            var l2 = String(lev).padStart(3, '0');
+            icon = `/assets/icons/lev${l2}.png`;
 
+            var filename = params.data.value[7];
+            var fullpath = "/downloads/" + filename;
+            var lnk = `<a href="${fullpath}" download="${filename}">Download</a>`;
 
+            name = '<div style="display: flex; gap: 10px">';
+            name += '<img src="' + icon + '" style="width: 100px; height: 100px; vertical-align: middle;">';
+            name += '<div style="display: flex; flex-direction:column; justify-content:space-evenly">';
+            name += `Level:${lev}` + lnk + '</div></div><hr>';
 
 
+2026-01-26 07:13:17
 
+this is looking well...
 
+what did I do vs what I wanted to get done?
 
+- tooltip gets in the way of clicking..done
+- i would like to do a nice outline for highlight
+- show number of items in the toolbar..done
+- adjustable height
+- show only sessions, or sessions and gm??
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+anyway, it looks great...I should commit...
 
 
 

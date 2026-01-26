@@ -84,8 +84,10 @@ var option =
             var minWidth = 5;
             if (width < minWidth) end[0] = start[0] + minWidth;
 
-            var name1 = api.value(4); // player name
+            var name1 = api.value(6); // player name
             if (api.value(2) == 0) name1 = `Level:${api.value(6)}`; // level number for type = session
+
+
 
                  
             // actual timespan in seconds 
@@ -117,8 +119,52 @@ var option =
                      shape: rect,
                      style:
                      {
+
+                        fill: isSelected ?
+
+
+
+
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 1.0) },
+                              { offset: 0.5, color: getHSLC(api.value(3), 1.0, 180) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+
+
+                          ]
+                        }
+
+
+
+                         :
+
+
+
+
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 0.2) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+                          ]
+                        },
+                        
+
+
+
+
+
+
+
+
           
-                       fill: isSelected ? 'red' : 'blue' // Manual color toggle
+//                       fill: isSelected ? 'red' : 'blue' // Manual color toggle
 /*
 
                         fill:
@@ -220,14 +266,27 @@ var option =
 
    tooltip:
    {
-      position: 'inside',
+      //confine: true,
+
+      //position: 'inside',
+      position: 'top',
+      //position: 'bottom',
 
       hideDelay: 500,
 
-
-      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      backgroundColor: 'rgba(50, 50, 50, 1.0)',
+      //backgroundColor: 'rgba(50, 50, 50, 0.9)',      
       borderColor: '#aaaaaa',
       borderWidth: 1,
+
+      borderRadius: 8,
+
+//  tb, lr
+//      padding: [4, 8], 
+// t r b l
+      padding: [4, 8, 2, 8],
+
+
 
       enterable: true,
 
@@ -237,15 +296,11 @@ var option =
       {
          color: '#fff',
          fontFamily: 'monospace',
-//                  fontSize: 16,
+         //fontSize: 16,
       },
 
-      show: false,
+      show: true,
       trigger: "item",
-
-
-
-
 
       formatter: params =>
       {
@@ -258,26 +313,25 @@ var option =
             name = '<img src="' + icon + '" style="width: 20px; height: 20px; vertical-align: middle;">';
             name += '<span style="white-space:pre"> ';
             name += params.data.value[4]; // player name
-            name += '</span><br>';
-            
+            name += '</span><hr>';
          }
          else // type = gm
          {
             var lev = params.data.value[6];
             var l2 = String(lev).padStart(3, '0');
             icon = `/assets/icons/lev${l2}.png`;
-            name = '<img src="' + icon + '" style="width: 50px; height: 50px; vertical-align: middle;">';
-            name += '<span style="white-space:pre"> ';
-            name += `Level:${lev}`; // level number
-            name += '</span><br>';
+
             var filename = params.data.value[7];
             var fullpath = "/downloads/" + filename;
-            var lnk = `<div style="text-align: center"><a href="${fullpath}" download="${filename}">Download</a></div>`;
-            console.log(lnk);
-            name += lnk;
+            var lnk = `<a href="${fullpath}" download="${filename}">Download</a>`;
+
+            name = '<div style="display: flex; gap: 10px">';
+            name += '<img src="' + icon + '" style="width: 100px; height: 100px; vertical-align: middle;">';
+            name += '<div style="display: flex; flex-direction:column; justify-content:space-evenly">';
+            name += `Level:${lev}` + lnk + '</div></div><hr>';
          }            
 
-         // get date objects fron start and end
+         // get date objects from start and end
          const d1 = new Date(params.data.value[0]);
          const d2 = new Date(params.data.value[1]);
 
@@ -286,20 +340,19 @@ var option =
          const fet = dateFns.format(d2, 'yyyy-MM-dd HH:mm:ss');
 
          // get duration
-         const dur =  getDuration(d1, d2);
+         const dur = getDuration(d1, d2);
 
-        var s1 = '<span style="white-space:pre">';
-        var eol = "</span><br>"; // end of line
+         var s1 = '<span style="white-space:pre">';
+         var eol = "</span><br>"; // end of line
 
-        var txt =    name;
-        txt +=    s1 + 'Start: '    + fst  + eol;
-        txt +=    s1 + 'End:   '    + fet  + eol;
-        txt +=    s1 + 'Duration: ' + dur  + eol;
+         var txt =    name;
+         txt +=    s1 + 'Start: '    + fst  + eol;
+         txt +=    s1 + 'End:   '    + fet  + eol;
+         txt +=    s1 + 'Duration: ' + dur  + eol;
 
-        return txt;
+         return txt;
       },
    },
-
 
    dataZoom:
    [
@@ -312,32 +365,74 @@ var option =
 
 
 var myChart;
-
 var sessionsTableView;
-
 var gmTableView;
-
 var timelineRange;
-
 var currentSessionId;
 var currentSessionView;
-
 var currentGmMuid;
-
 var data;
 var maxCat;
 let catArr = [];
 
 
+/*
+function resetHighlight()
+{
+   console.log("resetHighlight()");
+   myChart.setOption( { series: [ { data: data } ]}, false);
+}
+const intervalId = setInterval(resetHighlight, 1000);
+*/
+
+
 
 function readVariablesFromSessionStorage()
 {
-   currentGmMuid      = JSON.parse(sessionStorage.getItem("currentGmMuid"));
+   // attempt to read all variables from session storage
    currentSessionId   = JSON.parse(sessionStorage.getItem("currentSessionId"));
-   timelineRange      = JSON.parse(sessionStorage.getItem("timelineRange"));
    currentSessionView = JSON.parse(sessionStorage.getItem("currentSessionView"));
    sessionsTableView  = JSON.parse(sessionStorage.getItem("sessionsTableView"));
    gmTableView        = JSON.parse(sessionStorage.getItem("gmTableView"));
+   currentGmMuid      = JSON.parse(sessionStorage.getItem("currentGmMuid"));
+   timelineRange      = JSON.parse(sessionStorage.getItem("timelineRange"));
+ 
+   // if any are not set (null), set default values
+   if (currentSessionId === null)
+   {
+       console.log("currentSessionId not set...finding most recent");
+       fetchDataMostRecentSession();
+   }
+   if (currentGmMuid === null)
+   {
+       console.log("currentGmMuid not set...finding most recent");
+       fetchDataMostRecentGm();
+   }
+   if (currentSessionView === null)
+   {
+      currentSessionView = 1;
+      sessionStorage.setItem("currentSessionView", JSON.stringify(currentSessionView));
+   }
+   if (sessionsTableView === null)
+   {
+      sessionsTableView = 1;
+      sessionStorage.setItem("sessionsTableView", JSON.stringify(sessionsTableView));
+   }
+
+   if (gmTableView === null)
+   {
+      gmTableView = 1;
+      sessionStorage.setItem("gmTableView", JSON.stringify(gmTableView));
+   }
+   if (timelineRange === null)
+   {
+      timelineRange = 0;
+      sessionStorage.setItem("timelineRange", JSON.stringify(timelineRange));
+   }
+
+
+
+
 
 }
 
@@ -361,6 +456,13 @@ document.addEventListener('DOMContentLoaded', (event) =>
    // listen for timeline chart clicks
    myChart.on('click', function (params)
    {
+      // iterate the array and set current selection
+      for (let i = 0; i < data.length; i++)
+      {
+         data[i].value[8] = 0; // unset
+         if (data[i].value[2] && (data[i].value[6] === params.value[6])) data[i].value[8] = 1;
+      }
+
       if (params.value[2]) setCurrentSession(params.value[6]); // session
       else                 setCurrentGmMuid(params.value[5]);  // gm
    });
@@ -402,7 +504,6 @@ document.getElementById("testButton2").addEventListener("click", function()
    fetchDataCurrentGm();
    
    
-   
 });
 
 function setCurrentSession(id)
@@ -411,10 +512,13 @@ function setCurrentSession(id)
    sessionStorage.setItem("currentSessionId", JSON.stringify(currentSessionId));
    fetchDataCurrentSession();
    fetchDataGmTable();
-   fetchDataCurrentGm();
 
+
+   fetchDataTimeline();
+/*
    // reload timeline if range is set to current session 
    if (timelineRange === 3) fetchDataTimeline();
+
    else
    {
       // iterate the array and set current selection
@@ -425,17 +529,18 @@ function setCurrentSession(id)
       }
       myChart.setOption( { series: [ { data: data } ]}, false);
    }
+
+*/
+
+
+
 }
-
-
-
 
 
 function setCurrentGmMuid(id)
 {
    currentGmMuid = id;
    sessionStorage.setItem("currentGmMuid", JSON.stringify(currentGmMuid));
-
    fetchDataCurrentGm();
 }
 
@@ -488,6 +593,27 @@ function getHSL(p, lm)
    return ret;
 }
 
+
+
+function getHSLC(p, lm, cs)
+{
+   var h = playerColorsHSL[p][0];
+
+   h+=cs;
+   if (h>360) h-=360;
+
+   var s = playerColorsHSL[p][1];
+   var l = playerColorsHSL[p][2] * lm;
+   var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
+   return ret;
+}
+
+
+
+
+
+
+
 function getDuration(d1, d2)
 {
    const duration = dateFns.intervalToDuration({ start: d1, end: d2 });
@@ -526,6 +652,15 @@ function getDuration(d1, d2)
 // returns range array [0]-min [1]-max
 function getDataRange()
 {
+   if (data.length == 0)
+   {
+      document.getElementById("num_items").innerHTML   = "Items: 0";
+      document.getElementById("range-start").innerHTML = "Start: ";
+      document.getElementById("range-end"  ).innerHTML = "End: ";
+      return [0, 0];
+   }
+    
+
    // initial values are the first in the array
    var min = data[0].value[0];
    var max = data[0].value[1];
@@ -544,14 +679,12 @@ function getDataRange()
    // format start and end
    const fst = dateFns.format(d1, 'yyyy-MM-dd HH:mm:ss');
    const fet = dateFns.format(d2, 'yyyy-MM-dd HH:mm:ss');
-
+   
+   document.getElementById("num_items").innerHTML   = "Items: " + String(data.length);
    document.getElementById("range-start").innerHTML = "Start: " + fst;
    document.getElementById("range-end"  ).innerHTML = "End: "   + fet;
 
-   // console.log("min:", min.toString(), "\nmax:", max.toString() );   
-   var range = [min, max];
-
-   return range;
+   return [min, max];
 }
 
 
@@ -581,30 +714,33 @@ function setCategories()
 }
 
 
+function setChartCurrentSelection()
+{
+   // iterate the array and set current selection
+   for (let i = 0; i < data.length; i++)
+   {
+      data[i].value[8] = 0; // unset
+      if (data[i].value[2] && (data[i].value[6] === currentSessionId)) data[i].value[8] = 1;
+   }
+}
+
+
 function reloadChart()
 {
+   var range = getDataRange();
+
    if (data.length == 0)
    {
       console.log("No data");
       catArr.length = 0;
       maxCat = 0;
-      range = [0,0];
    }
    else
    {
       // modify the array, add key-value 'name' and name from value 4
       data = data.map(obj => { return { name: obj.value[4], ...obj  }; });
-      var range = getDataRange();
       setCategories();
-
-      // iterate the array and set current selection
-      for (let i = 0; i < data.length; i++)
-      {
-         data[i].value[8] = 0; // unset
-         if (data[i].value[2] && (data[i].value[6] === currentSessionId)) data[i].value[8] = 1;
-      }
-
-
+      setChartCurrentSelection();
    }
 
    myChart.setOption(
@@ -774,29 +910,36 @@ async function fetchDataGmTable()
    }
 }
 
-
-
 async function fetchDataCurrentGm()
 {
    var url = 'fill_current_gm.php?id=' + currentGmMuid;
-   try
-   {
+   try {
       const response = await fetch(url);
       if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
       var html = await response.text();
-
       document.getElementById("current_gm_js_target").innerHTML = html;
-   } catch (error)
-   {
-      console.error("Fetch error:", error.message); // Handles network errors or the error thrown above
-   }
+   } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
 
+async function fetchDataMostRecentSession()
+{
+   try {
+      const response = await fetch('find_most_recent_session.php');
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      var html = await response.text();
+      setCurrentSession(Number(html));
+   } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
+}
 
-
-
-
-
+async function fetchDataMostRecentGm()
+{
+   try {
+      const response = await fetch('find_most_recent_gm.php');
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      var html = await response.text();
+      setCurrentGmMuid(html.trim());
+   } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
+}
 
 
 

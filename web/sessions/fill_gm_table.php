@@ -66,7 +66,6 @@ if ($id)
 
    $col_list = array("Start Time", "Duration", "Level", "Players", "Set Current", "Download", "Filename", "muid" );
            
-   $but = "class=\"button\" id=\"gm_table_button\"";
 
    echo "<div id=\"gm_table\"  class=\"div-section-container\">";
       echo "<div id=\"gm_table\"  class=\"div-section-title-section-frame\">";
@@ -76,7 +75,7 @@ if ($id)
 
 
                echo '<label>View:</label>';
-               echo '<select name="range" id="gm_table_view_select">';
+               echo '<select name="range" id="gm_table_view_select" class=\"button\" >';
                    echo '<option value="0">Title Only</option>';
                    echo '<option value="1">Current</option>';
                    echo '<option value="2">All</option>';
