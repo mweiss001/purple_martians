@@ -12086,6 +12086,792 @@ import differenceInDays   from './node_modules/date-fns/differenceInDays.js';
 do a commit....
 
 
+2026-01-24 12:59:32
+
+show_timeline.php is 230 lines
+
+how to replace with echarts?
+
+
+
+
+start by adding this to sessions.php
+
+<script src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
+
+
+then remove g stuff
+
+
+then make a div for chart and range selector...done
+
+
+
+show_timeline.php is gone
+
+
+all the html is in sessions.php
+
+
+
+<script src="./script.js", type="module" ></script>
+
+</head>
+
+<body>
+
+<?php
+
+echo "<div class=\"div-sessions-page\">";
+
+$but = "class=\"button\" id=\"links_button\"";
+   echo "<div class=\"div-sessions-page-links\">";
+   echo "<a href=\"../index.html\" $but >Back to Main Page</a>";
+   echo "<a href=\"sessions.php\"  $but >Sessions</a>";
+   echo "<a href=\"status.php\"  $but >Status</a>";
+   echo "</div>";
+
+   $but = "class=\"button\" id=\"timeline_button\""; 
+
+   echo "<div id=\"timeline\"  class=\"div-section-container\">";
+      echo "<div id=\"timeline\"  class=\"div-section-title-section-frame\">";
+         echo "<div id=\"timeline\"  class=\"div-section-title-section-container\">";
+            echo "<div id=\"timeline\"  class=\"div-section-title-frame\">Sessions Timeline</div>";
+            echo "<div id=\"timeline\"  class=\"div-section-title-frame-buttons-frame\">";
+
+/*               echo "<a href=\"#\" $but >Start:$tl_start</a>";
+               echo "<a href=\"#\" $but >End:$tl_end</a>";
+*/
+               echo '<label for="range-select">Range:</label>';
+               echo '<select name="range" id="range-select">';
+                   echo '<option value="0">All</option>';
+                   echo '<option value="1">Last Hour</option>';
+                   echo '<option value="2">Last Day</option>';
+                   echo '<option value="3">Most Recent Session</option>';
+               echo '</select>';
+
+
+            echo "</div>";
+         echo "</div>";
+      echo "</div>";
+         echo '<div id="chart-container" style="height:600px"></div>';
+     echo "</div>";
+   echo "</div>";
+
+
+
+
+
+I need this version of dateFns:
+
+<script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+
+
+or Datatables gets a weird error:
+
+Uncaught TypeError: $(...).ready is not a function
+    <anonymous> http://192.168.1.146/sessions/sessions.php?tl_mode=0:32
+sessions.php:32:1637
+
+
+2026-01-24 14:35:27
+
+
+now what?
+
+make the clicks do something
+
+how to pass data from js to php
+
+
+I want to share the session id
+
+php keeps it in _SESSION
+
+in order to actually make the php update I should just reload the page.
+
+
+
+function reloadPageWithQueryString(paramName, paramValue) {
+    // Construct the new URL with a query string
+    var newUrl = window.location.pathname + '?' + encodeURIComponent(paramName) + '=' + encodeURIComponent(paramValue);
+    
+    // Reload the page with the new URL
+    window.location.href = newUrl;
+}
+
+// Example usage:
+reloadPageWithQueryString('theme', 'dark'); 
+// This will reload the page as: http://example.com/current/page?theme=dark
+
+
+2026-01-24 15:50:30
+
+finally made a favicon
+
+I want a download button on the gm item
+
+If I could make the tooltip stationary instead on moving with mouse
+
+style the button
+
+
+2026-01-24 18:22:15
+
+why is it so hard to highlight the current session?
+
+I think I will make my own column in the table for that
+
+8
+
+I have that working
+
+
+2026-01-25 04:29:16
+
+I want to work on getting most of the functionality in the js file
+
+why?
+less page reload when I click on something
+global variables can live in the js sessions instead of being synced to php
+
+I could even make the main page static instead of php
+
+
+I think I will move in that diretion
+
+
+my goal:
+
+index will be html instead of php
+
+script.js will be the main js file maybe rename to main.js
+if it gets too large I could split the js into muliple files
+global (session) variables will all be in main.js
+
+php files will be used to do the database functions
+I will have a handfull of small self contained php files that
+take args from query string and return json
+
+
+
+
+2026-01-25 04:51:12
+
+bite the bullet and start...
+
+create sessions.html..done
+add timeline...done
+
+add session table...
+
+datatables requires an already well formatted html table
+
+should I do that in php like I currently do, or in js?
+
+have js fill the section with the php script
+
+just leave a div where you want to table to be in html
+
+      <div id="sessions"  class="div-section-sub-section-table">
+
+then in js, get this id and fill with php
+
+
+I have js loading from php
+
+
+how do I make the clicks on the table update current session?
+
+I am getting close...
+
+this is what I did:
+
+in the td tag
+
+                     echo "<td current_session_id=$id ><div class=\"icon-text-container\">";
+
+
+in js:
+
+   const cells = document.querySelectorAll('#sessions_table1 td');
+   console.log(cells);   
+   cells.forEach(cell => {
+               console.log(cell);   
+      cell.addEventListener('click', function() {
+            // Get the URL from the data-url attribute
+            const id = this.getAttribute('current_session_id');
+            if (id) {
+                console.log(id);   
+
+            }
+        });
+    });
+
+the problem is...I need to wait until the table is loaded to do this...
+
+figured it out...
+
+before I go much further I want to implement the current session section
+maybe it will just be a header for now, but I want it so I can implement current session variables
+
+when I am done, I will never reload the page
+
+2026-01-25 06:58:15
+
+copy the html to index
+
+now when current session changes, update the title
+
+
+it works, both table clicks and timeline clicks set current session id
+
+but only timeline clicks update highlight
+table clicks clear all highlights
+
+figured it out, it was number to string comparision
+now... why can I sometimes select 2 things in timeline??
+do I need a full reload??
+could not figure that out...
+
+
+next:
+make current session option with timeline
+
+I think we could even replace most recent??
+
+data.php
+
+
+rename to fetch_data_timeline.php
+
+change query string
+
+range [all | last | session]
+val   [minutes | session_id]
+
+fix show current session
+
+it is fixed, now I should reload if in that mode..done
+
+looking good!!!
+
+now finish current session
+- show title like it was
+- option to have minimal, like title only or more details
+
+should I get php to fill it?
+I have the title filling nicely
+
+now do the body and the buttons
+body done
+
+
+buttons...
+
+
+do a drop down like the other
+
+title_only
+minimal
+player
+bandwidth
+
+
+make a variable to hold this:
+var currentSessionView;
+set from list and save
+
+I am very happy with current session
+I might go as far as to say it is done...
+
+now I should finish sessions table
+
+put the buttons back
+
+session view
+default
+player
+bandwidth
+all
+
+sessions table looks great, even without any datatables
+
+I should figure out how to put it back....
+
+
+sessions_table1
+
+      echo "<script>$(document).ready( function ()
+      {
+         $('#myTable').DataTable(
+         {
+            layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
+            colReorder: true,
+            columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: $cla } ],
+            order: [  [0, 'desc'] ]
+         }  );
+      } );
+      </script> ";
+
+
+
+need to figure out how to wait to load it...done
+
+triangle sort icons are messed up so I changed from this:
+
+<script src="../assets/js/datatables.min.js"></script>
+<link rel="stylesheet" href="../assets/css/datatables.min.css" />
+
+to cdn like this:
+
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+<script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+
+in the process I lost the 'buttons' extension
+
+DataTables warning: table id=myTable2 - Unknown feature: buttons
+
+      new DataTable("#myTable2",
+      {
+         //layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
+         layout: {  bottomStart: 'pageLength' },
+         colReorder: true,
+         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
+         order: [  [0, 'desc'] ]
+      }  );
+
+it was a nice dropdown to hide show columns...i don't care enough to try to fix it now...
+
+
+this is the entirety of the setup:
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+<script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+
+      new DataTable("#myTable",
+      {
+         colReorder: true,
+         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
+         order: [  [0, 'desc'] ]
+      }  );
+
+
+2026-01-25 12:10:29
+
+now what?
+
+show id in current session title..done
+option in sessions to hide to just title
+rename to sessions table
+done
+
+
+now what?
+
+back to timeline, or work on gm_table and current_gm
+
+the second...get everything in the new js file
+
+2026-01-25 12:22:14
+
+put the html frame in for gm table
+
+2026-01-25 12:48:40
+
+save game files is working...
+
+should I now do current? yes...
+
+
+click on gm list to set currentGmMuid
+
+var currentGmMuid;
+
+
+2026-01-25 13:29:29
+OK i have the bare bones working...now make it good
+
+
+if current saved game not set or found
+
+
+in js keep recent curren muid
+
+in js startup, load all from sessions storage at startup
+done
+
+implement the click on gm in timeline to set current gm...done
+
+now working my way back up to save game
+title and button
+
+like I discovered in current gm, I can do more in the php file
+like the title and everything
+
+this is the html for current gm...
+
+   <div id="current_gm_js_target"></div>
+
+try that with gm list...
+
+   <div id="gm_table_js_target"></div>
+
+
+2026-01-25 14:09:35
+
+looks good, now implement the drop down...this time it will be in php and js
+id="gm_table_view_select"
+now create a variable and save it
+var gmTableView;
+
+
+gm table is done
+
+fill_gm_table.php
+fill_current_gm.php
+
+now onto current_session
+ it is currently 2 files\
+
+I plan to combine them
+
+fill_current_session.php
+
+   <div id="current_session_js_target"></div>
+
+
+
+   <div id="current_session"  class="div-section-container">
+      <div id="current_session"  class="div-section-title-section-frame">
+         <div id="current_session"  class="div-section-title-section-container">
+            <div id="current_session_title_name"  class="div-section-title-frame"></div>
+            <div id="current_session"  class="div-section-title-frame-buttons-frame">
+               <label>View:</label>
+               <select name="range" id="current_session_view_select">
+                   <option value="0">Title Only</option>
+                   <option value="1">Minimal</option>
+                   <option value="2">Player</option>
+                   <option value="3">Bandwidth</option>
+               </select>
+            </div>
+         </div>
+      </div>
+         <div id="current_session_body">
+      </div>
+   </div>
+
+
+I have current session done...
+
+i can get rid of:
+
+show_current_gm.php
+show_current_session.php
+show_current_session_body.php
+show_current_session_title.php
+show_gm_table.php
+
+
+2026-01-25 15:24:25
+
+now go through 
+fill_sessions_table.php and make it like the rest...
+
+
+
+
+   <div id="sessions"  class="div-section-container">
+      <div id="sessions"  class="div-section-title-section-frame">
+         <div id="sessions"  class="div-section-title-section-container">
+            <div id="sessions"  class="div-section-title-frame">Sessions Table</div>
+            <div id="sessions"  class="div-section-title-frame-buttons-frame">
+               <label>View:</label>
+               <select name="range" id="sessions_view_select">
+                   <option value="0">Title Only</option>
+                   <option value="1">Default</option>
+                   <option value="2">Player</option>
+                   <option value="3">Bandwidth</option>
+                   <option value="4">All</option>
+               </select>
+            </div>
+         </div>
+      </div>
+      <div id="sessions"  class="div-section-sub-section-table">
+         <div id="sessions_table1"></div>
+      </div>
+   </div>
+
+
+
+   <div id="sessions_table_js_target"></div>
+
+
+
+
+
+old:
+
+async function fetchDataSessionsTable()
+{
+   var url = 'fill_sessions_table.php?view=' + sessionsTableView;
+   try
+   {
+      const response = await fetch(url);
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      var html = await response.text();
+      document.getElementById("sessions_table1").innerHTML = html;
+
+      // setup on click listeners
+      const rows = document.querySelectorAll('#sessions_table1 tr');
+      rows.forEach(row => {
+         row.addEventListener('click', function() {
+            const id = this.getAttribute('current_session_id');
+            if (id) setCurrentSession(Number(id));
+         });
+      });
+
+      new DataTable("#myTable",
+      {
+         colReorder: true,
+         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
+         order: [  [0, 'desc'] ]
+      }  );
+
+
+   } catch (error)
+   {
+      console.error("Fetch error:", error.message); // Handles network errors or the error thrown above
+   }
+}
+
+
+
+2026-01-25 15:35:07
+
+done...
+now all that is left is timeline
+
+timeline is different, the script fetch_data_timeline.php, only returns a json data array obejct that I plug into echarts...
+I am leaving it as is...
+
+now what?
+
+
+there are things left to do on timeline...important things...
+
+- fix the highlight stuff
+
+- figure out why multiple things can be selected
+check the array with a test button
+
+- make the status page use js and update it every second
+
+how?
+
+make a static html page
+
+
+2026-01-25 16:55:12
+
+I think it is time for a backup....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
 
 
 

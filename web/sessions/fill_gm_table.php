@@ -1,5 +1,8 @@
 <?php
 
+include 'database.php';
+
+
 function show_player_cell($muid)
 {
    $sql = "SELECT sessions.id, player_name, player_num, player_color, hostname FROM sessions ";
@@ -24,7 +27,6 @@ function show_player_cell($muid)
    }
    echo "</div>";
 }
-
  
 function show_level_cell($level)
 {
@@ -37,35 +39,33 @@ function show_level_cell($level)
 }
 
 
+$id = 0;
 
-function show_gm_table()
+if (isset($_GET['id']))   $id     = $_GET['id'];
+if (isset($_GET['view'])) $gm_set = $_GET['view'];
+
+if ($id)
 {
-   $current_session_id = $GLOBALS['current_session_id'];
-   $gm_on  = $GLOBALS['gm_on'];
-   $gm_set = $GLOBALS['gm_set'];
 
-   if (!$gm_on) return;
-
-   $title = "All Save Game Files";
    $sql = "SELECT gm.muid, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, level, duration, filename FROM gm ";
 
-
-
-   if ($gm_set == 1)
+   if ($gm_set == 0) $title = "Save Game Files";
+   if ($gm_set == 2) $title = "All Save Game Files";   
+   if ($gm_set == 1) // current
    {
       $title = "Save Game Files for Current Session";
       $sql .= "LEFT JOIN gm_sessions ON gm.muid = gm_sessions.gm_muid ";
-      $sql .= "WHERE gm_sessions.session_id=$current_session_id";
-      
+      $sql .= "WHERE gm_sessions.session_id=$id";
    }
-   if ($gm_set == 2)
+   if ($gm_set == 3)
    {
       $title = "Orphaned Save Game Files (no matching session)";
       $sql .= "LEFT JOIN gm_sessions ON gm.muid = gm_sessions.gm_muid ";
-      $sql .= "WHERE gm_sessions.gm_id IS NULL";
+      $sql .= "WHERE gm_sessions.gm_muid IS NULL";
    }
 
-
+   $col_list = array("Start Time", "Duration", "Level", "Players", "Set Current", "Download", "Filename", "muid" );
+           
    $but = "class=\"button\" id=\"gm_table_button\"";
 
    echo "<div id=\"gm_table\"  class=\"div-section-container\">";
@@ -74,20 +74,23 @@ function show_gm_table()
             echo "<div id=\"gm_table\"  class=\"div-section-title-frame\">$title</div>";
             echo "<div id=\"gm_table\"  class=\"div-section-title-frame-buttons-frame\">";
 
-               if ($gm_set == 0) echo "<a href=\"sessions.php?gm_set=1\" $but >Show All</a>";
-               if ($gm_set == 1) echo "<a href=\"sessions.php?gm_set=2\" $but >Show Current</a>";
-               if ($gm_set == 2) echo "<a href=\"sessions.php?gm_set=0\" $but >Show Orphan</a>";
+
+               echo '<label>View:</label>';
+               echo '<select name="range" id="gm_table_view_select">';
+                   echo '<option value="0">Title Only</option>';
+                   echo '<option value="1">Current</option>';
+                   echo '<option value="2">All</option>';
+                   echo '<option value="3">Orphan</option>';
+               echo '</select>';
 
             echo "</div>";
          echo "</div>";
       echo "</div>";
-                    
 
 
-   $col_list = array("Start Time", "Duration", "Level", "Players", "Set Current", "Download", "Filename", "muid" );
+      if ($gm_set)
+      {
 
-
-           
       echo "<div id=\"gm_table\"  class=\"div-section-sub-section-gm_table\">";
          echo "<table id='gm_tablet'>";
             echo "<thead'>";
@@ -102,7 +105,7 @@ function show_gm_table()
             echo "</thead>";
             echo "<tbody>";
 
-               $res = $GLOBALS['db']->query($sql);
+               $res = $db->query($sql);
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
                   $muid     = $row['muid'];
@@ -110,12 +113,11 @@ function show_gm_table()
                   $duration = secondsToHMS($row['duration']);
                   $level    = $row['level'];
 
-
                   $filename = $row['filename'];
                   $fullpath = "/downloads/$filename";
-                  // if not set, set to the first one in the table
-                  if ($GLOBALS['current_gm_muid'] == 0) $GLOBALS['current_gm_muid'] = $muid;
-                  echo "<tr>";
+
+
+                  echo "<tr current_gm_muid=$muid >";
                      echo "<td>$dts</td>";
                      echo "<td>$duration</td>";
 
@@ -127,7 +129,8 @@ function show_gm_table()
                      show_player_cell($muid);
                      echo "</td>";
 
-                     echo "<td><a href=\"sessions.php?current_gm_muid=$muid\">set current</a></td>";
+                     echo "<td><a href=\"#\">set current</a></td>";
+
                      echo "<td><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
                      echo "<td style=\"text-align: left;\">$filename</td>";
                      echo "<td>$muid</td>";
@@ -137,8 +140,14 @@ function show_gm_table()
             echo "</tbody>";
          echo "</table>";
       echo "</div>";
+
+      }
+
+
+
    echo "</div>";
 }
+
 ?>
 
 

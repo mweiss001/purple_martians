@@ -2,6 +2,9 @@
 
 session_start();
 
+include "database.php";
+
+
 echo <<<TEXT
 
 <!DOCTYPE html>
@@ -13,8 +16,11 @@ echo <<<TEXT
 
 </head>
 
+<script type="text/javascript"> setTimeout(function() { window.location.reload(); }, 5000);  </script>
+
 <body>
 TEXT;
+
 
 
 
@@ -62,21 +68,12 @@ function framesToHMS($frames)
 }
 
 
-// database setup
-$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
-if (!file_exists($db_filepath))
-{
-   echo "Database file: $filename not found.";
-   return;
-}
-$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
-
 echo "<div class=\"div-sessions-page\">";
 
    $but = "class=\"button\" id=\"links_button\"";
    echo "<div class=\"div-sessions-page-links\">";
    echo "<a href=\"../index.html\" $but >Back to Main Page</a>";
-   echo "<a href=\"sessions.php\"  $but >Sessions</a>";
+   echo "<a href=\"sessions.html\"  $but >Sessions</a>";
    echo "<a href=\"status.php\"  $but >Status</a>";
    echo "</div>";
 

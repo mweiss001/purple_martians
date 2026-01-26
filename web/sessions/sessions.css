@@ -15,15 +15,6 @@ a:visited { color: #b39ddb; } /* A light purple/violet for visited links */
 a:hover { color: #FFFFFF; } /* White on hover */
 
 
-
-
-
-
-
-
-
-
-
 /* ---------- flex box for top page navigation link buttons  ---------- */
 .div-sessions-page-links
 { 
@@ -43,12 +34,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
-
-
-
-
-
-
 /* ---------- container for all sections on page ---------- */
 .div-sessions-page
 { 
@@ -60,8 +45,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 /* ---------- common containers for sections ----------- */
-
-
 
 
 /* ---------- container for entire section -------------
@@ -175,13 +158,13 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* colors for timeline section */
-#timeline, #timeline_button 
+#timeline, #range-select, #range-start, #range-end
 {
-   color           : hsl(60, 100%, 90%);
-   border-color    : hsl(60, 100%, 50%);
-   background-color: hsl(60, 100%, 3%);
+   color           : hsl(240, 100%, 90%);
+   border-color    : hsl(240, 100%, 50%);
+   background-color: hsl(240, 100%, 3%);
 }
-#timeline_button:hover { border-color: hsl(60, 100%, 80%); }
+#range-select:hover{ border-color: hsl(240, 100%, 80%); }
 
 
 
@@ -203,7 +186,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* colors for sessions table section */
-#sessions, #sessions_button 
+#sessions, #sessions_button, #sessions_view_select
 {
    color           : hsl(180, 100%, 90%);
    border-color    : hsl(180, 100%, 50%);
@@ -219,10 +202,8 @@ a:hover { color: #FFFFFF; } /* White on hover */
    background-color: hsl(180, 100%, 10%);
 }
 
-
-
 /* colors for current session */
-#current_session, #current_session_button
+#current_session, #current_session_button, #current_session_title_name, #current_session_view_select
 {
    color           : hsl(150, 100%, 97%);
    border-color    : hsl(150, 100%, 50%);

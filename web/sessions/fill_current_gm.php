@@ -1,5 +1,7 @@
 <?php
 
+include 'database.php';
+
 function show_player_num_icon_name_host($num, $col, $name, $sid, $host)
 {
    $nm = str_pad($name, 8, " ", STR_PAD_RIGHT); 
@@ -20,20 +22,17 @@ function show_player_num_icon_name_host($num, $col, $name, $sid, $host)
    echo "<span class=\"text\">$hn</span>";
 }
 
-function show_current_gm()
-{
-   $current_gm_muid = $GLOBALS['current_gm_muid'];
-   $gm_on  = $GLOBALS['gm_on'];
-   if (!$gm_on) return;
+
+if (isset($_GET['id']))   $current_gm_muid   = $_GET['id'];
+else { echo " muid not set \n";  return; } 
+if ($current_gm_muid === 'undefined') { echo " muid not defined\n";  return; } 
 
 
-   $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
+   $res = $db->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
    if ($res->fetchColumn() == 0)  { echo " muid: [$current_gm_muid] not found \n";  return; } 
 
-   $res = $GLOBALS['db']->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$current_gm_muid'");
+   $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$current_gm_muid'");
    $row = $res->fetch(PDO::FETCH_ASSOC);
-
-
 
    $but = "class=\"button\" id=\"current_gm_button\""; 
 
@@ -44,7 +43,8 @@ function show_current_gm()
 
             echo "<div id=\"current_gm\"  class=\"div-section-title-frame-buttons-frame\">";
                $fullpath = "/downloads/" . $row['filename'];
-               if ($gm_set == 0) echo "<a href=\"$fullpath\" download=\"$filename\" $but >Download</a>";
+
+               echo "<a href=\"$fullpath\" download=\"$filename\" $but >Download</a>";
 
             echo "</div>";
 
@@ -92,7 +92,7 @@ function show_current_gm()
          echo "</tbody></table>";
       echo "</div>";
    echo "</div>";
-}
+
 ?>
 
 
