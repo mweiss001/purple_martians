@@ -40,24 +40,25 @@ function show_level_cell($level)
 
 
 $id = 0;
+$min = 0;
+$view = 0;
 
-if (isset($_GET['id']))   $id     = $_GET['id'];
-if (isset($_GET['view'])) $gm_set = $_GET['view'];
+if (isset($_GET['id']))   $id   = $_GET['id'];
+if (isset($_GET['min']))  $min  = $_GET['min'];
+if (isset($_GET['view'])) $view = $_GET['view'];
 
 if ($id)
 {
-
    $sql = "SELECT gm.muid, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, level, duration, filename FROM gm ";
 
-   if ($gm_set == 0) $title = "Save Game Files";
-   if ($gm_set == 2) $title = "All Save Game Files";   
-   if ($gm_set == 1) // current
+   if ($view == 1) $title = "All Save Game Files";   
+   if ($view == 0) // current
    {
       $title = "Save Game Files for Current Session";
       $sql .= "LEFT JOIN gm_sessions ON gm.muid = gm_sessions.gm_muid ";
       $sql .= "WHERE gm_sessions.session_id=$id";
    }
-   if ($gm_set == 3)
+   if ($view == 2)
    {
       $title = "Orphaned Save Game Files (no matching session)";
       $sql .= "LEFT JOIN gm_sessions ON gm.muid = gm_sessions.gm_muid ";
@@ -65,33 +66,22 @@ if ($id)
    }
 
    $col_list = array("Start Time", "Duration", "Level", "Players", "Set Current", "Download", "Filename", "muid" );
-           
+    
 
-   echo "<div id=\"gm_table\"  class=\"div-section-container\">";
-      echo "<div id=\"gm_table\"  class=\"div-section-title-section-frame\">";
-         echo "<div id=\"gm_table\"  class=\"div-section-title-section-container\">";
-            echo "<div id=\"gm_table\"  class=\"div-section-title-frame\">$title</div>";
-            echo "<div id=\"gm_table\"  class=\"div-section-title-frame-buttons-frame\">";
-
-
-               echo '<label>View:</label>';
-               echo '<select name="range" id="gm_table_view_select" class=\"button\" >';
-                   echo '<option value="0">Title Only</option>';
-                   echo '<option value="1">Current</option>';
-                   echo '<option value="2">All</option>';
-                   echo '<option value="3">Orphan</option>';
-               echo '</select>';
-
+   echo "<div class=\"gm_table div-section-container\">";
+      echo "<div class=\"gm_table div-section-title-section-frame\">";
+         echo "<div class=\"gm_table div-section-title-section-container\">";
+            echo "<div class=\"gm_table div-section-title-frame\">$title</div>";
+            echo "<div class=\"gm_table div-section-title-frame-buttons-frame\">";
+               echo '<div id="gm_table-cont"></div>';
             echo "</div>";
          echo "</div>";
       echo "</div>";
 
-
-      if ($gm_set)
-      {
-
-      echo "<div id=\"gm_table\"  class=\"div-section-sub-section-gm_table\">";
-         echo "<table id='gm_tablet'>";
+   if (!$min)
+   {
+      echo "<div class=\"gm_table div-section-sub-section-gm_table\">";
+         echo "<table class='gm_tablet'>";
             echo "<thead'>";
                echo "<tr>";
                   foreach($col_list as $col)
@@ -139,15 +129,7 @@ if ($id)
             echo "</tbody>";
          echo "</table>";
       echo "</div>";
-
-      }
-
-
-
+   }
    echo "</div>";
 }
-
 ?>
-
-
-

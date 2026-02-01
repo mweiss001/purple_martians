@@ -12755,7 +12755,7 @@ tooltip back to top, works well
 
 did some padding and rounded corners and hr to separate bottom text
 
-
+ 
 now i want to make the level icon bigger and have 2 lines of text to the right
 level number and download link
 orig:
@@ -12804,6 +12804,1509 @@ what did I do vs what I wanted to get done?
 - show only sessions, or sessions and gm??
 
 anyway, it looks great...I should commit...
+
+done gtg
+
+2026-01-26 07:19:54
+
+
+- make all capable of hiding to titlebar
+- current saved game to show info on title bar
+
+- sessions timeline to have different sizes
+
+//         <div id="chart-container" style="height:400px">
+
+
+what if I split timeline to have sessions and savegames??
+
+
+
+2026-01-27 04:43:29
+
+make every section have a +/- in the top right corner...start with current gm
+
+instead of that I make a color change...it was simple
+
+echo "<label for=\"colorPicker\">Color:</label>";
+echo "<input type=\"color\" id=\"color-picker\" name=\"colorPicker\" value\"#ff0000\">";
+
+      const colorPicker = document.querySelector("#color-picker");
+      colorPicker.addEventListener("input", () =>
+      {
+          document.documentElement.style.setProperty("--current_gm-color", colorPicker.value);
+      });
+
+
+
+another method with just a slider for hue
+
+echo '<input type="range" id="hue-slider" min="0" max="360" value="0">';
+
+const hueSlider = document.querySelector("#hue-slider");
+hueSlider.addEventListener("input", () =>
+{
+  document.documentElement.style.setProperty("--current_gm-color", `hsl(${hueSlider.value}, 100%, 50%)`);
+});
+
+
+
+now:
+save the values in js session and load on start
+improve variable names for sections
+
+to start with:
+var sectionCurrentGmMinimized;
+var sectionCurrentGmView;
+var sectionCurrentGmHue;
+
+
+save in sessions
+
+I think I want a separate value for minimized
+
+
+      document.documentElement.style.setProperty("--current_gm-color", `hsl(${sectionCurrentGmHue}, 100%, 50%)`);
+      const hueSlider = document.querySelector("#hue-slider");
+      hueSlider.value = sectionCurrentGmHue;
+      hueSlider.addEventListener("input", () =>
+      {
+         sectionCurrentGmHue = hueSlider.value;
+         document.documentElement.style.setProperty("--current_gm-color", `hsl(${sectionCurrentGmHue}, 100%, 50%)`);
+         sessionStorage.setItem("sectionCurrentGmHue", JSON.stringify(sectionCurrentGmHue));
+      });
+
+
+2026-01-27 06:36:47
+
+I am going through html tags....
+the only time I want to set id is for js to manipulate, use class instead
+I have been using id too much
+
+now in current_gm the only things that have id are the buttons...
+
+now implement the button
+I will need to pass that to the php file
+
+
+2026-01-27 07:06:10
+
+I have the minimized button working great
+
+
+now I want to work my way up the sections and:
+- implement minimize button
+- implement color slider
+- rename variables
+- change id's to classes in css
+
+
+there seems to be a lost of code duplication here
+I will have 5 sections
+is there a way to simplify this with classes?
+
+all will have 3 variables, view, min, color
+
+
+what if I go much further...
+each class will draw its own frame and title section
+
+
+i want to start with a class, then an array of instances
+
+
+class mtControls
+{
+   var minimized
+   var view;
+   var hue;
+
+   constructor(m, v, h)
+   {
+      minimized = m;
+      view = v;
+      hue = h;
+   }
+
+
+
+
+
+
+
+
+
+
+  // Instance field
+  myField = "foo";
+  // Instance method
+  myMethod() {
+    // myMethod body
+  }
+  // Static field
+  static myStaticField = "bar";
+  // Static method
+  static myStaticMethod() {
+    // myStaticMethod body
+  }
+  // Static block
+  static {
+    // Static initialization code
+  }
+  // Fields, methods, static fields, and static methods all have
+  // "private" forms
+  #myPrivateField = "bar";
+}
+
+
+when I save to session storage, I should use a name I declare in the class
+and I should save all variable at once
+
+I should make the save anbd load part of the class
+
+I should make the checks part of the class
+
+
+2026-01-28 04:59:54
+
+I have a good part of the class working now
+
+lets try it out on the next section up sgl
+
+now can I put the id names in the class also?
+
+
+sgt-hue
+sgt-min
+
+
+// this never finds the name
+//      document.getElementById(sgt.min_button_id).addEventListener("click", function()
+
+// this works fine
+      const minButton = document.querySelector(sgt.min_button_id);
+      minButton.addEventListener("click", function()
+one of them needs the #
+
+
+2026-01-28 05:58:25
+
+next, can I create the html in js
+
+
+I will need a place to put it....
+
+create a div for that...
+
+
+            echo '<div id="sgt-cont"></div>';
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .myDivClass {
+            color: blue;
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Element Creation Example</h1>
+    <div id="container">
+        <!-- New element will be added here -->
+    </div>
+
+    <script>
+        // 1. Create the element
+        const newDiv = document.createElement('div');
+
+        // 2. Configure properties
+        newDiv.textContent = 'This div was created dynamically using JavaScript.'; // Set text content
+        newDiv.classList.add('myDivClass'); // Add a class
+        // You can also set other attributes like id or styles
+        // newDiv.setAttribute('id', 'newId');
+        // newDiv.style.backgroundColor = 'lightgray';
+
+        // 3. Append to the DOM
+        const container = document.getElementById('container');
+        container.appendChild(newDiv); // Add the new div to the container div
+    </script>
+</body>
+</html>
+
+
+I have this done!!!
+
+
+   const newDiv = document.createElement('button');
+   newDiv.textContent = '+';
+   newDiv.setAttribute('id', sgt.min_button_id);
+
+   const newDiv2 = document.createElement('input');
+   newDiv2.setAttribute('id', sgt.hue_slider_id);
+   newDiv2.setAttribute('type', 'range');
+   newDiv2.setAttribute('min', '0');
+   newDiv2.setAttribute('max', '360');
+   newDiv2.style.width = '60px';
+
+   const container = document.getElementById('sgt-cont');
+
+   container.appendChild(newDiv2); // Add the new div to the container div
+   container.appendChild(newDiv); // Add the new div to the container div
+
+
+
+
+      document.documentElement.style.setProperty("--gm_table-color", `hsl(${sgt.hue}, 100%, 50%)`);
+
+      const hueSlider = document.getElementById(sgt.hue_slider_id);
+      hueSlider.value = sgt.hue;
+      hueSlider.addEventListener("input", () =>
+      {
+         sgt.setHue(hueSlider.value);
+         document.documentElement.style.setProperty("--gm_table-color", `hsl(${sgt.hue}, 100%, 50%)`);
+      });
+
+
+      document.getElementById(sgt.min_button_id).addEventListener("click", function()
+      {
+         sgt.toggleMinimized();
+         fetchDataGmTable();         
+      });
+
+
+now can I somehow put it in the class...
+
+
+add to class variables:
+container name
+css color_var
+
+
+this is working well, now do I need external names for elements?
+
+can I generate them internally? yes:
+
+
+this is coming nicely...
+
+see if it works in 2 places...yes...this is a great start!!
+
+now I want to do the view button also
+
+2026-01-28 07:10:44
+
+2026-01-28 18:39:22
+
+the view select has been added
+now do current session..done
+
+I now have three sections done, 2 with view
+
+I could do sessions table, or I could figure out the css
+
+do sessions table, it is kind of fresh in your mind how to do it...
+
+I have it done, but there is a bug to fix....
+
+2026-01-28 19:31:21
+
+2026-01-29 04:57:47
+fixed the bug
+
+now do the last one...timeline...
+2026-01-29 05:44:53done
+
+now how do I hide it with the min button?
+
+generate this html in js
+
+   <div id="timeline"  class="div-section-container">
+      <div id="timeline"  class="div-section-title-section-frame">
+         <div id="timeline"  class="div-section-title-section-container">
+            <div id="timeline"  class="div-section-title-frame">Sessions Timeline</div>
+            <div id="timeline"  class="div-section-title-frame-buttons-frame">
+
+               <a href="#" class="button" id="num_items"></a>
+               <a href="#" class="button" id="range-start"></a>
+               <a href="#" class="button" id="range-end"></a>
+
+               <div id="stl-cont"></div>
+
+            </div>
+         </div>
+      </div>
+      <div id="chart-container" style="height: 400px"></div>
+   </div>
+
+
+where? in the fetch function
+
+
+
+now my html file is very clean...28 lines
+
+<!DOCTYPE html>
+<html class="dark">
+   <head>
+      <title>Purple Martians - Sessions</title>
+      <link rel="stylesheet" href="./sessions.css">
+      <script src="./script.js", type="module" ></script>
+      <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+      <script src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+      <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+   </head>
+   <body>
+      <div class="div-sessions-page">
+         <div class="div-sessions-page-links">
+            <a href="../index.html" class="button" id="links_button" >Back to Main Page</a>
+            <a href="sessions.html"  class="button" id="links_button" >Sessions</a>
+            <a href="status.php"    class="button" id="links_button" >Status</a>
+         </div>
+         <!-- <div> <button id="testButton1">Test 1</button> <button id="testButton2">Test 2</button> </div> -->
+         <div id="timeline_js_target"></div>
+         <div id="sessions_table_js_target"></div>
+         <div id="current_session_js_target"></div>
+         <div id="gm_table_js_target"></div>
+         <div id="current_gm_js_target"></div>
+      </div>
+   </body>
+</html>
+
+I do all the dom and chart creation in the fetch...
+
+
+in my class, 
+
+I do a constructor, a load and a create....
+
+called at three different places
+
+I want to simplify...
+
+to start with, call load from the contructor....done
+
+
+now what I have is all five obejcts are instantiate and are global, but create is not run until fetch
+
+
+what if I moved the instantiation and the create to fetch?..done for all
+
+implement height slider for timeline
+2026-01-29 07:02:12 done...cool!!
+
+now make a variable to save this..done
+
+2026-01-29 07:21:20
+
+gtg for now, make a method to set to zero when min, but not overwrite height
+
+2026-01-29 07:54:57..done
+
+this is all looking great!!
+
+I want to go through the css and not use id unless I need js to use it, use class everywhere
+
+
+how can I do colors??
+
+what if I make the class's based on the name a dyanmically set them
+
+
+
+
+
+what are good names?
+
+stl
+sst
+scs
+sgt
+scg
+
+timeline
+session_table
+current_session
+gm_table
+current_gm
+
+then I add 
+      this.cont_id        = this.name    + '-cont';
+      this.min_button_id  = this.cont_id + '-min';
+      this.hue_slider_id  = this.cont_id + '-hue';
+      this.view_select_id = this.cont_id + '-view';
+
+I have custom color variables
+
+  --timeline-color         : hsl(255, 100%, 50%);    
+  --sessions_table-color   : hsl(180, 100%, 50%);    
+  --current_session-color  : hsl(0, 100%, 50%);    
+  --gm_table-color         : hsl(60,  100%, 50%);    
+  --current_gm-color       : hsl(360, 100%, 50%);    
+
+
+I should have matching color classes also
+
+tmln
+sstb
+crss
+gmtb
+crgm
+
+pick 5 names you can live with:
+
+timeline
+sessions_table
+current_session
+gm_table
+current_gm
+
+make everything match these.
+
+start with color variables:
+
+  --timeline-color         : hsl(255, 100%, 50%);    
+  --sessions_table-color   : hsl(180, 100%, 50%);    
+  --current_session-color  : hsl(0, 100%, 50%);    
+  --gm_table-color         : hsl(60,  100%, 50%);    
+  --current_gm-color       : hsl(360, 100%, 50%);    
+
+done
+
+now the class instance names in js
+      this.css_color_var = '--' + this.name + '-color';
+   var timeline = new mtControls('timeline', fetchDataTimeline      , '--timeline-color',        0, 0, 255);
+
+now the container names in html
+
+those are already good:
+
+         <div id="timeline_js_target"></div>
+         <div id="sessions_table_js_target"></div>
+         <div id="current_session_js_target"></div>
+         <div id="gm_table_js_target"></div>
+         <div id="current_gm_js_target"></div>
+
+had to manually change all the -cont ones
+rename all the fetch functions...no
+
+
+rename all the css classes
+
+like this:
+
+/* colors for timeline section */
+.timeline, .timeline_button
+{
+   --col: var(--timeline-color); 
+   color           : oklch(from var(--col) .95 .05 h);
+   border-color    : var(--col);
+   background-color: oklch(from var(--col) 0.1 0.1 h);
+
+}
+.timeline_button:hover  { border-color: oklch(from var(--timeline-color) calc(l + 0.15) c h); }
+
+
+      this.class_button = this.name + '_button';
+
+/* colors for timeline section */
+.timeline, .timeline_button
+{
+   --col: var(--timeline-color); 
+   color           : oklch(from var(--col) .95 .05 h);
+   border-color    : var(--col);
+   background-color: oklch(from var(--col) 0.1 0.1 h);
+
+}
+.timeline_button:hover  { border-color: oklch(from var(--timeline-color) calc(l + 0.15) c h); }
+
+
+2026-01-30 03:52:38
+
+I can dynamically create styles in js
+
+
+      // create a <style> element
+      const style = document.createElement('style');
+      style.type = 'text/css';
+
+      style.innerHTML = `.${this.class_button}
+      {
+         --col: var(${this.css_color_var}); 
+         color           : oklch(from var(--col) .95 .05 h);
+         border-color    : var(--col);
+         background-color: oklch(from var(--col) 0.1 0.1 h);
+      } `;
+
+      style.innerHTML += `.${this.class_button}:hover  { border-color: oklch(from var(${this.css_color_var}) calc(l + 0.15) c h); }`;
+
+      // append the style element to the document's <head>
+      document.head.appendChild(style);
+
+2026-01-30 04:08:53
+
+now I do not need button and buttom hover in css for each of the 5 sections
+
+
+2026-01-30 04:13:36
+
+continuing on with converting id's to class in my css...
+timeline done
+sessions_table done
+current_session done
+all done...
+2026-01-30 04:59:29
+
+now back to making the common controls look good
+to start with do they belong in a flex container?
+added flex to existing container...now they look great
+
+now what?
+
+hid the color control slider for now
+
+rename the fetch funtions?  why not? should be easy...
+
+   // load initial
+   fetchDataTimeline();
+   fetchDataSessionsTable();
+   fetchDataCurrentSession();
+   fetchDataGmTable();
+   fetchDataCurrentGm();
+
+use the official names
+
+
+timeline
+sessions_table
+current_session
+gm_table
+current_gm
+
+fetchData_timeline();
+done...
+now how about the php files.. they are good already
+
+
+2026-01-30 06:06:19
+
+now what?
+
+the highlight in echarts
+the body text in echarts sessions
+
+bug fixes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dump the wip for custom render so I can remove it from actual sources
+
+   series:
+   [
+      {
+         type: "custom",
+         encode: { x: [0,1], y: 0, },
+         renderItem: (params, api) =>
+         {              
+            const isSelected = api.value(8);
+
+            var timeSpan = [api.value(0), api.value(1)];
+            var catIndex = api.value(2);
+
+            var start = api.coord([timeSpan[0], catIndex]);
+            var end   = api.coord([timeSpan[1], catIndex]);
+            var size  = api.size([0,1]);
+
+            // relative height of the bars  
+            var height = size[1] * 0.8;
+
+            // calculate width
+            var width = end[0] - start[0];
+
+            // enforce min width by adjusting x2
+            var minWidth = 5;
+            if (width < minWidth) end[0] = start[0] + minWidth;
+
+            var name1 = api.value(6); // player name
+            if (api.value(2) == 0) name1 = `Level:${api.value(6)}`; // level number for type = session
+
+                 
+            // actual timespan in seconds 
+//            var ts = (api.value(1) - api.value(0)) / 1000;
+//                 console.log("catIndex:%d - seconds:%d  width: ", catIndex, ts, width);
+//                 console.log("start   :", start);
+//                 console.log("end     :", end);
+//                 console.log("width   :", width);
+
+
+
+            // create rect and clip to chart area 
+            var rect = echarts.graphic.clipRectByRect
+            (
+               { x: start[0], y: start[1] - height / 2, width: end[0] - start[0], height: height},
+               { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height},
+            )
+            if (rect !== undefined) rect.r = 8; // rounded corners
+
+
+
+/*
+
+myChart.setOption({
+    // ... other options
+    series: [{
+        type: 'custom',
+        renderItem: function (params, api) {
+            // Use api.coord() to get pixel coordinates from data values
+            var coord = api.coord([api.value(0), api.value(1)]);
+            return {
+                type: 'circle', // ZRender graphic element type
+                shape: {
+                    cx: coord[0],
+                    cy: coord[1],
+                    r: 10
+                },
+                style: {
+                    fill: 'red'
+                }
+            };
+        },
+        data: [[10, 20], [30, 40]] // Sample data
+    }]
+});
+
+*/
+
+
+            return {
+               type: 'group',
+               children:
+               [
+
+/*
+                  {
+                     type: 'circle',
+                     shape:
+                     {
+                        cx: start[0], 
+                        cy: start[1],
+                        r: 30,
+
+                     },
+                     style:
+                     {
+                        fill: '#FF0000',
+                     }
+                  },
+
+*/
+
+
+/*
+  
+// not working
+
+                  {
+                     type: 'heart',
+                     shape:
+                     {
+                        cx: start[0], 
+                        cy: start[1],
+                        width: 100,
+                        height: 100,
+
+                     },
+                     style:
+                     {
+                        fill: '#FF0000',
+                     }
+                  },
+
+*/
+
+
+/*
+
+                  {
+                     type: 'rect',
+                     shape:
+                     {
+                        x: start[0]-20, 
+                        y: start[1],
+                        width: 50,
+                        height: 50,
+
+                     },
+                     style:
+                     {
+
+      stroke: '#5470c6', // Frame color
+      fill: 'none',      // No fill inside
+      lineWidth: 2       // Border thickness
+
+
+                     }
+                  },
+
+*/
+
+/*
+option = {
+  graphic: [{
+    type: 'rect',
+    left: 'center',
+    top: 'center',
+    shape: {
+      width: 200,
+      height: 100
+    },
+    style: {
+      stroke: '#5470c6', // Frame color
+      fill: 'none',      // No fill inside
+      lineWidth: 2       // Border thickness
+    }
+  }]
+};
+
+*/
+/*
+
+                  {
+                     type: 'ellipse',
+                     shape:
+                     {
+                        cx: start[0], 
+                        cy: start[1],
+                        rx: 100,
+                        ry: 50,
+
+                     },
+                     style:
+                     {
+                        fill: '#FF0000',
+                     }
+                  },
+
+
+*/
+
+                 
+                  {
+                     type: 'rect',
+                     transition: ["shape"],
+                     shape: rect,
+                     style:
+                     {
+
+                        fill:
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 0.2) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+                          ]
+                        },
+                     },
+                  },
+
+
+                  // highlight selected  
+                  {
+                     type: 'rect',
+                     shape: rect,
+                     style: isSelected ?
+                     {
+                        stroke: '#ff0000',
+//                        stroke: getHSLC(api.value(3), 1.0, 180),
+
+                        fill: 'none', 
+                        lineWidth: 3  
+                     } : { fill: 'none' },
+                  },
+
+                  
+
+
+
+
+/*
+
+                  
+                  {
+                     type: 'rect',
+                     transition: ["shape"],
+                     shape: rect,
+                     style:
+                     {
+                        fill: isSelected ?
+
+
+                        // selected style
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 1.0) },
+                              { offset: 0.5, color: getHSLC(api.value(3), 1.0, 180) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+                          ]
+                        }
+
+                        :
+
+                        // not selected style
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 0.2) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+                          ]
+                        },
+                     },
+
+*/
+
+
+/*                                      
+                     select:  // Highlight style when selected
+                     {         
+                        style:
+                        {
+//                           fill: '#be123c', // Example: Red color
+                           focus: 'self', 
+
+                           stroke: '#0000ff',
+                           lineWidth: 4,
+
+                           //borderColor: '#FF0000',        
+                           //borderWidth: 4, 
+                           //focus: 'self', 
+
+
+                           //shadowBlur: 10,
+                           //shadowColor: 'rgba(0, 0, 0, 0.5)'
+
+
+                        }
+                     },
+
+
+                     emphasis: // Optional: Hover style
+                     { 
+                        style:
+                        {
+//                           fill: '#4338ca', // Example: Blue color
+                           stroke: '#ffffff',
+                           lineWidth: 2,
+
+                           focus: 'self', 
+                        }
+                     },
+
+*/
+/*                     
+
+    emphasis: {
+        focus: 'series', // Highlights the current series and blurs others
+        itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+    },
+
+*/
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+//                  },
+
+
+
+
+                  {
+                     type: 'text',
+                     style:
+                     {
+                          text: name1,
+                          x: start[0]+8, 
+                          y: (start[1]-height/2) + 8,
+                          fill: '#FFFFFF',
+                          textAlign: 'left',
+                          textVerticalAlign: 'top',
+                          width: width, 
+                          overflow: 'truncate', 
+
+                      }
+                  }
+               ]
+            };
+         },
+      }
+   ],
+
+
+
+
+
+
+
+
+
+
+2026-01-30 07:28:16
+
+I finally figured out how to do a nice border!!!
+
+gtg
+
+2026-01-31 03:37:30
+
+weekend!! I have some time
+
+- fix the durations
+
+- can I use single file date-fns?
+
+- label the timeline height slider
+
+- minimize text to show plus or minus
+
+- pop up config window with:
+- color controls on off
+
+
+I am still not happy with zoom filter mode weakfilter
+if the end position of a session of off the right hand side the bar is not drawn at all
+this is not what I want and its pretty inportant...
+
+I need the session bar to be visible...
+
+compare the other options...
+
+
+none, does what I want, never hides session spans
+empty, weird, freezes position of start, if end off screen
+filter, hides if end off screen
+weakfilter..same
+
+the default is filter...
+
+I need none, but how to fix glitches...
+
+2. Clear Canvas with setOption
+Residual images are often caused by the canvas not being cleared properly between rerenders.
+
+    Solution: In setOption, try setting the notMerge parameter to true (e.g., myChart.setOption(option, true))
+ to ensure the entire chart is redrawn
+
+
+enable test buttons and see what fixes it...
+
+reload and resize do nothing
+
+
+    myChart.setOption(newOption, { replaceMerge: ['series'] });: This will replace the entire series array in the existing options with the series array from newOption. Existing series that are not in newOption will be removed.
+    This is useful for scenarios where the number or structure of components (like xAxis, yAxis, or series) changes dynamically, preventing unwanted previous components from persisting. 
+
+For more details on these options and the ECharts API, refer to the official Apache ECharts documentation. 
+
+    How to update series data correctly in Nuxt eCharts module?
+    Jan 14, 2025 — I suspect this happens because options are merged by default which results in series remaining unchanged, if they are not specifie...
+    Stack Overflow
+    ECharts refresh on data change - Stack Overflow
+    Dec 1, 2016 — * 3 Answers. Sorted by: You have to call chartInstance. setOption() again with your new data. I give you a small example: // eChar...
+    Stack Overflow
+    ngx-echarts - NPM
+    Nov 24, 2025 — Table_title: Directive Table_content: header: | Input | Type | Description | row: | Input: [merge] | Type: object | Description: U...
+    NPM
+
+it says I should sort my data by x axis....
+
+try that...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- do i need to reload the entire chart when I click on something?
+probably not, it resets the zoom
+only do that if in current session mode on timeline
+done
+- fix loading error when seesion values are reset bu waiting until they are...done
+- highlight current saved game also..done
+- hide category label on y axis and make chart margins use that space...done
+- lose the axis labels reclaim space, axis pointer label in the middle of zoom bar...done
+- figure out the weird glitches on gm when resizing with datazoom
+used filter mode; weakfilter to fix, used to be none, but that caused weird artifacts with gm's
+done
+- setup mouse wheel zoom!!- done
+
+
+
+
+
+
+
+
+
+console.log(echarts.version); 
+
+5.3.3
+
+old:
+      <script src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+
+new:
+      <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+
+no diff...
+
+
+it does not happen when I use filtermode:filter
+
+
+could it be my fake width adjust of data??
+does it happen with sessions also or just gm? both
+
+what will fix it? 
+
+
+this alone works perfectly
+
+      {
+         type: 'inside', // Zooming by mouse wheel/pinch on the chart area
+         filterMode: "none",
+         start: 0,      // Initial zoom start percentage
+         end: 100       // Initial zoom end percentage
+      },
+
+
+
+
+
+I am ready to give up:
+list what you have tried:
+updated to echarts 6.0.0 from 5.3.3
+tried canvas and svg render
+sorted data before putting into chart
+
+decribe the problem:
+echarts dataZoom slider
+when panning with the slider extra elements are added on the chart
+when dragging with the slider, you can see some element do not move
+when I mouse over them, they are valid points, they are just not in the correct positions
+it happens with both session and gm elements
+
+I have tried tuning off realtime..no change
+
+when I have filterMode: 'filter' it works fine!!
+
+      {
+         type: 'slider',
+//         filterMode: "none",
+         realtime: false, 
+         showDataShadow: 'auto', 
+         start: 0,      
+         end: 100       
+      },
+
+I need filterMode: 'none' to show bars that have the end point past the right hand side of the chart
+
+when I use dataZoom inside with the mouse scroll I have no issues at all....
+
+      {
+         type: 'inside', // Zooming by mouse wheel/pinch on the chart area
+         filterMode: "none",
+         start: 0,      // Initial zoom start percentage
+         end: 100       // Initial zoom end percentage
+      },
+
+
+
+
+2026-01-31 10:03:05
+
+I have been wasting a lot of time on this...
+
+I think I want to drop it and move on...
+
+or I could make a MRE and ask for help
+
+I have an mre...
+
+codepen...
+
+
+
+
+
+
+
+
+
+
+I have been working on a custom echart. x axis is timeline and each category element has 2 x values, start and end.
+
+The issue I seem to be having is when I try to use the dataZoom slider, I get weird corruption.
+Some elements move, some are stationary.
+
+Working MRE on codepen:
+
+https://codepen.io/Michael-Weiss-the-styleful/pen/Ggqxjav
+
+
+If I set filterMode: filter I do not have the issue.
+But when I do that, any element that has its second x position past the right hand side of the chart disappears.
+So I have to use filterMode: none
+
+
+It does the same thing in dataZoom 'slider' and 'inside'
+
+I have tried:
+updating to the latest echart version 6.0.0
+render: canvas and svg
+sorted data by x category
+animation: false,
+realtime: false, 
+
+
+Maybe I do not have my data in the proper format.
+
+Each element has:
+2 'x' values, start and end
+a category
+and other misc data
+
+I can't find much information on setting up this type of chart....
+
+So my question is: What am I doing wrong? Can anyone point me in the right direction?
+
+
+  dataZoom: [
+    {
+      type: "slider",
+      filterMode: "none"
+      //filterMode: "filter",
+    }
+  ]
+
+
+
+
+2026-01-31 12:28:58
+
+
+that took 2.5 hours....
+moving on...
+
+could I just do all of this manually?
+
+if i never get this resolved, how will I work around it?
+
+I could just live with fact that i will not get proper spans
+
+
+
+
+
+
+I think I want to use dataset:
+not sure why....
+
+
+
+    dataset: {
+        dimensions: ['product', '2015', '2016', '2017'],
+        source: [
+            {product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7},
+            {product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1},
+            {product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5},
+            {product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1}
+        ]
+    },
+
+
+
+
+
+// get game moves
+$sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm $sql_where";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $ty     =          0;                // all gm's will have type 0
+   $cl     =          0;                // color
+   $rn     =          'gm';             // row name
+   $nm     =          $row['muid'];     // element name
+   $lv     =          $row['level'];    // level number 
+   $fn     =          $row['filename']; // filename
+
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $lv, $fn, 0 ] ] ;
+
+}
+
+// get sessions
+$sql = "SELECT id, dt_start, dt_end, player_name, player_color, hostname FROM sessions $sql_where";
+$res = $db->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+{
+   $st     = getJDate($row['dt_start']);
+   $en     = getJDate($row['dt_end']);
+   $ty++;                                    // each session to have unique row
+   $cl     =          $row['player_color'];  // color
+   $rn     =          $row['player_name'];   // row name
+   $nm     =          $row['player_name'];   // element name
+   $id     =          $row['id'];            // session id
+   $hn     =          $row['hostname'];      // hostname
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $id, $hn, 0 ] ] ;
+}
+   echo json_encode($data);
+?>
+
+
+
+
+i think I will rearrange...
+
+this is how it will go into the dataset
+
+0 element_name ('gm' or player name)
+1 start
+2 end
+3 ty (row id, for grouping)
+4 color
+5 (player_name)
+6 (id, muid)
+7 (hostname, filename)
+8 mark selected
+
+this is complicated? or am I tired?
+
+why am I doing this?
+
+option = {
+    dataset: {
+        source: [
+            ['Task Name', 'StartTime', 'EndTime', 'Value'],
+            ['Task 1', '2025-01-31 10:00', '2025-01-31 12:00', 50],
+            ['Task 2', '2025-01-31 13:00', '2025-01-31 14:30', 75],
+            ['Task 3', '2025-01-31 15:00', '2025-01-31 16:00', 30]
+        ]
+    },
+    // ... rest of the options
+};
+
+
+just describe what you already have: no reordering
+
+0 start
+1 end
+2 ty
+3 color
+4 row name
+5 element name
+6 lev_num or session_id
+7 hostname, filename
+8 mark selected
+
+    dataset: {
+        dimensions: ['product', '2015', '2016', '2017'],
+        source: [
+            {product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7},
+
+
+
+
+
+
+2026-01-31 13:16:24
+
+back to imagine if I have to figure it out myself...
+
+can I filter the data manually?
+
+after I zoom I want to record and display the chart view start and end
+
+the other ones I display come from the entire dataset range
+
+these ones will come from the current view
+
+now what will I do with these?
+
+
+manually find any data points outside the range and hide them
+
+make a new variable 9 for hiding...
+
+I think I've got it working:
+
+document how you did it:
+
+
+I made an extra variable for each element called 'hide'
+if set the element will not render
+
+
+            if (api.value(9)) return null; 
+            else
+            {
+
+            return {
+               type: 'group',
+               children:
+               [
+
+
+I listen for range changes like this:
+
+   myChart.on('datazoom', function (params)
+   {
+      var option = myChart.getOption();
+
+      var min = option.dataZoom[0].startValue;
+      var max = option.dataZoom[0].endValue;
+
+      // hide data elements that are outside the range
+
+      // iterate the array
+      for (let i = 0; i < data.length; i++)
+      {
+         if (((data[i].value[0] < min) && (data[i].value[1] < min)) || ((data[i].value[0] > max) && (data[i].value[1] > max))) data[i].value[9] = 1;
+         else data[i].value[9] = 0;
+      }
+      reloadChart();  
+   });
+
+
+
+2026-01-31 16:05:26
+
+moving on to do some more things
+
+- fix the durations
+
+- can I use single file date-fns?
+
+- label the timeline height slider
+
+- minimize text to show plus or minus
+
+- pop up config window with:
+- color controls on off
+
+
+
+
+2026-01-31 22:19:32
+
+wow that took a long time, but now I have a rudimentary pop up dialog with color-slider enable and width
+
+other things to add to config:
+- min width of timeline element in pixels
+
+
+2026-01-31 23:33:55
+
+I better do a commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

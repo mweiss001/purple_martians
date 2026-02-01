@@ -2,23 +2,14 @@
 
 include 'database.php';
 
-$col_set = 1;
-if (isset($_GET['view'])) $col_set = $_GET['view'];
-
-$col_list = array();
-$row_list;
-
-
-
 function setup_columns()
 {
    global $col_list;
    global $row_list;
-   global $col_set;
+   global $view;
 
    $col_list_basic = array("id", "Player",     "player_name", "Start Time",                                                       "duration", "ip", "host",     "Session End Reason", "cdat"    );
    $row_list_basic =       "id,   player_color, player_name,   STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dt_start,   duration,  ip,   hostname,   endreason,            cdat_rx";
-
 
    $col_list_basic2 = array("id", "Date",     "ip", "port", "host",     "endreason", "duration",  "cdat");
    $row_list_basic2 =       "id,   dt_start,   ip,   port,   hostname,   endreason,   duration,   cdat_rx";
@@ -35,25 +26,25 @@ function setup_columns()
    $col_list_bandwidth = array_merge($col_list_bandwidth_byte,         $col_list_bandwidth_pack);
    $row_list_bandwidth =             $row_list_bandwidth_byte . ", " . $row_list_bandwidth_pack;
 
-   if ($col_set == 1) // default
+   if ($view == 0) // default
    {
       $col_list = $col_list_basic;
       $row_list = $row_list_basic;
    }
 
-   if ($col_set == 2) // player
+   if ($view == 1) // player
    {
       $col_list = array_merge($col_list_basic,         $col_list_player);
       $row_list =             $row_list_basic . ", " . $row_list_player;
    }
 
-   if ($col_set == 3) // bandwidth
+   if ($view == 2) // bandwidth
    {
       $col_list = array_merge($col_list_basic,         $col_list_bandwidth);
       $row_list =             $row_list_basic . ", " . $row_list_bandwidth;
    }
 
-   if ($col_set == 4) // all
+   if ($view == 3) // all
    {
       $col_list = array_merge($col_list_basic2,         $col_list_player,        $col_list_bandwidth);
       $row_list =             $row_list_basic2 . ", " . $row_list_player. ", " . $row_list_bandwidth;
@@ -61,48 +52,52 @@ function setup_columns()
 }   
 
 
-   echo '<div id="sessions"  class="div-section-container">';
-      echo '<div id="sessions"  class="div-section-title-section-frame">';
-         echo '<div id="sessions"  class="div-section-title-section-container">';
-            echo '<div id="sessions"  class="div-section-title-frame">Sessions Table</div>';
-            echo '<div id="sessions"  class="div-section-title-frame-buttons-frame">';
-               echo '<label>View:</label>';
-               echo '<select name="range" id="sessions_view_select">';
-                   echo '<option value="0">Title Only</option>';
-                   echo '<option value="1">Default</option>';
-                   echo '<option value="2">Player</option>';
-                   echo '<option value="3">Bandwidth</option>';
-                   echo '<option value="4">All</option>';
-               echo '</select>';
+   echo '<div class="sessions_table div-section-container">';
+      echo '<div class="sessions_table div-section-title-section-frame">';
+         echo '<div class="sessions_table div-section-title-section-container">';
+            echo '<div class="sessions_table div-section-title-frame">Sessions Table</div>';
+            echo '<div class="sessions_table div-section-title-frame-buttons-frame">';
+
+               echo '<div id="sessions_table-cont"></div>';
+
             echo '</div>';
          echo '</div>';
       echo '</div>';
-      echo '<div id="sessions"  class="div-section-sub-section-table">';
+      echo '<div class="sessions_table div-section-sub-section-table">';
 
 
-if ($col_set)
+$col_list = array();
+$row_list;
+
+$min = 0;
+$view = 0;
+
+if (isset($_GET['min']))  $min  = $_GET['min'];
+if (isset($_GET['view'])) $view = $_GET['view'];
+
+if (!$min)
 {
 
    setup_columns();
 
-      echo "<div id=\"sessions\"  class=\"div-section-sub-section-table\">";
-         echo "<table id='myTable' class='display cell-border compact'  style='width:100%'>";
-            echo "<thead id=\"sessions_table_head\">";
-               echo "<tr>";
+      echo '<div class="sessions_table div-section-sub-section-table">';
+         echo '<table id="myTable" class="display cell-border compact" style="width:100%">';
+            echo '<thead class="sessions_table_head">';
+               echo '<tr>';
                   foreach($col_list as $col)
                   {
                      if ($col == "player_name") continue;
                      echo "<th>$col</th>";
                   }
-               echo "</tr>";
-            echo "</thead align='center'>";
-            echo "<tbody>";
+               echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
                $sql = "SELECT $row_list FROM sessions";
                $res = $GLOBALS['db']->query($sql);
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
                   $id = $row['id'];
-                  echo "<tr current_session_id=$id  id=\"sessions_table_row\">";
+                  echo "<tr current_session_id=$id  class='sessions_table_row'>";
                   foreach($row as $col => $val)
                   {
                      if ($col == "player_name") continue;

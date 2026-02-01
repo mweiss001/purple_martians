@@ -28,35 +28,46 @@ else { echo " muid not set \n";  return; }
 if ($current_gm_muid === 'undefined') { echo " muid not defined\n";  return; } 
 
 
+
+$min = 0;
+if (isset($_GET['min']))   $min   = $_GET['min'];
+
+
+
    $res = $db->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
    if ($res->fetchColumn() == 0)  { echo " muid: [$current_gm_muid] not found \n";  return; } 
 
    $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$current_gm_muid'");
    $row = $res->fetch(PDO::FETCH_ASSOC);
 
-   $but = "class=\"button\" id=\"current_gm_button\""; 
+   $but = 'class="button current_gm_button"'; 
 
-   echo "<div id=\"current_gm\"  class=\"div-section-container\">";
-      echo "<div id=\"current_gm\"  class=\"div-section-title-section-frame\">";
-         echo "<div id=\"current_gm\"  class=\"div-section-title-section-container\">";
-            echo "<div id=\"current_gm\"  class=\"div-section-title-frame\">Current Saved Game</div>";
+   echo '<div class="div-section-container current_gm">';
+      echo '<div class="div-section-title-section-frame current_gm">';
+         echo '<div class="div-section-title-section-container current_gm">';
+            echo "<div class=\"div-section-title-frame current_gm\">Current Saved Game: $current_gm_muid</div>";
 
-            echo "<div id=\"current_gm\"  class=\"div-section-title-frame-buttons-frame\">";
+            echo '<div class="current_gm div-section-title-frame-buttons-frame">';
+
                $fullpath = "/downloads/" . $row['filename'];
-
                echo "<a href=\"$fullpath\" download=\"$filename\" $but >Download</a>";
 
-            echo "</div>";
+               echo '<div id="current_gm-cont"></div>';
 
-         echo "</div>";
-      echo "</div>";
+            echo '</div>';
 
-      echo "<div style=\" display:flex; gap:2px;  padding:4px;\">";
+         echo '</div>';
+      echo '</div>';
+
+if (!$min)
+{
+
+      echo '<div style="display:flex; gap:2px; padding:4px;">';
 
          $iconpath = sprintf("/assets/icons/lev%03d.png", $row['level'] );
          echo "<img style=\" width: 160px; height: 160x;\" src=$iconpath alt=\"icon not found\" >";
 
-         echo "<div id=\"current_gm\"  class=\"div-section-sub-section-pretext\">";
+         echo '<div class="current_gm div-section-sub-section-pretext">';
             echo "muid     : "            . $row['muid']             . "\n";
             echo "Filename : "            . $row['filename']         . "\n";
             echo "Level    : "            . $row['level']            . "\n";
@@ -64,18 +75,18 @@ if ($current_gm_muid === 'undefined') { echo " muid not defined\n";  return; }
             echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dts'])) . "\n";
             echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dte'])) . "\n";
             echo "Duration :            " . secondsToHMS($row['duration']) . "\n";
-         echo "</div>";
+         echo '</div>';
 
-      echo "</div>";
+      echo '</div>';
 
-      echo "<div id=\"current_gm\" class=\"div-section-sub-section-title-frame\">Players</div>";
+      echo '<div class="current_gm div-section-sub-section-title-frame">Players</div>';
 
       $sql = "SELECT sessions.id, player_name, player_num, player_color, hostname FROM sessions ";
       $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
       $sql .= "WHERE gm_muid='$current_gm_muid'";
 
-      echo "<div id=\"current_gm\"  class=\"div-section-sub-section-gm_table\">";
-         echo "<table id=\"current_gm_table\">";
+      echo '<div class="current_gm div-section-sub-section-gm_table">';
+         echo '<table class="current_gm_table">';
             echo "<tbody>";
             $res = $GLOBALS['db']->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC))
@@ -91,6 +102,9 @@ if ($current_gm_muid === 'undefined') { echo " muid not defined\n";  return; }
             }
          echo "</tbody></table>";
       echo "</div>";
+
+}
+
    echo "</div>";
 
 ?>

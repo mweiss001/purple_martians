@@ -1,71 +1,67 @@
 <!DOCTYPE html>
 <html class="dark">
-
-<head>
-
-<title>Purple Martians - Sessions</title>
-
-<link rel="stylesheet" href="./sessions.css">
-<script src="./script.js", type="module" ></script>
-
-<script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
-
-<script src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+   <head>
+      <title>Purple Martians - Sessions</title>
+      <link rel="stylesheet" href="./sessions.css">
+      <script src="./script.js", type="module" ></script>
+      <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
 
 
-<link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
-<script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
 
-</head>
-
-<body>
-
-<div class="div-sessions-page">
-
-   <div class="div-sessions-page-links">
-      <a href="../index.html" class="button" id="links_button" >Back to Main Page</a>
-      <a href="sessions.html"  class="button" id="links_button" >Sessions</a>
-      <a href="status.php"    class="button" id="links_button" >Status</a>
-   </div>
-
-   <div> <button id="testButton1">Test 1</button> </div>
-   <div> <button id="testButton2">Test 2</button> </div>
+      <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
 
 
-   <div id="timeline"  class="div-section-container">
-      <div id="timeline"  class="div-section-title-section-frame">
-         <div id="timeline"  class="div-section-title-section-container">
-            <div id="timeline"  class="div-section-title-frame">Sessions Timeline</div>
-            <div id="timeline"  class="div-section-title-frame-buttons-frame">
 
-               <a href="#" class="button" id="num_items"></a>
-               <a href="#" class="button" id="range-start"></a>
-               <a href="#" class="button" id="range-end"></a>
-               <label>Range:</label>
-               <select name="range" id="range-select">
-                   <option value="0">All</option>
-                   <option value="1">Last Hour</option>
-                   <option value="2">Last Day</option>
-                   <option value="3">Current Session</option>
-               </select>
-            </div>
+      <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+      <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+   </head>
+   <body>
+      <div class="div-sessions-page">
+         <div class="div-sessions-page-links">
+            <a href="../index.html"  class="button links_button" >Back to Main Page</a>
+            <a href="sessions.html"  class="button links_button" >Sessions</a>
+            <a href="status.php"     class="button links_button" >Status</a>
          </div>
+
+
+<button id="openSettings">Settings</button>
+
+<dialog id="settingsDialog">
+  <form method="dialog">
+    <h2>Settings</h2>
+
+
+    <div style="display:flex flex-direction:column">
+
+
+    <div class="control_line"><label>Color Slider Enable:<input id="color-slider-enable" type="checkbox"></label></div>
+
+    
+<!--    <div class="control_line"><label>Color Slider Width: <input id="color-slider-width"  type="range"    min=40 max=800></label></div> -->
+
+
+    <div class="control_line"><label for: "color-slider-width">Color Slider Width:</label> <input id="color-slider-width"  type="range"    min=40 max=800></div>
+
+
+    </div>
+
+
+    <br><br>
+    <button value="cancel">Cancel</button>
+    <button value="save">Save</button>
+  </form>
+</dialog>
+
+
+
+         <!-- <div> <button id="testButton1">Test 1</button> <button id="testButton2">Test 2</button> </div> -->
+         <div id="timeline_js_target"></div>
+         <div id="sessions_table_js_target"></div>
+         <div id="current_session_js_target"></div>
+         <div id="gm_table_js_target"></div>
+         <div id="current_gm_js_target"></div>
       </div>
-         <div id="chart-container" style="height:600px">
-     </div>
-   </div>
-
-
-   <div id="sessions_table_js_target"></div>
-
-   <div id="current_session_js_target"></div>
-
-   <div id="gm_table_js_target"></div>
-
-   <div id="current_gm_js_target"></div>
-
-</div>
-</body>
+   </body>
 </html>
 

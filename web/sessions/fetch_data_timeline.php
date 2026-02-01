@@ -71,7 +71,7 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC))
    $lv     =          $row['level'];    // level number 
    $fn     =          $row['filename']; // filename
 
-   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $lv, $fn, 0 ] ] ;
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $lv, $fn, 0, 0 ] ] ;
 
 }
 
@@ -88,7 +88,7 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC))
    $nm     =          $row['player_name'];   // element name
    $id     =          $row['id'];            // session id
    $hn     =          $row['hostname'];      // hostame
-   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $id, $hn, 0 ] ] ;
+   $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $id, $hn, 0, 0 ] ] ;
 }
    echo json_encode($data);
 ?>

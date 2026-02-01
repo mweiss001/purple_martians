@@ -5,7 +5,80 @@
   --current_session-color  : hsl(120, 100%, 50%);    
   --gm_table-color         : hsl(60,  100%, 50%);    
   --current_gm-color       : hsl(360, 100%, 50%);    
+  --timeline-height        : 600px;
+
+  --color_slider-width     : 60px;
+
 }
+
+#chart-container
+{
+   height: var(--timeline-height);
+}
+
+
+.color_slider
+{
+   width: var(--color_slider-width);
+   display: none; 
+
+   height: 6px;
+
+   appearance: none;
+
+   background: linear-gradient(to right, 
+      hsl(0, 100%, 50%), 
+      hsl(60, 100%, 50%), 
+      hsl(120, 100%, 50%), 
+      hsl(180, 100%, 50%), 
+      hsl(240, 100%, 50%), 
+      hsl(300, 100%, 50%), 
+      hsl(360, 100%, 50%)
+);
+
+}
+
+
+
+
+.color_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF; 
+  width: 16px;
+  height: 16px;
+  background: #888888;
+  cursor: pointer;
+}
+
+.color_slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #FFFFFF; 
+  border-radius: 50%;
+  background: #888888;
+  cursor: pointer;
+}
+
+
+
+
+
+.control_line
+{
+   display: flex;
+   align-items: center;
+   border: 1px solid #888888; 
+   padding: 4px;
+}
+
+.hidden
+{
+  display: none; /* or visibility: hidden; */
+}
+
+
 
 
 body
@@ -33,13 +106,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
    align-items: center;
 }
 
-#links_button
-{
-   color: #f0e6ff;
-   background-color: #140033;
-   border: 1px solid #6600FF;
-}
-#links_button:hover {  border-color: #f0e6ff; }
 
 
 
@@ -54,7 +120,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 /* ---------- common containers for sections ----------- */
-
 
 /* ---------- container for entire section -------------
    has border and background
@@ -110,9 +175,14 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 
+.chart-container
+{ 
+   padding: 0px, 0px;
+}
+
 .div-section-sub-section-timeline
 { 
-   padding: 0px, 12px;
+   padding: 0px, 0px;
 }
 
 .div-section-sub-section-table
@@ -145,8 +215,23 @@ a:hover { color: #FFFFFF; } /* White on hover */
    padding-left: 4px;
 }
 
+
+
+
+.button-label
+{
+   font-family: monospace;
+   font-size: 16px;
+   color: #FFFFFF;
+   padding: 1px 8px;
+   text-align: center;
+}
+
+
 .button
 {
+   font-family: monospace;
+   font-size: 16px;
    color: #FFFFFF;
    border-radius: 2px;
    padding: 1px 8px;
@@ -158,55 +243,93 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
+
+
+
+.min-button
+{
+   font-family: monospace;
+   font-size: 16px;
+   color: #FFFFFF;
+   border-radius: 2px;
+   padding: 1px 5px;
+   text-align: center;
+   text-decoration: none;
+   cursor: pointer;
+   border: 2px solid;
+}
+
+
+
+
+
+
+.links_button
+{
+   color: #f0e6ff;
+   background-color: #140033;
+   border: 1px solid #6600FF;
+}
+.links_button:hover {  border-color: #f0e6ff; }
+
+
+
+
 /* colors for timeline section */
-#timeline, #range-select, #range-start, #range-end, #num_items
+.timeline
 {
    --col: var(--timeline-color); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
-
 }
-#range-select:hover, #range-start:hover, #range-end:hover  { border-color: oklch(from var(--timeline-color) calc(l + 0.15) c h); }
 
-/* colors for sessions table section */
-#sessions, #sessions_button, #sessions_view_select
+/* colors for sessions_table section */ 
+.sessions_table
 {
    --col: var(--sessions_table-color); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-#sessions_button:hover  { border-color: oklch(from var(--sessions_table-color) calc(l + 0.15) c h); }
-#sessions_table_row, #sessions_table_head
+.sessions_table_row, .sessions_table_head
 {
    background-color: oklch(from var(--sessions_table-color) 0.1 0.1 h);
 }
-#sessions_table_row:hover
+.sessions_table_row:hover
 {
    background-color: oklch(from var(--sessions_table-color) 0.2 0.2 h);
 }
 
-/* colors for current session */
-#current_session, #current_session_button, #current_session_title_name, #current_session_view_select
+
+
+
+
+
+
+
+
+
+
+/* colors for current session */ 
+.current_session
 {
    --col: var(--current_session-color); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-#current_session_button:hover  { border-color: oklch(from var(--current_session-color) calc(l + 0.15) c h); }
 
 /* colors for gm table */
-#gm_table, #gm_table_button, #gm_table_view_select 
+.gm_table
 {
    --col: var(--gm_table-color); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-#gm_table_button:hover { border-color: oklch(from var(--gm_table-color) calc(l + 0.15) c h); }
-#gm_tablet
+
+.gm_tablet
 {
    border: none;
    border-collapse: collapse;
@@ -214,22 +337,24 @@ a:hover { color: #FFFFFF; } /* White on hover */
    font-family: sans-serif;
    font-size: .8rem;
 }
-#gm_tablet td { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
-#gm_tablet th { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
-#gm_tablet tr:hover { background-color: oklch(from var(--gm_table-color) 0.2 0.2 h);}
+.gm_tablet td { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
+.gm_tablet th { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
+.gm_tablet tr:hover { background-color: oklch(from var(--gm_table-color) 0.2 0.2 h);}
+
+
+
 
 
 /* colors for current gm */
-#current_gm, #current_gm_button
+.current_gm
 {
    --col: var(--current_gm-color); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-#current_gm_button:hover { border-color: oklch(from var(--current_gm-color) calc(l + 0.15) c h); }
 
-#current_gm_table
+.current_gm_table
 {
    border: none;
    border-collapse: collapse;
@@ -237,11 +362,8 @@ a:hover { color: #FFFFFF; } /* White on hover */
    font-family: sans-serif;
    font-size: .8rem;
 }
-#current_gm_table td { padding: 4px;  border: 1px solid var(--current_gm-color);} 
-#current_gm_table tr:hover {          background-color: oklch(from var(--current_gm-color) 0.2 0.2 h);}
-
-
-
+.current_gm_table td { padding: 4px;  border: 1px solid var(--current_gm-color);} 
+.current_gm_table tr:hover {          background-color: oklch(from var(--current_gm-color) 0.2 0.2 h);}
 
 
 
@@ -254,14 +376,14 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* colors for status_page */
-#status_page, #status_page_button
+.status_page, .status_page_button
 {
    color           : hsl(260, 100%, 97%);
    border-color    : hsl(260, 100%, 50%);
    background-color: hsl(260, 100%, 5%);
 }
-#status_page_button:hover { border-color: hsl(260, 100%, 80%); }
-#status_page_table
+.status_page_button:hover { border-color: hsl(260, 100%, 80%); }
+.status_page_table
 {
    border: none;
    border-collapse: collapse;
@@ -269,27 +391,8 @@ a:hover { color: #FFFFFF; } /* White on hover */
    font-family: sans-serif;
    font-size: .8rem;
 }
-#status_page_table td { padding: 4px;  border: 1px solid hsl(260, 100%, 50%);} 
-#status_page_table tr:hover {          background-color: hsl(260, 100%, 15%);}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.status_page_table td { padding: 4px;  border: 1px solid hsl(260, 100%, 50%);} 
+.status_page_table tr:hover {          background-color: hsl(260, 100%, 15%);}
 
 
 
@@ -311,15 +414,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 .icon { width: 20px; height: 20px; }
 .text { font-family: monospace; font-weight: normal; font-size: 16px; padding-top:2px; white-space:pre } 
-
-
-
-
-
-
-
-
-
 
 
 /* ---------- container for players cell ---------- */
