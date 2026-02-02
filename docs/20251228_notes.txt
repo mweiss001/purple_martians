@@ -8683,7 +8683,7 @@ function show_timeline()
 
    echo "<div id=\"current_gm\"  class=\"div-section-container\">";
       echo "<div id=\"current_gm\"  class=\"div-section-title-section-frame\">";
-         echo "<div id=\"current_gm\"  class=\"div-section-title-section-container\">";
+         echo "<div id=\"current_gm\"  class=\"divSectionTitleSectionContainer\">";
             echo "<div id=\"current_gm\"  class=\"div-section-title-frame\">Sessions Timeline</div>";
 
             echo "<div id=\"current_gm\"  class=\"div-section-title-frame-buttons-frame\">";
@@ -12136,7 +12136,7 @@ $but = "class=\"button\" id=\"links_button\"";
 
    echo "<div id=\"timeline\"  class=\"div-section-container\">";
       echo "<div id=\"timeline\"  class=\"div-section-title-section-frame\">";
-         echo "<div id=\"timeline\"  class=\"div-section-title-section-container\">";
+         echo "<div id=\"timeline\"  class=\"divSectionTitleSectionContainer\">";
             echo "<div id=\"timeline\"  class=\"div-section-title-frame\">Sessions Timeline</div>";
             echo "<div id=\"timeline\"  class=\"div-section-title-frame-buttons-frame\">";
 
@@ -12546,7 +12546,7 @@ fill_current_session.php
 
    <div id="current_session"  class="div-section-container">
       <div id="current_session"  class="div-section-title-section-frame">
-         <div id="current_session"  class="div-section-title-section-container">
+         <div id="current_session"  class="divSectionTitleSectionContainer">
             <div id="current_session_title_name"  class="div-section-title-frame"></div>
             <div id="current_session"  class="div-section-title-frame-buttons-frame">
                <label>View:</label>
@@ -12585,7 +12585,7 @@ fill_sessions_table.php and make it like the rest...
 
    <div id="sessions"  class="div-section-container">
       <div id="sessions"  class="div-section-title-section-frame">
-         <div id="sessions"  class="div-section-title-section-container">
+         <div id="sessions"  class="divSectionTitleSectionContainer">
             <div id="sessions"  class="div-section-title-frame">Sessions Table</div>
             <div id="sessions"  class="div-section-title-frame-buttons-frame">
                <label>View:</label>
@@ -13127,7 +13127,7 @@ generate this html in js
 
    <div id="timeline"  class="div-section-container">
       <div id="timeline"  class="div-section-title-section-frame">
-         <div id="timeline"  class="div-section-title-section-container">
+         <div id="timeline"  class="divSectionTitleSectionContainer">
             <div id="timeline"  class="div-section-title-frame">Sessions Timeline</div>
             <div id="timeline"  class="div-section-title-frame-buttons-frame">
 
@@ -13787,12 +13787,6 @@ option = {
 
 
 
-
-
-
-
-
-
 2026-01-30 07:28:16
 
 I finally figured out how to do a nice border!!!
@@ -13875,13 +13869,6 @@ try that...
 
 
 
-
-
-
-
-
-
-
 - do i need to reload the entire chart when I click on something?
 probably not, it resets the zoom
 only do that if in current session mode on timeline
@@ -13894,8 +13881,6 @@ done
 used filter mode; weakfilter to fix, used to be none, but that caused weird artifacts with gm's
 done
 - setup mouse wheel zoom!!- done
-
-
 
 
 
@@ -14043,8 +14028,6 @@ So my question is: What am I doing wrong? Can anyone point me in the right direc
       //filterMode: "filter",
     }
   ]
-
-
 
 
 2026-01-31 12:28:58
@@ -14239,19 +14222,15 @@ I listen for range changes like this:
 
 moving on to do some more things
 
-- fix the durations
+- fix the durations ..done
 
 - can I use single file date-fns?
 
-- label the timeline height slider
-
-- minimize text to show plus or minus
+- label the timeline height slider ...done
 
 - pop up config window with:
-- color controls on off
-
-
-
+- color controls on off done
+- minimize text to show plus or minus...done
 
 2026-01-31 22:19:32
 
@@ -14260,102 +14239,333 @@ wow that took a long time, but now I have a rudimentary pop up dialog with color
 other things to add to config:
 - min width of timeline element in pixels
 
-
 2026-01-31 23:33:55
 
-I better do a commit
+I better do a commit..done
 
+2026-02-01 05:50:36
 
 
+fix durations....
+do something so durations sort nicely in sessions table
+added another column for raw seconds so it will sort nicely...done
 
+where do I use them
 
+timeline tooltips
+sessions table column
+current session
+gm list
+current gm
+all the ones for gm should never go above 1 hour
+the ones I will work on first are in php in sessions table and current session..done
 
 
 
 
 
+i am thinking of a nice display in the title of timeline
+data  start  end  duration items
+view 
 
+and a drop box for each to select ranges
 
+I am going to work on this
 
+variables:
 
+var tlDataStart;
+var tlDataEnd;
+var tlDataDuration;
+var tlDataItems;
 
+var tlViewStart;
+var tlViewEnd;
+var tlViewDuration;
+var tlViewItems;
 
+places in the title bar to show them
+quick and dirty for now, make a nice frame later...
+it is looking good, i did not need any global variables
+I am thinking of making duration have an optional fixed width so it lines up better
+it already is padded to 16 char?? I must be ignoring whitespace...leave it for now
 
+Now I want labels at the start Data Range and View Ranges
+then I want select for each...maybe...
 
 
+i want to make this take up less space
+I want a border around each item, but when they are buttons the borders are doubled
+what if I tried a table....
 
+old:
 
+               <div class="timeline-range-cont">
+                  <div class="timeline-range-row">
+                     <label class="button timeline_button">Data Range:</label>
+                     <button class="button timeline_button" id="data-range-start"></button>
+                     <button class="button timeline_button" id="data-range-end"></button>
+                     <button class="button timeline_button" id="data-duration"></button>
+                     <button class="button timeline_button" id="data-item-count"></button>
+                  </div>
 
+                  <div class="timeline-range-row">
+                     <label class="button timeline_button">View Range:</label>
+                     <button class="button timeline_button" id="view-range-start"></button>
+                     <button class="button timeline_button" id="view-range-end"></button>
+                     <button class="button timeline_button" id="view-duration"></button>
+                     <button class="button timeline_button" id="view-item-count"></button>
+                  </div>
+               </div>
 
 
+               <div class="timeline-range-cont">
+               <table>
+               <tr> 
+                     <td>Data Range:</td>
+                     <td id="data-range-start"></td>
+                     <td id="data-range-end"></td>
+                     <td id="data-duration"></td>
+                     <td id="data-item-count"></td>
+               </tr> 
 
+               <tr> 
+                     <td>View Range:</td>
+                     <td id="view-range-start"></td>
+                     <td id="view-range-end"></td>
+                     <td id="view-duration"></td>
+                     <td id="view-item-count"></td>
+               </tr> 
+               
 
+               </table>
+               </div>
 
 
+2026-02-01 08:43:46
 
+the table is awesome, it was the right tool for the job
+I want the settings button to be in the same row as the page links, but at the extreme right..done
 
+Now make the settings dialog look nicer..done
 
+2026-02-01 10:32:42
 
+next, drop down for data range in timeline
 
+and maybe one for view range also
 
 
+the easiest would be to rename it to data range
 
 
+OK, modify class to allow for different name in front of view..done
 
+also modify call to make view option has 2 values, one short on for display and one for mouseover (optional)
+this seems like a waste of time...abort...
 
 
+separate the data range from mts, make it its own thing and put it by the data range label
 
 
+   timeline.view_select_array = ['All', 'Last Hour', 'Last Day', 'Current Session'];
 
 
+global
 
+var timelineDataRangeOption;
 
 
 
 
+Got that roughed in...
 
+2026-02-01 12:02:08
+Now I have a big task....
 
+make my vartiable names consistant
 
+I will go with camelCase
 
+avoid dashes '-' they are often a keyword
 
+start at the top of script.js
 
+check often to see if you broke stuff...
 
 
 
 
+old names
 
+timeline
+sessions_table
+current_session
+gm_table
+current_gm
 
+new names for sections
 
+timeline
+sessionsTable
+currentSession
+gmTable
+currentGm
 
 
 
+old:
+      fetchData_timeline();
+      fetchData_sessions_table();
+      fetchData_current_session();
+      fetchData_gm_table();
+      fetchData_current_gm();
 
 
+new:
+      fetchDataTimeline();
+      fetchDataSessionsTable();
+      fetchDataCurrentSession();
+      fetchDataGmTable();
+      fetchDataCurrentGm();
 
 
+done...
 
+mts name are all done
 
 
+         <!-- <div> <button id="testButton1">Test 1</button> <button id="testButton2">Test 2</button> </div> -->
+         <div id="timeline_js_target"></div>
+         <div id="sessionsTable_js_target"></div>
+         <div id="currentSession_js_target"></div>
+         <div id="gmTable_js_target"></div>
+         <div id="currentGm_js_target"></div>
+      </div>
 
+done
 
 
 
+I want to do mts cont
 
+currentGmControlsContainer
+              echo '<div id="currentGm-cont"></div>';
+done...
 
+now working through variables in mts
 
+done...
 
+now the css...
 
 
+newButton.classList.add("min-button", this.buttonClass);
+min-button
 
+2026-02-01 17:04:23
 
+I have been through all the main sections in css
 
+still more in css to do...
 
 
 
+2026-02-02 02:15:30
+mostly done, finishing css
+2026-02-02 02:54:02 css done
 
+next...
 
+variables in php
+I think I will make an exception where the variable name is identical to the db column name
 
+variables in php are done...
 
+should I do filenames? yes...
+
+I can't think of anything else...
+
+
+
+2026-02-02 04:15:13
+
+now what was I doing before?
+
+anything else to add to settings?
+
+data range and view range
+
+If the timeline title gets bigger, make sure that title text is still centered..done
+
+
+can control vertical size by adjusting:
+
+table font size
+make the select control also follow same...
+remove border from select control
+
+I can make it work with full 1 rem font, barely noticeable
+one thing that has been bothering me...when minimized to title, I have a double line on the bottom...fixed!!
+
+now what?
+
+add more options to data range
+1 week
+1 month
+
+when data range start is in the middle of an item, the item will not be added...
+then entire item (d1 and d2) need to be within the range
+should I relax this requirement? yes...
+
+
+this is what I have now:
+
+   $sqlWhere = " WHERE dt_start BETWEEN '$dt_start' AND '$dt_end'";  
+
+tests to exclude:
+if the element end is before the range start
+if the element start is after the range end
+
+test to include:
+
+if the element end is after the range start
+if the element start is before the range end
+
+$sqlWhere = " WHERE (dt_start < '$dt_end') AND (dt_end > '$dt_start')";  
+did this on both range and current selection
+now if any element overlaps the range it will be added
+
+2026-02-02 05:29:56
+implement view range....
+the control in place, now what to do with it??
+made it work...
+
+now I need to save these 2 values in session storage
+I have a recusion problem...
+when datazoom changes I call reload chart to hide things
+maybe I should make that separate....
+all i needed to do was only call getViewRange when dataZoom changes
+now I am back to artifacts...
+
+this seems to work well...
+
+   // listen for dataZoom changes
+   myChart.on('datazoom', function (params)
+   {
+      getViewRange();
+      myChart.setOption(
+      {
+         series: [ { data: data } ]
+      },
+      false );
+   });
+
+
+2026-02-02 07:08:49
+
+
+working well...i should commit....
 
 
 

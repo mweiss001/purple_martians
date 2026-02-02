@@ -1,90 +1,21 @@
 :root
 {
-  --timeline-color         : hsl(255, 100%, 50%);    
-  --sessions_table-color   : hsl(180, 100%, 50%);    
-  --current_session-color  : hsl(120, 100%, 50%);    
-  --gm_table-color         : hsl(60,  100%, 50%);    
-  --current_gm-color       : hsl(360, 100%, 50%);    
-  --timeline-height        : 600px;
-
-  --color_slider-width     : 60px;
-
+  --timelineColor       : hsl(255, 100%, 50%);    
+  --sessionsTableColor  : hsl(180, 100%, 50%);    
+  --currentSessionColor : hsl(120, 100%, 50%);    
+  --gmTableColor        : hsl(60,  100%, 50%);    
+  --currentGmColor      : hsl(360, 100%, 50%);    
+  --timelineHeight      : 600px;
+  --colorSliderWidth    : 60px;
 }
-
-#chart-container
-{
-   height: var(--timeline-height);
-}
-
-
-.color_slider
-{
-   width: var(--color_slider-width);
-   display: none; 
-
-   height: 6px;
-
-   appearance: none;
-
-   background: linear-gradient(to right, 
-      hsl(0, 100%, 50%), 
-      hsl(60, 100%, 50%), 
-      hsl(120, 100%, 50%), 
-      hsl(180, 100%, 50%), 
-      hsl(240, 100%, 50%), 
-      hsl(300, 100%, 50%), 
-      hsl(360, 100%, 50%)
-);
-
-}
-
-
-
-
-.color_slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 50%;
-  border: 2px solid #FFFFFF; 
-  width: 16px;
-  height: 16px;
-  background: #888888;
-  cursor: pointer;
-}
-
-.color_slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #FFFFFF; 
-  border-radius: 50%;
-  background: #888888;
-  cursor: pointer;
-}
-
-
-
-
-
-.control_line
-{
-   display: flex;
-   align-items: center;
-   border: 1px solid #888888; 
-   padding: 4px;
-}
-
-.hidden
-{
-  display: none; /* or visibility: hidden; */
-}
-
-
 
 
 body
 {
    background-color: #000000;
    color: #FFFFFF;
+   font-family: monospace;
+   font-size: 1rem;
 }
 
 a:link
@@ -97,8 +28,99 @@ a:visited { color: #b39ddb; } /* A light purple/violet for visited links */
 a:hover { color: #FFFFFF; } /* White on hover */
 
 
+#chartContainer
+{
+   height: var(--timelineHeight);
+}
+
+.colorSlider
+{
+   width: var(--colorSliderWidth);
+   display: none; 
+   height: 6px;
+   appearance: none;
+   background: linear-gradient(to right, 
+      hsl(0, 100%, 50%), 
+      hsl(60, 100%, 50%), 
+      hsl(120, 100%, 50%), 
+      hsl(180, 100%, 50%), 
+      hsl(240, 100%, 50%), 
+      hsl(300, 100%, 50%), 
+      hsl(360, 100%, 50%)
+      );
+}
+
+.colorSlider::-webkit-slider-thumb
+{
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF; 
+  width: 16px;
+  height: 16px;
+  background: #888888;
+  cursor: pointer;
+}
+
+.colorSlider::-moz-range-thumb
+{
+  width: 16px;
+  height: 16px;
+  border: 2px solid #FFFFFF; 
+  border-radius: 50%;
+  background: #888888;
+  cursor: pointer;
+}
+
+.controlLine
+{
+   display: flex;
+   align-items: center;
+   border: 1px solid #888888; 
+   padding: 4px;
+}
+
+
+
+.divSessionsPageTopRow
+{
+   display: grid;
+   grid-template-columns: 1fr auto 1fr; 
+   width: 100%;
+}
+
+.divSessionsPageTopRowCenter
+{
+    justify-self: center; 
+    grid-column: 2;
+}
+
+.divSessionsPageTopRowRight
+{
+   justify-self: end;
+   grid-column: 3;
+}
+
+#settingsDialog
+{
+   color: #CCCCCC;
+   background: #111111;
+   border: 4px solid #FFFFFF;
+   border-radius: 8px;
+}
+
+
+/* ---------- container for all sections on page ---------- */
+.divSessionsPage
+{ 
+   display: flex;    
+   flex-direction:column;    
+   gap: 2px; 
+   padding: 0px;
+}
+
 /* ---------- flex box for top page navigation link buttons  ---------- */
-.div-sessions-page-links
+.divSessionsPageLinks
 { 
    display: flex;    
    gap: 8px;
@@ -109,27 +131,28 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
-/* ---------- container for all sections on page ---------- */
-.div-sessions-page
-{ 
-   display: flex;    
-   flex-direction:column;    
-/*   border: 1px solid #FFFFFF; */
-   gap: 2px; 
-   padding: 0px;
-}
-
 /* ---------- common containers for sections ----------- */
 
 /* ---------- container for entire section -------------
    has border and background
    ----------------------------------------------------- */
-.div-section-container
+.divSectionContainer
 { 
    display: flex;    
    flex-direction:column;    
    border: 2px solid #FFFFFF;
 }
+
+
+.divSectionContainerMinimized
+{ 
+   display: flex;    
+   flex-direction:column;    
+   border: 2px solid #FFFFFF;
+   border-bottom: none;
+}
+
+
 
 /* ---------- title section   ----------------------------- */
 
@@ -138,7 +161,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
    top level container for section       
    draws the frame for the title section (actually just an underline)
    ----------------------------------------------------- */
-.div-section-title-section-frame
+.divSectionTitleSectionFrame
 { 
    border-bottom: 2px solid #FFFFFF;
 }
@@ -149,7 +172,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
    - title frame   
    - buttons frame
    ----------------------------------------------------- */
-.div-section-title-section-container
+.divSectionTitleSectionContainer
 { 
    display: flex;    
    justify-content: space-between;
@@ -157,16 +180,17 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 /* ---------- frame for title text ---------- */
-.div-section-title-frame
+.divSectionTitleFrame
 { 
    display: flex;    
    gap: 12px;
    font-size: 1.6rem;
    font-weight: bold;
+   align-items: center;
 }
 
 /* ---------- flex box for title frame buttons  ---------- */
-.div-section-title-frame-buttons-frame
+.divSectionTitleFrameButtonsFrame
 { 
    display: flex;    
    gap: 8px;
@@ -174,31 +198,20 @@ a:hover { color: #FFFFFF; } /* White on hover */
    align-items: center;
 }
 
-
-.chart-container
-{ 
-   padding: 0px, 0px;
-}
-
-.div-section-sub-section-timeline
-{ 
-   padding: 0px, 0px;
-}
-
-.div-section-sub-section-table
+.divSectionSubSectionSessionsTable
 { 
    padding: 0px 12px;
 }
 
-.div-section-sub-section-gm_table
+.divSectionSubSectionTable
 { 
    padding: 0px;
    border: none;
 }
 
-.div-section-sub-section-pretext
+.divSectionSubSectionPretext
 { 
-   font-size: 1rem;
+/*    font-size: 1rem; */
    display: block;
    font-family: monospace;
    white-space: pre;
@@ -206,7 +219,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 
-.div-section-sub-section-title-frame
+.divSectionSubSectionTitleFrame
 { 
    border-top: 2px solid #FFFFFF;
    border-bottom: 2px solid #FFFFFF;
@@ -216,9 +229,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
 }
 
 
-
-
-.button-label
+.buttonLabel
 {
    font-family: monospace;
    font-size: 16px;
@@ -226,6 +237,23 @@ a:hover { color: #FFFFFF; } /* White on hover */
    padding: 1px 8px;
    text-align: center;
 }
+
+.select
+{
+   font-family: monospace;
+   font-size: 16px;
+   color: #FFFFFF;
+   border-radius: 2px;
+   width: fit-content; 
+   padding: 1px 2px 1px 4px;
+   text-align: left;
+   text-decoration: none;
+   cursor: pointer;
+   border: 2px solid;
+}   
+
+
+
 
 
 .button
@@ -241,12 +269,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
    border: 2px solid;
 }
 
-
-
-
-
-
-.min-button
+.minimizeButton
 {
    font-family: monospace;
    font-size: 16px;
@@ -261,16 +284,16 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
-
-
-
-.links_button
+.linksButton
 {
    color: #f0e6ff;
    background-color: #140033;
    border: 1px solid #6600FF;
 }
-.links_button:hover {  border-color: #f0e6ff; }
+.linksButton:hover {  border-color: #f0e6ff; }
+
+
+
 
 
 
@@ -278,33 +301,89 @@ a:hover { color: #FFFFFF; } /* White on hover */
 /* colors for timeline section */
 .timeline
 {
-   --col: var(--timeline-color); 
+   --col: var(--timelineColor); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
+
+/* colors for timeline range table */
+.timelineRangeTable
+{
+   border: none;
+   border-collapse: collapse;
+   font-size: 1rem;
+
+/*
+   width: 100%;
+   font-family: sans-serif;
+
+*/
+
+}
+.timelineRangeTable td { padding: 0px 4px;  border: 1px solid var(--timelineColor);} 
+
+
+/*
+   border          : 1px solid;
+   border-color    : var(--col);
+   border          : none;
+*/
+
+.timelineSelect
+{
+   --col: var(--timelineColor); 
+   color           : oklch(from var(--col) .95 .05 h);
+   border          : none;
+   background-color: oklch(from var(--col) 0.1 0.1 h);
+   font-size: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* colors for sessions_table section */ 
-.sessions_table
+.sessionsTable
 {
-   --col: var(--sessions_table-color); 
+   --col: var(--sessionsTableColor); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-.sessions_table_row, .sessions_table_head
+
+
+.sessionsTableTable
 {
-   background-color: oklch(from var(--sessions_table-color) 0.1 0.1 h);
+   font-size: 1rem;
+
+   --col: var(--sessionsTableColor); 
+   color           : oklch(from var(--col) .95 .05 h);
+   border-color    : var(--col);
+   background-color: oklch(from var(--col) 0.1 0.1 h);
 }
-.sessions_table_row:hover
+.sessionsTableTable th
 {
-   background-color: oklch(from var(--sessions_table-color) 0.2 0.2 h);
+   background-color: oklch(from var(--sessionsTableColor) 0.2 0.1 h);
+   border-collapse: collapse;
+   border    : 1px solid #444444;
 }
-
-
-
-
-
+.sessionsTableTable tr
+{
+   background-color: oklch(from var(--sessionsTableColor) 0.2 0.1 h);
+}
+.sessionsTableTable tr:hover
+{
+   background-color: oklch(from var(--sessionsTableColor) 0.2 0.2 h);
+}
 
 
 
@@ -312,62 +391,68 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* colors for current session */ 
-.current_session
+.currentSession
 {
-   --col: var(--current_session-color); 
+   --col: var(--currentSessionColor); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
+
+
+
+
 
 /* colors for gm table */
-.gm_table
+.gmTable
 {
-   --col: var(--gm_table-color); 
+   --col: var(--gmTableColor); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
 
-.gm_tablet
+.gmTableTable
 {
    border: none;
    border-collapse: collapse;
    width: 100%;
+
+/*
    font-family: sans-serif;
    font-size: .8rem;
+*/
+
 }
-.gm_tablet td { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
-.gm_tablet th { padding: 1px;  border: 1px solid  var(--gm_table-color);  text-align: center; }
-.gm_tablet tr:hover { background-color: oklch(from var(--gm_table-color) 0.2 0.2 h);}
-
-
+.gmTableTable td { padding: 1px;  border: 1px solid  var(--gmTableColor);  text-align: center; }
+.gmTableTable th { padding: 1px;  border: 1px solid  var(--gmTableColor);  text-align: center; }
+.gmTableTable tr:hover { background-color: oklch(from var(--gmTableColor) 0.2 0.2 h);}
 
 
 
 /* colors for current gm */
-.current_gm
+.currentGm
 {
-   --col: var(--current_gm-color); 
+   --col: var(--currentGmColor); 
    color           : oklch(from var(--col) .95 .05 h);
    border-color    : var(--col);
    background-color: oklch(from var(--col) 0.1 0.1 h);
 }
 
-.current_gm_table
+.currentGmTable
 {
    border: none;
    border-collapse: collapse;
    width: 100%;
+
+/*
    font-family: sans-serif;
    font-size: .8rem;
+*/
+
 }
-.current_gm_table td { padding: 4px;  border: 1px solid var(--current_gm-color);} 
-.current_gm_table tr:hover {          background-color: oklch(from var(--current_gm-color) 0.2 0.2 h);}
-
-
-
-
+.currentGmTable td { padding: 4px;  border: 1px solid var(--currentGmColor);} 
+.currentGmTable tr:hover { background-color: oklch(from var(--currentGmColor) 0.2 0.2 h); }
 
 
 
@@ -376,14 +461,16 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* colors for status_page */
-.status_page, .status_page_button
+.statusPage, .statusPageButton
 {
    color           : hsl(260, 100%, 97%);
    border-color    : hsl(260, 100%, 50%);
    background-color: hsl(260, 100%, 5%);
 }
-.status_page_button:hover { border-color: hsl(260, 100%, 80%); }
-.status_page_table
+.statusPageButton:hover { border-color: hsl(260, 100%, 80%); }
+
+
+.statusPageTable
 {
    border: none;
    border-collapse: collapse;
@@ -391,10 +478,8 @@ a:hover { color: #FFFFFF; } /* White on hover */
    font-family: sans-serif;
    font-size: .8rem;
 }
-.status_page_table td { padding: 4px;  border: 1px solid hsl(260, 100%, 50%);} 
-.status_page_table tr:hover {          background-color: hsl(260, 100%, 15%);}
-
-
+.statusPageTable td { padding: 4px;  border: 1px solid hsl(260, 100%, 50%);} 
+.statusPageTable tr:hover {          background-color: hsl(260, 100%, 15%);}
 
 
 
@@ -406,29 +491,52 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 /* ---------- container for player icon and player name text ---------- */
-.icon-text-container
+
+/*
+used in:
+
+currentGm
+currentSession
+sessionsTable
+statusPage
+
+*/
+
+.iconTextContainer
 {
    display: flex;      
    align-items: center;
    gap: 10px;
 }
-.icon { width: 20px; height: 20px; }
-.text { font-family: monospace; font-weight: normal; font-size: 16px; padding-top:2px; white-space:pre } 
+.iconTextContainerIcon { width: 20px; height: 20px; }
+.iconTextContainerText { font-family: monospace; font-weight: normal; font-size: 16px; padding-top:2px; white-space:pre } 
 
+
+
+
+
+
+
+
+
+/*
+  
+  these are used in gmTable
+
+*/
 
 /* ---------- container for players cell ---------- */
-.players-cell
+.playersCell
 {
    display: flex;      
    align-items: center;
    gap: 2px;
    padding: 0px;
 }
-.players-cell-icon { width: 20px; height: 20px; }
-
+.playersCellIcon { width: 20px; height: 20px; }
 
 /* ---------- container for level cell ---------- */
-.level-cell
+.levelCell
 {
    display: flex;      
    align-items: center;

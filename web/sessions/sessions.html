@@ -3,64 +3,46 @@
    <head>
       <title>Purple Martians - Sessions</title>
       <link rel="stylesheet" href="./sessions.css">
-      <script src="./script.js", type="module" ></script>
+      <script src="./sessions.js", type="module" ></script>
       <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
-
-
-
       <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
-
-
-
       <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
       <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
       <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
    </head>
    <body>
-      <div class="div-sessions-page">
-         <div class="div-sessions-page-links">
-            <a href="../index.html"  class="button links_button" >Back to Main Page</a>
-            <a href="sessions.html"  class="button links_button" >Sessions</a>
-            <a href="status.php"     class="button links_button" >Status</a>
+      <div class="divSessionsPage">
+         <div class="divSessionsPageTopRow">
+            <div class="divSessionsPageTopRowCenter">
+               <div class="divSessionsPageLinks">
+                  <a href="../index.html"  class="button linksButton" >Back to Main Page</a>
+                  <a href="sessions.html"  class="button linksButton" >Sessions</a>
+                  <a href="status.php"     class="button linksButton" >Status</a>
+               </div>
+            </div>
+            <div class="divSessionsPageTopRowRight">
+               <button id="openSettings" class="button linksButton">Settings</button>
+            </div>
          </div>
 
-
-<button id="openSettings">Settings</button>
-
-<dialog id="settingsDialog">
-  <form method="dialog">
-    <h2>Settings</h2>
-
-
-    <div style="display:flex flex-direction:column">
-
-
-    <div class="control_line"><label>Color Slider Enable:<input id="color-slider-enable" type="checkbox"></label></div>
-
-    
-<!--    <div class="control_line"><label>Color Slider Width: <input id="color-slider-width"  type="range"    min=40 max=800></label></div> -->
-
-
-    <div class="control_line"><label for: "color-slider-width">Color Slider Width:</label> <input id="color-slider-width"  type="range"    min=40 max=800></div>
-
-
-    </div>
-
-
-    <br><br>
-    <button value="cancel">Cancel</button>
-    <button value="save">Save</button>
-  </form>
-</dialog>
-
-
+            <dialog id="settingsDialog">
+              <form method="dialog">
+                <h2>Settings</h2>
+                <div style="display:flex flex-direction:column">
+                   <div class="controlLine"><label>Color Slider Enable:<input id="colorSliderEnable" type="checkbox"></label></div>
+                   <div class="controlLine"><label for: "colorSliderWidth">Color Slider Width:</label> <input id="colorSliderWidth"  type="range"    min=40 max=800></div>
+                </div>
+                <br><br>
+                <button value="ok">OK</button>
+              </form>
+            </dialog>
 
          <!-- <div> <button id="testButton1">Test 1</button> <button id="testButton2">Test 2</button> </div> -->
-         <div id="timeline_js_target"></div>
-         <div id="sessions_table_js_target"></div>
-         <div id="current_session_js_target"></div>
-         <div id="gm_table_js_target"></div>
-         <div id="current_gm_js_target"></div>
+         <div id="timelineSectionContainer"></div>
+         <div id="sessionsTableSectionContainer"></div>
+         <div id="currentSessionSectionContainer"></div>
+         <div id="gmTableSectionContainer"></div>
+         <div id="currentGmSectionContainer"></div>
       </div>
    </body>
 </html>

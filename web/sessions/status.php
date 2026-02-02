@@ -4,7 +4,6 @@ session_start();
 
 include "database.php";
 
-
 echo <<<TEXT
 
 <!DOCTYPE html>
@@ -38,24 +37,16 @@ function show_player_num_icon_name_host($num, $col, $name, $sid, $host, $ip)
    $iconpath = "/assets/icons/player_icon_$col.png";
    $alt = "alt=\"icon not found\"";
    echo "<div style=\" display:flex; gap:32px; \">";
-      echo "<div class=\"icon-text-container\">";
+      echo "<div class='iconTextContainer'>";
          echo "<span class=\"text\">$num</span>";
-         echo "<img src=$iconpath $alt class=\"icon\">";
-         echo "<span class=\"text\">$nm</span>";
+         echo "<img src=$iconpath $alt class='iconTextContainerIcon'>";
+         echo "<span class='iconTextContainerText'>$nm</span>";
      echo "</div>";
-   echo "<span class=\"text\">$ss</span>";
-   echo "<span class=\"text\">$ip</span>";
-   echo "<span class=\"text\">$hn</span>";
+   echo "<span class='iconTextContainerText'>$ss</span>";
+   echo "<span class='iconTextContainerText'>$ip</span>";
+   echo "<span class='iconTextContainerText'>$hn</span>";
 }
 
-function secondsToDHMS($seconds)
-{
-   $d = floor($seconds / 86400);
-   $h = floor($seconds / 3600);
-   $m = floor(($seconds % 3600) / 60);
-   $s = $seconds % 60;
-   return sprintf ("%02d:%02d:%02d:%02d", $d, $h, $m, $s);
-}
 
 function framesToHMS($frames)
 {
@@ -68,10 +59,10 @@ function framesToHMS($frames)
 }
 
 
-echo "<div class=\"div-sessions-page\">";
+echo "<div class='divSessionsPage'>";
 
-   $but = 'class="button links_button"';
-   echo "<div class=\"div-sessions-page-links\">";
+   $but = 'class="button linksButton"';
+   echo "<div class='divSessionsPageLinks'>";
    echo "<a href=\"../index.html\" $but >Back to Main Page</a>";
    echo "<a href=\"sessions.html\"  $but >Sessions</a>";
    echo "<a href=\"status.php\"  $but >Status</a>";
@@ -91,34 +82,34 @@ echo "<div class=\"div-sessions-page\">";
    $cpu        = $row['cpu'];
    $version    = $row['version'];
 
-   $but = 'class="button status_page_button"'; 
+   $but = 'class="button statusPageButton"'; 
 
-   echo "<div class=\"status_page div-section-container\">";
-      echo "<div class=\"status_page div-section-title-section-frame\">";
-         echo "<div class=\"status_page div-section-title-section-container\">";
-            echo "<div class=\"status_page div-section-title-frame\">Server Status</div>";
+   echo "<div class='statusPage divSectionContainer'>";
+      echo "<div class='statusPage divSectionTitleSectionFrame'>";
+         echo "<div class='statusPage divSectionTitleSectionContainer'>";
+            echo "<div class='statusPage divSectionTitleFrame'>Server Status</div>";
             
-            echo "<div class=\"status_page div-section-title-frame-buttons-frame\">";
-               echo "<a href=\"status.php\" $but >Refresh</a>";
+            echo "<div class='statusPage divSectionTitleFrameButtonsFrame'>";
+               echo "<a href='status.php' $but >Refresh</a>";
             echo "</div>";
          echo "</div>";
       echo "</div>";
 
       echo "<div style=\" display:flex; gap:2px;  padding:4px;\">";
-         echo "<div class=\"status_page div-section-sub-section-pretext\">";
+         echo "<div class='statusPage divSectionSubSectionPretext'>";
             echo "Server Version : $version\n";
             echo "Last Update    : "         . date('Y-m-d h:i:s', strtotime($row['timestamp']))  . "\n";
-            echo "Server Uptime  :         " . secondsToDHMS($row['uptime'])    . "\n";
+            echo "Server Uptime  :        " . secondsToDHMS($row['uptime'])    . "\n";
             echo "Server Load    : $cpu%\n";
          echo "</div>";
       echo "</div>";
 
-      if ($clients == 0) echo "<div class=\"status_page div-section-sub-section-title-frame\">No Current Clients</div>";
+      if ($clients == 0) echo "<div class='statusPage divSectionSubSectionTitleFrame'>No Current Clients</div>";
       else
       {
-         echo "<div class=\"status_page div-section-sub-section-title-frame\">Current Clients</div>";
-            echo "<div class=\"status_page div-section-sub-section-gm_table\">";
-            echo "<table class='status_page_table'><tbody>";
+         echo "<div class='statusPage divSectionSubSectionTitleFrame'>Current Clients</div>";
+            echo "<div class='statusPage divSectionSubSectionTable'>";
+            echo "<table class='statusPageTable'><tbody>";
                $sql = "SELECT id, player_name, player_num, player_color, hostname, ip FROM sessions WHERE endreason='open'";
                $res = $GLOBALS['db']->query($sql);
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
@@ -137,13 +128,13 @@ echo "<div class=\"div-sessions-page\">";
          echo "</div>";
       }
 
-      echo "<div class='status_page div-section-sub-section-title-frame'>Current Level</div>";
-      echo "<div style=\" display:flex; gap:2px;  padding:4px;\">";
+      echo "<div class='statusPage divSectionSubSectionTitleFrame'>Current Level</div>";
+      echo "<div style='display:flex; gap:2px;  padding:4px;'>";
 
          $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
          echo "<img style=\" width: 160px; height: 160x;\" src=$iconpath alt=\"icon not found\" >";
 
-         echo "<div class='status_page div-section-sub-section-pretext'>";
+         echo "<div class='statusPage divSectionSubSectionPretext'>";
             echo "Level   : $level\n";
             echo "Time    : " . framesToHMS($level_time)    . "\n";
             echo "Moves   : $moves\n";
@@ -156,15 +147,4 @@ echo "</div>";
 
 ?>
 </body></html>
-
-
-
-
-
-
-
-
-
-
-
 
