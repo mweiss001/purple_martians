@@ -1340,11 +1340,22 @@ src/mwPlayer.cpp:1306:12: note: �snprintf� output between 1 and 2147483649 b
    snprintf(tmp6, 9, "%*s" , width_field, tmp4);
 
    char tmp8[9];
-   strncpy(tmp8, tmp6, 8); // copy at most 8 char
-   tmp8[8] = 0; // ensure 9th char is null
+//   strncpy(tmp8, tmp6, 8); // copy at most 8 char
+//   tmp8[8] = 0; // ensure 9th char is null
+
+
+   snprintf(tmp8, 9, "%s", tmp6); // copy at most 8 char and null
+
 
    strncpy(name, tmp8, 8); // copy at most 8 char
    name[8] = 0; // ensure 9th char is null
+
+
+
+
+
+
+
    return name;
 }
 

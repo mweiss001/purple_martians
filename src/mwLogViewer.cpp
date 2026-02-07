@@ -36,7 +36,18 @@ int mwLog::load_log_lines_array_from_static_file(const char* f)
       buff[loop] = 0; // terminate the string
       if (loop > 99) printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
 
-      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+
+
+//      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+
+
+      if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+
+
+
+
+
+
 
       if (num_lines >= NUM_LOG_LINES)
       {

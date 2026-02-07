@@ -151,7 +151,11 @@ void mwLog::save_log_file(void)
       strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
 
       char lh[16];
-      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+//      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+      snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+
+
+
 
       char ph[80];
       sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );

@@ -2,6 +2,9 @@
 
 #include "pm.h"
 #include "mwMain.h"
+
+#include <iostream>
+
 #include "mwPlayer.h"
 #include "mwSound.h"
 #include "mwLog.h"
@@ -71,6 +74,18 @@ void mwMain::set_and_get_versions(void)
    // set version name
    sprintf(mLoop.pm_version_string, PM_VERSION);
    printf("\nPurple Martians Version %s\n", mLoop.pm_version_string);
+
+    long standard = __cplusplus;
+    // Mapping the macro values to standard names
+    if (standard == 199711L) std::cout << "C++98/C++03" << std::endl;
+    else if (standard == 201103L) std::cout << "C++11" << std::endl;
+    else if (standard == 201402L) std::cout << "C++14" << std::endl;
+    else if (standard == 201703L) std::cout << "C++17" << std::endl;
+    else if (standard == 202002L) std::cout << "C++20" << std::endl;
+    else if (standard == 202302L) std::cout << "C++23" << std::endl;
+    else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
+
+
 
    // get allegro version
    uint32_t version = al_get_allegro_version();

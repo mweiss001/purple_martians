@@ -212,7 +212,10 @@ void mwGameMoves::proc(void)
             proc_game_move_player_active(p, c);
          }
 
+         // old version
          if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   {  proc_game_move_player_active(        arr[x][2], arr[x][3] ); }
+
+
          if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) {  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); }
          if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   {  proc_game_move_player_hidden(        arr[x][2]            ); }
          if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     {  proc_game_move_shot_config(          arr[x][2], arr[x][3] ); }
@@ -473,8 +476,28 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
 char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 {
    char dsc[80] = {0};
+
+
+   if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+   {
+      int col;
+      char name[9] = { 0 };
+      mMiscFnx.gma_to_val(mGameMoves.arr[gm][1], mGameMoves.arr[gm][2], mGameMoves.arr[gm][3], p, col, name);
+      snprintf(mPlayer.syn[p].name, 9, "%s", name);
+
+      sprintf(dsc, " P%d ACTIVE", p);
+
+   }
+
+
+
    if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, " START LEVEL %d", v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE", p);
+
+//   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE", p);
+
+
+
+
    if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   sprintf(dsc, " P%d HIDDEN", p);
    if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, " P%d INACTIVE", p);
    if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, " P%d ACK", p);
@@ -488,6 +511,12 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       if (p & 0b10) pvs = 1;
       sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
    }
+
+
+
+
+
+
 
    if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
    {
@@ -535,6 +564,9 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 //      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "[LEFT]");
 //      else                       strcat(dsc, "[    ]");
    }
+
+   if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t = 1;
+
    sprintf(tmp, "[%3d][%5d][%d][%d][%2d]%s", gm, f, t, p, v, dsc);
    return tmp;
 }

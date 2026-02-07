@@ -183,6 +183,10 @@ class mwScreen
    void draw_demo_debug_overlay(int p, int &cx, int &cy);
 
 
+   void draw_demo_controls_overlay();
+
+
+
 };
 extern mwScreen mScreen;
 

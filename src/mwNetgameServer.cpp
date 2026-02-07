@@ -355,7 +355,7 @@ void mwNetgame::server_process_db_control()
 
    if (ret == 0)
    {
-      int val =  v[0];
+//      int val =  v[0];
       int mod =  v[1];
 
       if (mod == 1) // changed by web

@@ -22,8 +22,13 @@
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
+#include "mwDemoRecord.h"
 #include "mwMiscFnx.h"
 #include "mwShot.h"
+
+#include "mwEventQueue.h"
+
+
 
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
@@ -938,6 +943,126 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
 
 
 
+
+
+
+
+
+
+
+
+void mwScreen::draw_demo_controls_overlay()
+{
+   int x = mDemoMode.controls_x;
+   int y = mDemoMode.controls_y;
+
+   int w = 300;
+   int h = 100;
+
+
+   al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[0]);
+
+
+   al_draw_rectangle(x, y, x+w, y+h, mColor.pc[15], 1);
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+4, y+4, 0, "Running Saved Game ");
+
+
+   int bts = 20;
+   int xa = x + 4;
+   int xb = x + w -4;
+
+   int xc = x + (w/2);
+
+
+   int ya = y + 20;
+
+   if (mDemoMode.controls_paused)
+   {
+      if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,11,15, 0,  1,0,0,0, "Play")) mDemoMode.controls_paused = 0;
+   }
+   else
+   {
+      if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,10,15, 0,  1,0,0,0, "Pause")) mDemoMode.controls_paused = 1;
+   }
+
+   ya += 24;
+
+   int old_frame_speed = mLoop.frame_speed;
+   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+   if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+
+
+
+   int f = mLoop.frame_num;
+
+   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15,  0,0,1,0, f, mDemoMode.last_frame, 0, 1, "Current Frame:");
+
+   if (f < 0) f = 0;
+
+   if (f != mLoop.frame_num)
+   {
+      mLoop.frame_num = f;
+      mDemoMode.seek_to_frame(f, 1);
+   }
+
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.controls_pause_when_done, "Pause when done", 12, 13);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
 {
    char msg[1024];
@@ -1348,6 +1473,16 @@ void mwScreen::draw_screen_overlay(void)
       t1 = al_get_time();
       draw_demo_debug_overlay(p, cx, cy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
+
+
+      draw_demo_controls_overlay();
+
+
+
+
+
+
+
    }
 
 

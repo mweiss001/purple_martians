@@ -202,6 +202,7 @@ void mwDemoRecord::load_lnk_arr(void)
       if (gm_list_all) add = 1;
       else
       {
+         if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) add = 1; // new version with embedded name
          if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
          if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) add = 1;
          if (mGameMoves.arr[i][2] == player_sections[current_section][1]) add = 1;
@@ -282,6 +283,17 @@ void mwDemoRecord::draw_gm_txt_lines(int x, int y, int dump)
       int t = mGameMoves.arr[gi][1];
       int p = mGameMoves.arr[gi][2];
       int v = mGameMoves.arr[gi][3];
+
+
+      // do this to set p and color
+      if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+      {
+         char name[9] = { 0 };
+         mMiscFnx.gma_to_val(mGameMoves.arr[gi][1], mGameMoves.arr[gi][2], mGameMoves.arr[gi][3], p, v, name);
+         snprintf(mPlayer.syn[p].name, 9, "%s", name);
+
+      }
+
       sprintf(msg, "%s", mGameMoves.get_gm_text2(i, f, t, p, v, msg));
       if (dump) printf("%s\n", msg);
 
@@ -295,7 +307,7 @@ void mwDemoRecord::draw_gm_txt_lines(int x, int y, int dump)
 
       int bkg_col = 0;
 
-      // if f == current frame higlight in blue
+      // if f == current frame highlight in blue
       if (f == current_frame_num) bkg_col = 12+128;
 
       // otherwise highlight both adjoining moves
@@ -1102,20 +1114,44 @@ void mwDemoRecord::fill_player_sections(void)
       player_sections[psi][15] = 0; // frame of last game move
 
       for (int x=0; x<mGameMoves.entry_pos; x++)
-         if (mGameMoves.arr[x][2] == p)
+      {
+         int pp = mGameMoves.arr[x][2]; // get player number of game move
+         int t = mGameMoves.arr[x][1]; // get type of game move
+         int cc;
+
+         if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
          {
+            char name[9] = { 0 };
+            mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], pp, cc, name);
+            snprintf(mPlayer.syn[p].name, 9, "%s", name);
+         }
+         if (p == pp)
+         {
+
             player_sections[psi][14]++; // number of game moves
 
             player_sections[psi][15] = mGameMoves.arr[x][0]; // frame of last game move
 
-            if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN) player_sections[psi][13] = 1;
+            if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN) player_sections[psi][13] = 1;
 
-            if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+            if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+            {
+               f1 = mGameMoves.arr[x][0];
+               col = cc;
+            }
+/*
+
+            // old version
+            if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
             {
                f1 = mGameMoves.arr[x][0];
                col = mGameMoves.arr[x][3];
             }
-            if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+
+  */
+
+
+            if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
             {
                f2 = mGameMoves.arr[x][0];
 
@@ -1128,6 +1164,7 @@ void mwDemoRecord::fill_player_sections(void)
                f2 = -1;
             }
          }
+      }
       if ((f1 != -1) && (f2 == -1)) // active with no matching inactive
       {
          set_player_section(psi, p, col, f1, mDemoMode.last_frame, y, 0);

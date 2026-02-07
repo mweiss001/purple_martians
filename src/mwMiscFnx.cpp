@@ -1588,8 +1588,15 @@ void mwMiscFnx::edit_player_name(int x, int y, int p)
       {
 //         snprintf(mPlayer.syn[p].name, 9, "%s", fst);
 
-         strncpy(mPlayer.syn[p].name, fst, 8); // copy at most 8 char
-         mPlayer.syn[p].name[8] = 0; // ensure 9th char is null
+
+
+//         strncpy(mPlayer.syn[p].name, fst, 8); // copy at most 8 char
+//         mPlayer.syn[p].name[8] = 0; // ensure 9th char is null
+
+
+         snprintf(mPlayer.syn[p].name, 9, "%s", fst); // copy at most 8 char and null
+
+
 
          mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
          quit = 1;

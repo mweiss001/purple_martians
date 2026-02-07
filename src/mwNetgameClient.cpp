@@ -262,8 +262,15 @@ int mwNetgame::client_proc_sjon_packet(char * data)
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
       mPlayer.syn[p].color = color;
       mNetgame.server_lev_seq_num = slsn;
-      strncpy(mPlayer.loc[0].hostname, server_address, 16);
-      strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
+
+
+//      strncpy(mPlayer.loc[0].hostname, server_address, 16);
+//      strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
+
+      snprintf(mPlayer.loc[0].hostname, 16, "%s", server_address);
+      snprintf(mPlayer.loc[p].hostname, 16, "%s", mLoop.local_hostname);
+
+
       mLevel.play_level = pl;
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Client received join invitation from server");
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
@@ -413,7 +420,10 @@ void mwNetgame::client_proc_sfil_packet(int i)
    if (complete)
    {
       // uncompress
-      char dmp[fsize + 128];
+      //char dmp[fsize + 128];
+
+      char dmp[200128];
+
       uLongf destLen = sizeof(dmp);
       uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_sfil_buffer, sizeof(client_sfil_buffer));
 

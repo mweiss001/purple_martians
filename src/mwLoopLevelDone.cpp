@@ -214,12 +214,36 @@ void mwLoop::proc_level_done_mode(void)
    }
    if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
    {
+      // if demo mode pause stay here...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - skippable 15s timeout\n", frame_num, mPlayer.syn[0].level_done_mode);
       if (!mNetgame.ima_client)
       {
          if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
       }
    }
+
+
+
+
 
    if (mPlayer.syn[0].level_done_mode == 2) // delay to load next level
    {

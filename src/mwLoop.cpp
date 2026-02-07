@@ -741,7 +741,10 @@ int mwLoop::load_and_setup_level(int level, int type)
       if (type == 3) // SERVER_NEW_GAME
       {
          setup_players_after_level_load(1); // type 1 full reset,
-         strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+//         strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+         snprintf(mPlayer.loc[0].hostname, 16, "%s", local_hostname);
+
+
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
          mNetgame.server_lev_seq_num = 0;
       }
@@ -979,6 +982,8 @@ void mwLoop::main_loop(void)
 
          if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
          {
+
+
             frame_num++;
             frame_start_timestamp = al_get_time();
 

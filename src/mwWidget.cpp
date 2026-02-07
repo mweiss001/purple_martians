@@ -1364,12 +1364,6 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
 
 
 
-
-
-
-
-
-
 // displays a text string, and returns 1 if pressed but doesn't block
 int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
