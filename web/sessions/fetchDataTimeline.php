@@ -18,6 +18,10 @@ $sqlWhere = "";
 $range = 'all';
 $val = 60;
 
+$dt_start;
+$dt_end;
+
+
 if (isset($_GET['range'])) $range = $_GET['range'];
 if (isset($_GET['val']))   $val   = $_GET['val'];
 
@@ -54,6 +58,12 @@ function getJDate($d)
 $data = array();
 $ty = 0;
 
+/*
+// enter fake marker at range start
+$dt = getJDate($dt_start);
+$data[] = [ 'value' => [$dt, $dt, 0, 0, 'fk', '', '', '', 0, 0 ] ] ;
+*/
+
 // get game moves
 $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm $sqlWhere";
 $res = $db->query($sql);
@@ -85,6 +95,16 @@ while ($row = $res->fetch(PDO::FETCH_ASSOC))
    $hn     =  $row['hostname'];      // hostame
    $data[] = [ 'value' => [$st, $en, $ty, $cl, $rn, $nm, $id, $hn, 0, 0 ] ] ;
 }
+
+
+// enter fake marker at range end
+//$dt     = getJDate($dt_end);
+//$data[] = [ 'value' => [$dt, $dt, 0, 0, 'fk', '', '', '', 0, 0 ] ] ;
+
+
+
+
+
 echo json_encode($data);
 ?>
 

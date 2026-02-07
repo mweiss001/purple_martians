@@ -2,6 +2,26 @@
 
 include 'database.php';
 
+function showSessionPlayerIconNameHost($sid, $col, $name, $host, $validId)
+{
+   if (!$validId)
+   {
+      echo "Current Session: [$sid] not found";
+      return;
+   }
+
+   $iconpath = "/assets/icons/player_icon_$col.png";
+   echo "Current Session: $sid";
+      echo "<div class='iconTextContainer'>";
+         echo "<img class='iconTextContainerIcon' src=$iconpath alt='icon not found'";
+         echo "<span class='iconTextContainerText'>$name</span>";
+         echo "<span class='iconTextContainerText'>($host)</span>";
+      echo "</div>";
+}
+
+
+
+
 $id = 0;
 $min = 0;
 $view = 0;
@@ -12,11 +32,22 @@ if (isset($_GET['view'])) $view = $_GET['view'];
 
 if ($id)
 {
-   $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM sessions WHERE id=$id");
-   $row = $res->fetch(PDO::FETCH_ASSOC);
-   $col    = $row['player_color'];
-   $name   = $row['player_name'];
-   $host   = $row['hostname'];
+   $validId = 1;
+   $res = $db->query("SELECT COUNT(*) FROM sessions WHERE id=$id");
+   if ($res->fetchColumn() == 0)
+   { 
+      $min = 1;
+      $validId = 0;
+   }
+   else
+   {      
+      $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM sessions WHERE id=$id");
+      $row = $res->fetch(PDO::FETCH_ASSOC);
+      $col    = $row['player_color'];
+      $name   = $row['player_name'];
+      $host   = $row['hostname'];
+   }
+
 
    $frame = 'divSectionContainer';
    if ($min) $frame = 'divSectionContainerMinimized';
@@ -24,13 +55,7 @@ if ($id)
       echo '<div class="currentSession divSectionTitleSectionFrame">';
          echo '<div class="currentSession divSectionTitleSectionContainer">';
             echo '<div class="currentSession divSectionTitleFrame">';
-               $iconpath = "/assets/icons/player_icon_$col.png";
-               $alt = "alt='icon not found'";
-               echo "Current Session: $id<div class='iconTextContainer'>";
-               echo "<img class='iconTextContainerIcon' src=$iconpath $alt>";
-               echo "<span class='iconTextContainerText'>$name</span>";
-               echo "<span class='iconTextContainerText'>($host)</span>";
-               echo "</div>";
+               showSessionPlayerIconNameHost($id, $col, $name, $host, $validId);
             echo '</div>';
             echo '<div class="currentSession divSectionTitleFrameButtonsFrame">';
                echo '<div id="currentSessionControlsContainer"></div>';

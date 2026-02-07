@@ -14563,9 +14563,704 @@ this seems to work well...
 
 
 2026-02-02 07:08:49
-
-
 working well...i should commit....
+
+
+what now?
+
+am I happy with how sessions works?
+
+I just played a game and it did not play back nicely
+
+player michael joined part way and finished, that is not how it played back
+
+2026-02-03 03:13:47
+
+fix settings:
+
+title to start with
+
+rounded section frames by 2px looks nicer..done
+I need to remove the top and bottom border of the range selector secctions..done
+
+made new section <div class="divSessionsPageTopRowLeft"> and put test button div there
+test buttons dynamically create with their own function, enable and disabled with one line
+
+made settings dyanically created in js also and resused frame and title from other sections
+
+
+
+add to settings:
+
+font size of range controls
+
+
+length of range control line:
+84 col
+Start: 2026-01-22 07:01:22 End: 2026-02-03 04:02:07 Duration: 11 21:00:45 Items: 35
+
+
+55 col
+2026-01-22 07:01:22 2026-02-03 04:02:07 11 21:00:45 35
+
+47 col
+20260122 070122 20260203 040207 11 21:00:45 35
+
+first set var in css
+
+
+
+2026-02-03 06:25:48
+
+
+
+I have a nasty bug I have been chasing for about an hour now...
+
+
+clear session, load page, timeline renders properly
+reload page timeline blank
+
+the only thing that brings it back is selecting a new session from session table
+then everything works properly until I reload the page again...
+
+why????
+
+
+in both case the data loads in fetch...
+
+
+this is what happens in sessions table click
+
+               setCurrentSession(id);
+               fetchDataCurrentSession();
+               fetchDataGmTable();
+               fetchDataTimeline();
+
+
+
+setup a test button with fetchDataTimeline(); that always fixes it
+
+I think it is being called too soon...but why? what has not loaded yet...
+
+
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   readVariablesFromSessionStorage();
+
+   setTimeout(checkLoaded, 100); // Check again in 100ms
+//   checkLoaded();
+   setupSettingsDialog();
+   setupTestButtons();
+});
+
+
+this fixed it for now, but I really need to figure out why and fix it better....
+
+I know blocking wait is highly discouraged, maybe I could setup my own async promise wait thing...
+
+but what am I waiting for?
+
+the only thing I do before that is readVariables...
+
+
+
+
+function initialSetup()
+{
+   readVariablesFromSessionStorage();
+   
+//   setTimeout(checkLoaded, 100); // wait 100ms
+ 
+   checkLoaded();
+
+   setupSettingsDialog();
+   setupTestButtons();
+   
+}
+
+
+
+
+// -----------------------------------------------
+// ---   setup once the page has loaded   ---
+// -----------------------------------------------
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   setTimeout(initialSetup, 100); // wait 100ms
+
+//   initialSetup();  
+
+
+});
+
+did some testing....
+
+the 100ms delay has to be between 
+
+readVariablesFromSessionStorage();
+
+and 
+
+   checkLoaded();
+
+
+// Function to check a condition periodically and return a Promise
+function waitUntil(condition) {
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            if (condition()) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 50); // Check every 50 milliseconds
+    });
+}
+
+// Example usage:
+let myVariable;
+
+// Simulate an asynchronous operation setting the variable after a delay
+setTimeout(() => {
+    myVariable = "Desired Value";
+    console.log("Variable has been set by async operation");
+}, 2000); // Sets the variable after 2 seconds
+
+// An async function that waits for the variable to be set
+async function useVariableWhenReady() {
+    console.log("Waiting for variable to be set...");
+    await waitUntil(() => myVariable !== undefined);
+    console.log(`Variable is set: ${myVariable}`);
+    // Your code that needs the variable can go here
+}
+
+useVariableWhenReady();
+
+
+
+2026-02-04 04:31:15
+
+
+what am I waiting for?
+I want to do a test and see if the page loads without currentSession or currentGm set
+the page loads just fine
+
+
+2026-02-04 05:39:56
+
+did some checks in 'fillCurrentGm.php' to deal with muid not set gracefully
+did the same with 'fillCurrentSession.php'
+
+2026-02-04 06:10:06
+
+back to what I was doing in the main thread....
+
+
+I don't know what it is waiting for, but I need a delay between readVariablesFromSessionStorage(); and the rest of the code...
+
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   readVariablesFromSessionStorage();
+   setTimeout(checkLoaded, 0); // schedule the callback to run asynchronously after the current synchronous code finishes executing
+   setupSettingsDialog();
+   //setupTestButtons();
+});
+
+done...
+
+
+2026-02-04 07:10:38
+spent over 2 hours fixing this...
+
+now what?
+a few minor tweaks:
+- text labels for timeline element are not clipped to the edges of the chart area
+- do datatables for gm table section also
+
+
+
+
+what if I try to make range exactly what I tell it instead of what data it finds?
+optional?
+
+I do not have that range in js...or do I??
+
+php could just enter marker values
+tried that...
+
+now try keeping track of range in js
+
+let timelineDataRangeOptionD1 = 0;
+let timelineDataRangeOptionD2 = 0;
+
+set when calling fetch
+
+what format is it?
+jsdate?
+ms epoch
+
+it is a date I am expecting to send to echarts
+
+Rethinking here....
+
+I don't know if I want to mess with the datarange, i need to get things outside of it to show nicely
+maybe I should just be modifying the view range
+I think this all started when the datarange end fell short of the current time....then I could not zoom into that...
+
+I think I am going to leave it as it is, there does not seem to be an easy way to improve upon what I've got...
+
+
+2026-02-05 05:11:28
+
+fought with datatables for a bit, can't seem to get it to display borders how I want
+specifically bottom of header and bottom of table, gave up and decided to live with it
+reduced height of sessions table
+added datatables to gm table
+
+made a test slider and used it to set icon height to 16
+
+
+
+
+
+
+
+how about when setting datarange....
+you know the actual range could be larger (if includes data point that cross boundaries)
+or smaller (no larger than data size)
+
+so how about automatically setting the view range to the value chosen with datarange?
+
+the selections would need to match...
+
+look at them and also see if I can reduce length and have title tooltips..i can
+
+Duration:      13 19:28:20
+
+
+
+i like this custom tooltip position way better than what I used to have....
+
+
+
+   tooltip:
+   {
+//      position: 'top',
+
+
+        position: function (point, params, dom, rect, size) {
+            // point is the current mouse position (e.g., [x, y]) in pixel coordinates
+
+            // Example 1: Offset the tooltip by a fixed amount (10px right, 10px down)
+            // return [point[0] + 10, point[1] + 10];
+
+            // Example 2: Place the tooltip at a specific Y-coordinate (e.g., 20% from the top)
+            // return [point[0], '20%'];
+
+            // Example 3: More advanced positioning to ensure it stays within the chart boundaries
+            var x = point[0];
+            var y = point[1];
+            var tooltipWidth = size.contentSize[0];
+            var tooltipHeight = size.contentSize[1];
+            var chartWidth = size.viewSize[0];
+
+            // If the tooltip would go off the right edge, flip it to the left
+            if (x + tooltipWidth > chartWidth) {
+                x -= tooltipWidth + 20; // add some padding
+            } else {
+                x += 10; // default offset
+            }
+            
+            // Similar check for vertical position
+            if (y + tooltipHeight > size.viewSize[1]) {
+                y -= tooltipHeight;
+            }
+
+            return [x, y];
+        },
+
+
+
+
+
+
+
+option = {
+    // ... other options
+    tooltip: {
+        trigger: 'axis', // 'axis' or 'item' trigger, the callback works for both
+        position: function (point, params, dom, rect, size) {
+            // point is the current mouse position (e.g., [x, y]) in pixel coordinates
+
+            // Example 1: Offset the tooltip by a fixed amount (10px right, 10px down)
+            // return [point[0] + 10, point[1] + 10];
+
+            // Example 2: Place the tooltip at a specific Y-coordinate (e.g., 20% from the top)
+            // return [point[0], '20%'];
+
+            // Example 3: More advanced positioning to ensure it stays within the chart boundaries
+            var x = point[0];
+            var y = point[1];
+            var tooltipWidth = size.contentSize[0];
+            var tooltipHeight = size.contentSize[1];
+            var chartWidth = size.viewSize[0];
+
+            // If the tooltip would go off the right edge, flip it to the left
+            if (x + tooltipWidth > chartWidth) {
+                x -= tooltipWidth + 20; // add some padding
+            } else {
+                x += 10; // default offset
+            }
+            
+            // Similar check for vertical position
+            if (y + tooltipHeight > size.viewSize[1]) {
+                y -= tooltipHeight;
+            }
+
+            return [x, y];
+        },
+        // Optional: you can also use a custom formatter callback to structure the content
+        formatter: function (params) {
+            var res = params[0].name;
+            for (var i = 0, l = params.length; i < l; i++) {
+                res += '<br/>' + params[i].seriesName + ' : ' + params[i].value;
+            }
+            return res;
+        }
+    },
+    xAxis: {
+        // ... xAxis configuration
+    },
+    yAxis: {
+        // ... yAxis configuration
+    },
+    series: [
+        // ... series data
+    ]
+};
+
+
+
+2026-02-06 07:03:27
+
+settings-
+use table for inner controls structure so that:
+labels are in first col  right justified
+controls are in second col left justified
+this will make things line up nicer
+
+old:
+
+               <div style="display:flex flex-direction:column">
+                  <div class="controlLine"><label>Color Slider Enable:                                           <input id="colorSliderEnableCheckbox" type="checkbox"></label></div>
+                  <div class="controlLine"><label for: "colorSliderWidthSlider">Color Slider Width:</label>      <input id="colorSliderWidthSlider" type="range" min=40 max=800></div>
+                  <div class="controlLine"><label for: "rangeTableTextSizeSlider">Range Table Text Size:</label> <input id="rangeTableTextSizeSlider" type="range" min=0.5 max=1 step=0.01></div>
+                  <div class="controlLine"><label>Use Datatables:                                                <input id="useDatatablesCheckbox" type="checkbox"></label></div>
+               </div>
+table?
+
+grid could work
+
+also flex box if I make the label a fixed size...done
+
+2026-02-07 02:33:12
+
+
+
+/* this is the stupid hack I have to do to get a bottom border on datatables */
+.dt-layout-table
+{
+   border-bottom          : 1px solid;
+}
+
+
+/* the entire area */
+
+/*
+#mySessionsTable_wrapper
+{
+   border          : 1px solid #FF0000;
+}
+
+*/
+
+
+/* the table only */
+.dt-layout-table
+{
+   border-bottom          : 1px solid;
+
+
+
+
+/*
+   border          : 1px solid #00FF00;
+
+   border          : 1px solid var(--sessionsTableColor);
+
+   border          : 1px solid var(--sessionsTableColor);
+   padding: 5px;
+ */
+
+
+
+
+   
+}
+
+
+/* also does elements outside table */
+.dt-layout-cell
+{
+/*   border          : 1px solid #00FF00;
+
+
+   border          : 1px solid var(--sessionsTableColor);
+
+*/
+
+}
+
+
+.dt-layout-head
+{
+/*   border          : 1px solid #00FF00;
+
+   border          : 1px solid var(--sessionsTableColor);
+*/
+
+}
+
+
+
+
+/*
+
+.dt-layout-row
+{
+   border          : 1px solid #0000FF;
+   
+}
+
+*/
+
+
+
+/*
+
+.sessionsTableTable tbody tr td
+{
+    border-bottom: 1px solid #ddd;  Bottom of each row
+}
+
+*/
+
+/*
+
+table.dataTable {
+    border-collapse: collapse !important;
+    border-bottom: 1px solid #111; Bottom of the whole table
+}
+
+table.dataTable tbody tr td {
+    border-bottom: 1px solid #ddd;  Bottom of each row
+}
+
+*/
+
+
+
+
+
+2026-02-07 03:58:29
+I want to be done with sessions
+
+one last bug...text labels are not clipped...
+
+old:
+
+                  // text overlay 
+                  {
+                     type: 'text',
+                     style:
+                     {
+                        text: elementName,
+                        fill: '#FFFFFF',
+                        x: start[0]+8, 
+                        y: (start[1]-height/2) + 8,
+                        textAlign: 'left',
+                        textVerticalAlign: 'top',
+                        width: width, 
+                        overflow: 'truncate', 
+                     }
+                  }
+
+
+
+new.. make text part of first rect....
+
+
+               type: 'group',
+               children:
+               [
+                  // main gradient filled rect
+                  {
+                     type: 'rect',
+                     transition: ["shape"],
+                     shape: rect,
+                     style:
+                     {
+                        fill:
+                        {
+                           type: 'linear',
+                           x: 0, y: 0, x2: 0, y2: 1,
+                           colorStops:
+                           [
+                              { offset: 0.0, color: getHSL(api.value(3), 0.1) },
+                              { offset: 1.0, color: getHSL(api.value(3), 1.0) }
+                           ]
+                        },
+                     },
+
+                     // text overlay 
+                     textContent: {
+                        type: 'text',
+                        style:
+                        {
+                           text: elementName,
+                           fill: '#FFFFFF',
+                           x: start[0]+8, 
+                           y: (start[1]-height/2) + 8,
+                           textAlign: 'left',
+                           textVerticalAlign: 'top',
+                           width: width, 
+                           height: height,
+                           overflow: 'truncate', 
+                        },
+                        textConfig:
+                        {
+                           position: 'inside' // Position text inside rect
+                        }
+                        
+                     }
+
+                  },
+                   
+                  // highlight selected items with rect frame
+                  {
+                     type: 'rect',
+                     shape: rect,
+                     style:
+                     {
+                        fill: 'none', 
+                        lineWidth: 2,  
+                        stroke: isSelected ? highlightBorderColor : 'none',
+                     }
+                  },
+
+/*
+
+
+2026-02-07 04:36:27
+
+now sessions is done
+
+It would be fun to do the transport controls for demo mode...
+
+
+I should commit....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

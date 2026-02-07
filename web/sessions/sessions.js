@@ -1,4 +1,69 @@
 
+const playerColors = [
+   "#888888", 
+   "#bf6ce8", 
+   "#8820ac",
+   "#3c7fff",
+   "#e01c48",
+   "#ff00e8",
+   "#ffbf7f",
+   "#ff7f00",
+   "#7f00ff",
+   "#01ff7f",
+   "#ff0000",
+   "#01ff00",
+   "#0000ff",
+   "#01ffff",
+   "#ffff00",
+   "#ffffff",
+]
+
+const playerColorsHSL = [
+  [   0,    0,   53 ],
+  [ 280,   73,   67 ],
+  [ 285,   69,   40 ],
+  [ 219,  100,   62 ],
+  [ 347,   78,   49 ],
+  [ 305,  100,   50 ],
+  [  30,  100,   75 ],
+  [  30,  100,   50 ],
+  [ 270,  100,   50 ],
+  [ 150,  100,   50 ],
+  [   0,  100,   50 ],
+  [ 120,  100,   50 ],
+  [ 240,  100,   50 ],
+  [ 180,  100,   50 ],
+  [  60,  100,   50 ],
+  [   0,    0,  100 ]
+]
+
+
+
+
+function getHSL(p, lm)
+{
+   var h = playerColorsHSL[p][0];
+   var s = playerColorsHSL[p][1];
+   var l = playerColorsHSL[p][2] * lm;
+   var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
+   return ret;
+}
+
+function getHSLC(p, lm, cs)
+{
+   var h = playerColorsHSL[p][0];
+
+   h+=cs;
+   if (h>360) h-=360;
+
+   var s = playerColorsHSL[p][1];
+   var l = playerColorsHSL[p][2] * lm;
+   var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
+   return ret;
+}
+
+
+
 var option =
 {
    animation: false,
@@ -100,6 +165,8 @@ var option =
       {
          type: "custom",
 
+
+
          encode: { x: [0,1], y: 0, },
          
          renderItem: (params, api) =>
@@ -131,6 +198,10 @@ var option =
                { x: start[0], y: start[1] - height / 2, width: end[0] - start[0], height: height},
                { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height},
             )
+
+
+
+
             if (rect !== undefined) rect.r = 4; // rounded corners
 
             var highlightBorderColor = getHSLC(api.value(3), 1.0, 180);
@@ -160,6 +231,25 @@ var option =
                            ]
                         },
                      },
+
+                     // text overlay 
+                     textContent:
+                     {
+                        type: 'text',
+                        style:
+                        {
+                           text: elementName,
+                           fill: '#FFFFFF',
+                           x: start[0]+8, 
+                           y: (start[1]-height/2) + 8,
+                           textAlign: 'left',
+                           textVerticalAlign: 'top',
+                           width: width, 
+                           height: height,
+                           overflow: 'truncate', 
+                        },
+                        textConfig: { position: 'inside' } // Position text inside rect
+                     }
                   },
                    
                   // highlight selected items with rect frame
@@ -173,31 +263,72 @@ var option =
                         stroke: isSelected ? highlightBorderColor : 'none',
                      }
                   },
-
-                  // text overlay 
-                  {
-                     type: 'text',
-                     style:
-                     {
-                        text: elementName,
-                        fill: '#FFFFFF',
-                        x: start[0]+8, 
-                        y: (start[1]-height/2) + 8,
-                        textAlign: 'left',
-                        textVerticalAlign: 'top',
-                        width: width, 
-                        overflow: 'truncate', 
-                     }
-                  }
                ]
             };
          },
+         clip: true,
       }
    ],
 
    tooltip:
    {
-      position: 'top',
+//      position: 'top',
+
+
+        position: function (point, params, dom, rect, size) {
+            // point is the current mouse position (e.g., [x, y]) in pixel coordinates
+
+            // Example 1: Offset the tooltip by a fixed amount (10px right, 10px down)
+            // return [point[0] + 10, point[1] + 10];
+
+            // Example 2: Place the tooltip at a specific Y-coordinate (e.g., 20% from the top)
+            // return [point[0], '20%'];
+
+            // Example 3: More advanced positioning to ensure it stays within the chart boundaries
+            var x = point[0];
+            var y = point[1];
+            var tooltipWidth = size.contentSize[0];
+            var tooltipHeight = size.contentSize[1];
+            var chartWidth = size.viewSize[0];
+
+            // If the tooltip would go off the right edge, flip it to the left
+            if (x + tooltipWidth > chartWidth) {
+                x -= tooltipWidth + 20; // add some padding
+            } else {
+                x += 10; // default offset
+            }
+            
+            // Similar check for vertical position
+            if (y + tooltipHeight > size.viewSize[1]) {
+                y -= tooltipHeight;
+            }
+
+            return [x, y];
+        },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       backgroundColor: 'rgba(50, 50, 50, 1.0)',
       borderColor: '#aaaaaa',
       borderWidth: 1,
@@ -260,9 +391,9 @@ var option =
          var eol = "</span><br>"; // end of line
 
          var txt =    name;
-         txt +=    s1 + 'Start: '    + d1s  + eol;
-         txt +=    s1 + 'End:   '    + d2s  + eol;
-         txt +=    s1 + 'Duration: ' + dur  + eol;
+         txt +=    s1 + 'Start: '        + d1s  + eol;
+         txt +=    s1 + 'End:   '        + d2s  + eol;
+         txt +=    s1 + 'Duration:     ' + dur  + eol;
 
          return txt;
       },
@@ -274,6 +405,8 @@ var option =
          filterMode: "none",
       },
       {
+
+
          type: 'inside',
          filterMode: "none",
       },
@@ -281,72 +414,26 @@ var option =
 }
 
 
-var myChart;
-var data;
-let categoryArray = [];
-
-var currentSessionId;
-var currentGmMuid;
-var timelineHeight;
-
-var timelineDataRangeOption;
-var timelineViewRangeOption;
-
-let colorSliderWidth = 60;
-let colorSliderEnable = 0;
 
 
 
-function readVariablesFromSessionStorage()
-{
-   // attempt to read all variables from session storage
-   currentSessionId   = JSON.parse(sessionStorage.getItem("currentSessionId"));
-   currentGmMuid      = JSON.parse(sessionStorage.getItem("currentGmMuid"));
-   timelineHeight     = JSON.parse(sessionStorage.getItem("timelineHeight"));
-   colorSliderWidth   = JSON.parse(sessionStorage.getItem("colorSliderWidth"));
-   colorSliderEnable  = JSON.parse(sessionStorage.getItem("colorSliderEnable"));
-
-   timelineDataRangeOption = JSON.parse(sessionStorage.getItem("timelineDataRangeOption"));
-   timelineViewRangeOption = JSON.parse(sessionStorage.getItem("timelineViewRangeOption"));
 
 
-   // if any are not set (null), set default values
-   if (currentSessionId  === null) fetchDataMostRecentSession();
-   if (currentGmMuid     === null) fetchDataMostRecentGm();
-   if (timelineHeight    === null) setTimelineHeight(400);
-   if (colorSliderWidth  === null) colorSliderWidth = 60;   
-   if (colorSliderEnable === null) colorSliderEnable = 0;
-
-   if (timelineDataRangeOption === null) timelineDataRangeOption = 0;
-   if (timelineViewRangeOption === null) timelineViewRangeOption = 0;
-     
-
-   // do these to save and initialize things associated with these variables
-   setColorSliderWidth(colorSliderWidth);
-   setColorSliderEnable(colorSliderEnable);
 
 
-   
-}
 
 
-function checkLoaded()
-{
-   if ((currentGmMuid !== null) && (currentSessionId !== null)) 
-   {
-      // load initial
-      fetchDataTimeline();
-      fetchDataSessionsTable();
-      fetchDataCurrentSession();
-      fetchDataGmTable();
-      fetchDataCurrentGm();
-   } 
-   else
-   {
-      console.log('Variables not set yet, checking again...');
-      setTimeout(checkLoaded, 100); // Check again in 100ms
-   }
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 function getCSSRule(ruleName)
@@ -376,54 +463,53 @@ if (myClassRule) {
 
 
 
-// -----------------------------------------------
-// ---   setup once the page has loaded   ---
-// -----------------------------------------------
-document.addEventListener('DOMContentLoaded', (event) =>
+
+function setupTestButtons()
 {
-   readVariablesFromSessionStorage();
-   checkLoaded();
+   // get the container and set flex
+   const container = document.getElementById('testButtons');
 
-   const dialog = document.getElementById("settingsDialog");
-   const openButton = document.getElementById("openSettings");
+   const button1 = document.createElement('button');
+   button1.textContent = 'Test 1';
+   button1.setAttribute('id', 'testButton1');
+   container.appendChild(button1);
 
-   // Open the dialog
-   openButton.addEventListener("click", () => {
-     dialog.showModal(); // Use showModal() for modal behavior
-   });
+   const button2 = document.createElement('button');
+   button2.textContent = 'Test 2';
+   button2.setAttribute('id', 'testButton2');
+   container.appendChild(button2);
+
+
+
+   const in1 = document.createElement('input');
+   in1.setAttribute('id', 'in1');
+   in1.setAttribute('type', 'range');
+   in1.setAttribute('min', '10');
+   in1.setAttribute('max', '20');
+   in1.setAttribute('step', '1');
+   container.appendChild(in1);
+
 
    // find color slider width slider
-   const colorSliderWidthSlider = document.getElementById("colorSliderWidth");
+   const in1a = document.getElementById("in1");
    
    // set initial value
-   colorSliderWidthSlider.value = colorSliderWidth;
+   in1a.value = 14;
 
    // listen for changes
-   colorSliderWidthSlider.addEventListener("input", () =>
+   in1a.addEventListener("input", () =>
    {
-      setColorSliderWidth(colorSliderWidthSlider.value);
-   });
-
-
-   // find color slider enable checkbox
-   const colorSliderEnableCheckBox = document.getElementById("colorSliderEnable");
-   
-   // set initial value
-   colorSliderEnableCheckBox.checked = colorSliderEnable;
-
-   // listen for changes
-   colorSliderEnableCheckBox.addEventListener("input", () =>
-   {
-      if (colorSliderEnableCheckBox.checked) colorSliderEnable = 1;
-      else colorSliderEnable = 0;
-
-      setColorSliderEnable(colorSliderEnable);
-
+      console.log("slider val:", in1a.value);   
+      document.documentElement.style.setProperty('--testvar', `${in1a.value}px`);
    });
 
 
 
-/*
+
+
+
+
+
    document.getElementById("testButton1").addEventListener("click", function()
    {
       console.log("test button 1 pressed");   
@@ -432,16 +518,179 @@ document.addEventListener('DOMContentLoaded', (event) =>
    {
       console.log("test button 2 pressed");   
    });
+}
 
-*/
 
+function setupSettingsDialog()
+{
+   document.body.innerHTML += `
+      <dialog id="settingsDialog">
+         <form method="dialog">
+            <div class="divSectionContainer ">
+               <div class="divSectionTitleSectionFrame">
+                  <div class="divSectionTitleSectionContainer">
+                     <div class="divSectionTitleFrame">Settings</div>
+                     <div class="timeline divSectionTitleFrameButtonsFrame">
+                        <div>
+                          <button value="ok">OK</button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div style="display:flex flex-direction:column">
+                  <div class="controlRow">
+                     <label>Color Slider Enable:</label>
+                     <input id="colorSliderEnableCheckbox" type="checkbox">
+                  </div>
+                  <div class="controlRow">
+                     <label for: "colorSliderWidthSlider">Color Slider Width:</label>
+                     <input id="colorSliderWidthSlider" type="range" min=40 max=800>
+                  </div>
+                  <div class="controlRow">
+                     <label for: "rangeTableTextSizeSlider">Range Table Text Size:</label>
+                     <input id="rangeTableTextSizeSlider" type="range" min=0.5 max=1 step=0.01>
+                  </div>
+                  <div class="controlRow">
+                     <label>Use Datatables:</label>
+                     <input id="useDatatablesCheckbox" type="checkbox">
+                  </div>
+               </div>
+            </div>
+         </form>
+      </dialog>`;
+
+
+   const dialog = document.getElementById("settingsDialog");
+   const openButton = document.getElementById("openSettings");
+
+   // listen for button click to open settings dialog
+   openButton.addEventListener("click", () => { dialog.showModal(); });
+
+
+   // colorSliderWidthSlider
+   const colorSliderWidthSlider = document.getElementById("colorSliderWidthSlider");
+   colorSliderWidthSlider.value = colorSliderWidth;
+   colorSliderWidthSlider.addEventListener("input", () =>   {      setColorSliderWidth(colorSliderWidthSlider.value);   });
+
+
+   // colorSliderEnableCheckBox
+   const colorSliderEnableCheckBox = document.getElementById("colorSliderEnableCheckbox");
+   colorSliderEnableCheckBox.checked = colorSliderEnable;
+   colorSliderEnableCheckBox.addEventListener("input", () =>   {      setColorSliderEnable(colorSliderEnableCheckBox.checked);   });
+
+
+   // rangeTableTextSlider
+   const rangeTableTextSizeSlider = document.getElementById("rangeTableTextSizeSlider");
+   rangeTableTextSizeSlider.value = rangeTableTextSize;
+   rangeTableTextSizeSlider.addEventListener("input", () =>   {      setRangeTableTextSize(rangeTableTextSizeSlider.value);   });
+
+   // useDatatablesCheckbox
+   const useDatatablesCheckbox = document.getElementById("useDatatablesCheckbox");
+   useDatatablesCheckbox.checked = useDatatables;
+   useDatatablesCheckbox.addEventListener("input", () =>   {      setUseDatatables(useDatatablesCheckbox.checked);   });
+
+
+}
+
+
+
+
+var myChart;
+var data;
+let categoryArray = [];
+
+let timelineHeight = 400;
+let timelineDataRangeOption = 0;
+let timelineViewRangeOption = 0;
+let colorSliderWidth = 60;
+let colorSliderEnable = 0;
+let rangeTableTextSize = 1.0;
+
+let useDatatables = 1;
+
+
+
+
+
+
+var currentSessionId;
+var currentGmMuid;
+
+
+function readVariablesFromSessionStorage()
+{
+   // attempt to read all variables from session storage
+   timelineHeight          = JSON.parse(sessionStorage.getItem("timelineHeight"));
+   timelineDataRangeOption = JSON.parse(sessionStorage.getItem("timelineDataRangeOption"));
+   timelineViewRangeOption = JSON.parse(sessionStorage.getItem("timelineViewRangeOption"));
+   colorSliderWidth        = JSON.parse(sessionStorage.getItem("colorSliderWidth"));
+   colorSliderEnable       = JSON.parse(sessionStorage.getItem("colorSliderEnable"));
+   rangeTableTextSize      = JSON.parse(sessionStorage.getItem("rangeTableTextSize"));
+   useDatatables           = JSON.parse(sessionStorage.getItem("useDatatables"));
+   currentSessionId        = JSON.parse(sessionStorage.getItem("currentSessionId"));
+   currentGmMuid           = JSON.parse(sessionStorage.getItem("currentGmMuid"));
+
+   // if null, set default values
+   if (timelineHeight          === null) timelineHeight          = 400;
+   if (timelineDataRangeOption === null) timelineDataRangeOption = 0;
+   if (timelineViewRangeOption === null) timelineViewRangeOption = 0;
+   if (colorSliderWidth        === null) colorSliderWidth        = 60;
+   if (colorSliderEnable       === null) colorSliderEnable       = 0;
+   if (rangeTableTextSize      === null) rangeTableTextSize      = 1.0;
+   if (useDatatables           === null) useDatatables           = 1;
+   if (currentSessionId        === null) fetchDataMostRecentSession();
+   if (currentGmMuid           === null) fetchDataMostRecentGm();
+
+
+   // initialize things associated with these variables
+   setColorSliderWidth(colorSliderWidth);
+   setColorSliderEnable(colorSliderEnable);
+   setRangeTableTextSize(rangeTableTextSize);
+}
+
+
+function checkLoaded()
+{
+   if ((currentGmMuid !== null) && (currentSessionId !== null)) 
+   {
+      fetchDataTimeline();
+      fetchDataSessionsTable();
+      fetchDataCurrentSession();
+      fetchDataGmTable();
+      fetchDataCurrentGm();
+   } 
+   else
+   {
+      checkLoaded.count = (checkLoaded.count || 0) + 1;
+
+      if (checkLoaded.count > 10)
+      {
+         console.log('aborting...');
+         return;
+      }     
+
+      console.log(checkLoaded.count, ' - variables not set yet, wait 100ms and check again...');
+      setTimeout(checkLoaded, 100); // Check again in 100ms
+   }
+}
+
+
+// -----------------------------------------------
+// ---   setup once the page has loaded   ---
+// -----------------------------------------------
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   readVariablesFromSessionStorage();
+   setTimeout(checkLoaded, 0); // schedule the callback to run asynchronously after the current synchronous code finishes executing
+   setupSettingsDialog();
+   //setupTestButtons();
 });
 
 
 
 function setCurrentSession(id)
 {
-   currentSessionId = id;
+   currentSessionId = Number(id);
    sessionStorage.setItem("currentSessionId", JSON.stringify(currentSessionId));
 }
 function setCurrentGmMuid(id)
@@ -455,6 +704,7 @@ function setTimelineHeight(val)
    sessionStorage.setItem("timelineHeight", JSON.stringify(timelineHeight));
    document.documentElement.style.setProperty('--timelineHeight', `${val}px`);
 }
+
 function setColorSliderWidth(val)
 {
    colorSliderWidth = val;
@@ -473,72 +723,21 @@ function setColorSliderEnable(val)
       else                   myClassRule.style.display = 'none';
    }
 }
-
-
-
-
-const playerColors = [
-   "#888888", 
-   "#bf6ce8", 
-   "#8820ac",
-   "#3c7fff",
-   "#e01c48",
-   "#ff00e8",
-   "#ffbf7f",
-   "#ff7f00",
-   "#7f00ff",
-   "#01ff7f",
-   "#ff0000",
-   "#01ff00",
-   "#0000ff",
-   "#01ffff",
-   "#ffff00",
-   "#ffffff",
-]
-
-const playerColorsHSL = [
-  [   0,    0,   53 ],
-  [ 280,   73,   67 ],
-  [ 285,   69,   40 ],
-  [ 219,  100,   62 ],
-  [ 347,   78,   49 ],
-  [ 305,  100,   50 ],
-  [  30,  100,   75 ],
-  [  30,  100,   50 ],
-  [ 270,  100,   50 ],
-  [ 150,  100,   50 ],
-  [   0,  100,   50 ],
-  [ 120,  100,   50 ],
-  [ 240,  100,   50 ],
-  [ 180,  100,   50 ],
-  [  60,  100,   50 ],
-  [   0,    0,  100 ]
-]
-
-
-
-
-function getHSL(p, lm)
+function setRangeTableTextSize(val)
 {
-   var h = playerColorsHSL[p][0];
-   var s = playerColorsHSL[p][1];
-   var l = playerColorsHSL[p][2] * lm;
-   var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
-   return ret;
+   rangeTableTextSize = val;
+   sessionStorage.setItem("rangeTableTextSize", JSON.stringify(rangeTableTextSize));
+   document.documentElement.style.setProperty('--rangeTableTextSize', `${val}rem`);
 }
 
-function getHSLC(p, lm, cs)
+function setUseDatatables(val)
 {
-   var h = playerColorsHSL[p][0];
-
-   h+=cs;
-   if (h>360) h-=360;
-
-   var s = playerColorsHSL[p][1];
-   var l = playerColorsHSL[p][2] * lm;
-   var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
-   return ret;
+   useDatatables = val;  
+   sessionStorage.setItem("useDatatables", JSON.stringify(useDatatables));
+   fetchDataSessionsTable();
+   fetchDataGmTable();
 }
+
 
 
 
@@ -567,8 +766,8 @@ function getDuration(d1, d2)
    }
   returnText += zeroPad(duration.hours) + ":" + zeroPad(duration.minutes) + ":" + zeroPad(duration.seconds);
 
-   // pad to 16 char
-   returnText = returnText.padStart(16);
+   // pad to 12 char
+   returnText = returnText.padStart(12);
 
    return returnText;
 }
@@ -576,11 +775,6 @@ function getDuration(d1, d2)
 
 // iterate data and find range
 // returns range array [0]-min [1]-max
-
-
-
-
-
 function getDataRange()
 {
    var min = 0;
@@ -599,10 +793,10 @@ function getDataRange()
          if (data[i].value[1] > max) max = data[i].value[1];
       }
    }
-   document.getElementById("dataRangeStart" ).innerHTML = "Start: "    + getDateString(min);
-   document.getElementById("dataRangeEnd"   ).innerHTML = "End: "      + getDateString(max);
-   document.getElementById("dataDuration"   ).innerHTML = "Duration: " + getDuration(min, max);
-   document.getElementById("dataItemCount"  ).innerHTML = "Items: "    + String(data.length);
+   document.getElementById("dataRangeStart" ).innerHTML = "Start: "   + getDateString(min);
+   document.getElementById("dataRangeEnd"   ).innerHTML = "End: "     + getDateString(max);
+   document.getElementById("dataDuration"   ).innerHTML = "Duration:" + getDuration(min, max);
+   document.getElementById("dataItemCount"  ).innerHTML = "Items: "   + String(data.length);
    return [min, max];
 }
 
@@ -627,10 +821,10 @@ function getViewRange()
          view_item_count++;
       }
    }
-   document.getElementById("viewRangeStart" ).innerHTML = "Start: "    + getDateString(min);
-   document.getElementById("viewRangeEnd"   ).innerHTML = "End: "      + getDateString(max);
-   document.getElementById("viewDuration"   ).innerHTML = "Duration: " + getDuration(min, max);
-   document.getElementById("viewItemCount"  ).innerHTML = "Items: "    + view_item_count;
+   document.getElementById("viewRangeStart" ).innerHTML = "Start: "   + getDateString(min);
+   document.getElementById("viewRangeEnd"   ).innerHTML = "End: "     + getDateString(max);
+   document.getElementById("viewDuration"   ).innerHTML = "Duration:" + getDuration(min, max);
+   document.getElementById("viewItemCount"  ).innerHTML = "Items: "   + view_item_count;
 }
 
 
@@ -640,11 +834,11 @@ function setViewRange()
 
    switch (timelineViewRangeOption)
    {
-      case 0: minutes = 0; break;   
-      case 1: minutes = 10080; break;   
-      case 2: minutes = 1440; break;   
-      case 3: minutes = 720; break;   
-      case 4: minutes = 60; break;   
+      case 0: minutes = 0;     break;  // full
+      case 1: minutes = 43200; break;  // month 
+      case 2: minutes = 10080; break;  // week
+      case 3: minutes = 1440;  break;  // day 
+      case 4: minutes = 60;    break;  // hour
    }
 
    if (minutes === 0)
@@ -661,12 +855,18 @@ function setViewRange()
       var option = myChart.getOption();
       var d1 = option.dataZoom[0].startValue;
       var d2 = option.dataZoom[0].endValue;
-      var newd2 = d1 + minutes * 60000;
+
+      // set to earliest
+      // d2 = d1 + minutes * 60000;
+
+      // set to latest
+      d1 = d2 - minutes * 60000;
+
       myChart.dispatchAction({
          type: 'dataZoom',
          dataZoomIndex: 0, // Index of the dataZoom component to target
          startValue: d1,
-         endValue: newd2,
+         endValue: d2,
       });
    }
    getViewRange();
@@ -715,7 +915,6 @@ function getDateString(ts)
    return f;
 }
 
-
 function logData()
 {
    var test = [];
@@ -761,15 +960,7 @@ function reloadChart()
 
 function setupTimelineDateRange()
 {
-   // put the datarange select here
    const container = document.getElementById('dataRangeSelectContainer');
-
-/*   container.style.display = 'flex';
-   container.style.gap = '12px';
-   container.style.alignItems = 'center';
-*/
-
-   const selectArray = ['All', 'Last 30 days', 'Last 7 days', 'Last 24 hours', 'Last hour', 'Current session'];
 
    // label element
    const selectLabel = document.createElement('label');
@@ -781,6 +972,8 @@ function setupTimelineDateRange()
    newSelect.classList.add('select', 'timelineSelect');
 
    // fill select element with options from array
+   const selectArray = ['full', 'month', 'week', 'day', 'hour', 'sess'];
+   
    var indx = 0; 
    for (const vs of selectArray)
    {
@@ -790,7 +983,6 @@ function setupTimelineDateRange()
       newSelect.appendChild(newOption);
       indx++;
    }
-
 
    // add label and select
    container.appendChild(selectLabel);
@@ -812,15 +1004,7 @@ function setupTimelineDateRange()
 
 function setupTimelineViewRange()
 {
-   // put the datarange select here
    const container = document.getElementById('viewRangeSelectContainer');
-
-/*   container.style.display = 'flex';
-   container.style.gap = '12px';
-   container.style.alignItems = 'center';
-*/
-
-   const selectArray = ['Full', '7 days', '1 day', '12 hours', '1 hour'];
 
    // label element
    const selectLabel = document.createElement('label');
@@ -832,6 +1016,8 @@ function setupTimelineViewRange()
    newSelect.classList.add('select', 'timelineSelect');
 
    // fill select element with options from array
+   const selectArray = ['full', 'month', 'week', 'day', 'hour'];
+
    var indx = 0; 
    for (const vs of selectArray)
    {
@@ -862,32 +1048,6 @@ function setupTimelineViewRange()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async function fetchDataTimeline()
 {
    var timeline = new mtControls('timeline', fetchDataTimeline, 0, 0, 255, null);
@@ -900,21 +1060,21 @@ async function fetchDataTimeline()
          <div class="timeline divSectionTitleSectionContainer">
             <div class="timeline divSectionTitleFrame">Sessions Timeline</div>
             <div class="timeline divSectionTitleFrameButtonsFrame">
-               <div class="timeline-range-cont">
+               <div style="height:100%">
                   <table class="timelineRangeTable">
                      <tr> 
-                        <td id="dataRangeSelectContainer"></td>
-                        <td id="dataRangeStart"></td>
-                        <td id="dataRangeEnd"></td>
-                        <td id="dataDuration"></td>
-                        <td id="dataItemCount"></td>
+                        <td class="timelineRangeTableTdTop" id="dataRangeSelectContainer"></td>
+                        <td class="timelineRangeTableTdTop" id="dataRangeStart"></td>
+                        <td class="timelineRangeTableTdTop" id="dataRangeEnd"></td>
+                        <td class="timelineRangeTableTdTop" id="dataDuration"></td>
+                        <td class="timelineRangeTableTdTop" id="dataItemCount"></td>
                      </tr> 
                      <tr> 
-                        <td id="viewRangeSelectContainer"></td>
-                        <td id="viewRangeStart"></td>
-                        <td id="viewRangeEnd"></td>
-                        <td id="viewDuration"></td>
-                        <td id="viewItemCount"></td>
+                        <td class="timelineRangeTableTdBottom" id="viewRangeSelectContainer"></td>
+                        <td class="timelineRangeTableTdBottom" id="viewRangeStart"></td>
+                        <td class="timelineRangeTableTdBottom" id="viewRangeEnd"></td>
+                        <td class="timelineRangeTableTdBottom" id="viewDuration"></td>
+                        <td class="timelineRangeTableTdBottom" id="viewItemCount"></td>
                      </tr> 
                   </table>
                </div>
@@ -928,7 +1088,6 @@ async function fetchDataTimeline()
    </div>`;
 
    timeline.create();
-
 
    // set container height
    if (timeline.minimized) document.documentElement.style.setProperty('--timelineHeight', '0px');
@@ -968,7 +1127,6 @@ async function fetchDataTimeline()
    // listen for timeline chart clicks
    myChart.on('click', function (params)
    {
-      //console.log("timeline click");
       if (params.value[2]) // session
       {
          setCurrentSession(params.value[6]);
@@ -985,6 +1143,9 @@ async function fetchDataTimeline()
       }
    });
 
+   setupTimelineDateRange();
+   setupTimelineViewRange();
+
 
    // listen for dataZoom changes
    myChart.on('datazoom', function (params)
@@ -997,8 +1158,6 @@ async function fetchDataTimeline()
       false );
    });
 
-   setupTimelineDateRange();
-   setupTimelineViewRange();
 
 
    if (data !== undefined) data.length = 0;
@@ -1023,11 +1182,6 @@ async function fetchDataTimeline()
 }
 
 
-
-
-
-
-
 async function fetchDataSessionsTable()
 {
    var sessionsTable = new mtControls('sessionsTable', fetchDataSessionsTable, 0, 0, 180, ['Default', 'Player', 'Bandwidth', 'All']);
@@ -1047,7 +1201,7 @@ async function fetchDataSessionsTable()
             const id = this.getAttribute('currentSessionId');
             if (id)
             {
-               setCurrentSession(Number(id));
+               setCurrentSession(id);
                fetchDataCurrentSession();
                fetchDataGmTable();
                fetchDataTimeline();
@@ -1055,12 +1209,20 @@ async function fetchDataSessionsTable()
          });
       });
 
-      new DataTable("#myTable",
+
+
+      if (useDatatables)
       {
-         colReorder: true,
-         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
-         order: [  [0, 'desc'] ]
-      }  );
+         new DataTable("#mySessionsTable",
+         {
+            colReorder: true,
+            columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
+            order: [  [0, 'desc'] ]
+         }  );
+      }
+
+
+
       sessionsTable.create();
    } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
@@ -1089,7 +1251,6 @@ async function fetchDataGmTable()
       const response = await fetch(url);
       if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
       var html = await response.text();
-
       document.getElementById("gmTableSectionContainer").innerHTML = html;
 
       // setup on click listeners
@@ -1105,7 +1266,19 @@ async function fetchDataGmTable()
             }
          });
       });
-      gmTable.create();
+
+      if (useDatatables)
+      {
+         new DataTable("#myGmTable",
+         {
+            colReorder: true,
+            columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: '_all' } ],
+            order: [  [0, 'desc'] ]
+         }  );
+      }
+     gmTable.create();
+      
+
    } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
 
@@ -1132,6 +1305,7 @@ async function fetchDataMostRecentSession()
    } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
 
+
 async function fetchDataMostRecentGm()
 {
    try {
@@ -1141,11 +1315,6 @@ async function fetchDataMostRecentGm()
       setCurrentGmMuid(html.trim());
    } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
-
-
-
-
-
 
 class mtControls
 {
@@ -1170,29 +1339,10 @@ class mtControls
 
    }
 
-   setHue(h)
-   {
-      this.hue = Number(h);
-      this.save();
-   }
-
-   toggleMinimized()
-   {
-      this.minimized = Number(!this.minimized);
-      this.save();
-   }
-
-   setMinimized(m)
-   {
-      this.minimized = Number(m);
-      this.save();
-   }
-
-   setView(v)
-   {
-      this.view = Number(v);
-      this.save();
-   }
+   setHue(h)           {  this.hue = Number(h);                       this.save();  }
+   toggleMinimized()   {  this.minimized = Number(!this.minimized);   this.save();  }
+   setMinimized(m)     {  this.minimized = Number(m);                 this.save();  }
+   setView(v)          {  this.view = Number(v);                      this.save();  }
 
    save()
    {
@@ -1200,6 +1350,7 @@ class mtControls
       const arrayString = JSON.stringify(myArray);
       sessionStorage.setItem(this.name, arrayString);
    }
+
    load()
    {
       const retrievedString = sessionStorage.getItem(this.name);

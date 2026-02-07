@@ -13,6 +13,9 @@
    <body>
       <div class="divSessionsPage">
          <div class="divSessionsPageTopRow">
+            <div class="divSessionsPageTopRowLeft">
+              <div id="testButtons"></div>
+            </div>
             <div class="divSessionsPageTopRowCenter">
                <div class="divSessionsPageLinks">
                   <a href="../index.html"  class="button linksButton" >Back to Main Page</a>
@@ -24,20 +27,6 @@
                <button id="openSettings" class="button linksButton">Settings</button>
             </div>
          </div>
-
-            <dialog id="settingsDialog">
-              <form method="dialog">
-                <h2>Settings</h2>
-                <div style="display:flex flex-direction:column">
-                   <div class="controlLine"><label>Color Slider Enable:<input id="colorSliderEnable" type="checkbox"></label></div>
-                   <div class="controlLine"><label for: "colorSliderWidth">Color Slider Width:</label> <input id="colorSliderWidth"  type="range"    min=40 max=800></div>
-                </div>
-                <br><br>
-                <button value="ok">OK</button>
-              </form>
-            </dialog>
-
-         <!-- <div> <button id="testButton1">Test 1</button> <button id="testButton2">Test 2</button> </div> -->
          <div id="timelineSectionContainer"></div>
          <div id="sessionsTableSectionContainer"></div>
          <div id="currentSessionSectionContainer"></div>

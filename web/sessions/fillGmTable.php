@@ -21,7 +21,7 @@ function showPlayerCell($muid)
          $alt = 'alt="icon not found" ';
          $title = " title=\"Player number: $num\nPlayer name: $name\nHostname: $host\nSession id: $sid\"  ";
          echo "<img src=$iconpath $alt $title class='playersCellIcon'>";
-         echo "</a>";
+//         echo "</a>";
       }
    echo "</div>";
 }
@@ -81,9 +81,9 @@ if ($id)
 
    if (!$min)
    {
-      echo "<div class='gmTable divSectionSubSectionTable'>";
-         echo "<table class='gmTableTable'>";
-            echo "<thead'>";
+      echo '<div style="padding: 0px 12px;">';
+         echo "<table id='myGmTable' class='compact hover stripe gmTableTable'>";
+            echo "<thead>";
                echo "<tr>";
                   foreach($columnList as $col)
                   {

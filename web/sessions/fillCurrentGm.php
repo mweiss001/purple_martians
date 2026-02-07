@@ -24,36 +24,58 @@ function showPlayerNumIconNameHost($num, $col, $name, $sid, $host)
 
 
 
-if (isset($_GET['id'])) $currentGmMuid = $_GET['id'];
-else { echo " muid not set\n";  return; } 
-if ($currentGmMuid === 'undefined') { echo " muid not defined\n";  return; } 
+function doMainHTML($title, $filename, $validMuid)
+{
+   global $min;
+ 
+   if (!$validMuid) $min = 1;
+
+   $frame = 'divSectionContainer';
+   if ($min) $frame = 'divSectionContainerMinimized';
+   echo "<div class=\"currentGm $frame\">";
+      echo '<div class="currentGm divSectionTitleSectionFrame">';
+         echo '<div class="currentGm divSectionTitleSectionContainer">';
+            echo "<div class='currentGm divSectionTitleFrame'>$title</div>";
+            echo '<div class="currentGm divSectionTitleFrameButtonsFrame">';
+         
+            if ($validMuid)
+            { 
+               echo '<div style="display:flex; padding:0px 12px 0px 0px">';
+                  echo "<a href=\"/downloads/$filename\" download class='button currentGm' >Download</a>";
+               echo "</div>";
+            }
+
+
+               echo '<div id="currentGmControlsContainer"></div>';
+            echo '</div>';
+         echo '</div>';
+      echo '</div>';
+
+
+      if (!$validMuid) echo "</div>";
+                
+}
+
+
+
+
 
 $min = 0;
 if (isset($_GET['min'])) $min = $_GET['min'];
 
 
+$err = 0;
+if (isset($_GET['id'])) $currentGmMuid = $_GET['id'];
+else { doMainHTML('Current Saved Game: muid not set', '',  0); return; } 
+
+if ($currentGmMuid === 'undefined') { doMainHTML('Current Saved Game: muid not defined', '', 0);  return; }
+
 $res = $db->query("SELECT COUNT(*) FROM gm WHERE muid='$currentGmMuid'");
-if ($res->fetchColumn() == 0)  { echo " muid: [$currentGmMuid] not found \n";  return; } 
+if ($res->fetchColumn() == 0) { doMainHTML("Current Saved Game: muid: [$currentGmMuid] not found", '', 0); return; }
 
 $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$currentGmMuid'");
 $row = $res->fetch(PDO::FETCH_ASSOC);
-
-
-$frame = 'divSectionContainer';
-if ($min) $frame = 'divSectionContainerMinimized';
-echo "<div class=\"currentGm $frame\">";
-   echo '<div class="currentGm divSectionTitleSectionFrame">';
-      echo '<div class="currentGm divSectionTitleSectionContainer">';
-         echo "<div class='currentGm divSectionTitleFrame'>Current Saved Game: $currentGmMuid</div>";
-         echo '<div class="currentGm divSectionTitleFrameButtonsFrame">';
-            $fullpath = "/downloads/" . $row['filename'];
-            echo '<div style="display:flex; padding:0px 12px 0px 0px">';
-               echo "<a href=\"$fullpath\" download=\"$filename\" class='button currentGm' >Download</a>";
-            echo "</div>";
-            echo '<div id="currentGmControlsContainer"></div>';
-         echo '</div>';
-      echo '</div>';
-   echo '</div>';
+doMainHTML("Current Saved Game: $currentGmMuid", $row['filename'], 1); 
 
 
 if (!$min)
@@ -99,7 +121,6 @@ if (!$min)
       echo "</tbody></table>";
    echo "</div>";
 }
-
 echo "</div>";
 
 ?>

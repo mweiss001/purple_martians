@@ -80,8 +80,8 @@ if (!$min)
 {
    setupColumns();
 
-   echo '<div class="sessionsTable divSectionSubSectionSessionsTable">';
-      echo '<table id="myTable" class="display cell-border compact sessionsTableTable" style="width:100%">';
+   echo '<div style="padding: 0px 12px;">';
+      echo '<table id="mySessionsTable" class="compact hover stripe sessionsTableTable">';
          echo '<thead>';
             echo '<tr>';
                foreach($columnDisplayNames as $col)
@@ -103,15 +103,19 @@ if (!$min)
                   if ($col == 'player_name') continue;
                   if ($col == 'player_color')
                   {
+
+
                      $iconpath = "/assets/icons/player_icon_$val.png";
                      $alt = 'alt="icon not found"';
                      $name = $row['player_name'];
 
-                     echo '<td><div class="iconTextContainer">';
-                     echo "<img class='iconTextContainerIcon' src=$iconpath $alt>";
-                     echo "<span class='iconTextContainerText'>$name</span>";
+                     echo '<td><div class="iconTextContainerSt">';
+                     echo "<img class='iconTextContainerIconSt' src=$iconpath $alt>";
+                     echo "<span class='iconTextContainerTextSt'>$name</span>";
 
                      echo '</div></td>';
+
+
                      continue;
                   }
                   if ($col == 'duration')

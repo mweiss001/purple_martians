@@ -255,6 +255,15 @@ save all files in windows and close them in editors
 On the server, copy to tmp folder
 sudo cp -r /var/www/html/* ~/tmp
 
+or... erase and recreate tmp, then copy to tmp folder....
+cd ~
+sudo rm -r tmp
+mkdir tmp
+sudo cp -r /var/www/html/* ~/tmp
+
+
+
+
 From the a windows machine, copy from tmp location to project:
 pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
 
