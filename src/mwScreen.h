@@ -193,6 +193,9 @@ class mwScreen
 
    void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
 
+   void draw_demo_controls_overlay_speed(int x1, int y1, int x2, int bts);
+
+
 
 };
 extern mwScreen mScreen;

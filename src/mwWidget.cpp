@@ -38,7 +38,6 @@ q6 - increment y1 with bts
 q7 - (0-normal) (1-don't process mouse b1 press)
 
 
-
 20220601
 
 slideri 68
@@ -78,26 +77,31 @@ colsel 6
 
 
 
+
+
+
+
+
+
+
 // ------------------------------------------------------------------------------------
-// ---------------------------sliders--------------------------------------------------
+// ---------------------- widget common -----------------------------------------------
 // ------------------------------------------------------------------------------------
 
-
-
-// only uses x1, y1, x2, y2, q1
-void mwWidget::draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void mwWidget::draw_widget_area(int x1, int y1, int x2, int y2, int base_color)
 {
-   if (q1 != -1)
+   if (base_color != -1)
    {
       for (int c=0; c<((y2-y1)/2+1); c++)
       {
          int a = (c*32); // color increment
          if (a>224) a = 224;
+
          // frame fades from solid outer to black inner
          //int a = 224 - (c*32); // color increment
          //if (a<0) a = 0;
 
-         int col = q1+a;
+         int col = base_color + a;
          while (col > 255) col -=16;
          al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, mColor.pc[col], 1);
       }
@@ -105,19 +109,26 @@ void mwWidget::draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1,
 }
 
 
-void mwWidget::draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5, const char* msg)
+void mwWidget::draw_widget_text(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg)
 {
    int xt = (x2+x1)/2;
    int yt = y1 + (y2-y1-8)/2;
-   if (q5) al_draw_text(mFont.pr8, mColor.pc[q2], x1+4, yt, 0, msg);
-   else    al_draw_text(mFont.pr8, mColor.pc[q2], xt, yt, ALLEGRO_ALIGN_CENTER, msg);
+   if (left_justified) al_draw_text(mFont.pr8, mColor.pc[color], x1+4, yt, 0, msg);
+   else                al_draw_text(mFont.pr8, mColor.pc[color], xt, yt, ALLEGRO_ALIGN_CENTER, msg);
 }
+
+
+
+// ------------------------------------------------------------------------------------
+// ---------------------------sliders--------------------------------------------------
+// ------------------------------------------------------------------------------------
+
 
 float mwWidget::get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
 {
    float a, b, c, d, e, f;
    // get slider position
-   a = sdx-sll; // relative postion
+   a = sdx-sll; // relative position
    b = sul-sll; // range
    c = a/b;     // ratio
    d = x2-x1;   // range
@@ -223,15 +234,15 @@ float mwWidget::draw_slider_bar(float sdx, float sul, float sll, int x1, int y1,
 float mwWidget::draw_slider(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, float sdx, float sul, float sll, int order, const char *msg)
 {
    float dsx = 0;
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+   draw_widget_area(x1, y1, x2, y2, q1);
    if (order == 1)
    {
       dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, q3);
-      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
+      draw_widget_text(x1, y1, x2, y2, q2, q5, msg);
    }
    if (order == 2)
    {
-      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
+      draw_widget_text(x1, y1, x2, y2, q2, q5, msg);
       dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, q3);
    }
    return dsx;
@@ -311,7 +322,7 @@ void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    if ((!q7) && (mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
-      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
+      draw_widget_text(x1, y1, x2, y2, q2, q5, msg);
       if (mInput.mouse_b[3][0])
       {
          while (mInput.mouse_b[3][0])
@@ -588,8 +599,7 @@ void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int 
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-int mwWidget::button(int x1, int &y1, int x2, int bts,
-                int bn, int num, int type, int obt,
+int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    char msg[80];
@@ -604,7 +614,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       press = 1;
    }
-
 
 
    if (bn == 4)
@@ -1213,8 +1222,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
 
 
 
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
 
    // special cases that need bitmaps draw on them
    if (bn == 13)
@@ -1266,8 +1275,8 @@ int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
@@ -1295,8 +1304,8 @@ int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int t
    int x2 = xc+tl;
 
 
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
 
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) // mouse on button
    {
@@ -1351,7 +1360,7 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
    }
 
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
-   draw_slider_text(x1, y1+1, x2, y2, tc, q5, txt);
+   draw_widget_text(x1, y1+1, x2, y2, tc, q5, txt);
 
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
@@ -1370,179 +1379,6 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
 
 
 
-
-
-
-
-void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2)
-{
-   // process x
-
-   // default when xType == 0
-   x1 = xa;
-   x2 = xb;
-
-
-   if (xType == 1) x2 = xa + xb; // abs xa, xb is width
-   if (xType == 2) x1 = xb - xa; // abs xb, xa is width
-
-   int tl = (strlen(txt)+1)*8; // text length
-
-   if (xType == 3) x2 = xa + tl; // abs xa, xb is auto text width
-   if (xType == 4) x1 = xb - tl; // abs xb, xa is auto text width
-   if (xType == 5) // abs center xa,  x1, x2 is auto text width
-   {
-      x1 = xa - tl/2;
-      x2 = xa + tl/2;
-   }
-
-   // process y
-   // default when yType == 0
-   y1 = ya;
-   y2 = yb;
-
-   if (yType == 1) y2 = ya + yb; // abs ya, yb is width
-   if (yType == 2) y1 = yb - ya; // abs yb, ya is width
-
-   if (yType == 5) // abs center ya,  y1, y2 is auto from yb width
-   {
-      y1 = ya - yb/2;
-      y2 = ya + yb/2;
-   }
-
-}
-
-bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
-{
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
-
-   // check if mouse is on button
-   bool mouseOnButton = false;
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
-
-   // if (backgroundType == 0) ; do nothing
-   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
-   if (backgroundType == 2) draw_slider_frame(x1, y1, x2, y2, 0, bcol, 0, 0, 0, 0, 0, 0); // draw button frame
-
-   // 0 = no frame
-   // 1 = static
-   // 2 = highlight with var
-   // 3 = highlight with mouse
-   // 4 = highlight with both
-   if (frameType)
-   {
-      int c = fcol;
-      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
-      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
-      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
-   }
-
-
-   // 2 = highlight with var
-   // 3 = highlight with mouse
-   // 4 = highlight with both
-   if (textType)
-   {
-      int c = tcol;
-      if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
-      if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
-
-      // centering
-      int ta = 0; // always
-      // if (xType > 2) ta = 0;
-
-      draw_slider_text(x1, y1+1, x2, y2, c, ta, txt);
-   }
-
-   if (mouseOnButton && (mInput.mouse_b[1][0]))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      return true;
-   }
-   return false;
-}
-
-
-// toggles the int and displays text, text color, and frame color based on value  -- check box style
-void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
-{
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
-
-   // check if mouse is on button
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      // debug show mouse detection area
-      //if (mouseOnButton) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-
-      // is mouse pressed on this button?
-      if (mInput.mouse_b[1][0])
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-         var = !var;
-      }
-   }
-
-   float my1 = y1;
-   float my2 = y2;
-
-   // get y center of button
-   float myc = my1 + (my2-my1)/2;
-
-   float rs = 6; // check box size
-   float ry1 = myc - rs/2;
-   float ry2 = ry1 + rs;
-   float rx1 = x1 + 4;
-   float rx2 = rx1 + rs;
-
-   // text pos
-   float mtx = rx2+6;
-   float mty = myc-4;
-
-   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
-
-   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
-   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
-
-   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
-}
-
-
-
-
-
-
-
-
-
-
-// displays a player tile with highlight frame, and returns 1 if pressed --- tile is tn
-bool mwWidget::mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight)
-{
-   int x2 = x1+ size;
-   int y2 = y1+ size;
-   int scale = size - 2;
-
-   // erase background
-//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
-
-   // draw tile
-   al_draw_scaled_bitmap(mBitmap.player_tile[tn][1], 1, 0, 18, 20, x1+1, y1+1, scale, scale, 0);
-
-   int c = fc;
-   if (highlight) c = hc;
-
-   // draw button frame
-   if (c!=0) al_draw_rounded_rectangle(x1, y1, x2, y2, 0, 0, mColor.pc[c], 0);
-
-   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      return true;
-   }
-   return false;
-}
 
 
 
@@ -1583,8 +1419,8 @@ int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int 
    int y2 = y1+bts-2;
    int ret = 0;
 
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
 
    if ((!q7) && (mInput.mouse_b[1][2]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) ret = 1;
 
@@ -1613,8 +1449,8 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    int y2 = y1+bts-2;
    int ret = 0;
 
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
 
    // draw tile
    int x = x1+num;
@@ -1651,7 +1487,7 @@ int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    al_draw_rounded_rectangle(       x1, y1, x2, y2, 1, 1, mColor.pc[fc], 1);
 
    // draw button text
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
 
    // draw tile
    int x = x1 + 2;
@@ -2117,8 +1953,8 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg, "Mode 1 - Prox Run and Reset");
       if (var == 2) sprintf(msg, "Mode 2 - Prox Reset");
    }
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6) y1+=bts;
 
    return press;
@@ -2201,7 +2037,7 @@ int mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type
    if (bn == 9) sprintf(msg, "Select Crew Player Color");
    if (bn == 10) sprintf(msg, "Player Color");
 
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
 
    // draw outline
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
@@ -2279,8 +2115,8 @@ int mwWidget::toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type
       sprintf(msg, "%s", t0);
       ret = 0;
    }
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
 
    if (q6 == 1) y1+=bts;
    return ret;
@@ -2550,8 +2386,338 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
       sprintf(msg, "%s", t0);
       ret = 0;
    }
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6 == 1) y1+=bts;
    return ret;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------
+// ------------------new widgets from 2026 -----------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------
+
+
+void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2)
+{
+   // process x
+
+   // default when xType == 0
+   x1 = xa;
+   x2 = xb;
+
+
+   if (xType == 1) x2 = xa + xb; // abs xa, xb is width
+   if (xType == 2) x1 = xb - xa; // abs xb, xa is width
+
+   int tl = (strlen(txt)+1)*8; // text length
+
+   if (xType == 3) x2 = xa + tl; // abs xa, xb is auto text width
+   if (xType == 4) x1 = xb - tl; // abs xb, xa is auto text width
+   if (xType == 5) // abs center xa,  x1, x2 is auto text width
+   {
+      x1 = xa - tl/2;
+      x2 = xa + tl/2;
+   }
+
+   // process y
+   // default when yType == 0
+   y1 = ya;
+   y2 = yb;
+
+   if (yType == 1) y2 = ya + yb; // abs ya, yb is width
+   if (yType == 2) y1 = yb - ya; // abs yb, ya is width
+
+   if (yType == 5) // abs center ya,  y1, y2 is auto from yb width
+   {
+      y1 = ya - yb/2;
+      y2 = ya + yb/2;
+   }
+
+}
+
+bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (textType)
+   {
+      int c = tcol;
+      if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
+      if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
+
+      // centering
+      int ta = 0; // always
+      // if (xType > 2) ta = 0;
+
+      draw_widget_text(x1, y1+1, x2, y2, c, ta, txt);
+   }
+
+   if (mouseOnButton && (mInput.mouse_b[1][0]))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
+   }
+   return false;
+}
+
+
+// toggles the int and displays text, text color, and frame color based on value  -- check box style
+void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      // debug show mouse detection area
+      //if (mouseOnButton) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+
+      // is mouse pressed on this button?
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         var = !var;
+      }
+   }
+
+   float my1 = y1;
+   float my2 = y2;
+
+   // get y center of button
+   float myc = my1 + (my2-my1)/2;
+
+   float rs = 6; // check box size
+   float ry1 = myc - rs/2;
+   float ry2 = ry1 + rs;
+   float rx1 = x1 + 4;
+   float rx2 = rx1 + rs;
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-4;
+
+   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
+
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
+
+   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
+}
+
+
+
+
+
+// displays a player tile with highlight frame, and returns 1 if pressed --- tile is tn
+bool mwWidget::mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight)
+{
+   int x2 = x1+ size;
+   int y2 = y1+ size;
+   int scale = size - 2;
+
+   // erase background
+//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.player_tile[tn][1], 1, 0, 18, 20, x1+1, y1+1, scale, scale, 0);
+
+   int c = fc;
+   if (highlight) c = hc;
+
+   // draw button frame
+   if (c!=0) al_draw_rounded_rectangle(x1, y1, x2, y2, 0, 0, mColor.pc[c], 0);
+
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
+   }
+   return false;
+}
+
+
+
+void mwWidget::mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                          int text_just, int &var, float sul, float sll, float sinc, const char *txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   float sdx = (float) var;
+   char msg[80];
+   sprintf(msg, "%s%d", txt, var);
+   float dsx = drawSlider(x1, y1, x2, y2, r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, (float) var, sul, sll, 1, msg);
+
+
+   // is mouse on adjustment bar?
+   if ((mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, bar_col); // draw highlighted bar
+      draw_widget_text(x1, y1, x2, y2, tcol, text_just, msg);
+      if (mInput.mouse_b[3][0])
+      {
+         while (mInput.mouse_b[3][0])
+         {
+            var = (int)get_slider_position3((float) var, sul, sll, sinc, 0, x1, y1, x2, y2);
+            sprintf(msg, "%s%d", txt, var);
+            drawSlider(x1, y1, x2, y2, r, backgroundType, frameType, textType,  bcol, fcol, bar_col, tcol, hcol, highlight, text_just, (float) var, sul, sll, 2, msg);
+         }
+      }
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0])
+         {
+            var = (int) get_slider_position2(sul, sll, sinc, 0, x1, y1, x2, y2);
+            sprintf(msg, "%s%d", txt, var);
+            drawSlider(x1, y1, x2, y2, r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, (float) var, sul, sll, 2, msg);
+         }
+      }
+   }
+}
+
+float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int backgroundType, int frameType, int textType,
+                           int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
+                           float sdx, float sul, float sll, int order, const char *msg)
+{
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+   if (fcol>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fcol], 1);
+
+
+//   draw_widget_area(x1, y1, x2, y2, bcol);
+
+
+   float dsx = 0;
+   if (order == 1)
+   {
+      dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, bar_col);
+      draw_widget_text(x1, y1, x2, y2, tcol, text_just, msg);
+   }
+   if (order == 2)
+   {
+      draw_widget_text(x1, y1, x2, y2, tcol, text_just, msg);
+      dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, bar_col);
+   }
+   return dsx;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

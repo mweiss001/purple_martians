@@ -1009,13 +1009,13 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
    int y = mDisplay.SCREEN_H - 1;
    int h = 10;
 
-   int ppc_length = 48;
+   int ppc_length = 40;
 
    if (mDemoMode.controls_paused)
    {
       if (mPlayer.syn[0].level_done_mode == 20)
       {
-         if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  12+192,12+80,15, 15,0, "Cont."))
+         if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  12+192,12+80,15, 15,0, "Cont"))
          {
             mDemoMode.controls_paused = 0;
             mPlayer.syn[0].level_done_mode = 1;
@@ -1023,7 +1023,7 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
       }
       else if (mDemoMode.controls_paused && mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  11+192,11+80,15, 15,0, "Play")) mDemoMode.controls_paused = 0;
    }
-   else if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  4+192,4+80,15, 15,0, "Pause")) mDemoMode.controls_paused = 1;
+   else if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  4+192,4+80,15, 15,0, "Stop")) mDemoMode.controls_paused = 1;
 
    int pwd_length = 138;
    int pwd_x1 = xa + ppc_length + 4;
@@ -1039,10 +1039,10 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
 
    int tly = mDisplay.SCREEN_H - 11;
 
-//   if (mDemoMode.controls_mode == 0) draw_demo_controls_overlay_timeline(tlx1, tly, tlx2, 12);
+   if (mDemoMode.controls_mode == 0) draw_demo_controls_overlay_timeline(tlx1, tly, tlx2, 12);
 
 
-   draw_demo_controls_overlay_players_small(tlx1, tly);
+//   draw_demo_controls_overlay_players_small(tlx1, tly);
 
 
 
@@ -1053,7 +1053,9 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
 
 void mwScreen::draw_demo_controls_overlay()
 {
-   int w = 334;
+   int w = 326;
+   //w += mLoop.pct_y;
+
    int x = BORDER_WIDTH+2;
    int xa = x;
    int xb = x + w -4;
@@ -1064,20 +1066,19 @@ void mwScreen::draw_demo_controls_overlay()
 
    if (mDemoMode.controls_mode == 2)
    {
+      int h = 12;
+      h += mLoop.pct_y;
+
       int xa = BORDER_WIDTH;
       int xb = mDisplay.SCREEN_W - BORDER_WIDTH;
-
-      int y = mDisplay.SCREEN_H - BORDER_WIDTH-20;
-
-
-      draw_demo_controls_overlay_timeline(xa, y, xb, 10);
-
+      int y = mDisplay.SCREEN_H - BORDER_WIDTH-h+2;
+      draw_demo_controls_overlay_timeline(xa, y, xb, h);
    }
 
    if (mDemoMode.controls_mode == 1)
    {
       int w = 400;
-      int h = 58;
+      int h = 42;
       int x = BORDER_WIDTH;
       int y = mDisplay.SCREEN_H-h-20;
 
@@ -1088,70 +1089,94 @@ void mwScreen::draw_demo_controls_overlay()
       int xa = x + 4;
       int xb = x + w -4;
       int ya = y + 4;
-      //int yc = y-8;
 
       int line_spacing = 2;
 
 
+
+      draw_demo_controls_overlay_speed(xa, ya, xb, bts);
+
       ya += bts + line_spacing + 1;
 
-      int old_frame_speed = mLoop.frame_speed;
-
-      int xr = xa;
-      if (mWidget.buttont(xr, ya, xr+40, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Min"    )) mLoop.frame_speed = 4;
-      xr+=44;
-      if (mWidget.buttont(xr, ya, xr+74, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Default")) mLoop.frame_speed = 40;
-      xr+=78;
-      if (mWidget.buttont(xr, ya, xr+40, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Max"    )) mLoop.frame_speed = 200;
-      xr+=44;
-
-
-      mWidget.slideri(xr, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
-      if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
-
-
-
-
       draw_demo_controls_overlay_timeline(xa, ya, xb, bts);
-
-
-
-      ya += line_spacing;
-
 
       draw_demo_controls_overlay_players(x+w, y+h);
    }
 
-
-
-
 }
+
+void mwScreen::draw_demo_controls_overlay_speed(int x1, int y1, int x2, int bts)
+{
+   int old_frame_speed = mLoop.frame_speed;
+   int sc = 12; // slider color
+   int bc = 13; // button color
+   int s = 1;   // spacing
+
+
+
+   // common y2 for all widgets
+   int y2 = y1+bts-2;
+
+   // default button at start
+   int b1x1 = x1;
+   int b1x2 = b1x1 + 64;
+   if (mWidget.mButton(0,b1x1,b1x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, "default")) mLoop.frame_speed = 40;
+
+   // min button after default
+   int b2x1 = b1x2 + s;
+   int b2x2 = b2x1 + 32;
+   if (mWidget.mButton(0,b2x1,b2x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, "min")) mLoop.frame_speed = 4;
+
+   // max button at end
+   int b3x2 = x2;
+   int b3x1 = b3x2 - 32;
+   if (mWidget.mButton(0,b3x1,b3x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, "max")) mLoop.frame_speed = 200;
+
+   // slider in the middle
+   mWidget.mSliderInt(0,b2x2+s,b3x1-s, 0,y1,y2, 0,  1,1,1,  sc+192,sc,sc,15,-1,  0,0,  mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+
+   if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+}
+
 
 void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts)
 {
+   // common y2 for all widgets
+   int y2 = y1+bts-2;
+   int sc = 9; // slider color
+   int bc = 11; // button color
+   int s = 1;   // spacing
+
+   // button width
+   int bw = 8;
+   //bw += mLoop.pct_x;
+
    // get current and lastframe
    int f = mLoop.frame_num;
    int lf = mDemoMode.last_frame + 80;
 
-
+   // don't let slider bar go past the end, adjust end
+   if (f > lf) lf = f;
 
 
    // rewind to start button at start of timeline
    int b1x1 = x1;
-   int b1x2 = b1x1 + bts/2;
-   int y2 = y1+bts-2;
-   if (mWidget.mButton(0,b1x1,b1x2,  0,y1,y2,  1,  1,3,1,  11+192,11+80,15, 15,0, "<")) f = 0;
+   int b1x2 = b1x1 + bw;
+   if (mWidget.mButton(0,b1x1,b1x2,  0,y1,y2,  0,  1,3,1,  bc+192,11+80,15, 15,0, "<")) f = 0;
 
    // skip to send button at end of timeline
    int b2x2 = x2;
-   int b2x1 = b2x2 - bts/2;
-   if (mWidget.mButton(0,b2x1,b2x2,  0,y1,y2,  1,  1,3,1,  11+192,11+80,15, 15,0, ">")) f = lf;
-
+   int b2x1 = b2x2 - bw;
+   if (mWidget.mButton(0,b2x1,b2x2,  0,y1,y2,  0,  1,3,1,  bc+192,11+80,15, 15,0, ">")) f = lf;
 
    // timeline in the middle
-   int tlx1 = b1x2+1;
-   int tlx2 = b2x1-1;
-   mWidget.slideri(tlx1, y1, tlx2, bts,  0,0,0,0,  0,9,15,15,  0,0,0,0, f, lf, 0, 1, "Current Frame:");
+   mWidget.mSliderInt(0,b1x2+s,b2x1-s, 0,y1,y2, 0,  1,1,1,  sc+192,9,9,15,-1,  0,0,  f,lf,0,  1, "Current Frame:");
+
+   /*
+   float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int backgroundType, int frameType, int textType,
+                              int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
+                              float sdx, float sul, float sll, int order, const char *msg) */
+
 
    // process changes
    if (f < 0) f = 0;

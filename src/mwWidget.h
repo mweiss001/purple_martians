@@ -3,8 +3,8 @@
 class mwWidget
 {
    private:
-   void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
-   void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5, const char* msg);
+   void draw_widget_area(int x1, int y1, int x2, int y2, int q1);
+   void draw_widget_text(int x1, int y1, int x2, int y2, int q2, int q5, const char* msg);
    float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2);
    float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2);
    float get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2);
@@ -86,9 +86,18 @@ class mwWidget
    bool mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight);
 
 
+   void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                   int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol,
+                   int highlight,
+                   int text_just, int &var, float sul, float sll, float sinc, const char *txt);
 
 
+//   float drawSlider(int x1, int y1, int x2, int y2, int q0, int tcol, int slider_bar_col, int text_just, float sdx, float sul, float sll, int order, const char *msg);
 
+   float drawSlider(int x1, int y1, int x2, int y2,
+                    int r, int backgroundType, int frameType, int textType,
+                    int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
+                    float sdx, float sul, float sll, int order, const char *msg);
 
 
 
