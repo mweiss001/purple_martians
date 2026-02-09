@@ -9,7 +9,7 @@ class mwDemoMode
    int load_demo_file_array();
    int load_random_demo();
    void play_all_demos_and_save_stats(int x, int y);
-   int key_check() const;
+   int key_check();
    void run_loop(int ti, int tf, int restore_level);
    void run_single_from_menu();
    void run_single_from_settings();
@@ -17,7 +17,7 @@ class mwDemoMode
    void run_single_from_cmd_fn(const char* fn);
    void run_single_from_cmd_prompt();
    void run_continuous_random();
-   void play_demo_for_stats() const;
+   void play_demo_for_stats();
 
    void continuous_random_next_level();
 
@@ -33,27 +33,41 @@ class mwDemoMode
    int prev_index{};
    int last_frame{};
 
-   int mode{};
+   int play_mode{};
 
+
+
+   int controls_mode{0};
 
    int controls_paused{};
    int controls_speed{};
    int restore_speed{};
-
    int controls_pause_when_done{};
 
 
-   int controls_x = 100;
-   int controls_y = 100;
+   int controls_x{100};
+   int controls_y{100};
 
-   static void frame_advance();
-   int check_level_done() const;
+
+
+
+
+   void frame_advance();
+   int check_level_done();
+
+   void common_exit();
+
+   void check_valid_active_local_player();
+   void set_active_local_player(int p);
+
+
+
+
 
 
 
    int countdown_val{};
-   int countdown_reset = 2400;
-
+   int countdown_reset{2400};
    int autoplay_enabled{};
    int config_autoplay_enabled{};
 

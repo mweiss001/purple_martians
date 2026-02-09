@@ -15171,6 +15171,844 @@ I should commit....
 
 
 
+2026-02-07 05:00:19
+
+------------------------------------------------------------------------------
+transport controls while playing back demo
+very similar to demo record
+a way to pause, rewind, speed-up, change current player, etc...
+
+
+look to demo record for a start
+
+demorecord might be broken after gm changes....
+
+
+
+
+
+
+
+
+
+2026-02-07 05:14:11
+
+i would like to fix all compiler warnings and make project compile clean
+
+C:\pm\src\mwEnemyVinePod.cpp: In member function 'void mwEnemy::move_vinepod(int)':
+C:\pm\src\mwEnemyVinePod.cpp:140:13: warning: ISO C++ forbids variable length array 'dest' [-Wvla]
+
+
+
+
+
+   if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+   {
+      // create and fill the spline array
+      int np = Ei[e][17]+1; // number of points
+      float dest[np*2] = {};
+      float pnts[8] = {};
+      vinepod_fill_points_array(e, np, pnts, dest);
+
+
+replace with vector??
+
+
+#include <vector> // Required header for std::vector
+
+    // declare a vector with 'n' elements
+    std::vector<int> a(n); 
+
+    // You can still access elements using the [] syntax
+    for (size_t i = 0; i < n; i++) {
+        a[i] = i * 2;
+    }
+    
+    // Example usage
+    for (size_t i = 0; i < n; i++) {
+        std::cout << a[i] << " ";
+    }
+
+
+I don't think I can...at some point I need to call:
+
+void al_calculate_spline(float* dest, int stride, const float points[8],
+   float thickness, int num_segments)
+
+
+
+Source Code
+
+Calculates a Bézier spline given 4 control points.
+If thickness <= 0, then num_segments of points are required in the destination,
+otherwise twice as many are needed.
+
+The destination buffer should consist of regularly spaced (by distance of stride bytes) doublets of floats,
+corresponding to x and y coordinates of the vertices.
+
+I should just pick a max value....
+
+Ei[][17] max value is 400.
+
+i use (max+1)*2 for 802...just go with 1000...
+
+
+
+
+
+next...
+
+what is max filesize?
+
+   if (fsize > 200000)
+
+
+      char dmp[fsize + 128];
+
+
+
+void mwNetgame::client_proc_sfil_packet(int i)
+{
+   int seq     = mPacketBuffer.PacketGetInt32(i);
+   int max_seq = mPacketBuffer.PacketGetInt32(i);
+   int sb      = mPacketBuffer.PacketGetInt32(i);
+   int sz      = mPacketBuffer.PacketGetInt32(i);
+   int id      = mPacketBuffer.PacketGetInt32(i);
+   int fsize   = mPacketBuffer.PacketGetInt32(i); // uncompressed file size
+
+   //printf("rx sfil piece [%d of %d] id:[%d] st:%4d sz:%4d fsz:%4d\n", seq+1, max_seq, id, sb, sz, fsize);
+
+   memcpy(client_sfil_buffer + sb, mPacketBuffer.rx_buf[i].data+28, sz);    // put the piece of data in the buffer
+   client_sfil_buffer_pieces[seq] = id;                                     // mark it with id
+
+   int complete = 1;                                         // did we just get the last piece? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_sfil_buffer_pieces[i] != id) complete = 0;  // no, if any piece does not have latest id
+
+   if (complete)
+   {
+      // uncompress
+      char dmp[fsize + 128];
+      uLongf destLen = sizeof(dmp);
+      uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_sfil_buffer, sizeof(client_sfil_buffer));
+
+      // copy to variables
+      char fname[256];
+
+
+
+
+now I have 7 of these: output may be truncated....
+all of them use strncpy(
+
+
+In modern C++ and even C programming, strncpy is generally discouraged. Safer and more intuitive alternatives include: 
+
+    std::string (C++): The best solution in C++ is to use the std::string class, which handles memory management, length tracking, and null-termination automatically, eliminating these issues entirely.
+    snprintf (C/C++): This function guarantees null-termination if the buffer size is provided correctly (e.g., snprintf(dest, sizeof(dest), "%s", src);). It returns the number of characters that would have been written, allowing you to detect truncation.
+
+
+
+
+C:\pm\src\mwPlayer.cpp: In member function 'char* mwPlayer::get_player_name(int, char*, int)':
+C:\pm\src\mwPlayer.cpp:1343:11: warning: 'char* strncpy(char*, const char*, size_t)' output may be tru
+
+
+char buffer[10];
+snprintf(buffer, sizeof(buffer), "%s %d", "Hello", 12345);
+// buffer will contain "Hello 123" (truncated to fit 9 chars + '\0')
+
+
+
+//      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+      if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+
+
+no more compiler warnings!!!
+
+
+
+back to make demorecord work...
+
+in this function:
+
+void mwDemoRecord::fill_player_sections(void)
+{
+
+this section will need to be fixed:
+
+
+            if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+            {
+               f1 = mGameMoves.arr[x][0];
+               col = mGameMoves.arr[x][3];
+            }
+
+
+
+
+
+
+this section as well
+
+
+
+   for (int i=gm1; i<gm2; i++)
+   {
+      int gi = lnk_arr[i]; // get actual game move index from link translation table
+      int f = mGameMoves.arr[gi][0];
+      int t = mGameMoves.arr[gi][1];
+      int p = mGameMoves.arr[gi][2];
+      int v = mGameMoves.arr[gi][3];
+
+      
+      sprintf(msg, "%s", mGameMoves.get_gm_text2(i, f, t, p, v, msg));
+      if (dump) printf("%s\n", msg);
+
+
+
+and this...
+
+
+char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
+{
+   char dsc[80] = {0};
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, " START LEVEL %d", v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE", p);
+
+
+
+
+
+2026-02-07 07:07:28
+
+I now have demo record not crashing...
+
+I just want a nice overlay for demo play....
+
+
+can I do that in screen overlay?
+
+
+I have a rect, now put a widget on it...done
+
+
+how do I do an async button again?
+anytime I click it freezes...
+I also want a slider for speed and position
+
+don't worry about async controls
+do
+play
+stop
+speed
+timeline position
+active player
+checkbox to stop at end or continue
+
+
+I will need a place to save these variables....
+
+
+   int controls_paused;
+   int controls_speed;
+   int restore_speed;
+
+
+i did paused, now where do I actually pause it??
+
+what if I just don't increment frame?
+
+next speed adjust slider
+
+next timeline slider
+
+
+Now I need a way to reset all this when leaving demo mode
+
+
+I wish I had some hooks for when demo started and ended...
+
+
+implement check box, pause when done
+needed to prevent auto completion
+will I pause at level done? sure, why not
+
+
+I wish I could simplify the process of ending demo
+
+2026-02-07 11:51:15
+in clion i am using C++14
+what about linux?
+C++17
+
+i changed cmakelists and now am using c++17 in clion
+
+
+
+now what?
+
+I want to make the pause when done button work...
+
+what do I want it to do?
+
+freeze until any key is pressed?
+
+the end goal is...
+
+show the end of level just like a normal level
+every player to have their own stat box...
+but no countdown, just wait for the local player to press any
+
+
+
+
+
+I have one function that checks for level done
+
+int mwDemoMode::check_level_done() const
+{
+   if (mPlayer.syn[0].level_done_mode)
+   {
+      if (mPlayer.syn[0].level_done_mode == 1) return 1;
+      if (mLoop.frame_num > mPlayer.syn[0].level_done_frame + 280)  return 1; // 280 frames past level done (80) for seek and 5s more
+   }
+   else if (mLoop.frame_num > last_frame + 400) return 1; // 10s past last game move
+   return 0;
+}
+
+
+
+
+
+
+this is the place where I should do different checks, based on what I want
+
+demomode level done:
+
+freeze mode...
+
+if actually level done, then stop at stats with any key
+
+if falls off the end, pop up level ended box
+
+find a level to test with...
+
+30s
+pm C:\pm\savegame\demo\TAS\lev009-4P-30.gm
+
+
+5s
+pm C:\pm\savegame\demo\TAS\lev8.gm
+
+
+one of the first things I need to do is modify that function so that it does not just timeout
+
+can I tell the difference between a level that was completed with an exit
+and one that just ran out of game moves
+
+there could be a times when the level done occurs well past the last game move
+
+
+
+2026-02-07 13:11:30
+
+for now... when exiting with level done, instead of going to step 5 go to step 20
+
+
+step 20 will be be the one that waits forever for a local keypress
+I want to stop the loop in that case
+
+
+
+now put a continue button on the controls, but only if paused in mode 20
+
+  ya += 24;
+
+
+
+   if ((mDemoMode.controls_paused) && (mPlayer.syn[0].level_done_mode == 20))
+   {
+
+      if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,11,15, 0,  1,0,0,0, "Continue"))
+      {
+         mPlayer.syn[0].level_done_mode = 1;
+      }
+
+
+   }
+
+
+
+
+
+This is actually working out pretty well...
+
+I need to do something with the end of the slider..added 80
+
+it is looking good
+
+
+so...if I dont have pause checked I have to wait for the 15 seconds?
+
+it looks like I do...unless the level has ack after...
+
+I don't like it when it runs after...
+I think I will have 2 options...
+wait till continue is pressed
+immediately continue
+damnit, i really kind of want a delay also...
+
+
+but I don't want the frame counter to keep going
+
+try 21 
+
+
+
+there is a bug here:
+
+int mwGameMoves::has_player_acknowledged(int p)
+{
+   if (mPlayer.syn[p].paused_type == 3) return 1; // headless server player
+   int start_pos = entry_pos;
+   int end_pos = start_pos - 1000;
+   if (end_pos < 0) end_pos = 0;
+   for (int x=start_pos; x>end_pos; x--) // look back for ack
+      if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
+   return 0;
+}
+
+I do not check if the ack frame is <= current frame...duh...
+
+if there is one at all it will trigger immediately...fixed
+
+
+this seems to be working well...
+
+in level done all I need was one extra state 20
+
+I have not tested what would happen with a no exit gm
+
+do it fool!!
+
+
+2026-02-07 15:23:17
+
+
+this is coming along very well
+
+I want to make the control panel look nicer
+
+start with the speed slider
+min default max slider (all in one row) done...
+is the speed restored when leaving? no...fixed
+
+
+
+I want a nice way to pick the active player in a demo
+make the control panel collapsable
+
+minimized to bottom border
+small controls
+bigger controls with more info
+
+when waiting for continue, also accept keypress without cancelling mode 2..done
+if cancelled make sure paused is off...done
+
+
+
+I want a nice way to pick the active player in a demo
+
+make a button widget with player icon
+
+
+2026-02-08 05:39:00
+
+sowhere in demo playback I need to check if active local player is valid
+not just when switching view
+
+there could be many reasons alp is no longer valid
+level change, player quit...etc
+
+done
+
+when changing player and demo is paused, draw current frame dome and works well
+why do players labels only show on player 0 fixed
+
+now how does remote only look on demo? only alp is not drawn
+
+2026-02-08 06:43:54
+
+now show alp on buttons
+text overlay for demo will not be needed anymore
+shows player list and percent done by time and gm, 
+
+make the player buttons nicer
+fade the frame a bit
+have outline for active
+make overall frame for them..
+
+2026-02-08 08:27:02
+
+looks great...now what?
+
+back to the main frame
+
+I want a few title bar controls...+ - etc
+
+I want to be able to send it to the bottom title bar
+
+
+make just another button +/-
+I will need a controls_mode variable in the class
+
+I have it working...
+
+
+when minimized to bottom border:
+replace old bottom message....
+
+put the button in the extreme lower left corner and never move it...
+
+
+I have so many different styles of buttons
+
+they all have a rect with text in it
+
+they all have y and height
+
+x can be x1, x2, or xc and auto width
+
+frame can be faded or outline or invisible
+
+the new way I want to do this is:
+
+5 variables to describe rect
+first one is type
+
+3 var for x, 3 for y
+
+1 type
+
+type 0 abs x1, x2
+type 1 abs x1, width
+type 3 abs x2, width
+type 4 abs x1, auto text width x2
+type 5 abs x2, auto text width x1
+type 6 abs xc, auto text width x1 and x2
+
+same for y
+
+
+then a few colors
+c0 main
+c1 back
+c2 text color
+c3 highlight
+
+
+then a value for rounding the rect
+
+then the frame...
+frame type
+0 none
+1 frame only
+2 frame and highlight  
+
+background type
+0 solid
+1 transparent
+2 faded
+
+I want a variable that get actual width and height added to...no
+
+
+2026-02-08 16:44:17
+
+I now have a common bottom row
+I want a very small counter, or timeline slider also
+I want a percent done in both time and game moves
+I want a player line very small on the bottom row...done
+I could put the next random demo button somewhere else
+
+
+2026-02-08 19:51:07
+
+I think I am done for now...
+
+
+I should commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

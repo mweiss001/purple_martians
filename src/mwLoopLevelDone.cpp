@@ -11,6 +11,7 @@
 #include "mwScreen.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
+#include "mwDemoMode.h"
 
 #include "mwPlayer.h"
 #include "mwEnemy.h"
@@ -214,26 +215,6 @@ void mwLoop::proc_level_done_mode(void)
    }
    if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
    {
-      // if demo mode pause stay here...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - skippable 15s timeout\n", frame_num, mPlayer.syn[0].level_done_mode);
       if (!mNetgame.ima_client)
       {
@@ -242,7 +223,11 @@ void mwLoop::proc_level_done_mode(void)
    }
 
 
-
+   if (mPlayer.syn[0].level_done_mode == 20) // wait forever for external continue
+   {
+      mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - \n", frame_num, mPlayer.syn[0].level_done_mode);
+      mPlayer.syn[0].level_done_timer = 10; // keep resetting the timer
+   }
 
 
    if (mPlayer.syn[0].level_done_mode == 2) // delay to load next level
@@ -268,13 +253,27 @@ void mwLoop::proc_level_done_mode(void)
          if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;  // players seek exit
          if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;  // players shrink and rotate into exit
          if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-         if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+
+//         if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+
+         if (mPlayer.syn[0].level_done_mode == 5)
+         {
+            if (mDemoMode.play_mode)
+            {
+               mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - demo diversion\n", frame_num, mPlayer.syn[0].level_done_mode);
+               if (mDemoMode.controls_pause_when_done) mPlayer.syn[0].level_done_mode = 20;
+               else mPlayer.syn[0].level_done_timer = 160; // skippable 4s delay;
+            }
+            else mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+         }
+
+
          if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
          if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
          if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
          if (mPlayer.syn[0].level_done_mode == 1)
          {
-            mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);
+            mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load next level\n", frame_num, mPlayer.syn[0].level_done_mode);
             state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
          }
       }

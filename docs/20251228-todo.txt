@@ -3,6 +3,24 @@
 ------------------------------------------------------------------------------
 BUGS!!
 ------------------------------------------------------------------------------
+
+
+make project compile clean!!! done
+now do it again for gcc on linux
+
+
+
+player name in ending stats shows Player 1 Player 1
+
+
+
+
+
+
+
+
+
+
 on server, once rc quits it never stops sending rc packets
 
 

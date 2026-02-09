@@ -175,7 +175,7 @@ int mwItem::draw_bonus(int i, int x, int y, int shape)
    {
       if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) return 1; // purple coin custom draw when game running
       if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) return 1;
-      if (mDemoMode.mode) return 1; // demo mode is playing
+      if (mDemoMode.play_mode) return 1; // demo mode is playing
    }
    return 0;
 }

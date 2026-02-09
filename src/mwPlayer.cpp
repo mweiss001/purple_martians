@@ -433,9 +433,18 @@ int mwPlayer::is_player_riding_rocket(int p)
 
 int mwPlayer::is_player_hidden(int p)
 {
-   if ((syn[p].paused == 1) && (syn[p].paused_type == 3)) return 1;
+   if (syn[p].paused == 1 && syn[p].paused_type == 3) return 1;
    return 0;
 }
+
+bool mwPlayer::is_player_active_and_not_hidden(int p)
+{
+   if (!syn[p].active) return false;
+   if (syn[p].paused == 1 && syn[p].paused_type == 3) return false;
+   return true;
+}
+
+
 
 
 void mwPlayer::proc_player_stuck_in_blocks(int p)
@@ -1109,8 +1118,6 @@ void mwPlayer::draw_player(int p)
       }
 
 
-
-
       // death sequence star overlay
       if ((syn[p].paused) && (syn[p].paused_type == 1))
       {
@@ -1161,15 +1168,22 @@ void mwPlayer::draw_player(int p)
          }
       }
       // player name overlay -- 0-never  1-only_remote  2-always
-      else if ((loc[p].name_display == 2) || ((loc[p].name_display == 1) && (p != active_local_player)))
+      else
       {
-         string name = getName(p);
-         al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", name.c_str());
+         bool draw_name = false;
+
+         if (loc[0].name_display == 2) draw_name = true; // always draw
+
+         if (loc[0].name_display == 1 && p != active_local_player) draw_name = true; // remote only
+
+
+
+         if (draw_name)
+         {
+            string name = getName(p);
+            al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", name.c_str());
+         }
       }
-
-
-
-
    }
 }
 

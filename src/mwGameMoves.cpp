@@ -169,7 +169,11 @@ int mwGameMoves::has_player_acknowledged(int p)
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
    for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
+      if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p) && (arr[x][0] <= mLoop.frame_num)) return 1;
+
+
+//   if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
+
    return 0;
 }
 
@@ -714,7 +718,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    int ret = 0; // good return by default
    if (entry_pos == 0)          ret = 1; // No game moves to save
    if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
-   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mDemoMode.play_mode)          ret = 3; // Never save demo when in demo mode
    if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
    if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled

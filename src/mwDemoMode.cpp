@@ -7,17 +7,12 @@
 #include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwInput.h"
-#include "mwMiscFnx.h"
 #include "mwEventQueue.h"
-
 #include "mwItem.h"
-
 #include "mwDisplay.h"
 #include "mwScreen.h"
-
 #include "mwDrawSequence.h"
 #include "mwBitmap.h"
-
 #include "mwConfig.h"
 #include "mwSound.h"
 
@@ -33,7 +28,7 @@ void mwDemoMode::initialize()
 {
    pass = 0;
    prev_index = -1;
-   mode = 0;
+   play_mode = 0;
 }
 
 
@@ -64,21 +59,18 @@ int mwDemoMode::load_demo_file_array()
    if (num_demo_filenames == 0)
    {
       printf("No demo files found.\n");
-      mode = 0;
+      play_mode = 0;
       return 0;
    }
-   else
-   {
-      files_for_random_loaded = 1;
-      //printf("\nDemo mode. List of demo files found\n");
-      //for (int i=0; i< num_demo_filenames; i++)
-      //   printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
-      return 1;
-   }
+   files_for_random_loaded = 1;
+   //printf("\nDemo mode. List of demo files found\n");
+   //for (int i=0; i< num_demo_filenames; i++)
+   //   printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
+   return 1;
 }
 
 // very fast, no drawing
-void mwDemoMode::play_demo_for_stats() const
+void mwDemoMode::play_demo_for_stats()
 {
    mLevel.load_level(mLevel.play_level, 0, 0);    // load level
 
@@ -135,19 +127,17 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
 
 int mwDemoMode::load_random_demo()
 {
-
-
    if (!load_demo_file_array())
    {
-      mode = 0;
+      play_mode = 0;
       return 0;
    }
 
    int index;
 
-   [[maybe_unused]] const bool debug_print = false;
-   if (debug_print) printf("\n----------------------------------\n");
-   if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_index);
+   //bool debug_print = false;
+   //if (debug_print) printf("\n----------------------------------\n");
+   //if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_index);
 
    if (num_demo_filenames > 1)
    {
@@ -155,14 +145,14 @@ int mwDemoMode::load_random_demo()
       int all_played = 1;
       for (int i=0; i< num_demo_filenames; i++)
       {
-         if (debug_print) printf("demo_played[%d] - %d \n", i, demo_played[i]);
+         //if (debug_print) printf("demo_played[%d] - %d \n", i, demo_played[i]);
          if (demo_played[i] < pass) all_played = 0;
       }
 
       if (all_played == 1)
       {
          pass++; // next pass
-         if (debug_print) printf("All levels have been played this pass - next pass:%d\n", pass);
+         //if (debug_print) printf("All levels have been played this pass - next pass:%d\n", pass);
       }
 
       int timeout = 0;
@@ -171,22 +161,22 @@ int mwDemoMode::load_random_demo()
       while (index < 0)
       {
          index = rand() % num_demo_filenames;      // get random index
-         if (debug_print) printf("New random level index:%d", index);
+         //if (debug_print) printf("New random level index:%d", index);
 
          if (demo_played[index] >= pass) // already been played this pass
          {
-            if (debug_print) printf("  -  already been played this pass\n");
+            //if (debug_print) printf("  -  already been played this pass\n");
             index = -1;
          }
          if (prev_index == index)         // just previously played
          {
-            if (debug_print) printf("  -  just previously played\n");
+            //if (debug_print) printf("  -  just previously played\n");
             index = -1;
          }
          timeout++;
          if (timeout > 100)
          {
-            if (debug_print) printf("\nCould not find not played level after 1000 random iterations, choosing first index and moving on\n");
+            //if (debug_print) printf("\nCould not find not played level after 1000 random iterations, choosing first index and moving on\n");
             index = 0;
          }
       }
@@ -195,78 +185,80 @@ int mwDemoMode::load_random_demo()
    }
    else index = 0;
 
-   if (debug_print) printf("  ----------------  selected!\n");
+   //if (debug_print) printf("  ----------------  selected!\n");
 
    if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
    {
-      char msg[64];
-      if (debug_print) printf("Demo Mode random file chooser - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
+      //char msg[64];
+      //if (debug_print) printf("Demo Mode random file chooser - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
       return 1;
    }
-   mode = 0;
+   play_mode = 0;
    return 0;
 }
 
 
 
-// test if current active_local_player is active and not hidden
-bool test_active_local_player()
+
+void mwDemoMode::check_valid_active_local_player()
 {
-   // not active
-   if (!mPlayer.syn[mPlayer.active_local_player].active) return false;
+   if (mPlayer.is_player_active_and_not_hidden(mPlayer.active_local_player)) return;
 
-   // hidden server player in headless server mode
-   if (mPlayer.active_local_player == 0 && mPlayer.syn[mPlayer.active_local_player].paused == 1 && mPlayer.syn[mPlayer.active_local_player].paused_type == 3) return false;
-
-   return true;
-}
-
-
-// if active_local_player is not active or hidden, keep looking for the next one that is not
-void check_active_local_player()
-{
-   int count = 8;
-   while (!test_active_local_player())
+   // not valid, search for first one that is valid
+   for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
-
-      if (--count < 0)
+      if (mPlayer.is_player_active_and_not_hidden(p))
       {
-         mPlayer.active_local_player = 0;
-         printf("Error in demo mode key check, no active non-hidden players found\n");
+         mPlayer.active_local_player = p;
          return;
       }
    }
+   printf("Error in demo mode, no active non-hidden players found\n");
+   mPlayer.active_local_player = 0;
+}
+
+void mwDemoMode::set_active_local_player(int p)
+{
+   // if p is active and not hidden, set active_local_player to p
+   if (mPlayer.is_player_active_and_not_hidden(p)) mPlayer.active_local_player = p;
+
+   mDrawSequence.ds_draw(0, 1);
+
+
 }
 
 
 
 // checks for keys while demo is running
-int mwDemoMode::key_check() const
+int mwDemoMode::key_check()
 {
+   // switch pov to new player
+   if (mInput.key[ALLEGRO_KEY_0][0]) set_active_local_player(0);
+   if (mInput.key[ALLEGRO_KEY_1][0]) set_active_local_player(1);
+   if (mInput.key[ALLEGRO_KEY_2][0]) set_active_local_player(2);
+   if (mInput.key[ALLEGRO_KEY_3][0]) set_active_local_player(3);
+   if (mInput.key[ALLEGRO_KEY_4][0]) set_active_local_player(4);
+   if (mInput.key[ALLEGRO_KEY_5][0]) set_active_local_player(5);
+   if (mInput.key[ALLEGRO_KEY_6][0]) set_active_local_player(6);
+   if (mInput.key[ALLEGRO_KEY_7][0]) set_active_local_player(7);
+
+   if (mInput.key[ALLEGRO_KEY_N][0] && play_mode == 2) return 2; // next level for random mode
+
    int key_used = 0;
 
-   // switch pov to new player
-   int new_player = -1;
-   if (mInput.key[ALLEGRO_KEY_0][0]) new_player = 0;
-   if (mInput.key[ALLEGRO_KEY_1][0]) new_player = 1;
-   if (mInput.key[ALLEGRO_KEY_2][0]) new_player = 2;
-   if (mInput.key[ALLEGRO_KEY_3][0]) new_player = 3;
-   if (mInput.key[ALLEGRO_KEY_4][0]) new_player = 4;
-   if (mInput.key[ALLEGRO_KEY_5][0]) new_player = 5;
-   if (mInput.key[ALLEGRO_KEY_6][0]) new_player = 6;
-   if (mInput.key[ALLEGRO_KEY_7][0]) new_player = 7;
-
-   // key was pressed, different from current, and active
-   if ((new_player != -1) && (new_player != mPlayer.active_local_player) && (mPlayer.syn[new_player].active))
+   // if waiting for continue at the end of a demo
+   if ((mDemoMode.controls_paused) && (mPlayer.syn[0].level_done_mode == 20))
    {
-      mPlayer.active_local_player = new_player;
-      key_used = 1; // mark key as used so it does not get used as cancel key later
+      // any key
+      for (int k = 0; k < ALLEGRO_KEY_MAX; k++)
+         if (mInput.key[k][0])
+         {
+            key_used = 1;
+            mDemoMode.controls_paused = 0;
+            mPlayer.syn[0].level_done_mode = 1;
+         }
    }
 
-   check_active_local_player();
-
-   if (mInput.key[ALLEGRO_KEY_N][0] && mode == 2) return 2; // next level for random mode
 
    if (!key_used) // if key not used
    {
@@ -291,42 +283,42 @@ int mwDemoMode::key_check() const
 
 void mwDemoMode::run_single_from_menu()
 {
-   mode = 1;
+   play_mode = 1;
    if ((mGameMoves.load_demo_level(mLevel.play_level)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(2, 1, mLevel.play_level);
-   mode = 0;
+   play_mode = 0;
 }
 
 void mwDemoMode::run_single_from_settings()
 {
-   mode = 1;
+   play_mode = 1;
    const int original_level = mLevel.play_level;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 1, original_level);
-   mode = 0;
+   play_mode = 0;
 }
 
 void mwDemoMode::run_single_from_cmd_fn(const char* fn)
 {
-   mode = 1;
+   play_mode = 1;
    if (mGameMoves.load_gm(fn) && mLoop.load_and_setup_level(mLevel.play_level, 4)) run_loop(0, 0, mLevel.play_level);
-   mode = 0;
+   play_mode = 0;
 }
 
 void mwDemoMode::run_single_from_cmd_prompt()
 {
-   mode = 1;
+   play_mode = 1;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 0, mLevel.play_level);
-   mode = 0;
+   play_mode = 0;
 }
 
 // this takes care of its own loading and running of overworld when done
 void mwDemoMode::run_single_from_gate(const int lev)
 {
-   mode = 1;
+   play_mode = 1;
    if ((mGameMoves.load_demo_level(lev)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(3, 1, -1);
    mLevel.play_level = 1;
    mLoop.load_and_setup_level(1, 0);
    mLoop.state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-   mode = 0;
+   play_mode = 0;
 }
 
 
@@ -353,16 +345,15 @@ void mwDemoMode::seek_to_frame(const int frame, const int draw)
 
 
 
-
-
-
-
 // this takes care of advancing the frame and drawing
 // also pause and controls
 void mwDemoMode::frame_advance()
 {
    mEventQueue.program_update = 0;
    mDisplay.proc_scale_factor_change();
+
+   check_valid_active_local_player();
+
 
    if (mDemoMode.controls_paused)
    {
@@ -381,39 +372,38 @@ void mwDemoMode::frame_advance()
    }
 }
 
-
-int mwDemoMode::check_level_done() const
+int mwDemoMode::check_level_done()
 {
-   if (mPlayer.syn[0].level_done_mode)
+   int ldm = mPlayer.syn[0].level_done_mode;
+   if (ldm)
    {
-      if (mPlayer.syn[0].level_done_mode == 1) return 1;
-      if (mLoop.frame_num > mPlayer.syn[0].level_done_frame + 280)  return 1; // 280 frames past level done (80) for seek and 5s more
+      if (ldm == 20) mDemoMode.controls_paused = 1;
+      if (ldm == 1) return 1;
    }
-   else if (mLoop.frame_num > last_frame + 400) return 1; // 10s past last game move
+   else if (mLoop.frame_num > last_frame + 400) // 10s past last game move
+   {
+      if (mDemoMode.controls_pause_when_done) mPlayer.syn[0].level_done_mode = 20;
+      else return 1;
+   }
    return 0;
 }
-
-
-
 
 
 // this is used in all modes that end after the level is done
 void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 {
    mScreen.transition_cutscene(ti, tf); // initial to final (game)
-   while (mode)
+   while (play_mode)
    {
       mEventQueue.proc(1);
       if (mEventQueue.program_update)
       {
          frame_advance();
-         if (key_check() || check_level_done()) mode = 0;
+         if (key_check() || check_level_done()) play_mode = 0;
       }
    }
-
-   mSound.stop_sound();
+   common_exit();
    mScreen.transition_cutscene(tf, ti); // initial (game) to final
-   mConfig.load_config();               // restore player color
 
    if (restore_level != -1)
    {
@@ -422,6 +412,16 @@ void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
    }
 }
 
+
+void mwDemoMode::common_exit()
+{
+   mSound.stop_sound();
+   mPlayer.active_local_player = 0;
+   controls_paused = 0;
+   mConfig.load_config();  // restore player color and name and speed
+   mLoop.frame_speed = 40;
+   mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+}
 
 
 void mwDemoMode::continuous_random_next_level()
@@ -436,7 +436,7 @@ void mwDemoMode::continuous_random_next_level()
 void mwDemoMode::run_continuous_random()
 {
    const int original_level = mLevel.play_level;
-   mode = 2;
+   play_mode = 2;
    int done = 0;
    while (!done)
    {
@@ -444,19 +444,19 @@ void mwDemoMode::run_continuous_random()
       if (mLoop.load_and_setup_level(mLevel.play_level, 4))
       {
          //mScreen.transition_cutscene(0, 1); // nothing to game
-         while (mode)
+         while (play_mode)
          {
             mEventQueue.proc(1);
             if (mEventQueue.program_update)
             {
                frame_advance();
                const int k = key_check();
-               if (k == 1) { mode = 0; done = 1; } // quit
+               if (k == 1) { play_mode = 0; done = 1; } // quit
                if (k == 2 || check_level_done()) continuous_random_next_level();
             }
          }
-         mSound.stop_sound();
          //mScreen.transition_cutscene(1, 0); // game to nothing
+         common_exit();
          mLevel.play_level = original_level;
          mLoop.load_and_setup_level(mLevel.play_level, 5);
       }

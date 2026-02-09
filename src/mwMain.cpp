@@ -75,6 +75,7 @@ void mwMain::set_and_get_versions(void)
    sprintf(mLoop.pm_version_string, PM_VERSION);
    printf("\nPurple Martians Version %s\n", mLoop.pm_version_string);
 
+
     long standard = __cplusplus;
     // Mapping the macro values to standard names
     if (standard == 199711L) std::cout << "C++98/C++03" << std::endl;

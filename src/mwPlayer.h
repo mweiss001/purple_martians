@@ -256,6 +256,9 @@ class mwPlayer
 
 
    int is_player_hidden(int p);
+   bool is_player_active_and_not_hidden(int p);
+
+
 
    void draw_player_direct_to_screen(int p);
    void draw_players_direct_to_screen();

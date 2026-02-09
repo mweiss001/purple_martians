@@ -754,7 +754,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          setup_players_after_level_load(1); // type 1 full reset,
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
-         // to overide local name
+         // to override local name
          sprintf(mPlayer.syn[0].name, "default");
 
 
@@ -777,7 +777,7 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       mSound.start_music(0); // rewind and start theme
 
-      if (!mDemoMode.mode)
+      if (!mDemoMode.play_mode)
       {
          state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
          // add initial special game moves

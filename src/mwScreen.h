@@ -154,7 +154,8 @@ class mwScreen
    int draw_player_text_overlay();
 
    int dif_from_now_to_nl();
-   void show_player_stat_box(int tx, int y, int p);
+
+   static void show_player_stat_box(int tx, int y, int p);
    void show_level_done();
 
    void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
@@ -184,7 +185,13 @@ class mwScreen
 
 
    void draw_demo_controls_overlay();
+   void draw_demo_controls_overlay_players(int x, int y);
 
+   void draw_demo_controls_overlay_players_small(int x, int y);
+
+   void draw_demo_controls_overlay_bottom_line(int xa, int xb);
+
+   void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
 
 
 };

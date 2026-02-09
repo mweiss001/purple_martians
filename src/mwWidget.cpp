@@ -18,7 +18,7 @@
 #include "mwMiscFnx.h"
 #include "mwHelp.h"
 #include "mwBottomMessage.h"
-
+#include "mwDemoMode.h"
 
 
 mwWidget mWidget;
@@ -83,6 +83,8 @@ colsel 6
 // ------------------------------------------------------------------------------------
 
 
+
+// only uses x1, y1, x2, y2, q1
 void mwWidget::draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    if (q1 != -1)
@@ -1187,6 +1189,30 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       else           sprintf(msg, "%d", num); // show num
    }
 
+
+
+   if (bn == 510)
+   {
+      int val = mDemoMode.controls_mode;
+
+      if (press)
+      {
+         if (++val > 2)  val = 0;
+      }
+      if (val == 0) sprintf(msg, "-");
+      if (val == 1) sprintf(msg, "+");
+      if (val == 2) sprintf(msg, "!");
+
+      mDemoMode.controls_mode = val;
+
+   }
+
+
+
+
+
+
+
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
@@ -1295,10 +1321,9 @@ int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int t
 
 
 
-
 // no faded frame, just a simple frame that highlights when moused over
 // displays a text string, and returns 1 if pressed
-// auto width based on text length
+// auto width based on text length x1 is the center
 // highlight outline when moused over
 int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
@@ -1337,6 +1362,194 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
    if (q6) y1+=bts;
    return ret;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2)
+{
+   // process x
+
+   // default when xType == 0
+   x1 = xa;
+   x2 = xb;
+
+
+   if (xType == 1) x2 = xa + xb; // abs xa, xb is width
+   if (xType == 2) x1 = xb - xa; // abs xb, xa is width
+
+   int tl = (strlen(txt)+1)*8; // text length
+
+   if (xType == 3) x2 = xa + tl; // abs xa, xb is auto text width
+   if (xType == 4) x1 = xb - tl; // abs xb, xa is auto text width
+   if (xType == 5) // abs center xa,  x1, x2 is auto text width
+   {
+      x1 = xa - tl/2;
+      x2 = xa + tl/2;
+   }
+
+   // process y
+   // default when yType == 0
+   y1 = ya;
+   y2 = yb;
+
+   if (yType == 1) y2 = ya + yb; // abs ya, yb is width
+   if (yType == 2) y1 = yb - ya; // abs yb, ya is width
+
+   if (yType == 5) // abs center ya,  y1, y2 is auto from yb width
+   {
+      y1 = ya - yb/2;
+      y2 = ya + yb/2;
+   }
+
+}
+
+bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_slider_frame(x1, y1, x2, y2, 0, bcol, 0, 0, 0, 0, 0, 0); // draw button frame
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (textType)
+   {
+      int c = tcol;
+      if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
+      if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
+
+      // centering
+      int ta = 0; // always
+      // if (xType > 2) ta = 0;
+
+      draw_slider_text(x1, y1+1, x2, y2, c, ta, txt);
+   }
+
+   if (mouseOnButton && (mInput.mouse_b[1][0]))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
+   }
+   return false;
+}
+
+
+// toggles the int and displays text, text color, and frame color based on value  -- check box style
+void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      // debug show mouse detection area
+      //if (mouseOnButton) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+
+      // is mouse pressed on this button?
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         var = !var;
+      }
+   }
+
+   float my1 = y1;
+   float my2 = y2;
+
+   // get y center of button
+   float myc = my1 + (my2-my1)/2;
+
+   float rs = 6; // check box size
+   float ry1 = myc - rs/2;
+   float ry2 = ry1 + rs;
+   float rx1 = x1 + 4;
+   float rx2 = rx1 + rs;
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-4;
+
+   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
+
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
+
+   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
+}
+
+
+
+
+
+
+
+
+
+
+// displays a player tile with highlight frame, and returns 1 if pressed --- tile is tn
+bool mwWidget::mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight)
+{
+   int x2 = x1+ size;
+   int y2 = y1+ size;
+   int scale = size - 2;
+
+   // erase background
+//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.player_tile[tn][1], 1, 0, 18, 20, x1+1, y1+1, scale, scale, 0);
+
+   int c = fc;
+   if (highlight) c = hc;
+
+   // draw button frame
+   if (c!=0) al_draw_rounded_rectangle(x1, y1, x2, y2, 0, 0, mColor.pc[c], 0);
+
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
+   }
+   return false;
+}
+
+
+
+
+
+
+
 
 
 
@@ -1394,27 +1607,7 @@ int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// displays a text string and tile, and returns 1 if pressed --- tile is bn
+// displays a text string and tile, and returns 1 if pressed --- tile is tn
 int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
@@ -1436,6 +1629,82 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    if (q6) y1+=bts;
    return ret;
 }
+
+// displays a text string and player tile, and returns 1 if pressed --- tile is tn
+int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   int tile_size = num;
+
+   int highlight = type;
+
+   int col = q1;     // main color
+   int bc = col+192; // background color
+   int fc = col+64;  // frame color
+   if (highlight) fc = 15; // frame highlight color
+
+   // draw button background
+   al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 1, 1, mColor.pc[bc]);
+
+   // draw button frame
+   al_draw_rounded_rectangle(       x1, y1, x2, y2, 1, 1, mColor.pc[fc], 1);
+
+   // draw button text
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+
+   // draw tile
+   int x = x1 + 2;
+   int y = y1 + 2;
+
+   // erase tile background
+   al_draw_filled_rectangle(x-1, y-1, x+tile_size+1, y+tile_size+1, mColor.pc[0]);
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.player_tile[tn][1], 0, 0, 20, 20, x, y, tile_size, tile_size, 0);
+
+   // draw frame vertical line between tile and text
+   al_draw_line(x+tile_size+2, y1, x+tile_size+2, y2, mColor.pc[fc], 1);
+
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2032,8 +2301,8 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    int press = 0;
 
    // debug show mouse detection area
-//   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
-//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
 
    // is mouse pressed on this button?

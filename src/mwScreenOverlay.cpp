@@ -21,14 +21,8 @@
 #include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "mwConfig.h"
-#include "mwDemoRecord.h"
 #include "mwMiscFnx.h"
-#include "mwShot.h"
-
 #include "mwEventQueue.h"
-
-
 
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
@@ -85,9 +79,9 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
 }
 
-void mwScreen::show_level_done(void)
+void mwScreen::show_level_done()
 {
-   if ((mPlayer.syn[0].level_done_mode > 3) && (mPlayer.syn[0].level_done_mode < 8))
+   if (((mPlayer.syn[0].level_done_mode > 3) && (mPlayer.syn[0].level_done_mode < 8)) || (mPlayer.syn[0].level_done_mode == 20))
    {
       draw_large_text_overlay(2, 0);
       mColor.process_flash_color();
@@ -202,7 +196,7 @@ void mwScreen::proc_player_text_overlay_timer(int p)
       mPlayer.syn[p].player_text_overlay_timer = player_text_overlay_timer_reset_val;
 }
 
-int mwScreen::draw_player_text_overlay(void)
+int mwScreen::draw_player_text_overlay()
 {
    int drawn = 0; // to keep track of whether anything was drawn
    char msg[80];
@@ -951,62 +945,104 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
 
 
 
-void mwScreen::draw_demo_controls_overlay()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
 {
-   int x = mDemoMode.controls_x;
-   int y = mDemoMode.controls_y;
-
-   int w = 300;
-   int h = 100;
+   int yy = mDisplay.SCREEN_H - 10;
+   mWidget.button(3, yy, 11, 11,  510,0,0,0,  0,-1,15, 15,  1,0,0,0);
 
 
-   al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[0]);
+   int y = mDisplay.SCREEN_H - 1;
+   int h = 10;
 
-
-   al_draw_rectangle(x, y, x+w, y+h, mColor.pc[15], 1);
-
-   al_draw_textf(mFont.pr8, mColor.pc[15], x+4, y+4, 0, "Running Saved Game ");
-
-
-   int bts = 20;
-   int xa = x + 4;
-   int xb = x + w -4;
-
-   int xc = x + (w/2);
-
-
-   int ya = y + 20;
+   int ppc_length = 48;
 
    if (mDemoMode.controls_paused)
    {
-      if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,11,15, 0,  1,0,0,0, "Play")) mDemoMode.controls_paused = 0;
+      if (mPlayer.syn[0].level_done_mode == 20)
+      {
+         if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  12+192,12+80,15, 15,0, "Cont."))
+         {
+            mDemoMode.controls_paused = 0;
+            mPlayer.syn[0].level_done_mode = 1;
+         }
+      }
+      else if (mDemoMode.controls_paused && mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  11+192,11+80,15, 15,0, "Play")) mDemoMode.controls_paused = 0;
    }
-   else
-   {
-      if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,10,15, 0,  1,0,0,0, "Pause")) mDemoMode.controls_paused = 1;
-   }
+   else if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  4+192,4+80,15, 15,0, "Pause")) mDemoMode.controls_paused = 1;
 
-   ya += 24;
+   int pwd_length = 138;
+   int pwd_x1 = xa + ppc_length + 4;
+   int pwd_x2 = pwd_x1 + pwd_length;
 
-   int old_frame_speed = mLoop.frame_speed;
-   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
-   if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+   mWidget.mCheckBox(0,pwd_x1,pwd_x2,  2,h,y, 0, mDemoMode.controls_pause_when_done, "Pause when done", 15, 15);
 
+   if (mDemoMode.play_mode == 2 && mWidget.mButton(4,0,xb,  2,h,y,  1,  1,3,1,  12+192,12+80,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
 
 
-   int f = mLoop.frame_num;
+   int tlx1 = xb+4;
+   int tlx2 = mDisplay.SCREEN_W - BORDER_WIDTH;
 
-   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15,  0,0,1,0, f, mDemoMode.last_frame, 0, 1, "Current Frame:");
+   int tly = mDisplay.SCREEN_H - 11;
 
-   if (f < 0) f = 0;
+//   if (mDemoMode.controls_mode == 0) draw_demo_controls_overlay_timeline(tlx1, tly, tlx2, 12);
 
-   if (f != mLoop.frame_num)
-   {
-      mLoop.frame_num = f;
-      mDemoMode.seek_to_frame(f, 1);
-   }
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.controls_pause_when_done, "Pause when done", 12, 13);
+   draw_demo_controls_overlay_players_small(tlx1, tly);
 
 
 
@@ -1015,16 +1051,208 @@ void mwScreen::draw_demo_controls_overlay()
 
 
 
+void mwScreen::draw_demo_controls_overlay()
+{
+   int w = 334;
+   int x = BORDER_WIDTH+2;
+   int xa = x;
+   int xb = x + w -4;
+
+
+   draw_demo_controls_overlay_bottom_line(xa, xb);
+
+
+   if (mDemoMode.controls_mode == 2)
+   {
+      int xa = BORDER_WIDTH;
+      int xb = mDisplay.SCREEN_W - BORDER_WIDTH;
+
+      int y = mDisplay.SCREEN_H - BORDER_WIDTH-20;
+
+
+      draw_demo_controls_overlay_timeline(xa, y, xb, 10);
+
+   }
+
+   if (mDemoMode.controls_mode == 1)
+   {
+      int w = 400;
+      int h = 58;
+      int x = BORDER_WIDTH;
+      int y = mDisplay.SCREEN_H-h-20;
+
+      al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[0]);
+      al_draw_rectangle(x, y, x+w, y+h, mColor.pc[15], 1);
+
+      int bts = 16;
+      int xa = x + 4;
+      int xb = x + w -4;
+      int ya = y + 4;
+      //int yc = y-8;
+
+      int line_spacing = 2;
+
+
+      ya += bts + line_spacing + 1;
+
+      int old_frame_speed = mLoop.frame_speed;
+
+      int xr = xa;
+      if (mWidget.buttont(xr, ya, xr+40, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Min"    )) mLoop.frame_speed = 4;
+      xr+=44;
+      if (mWidget.buttont(xr, ya, xr+74, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Default")) mLoop.frame_speed = 40;
+      xr+=78;
+      if (mWidget.buttont(xr, ya, xr+40, bts, 0,0,0,0, 0,12,15, 0,  1,0,0,0, "Max"    )) mLoop.frame_speed = 200;
+      xr+=44;
+
+
+      mWidget.slideri(xr, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+      if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+
+
+
+
+      draw_demo_controls_overlay_timeline(xa, ya, xb, bts);
+
+
+
+      ya += line_spacing;
+
+
+      draw_demo_controls_overlay_players(x+w, y+h);
+   }
+
+
+
+
+}
+
+void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts)
+{
+   // get current and lastframe
+   int f = mLoop.frame_num;
+   int lf = mDemoMode.last_frame + 80;
+
+
+
+
+   // rewind to start button at start of timeline
+   int b1x1 = x1;
+   int b1x2 = b1x1 + bts/2;
+   int y2 = y1+bts-2;
+   if (mWidget.mButton(0,b1x1,b1x2,  0,y1,y2,  1,  1,3,1,  11+192,11+80,15, 15,0, "<")) f = 0;
+
+   // skip to send button at end of timeline
+   int b2x2 = x2;
+   int b2x1 = b2x2 - bts/2;
+   if (mWidget.mButton(0,b2x1,b2x2,  0,y1,y2,  1,  1,3,1,  11+192,11+80,15, 15,0, ">")) f = lf;
+
+
+   // timeline in the middle
+   int tlx1 = b1x2+1;
+   int tlx2 = b2x1-1;
+   mWidget.slideri(tlx1, y1, tlx2, bts,  0,0,0,0,  0,9,15,15,  0,0,0,0, f, lf, 0, 1, "Current Frame:");
+
+   // process changes
+   if (f < 0) f = 0;
+   if (f != mLoop.frame_num)
+   {
+      mLoop.frame_num = f;
+      mDemoMode.seek_to_frame(f, 1);
+   }
+}
 
 
 
 
 
+void mwScreen::draw_demo_controls_overlay_players(int x, int y)
+{
+   int line_spacing = 1;
+   //line_spacing += mLoop.pct_y;
+
+   // button height
+   int pbts = 12;
+   //pbts += mLoop.pct_y;
+
+   // button width
+   int bw = 79;
+   //bw += mLoop.pct_y;
+
+   // button x1 and x2
+   int xa = x+(line_spacing)+1;
+   int xb = xa+bw;
+
+   // count number of players
+   int num_players = 0;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.is_player_active_and_not_hidden(p)) num_players++;
+
+
+   if (num_players > 1)
+   {
+      // get width and height of frame
+      int w = bw + (line_spacing*2)+2;
+      int h = num_players * (pbts+line_spacing-1) + line_spacing+1;
+
+      // erase background and draw frame
+      al_draw_filled_rectangle(x, y, x+w, y-h, mColor.pc[0]);
+      al_draw_rectangle(       x, y, x+w, y-h, mColor.pc[15], 1);
+
+      // button starting y position
+      int yp = y-pbts-line_spacing+1;
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (mPlayer.is_player_active_and_not_hidden(p))
+         {
+            char name[32];
+            sprintf(name, " %s", mPlayer.syn[p].name);
+
+            int col = mPlayer.syn[p].color;
+
+            int highlight = 0;
+            if (p == mPlayer.active_local_player) highlight = 1;
+
+            if (mWidget.buttonpt(xa, yp, xb, pbts,   col,pbts-6,highlight,0,    0,col,15,0, 1,1,0,0, name)) mDemoMode.set_active_local_player(p);
+            yp -= (pbts + line_spacing-1);
+         }
+      }
+   }
+}
 
 
 
 
 
+void mwScreen::draw_demo_controls_overlay_players_small(int x, int y)
+{
+   int line_spacing = 0;
+
+   int size = 9;
+   size += mLoop.pct_y;
+
+   // count number of players
+   int num_players = 0;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.is_player_active_and_not_hidden(p)) num_players++;
+
+   if (num_players > 1)
+   {
+      // button starting position
+      int xa = x;
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (mPlayer.is_player_active_and_not_hidden(p))
+         {
+            int highlight = 0;
+            if (p == mPlayer.active_local_player) highlight = 1;
+            if (mWidget.mButtonPlayerTile(xa, y, size, mPlayer.syn[p].color, 0, 15, highlight)) mDemoMode.set_active_local_player(p);
+            xa += size + line_spacing;
+         }
+      }
+   }
+}
 
 
 
@@ -1068,7 +1296,7 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
    char msg[1024];
 
    double t1 = al_get_time();
-   if (mDemoMode.mode) draw_large_text_overlay(3, 15);
+   if (mDemoMode.play_mode) draw_large_text_overlay(3, 15);
    mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_demo_ov", al_get_time() - t1);
 
 
@@ -1390,8 +1618,14 @@ void mwScreen::draw_bottom_frame(int p)
          mColor.process_flash_color();
       }
    }
+
+   /*
+
    if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
    {
+
+
+
       sprintf(msg, "Running Saved Game ");
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
@@ -1399,19 +1633,48 @@ void mwScreen::draw_bottom_frame(int p)
       sprintf(msg, "[%d%%] ", mLoop.frame_num*100/mDemoMode.last_frame);
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
+
+
+
    }
+
+*/
+
 }
 
 
 // converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
-// pass it the center of the object's postion, it will return the center also
+// pass it the center of the object's position, it will return the center also
 void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
 {
    ex1 = screen_display_x + (ex - level_display_region_x) * mDisplay.scale_factor_current;
    ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
 }
 
-void mwScreen::draw_screen_overlay(void)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwScreen::draw_screen_overlay()
 {
    int p = mPlayer.active_local_player;
    int cx = BORDER_WIDTH;
