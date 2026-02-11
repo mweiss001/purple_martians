@@ -50,10 +50,9 @@ class mwDemoMode
 
 
 
-
-
    void frame_advance();
-   int check_level_done();
+
+   bool check_level_done();
 
    void common_exit();
 

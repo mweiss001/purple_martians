@@ -60,6 +60,10 @@ add_executable(pm
         src/mwGameMoves.h
         src/mwGlobalLevelTool.cpp
         src/mwGlobalLevelTool.h
+
+        src/mwGmInfo.cpp
+        src/mwGmInfo.h
+
         src/mwGraph.cpp
         src/mwGraph.h
         src/mwHelp.cpp
@@ -152,7 +156,8 @@ add_executable(pm
         src/mwWindowTileHelper.cpp
         src/pm.h
         src/sqlite3.c
-        src/sqlite3.h)
+        src/sqlite3.h
+        src/mwGmInfo.cpp)
 
 target_link_libraries(pm
         allegro_monolith-static

@@ -54,7 +54,9 @@ int mwDemoMode::load_demo_file_array()
       num_demo_filenames = 0;
 
       // iterate levels in demo folder and put in filename array
-      al_for_each_fs_entry(al_create_fs_entry("savegame/demo"), fill_demo_array, nullptr);
+//      al_for_each_fs_entry(al_create_fs_entry("savegame/demo"), fill_demo_array, nullptr);
+      al_for_each_fs_entry(al_create_fs_entry("C:/Users/m/Desktop/test_demo"), fill_demo_array, nullptr);
+
    }
    if (num_demo_filenames == 0)
    {
@@ -224,7 +226,6 @@ void mwDemoMode::set_active_local_player(int p)
 
    mDrawSequence.ds_draw(0, 1);
 
-
 }
 
 
@@ -247,14 +248,13 @@ int mwDemoMode::key_check()
    int key_used = 0;
 
    // if waiting for continue at the end of a demo
-   if ((mDemoMode.controls_paused) && (mPlayer.syn[0].level_done_mode == 20))
+   if (mPlayer.syn[0].level_done_mode == 5)
    {
       // any key
       for (int k = 0; k < ALLEGRO_KEY_MAX; k++)
          if (mInput.key[k][0])
          {
             key_used = 1;
-            mDemoMode.controls_paused = 0;
             mPlayer.syn[0].level_done_mode = 1;
          }
    }
@@ -354,16 +354,9 @@ void mwDemoMode::frame_advance()
 
    check_valid_active_local_player();
 
-
-   if (mDemoMode.controls_paused)
-   {
-      //printf("%d paused\n", mLoop.frame_num);
-      mScreen.draw_demo_controls_overlay();
-      al_flip_display();
-   }
+   if (mDemoMode.controls_paused) mDrawSequence.ds_draw(0, 1);
    else
    {
-      //printf("%d not paused\n", mLoop.frame_num);
       mLoop.frame_num++;
       mBitmap.update_animation();
       mGameMoves.proc();
@@ -372,21 +365,21 @@ void mwDemoMode::frame_advance()
    }
 }
 
-int mwDemoMode::check_level_done()
+bool mwDemoMode::check_level_done()
 {
-   int ldm = mPlayer.syn[0].level_done_mode;
-   if (ldm)
+   // 10s past last game move
+   if (mPlayer.syn[0].level_done_mode == 0 && mLoop.frame_num > last_frame + 400)
    {
-      if (ldm == 20) mDemoMode.controls_paused = 1;
-      if (ldm == 1) return 1;
+      // skip players seek exit, jump to mode 5
+      mPlayer.syn[0].level_done_mode = 5;
    }
-   else if (mLoop.frame_num > last_frame + 400) // 10s past last game move
-   {
-      if (mDemoMode.controls_pause_when_done) mPlayer.syn[0].level_done_mode = 20;
-      else return 1;
-   }
-   return 0;
+
+   // divert before normal next level mode
+   if (mPlayer.syn[0].level_done_mode == 1) return true;
+   return false;
 }
+
+
 
 
 // this is used in all modes that end after the level is done

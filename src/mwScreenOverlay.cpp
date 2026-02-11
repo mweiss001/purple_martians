@@ -23,6 +23,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwEventQueue.h"
+#include "mwGmInfo.h"
 
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
@@ -61,9 +62,19 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
          int pay = 16;
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay, 0, "press");
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+8, 0, " any");
-         int tl = mPlayer.syn[0].level_done_timer/40;
-         if (tl > 9) al_draw_textf(mFont.pr8, mColor.pc[c], tx+154, y+pay+18, 0, "  %2d", tl);
-         else        al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+18, 0, "  %d", tl);
+
+         int val = mPlayer.syn[0].level_done_timer;
+
+         if (val == 999)
+         {
+            al_draw_text(mFont.pr8, mColor.pc[c], tx+158, y+pay+18, 0, " key");
+         }
+         else
+         {
+            int tl = val/40;
+            if (tl > 9) al_draw_textf(mFont.pr8, mColor.pc[c], tx+154, y+pay+18, 0, "  %2d", tl);
+            else        al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+18, 0, "  %d", tl);
+         }
       }
       else al_draw_textf(mFont.pr8, mColor.pc[15], tx+158, y+20, 0, "ready");
    }
@@ -81,9 +92,12 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
 void mwScreen::show_level_done()
 {
-   if (((mPlayer.syn[0].level_done_mode > 3) && (mPlayer.syn[0].level_done_mode < 8)) || (mPlayer.syn[0].level_done_mode == 20))
+   int ldm = mPlayer.syn[0].level_done_mode;
+
+   if (ldm && ldm < 10) draw_large_text_overlay(2, 0);
+
+   if (ldm == 5)
    {
-      draw_large_text_overlay(2, 0);
       mColor.process_flash_color();
 
       int x = mDisplay.SCREEN_W/2;
@@ -173,6 +187,7 @@ void mwScreen::show_level_done()
                show_player_stat_box(tx, ty, p);
                pc++;
             }
+
       }
    }
 }
@@ -1011,19 +1026,18 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
 
    int ppc_length = 40;
 
+   int pc = 11; // play color
+   int sc = 4;  // stop color
+
    if (mDemoMode.controls_paused)
    {
-      if (mPlayer.syn[0].level_done_mode == 20)
-      {
-         if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  12+192,12+80,15, 15,0, "Cont"))
-         {
-            mDemoMode.controls_paused = 0;
-            mPlayer.syn[0].level_done_mode = 1;
-         }
-      }
-      else if (mDemoMode.controls_paused && mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  11+192,11+80,15, 15,0, "Play")) mDemoMode.controls_paused = 0;
+      if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  pc+192,pc+80,15, 15,0, "Play")) mDemoMode.controls_paused = 0;
    }
-   else if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  4+192,4+80,15, 15,0, "Stop")) mDemoMode.controls_paused = 1;
+   else
+   {
+      if (mWidget.mButton(0, xa, xa+ppc_length,  2,h,y,  1,  1,3,1,  sc+192,sc+80,15, 15,0, "Stop")) mDemoMode.controls_paused = 1;
+   }
+
 
    int pwd_length = 138;
    int pwd_x1 = xa + ppc_length + 4;
@@ -1053,6 +1067,12 @@ void mwScreen::draw_demo_controls_overlay_bottom_line(int xa, int xb)
 
 void mwScreen::draw_demo_controls_overlay()
 {
+
+   draw_demo_controls_overlay_timeline_tracks(40, mDisplay.SCREEN_H - BORDER_WIDTH-400, 440, 12);
+
+
+
+
    int w = 326;
    //w += mLoop.pct_y;
 
@@ -1137,6 +1157,16 @@ void mwScreen::draw_demo_controls_overlay_speed(int x1, int y1, int x2, int bts)
 
    if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
 }
+
+void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int y1, int x2, int bts)
+{
+   mGmInfo.draw(x1, y1, x2, bts);
+
+
+
+}
+
+
 
 
 void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts)

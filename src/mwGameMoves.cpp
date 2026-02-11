@@ -13,6 +13,7 @@
 #include "mwDisplay.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
+#include "mwGmInfo.h"
 #include "mwScreen.h"
 #include "mwMain.h"
 #include "mwItem.h"
@@ -1125,9 +1126,23 @@ int mwGameMoves::load_gm(const char *sfname)
 
 //   find_player_info();
 
-//   printf("Loaded gm file:%s\n", fname);
+   printf("Loaded gm file:%s\n", fname);
 
    status = 2;
+
+
+   // test gmInfo here
+
+   mGmInfo.fill();
+
+
+
+
+
+
+
+
+
 
 //   add_gm_to_db(fname);
 

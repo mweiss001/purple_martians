@@ -24,6 +24,15 @@ using std::string;
 #include <allegro5/allegro_acodec.h>
 
 
+
+template <typename T>
+T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh) {
+   return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+
+
+
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
 #define NUM_PLAYERS 8

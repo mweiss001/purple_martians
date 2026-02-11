@@ -124,6 +124,11 @@ class mwDemoRecord
    void proc_transport_menu();
    int draw_transport_controls(int x, int y);
 
+   float screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, float sb_w);
+
+
+
+
 };
 extern mwDemoRecord mDemoRecord;
 

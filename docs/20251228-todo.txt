@@ -43,10 +43,76 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+
+------------------------------------------------------------------------------
+
+I want a timer independant of the game frame timer
+or maybe another method...
+my input is tied to the frame rate, I find it hard to change things with a slow frame rate
+hmmm...just a thought...think about it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+
+
+
+
+gm controls to do:
+
+
+when paused at the end of gm, show press any
+I might be able to not need the contimue button
+
+then only difference would be that the timeout timer does not run
+
+could I simplify that whole mess?
+
+show flash_color 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 sessions to do:
 ------------------------------------------------------------------------------
+
+
+
+I am thinking that I want sessions to also have unique id
+
+and players too...
+when the game is first run after being installed, generate a unique id for that player and system
 
 
 

@@ -728,7 +728,7 @@ void mwDemoRecord::edit_gm(int gi)
 
 
 
-float screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, float sb_w)
+float mwDemoRecord::screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, float sb_w)
 {
    return sb_x1 + (float)sb_w * ((float)frame / (float)last_frame);
 }
@@ -1139,17 +1139,6 @@ void mwDemoRecord::fill_player_sections(void)
                f1 = mGameMoves.arr[x][0];
                col = cc;
             }
-/*
-
-            // old version
-            if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-            {
-               f1 = mGameMoves.arr[x][0];
-               col = mGameMoves.arr[x][3];
-            }
-
-  */
-
 
             if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
             {

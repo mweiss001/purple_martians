@@ -565,11 +565,19 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 #include "mwSql.h"
 #include "mwDemoRecord.h"
 
+#include "mwGmInfo.h"
+
 
 void mwMain::temp_test(void)
 {
 
+   printf("test!!!!\n");
 
+
+   /*
+   mGmInfo.setTestData();
+   mGmInfo.printTestData();
+*/
 
 
    /*
