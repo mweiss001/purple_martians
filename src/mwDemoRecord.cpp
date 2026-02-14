@@ -172,7 +172,13 @@ void mwDemoRecord::gdt(void)
 
 void mwDemoRecord::seek_to_frame(int frame, int draw)
 {
+   printf("seek_to_frame() - b4 load\n");
+
+
    mLevel.load_level(mLevel.play_level, 0, 0);    // load level
+
+   printf("seek_to_frame() - af load\n");
+
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       mPlayer.init_player(p, 1);        // full reset

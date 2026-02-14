@@ -1131,7 +1131,7 @@ int mwGameMoves::load_gm(const char *sfname)
    status = 2;
 
 
-   // test gmInfo here
+   // fill gm data hereloadtest gmInfo here
 
    mGmInfo.fill();
 

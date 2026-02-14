@@ -326,7 +326,12 @@ void mwDemoMode::run_single_from_gate(const int lev)
 void mwDemoMode::seek_to_frame(const int frame, const int draw)
 {
    // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
-   mGameMoves.load_gm(mGameMoves.last_loaded_gm_filename);
+//   mGameMoves.load_gm(mGameMoves.last_loaded_gm_filename);
+
+   mGameMoves.current_pos = 0;
+
+
+
    mLoop.load_and_setup_level(mLevel.play_level, 4);
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also

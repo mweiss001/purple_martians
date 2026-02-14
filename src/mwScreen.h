@@ -187,16 +187,18 @@ class mwScreen
    void draw_demo_controls_overlay();
    void draw_demo_controls_overlay_players(int x, int y);
 
-   void draw_demo_controls_overlay_players_small(int x, int y);
+   int draw_demo_controls_overlay_players_small(int x, int y);
 
-   void draw_demo_controls_overlay_bottom_line(int xa, int xb);
+   void draw_demo_controls_overlay_bottom_line();
 
    void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
 
-   void draw_demo_controls_overlay_timeline_tracks(int x1, int y1, int x2, int bts);
-
 
    void draw_demo_controls_overlay_speed(int x1, int y1, int x2, int bts);
+
+   int draw_demo_controls_overlay_transport(int x1, int y1, int x2, int bts);
+
+   void draw_demo_controls_overlay_play_stop_button(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
 
 
 

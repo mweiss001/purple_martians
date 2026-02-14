@@ -70,7 +70,13 @@ class mwDemoRecord
 
    void gdt();
    char * gettf(int frame, char* ft);
+
+
+private:
    void seek_to_frame(int frame, int draw);
+public:
+
+
 
    int draw_overlay();
 

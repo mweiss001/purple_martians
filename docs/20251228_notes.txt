@@ -15967,7 +15967,553 @@ wish I had figured that out sooner....
 
 I would like to find level done frame...
 
-do a commit
+do a commit..done
+
+void mwDemoRecord::find_level_done(void)
+{
+   level_done_frame = 0;
+   level_done_player = -1;
+
+   seek_to_frame(0, 0);
+
+   mLoop.ff_state = 1;
+   int done = 0;
+   while (!done)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+      if (mPlayer.syn[0].level_done_mode)
+      {
+         level_done_frame  = mPlayer.syn[0].level_done_frame;
+         level_done_player = mPlayer.syn[0].level_done_player;
+         done = 1;
+      }
+      if (mLoop.frame_num > mDemoMode.last_frame + 400) done = 1;
+   }
+   mLoop.ff_state = 0;
+}
+
+
+I think I will make some variables in my class gmInfo
+
+lastframe
+level_done_frame = 0;
+level_done_player = -1;
+
+
+recursive loop...
+
+why does seek have to reload the gm?
+
+could it not just reset the level without doing that?
+
+lets look into it...
+
+
+void mwDemoRecord::seek_to_frame(int frame, int draw)
+{
+   mLevel.load_level(mLevel.play_level, 0, 0);    // load level
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mPlayer.init_player(p, 1);        // full reset
+      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
+   }
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+what if I just skipped the load part?
+
+
+I have introduced a bug somehow...now nothing is working properly
+especially level done...
+
+works when timeline tracks is disabled....
+works as long as I don't seek with my new seek...
+removed my new seek...
+it is the same as the one from demo
+I need to load level...
+
+
+back to my find level done causing the gm to reload a lot...why?
+
+there is a seek to frame in both demoreorec and demo mode!!!!
+
+
+
+
+2026-02-11 17:19:05
+
+
+
+
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+{
+   // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
+   mGameMoves.load_gm(mGameMoves.last_loaded_gm_filename);
+   mLoop.load_and_setup_level(mLevel.play_level, 4);
+
+
+
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+
+void mwDemoRecord::seek_to_frame(int frame, int draw)
+{
+   mLevel.load_level(mLevel.play_level, 0, 0);    // load level
+
+
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mPlayer.init_player(p, 1);      // full reset
+      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
+   }
+
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+
+
+The one in mwDemoRecord is used only there as far as I can tell...
+yes, I made it private...
+
+
+the one in mwDemoMode, i just made
+
+it is only used in demo control and gmInfo
+
+modified it so that it does not reload gm...
+
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+{
+   // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
+//   mGameMoves.load_gm(mGameMoves.last_loaded_gm_filename);
+   mGameMoves.current_pos = 0;
+
+   mLoop.load_and_setup_level(mLevel.play_level, 4);
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+try it now...
+
+that's much better....
+now I have a line where level done is...
+
+made it so that lastFrame is where the bar ends
+made it so the the timeline pos does not go past that...
+
+I like this so much more than the slider and player display
+
+It could replace both
+
+
+what if I could do a tooltip and some very small buttons?
+
+like for speed +-
+
+
+2026-02-12 04:16:45
+
+now what?
+
+after seeing how nice it it to click on timeline, vs dragging slider I don't think I want to use slider any more
+
+but the timeline is not very compact, maybe I could make a more compact version
+
+
+2026-02-12 04:36:07
+
+what if I made my box settings like this:
+original, simple (x1, y1, x2, y2)
+better, x, y, w, h
+even better, make w and h capable of being negative, in which case x or y would be x2 or y2 
+
+
+2026-02-12 05:03:40
+
+replaced common bottom timeline slider with new version
+
+now for bottom common, do the lengths properly..done
+
+
+now make mode 1 show the new timeline
+
+I don't think I will need the old players display
+
+2 things:
+
+redo frame speed
+
+make timeline tracks capable of being bottom aligned..done
+
+
+now timeline speed...
+
+
+but first...can I make a mouse over button?
+
+just a very simple button that shows a tooltip when hovered...
+
+I can envision a bigger transport control
+
+rew stop play ff
+start end
+rew and ff could be 1 frame, 1 sec, 10 sec, 60 sec
+maybe also start and end would fit in there
+
+
+start -60s -10s -1s -1f PLAY/PAUSE +1f +1s +10s +60s end
+then under that speed control
+min -10% reset slider +10% max
+
+this seems good...
+
+do the speed control first...
+no slider, display button in middle (click to reset!)
+
+min -50% -10% [display and reset button] +10% +50% max
+
+done looks good.
+
+
+now do a nice transport in a similar fashion
+
+start -60s -10s -1s -1f PLAY/PAUSE +1f +1s +10s +60s end
+
+2026-02-13 04:51:14
+
+changed tranport and frame speed to ignore x2 and be as wide as they need to be..
+
+
+now put it all together
+
+timeline, frame speed and transport
+
+
+
+now how to make it look good
+
+I want a frame
+
+how can I tell how tall things will be?
+timeline...
+
+
+2026-02-13 06:15:06
+
+I now have a nice framed control panel
+timeline
+transport
+speed
+
+I can adjust bts and linespacing and it all looks good
+
+I would like to center speed...how wide is it? 358
+done
+
+now what?
+
+some text display:
+filename
+elasped time total time
+moves/current move
+
+
+2026-02-13 16:29:41
+
+what if I made the mouse over highlight flash color
+and the active one slightly bigger
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15976,6 +16522,8 @@ do a commit
    
    
    
+
+
 
 
 
