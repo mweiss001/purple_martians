@@ -512,7 +512,6 @@ void mwItem::proc_item_collision(int p, int i)
    if (mPlayer.syn[p].carry_item) mDemoRecord.mark_player_carry(p);
 
 
-
    int t = item[i][0];
    if (t == PM_ITEM_TYPE_DOOR)    proc_door_collision(p, i);
    if (t == PM_ITEM_TYPE_BONUS)   proc_bonus_collision(p, i);

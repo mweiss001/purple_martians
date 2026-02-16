@@ -66,7 +66,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    if (!mLog.log_types[LOG_NET_session].action) return;
 
    // get timestamp
-   string ts = mMiscFnx.timestamp_UTC_ISO8601();
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
 
    // make a copy of address so we can play with it
    char ad[32];
@@ -84,7 +84,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    mMiscFnx.chop_first_x_char(ad, c+1);
    int port = atoi(ad);
 
-   string name = mPlayer.getName(p);
+   std::string name = mPlayer.getName(p);
 
    char sql[500];
    sprintf(sql,
@@ -213,7 +213,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
    // now that I have all that....
 
    // get timestamp from now
-   string dt_end = mMiscFnx.timestamp_UTC_ISO8601();
+   std::string dt_end = mMiscFnx.timestamp_UTC_ISO8601();
 
    // find duration
    int duration = mMiscFnx.find_duration(dt_start, dt_end.c_str());

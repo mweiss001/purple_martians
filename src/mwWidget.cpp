@@ -18,7 +18,9 @@
 #include "mwMiscFnx.h"
 #include "mwHelp.h"
 #include "mwBottomMessage.h"
+#include "mwConfig.h"
 #include "mwDemoMode.h"
+#include "mwScreen.h"
 
 
 mwWidget mWidget;
@@ -1197,29 +1199,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       if (num == -1) sprintf(msg, "C");       // show row header
       else           sprintf(msg, "%d", num); // show num
    }
-
-
-
-   if (bn == 510)
-   {
-      int val = mDemoMode.controls_mode;
-
-      if (press)
-      {
-         if (++val > 2)  val = 0;
-      }
-      if (val == 0) sprintf(msg, "-");
-      if (val == 1) sprintf(msg, "+");
-      if (val == 2) sprintf(msg, "!");
-
-      mDemoMode.controls_mode = val;
-
-   }
-
-
-
-
-
 
 
    draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
@@ -2475,8 +2454,46 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
       y1 = ya - yb/2;
       y2 = ya + yb/2;
    }
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
 {
@@ -2540,7 +2557,7 @@ void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       // debug show mouse detection area
-      //if (mouseOnButton) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
       // is mouse pressed on this button?
       if (mInput.mouse_b[1][0])
@@ -2573,6 +2590,79 @@ void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
 
    al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 }
+
+
+
+
+
+
+// toggles the int and displays text, text color, and frame color based on value  -- check box style
+void mwWidget::mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      // debug show mouse detection area
+      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+
+      // is mouse pressed on this button?
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         var = !var;
+      }
+   }
+
+   float my1 = y1;
+   float my2 = y2;
+
+   // get y center of button
+   float myc = my1 + (my2-my1)/2;
+
+   float rs = 4; // check box size
+   float ry1 = myc - rs/2;
+   float ry2 = ry1 + rs;
+   float rx1 = x1 + 4;
+   float rx2 = rx1 + rs;
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-6.5;
+
+   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
+
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
+
+   al_draw_text(mFont.pixl, mColor.pc[text_col], mtx, mty, 0, t);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2683,11 +2773,68 @@ float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int background
 
 
 
+void mwWidget::drawWidgetSmallText(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg)
+{
+   int xt = (x2+x1)/2;
+   int yt = y1 - 7 + (y2-y1)/2; // why 7 pixels off??
+
+   if (left_justified) al_draw_text(mFont.pixl, mColor.pc[color], x1+4, yt, 0, msg);
+   else                al_draw_text(mFont.pixl, mColor.pc[color], xt, yt, ALLEGRO_ALIGN_CENTER, msg);
+}
 
 
 
 
+bool mwWidget::mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
 
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (textType)
+   {
+      int c = tcol;
+      if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
+      if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
+
+      // centering
+      int ta = 0; // always
+      // if (xType > 2) ta = 0;
+
+      drawWidgetSmallText(x1, y1+1, x2, y2, c, ta, txt);
+   }
+
+   if (mouseOnButton && (mInput.mouse_b[1][0]))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
+   }
+   return false;
+}
 
 
 

@@ -17,8 +17,8 @@ class mwMiscFnx
    void get_tag_text(char *str, char *res, int show);
    int get_tag_text2(char *str, char *res, char *res1, int show);
 
-   string timestamp(const char* format);
-   string timestamp_UTC_ISO8601();
+   std::string timestamp(const char* format);
+   std::string timestamp_UTC_ISO8601();
    int find_duration(const char* d1, const char* d2);
 
 
@@ -42,7 +42,7 @@ class mwMiscFnx
 
    float mdw_rnd(float rmin, float rmax);
 
-   string generate_muid();
+   std::string generate_muid();
 
 
    void set_int_3216(int &I32, int H16, int L16);

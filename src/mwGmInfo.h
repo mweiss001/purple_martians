@@ -7,31 +7,34 @@ struct gmPlayerInfoRecord
    std::string playerName;
    int startFrame;
    int endFrame;
+   std::vector<int> deaths;
+   std::vector<int> purpleCoins;
 };
 
 class mwGmInfo
 {
-
    public:
+      void fill();
 
-   void fill();
-   void showTimeline(int x1, int y1, int x2, int bts, int col);
-
-   void showTimelineTracks(int y1, int x2, int bts, int ls, int x1);
-
-
-   int lastFrame{};
-
-   std::vector<gmPlayerInfoRecord> gmPlayerInfo;
+      bool addEventsToDatabase{};
+      int lastFrame{};
+      std::vector<gmPlayerInfoRecord> gmPlayerInfo;
 
 
    private:
+      void clear();
+      void findPlayerTracks();
 
+      int getGmPlayerInfoIndex(int p, int f);
 
-   void clear();
-   void findLevelDone();
-   int levelDoneFrame{};
-   int levelDonePlayer{};
+      void findDeaths();
+      void addDeath(int p, int f);
+
+      void findPurpleCoins();
+      void addPurpleCoin(int p, int f);
+
+      int levelDoneFrame{};
+      int levelDonePlayer{};
 };
 
 extern mwGmInfo mGmInfo;

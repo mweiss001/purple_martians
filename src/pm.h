@@ -8,8 +8,12 @@
 #include <libnet.h>
 #include <zlib.h>
 
+#include <iostream>
+#include <sstream>
 #include <string>
-using std::string;
+#include <iomanip>
+
+
 
 #include <random>
 

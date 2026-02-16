@@ -138,8 +138,6 @@ void mwConfig::save_config(int type)
          al_set_config_value(cfg, "NETWORK", "player_name", mPlayer.syn[0].name);
       }
 
-
-
       if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_SHOTS))
       {
          asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
@@ -151,7 +149,6 @@ void mwConfig::save_config(int type)
       {
          ascf(NETWORK, mNetgame.client_chase_offset)
       }
-
 
       asci(NETWORK, mNetgame.server_port)
       ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
@@ -168,13 +165,16 @@ void mwConfig::save_config(int type)
       asci(DEMO, mGameMoves.autosave_game_on_level_quit)
       asci(DEMO, mGameMoves.server_send_files_to_clients)
 
-
-
       ascf(DEMO, mDemoMode.overlay_opacity)
-
 
       asci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire)
       asci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data)
+
+      asci(DEMO, mScreen.demo_controls_mode)
+      asci(DEMO, mScreen.demo_controls_small_text)
+      asci(DEMO, mScreen.demo_controls_tray_mode)
+      asci(DEMO, mScreen.demo_controls_overlay_x)
+      asci(DEMO, mScreen.demo_controls_overlay_y)
 
       asci(BMSG, mBottomMessage.bottom_msg_on)
       asci(BMSG, mBottomMessage.num_lines)
@@ -358,6 +358,17 @@ void mwConfig::load_config(int type)
 
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)
+
+
+
+
+
+   agci(DEMO, mScreen.demo_controls_small_text, 0)
+   agci(DEMO, mScreen.demo_controls_tray_mode, 0)
+   agci(DEMO, mScreen.demo_controls_mode, 0)
+   agci(DEMO, mScreen.demo_controls_overlay_x, -1)
+   agci(DEMO, mScreen.demo_controls_overlay_y, -1)
+
 
    agci(BMSG, mBottomMessage.bottom_msg_on, 1)
    agci(BMSG, mBottomMessage.num_lines, 8)

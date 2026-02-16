@@ -274,7 +274,7 @@ class mwPlayer
    char* get_player_name(int p, char * name, int width_field = 0);
    char* get_player_name2(int p, char * name);
 
-   string getName(int p);
+   std::string getName(int p);
 
 
 

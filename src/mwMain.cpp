@@ -3,8 +3,6 @@
 #include "pm.h"
 #include "mwMain.h"
 
-#include <iostream>
-
 #include "mwPlayer.h"
 #include "mwSound.h"
 #include "mwLog.h"

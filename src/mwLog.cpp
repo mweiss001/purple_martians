@@ -698,7 +698,7 @@ void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p
    if (!mLog.log_types[LOG_NET_CSV].action) return;
 
 
-   string ts = mMiscFnx.timestamp_UTC_ISO8601();
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
 
 //   char d[100];
 //   mMiscFnx.chr_dt(d);
@@ -734,7 +734,7 @@ void mwLog::add_log_status_db_rows(void)
    // do not log status unless at least one client is connected
    if (mNetgame.server_num_clients == 0) return;
 
-   string ts = mMiscFnx.timestamp_UTC_ISO8601();
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
 
 
 //   char d[100];

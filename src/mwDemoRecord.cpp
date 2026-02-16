@@ -36,7 +36,7 @@ void mwDemoRecord::gdt(void)
    for (int i=0; i<mDemoMode.num_demo_filenames; i++)
    {
       //printf("index:%d\n",i);
-      mGameMoves.load_gm(al_get_fs_entry_name(mDemoMode.demo_FS_filenames[i]));
+      mGameMoves.load_gm(al_get_fs_entry_name(mDemoMode.demo_FS_filenames[i]), false);
 
 //      printf("GDT lev:[%2d] --------------------------------\n", mLevel.play_level);
 

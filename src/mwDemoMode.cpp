@@ -54,8 +54,8 @@ int mwDemoMode::load_demo_file_array()
       num_demo_filenames = 0;
 
       // iterate levels in demo folder and put in filename array
-//      al_for_each_fs_entry(al_create_fs_entry("savegame/demo"), fill_demo_array, nullptr);
-      al_for_each_fs_entry(al_create_fs_entry("C:/Users/m/Desktop/test_demo"), fill_demo_array, nullptr);
+      al_for_each_fs_entry(al_create_fs_entry("savegame/demo"), fill_demo_array, nullptr);
+//      al_for_each_fs_entry(al_create_fs_entry("C:/Users/m/Desktop/test_demo"), fill_demo_array, nullptr);
 
    }
    if (num_demo_filenames == 0)
@@ -84,6 +84,9 @@ void mwDemoMode::play_demo_for_stats()
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
+   double t0 = al_get_time(); // for the entire function
+
+
    mLoop.frame_num = 0;
    int done = 0;
    while (!done)
@@ -94,6 +97,11 @@ void mwDemoMode::play_demo_for_stats()
       mGameMoves.proc();
       mLoop.move_frame();
    }
+
+   printf("t1: %f\n", (al_get_time() - t0)*1000);
+
+
+
 }
 
 
@@ -111,7 +119,7 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
 
    for (int i=0; i<num_demo_filenames; i++)
    {
-      mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
+      mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]), false);
       play_demo_for_stats();
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
       al_flip_display();
@@ -359,7 +367,7 @@ void mwDemoMode::frame_advance()
 
    check_valid_active_local_player();
 
-   if (mDemoMode.controls_paused) mDrawSequence.ds_draw(0, 1);
+   if (mScreen.demo_controls_paused) mDrawSequence.ds_draw(0, 1);
    else
    {
       mLoop.frame_num++;
@@ -415,7 +423,7 @@ void mwDemoMode::common_exit()
 {
    mSound.stop_sound();
    mPlayer.active_local_player = 0;
-   controls_paused = 0;
+   mScreen.demo_controls_paused = 0;
    mConfig.load_config();  // restore player color and name and speed
    mLoop.frame_speed = 40;
    mEventQueue.adjust_fps_timer(mLoop.frame_speed);

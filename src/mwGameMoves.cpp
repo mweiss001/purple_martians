@@ -627,7 +627,7 @@ char * mwGameMoves::get_save_txt(int num, char *txt)
 void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
 {
    char filename[120];
-   const string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+   const std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
    sprintf(filename, "savegame/%s-[%02d]-%s.gm", ts.c_str(), mLevel.play_level, description);
    save_gm(filename, sendto);
 }
@@ -897,7 +897,7 @@ void mwGameMoves::print_header(void)
 bool mwGameMoves::parse_header_line(const char * buf)
 {
    // convert to string
-   string line(buf);
+   std::string line(buf);
 
    // remove any CR or LF from end of line
    while (!line.empty() && (line.back() == '\r' || line.back() == '\n')) line.pop_back();
@@ -979,11 +979,11 @@ int mwGameMoves::load_gm_file_select(void)
    return good_load;
 }
 
-// this is the function that actual loads the gm from the the full file path
+// this is the function that actually loads the gm from the full file path
 // -------------------------------------------------------------------------
 
 
-int mwGameMoves::load_gm(const char *sfname)
+int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
 {
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
@@ -1119,7 +1119,6 @@ int mwGameMoves::load_gm(const char *sfname)
       save_gm(fname);
    }
 
-
    mLevel.play_level = HEADER_level; // set play level
    mDemoMode.last_frame = HEADER_last_frame;
    sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
@@ -1130,19 +1129,7 @@ int mwGameMoves::load_gm(const char *sfname)
 
    status = 2;
 
-
-   // fill gm data hereloadtest gmInfo here
-
-   mGmInfo.fill();
-
-
-
-
-
-
-
-
-
+   if (fillGmInfo) mGmInfo.fill();
 
 //   add_gm_to_db(fname);
 
@@ -1150,7 +1137,6 @@ int mwGameMoves::load_gm(const char *sfname)
 }
 
 
-#include <iomanip>
 
 // call from load...or save..or somewhere we know HEADER is valid
 

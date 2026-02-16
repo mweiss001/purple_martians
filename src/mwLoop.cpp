@@ -757,7 +757,6 @@ int mwLoop::load_and_setup_level(int level, int type)
          // to override local name
          sprintf(mPlayer.syn[0].name, "default");
 
-
       }
 
       if (type == 5) // LOAD AND RESET ALL BUT DO NOT START LEVEL

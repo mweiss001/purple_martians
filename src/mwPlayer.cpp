@@ -50,9 +50,10 @@ void mwPlayer::proc_player_health(int p)
       syn[p].paused = 100;
       syn[p].paused_type = 1;
 
+      mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
+
       if (!mLoop.ff_state)
       {
-         mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
          mScreen.add_player_text_overlay(p, 3);
 
          mLog.add_headerf(LOG_NET, -1, 0, "PLAYER:%d DIED!", p);
@@ -1180,7 +1181,7 @@ void mwPlayer::draw_player(int p)
 
          if (draw_name)
          {
-            string name = getName(p);
+            std::string name = getName(p);
             al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", name.c_str());
          }
       }
@@ -1310,9 +1311,9 @@ int mwPlayer::is_player_color_used(int color)
 
 
 // do you not suffer needlessly?
-string mwPlayer::getName(int p)
+std::string mwPlayer::getName(int p)
 {
-   string tmp(mPlayer.syn[p].name);
+   std::string tmp(mPlayer.syn[p].name);
    if (tmp == "default") tmp = "Player " + std::to_string(p);
    return tmp;
 }

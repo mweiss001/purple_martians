@@ -16269,6 +16269,634 @@ moves/current move
 
 what if I made the mouse over highlight flash color
 and the active one slightly bigger
+done
+
+2026-02-14 05:29:53
+frame transport and speed done
+
+should I move drawtimeline to screen overlay?
+
+it does not belong in gmInfo
+
+I could make a new cpp file
+
+mDemoModeControls.cpp
+it would still be covered under mDemoMode.h
+
+removed from gmInfo and added to screenOverlay
+
+made new file 
+mwScreenOverlayDemoControls.cpp
+
+moved 700 lines there from mwScreenOverlay.cpp
+
+now mwScreenOverlay.cpp has 1400 lines
+
+2026-02-14 07:16:51
+
+did some more clean up....
+
+next?
+
+do the goddam text lines
+
+first....
+
+make this return width and height just like the others...
+      draw_demo_controls_overlay_timeline_tracks(ya, xa+transport_width, bts, ls, xa);
+done..
+
+now...
+
+I should be able to reduce the size of speed and everything else will compensate
+make a copy of button that uses small font
+
+done...now do the same for transport..done
+
+this is amazing!! now do for timeline_tracks
+
+2026-02-14 10:31:54
+
+the small text version is perfect...
+
+now do the goddam text lines
+
+filename
+
+I have three text lines working well
+
+I am trying to use c++ strings...
+
+2026-02-14 13:23:25
+
+I want to clean up old string stuff whereever I can
+
+
+what next for the gm controls?
+
+can I drag the window?
+
+make a handle in the lower left corner...
+
+I will need to store the position somewhere...
+
+   int demo_controls_overlay_x;
+   int demo_controls_overlay_y;
+
+
+where should I set it?
+
+      demo_controls_overlay_x = BORDER_WIDTH;
+      demo_controls_overlay_y = mDisplay.SCREEN_H - BORDER_WIDTH;
+
+
+what am I going to do about the setting it?
+
+- make a reset control in the frame
+- save in config
+
+
+OK I can now move it...
+now what?
+
+make the reset button look better?
+make the mode button like the other..
+
+what about showing deaths?
+and purple coins pickups...
+
+2026-02-15 04:46:13
+
+thinking about how to do purple coin pickup...
+I want to use gameevent system
+
+if flag is set, send all gmevents to gmInfo
+
+it seems like I am redoing things here
+I could use the database
+I could use a vector of structs
+save all events for a level....
+
+then I could at my leisure just search the list or table for what I want..
+this seems like the way to go
+
+every gm has a unique muid, this could used to have multiple gm in the table?....
+or should I only do current?
+
+how about current only, it is a temp table, erased every time
+it can easily be replayed and recreated
+
+then later I can extract what I need from it to do level stats...
+
+
+void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
+z1 = p
+
+I can use the current frame
+
+make the table...
+
+i don't want to pollute sessions_db
+pick another
+
+add to table
+clear table
+
+
+Ok I have that working...
+
+now what to do with the data?
+
+I want to add it to the gmInfo somehow
+
+   std::vector<int> deaths;
+
+will contain frame numbers
+
+now show them in timeline tracks..done!!!!
+
+
+I want to simplilfy the process of collecting data in gmInfo
+
+find level done
+is that an event also? if not make it one
+yes 4 unlocked exit...
+
+
+
+
+chicken and egg thing
+
+run through the level until what?
+
+level done found or 400 frames past last gm frame
+
+
+
+2026-02-15 08:05:54
+
+bug why is controls position not being saved? explicit save done
+
+
+when I seek I have to reload the level, which I think is taking time...
+
+could I save state immediately after the level is loaded and ready to start?
+
+would that be any faster?
+
+you will need to measure....
+
+does load gm also load the associated level?
+
+
+play all levels for stats, takes 10s normally
+
+when adding events to database, it takes a lot longer...like 66s
+
+filter this somehow...
+only add to db when I want to..done
+
+now where was I?
+
+
+I think I need to do level done first
+when I play the level to fill the event table I might as well do it then
+
+next..purple coins..done
+
+now that I had the frame work in place, it was very easy to add another
+
+what else?
+
+when I change screen sizes I want to controls panel to adapt
+
+I think I do this in level editor also
+
+
+also the whole bottom up thing....
+
+totally not standard, a bit confusing
+
+it is fine when minimized to the bottom frame
+
+but when it is a floating window, I want it to have a titlebar (dragable) and button in the upper right
+
+I also want it to have the 2 things missing, pause when done and next random demo
+
+also some options, like small text, show death, purple coins more info, etc..
+
+I know this is a somewhat major change.....
+
+2026-02-15 11:20:28
+
+at the top:
+title bar with "File: xxxx"  and a few buttons on the left
+next line pause when done and next random demo
+
+options like small text, show more info lines...etc
+
+transport
+speed
+timeline
+
+I also want a time display with option to make it frames or time
+
+
+redo the mode thing
+
+bool minimizedTray
+bool smallText
+
+
+bool minimizedTray
+when in tray have a + button
+when windowed have a - button in the extreme right
+
+bool smallText
+next button in from right
+just display "T" and toggle small text
+
+then another button for more or less details
+
+
+why do I have some vars in demoMode and some in screen overlay?
+
+now they are all in mScreen
+
+   bool demo_controls_small_text{false}; 
+  
+   bool demo_controls_tray_mode{false}; 
+
+implement tray mode button in title bar
+
+2026-02-15 13:34:18
+
+I have done both...takes longer when they have to look good with regular and small text
+
+one more button, mode, will now be used for how much info is shown
+
+done
+
+now make title draw its own text, cause why not??
+
+2026-02-15 15:01:19
+
+now put timeline back and fix heights
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -25,6 +25,18 @@ int mwSql::open_database()
       sqlite3_close(db_sessions);
       return (0);
    }
+
+
+   sprintf(filename, "%s", "data/game_events.db");
+   if (sqlite3_open(filename, &db_game_events))
+   {
+      printf("Can't open database %s\n", filename);
+      sqlite3_close(db_game_events);
+      return (0);
+   }
+
+
+
    // sprintf(filename, "%s", "data/logs.db");
    // if (sqlite3_open(filename, &db_logs))
    // {
@@ -128,6 +140,23 @@ void mwSql::create_tables()
                mod         INT ); ");
    execute_sql(sql, db_sessions);
 
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
+               id          INTEGER PRIMARY KEY, \
+               frame       INT, \
+               ev          INT, \
+               x           INT, \
+               y           INT, \
+               p           INT, \
+               z2          INT, \
+               z3          INT, \
+               z4          INT ); ");
+   execute_sql(sql, db_game_events);
+
+
+
+
 }
 
 
@@ -179,7 +208,7 @@ void mwSql::execute_sql(const char* sql, sqlite3 *db)
 }
 
 // returns 0 on success
-// 1 = now rows
+// 1 = no rows
 // 2 = error
 int mwSql::execute_sql_and_return_first_row_as_vector_int(const char *sql, sqlite3 *db, std::vector<int> &ret)
 {
@@ -200,7 +229,8 @@ int mwSql::execute_sql_and_return_first_row_as_vector_int(const char *sql, sqlit
    rc = sqlite3_step(stmt);
    if (rc == SQLITE_DONE)
    {
-      printf("No rows found. \n%s\n", sql);
+      printf("No rows found for: %s\n", sql);
+      sqlite3_finalize(stmt);
       return 1;
    }
 
@@ -211,7 +241,82 @@ int mwSql::execute_sql_and_return_first_row_as_vector_int(const char *sql, sqlit
          ret.push_back(sqlite3_column_int(stmt, i));
    }
 
+   sqlite3_finalize(stmt);
    return 0;
 
 }
+
+
+
+// returns 0 on success
+// 2 = error
+
+int mwSql::execute_sql_and_return_2d_vector_int(const char *sql, sqlite3 *db, std::vector<std::vector<int>> &matrix )
+{
+   if (db == nullptr)
+   {
+      printf("Error! Database not open.\n%s\n", sql);
+      return 2;
+   }
+
+   sqlite3_stmt* stmt;
+   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+
+   if (rc != SQLITE_OK)
+   {
+      printf("Failed to prepare statement22: %s\n %s\n", sql, sqlite3_errmsg(db));
+      sqlite3_finalize(stmt);
+      return 2;
+   }
+
+   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+   {
+      std::vector<int> row;
+      for (int i=0; i<sqlite3_column_count(stmt); i++)
+         row.push_back(sqlite3_column_int(stmt, i));
+      matrix.push_back(row); // Add row to 2D vector
+   }
+
+   sqlite3_finalize(stmt);
+   return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

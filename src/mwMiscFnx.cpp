@@ -41,10 +41,6 @@ af:'00001000 00000000 00000000 00000000 '
 
 
 
-
-#include <iomanip>
-
-
 int mwMiscFnx::find_duration(const char* d1, const char* d2)
 {
    // create tm struct from date 1
@@ -82,14 +78,14 @@ int mwMiscFnx::find_duration(const char* d1, const char* d2)
 
 // return ISO 8601 UTC timestamp from 'now' as std::string
 // YYYY-MM-DDTHH:MM:SS
-string mwMiscFnx::timestamp_UTC_ISO8601()
+std::string mwMiscFnx::timestamp_UTC_ISO8601()
 {
    char t[256];
    auto cnow = std::chrono::system_clock::now();
    auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
    struct tm *timenow = gmtime(&now_in_time_t);
    strftime(t, sizeof(t), "%Y-%m-%dT%H:%M:%S", timenow);
-   string ret(t);
+   std::string ret(t);
    return ret;
 }
 
@@ -100,14 +96,14 @@ string mwMiscFnx::timestamp_UTC_ISO8601()
 
 // return timestamp from 'now' as std::string in passed format
 // YYYY-MM-DD HH:MM:SS.zzz
-string mwMiscFnx::timestamp(const char* format)
+std::string mwMiscFnx::timestamp(const char* format)
 {
    char t[256];
    auto cnow = std::chrono::system_clock::now();
    auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
    struct tm *timenow = localtime(&now_in_time_t);
    strftime(t, sizeof(t), format, timenow);
-   string ret(t);
+   std::string ret(t);
    return ret;
 }
 
@@ -481,9 +477,9 @@ float mwMiscFnx::mdw_rnd(float rmin, float rmax)
 
 // returns a string of 16 random letters [A-Z] 65-90
 // 16 ^ 26 = 2e31
-string mwMiscFnx::generate_muid()
+std::string mwMiscFnx::generate_muid()
 {
-   string tmp;
+   std::string tmp;
    for (int i=0; i<16; i++)
    {
      std::random_device seed;

@@ -157,7 +157,8 @@ add_executable(pm
         src/pm.h
         src/sqlite3.c
         src/sqlite3.h
-        src/mwGmInfo.cpp)
+        src/mwGmInfo.cpp
+        src/mwScreenOverlayDemoControls.cpp)
 
 target_link_libraries(pm
         allegro_monolith-static

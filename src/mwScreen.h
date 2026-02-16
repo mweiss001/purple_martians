@@ -184,21 +184,48 @@ class mwScreen
    void draw_demo_debug_overlay(int p, int &cx, int &cy);
 
 
+   //   void draw_demo_controls_overlay_players(int x, int y);
+   //   void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
+
    void draw_demo_controls_overlay();
-   void draw_demo_controls_overlay_players(int x, int y);
-
    int draw_demo_controls_overlay_players_small(int x, int y);
-
    void draw_demo_controls_overlay_bottom_line();
-
-   void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
-
-
-   void draw_demo_controls_overlay_speed(int x1, int y1, int x2, int bts);
-
-   int draw_demo_controls_overlay_transport(int x1, int y1, int x2, int bts);
-
+   void draw_demo_controls_overlay_speed(int fx1, int fy1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h);
+   void draw_demo_controls_overlay_transport(int x1, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h);
    void draw_demo_controls_overlay_play_stop_button(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
+   void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y2, int col);
+   void draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y2, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h);
+
+   void draw_demo_controls_overlay_play_stop_button_small(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
+
+
+   void draw_demo_controls_overlay_textline(int fx1, int fx2, int fy1, int bts, int ls, int tc, int fc, bool smallText, const char * txt);
+
+   int demo_controls_overlay_x;
+   int demo_controls_overlay_y;
+   int demo_controls_mode{0};
+   int demo_controls_paused{};
+
+   bool demo_controls_small_text{false};
+   bool demo_controls_tray_mode{false};
+
+   bool drag_move_demo_controls_active = 0;
+   int demo_controls_pause_when_done{};
+
+
+   void toggle_demo_controls_small_text();
+   void set_demo_controls_tray_mode(bool val);
+   void adj_demo_controls_mode(int val);
+
+
+
+
+   void drag_move_demo_controls_overlay();
+
+   int draw_demo_controls_overlay_titlebar(int x1, int y1, int y2, int x2);
+
+   void draw_demo_controls_overlay_pwd_nrd(int fx1, int fx2, int fy1, int bts, int ls, bool smallText);
+
 
 
 

@@ -497,6 +497,7 @@ void mwScreen::set_map_var(void)
 
 
 
+
    // determine the size of the level_display
 
    // get the available y space left for the level display
@@ -513,6 +514,7 @@ void mwScreen::set_map_var(void)
    int total_width = menu_level_info_w + menu_level_display_size;
    menu_level_display_x = mDisplay.SCREEN_W/2 - total_width / 2;
    menu_level_info_x = menu_level_display_x + menu_level_display_size + 1;
+
 
 
 
@@ -558,15 +560,10 @@ void mwScreen::set_map_var(void)
 //   menu_logo_y = menu_level_display_y + menu_logo_scale * 200; // align top of logo with top of map
 
 
-
-
    // transition from splash logo to menu logo
    splash_logo_scale_dec = (splash_logo_scale - menu_logo_scale) / 320;
    splash_logo_x_dec     = (splash_logo_x     - menu_logo_x)     / 320;
    splash_logo_y_dec     = (splash_logo_y     - menu_logo_y)     / 320;
-
-
-
 
 
 

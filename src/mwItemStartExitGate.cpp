@@ -190,7 +190,7 @@ void mwItem::proc_exit_collision(int p, int i)
 
          if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
          else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
-         mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
+         mGameEvent.add(4, 0, 0, p, 0, 0, 0);
       }
    }
    else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet

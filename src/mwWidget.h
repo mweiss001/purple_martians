@@ -81,7 +81,15 @@ class mwWidget
    bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
 
 
-   void mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int q1, int &var, const char* t, int text_col, int frame_col);
+   bool mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
+   void drawWidgetSmallText(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg);
+
+
+
+   void          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
+
+   void mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
+
 
    bool mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight);
 

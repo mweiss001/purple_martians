@@ -253,7 +253,7 @@ void mwLoop::proc_level_done_mode(void)
          {
             if (mDemoMode.play_mode)
             {
-               if (mDemoMode.controls_pause_when_done) mPlayer.syn[0].level_done_timer = 999; // special value to mark wait forever
+               if (mScreen.demo_controls_pause_when_done) mPlayer.syn[0].level_done_timer = 999; // special value to mark wait forever
                else mPlayer.syn[0].level_done_timer = 160; // skippable 4s delay;
             }
             else mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;

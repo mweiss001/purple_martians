@@ -6,13 +6,25 @@
 #include "mwSound.h"
 #include "mwLoop.h"
 #include "mwDisplay.h"
-
+#include "mwGmInfo.h"
+#include "mwSql.h"
 
 
 mwGameEvent mGameEvent;
 
 void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+   if (mGmInfo.addEventsToDatabase)
+   {
+      if ((ev == 8) || (ev == 27))
+      {
+         char sql[500];
+         sprintf(sql, "INSERT INTO game_events VALUES(null, %d, %d, %d, %d, %d, %d, %d, %d)", mLoop.frame_num, ev, x, y, z1, z2, z3, z4);
+         mSql.execute_sql(sql, mSql.db_game_events);
+      }
+   }
+
+
    if ((!mLoop.ff_state) && (!mDisplay.no_display))
    {
       if (ev == 11) // tally raw damage
@@ -123,7 +135,7 @@ num snd msg description
 24   9  yes spring
 25   -  yes bomb
 26   -  yes rocket
-27   2  yes coin
+27   2  yes purple coin
 28   -  yes bonus
 
 40   6  yes player hurt by player

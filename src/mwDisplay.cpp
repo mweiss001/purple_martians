@@ -127,11 +127,19 @@ void mwDisplay::auto_set_display_transform_double(void)
    }
 }
 
+
+
+
 void mwDisplay::set_saved_display_transform(int sdt)
 {
    float old_display_transform_double = display_transform_double;
-
    saved_display_transform_double = sdt;
+   set_display_transform_and_adjust_window_positions(old_display_transform_double);
+}
+
+
+void mwDisplay::set_display_transform_and_adjust_window_positions(float old_display_transform_double)
+{
    mConfig.save_config(PM_CFG_SAVE_DISPLAY);
 
    set_display_transform();
@@ -144,25 +152,25 @@ void mwDisplay::set_saved_display_transform(int sdt)
    // adjust window positions
    for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
+
+   mScreen.demo_controls_overlay_x = mScreen.demo_controls_overlay_x/sfa;
+   mScreen.demo_controls_overlay_y = mScreen.demo_controls_overlay_y/sfa;
+
+
+
 }
+
+
+
+
 
 
 void mwDisplay::cycle_display_transform(void)
 {
    float old_display_transform_double = display_transform_double;
-
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
-   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
 
-   set_display_transform();
-
-   float new_display_transform_double = display_transform_double;
-   float sfa = new_display_transform_double/old_display_transform_double;
-   scale_factor /= sfa;
-   scale_factor_current = scale_factor;
-
-   // adjust window positions
-   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
+   set_display_transform_and_adjust_window_positions(old_display_transform_double);
 }
 
 void mwDisplay::set_display_transform()

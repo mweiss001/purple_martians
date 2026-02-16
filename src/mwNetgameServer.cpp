@@ -304,7 +304,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
 
-   string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
    int upt = al_get_time();
    int cli = server_num_clients;
    int lev = mLevel.play_level;

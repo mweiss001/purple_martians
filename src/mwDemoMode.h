@@ -37,32 +37,11 @@ class mwDemoMode
 
 
 
-   int controls_mode{0};
-
-   int controls_paused{};
-   int controls_speed{};
-   int restore_speed{};
-   int controls_pause_when_done{};
-
-
-   int controls_x{100};
-   int controls_y{100};
-
-
-
    void frame_advance();
-
    bool check_level_done();
-
    void common_exit();
-
    void check_valid_active_local_player();
    void set_active_local_player(int p);
-
-
-
-
-
 
 
    int countdown_val{};

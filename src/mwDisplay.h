@@ -81,6 +81,10 @@ class mwDisplay
    void show_var_sizes();
 
    void auto_set_display_transform_double();
+
+
+   void set_display_transform_and_adjust_window_positions(float old_display_transform_double);
+
    void set_saved_display_transform(int sdt);
    void cycle_display_transform();
    void set_display_transform();
