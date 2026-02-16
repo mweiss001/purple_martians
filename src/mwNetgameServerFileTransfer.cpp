@@ -89,7 +89,7 @@ void mwNetgame::server_send_file(int i)
          memcpy(data+pos, dst+start_byte, packet_data_size);
          pos += packet_data_size;
 
-         ServerSendTo(data, pos, files_to_send[i].p);
+         serverSendTo(data, pos, files_to_send[i].p);
 
          start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
       }
@@ -149,7 +149,7 @@ void mwNetgame::server_add_file_to_send(const char * filename, int p)
       }
 }
 
-void mwNetgame::server_proc_files_to_send(void)
+void mwNetgame::server_proc_files_to_send()
 {
    // check if file transfer in progress, waiting for acknowledgement
    int in_prog = 0;

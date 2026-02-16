@@ -19,7 +19,7 @@
 
 
 
-int mwNetgame::ServerInitNetwork(void)
+int mwNetgame::serverInitNetwork()
 {
    mLog.log_versions();
    mLog.add_fw (LOG_NET, -1, 76, 10, "+", "-", "");
@@ -29,7 +29,7 @@ int mwNetgame::ServerInitNetwork(void)
 
    mLog.add_log_net_db_row(LOG_NET, 0, 0, "Server mode started - hostname:%s", mLoop.local_hostname);
 
-   if (NetworkInit())
+   if (networkInit())
    {
       mLog.log_error("failed to initialize network");
       return 0;
@@ -38,7 +38,7 @@ int mwNetgame::ServerInitNetwork(void)
    // open the server channel
    char port[256];
    sprintf(port, ":%d", server_port);
-   if (!(Channel = net_openchannel(NetworkDriver, port)))
+   if (!(Channel = net_openchannel(networkDriver, port)))
    {
       mLog.log_error("failed to open server channel");
       return 0;
@@ -50,14 +50,14 @@ int mwNetgame::ServerInitNetwork(void)
    return 1;
 }
 
-void mwNetgame::ServerExitNetwork(void)
+void mwNetgame::serverExitNetwork()
 {
    mLog.add_header(LOG_NET, -1, 0, "Shutting down the server network");
 
    mLog.add_log_net_db_row(LOG_NET, 0, 0, "Shutting down the server network");
 
 
-   NetworkExit();
+   networkExit();
 
    ima_server = 0;
 
@@ -79,7 +79,7 @@ int mwNetgame::server_check_address(char * address)
 }
 
 // send data to a specific client
-void mwNetgame::ServerSendTo(void *data, int len, int p)
+void mwNetgame::serverSendTo(void *data, int len, int p)
 {
    // change the target of the ServerChannel
    if (net_assigntarget(Channel, mwChannels[p].channel_address))
@@ -99,13 +99,7 @@ void mwNetgame::ServerSendTo(void *data, int len, int p)
    mPlayer.loc[p].tx_current_packets_for_this_frame++;
 }
 
-
-
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
-
-void mwNetgame::headless_server_setup(void)
+void mwNetgame::headless_server_setup()
 {
    mMain.classic_mode = 0;
    mLevel.unlock_all_levels();
@@ -155,7 +149,7 @@ void mwNetgame::headless_server_setup(void)
 }
 
 
-void mwNetgame::server_rewind(void)
+void mwNetgame::server_rewind()
 {
    double t0 = al_get_time();
 
@@ -193,7 +187,7 @@ void mwNetgame::server_rewind(void)
    mLog.add_tmr1(LOG_TMR_rwnd, "rwnd", al_get_time() - t0);
 }
 
-void mwNetgame::server_create_new_state(void)
+void mwNetgame::server_create_new_state()
 {
    // this state is created at the end of the frame, after moves have been applied
    // because of that it is actually the starting point of the next frame
@@ -293,14 +287,124 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       memcpy(data+pos, cmp+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      ServerSendTo(data, pos, p);
+      serverSendTo(data, pos, p);
 
       start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
    }
 }
 
 
+void mwNetgame::server_insert_status()
+{
+   double t0 = al_get_time();
 
+   // 1. Start the transaction
+   char* err_msg = nullptr;
+   if (sqlite3_exec(mSql.db_status, "BEGIN TRANSACTION;", nullptr, nullptr, &err_msg) != SQLITE_OK)
+   {
+      std::cerr << "BEGIN error: " << err_msg << std::endl;
+      sqlite3_free(err_msg);
+   }
+
+
+   /*
+   // insert into server_status and get id of inserted row
+   int frame   = mLoop.frame_num;
+   int level   = mLevel.play_level;
+   int moves   = mGameMoves.entry_pos;
+   int enemies = mEnemy.num_enemy;
+   int uptime  = al_get_time();
+   char sql[500];
+   sprintf(sql, "INSERT INTO server_status VALUES(NULL, %d, %d, %d, %d, %d) RETURNING id;" , frame, level, moves, enemies, uptime);
+   int id = mSql.execute_sql_and_return_one_int(sql, mSql.db_status);
+*/
+
+   sqlite3_reset(mSql.server_status_insert_stmt);
+   sqlite3_bind_int(mSql.server_status_insert_stmt, 1, mLoop.frame_num);
+   sqlite3_bind_int(mSql.server_status_insert_stmt, 2, mLevel.play_level);
+   sqlite3_bind_int(mSql.server_status_insert_stmt, 3, mGameMoves.entry_pos);
+   sqlite3_bind_int(mSql.server_status_insert_stmt, 4, mEnemy.num_enemy);
+   sqlite3_bind_int(mSql.server_status_insert_stmt, 5, al_get_time());
+   int rc = sqlite3_step(mSql.server_status_insert_stmt);
+//   if (rc != SQLITE_DONE) printf("sql error:  %s\n", sqlite3_errmsg(mSql.db_status));
+
+   if (rc == SQLITE_ROW)
+   {
+
+   }
+
+   int id = sqlite3_column_int(mSql.server_status_insert_stmt, 0);
+
+
+   sqlite3_step(mSql.server_status_insert_stmt);
+
+
+
+   /*
+   //   int column_count = sqlite3_column_count(mSql.server_status_insert_stmt);
+   for (int i=0; i<column_count; i++)
+      ret.push_back(sqlite3_column_int(stmt, i));
+*/
+
+
+//   printf("id:%d sql:%s\n", id, sql);
+
+   // insert active players into client_status with ss_id from server_status
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+/*
+         float cpu  = mPlayer.loc[p].cpu;
+         float sync = mPlayer.loc[p].pdsync;
+         float ping = mPlayer.loc[p].ping;
+         float lcor = mPlayer.loc[p].client_loc_plr_cor;
+         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
+         float rwnd = mPlayer.loc[p].rewind;
+         float difs = mPlayer.loc[p].cmp_dif_size;
+         float tkbs = mPlayer.loc[p].tx_bytes_per_tally;
+         sprintf(sql, "INSERT INTO client_status VALUES(NULL, %d, %f, %f, %f, %f, %f, %f, %f, %f);" , id, cpu, sync, ping, lcor, rcor, rwnd, difs, tkbs);
+         mSql.execute_sql(sql, mSql.db_status);
+*/
+
+
+         sqlite3_reset(mSql.client_status_insert_stmt);
+         sqlite3_bind_int   (mSql.client_status_insert_stmt, 1, id);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 2, mPlayer.loc[p].cpu);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 3, mPlayer.loc[p].pdsync);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 4, mPlayer.loc[p].ping);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 5, mPlayer.loc[p].client_loc_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 6, mPlayer.loc[p].client_rmt_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 7, mPlayer.loc[p].rewind);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 8, mPlayer.loc[p].cmp_dif_size);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 9, mPlayer.loc[p].tx_bytes_per_tally);
+
+         int rc = sqlite3_step(mSql.client_status_insert_stmt);
+         if (rc != SQLITE_DONE) printf("sql error:  %s\n", sqlite3_errmsg(mSql.db_status));
+
+
+
+//         printf(" p:%d sql:%s\n", p, sql);
+      }
+
+
+
+   if (sqlite3_exec(mSql.db_status, "COMMIT TRANSACTION;", nullptr, nullptr, &err_msg) != SQLITE_OK)
+   {
+      std::cerr << "COMMIT error: " << err_msg << std::endl;
+      sqlite3_free(err_msg);
+   }
+
+
+
+   printf("time to insert:%f\n", (al_get_time()-t0)*1000);
+
+
+}
+
+
+
+
+// called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
 
@@ -437,7 +541,7 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
       memcpy(data+pos, dst+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      ServerSendTo(data, pos, 0);
+      serverSendTo(data, pos, 0);
 
       start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
    }
@@ -445,6 +549,8 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
 
 void mwNetgame::server_proc_rctl_packet(int i)
 {
+   server_remote_control_last_rctl_rx_frame = mLoop.frame_num;
+
    int type = mPacketBuffer.PacketGetInt32(i);
    double val = mPacketBuffer.PacketGetDouble(i);
 
@@ -561,36 +667,37 @@ void mwNetgame::server_proc_stak_packet(int i)
    mLog.log_add_prefixed_textf(LOG_NET_stak, -1, "%s dsync:[%4.1f] chase:[%4.1f]\n", log_msg_txt1, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
    mLog.add_log_net_db_row(LOG_NET_stak, 0, p,    "%s dsync:[%4.1f] chase:[%4.1f]", log_msg_txt1, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
 
-
-
-
 }
 
 
-void mwNetgame::server_proc_player_drop(void)
+void mwNetgame::server_proc_player_drop()
 {
-   if (mLoop.frame_num > 300) // don't even try until this far into the game
+   if (mLoop.frame_num > 300) // don't even try until this far into a level
    {
-      // check to see if we need to drop clients
       int drop_frame_limit = mLoop.frame_num - 200;
 
+      if (server_remote_control && server_remote_control_last_rctl_rx_frame < drop_frame_limit)
+      {
+         //printf("Server dropped remote control client due to no response\n");
+         server_remote_control = 0;
+         // is there any other cleanup I need to do here?
+      }
+
+
+
+      // check to see if we need to drop clients
       for (int p=1; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             session_close(p, 4); // reason 4 - comm loss
-
             mLog.add_headerf(LOG_NET, -1, 1,       "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
             mLog.add_log_net_db_row(LOG_NET, 0, p,  "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
-
-
-
-
          }
    }
 }
 
-void mwNetgame::server_proc_limits(void)
+void mwNetgame::server_proc_limits()
 {
    if (mPlayer.syn[0].level_done_mode == 0) // only trigger from level done mode 0
    {
@@ -818,7 +925,9 @@ void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
    mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server received remote control request");
    mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server replied with sjrc packet");
 
-   mMain.server_remote_control = 1;
+   server_remote_control = 1;
+   server_remote_control_last_rctl_rx_frame = mLoop.frame_num;
+
 
    server_send_sjrc_packet(0);
 }
@@ -829,7 +938,7 @@ void mwNetgame::server_send_sjrc_packet(int p)
    char data[PACKET_BUFFER_SIZE] = {}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjrc");
    mPacketBuffer.PacketPutDouble(data, pos, 0);
-   ServerSendTo(data, pos, p);
+   serverSendTo(data, pos, p);
 }
 
 void mwNetgame::server_send_srrf_packet(int p, int val)
@@ -838,7 +947,7 @@ void mwNetgame::server_send_srrf_packet(int p, int val)
    char data[PACKET_BUFFER_SIZE] = {}; int pos;
    mPacketBuffer.PacketName(data, pos, "srrf");
    mPacketBuffer.PacketPutInt32(data, pos, val);
-   ServerSendTo(data, pos, p);
+   serverSendTo(data, pos, p);
 }
 
 
@@ -850,7 +959,7 @@ void mwNetgame::server_proc_ping_packet(char *data, int p)
    mPacketBuffer.PacketName(data, pos, "pong");
    mPacketBuffer.PacketPutDouble(data, pos, t0);
    mPacketBuffer.PacketPutDouble(data, pos, t1);
-   ServerSendTo(data, pos, p);
+   serverSendTo(data, pos, p);
 }
 
 void mwNetgame::server_proc_pang_packet(char *data, int p)
@@ -900,7 +1009,11 @@ void mwNetgame::server_control()
    session_check_active();
 
 
-   if (mMain.server_remote_control) server_send_snfo_packet();
+
+
+   if (server_remote_control) server_send_snfo_packet();
+
+   server_insert_status();
 
    // send extra packets (testing and debug only)
    for (int i=0; i<srv_exp_num; i++)
@@ -909,8 +1022,10 @@ void mwNetgame::server_control()
          {
             char data[PACKET_BUFFER_SIZE] = {0}; int pos;
             mPacketBuffer.PacketName(data, pos, "extr");
-            ServerSendTo(data, pos + srv_exp_siz, p);
+            serverSendTo(data, pos + srv_exp_siz, p);
          }
+
+
 
 
    mLog.add_log_status_db_rows();

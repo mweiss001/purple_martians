@@ -304,47 +304,6 @@ int mwMiscFnx::get_tag_text2(char *str, char *res, char *res1, int show)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int mwMiscFnx::exit_level_editor_dialog(void)
 {
    while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);

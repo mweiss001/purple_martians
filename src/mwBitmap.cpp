@@ -25,7 +25,7 @@ ALLEGRO_BITMAP * mwBitmap::create_and_clear_bitmap(int x, int y)
 }
 
 // done only once in initial_setup
-void mwBitmap::create_bitmaps(void)
+void mwBitmap::create_bitmaps()
 {
    // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
@@ -64,7 +64,7 @@ void mwBitmap::create_bitmaps(void)
 }
 
 // done only once in initial_setup
-int mwBitmap::load_tiles(void)
+int mwBitmap::load_tiles()
 {
    //printf("load tiles\n");
 
@@ -175,7 +175,7 @@ int mwBitmap::load_tiles(void)
 
 
 
-void mwBitmap::rebuild_bitmaps(void)
+void mwBitmap::rebuild_bitmaps()
 {
    double t[8] = { 0 };
 
@@ -237,7 +237,7 @@ void mwBitmap::rebuild_bitmaps(void)
 
 
 
-void mwBitmap::save_sprit(void)
+void mwBitmap::save_sprit()
 {
    //printf("saving sprit001.pm\n");
    for (int c=0; c<NUM_ANS; c++) // set all animation initial
@@ -260,7 +260,7 @@ void mwBitmap::save_sprit(void)
    fclose(fp);
 }
 
-int mwBitmap::load_sprit(void)
+int mwBitmap::load_sprit()
 {
    FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
    if (fp)
@@ -281,7 +281,7 @@ int mwBitmap::load_sprit(void)
 
 
 
-void mwBitmap::reset_animation_sequences(void)
+void mwBitmap::reset_animation_sequences()
 {
    for (int c=0; c<NUM_ANS; c++)
    {
@@ -291,7 +291,7 @@ void mwBitmap::reset_animation_sequences(void)
    }
 }
 
-void mwBitmap::update_animation(void)
+void mwBitmap::update_animation()
 {
    // 0 = current shape
    // 1 = current shape index

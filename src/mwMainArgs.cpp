@@ -361,7 +361,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-rc") == 0 ) // server remote control
       {
-         server_remote_control = 1;
+         mNetgame.server_remote_control = 1;
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP;
          return;
@@ -467,7 +467,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          sprintf(mNetgame.server_address, "%s", argument_array[2]);
          mConfig.save_config(PM_CFG_SAVE_SERVER_ADDRESS);
-         server_remote_control = 1;
+         mNetgame.server_remote_control = 1;
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP;
          return;

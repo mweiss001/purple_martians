@@ -21,7 +21,7 @@
 #include "mwWidget.h"
 #include "mwQuickGraph2.h"
 
-void mwLoop::remote_control_loop(void)
+void mwLoop::remote_control_loop()
 {
 
    double t0 = al_get_time();
@@ -32,7 +32,6 @@ void mwLoop::remote_control_loop(void)
 
    // check how long since last rtcl packet has been sent, and send keep alive packet if too long
    if (++remote_frames_since_last_rctl_sent > 100) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
-
 
    char msg[200];
    al_set_target_backbuffer(mDisplay.display);
@@ -265,3 +264,76 @@ void mwLoop::remote_control_loop(void)
    add_local_cpu_data(cpu);
 
 }
+
+
+
+
+
+
+
+
+
+void mwLoop::initialize_and_resize_remote_graphs(void)
+{
+   // width and x position are based on screen width
+   int width = remote_graphs_width;
+   int gx = 4;
+
+   // each graph has a suggested height, this will only be used to scale them relative to each other
+   mQuickGraph2[0].set_size(width, 100,  0);
+   mQuickGraph2[1].set_size(width, 100, 0);
+   mQuickGraph2[2].set_size(width, 100, 0);
+   mQuickGraph2[3].set_size(width, 40,  0);
+   mQuickGraph2[4].set_size(width, 40,  0);
+   mQuickGraph2[5].set_size(width, 40,  0);
+   mQuickGraph2[6].set_size(width, 100, 0);
+   mQuickGraph2[7].set_size(width, 100, 0);
+
+   mQuickGraph2[9].set_size(200, 30, 1);
+
+
+   // iterate all and tally graph height and space between them
+   float gs=0; // graph space
+   int gc=0; // graph count
+
+   for (int i=0; i<8; i++)
+      if (mQuickGraph2[i].active)
+      {
+         gs+=mQuickGraph2[i].height;
+         gc++;
+      }
+
+   int bs = (gc-1) * 10; // buffer space
+   float ts = remote_graphs_height - bs; // space available
+
+   if ((gs != 0) && (ts > 0))
+   {
+      float ra = (float)ts / (float)gs;   // ratio of space available to requested
+      // scale all the heights
+      for (int i=0; i<8; i++)
+         if (mQuickGraph2[i].active) mQuickGraph2[i].set_size(width, mQuickGraph2[i].height * ra, 1);
+   }
+
+   // set positions
+   int gy = mDisplay.SCREEN_H;
+
+   for (int i=0; i<8; i++)
+      if (mQuickGraph2[i].active)
+      {
+         gy-= mQuickGraph2[i].height + 10;
+         mQuickGraph2[i].set_pos(gx, gy);
+      }
+
+   al_set_target_backbuffer(mDisplay.display);
+
+}
+
+
+
+
+
+
+
+
+
+

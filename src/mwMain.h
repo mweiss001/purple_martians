@@ -17,7 +17,9 @@ class mwMain
 
    int headless_server = 0;
 
-   int server_remote_control = 0;
+
+
+
 
    // z_args.h
    void pm_copy_src(const char* filepath);

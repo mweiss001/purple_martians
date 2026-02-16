@@ -15,7 +15,7 @@ mwPacketBuffer mPacketBuffer;
 mwPacketBuffer::mwPacketBuffer(){ init_packet_buffer(); }
 mwPacketBuffer::~mwPacketBuffer(){};
 
-void mwPacketBuffer::init_packet_buffer(void)
+void mwPacketBuffer::init_packet_buffer()
 {
    for (int i=0; i<200; i++)
    {
@@ -30,14 +30,14 @@ void mwPacketBuffer::init_packet_buffer(void)
    for (int p=0; p<NUM_PLAYERS; p++) RA[p].initialize(8);
 }
 
-void mwPacketBuffer::rx_and_proc(void)
+void mwPacketBuffer::rx_and_proc()
 {
    check_for_packets();
    proc_rx_buffer();
 }
 
 // processes all packets waiting in rx buffer
-void mwPacketBuffer::proc_rx_buffer(void)
+void mwPacketBuffer::proc_rx_buffer()
 {
    double t0 = al_get_time();
 
@@ -67,8 +67,8 @@ void mwPacketBuffer::proc_rx_buffer(void)
 }
 
 // called from many places in the game loop, does nothing and returns immediately if not client or server
-// receives all waiting packets and puts them in the rx buffer or processes them immediatley
-void mwPacketBuffer::check_for_packets(void)
+// receives all waiting packets and puts them in the rx buffer or processes them immediately
+void mwPacketBuffer::check_for_packets()
 {
    if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) return;
 
@@ -141,7 +141,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
    else printf("%d received unknown packet type!\n", mLoop.frame_num);
 }
 
-int mwPacketBuffer::find_empty_rx_packet_buffer(void)
+int mwPacketBuffer::find_empty_rx_packet_buffer()
 {
    for (int i=0; i<200; i++) if (!rx_buf[i].active) return i;
 
@@ -185,7 +185,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
 }
 
 
-float mwPacketBuffer::get_max_dsync(void)
+float mwPacketBuffer::get_max_dsync()
 {
    float max_dsync = -1000;
 
@@ -225,15 +225,8 @@ int mwPacketBuffer::PacketRead(char *data, const char *id )
 
 
 // for all of the following get functions there are two versions
-//
-// one where the packet data to process is passed as an argument
-// char * data and and offset int &pos
-//
-// and another where an index to a packet buffer is passed
-// int i
-
-
-
+// one where the packet data to process is passed as an argument (char * data and offset int &pos)
+// and another where an index to a packet buffer is passed (int i)
 
 
 // packet put and get byte functions
@@ -340,7 +333,6 @@ void mwPacketBuffer::showData(char *data, int sz)
 
    for (int i=0; i<sz; i++)
       printf("%02d [%c] - %d\n", i, data[i], data[i]);
-
 
 }
 

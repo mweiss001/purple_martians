@@ -19,16 +19,16 @@
 #include "mwGameMoves.h"
 
 
-int mwNetgame::ClientInitNetwork(void)
+int mwNetgame::clientInitNetwork()
 {
    char msg[512];
 
-   if (NetworkInit())
+   if (networkInit())
    {
       mLog.log_error("failed to initialize network");
       return -1;
    }
-   Channel = net_openchannel(NetworkDriver, NULL); // dynamic port
+   Channel = net_openchannel(networkDriver, NULL); // dynamic port
    if (Channel == NULL)
    {
       mLog.log_error("failed to create NetChannel");
@@ -49,7 +49,7 @@ int mwNetgame::ClientInitNetwork(void)
    return 1;
 }
 
-int mwNetgame::ClientJoin(void)
+int mwNetgame::clientJoin()
 {
    // Check for reply from server
    int tries = 1;        // number of times to try
@@ -58,7 +58,7 @@ int mwNetgame::ClientJoin(void)
    while (!got_reply)
    {
       //mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "ClientCheckResponse %d", tries);
-      int ccr = ClientCheckResponse();
+      int ccr = clientCheckResponse();
       if (ccr == 1)
       {
          got_reply = 1;
@@ -92,7 +92,7 @@ int mwNetgame::ClientJoin(void)
    return 1;
 }
 
-int mwNetgame::ClientCheckResponse(void) // check for a response from the server
+int mwNetgame::clientCheckResponse() // check for a response from the server
 {
    client_send_cjon_packet();
 
@@ -133,7 +133,7 @@ int mwNetgame::ClientCheckResponse(void) // check for a response from the server
    return 0; // no response
 }
 
-int mwNetgame::RemoteJoin(void)
+int mwNetgame::remoteJoin()
 {
    client_send_cjrc_packet();
    int reply = 0;
@@ -158,11 +158,11 @@ int mwNetgame::RemoteJoin(void)
    return 1;
 }
 
-void mwNetgame::ClientExitNetwork(void)
+void mwNetgame::clientExitNetwork()
 {
    mLog.add_header(LOG_NET, -1, 0, "Shutting down the client network");
 
-   NetworkExit();
+   networkExit();
 
    ima_client = 0;
    // reset player data
@@ -172,7 +172,7 @@ void mwNetgame::ClientExitNetwork(void)
    mConfig.load_config(); // to restore local player color, last gate touched, and other settings
 }
 
-void mwNetgame::ClientSend(void *data, int len)
+void mwNetgame::clientSend(void *data, int len)
 {
    net_send(Channel, data, len);
    mPlayer.loc[mPlayer.active_local_player].tx_current_bytes_for_this_frame+= (len + 42);
@@ -180,25 +180,21 @@ void mwNetgame::ClientSend(void *data, int len)
 }
 
 
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
-
-void mwNetgame::client_send_cjon_packet(void)
+void mwNetgame::client_send_cjon_packet()
 {
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "cjon");
    mPacketBuffer.PacketPutInt32(  data, pos, mPlayer.syn[0].color); // requested color
    mPacketBuffer.PacketAddStringN(data, pos, mPlayer.syn[0].name);  // player name
    mPacketBuffer.PacketAddStringN(data, pos, mLoop.local_hostname); // hostname
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
-void mwNetgame::client_send_cjrc_packet(void)
+void mwNetgame::client_send_cjrc_packet()
 {
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "cjrc");
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
 void mwNetgame::client_send_rctl_packet(int type, double val)
@@ -209,7 +205,7 @@ void mwNetgame::client_send_rctl_packet(int type, double val)
    mPacketBuffer.PacketName(data, pos, "rctl");
    mPacketBuffer.PacketPutInt32(data, pos, type);
    mPacketBuffer.PacketPutDouble(data, pos, val);
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
 
@@ -226,7 +222,7 @@ void mwNetgame::client_proc_pong_packet(char *data)
    mPacketBuffer.RA[p].add_data(ping);
    mPacketBuffer.PacketName(data, pos, "pang");
    mPacketBuffer.PacketPutDouble(data, pos, t1);
-   ClientSend(data, pos);
+   clientSend(data, pos);
 
    mLog.log_add_prefixed_textf(LOG_NET_client_ping, p, "client ping[%5.1f] avg[%5.1f]\n", ping*1000, mPlayer.loc[p].ping_avg*1000);
    mLog.add_tmrf(LOG_TMR_client_ping, "ping:[%5.1f] avg:[%5.1f]\n", ping*1000, mPlayer.loc[p].ping_avg*1000);
@@ -289,12 +285,12 @@ int mwNetgame::client_proc_sjon_packet(char * data)
 }
 
 
-void mwNetgame::client_send_ping_packet(void)
+void mwNetgame::client_send_ping_packet()
 {
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "ping");
    mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
 void mwNetgame::client_proc_snfo_packet(int i)
@@ -456,15 +452,15 @@ void mwNetgame::client_send_sfak_packet(int id)
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sfak");
    mPacketBuffer.PacketPutInt32(data, pos, id);
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
-void mwNetgame::client_send_crfl(void)
+void mwNetgame::client_send_crfl()
 {
    mLog.log_add_prefixed_textf(LOG_NET_file_transfer, -1, "tx clrf - client request file\n");
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "crfl");
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
 
@@ -553,7 +549,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
 }
 
 
-void mwNetgame::client_apply_dif(void)
+void mwNetgame::client_apply_dif()
 {
    double t0 = al_get_time();
 
@@ -733,7 +729,7 @@ void mwNetgame::client_send_cdat_packet(int p)
    mPacketBuffer.PacketPutInt32(data, pos, p);
    mPacketBuffer.PacketPutInt32(data, pos, mLoop.frame_num);
    mPacketBuffer.PacketPutInt32(data, pos, mPlayer.loc[p].comp_move);
-   ClientSend(data, pos);
+   clientSend(data, pos);
    mPlayer.loc[p].client_cdat_packets_tx++;
    mLog.log_add_prefixed_textf(LOG_NET_cdat, p, "tx cdat - move:%d\n", mPlayer.loc[p].comp_move);
    mLog.add_log_net_db_row(LOG_NET_cdat, 0, 0, "tx cdat - move:%d", mPlayer.loc[p].comp_move);
@@ -750,7 +746,7 @@ void mwNetgame::client_send_clog_packet(int type, int sub_type, int f, double ag
    mPacketBuffer.PacketPutInt32(data, pos, f);
    mPacketBuffer.PacketPutDouble(data, pos, agt);
    mPacketBuffer.PacketAddStringN(data, pos, smsg);
-   ClientSend(data, pos);
+   clientSend(data, pos);
 }
 
 
@@ -789,7 +785,7 @@ void mwNetgame::client_send_stak_packet(int ack_frame)
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_loc_plr_cor);
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_rmt_plr_cor);
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].cpu);
-   ClientSend(data, pos);
+   clientSend(data, pos);
 
    mLog.log_add_prefixed_textf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
    mLog.add_log_net_db_row(LOG_NET_stak, 0, 0, "tx stak p:%d ack:[%d] cur:[%d]", p, ack_frame, mLoop.frame_num);
@@ -798,7 +794,7 @@ void mwNetgame::client_send_stak_packet(int ack_frame)
 }
 
 
-void mwNetgame::client_timer_adjust(void)
+void mwNetgame::client_timer_adjust()
 {
    int p = mPlayer.active_local_player;
 
@@ -851,7 +847,7 @@ void mwNetgame::client_timer_adjust(void)
    // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
 }
 
-void mwNetgame::client_proc_player_drop(void)
+void mwNetgame::client_proc_player_drop()
 {
    int p = mPlayer.active_local_player;
    if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN)
@@ -888,7 +884,7 @@ void mwNetgame::client_proc_player_drop(void)
    }
 }
 
-void mwNetgame::client_control(void)
+void mwNetgame::client_control()
 {
    client_timer_adjust();
    mPacketBuffer.proc_rx_buffer();

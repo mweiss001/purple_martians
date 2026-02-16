@@ -15,7 +15,7 @@
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwMain.h"
-
+#include "mwNetgame.h"
 
 
 mwVisualLevel mVisualLevel;
@@ -608,7 +608,7 @@ void mwVisualLevel::load_visual_level_select(void)
 
 int mwVisualLevel::visual_level_select(void)
 {
-   if ((!mMain.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
+   if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
 
    mLoop.visual_level_select_running = 1;
 

@@ -223,8 +223,6 @@ struct ploc // not synced between server and client (but synced from server to r
    int rx_total_bytes;
    int rx_total_packets;
 
-
-
 };
 
 
@@ -258,8 +256,6 @@ class mwPlayer
    int is_player_hidden(int p);
    bool is_player_active_and_not_hidden(int p);
 
-
-
    void draw_player_direct_to_screen(int p);
    void draw_players_direct_to_screen();
 
@@ -271,11 +267,7 @@ class mwPlayer
 
    int get_new_client_color(int requested_color);
 
-   char* get_player_name(int p, char * name, int width_field = 0);
-   char* get_player_name2(int p, char * name);
-
    std::string getName(int p);
-
 
 
    void init_player(int p, int t);

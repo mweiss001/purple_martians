@@ -181,11 +181,8 @@ class mwScreen
 
    void draw_server_debug_overlay(int &cx, int &cy);
    void draw_client_debug_overlay(int &cx, int &cy);
-   void draw_demo_debug_overlay(int p, int &cx, int &cy);
 
 
-   //   void draw_demo_controls_overlay_players(int x, int y);
-   //   void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int bts);
 
    void draw_demo_controls_overlay();
    int draw_demo_controls_overlay_players_small(int x, int y);

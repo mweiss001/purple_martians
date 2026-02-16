@@ -411,7 +411,7 @@ void mwLoop::proc_program_state(void)
    {
       mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
 
-      mNetgame.ClientExitNetwork();
+      mNetgame.clientExitNetwork();
 
       //quit_action = 1; // to prevent quitting clients from automatically going to overworld
       // do it like this so we can go back to settings if called from there
@@ -437,13 +437,13 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].active = 1;
 
 
-      if (!mNetgame.ClientInitNetwork())
+      if (!mNetgame.clientInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
          return;
       }
 
-      if (!mNetgame.ClientJoin())
+      if (!mNetgame.clientJoin())
       {
          state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
          return;
@@ -490,7 +490,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
    {
       mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_NEW_GAME]\n");
-      if (!mNetgame.ServerInitNetwork())
+      if (!mNetgame.serverInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
          return;
@@ -511,7 +511,7 @@ void mwLoop::proc_program_state(void)
 
       if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
-      mNetgame.ServerExitNetwork();
+      mNetgame.serverExitNetwork();
       state[0] = PM_PROGRAM_STATE_MENU;
    }
 
@@ -550,13 +550,13 @@ void mwLoop::proc_program_state(void)
 
       if (mNetgame.ima_client)
       {
-         mNetgame.ChannelFlush();
+         mNetgame.channelFlush();
          mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
          mNetgame.server_lev_seq_num++;
       }
       if (mNetgame.ima_server)
       {
-         mNetgame.ChannelFlush();
+         mNetgame.channelFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
          mNetgame.server_lev_seq_num++;
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
@@ -684,13 +684,13 @@ void mwLoop::proc_program_state(void)
 
 
 
-      if (!mNetgame.ClientInitNetwork())
+      if (!mNetgame.clientInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_QUIT; // quit
          return;
       }
 
-      if (!mNetgame.RemoteJoin())
+      if (!mNetgame.remoteJoin())
       {
          state[0] = PM_PROGRAM_STATE_QUIT; // quit
          return;
@@ -832,60 +832,6 @@ void mwLoop::add_local_cpu_data(double cpu)
 }
 
 
-void mwLoop::initialize_and_resize_remote_graphs(void)
-{
-   // width and x position are based soley on screen width
-   int width = remote_graphs_width;
-   int gx = 4;
-
-   // each graph has a suggested height, this will only be used to scale them relative to each other
-   mQuickGraph2[0].set_size(width, 100,  0);
-   mQuickGraph2[1].set_size(width, 100, 0);
-   mQuickGraph2[2].set_size(width, 100, 0);
-   mQuickGraph2[3].set_size(width, 40,  0);
-   mQuickGraph2[4].set_size(width, 40,  0);
-   mQuickGraph2[5].set_size(width, 40,  0);
-   mQuickGraph2[6].set_size(width, 100, 0);
-   mQuickGraph2[7].set_size(width, 100, 0);
-
-   mQuickGraph2[9].set_size(200, 30, 1);
-
-
-   // iterate all and tally graph height and space between them
-   float gs=0; // graph space
-   int gc=0; // graph count
-
-   for (int i=0; i<8; i++)
-      if (mQuickGraph2[i].active)
-      {
-         gs+=mQuickGraph2[i].height;
-         gc++;
-      }
-
-   int bs = (gc-1) * 10; // buffer space
-   float ts = remote_graphs_height - bs; // space available
-
-   if ((gs != 0) && (ts > 0))
-   {
-      float ra = (float)ts / (float)gs;   // ratio of space available to requested
-      // scale all the heights
-      for (int i=0; i<8; i++)
-         if (mQuickGraph2[i].active) mQuickGraph2[i].set_size(width, mQuickGraph2[i].height * ra, 1);
-   }
-
-   // set positions
-   int gy = mDisplay.SCREEN_H;
-
-   for (int i=0; i<8; i++)
-      if (mQuickGraph2[i].active)
-      {
-         gy-= mQuickGraph2[i].height + 10;
-         mQuickGraph2[i].set_pos(gx, gy);
-      }
-
-   al_set_target_backbuffer(mDisplay.display);
-
-}
 
 
 
@@ -893,7 +839,7 @@ void mwLoop::initialize_graphs(void)
 {
    if (!mMain.headless_server)
    {
-      if (mMain.server_remote_control)
+      if (mNetgame.server_remote_control)
       {
          int width = remote_graphs_width;
          mQuickGraph2[0].initialize(width, 100,   0,  100, "CPU",      0, 12, 13, 1);

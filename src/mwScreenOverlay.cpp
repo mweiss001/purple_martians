@@ -27,31 +27,23 @@
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
-
+   int c = 15;
    al_draw_filled_rectangle(tx, y, tx+200, y+50, mColor.pc[0]);
-   al_draw_rectangle(       tx, y, tx+200, y+50, mColor.pc[15], 1);
-   al_draw_rectangle(       tx, y, tx+200, y+11, mColor.pc[15], 1);
+   al_draw_rectangle(       tx, y, tx+200, y+50, mColor.pc[c], 1);
+   al_draw_rectangle(       tx, y, tx+200, y+11, mColor.pc[c], 1);
 
    y+=2;
 
-   int c = 15;
+   std::stringstream ss;
 
-   // get player name or blank string
-   char name[32];
-   snprintf(name, 9, "%s" , mPlayer.syn[p].name);
-   if (!strcmp(name, "default")) sprintf(name, "%s", "");
+   // get player name
+   ss << mPlayer.getName(p);
 
-   // get hostname or blank string
-   char host[128] = { 0 };
-   sprintf(host, "%s", "");
-   if ((mNetgame.ima_server) || (mNetgame.ima_client)) sprintf(host, " [%s]", mPlayer.loc[p].hostname);
-
-   // always start with 'Player:x' then name then host, (if they exist)
-   char msg[256] = { 0 };
-   sprintf(msg, "Player:%d %s %s ", p, name, host);
+   // add hostname if in netgame
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) ss << " [" << std::string(mPlayer.loc[p].hostname) << "]";
 
    // display it
-   al_draw_text(mFont.pr8, mColor.pc[c], tx+2, y, 0, msg);
+   al_draw_text(mFont.pr8, mColor.pc[c], tx+2, y, 0, ss.str().c_str());
 
    if (mPlayer.syn[0].level_done_mode == 5)
    {
@@ -222,13 +214,12 @@ int mwScreen::draw_player_text_overlay()
          int c =  mPlayer.syn[p].color;
          int ty = mPlayer.syn[p].player_text_overlay_type;
 
-         char name[9];
-         mPlayer.get_player_name(p, name);
+         std::string name = mPlayer.getName(p);
 
-         if (ty == 0) sprintf(msg, "%s left the game!", name);
-         if (ty == 1) sprintf(msg, "%s joined the game!", name);
-         if (ty == 2) sprintf(msg, "%s found the exit!", name);
-         if (ty == 3) sprintf(msg, "%s DIED!", name);
+         if (ty == 0) sprintf(msg, "%s left the game!", name.c_str());
+         if (ty == 1) sprintf(msg, "%s joined the game!", name.c_str());
+         if (ty == 2) sprintf(msg, "%s found the exit!", name.c_str());
+         if (ty == 3) sprintf(msg, "%s DIED!", name.c_str());
 
          float stretch = ((float)mDisplay.SCREEN_W / (strlen(msg)*8)) * 0.9;
          float tratio = (float)tm / (float)player_text_overlay_timer_reset_val;
@@ -949,37 +940,6 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
 }
 
 
-
-void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
-{
-   char msg[1024];
-
-   double t1 = al_get_time();
-   if (mDemoMode.play_mode) draw_large_text_overlay(3, 15);
-   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_demo_ov", al_get_time() - t1);
-
-
-   if (mSettings.overlay_grid[8][mLoop.show_debug_overlay]) // misc
-   {
-      int nap = 0; // number of active players
-      for (int ap=0; ap<NUM_PLAYERS; ap++) if (mPlayer.syn[ap].active) nap++;
-
-      al_draw_filled_rectangle(cx, cy, cx+150, cy+32+nap*9, mColor.pc[0]);
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Running Saved Game "); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Time:[%d%%] ", mLoop.frame_num*100/mDemoMode.last_frame); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Moves:[%d%%] ", (mGameMoves.current_pos * 100) / mGameMoves.entry_pos); cy+=9;
-      cy+=4;
-      for (int ap=0; ap<NUM_PLAYERS; ap++)
-         if ((mPlayer.syn[ap].active) && (!mPlayer.is_player_hidden(ap)))
-          {
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[ap].color], cx+1, cy+1, 0, mPlayer.get_player_name2(ap, msg) );
-            cy+=9;
-         }
-      cy+=4;
-   }
-}
-
 void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 {
    int p = mPlayer.active_local_player;
@@ -1372,18 +1332,12 @@ void mwScreen::draw_screen_overlay()
    if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
    {
       t1 = al_get_time();
-      draw_demo_debug_overlay(p, cx, cy);
+      //draw_demo_debug_overlay(p, cx, cy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
 
 
+
       draw_demo_controls_overlay();
-
-
-
-
-
-
-
    }
 
 

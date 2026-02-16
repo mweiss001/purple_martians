@@ -182,22 +182,22 @@ void mwBottomMessage::draw_player(int p, int &xpos)
 {
    ALLEGRO_BITMAP *tmp = mBitmap.player_tile[mPlayer.syn[p].color][1];
 
-   char msg[256];
-   sprintf(msg, "P%d", p);
-//   if (disp_player_text_long) sprintf(msg, "Player %d", p);
-   if (disp_player_text_long) mPlayer.get_player_name(p, msg);
+   std::stringstream ss;
+   if (disp_player_text_long) ss << mPlayer.getName(p);
+   else  ss << "P" << std::to_string(p);
+
    int dp = disp_player;
    if (dp == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
-   if (dp == 1) draw_text(xpos, mPlayer.syn[p].color, msg); // text only
+   if (dp == 1) draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str()); // text only
    if (dp == 2) // tile + text
    {
       draw_bmp(tmp, xpos, 0, 0);
       xpos += 6;
-      draw_text(xpos, mPlayer.syn[p].color, msg);
+      draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str());
    }
    if (dp == 3) // text + tile
    {
-      draw_text(xpos, mPlayer.syn[p].color, msg);
+      draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str());
       xpos += 4;
       draw_bmp(tmp, xpos, 0, 0);
    }

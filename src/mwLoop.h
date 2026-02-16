@@ -63,7 +63,6 @@ class mwLoop
 
    int remote_graphs_width = 600;
    int remote_graphs_height = 400;
-
    int remote_frames_since_last_rctl_sent = 0;
 
    void add_local_cpu_data(double cpu);

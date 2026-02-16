@@ -1311,81 +1311,13 @@ int mwPlayer::is_player_color_used(int color)
 
 
 // do you not suffer needlessly?
+
 std::string mwPlayer::getName(int p)
 {
    std::string tmp(mPlayer.syn[p].name);
    if (tmp == "default") tmp = "Player " + std::to_string(p);
    return tmp;
 }
-
-
-
-
-
-// if name is blank or 'default' use original 'Player x'
-// field width is minimum width, will never be shorter than actual name
-// leave at default of 0 to get width exactly the same size as name
-// 8 is the maximum width, will never exceed that
-// negative values will left align in the field
-char* mwPlayer::get_player_name(int p, char * name, int width_field)
-{
-   // what a bunch of bullhit to go through to avoid compiler waanings
-/*
-src/mwPlayer.cpp:1306:23: warning: �%*s� directive output may be truncated writing up to 2147483648 bytes into a region of size 9 [-Wformat-truncation=]
- 1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
-      |                       ^~~                 ~~~
-src/mwPlayer.cpp:1306:22: note: assuming directive output of 31 bytes
- 1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
-      |                      ^~~~~
-src/mwPlayer.cpp:1306:12: note: �snprintf� output between 1 and 2147483649 bytes into a destinatio
-*/
-
-
-
-   char tmp[32];
-   snprintf(tmp, 9, "%s" , mPlayer.syn[p].name);
-   if ( (!strcmp(tmp, "default")) || (!strcmp(tmp, ""))) sprintf(tmp, "Player %d", p);
-
-   char tmp4[9];
-   strncpy(tmp4, tmp, 8); // copy at most 8 char
-   tmp4[8] = 0; // ensure 9th char is null
-
-   if (width_field > 8) width_field = 8;
-   char tmp6[32];
-   snprintf(tmp6, 9, "%*s" , width_field, tmp4);
-
-   char tmp8[9];
-//   strncpy(tmp8, tmp6, 8); // copy at most 8 char
-//   tmp8[8] = 0; // ensure 9th char is null
-
-
-   snprintf(tmp8, 9, "%s", tmp6); // copy at most 8 char and null
-
-
-   strncpy(name, tmp8, 8); // copy at most 8 char
-   name[8] = 0; // ensure 9th char is null
-
-
-
-
-
-
-
-   return name;
-}
-
-// this one is used for demo debug overlay
-// always starts with Px[] width in brackets is always 8 and left justified
-// if p = active local player, add <- active
-char* mwPlayer::get_player_name2(int p, char * name)
-{
-   char msg[9];
-   mPlayer.get_player_name(p, msg, -8);
-   sprintf(name, "P%d[%s]", p, msg);
-   if (p == active_local_player) strcat(name, " <- active");
-   return name;
-}
-
 
 
 int mwPlayer::get_new_client_color(int color)
@@ -1408,11 +1340,6 @@ int mwPlayer::get_new_client_color(int color)
 
    return color;
 }
-
-
-
-
-
 
 void mwPlayer::init_player(int p, int t)
 {

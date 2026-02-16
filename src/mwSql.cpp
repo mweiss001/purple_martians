@@ -11,30 +11,51 @@ int mwSql::init()
 {
    open_database();
    create_tables();
+   create_prepared_statements();
+
    return 1;
+}
+
+
+void mwSql::create_prepared_statements()
+{
+   const char* sql1 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+   int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &client_status_insert_stmt, nullptr);
+   if (rc1 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
+
+   const char* sql2 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?) RETURNING id";
+   int rc2 = sqlite3_prepare_v2(db_status, sql2, -1, &server_status_insert_stmt, nullptr);
+   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 }
 
 
 int mwSql::open_database()
 {
    char filename[256];
+
    sprintf(filename, "%s", "data/sessions.db");
    if (sqlite3_open(filename, &db_sessions))
    {
       printf("Can't open database %s\n", filename);
-      sqlite3_close(db_sessions);
+      //sqlite3_close(db_sessions);
       return (0);
    }
-
 
    sprintf(filename, "%s", "data/game_events.db");
    if (sqlite3_open(filename, &db_game_events))
    {
       printf("Can't open database %s\n", filename);
-      sqlite3_close(db_game_events);
+      //sqlite3_close(db_game_events);
       return (0);
    }
 
+   sprintf(filename, "%s", "data/status.db");
+   if (sqlite3_open(filename, &db_status))
+   {
+      printf("Can't open database %s\n", filename);
+      //sqlite3_close(db_status);
+      return (0);
+   }
 
 
    // sprintf(filename, "%s", "data/logs.db");
@@ -131,6 +152,37 @@ void mwSql::create_tables()
                moves         INT, \
                enemies       INT ); ");
    execute_sql(sql, db_sessions);
+
+
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS server_status( \
+               id            INTEGER PRIMARY KEY, \
+               frame         INT, \
+               level         INT, \
+               moves         INT, \
+               enemies       INT, \
+               uptime        INT ); ");
+   execute_sql(sql, db_status);
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
+               id            INTEGER PRIMARY KEY, \
+               ss_id         INT, \
+               cpu           REAL, \
+               sync          REAL, \
+               ping          REAl, \
+               lcor          REAl, \
+               rcor          REAl, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+   execute_sql(sql, db_status);
+
+
+
+
+
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
@@ -265,7 +317,7 @@ int mwSql::execute_sql_and_return_2d_vector_int(const char *sql, sqlite3 *db, st
 
    if (rc != SQLITE_OK)
    {
-      printf("Failed to prepare statement22: %s\n %s\n", sql, sqlite3_errmsg(db));
+      printf("Failed to prepare statement: %s\n %s\n", sql, sqlite3_errmsg(db));
       sqlite3_finalize(stmt);
       return 2;
    }

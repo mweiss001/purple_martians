@@ -109,7 +109,7 @@ add_executable(pm
         src/mwNetgameClient.cpp
         src/mwNetgameServer.cpp
         src/mwNetgameServerFileTransfer.cpp
-        src/mwNetgameSessionLog.cpp
+        src/mwNetgameServerSession.cpp
         src/mwPacketBuffer.cpp
         src/mwPacketBuffer.h
         src/mwPDE.cpp

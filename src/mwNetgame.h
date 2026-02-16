@@ -47,9 +47,9 @@ class mwNetgame
 
    struct file_to_send files_to_send[20];
 
-   int NetworkDriver;
-   int NetworkInit();
-   void NetworkExit();
+   int networkDriver;
+   int networkInit();
+   void networkExit();
 
    void clear_channel(int c);
 
@@ -74,10 +74,10 @@ class mwNetgame
    int server_dirty_frame = 0;
 
    int server_lev_seq_num = 0;
-
-
    int server_num_clients = 0;
 
+   int server_remote_control = 0;
+   int server_remote_control_last_rctl_rx_frame = 0;
 
 
    // local client's buffer for building compressed dif from packets
@@ -105,19 +105,19 @@ class mwNetgame
 
    NET_CHANNEL *Channel = NULL;                   // main channel
 
-   void ChannelFlush();
+   void channelFlush();
 
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   int ClientInitNetwork();
-   int ClientJoin();
-   int RemoteJoin();
+   int clientInitNetwork();
+   int clientJoin();
+   int remoteJoin();
 
-   void ClientExitNetwork();
-   int  ClientCheckResponse();
-   void ClientSend(void *data, int len);
+   void clientExitNetwork();
+   int  clientCheckResponse();
+   void clientSend(void *data, int len);
 
    void client_timer_adjust();
    void client_apply_dif();
@@ -148,9 +148,9 @@ class mwNetgame
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   int  ServerInitNetwork();
-   void ServerExitNetwork();
-   void ServerSendTo(void *data, int len, int p);
+   int  serverInitNetwork();
+   void serverExitNetwork();
+   void serverSendTo(void *data, int len, int p);
 
    int ServerGetNewDynamicPort();
 
@@ -171,9 +171,9 @@ class mwNetgame
 
    void server_insert_status_row();
 
+   void server_insert_status();
+
    void server_process_db_control();
-
-
 
    void server_send_snfo_packet();
    void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);

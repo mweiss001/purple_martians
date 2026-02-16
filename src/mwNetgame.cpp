@@ -17,20 +17,19 @@ mwNetgame mNetgame;
 
 mwNetgame::mwNetgame()
 {
-   NetworkDriver = -1;
+   networkDriver = -1;
    ima_server = 0;
    ima_client = 0;
    sprintf(server_address, "purplemartians.org");
    server_port = 24785;
    zlib_cmp = 7;
    for (int i=0; i<20; i++) files_to_send[i].active = 0;
-//   for (int i=0; i<10; i++) session_clear_entry(i);
    for (int i=0; i<8; i++) clear_channel(i);
    Channel = NULL;
 }
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
-int mwNetgame::NetworkInit(void)
+int mwNetgame::networkInit()
 {
    if (net_init()) // initialize libnet
    {
@@ -41,12 +40,12 @@ int mwNetgame::NetworkInit(void)
    // detect drivers in the internet class
    NET_DRIVERLIST drivers = net_detectdrivers(net_classes[NET_CLASS_INET].drivers);
    NET_DRIVERNAME *drivernames = net_getdrivernames(drivers);
-   NetworkDriver = drivernames[0].num; // use first detected driver
+   networkDriver = drivernames[0].num; // use first detected driver
    free(drivernames);
 
-   if (NetworkDriver >= 0)
+   if (networkDriver >= 0)
    {
-      if (!net_initdriver(NetworkDriver))
+      if (!net_initdriver(networkDriver))
       {
          mLog.log_error("Couldn't initialize network driver\n");
          return -1;
@@ -60,7 +59,7 @@ int mwNetgame::NetworkInit(void)
    return 0;
 }
 
-void mwNetgame::NetworkExit(void)
+void mwNetgame::networkExit()
 {
    if (Channel) net_closechannel(Channel);
    Channel = NULL;
@@ -68,7 +67,7 @@ void mwNetgame::NetworkExit(void)
 }
 
 // read and discard all waiting packets
-void mwNetgame::ChannelFlush(void)
+void mwNetgame::channelFlush()
 {
    char data[PACKET_BUFFER_SIZE] = {0};
    while (net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL));
@@ -79,14 +78,6 @@ void mwNetgame::clear_channel(int c)
    mwChannels[c].channel_active = 0;
    strcpy(mwChannels[c].channel_address, "");
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -135,7 +126,7 @@ void mwNetgame::apply_state_dif(char *a, char *c, int size)
    for (int i=0; i<size; i++) a[i] -= c[i];
 }
 
-void mwNetgame::reset_states(void)
+void mwNetgame::reset_states()
 {
    // reset dif buffer and frame_nums
    memset(client_state_dif, 0, STATE_SIZE);
@@ -201,5 +192,4 @@ void mwNetgame::process_bandwidth_counters(int p)
       mPlayer.loc[p].rx_packets_tally = 0;
    }
 }
-
 
