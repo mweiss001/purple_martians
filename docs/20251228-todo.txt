@@ -4,28 +4,6 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-
-make project compile clean!!! done
-now do it again for gcc on linux
-
-
-
-player name in ending stats shows Player 1 Player 1
-
-
-
-
-
-
-
-
-
-
-on server, once rc quits it never stops sending rc packets
-
-
-
-
 I had 3 clients sessions running for almost 10 days.
 One day they all showed 'lost server connection'
 in sessions they all still show as open
@@ -34,51 +12,21 @@ in sessions they all still show as open
 2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
 
 
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
-
 ------------------------------------------------------------------------------
 
-I want a timer independant of the game frame timer
-or maybe another method...
-my input is tied to the frame rate, I find it hard to change things with a slow frame rate
-hmmm...just a thought...think about it...
-
-
-
-
-
-
-
-
-
-
-
-
-
+------------------------------------------------------------------------------
+major changes to logging
 ------------------------------------------------------------------------------
 
 
 
 
-gm controls to do:
-
-
-when paused at the end of gm, show press any
-I might be able to not need the contimue button
-
-then only difference would be that the timeout timer does not run
-
-could I simplify that whole mess?
-
-show flash_color 
 
 
 
@@ -100,6 +48,133 @@ show flash_color
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+make some kind of database cleanup function for sessions
+to close all open ones that might have been orphaned
+
+add muid to sessions
+the main reason is:
+if I want to persist sessions and gms over multiple years and servers
+I cant have session id starting a 1 everytime
+
+what about players
+more like installations
+when the game is first run after being installed, generate a unique id for that player and system
+and also the server
+I am unsure of the benefits of this
+
+what if this gmInfo I am generating is saved in a database?
+that was where i was going with the stats thing anyway, was I not?
+
+
+
+------------------------------------------------------------------------------
 
 
 ------------------------------------------------------------------------------
@@ -108,25 +183,8 @@ sessions to do:
 ------------------------------------------------------------------------------
 
 
-
-I am thinking that I want sessions to also have unique id
-
-and players too...
-when the game is first run after being installed, generate a unique id for that player and system
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------
@@ -163,19 +221,10 @@ from this pop-up menu allow a very limited set of things...
 - change viewport
 
 
-
-
-
-
-
  
 
 
 ------------------------------------------------------------------------------
-transport controls while playing back demo
-very similar to demo record
-a way to pause, rewind, speed-up, change current player, etc...
-
 
 
 
@@ -262,6 +311,20 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+on server, once rc quits it never stops sending rc packets
+
+
+player name in ending stats shows Player 1 Player 1
+
+
+transport controls while playing back demo
+very similar to demo record
+a way to pause, rewind, speed-up, change current player, etc...
+
+
 
 
 text labels for timeline element are not clipped to the edges of the chart area...done
@@ -886,6 +949,14 @@ and where the saved games fit into that as well
 
 
 
+
+
+
+
+I want a timer independant of the game frame timer
+or maybe another method...
+my input is tied to the frame rate, I find it hard to change things with a slow frame rate
+hmmm...just a thought...think about it...
 
 
 

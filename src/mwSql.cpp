@@ -19,12 +19,12 @@ int mwSql::init()
 
 void mwSql::create_prepared_statements()
 {
-   const char* sql1 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-   int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &client_status_insert_stmt, nullptr);
+   const char* sql1 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?, ?) RETURNING id";
+   int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &server_status_insert_stmt, nullptr);
    if (rc1 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 
-   const char* sql2 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?) RETURNING id";
-   int rc2 = sqlite3_prepare_v2(db_status, sql2, -1, &server_status_insert_stmt, nullptr);
+   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+   int rc2 = sqlite3_prepare_v2(db_status, sql2, -1, &client_status_insert_stmt, nullptr);
    if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 }
 
@@ -158,6 +158,7 @@ void mwSql::create_tables()
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS server_status( \
                id            INTEGER PRIMARY KEY, \
+               timestamp     TEXT, \
                frame         INT, \
                level         INT, \
                moves         INT, \
@@ -169,6 +170,9 @@ void mwSql::create_tables()
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
                id            INTEGER PRIMARY KEY, \
                ss_id         INT, \
+               pl_num        INT, \
+               pl_name       TEXT, \
+               pl_host       TEXT, \
                cpu           REAL, \
                sync          REAL, \
                ping          REAl, \

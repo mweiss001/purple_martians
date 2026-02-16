@@ -319,12 +319,15 @@ void mwNetgame::server_insert_status()
    int id = mSql.execute_sql_and_return_one_int(sql, mSql.db_status);
 */
 
-   sqlite3_reset(mSql.server_status_insert_stmt);
-   sqlite3_bind_int(mSql.server_status_insert_stmt, 1, mLoop.frame_num);
-   sqlite3_bind_int(mSql.server_status_insert_stmt, 2, mLevel.play_level);
-   sqlite3_bind_int(mSql.server_status_insert_stmt, 3, mGameMoves.entry_pos);
-   sqlite3_bind_int(mSql.server_status_insert_stmt, 4, mEnemy.num_enemy);
-   sqlite3_bind_int(mSql.server_status_insert_stmt, 5, al_get_time());
+   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+
+   sqlite3_reset    (mSql.server_status_insert_stmt);
+   sqlite3_bind_text(mSql.server_status_insert_stmt, 1, ts.c_str(),     -1, SQLITE_TRANSIENT);
+   sqlite3_bind_int (mSql.server_status_insert_stmt, 2, mLoop.frame_num);
+   sqlite3_bind_int (mSql.server_status_insert_stmt, 3, mLevel.play_level);
+   sqlite3_bind_int (mSql.server_status_insert_stmt, 4, mGameMoves.entry_pos);
+   sqlite3_bind_int (mSql.server_status_insert_stmt, 5, mEnemy.num_enemy);
+   sqlite3_bind_int (mSql.server_status_insert_stmt, 6, al_get_time());
    int rc = sqlite3_step(mSql.server_status_insert_stmt);
 //   if (rc != SQLITE_DONE) printf("sql error:  %s\n", sqlite3_errmsg(mSql.db_status));
 
@@ -366,17 +369,23 @@ void mwNetgame::server_insert_status()
          mSql.execute_sql(sql, mSql.db_status);
 */
 
-
          sqlite3_reset(mSql.client_status_insert_stmt);
          sqlite3_bind_int   (mSql.client_status_insert_stmt, 1, id);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 2, mPlayer.loc[p].cpu);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 3, mPlayer.loc[p].pdsync);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 4, mPlayer.loc[p].ping);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 5, mPlayer.loc[p].client_loc_plr_cor);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 6, mPlayer.loc[p].client_rmt_plr_cor);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 7, mPlayer.loc[p].rewind);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 8, mPlayer.loc[p].cmp_dif_size);
-         sqlite3_bind_double(mSql.client_status_insert_stmt, 9, mPlayer.loc[p].tx_bytes_per_tally);
+         sqlite3_bind_int   (mSql.client_status_insert_stmt, 2, p);
+         sqlite3_bind_text  (mSql.client_status_insert_stmt, 3, mPlayer.syn[p].name,     -1, SQLITE_TRANSIENT);
+         sqlite3_bind_text  (mSql.client_status_insert_stmt, 4, mPlayer.loc[p].hostname, -1, SQLITE_TRANSIENT);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 5, mPlayer.loc[p].cpu);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 6, mPlayer.loc[p].pdsync);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 7, mPlayer.loc[p].ping);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 8, mPlayer.loc[p].client_loc_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 9, mPlayer.loc[p].client_rmt_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 10, mPlayer.loc[p].rewind);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 11, mPlayer.loc[p].cmp_dif_size);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 12, mPlayer.loc[p].tx_bytes_per_tally);
+
+
+
+
 
          int rc = sqlite3_step(mSql.client_status_insert_stmt);
          if (rc != SQLITE_DONE) printf("sql error:  %s\n", sqlite3_errmsg(mSql.db_status));

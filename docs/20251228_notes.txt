@@ -16542,6 +16542,520 @@ now make title draw its own text, cause why not??
 2026-02-15 15:01:19
 
 now put timeline back and fix heights
+2026-02-15 15:14:00
+done!!!
+
+now what?
+
+can I put the next random button in the titlebar?
+I don't think I want to. I need that space for dragging
+make a line with both...done
+
+
+now???
+
+implement the +i- stuff
+
+
+what things do I have to show?
+
+
+
+filename
+pwd nrg line
+transport
+speed
+timeline_tracks
+
+what is minimal?
+transport
+nrd
+timeline
+
+then add
+nrd
+filename
+
+
+anyways, what I need to do is make each one optional
+with a flag variable at the start of the function
+then I can calculate height
+
+done..
+2026-02-15 16:43:14
+
+are there other things to show?
+
+I don't want to have a reset window position, button
+it just looks too clunky
+I can manually determine if I am off the screen
+also adjust when screen double changes just like level editor
+done both...sweet
+
+save new vars..done
+
+put time and moves percentages somewhere..done
+cleaned it up some...800 lines in mwScreenOverlayDemoControls
+
+
+could a put a next button in the tray?
+
+I looked back in my notes.. it has been 8 days to get this gm controls things to where I like it..
+
+
+
+
+2026-02-15 21:48:35
+
+more fixing cstrings
+
+
+
+   std:std::stringstream ss;
+   if (disp_player_text_long) ss << mPlayer.getName(p);
+   else  ss << "P" << std::to_string(p);
+
+/*
+   char msg[256];
+   sprintf(msg, "P%d", p);
+//   if (disp_player_text_long) sprintf(msg, "Player %d", p);
+
+   if (disp_player_text_long) mPlayer.get_player_name(p, msg);
+
+   */
+
+
+
+on server, once rc quits it never stops sending rc packets
+
+
+void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
+{
+   // set up channel
+   mwChannels[0].channel_active = 1;
+   strcpy(mwChannels[0].channel_address, address);
+
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server received remote control request");
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server replied with sjrc packet");
+
+   mMain.server_remote_control = 1;
+
+
+then:
+ 
+void mwNetgame::server_control()
+{
+   mPacketBuffer.proc_rx_buffer();        // process all packets in buffer
+   server_rewind();                       // to replay and apply late client input
+   server_proc_player_drop();             // check to see if we need to drop inactive clients
+   server_proc_limits();                  // check to see if we need to reload level
+   server_proc_files_to_send();
+
+   session_check_active();
+
+
+   if (mMain.server_remote_control) server_send_snfo_packet();
+
+is there a way to tell if the remote is still alive?
+
+what packets are exchanged?
+
+server blindly sends snfo packets every frame
+remote sends rctl when needed
+
+I could make client send one every 10s as heartbeat watchdog stay alive...
+
+
+I already have this in mLoop.h:
+
+   int remote_frames_since_last_rctl_sent = 0;
+
+   // check how long since last rtcl packet has been sent, and send keep alive packet if too long
+   if (++remote_frames_since_last_rctl_sent > 100) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
+  
+
+void mwNetgame::client_send_rctl_packet(int type, double val)
+{
+   mLoop.remote_frames_since_last_rctl_sent = 0;
+
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "rctl");
+   mPacketBuffer.PacketPutInt32(data, pos, type);
+   mPacketBuffer.PacketPutDouble(data, pos, val);
+   clientSend(data, pos);
+}
+
+all looks good on client...
+what about server?
+
+I should have something like 
+server_last_rctl_rx_frame
+
+now:
+   int server_remote_control = 0;
+   int server_remote_control_last_rctl_rx_frame = 0;
+
+
+2026-02-16 07:12:36
+
+
+I want to use database
+
+I want to write the same stuff to database that I do for snfo
+then display it in a webpage
+that is pretty big
+what does that include?
+the entire loc and syn player array for all 8 players, approx 5500 bytes
+I obviously dont need all that, what do I need?
+
+
+            // dsync, ping graphs
+            for (int i=1; i<8; i++) // cycle all clients
+               if (mPlayer.syn[i].active)
+               {
+                  mQuickGraph2[1].series[i].active = 1;
+                  mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].pdsync*1000, 0);
+
+                  mQuickGraph2[2].series[i].active = 1;
+                  mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000, 0);
+
+                  mQuickGraph2[3].series[i].active = 1;
+                  mQuickGraph2[3].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size, 0);
+
+                  mQuickGraph2[6].series[i].active = 1;
+                  mQuickGraph2[6].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor, 0);
+
+                  mQuickGraph2[7].series[i].active = 1;
+                  mQuickGraph2[7].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor, 0);
+               }
+
+            for (int i=0; i<8; i++) // cycle all players
+               if (mPlayer.syn[i].active)
+               {
+                  mQuickGraph2[0].series[i].active = 1;
+                  mQuickGraph2[0].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu, 0);
+
+                  mQuickGraph2[4].series[i].active = 1;
+                  mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000, 0);
+
+                  mQuickGraph2[5].series[i].active = 1;
+                  mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind, 0);
+               }
+
+
+for each player:
+cpu
+sync
+ping
+difs
+tkbs
+rwnd
+lcor
+rcor
+
+overall
+frame
+moves
+level
+enemies
+uptime
+version
+zlib cmp
+
+
+how to put this in a database...
+
+
+table server_status
+level
+frame
+moves
+enemies
+uptime
+version
+
+table client_status
+player_num
+frame
+cpu
+sync
+ping
+difs
+tkbs
+rwnd
+lcor
+rcor
+
+how will I link these?
+
+they will have a common time
+1 row in server and up to 8 in client all at one point in time
+
+how to specify that?
+
+frame num resets every level
+
+I could just have a unique id in the database for each level
+or just my own auto incrementing frame
+
+insert into server and get unique row id
+use that to link all client data for that frame
+
+table server_status
+id 
+frame
+level
+moves
+enemies
+uptime
+version
+
+table client_status
+id
+server_table_id
+cpu
+sync
+ping
+difs
+tkbs
+rwnd
+lcor
+rcor
+
+id of server_status will only ever increase
+once per frame with every insert
+
+do I have enough to go on to create and populate these tables? yes
+
+2026-02-16 08:05:36
+
+make new database file status
+
+what variable types?
+
+all in loc
+
+double pdsync
+double ping 
+
+float cpu
+
+int cmp_dif_size
+int rewind
+
+float client_loc_plr_cor
+
+   float client_loc_plr_cor;
+   float client_rmt_plr_cor;
+   float client_loc_plr_cor_max;
+   float client_rmt_plr_cor_max;
+   float client_loc_plr_cor_avg;
+   float client_rmt_plr_cor_avg;
+
+int tx_bytes_per_tally
+
+
+these are the tables:
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS server_status( \
+               id            INTEGER PRIMARY KEY, \
+               frame         INT, \
+               level         INT, \
+               moves         INT, \
+               enemies       INT, \
+               uptime        INT, \
+               version       TEXT ); ");
+   execute_sql(sql, db_status);
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
+               id            INTEGER PRIMARY KEY, \
+               ss_id         INT, \
+               cpu           REAL, \
+               sync          REAL, \
+               ping          REAl, \
+               lcor          REAl, \
+               rcor          REAl, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+   execute_sql(sql, db_status);
+
+
+now where to insert?
+
+
+once per frame in server control
+
+I already have this:
+   mLog.add_log_status_db_rows();
+this adds csv stuff to files....
+not used....
+
+where does current status get inserted?
+in loop 1s timer
+
+
+2026-02-16 09:22:25
+
+I have the inserts working...now what?
+see how long it takes..
+wrap in transaction
+
+OK now I want to use it....
+
+how?
+
+do I go through all the echarts stuff?
+
+where do I even start?
+
+get the lastest version on the server and start filling the database...
+I want to be able to make this optional
+
+
+
+make a new page 
+html with an echart
+fill it with a php call to database
+
+
+I have the new stuff running on the server
+takes 2-3 ms to insert
+
+
+
+new page s2.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

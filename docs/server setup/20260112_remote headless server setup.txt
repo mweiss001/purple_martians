@@ -247,6 +247,18 @@ DELETE FROM gm_sessions;
 DELETE FROM sessions;
 
 
+
+
+
+--------------------------------------------------------------------------------------------
+change permissions of web files on server so they can be editted with samba in windows
+--------------------------------------------------------------------------------------------
+sudo chmod 777 -R /var/www/html
+
+
+
+
+
 --------------------------------------------------------------------------------------------
 make sure that changes you make on the server in /var/www/html get back to the dev machine
 --------------------------------------------------------------------------------------------
