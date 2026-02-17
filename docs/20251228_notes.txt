@@ -16932,9 +16932,1092 @@ fill it with a php call to database
 I have the new stuff running on the server
 takes 2-3 ms to insert
 
-
-
 new page s2.html
+
+new js file s2.js
+
+simple chart working
+
+now get some data from db with php...
+
+cpu chart for p0
+
+x axis time
+y axis p0 cpu
+
+
+SELECT ss_id, cpu FROM client_status WHERE p 
+
+
+OK stop right there...
+
+I am not even capturing player num?
+fix this and come back
+
+add to client
+player_num 
+player_name
+hostname
+
+add timestamp to server
+
+done...
+
+now where was I?
+
+how will I get data from db with php?
+
+SELECT ss_id, cpu FROM client_status WHERE pl_num=0 LIMIT 100;
+
+
+eventually I want to get everything, but just do this for now...
+
+make s2.php
+
+
+SELECT timestamp, id FROM server_status
+
+
+55|13.4851999282837
+56|13.923999786377
+57|13.3308000564575
+58|14.382399559021
+59|13.7147998809814
+60|14.7007999420166
+61|14.1328001022339
+62|13.1899995803833
+63|15.584400177002
+64|14.0228004455566
+65|13.8535995483398
+66|13.4088001251221
+67|14.2743997573853
+68|14.9555997848511
+69|14.0204000473022
+70|14.3607997894287
+71|14.4272003173828
+72|14.2027997970581
+73|13.9527997970581
+74|14.8732004165649
+75|15.2412004470825
+76|14.0087995529175
+77|14.6051998138428
+78|13.4568004608154
+79|14.7284002304077
+80|13.914400100708
+81|14.4924001693726
+82|14.2631998062134
+83|16.3672008514404
+84|14.3212003707886
+85|12.9568004608154
+86|12.7620000839233
+87|12.5696001052856
+88|12.6996002197266
+89|12.6803998947144
+90|14.9415998458862
+91|13.6932001113892
+92|11.7827997207642
+93|14.076000213623
+94|13.7516002655029
+95|13.5271997451782
+96|13.8020000457764
+97|13.2343997955322
+98|12.7735996246338
+99|12.8479995727539
+100|12.2875995635986
+sqlite>
+
+
+
+for one time value, get:
+
+6 values from server_status
+
+up to 8 series from client_status, each with 12 values
+
+
+just do one chart for now
+
+
+var data = [
+  {
+      "name": "Valve 1",
+      "value": [
+          1655647200000,
+          1657980000000,
+          0
+      ]
+  },
+  {
+      "name": "Valve 3",
+      "value": [
+          1657980000000,
+          1659448800000,
+          2
+      ]
+  },
+  {
+      "name": "Valve 3",
+      "value": [
+          1675980000000,
+          1680448800000,
+          2
+      ]
+  },
+
+
+
+
+
+
+I want to figure out how to get the data in a format that echarts can use
+
+
+I think each player will be a series, they are optional from 1 to 8
+
+each data point will have a time x and a value y
+
+series player 0
+cpu  88, 0.2
+sync 88, .4
+ping 88, 3.2
+
+
+series player 1
+cpu  88, 0.2
+sync 88, .4
+ping 88, 3.2
+
+
+all this data will not be in a single chart
+
+cpu chart with 1-8 players
+
+sync chart with 1-8 players
+
+
+I basically want 5 -12 charts
+
+what will the data look like
+
+what I need, assume 3 records
+
+cpu chart
+
+var dataP0 = [
+
+[10,23.2343997955322],
+[11,22.7735996246338],
+[12,22.8479995727539]
+
+]
+
+
+var dataP1 = [
+
+[10,13.2343997955322],
+[11,12.7735996246338],
+[12,12.8479995727539]
+
+]
+
+is there an easier way to store the data
+
+I would like 
+
+
+x range 0-10
+p0 0-10 values
+p1 0-10 values
+....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I want to figure out how to use dataset to do what I want
+
+can I configure dataset outside of options?
+
+
+this works, convert to dataset
+
+var dataP0 = [
+
+[1,23.2],
+[2,27.7],
+[3,12.8]
+
+
+]
+
+var datap1 = [
+
+[1,5.2],
+[2,31.7],
+[3,18.8]
+
+]
+
+      series:
+      [
+         {
+            name: 'P0',
+            type: 'line',
+            data: dataP0,
+        },
+        {
+            name: 'P1',
+            type: 'line',
+            data: datap1,
+        }
+      ]
+
+
+
+
+
+var dataset = [
+
+['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'],
+['1'   , 23.2,  5.2, 1.0 ],
+['2'   , 27.7,  31.7, 22.2],
+['3'   , 32.8,  11.8, null],
+['4'   , 42.8,  28.8, 11],
+['5'   , 33.8,  18.8, 3]
+
+]
+
+
+2026-02-16 15:04:19
+
+this works well...
+
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+
+   const ele = document.getElementById("s2Container");
+
+   var myChart = echarts.init(ele);
+
+   var option =
+   {
+      title: { text: 'multi-line chart' },
+      tooltip: {},
+
+      dataset: { source: dataset },
+
+      legend: {},
+      xAxis:
+      {
+          type: 'value',
+      },
+      yAxis:
+      {
+         type: 'value',
+      },
+      series:
+      [
+         {
+            type: 'line',
+            name: 'P0',
+            encode: { y: 'P0' }
+         },
+         {
+            type: 'line',
+            name: 'P1',
+            encode: { y: 'P1' }
+         },
+         {
+            type: 'line',
+            name: 'P2',
+            encode: { y: 'P2' }
+         },
+         {
+            type: 'line',
+            name: 'P3',
+            encode: { y: 'P3' }
+         },
+         {
+            type: 'line',
+            name: 'P4',
+            encode: { y: 'P4' }
+         },
+         {
+            type: 'line',
+            name: 'P5',
+            encode: { y: 'P5' }
+         },
+         {
+            type: 'line',
+            name: 'P6',
+            encode: { y: 'P6' }
+         },
+         {
+            type: 'line',
+            name: 'P7',
+            encode: { y: 'P7' }
+         },
+      ]
+  };
+
+  myChart.setOption(option);
+
+});
+
+
+
+2026-02-16 15:04:33
+now can I get this from the database
+
+what should I ask for?
+
+an array like the one I want
+
+['1'   , 23.2,  5.2, 1.0 ],
+['2'   , 27.7,  31.7, 22.2],
+['3'   , 32.8,  11.8, null],
+['4'   , 42.8,  28.8, 11],
+['5'   , 33.8,  18.8, 3]
+
+
+
+
+2026-02-16 15:47:19
+
+next iteration...only add series that exist in dataset
+
+var dataset = [
+['time', 'P0', 'P7', 'P2' ],
+[1     , 23,  5,  10 ],
+[2     , 27,  31, 22],
+[3     , 32,  11, null],
+[4     , 42,  28, 11],
+[5     , 33,  18, 3]
+]
+
+const series = [];
+// only add series that exist in dataset
+for (var i=0; i<8; i++)
+{
+   var tt = "P" + i;
+   if (dataset[0].includes(tt))
+      series.push({ type: 'line', name: `${tt}`, encode: { y: `${tt}` }});
+}   
+
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   var myChart = echarts.init(document.getElementById("s2Container"));
+   var option =
+   {
+      title: { text: 'multi-line chart' },
+      tooltip: {},
+      dataset: { source: dataset },
+      legend: {},
+      xAxis: { type: 'value' },
+      yAxis: { type: 'value' },
+      series: series
+  };
+  myChart.setOption(option);
+});
+
+
+
+
+2026-02-16 15:48:49
+
+now back to what query will produce this
+
+var dataset = [
+['time', 'P0', 'P7', 'P2' ],
+[1     , 23,  5,  10 ],
+[2     , 27,  31, 22],
+[3     , 32,  11, null],
+[4     , 42,  28, 11],
+[5     , 33,  18, 3]
+]
+
+It will be muliple rows in the database
+one for each player
+
+
+should I just return a 2d array for each time?
+cause that's what I have
+
+i will be a 3d array if I do multiple times
+
+
+one time 2d array
+
+this is how it is in the database:
+p0 v0 v1...v12
+p1 v0 v2..v12
+...
+
+12 wide and up to 8 deep
+[P0] [d0, d1, d2, d3...]
+[P1] [d0, d1, d2, d3...]
+...
+
+
+then I could wrap that in timeval
+
+[t0]
+   [P0] [d0, d1, d2, d3...]
+   [P1] [d0, d1, d2, d3...]
+   ...
+[t1]
+   [P0] [d0, d1, d2, d3...]
+   [P1] [d0, d1, d2, d3...]
+   ...
+
+the outmost array will always be time
+
+the only choice I have is the order of the 2 inner arrays
+
+val is fixed, while player can vary from 1 to 8
+
+time val player
+time player val
+
+
+the thing is, echarts expects 2d array
+and the first one will need to be time, the outer
+
+if i make my array to have val as the outer, then I can take inner arrays and pass direct to dataset
+
+
+    seriesLayoutBy ('column' vs 'row'): Defines how the 2D array is interpreted.
+        'column' (Default): Each column becomes a dimension; rows are data items.
+        'row': Each row becomes a dimension; columns are data items.
+    sourceHeader: Explicitly set dataset.sourceHeader: true to indicate th
+
+I think I will get chunks of data in my big 3d format then massage them into place in js
+
+
+so again how will I do that?
+
+
+get php to deliver last 10 records for now..
+
+later that can be fine tuned, but for now I just want to make sure I know how to manipulate the data
+
+make a php function that gets the last 3 rows
+sticks them in a js array and delivers them
+
+can I do it in a single query?
+maybe
+
+step 1 - find the most current id in server_status
+SELECT MAX(id) from server_status;
+(i could also do the same for client_status MAX(ss_id)
+
+step 2 - use that to SELECT all with the same ss_id and fill table
+
+SELECT * FROM client_status WHERE ss_id = id
+
+then fill the array with this
+
+
+I got a big array of data in js
+
+[
+  {
+    "id": 416,
+    "ss_id": 416,
+    "pl_num": 0,
+    "pl_name": "michael",
+    "pl_host": "o3000",
+    "cpu": 12.936532020568848,
+    "sync": 0,
+    "ping": 0,
+    "lcor": 0,
+    "rcor": 0,
+    "rewind": 0,
+    "difs": 0,
+    "tkbs": 0
+  },
+  {
+    "id": 415,
+    "ss_id": 415,
+    "pl_num": 0,
+    "pl_name": "michael",
+    "pl_host": "o3000",
+    "cpu": 12.110564231872559,
+    "sync": 0,
+    "ping": 0,
+    "lcor": 0,
+    "rcor": 0,
+    "rewind": 0,
+    "difs": 0,
+    "tkbs": 0
+  },
+  {
+    "id": 414,
+    "ss_id": 414,
+    "pl_num": 0,
+    "pl_name": "michael",
+    "pl_host": "o3000",
+    "cpu": 12.711112022399902,
+    "sync": 0,
+    "ping": 0,
+    "lcor": 0,
+    "rcor": 0,
+    "rewind": 0,
+    "difs": 0,
+    "tkbs": 0
+  },
+  {
+    "id": 413,
+    "ss_id": 413,
+    "pl_num": 0,
+    "pl_name": "michael",
+    "pl_host": "o3000",
+    "cpu": 12.12876033782959,
+    "sync": 0,
+    "ping": 0,
+    "lcor": 0,
+    "rcor": 0,
+    "rewind": 0,
+    "difs": 0,
+    "tkbs": 0
+  }
+]
+
+now I need to format it...
+
+var dataset = [
+['time', 'P0', 'P7', 'P2' ],
+[1     , 23,  5,  10 ],
+[2     , 27,  31, 22],
+[3     , 32,  11, null],
+[4     , 42,  28, 11],
+[5     , 33,  18, 3]
+]
+
+
+
+first I need to iterate it....
+
+you should work with some real data....
+
+make some
+
+p4 2857 3981
+
+try 3500-3503
+5 players
+
+20 records
+
+[
+  {
+    "id": 10253,
+    "ss_id": 3503,
+    "pl_num": 0,
+    "pl_name": "michael",
+    "pl_host": "o3000",
+    "cpu": 37.95035934448242,
+    "sync": 0,
+    "ping": 0,
+    "lcor": 0,
+
+
+2026-02-16 17:50:54
+
+ok that is dome real data
+now iterate it and find the times
+
+I can iterate and find any values
+
+
+var dataset = [
+['time', 'P0', 'P7', 'P2' ],
+[1     , 23,  5,  10 ],
+[2     , 27,  31, 22],
+[3     , 32,  11, null],
+[4     , 42,  28, 11],
+[5     , 33,  18, 3]
+]
+
+
+
+what next
+
+for each
+get t, p, cpu
+add them to a blank data set as you find them
+
+find 100 p 12
+
+I want the t number to be the primary key, no duplicates
+
+
+
+do it a hacky way
+
+get the id's of the dataset
+
+iterate all with same id and build a row
+
+you know....
+
+all the ss_ids are in order because i got them from the database that way...
+
+find the first id and build a row
+when you find a different id, push the row and start over..
+
+
+
+[
+  "['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']",
+  [
+    3503,
+    37.95035934448242,
+    7.105999946594238,
+    17.06338882446289,
+    15.220741271972656,
+    3.195199966430664,
+    null,
+    null,
+    null
+  ],
+  [
+    3502,
+    43.0153923034668,
+    7.234000205993652,
+    17.06338882446289,
+    16.043617248535156,
+    3.7291998863220215,
+    null,
+    null,
+    null
+  ],
+  [
+    3501,
+    37.110836029052734,
+    6.988800048828125,
+    16.686447143554688,
+    16.083036422729492,
+    3.586400032043457,
+    null,
+    null,
+    null
+  ],
+  [
+    3500,
+    38.16978454589844,
+    7.084400177001953,
+    16.422834396362305,
+    15.651888847351074,
+    3.6103999614715576,
+    null,
+    null,
+    null
+  ]
+]
+
+
+[
+  [
+    "time",
+    "P0",
+    "P7",
+    "P2"
+  ],
+  [
+    1,
+    23,
+    5,
+    10
+  ],
+  [
+    2,
+    27,
+    31,
+    22
+  ],
+  [
+    3,
+    32,
+    11,
+    null
+  ],
+  [
+    4,
+    42,
+    28,
+    11
+  ],
+  [
+    5,
+    33,
+    18,
+    3
+  ]
+]
+
+[
+  [
+    "time",
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7"
+  ],
+  [
+    3503,
+    37.95035934448242,
+    7.105999946594238,
+    17.06338882446289,
+    15.220741271972656,
+    3.195199966430664,
+    null,
+    null,
+    null
+  ],
+  [
+    3502,
+    43.0153923034668,
+    7.234000205993652,
+    17.06338882446289,
+    16.043617248535156,
+    3.7291998863220215,
+    null,
+    null,
+    null
+  ],
+  [
+    3501,
+    37.110836029052734,
+    6.988800048828125,
+    16.686447143554688,
+    16.083036422729492,
+    3.586400032043457,
+    null,
+    null,
+    null
+  ],
+  [
+    3500,
+    38.16978454589844,
+    7.084400177001953,
+    16.422834396362305,
+    15.651888847351074,
+    3.6103999614715576,
+    null,
+    null,
+    null
+  ]
+]
+
+
+
+
+
+2026-02-17 05:53:23
+
+I have a pretty good example working in js
+
+set number of charts and create div container for them
+chart and chartData in array
+to make new chart increment numCharts and pick the value
+
+2026-02-17 06:22:23
+
+I now filter series for valid data
+
+now what?
+
+get a much larger set of data, like 100 records
+
+3400-3500
+did 1000 and 3500
+
+3500 take 5s to load and is approx 90s
+
+2026-02-17 06:32:58
+
+I want to try realtime
+
+how??
+
+intially get 40 most recent
+
+then mark last frame we have and get from that to end
+
+
+make button to get more to start with...
+
+
+2026-02-17 06:41:28
+
+make the php script take options
+
+like get 40 most recent
+or get a range
+
+I am still using ss_id here for now
+
+
+2026-02-17 06:52:52
+
+running low on time today, here is what I did:
+php script to get 40 most recent ss_id
+
+refresh the page to update
+
+connected 3 clients and can see live data when I update!!!
+
+needs more but as proof of concept I am very happy!!
+
+I should copy all web back and push....
+
+I am getting errors on the server, trying to insert data, but database is locked
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

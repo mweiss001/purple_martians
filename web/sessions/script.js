@@ -446,11 +446,6 @@ document.addEventListener('DOMContentLoaded', (event) =>
    });
 
 
-
-
-
-
-
 /*
    document.getElementById("testButton1").addEventListener("click", function()
    {
