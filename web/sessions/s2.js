@@ -22,11 +22,44 @@ const playerColors = [
 
 
 var data;
-var chartArray = [];
-var chartDataArray = [];
+const chartArray = [];
+const chartDataArray = [];
 var numCharts = 3;
 
 var curMaxSsid = 0;
+
+var i, j, k;
+
+var updateInterval = 200;
+var chartTimeRange = 200;
+
+
+let intervalId; // Variable to store the interval ID
+
+function startTimer()
+{
+   // Prevent multiple intervals from running simultaneously
+   if (intervalId) return; 
+   intervalId = setInterval(fetchData, updateInterval);
+   //console.log("Timer started/resumed");
+}
+
+function stopTimer()
+{
+   clearInterval(intervalId);
+   intervalId = null; // Clear the ID to indicate the timer is stopped
+   //console.log("Timer stopped");
+}
+
+function changeTimer()
+{
+   stopTimer(); // Stop the timer first
+   startTimer();
+   console.log("Timer changed:", updateInterval);
+}
+
+
+
 
 
 document.addEventListener('DOMContentLoaded', (event) =>
@@ -49,7 +82,57 @@ document.addEventListener('DOMContentLoaded', (event) =>
 
    const chartArea = document.getElementById("chartArea");
 
-   for (var i=0; i<numCharts; i++)
+   const controlsContainer = document.createElement('div');
+   controlsContainer.setAttribute('id', "controlsContainer");
+   chartArea.appendChild(controlsContainer);
+
+   // create slider
+   const updateIntervalSlider = document.createElement('input');
+   updateIntervalSlider.setAttribute('id', "updateIntervalSlider");
+   updateIntervalSlider.setAttribute('type', 'range');
+   updateIntervalSlider.setAttribute('min', '25');
+   updateIntervalSlider.setAttribute('max', '2000');
+   controlsContainer.appendChild(updateIntervalSlider);
+   updateIntervalSlider.addEventListener("input", () =>
+   {
+      updateInterval = updateIntervalSlider.value;
+      changeTimer();
+   });
+
+   // create slider
+   const chartTimeRangeSlider = document.createElement('input');
+   chartTimeRangeSlider.setAttribute('id', "chartTimeRangeSlider");
+   chartTimeRangeSlider.setAttribute('type', 'range');
+   chartTimeRangeSlider.setAttribute('min', '25');
+   chartTimeRangeSlider.setAttribute('max', '2000');
+   controlsContainer.appendChild(chartTimeRangeSlider);
+   chartTimeRangeSlider.addEventListener("input", () =>
+   {
+      chartTimeRange = chartTimeRangeSlider.value;
+   });
+
+   const stopButton = document.createElement('button');
+   stopButton.textContent = 'Stop';
+   stopButton.setAttribute('id', 'stopButton');
+   controlsContainer.appendChild(stopButton);
+   stopButton.addEventListener("click", function()
+   {
+      if (intervalId)
+      {
+         stopTimer();
+         stopButton.textContent = 'Start';
+      }
+      else
+      {
+         startTimer();
+         stopButton.textContent = 'Stop';
+      }
+   });
+
+
+
+
+   for (i=0; i<numCharts; i++)
    {
       var name = "chartContainer" + i;
       const chartContainer = document.createElement('div');
@@ -66,14 +149,14 @@ document.addEventListener('DOMContentLoaded', (event) =>
    chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
 
 
-   for (var i=0; i<numCharts; i++)
+   for (i=0; i<numCharts; i++)
    {
       chartDataArray[i] = [];
       chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
    }
 
-   setInterval(fetchData, 100);
-
+//   setInterval(fetchData, updateInterval);
+   startTimer();
 
    document.getElementById("testButton1").addEventListener("click", function()
    {
@@ -104,56 +187,48 @@ async function fetchData()
          throw new Error(`HTTP error! Status: ${response.status}`);
       }
       data = await response.json(); // Parse the response body as JSON
-
 //   console.log(data);
-
       do_stuff();
 
    } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
 }
 
 
-
 function do_stuff()
 {
-   //console.log(data);
-/*
-   for (var i=0; i<numCharts; i++)
-   {
-      chartDataArray[i] = [];
-      chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
-   }
-*/
 
-   var row = [];
+   const row = [];
 
    var ct = -1; // current t
+
+
+   // player colors array
+   const pc = Array(8).fill(0);
 
    for (const dat of data)
    {
       var t = dat.ss_id;
-      var p = dat.pl_num;
-      var v = [];
+      var p = dat.pl_num; // player num
+      pc[p] = dat.pl_col; // plater color
+      var v = [];         // value array  
 
       v[0] = dat.cpu;
       v[1] = dat.sync; 
-      //v[2] = dat.ping * 1000; 
       v[2] = dat.tkbs; 
 
-
+      // get the current max ssid  
       if (t > curMaxSsid) curMaxSsid = t;
-
 
       if (t !== ct) // new t
       {
-         for (var i=0; i<numCharts; i++)
+         for (i=0; i<numCharts; i++)
          {
             // if not first row, push old row
             if (ct !== -1) chartDataArray[i].push(row[i]);
 
             // clear row and set all to null 
             row[i] = [];
-            for (var j=0; j<9; j++) row[i][j] = null;
+            for (j=0; j<9; j++) row[i][j] = null;
 
             // set t
             row[i][0] = t;
@@ -161,38 +236,54 @@ function do_stuff()
          ct = t; // new current t
       }         
      // set val in column by player num     
-     for (var i=0; i<numCharts; i++) row[i][p+1] = v[i];
+     for (i=0; i<numCharts; i++) row[i][p+1] = v[i];
    }
 
    // push last row
-   for (var i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
-
+   for (i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
 
    // remove elements from start of array if too big
-   var length = 400;
-   for (var i=0; i<numCharts; i++)
+   //var length = 400;
+   for (i=0; i<numCharts; i++)
    {
-      if (chartDataArray[i].length > length) chartDataArray[i].splice(1, chartDataArray[i].length-length);
+      const extra_length = chartDataArray[i].length - chartTimeRange;
+      // start from 1 so we do not remove the column header row
+      if (extra_length > 0) chartDataArray[i].splice(1, extra_length);
    }
 
 
-   for (var i=0; i<numCharts; i++)
+   for (i=0; i<numCharts; i++)
    {
       // search for valid data
-      var vd = [0,0,0,0,0,0,0,0]; 
-      for (var j=1; j<chartDataArray[i].length; j++)
-         for (var k=1; k<9; k++)
+      const vd = Array(8).fill(0);
+
+      for (j=1; j<chartDataArray[i].length; j++)
+         for (k=1; k<9; k++)
             if (chartDataArray[i][j][k] !== null) vd[k-1] = 1;
 
       // only add series and legend if valid data
       const series = [];
       const legend = [];
-      for (var j=0; j<8; j++)
+      for (j=0; j<8; j++)
       {
-         var tt = "P" + j;
+         const tt = "P" + j;
          if (vd[j])
          {
-            series.push({ type: 'line', name: `${tt}`, encode: { y: `${tt}` }});
+            series.push(
+            { 
+               type: 'line',
+               encode: { y: `${tt}` },
+               name: `${tt}`,
+
+               symbolSize: 1,
+
+               lineStyle: { width: 1 },  
+
+
+
+
+               itemStyle: { color: playerColors[pc[j]] },
+            });
             legend.push(tt); 
          }
       }   
@@ -208,22 +299,24 @@ function do_stuff()
 
 /*
 
-    name: 'Series 2',
-      type: 'bar',
-      itemStyle: {
-        color: '#00ff00' // Explicitly set color to green
-      },
-      data: [12, 18, 13, 22]
+series: [{
+    type: 'line',
+    data: [120, 200, 150],
+    lineStyle: {
+        width: 3,      // Sets line thickness to 3px
+        type: 'solid', // Options: 'solid', 'dashed', 'dotted'
+        color: 'blue'  // Sets line color
     }
-  ]
+}]
+
+
+
+
+series: [{
+    type: 'line',
+    data: [120, 200, 150],
+    symbol: 'circle', // Options: 'emptyCircle', 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+    symbolSize: 10,   // Sets all points to 10px
+    // symbolSize: function (value, params) { return value / 10; }, // Example of dynamic size
+}]
 */
-
-
-
-
-
-
-
-
-
-

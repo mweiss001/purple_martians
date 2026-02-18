@@ -18034,14 +18034,42 @@ done, now keep track of max ssid in js
 
 I now have a scrolling and updating!!!!
 
+make colors match actual player colors....
+I will need to add that to the database...
+changed db and committed...I now have colors!!
 
-make some slider to control:
+make some sliders to control:
 update interval
 length of chart
 a way to stop the live update and scroll old data...
 
-make colors match actual player colors....
-I will need to add that to the database...
+I have done:
+
+var updateInterval = 200;
+var chartTimeRange = 200;
+now the stop start button
+done...
+
+now what?
+slider labels and values
+turn on and off different charts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
