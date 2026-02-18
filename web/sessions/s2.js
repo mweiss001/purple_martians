@@ -1,9 +1,32 @@
 
 
+
+const playerColors = [
+   "#888888", 
+   "#bf6ce8", 
+   "#8820ac",
+   "#3c7fff",
+   "#e01c48",
+   "#ff00e8",
+   "#ffbf7f",
+   "#ff7f00",
+   "#7f00ff",
+   "#01ff7f",
+   "#ff0000",
+   "#01ff00",
+   "#0000ff",
+   "#01ffff",
+   "#ffff00",
+   "#ffffff",
+]
+
+
 var data;
 var chartArray = [];
 var chartDataArray = [];
 var numCharts = 3;
+
+var curMaxSsid = 0;
 
 
 document.addEventListener('DOMContentLoaded', (event) =>
@@ -43,6 +66,14 @@ document.addEventListener('DOMContentLoaded', (event) =>
    chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
 
 
+   for (var i=0; i<numCharts; i++)
+   {
+      chartDataArray[i] = [];
+      chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
+   }
+
+   setInterval(fetchData, 100);
+
 
    document.getElementById("testButton1").addEventListener("click", function()
    {
@@ -56,33 +87,15 @@ document.addEventListener('DOMContentLoaded', (event) =>
       console.log("test button 2 pressed");   
    });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
 
 
 async function fetchData()
 {
-   var url = 's2.php';
+   var url = 'fetchDataStatus.php?start_ssid=';
+   if (curMaxSsid == 0) url += '-100'; 
+   else url += curMaxSsid;
 
-/*
-   var range = timeline.view;
-   if (range == 0) url += '?range=all'; 
-   if (range == 1) url += '?range=last&val=60';
-   if (range == 2) url += '?range=last&val=1440';
-   if (range == 3) url += '?range=session&val=' + currentSessionId;
-*/
    try
    {
       const response = await fetch(url);
@@ -91,6 +104,8 @@ async function fetchData()
          throw new Error(`HTTP error! Status: ${response.status}`);
       }
       data = await response.json(); // Parse the response body as JSON
+
+//   console.log(data);
 
       do_stuff();
 
@@ -102,13 +117,13 @@ async function fetchData()
 function do_stuff()
 {
    //console.log(data);
-
+/*
    for (var i=0; i<numCharts; i++)
    {
       chartDataArray[i] = [];
       chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
    }
-
+*/
 
    var row = [];
 
@@ -121,9 +136,12 @@ function do_stuff()
       var v = [];
 
       v[0] = dat.cpu;
-      v[1] = dat.sync * 1000; 
+      v[1] = dat.sync; 
       //v[2] = dat.ping * 1000; 
       v[2] = dat.tkbs; 
+
+
+      if (t > curMaxSsid) curMaxSsid = t;
 
 
       if (t !== ct) // new t
@@ -147,17 +165,16 @@ function do_stuff()
    }
 
    // push last row
-   for (var i=0; i<2; i++) chartDataArray[i].push(row[i]);
+   for (var i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
 
-/*
-   // add all series
-   const series = [];
-   for (var i=0; i<8; i++)
+
+   // remove elements from start of array if too big
+   var length = 400;
+   for (var i=0; i<numCharts; i++)
    {
-      var tt = "P" + i;
-      series.push({ type: 'line', name: `${tt}`, encode: { y: `${tt}` }});
-   }   
-*/
+      if (chartDataArray[i].length > length) chartDataArray[i].splice(1, chartDataArray[i].length-length);
+   }
+
 
    for (var i=0; i<numCharts; i++)
    {
@@ -167,26 +184,39 @@ function do_stuff()
          for (var k=1; k<9; k++)
             if (chartDataArray[i][j][k] !== null) vd[k-1] = 1;
 
-      // only add series with valid data
+      // only add series and legend if valid data
       const series = [];
+      const legend = [];
       for (var j=0; j<8; j++)
       {
          var tt = "P" + j;
-         if (vd[j]) series.push({ type: 'line', name: `${tt}`, encode: { y: `${tt}` }});
+         if (vd[j])
+         {
+            series.push({ type: 'line', name: `${tt}`, encode: { y: `${tt}` }});
+            legend.push(tt); 
+         }
       }   
 
       chartArray[i].setOption(
       {
          dataset: { source: chartDataArray[i] },
-         series: series  
+         series: series,  
+         legend: { data: legend },
       }, false );
    }
 }
 
+/*
 
-
-
-
+    name: 'Series 2',
+      type: 'bar',
+      itemStyle: {
+        color: '#00ff00' // Explicitly set color to green
+      },
+      data: [12, 18, 13, 22]
+    }
+  ]
+*/
 
 
 

@@ -174,6 +174,7 @@ void mwSql::create_tables()
                id            INTEGER PRIMARY KEY, \
                ss_id         INT, \
                pl_num        INT, \
+               pl_col        INT, \
                pl_name       TEXT, \
                pl_host       TEXT, \
                cpu           INT, \

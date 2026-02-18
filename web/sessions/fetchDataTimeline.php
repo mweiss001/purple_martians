@@ -21,7 +21,6 @@ $val = 60;
 $dt_start;
 $dt_end;
 
-
 if (isset($_GET['range'])) $range = $_GET['range'];
 if (isset($_GET['val']))   $val   = $_GET['val'];
 

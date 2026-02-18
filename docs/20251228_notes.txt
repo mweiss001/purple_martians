@@ -17792,1462 +17792,260 @@ I should copy all web back and push....
 I am getting errors on the server, trying to insert data, but database is locked
 
 
+2026-02-18 00:23:23
 
+write ahead logging WAL
 
+PRAGMA journal_mode=WAL;
 
+also on the server I could store a few transactions then insert in a batch
 
+if I did this what would I have to store?
 
+aprox 100 values per frame?
 
+I think the server is getting transaction lock errors beacuse of itself, trying to do 40 transactions per second
 
 
+-rw-r--r--  1 m m 700776448 Feb 18 00:53 status.db
+in ~ 1 day 700M
 
+sqlite> select * from client_status order by ss_id desc limit 5;
+id        ss_id    pl_num  pl_name   pl_host  cpu               sync                  ping                  lcor  rcor              rewind  difs  tkbs
+--------  -------  ------  --------  -------  ----------------  --------------------  --------------------  ----  ----------------  ------  ----  -----
+10067691  2519777  0       michael   o3000    25.1356964111328  0.0                   0.0                   0.0   0.0               0       0     30676
+10067692  2519777  1       Forest    e6430    8.01000022888184  -0.00546441465849057  0.000323478998325299  0.0   1.08001708984375  1       340   15338
+10067693  2519777  3       Aqualung  4230h    15.8120288848877  -0.0050284753087908   0.000113128000521101  0.0   2.16330623626709  1       340   15338
+10067688  2519776  0       michael   o3000    26.5079078674316  0.0                   0.0                   0.0   0.0               0       0     30676
+10067689  2519776  1       Forest    e6430    7.76039981842041  -0.00541775213787332  0.000323478998325299  0.0   1.78391933441162  1       287   15338
 
 
+10 million rows
+2.5 million rows in server_status
 
+no wonder the php script times out...
 
+some things to do:
+limit decimals on reals before insert
 
+cpu 3.1
+sync * 1000 then 3.1
+ping
 
 
+I can round the number as a float, but it doesn't help
 
 
+float mwMiscFnx::roundToDecimalPlaces(float value, int decimalPlaces)
+{
+   float factor = std::pow(10.0f, decimalPlaces);
+   return std::round(value * factor) / factor;
+}
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 5, mMiscFnx.roundToDecimalPlaces(mPlayer.loc[p].cpu, 1));
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 6, mPlayer.loc[p].pdsync);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 7, mPlayer.loc[p].ping);
 
+314  314    0       michael  m36      8.30000019073486  0.0   0.0   0.0   0.0   0       0     0
+315  315    0       michael  m36      8.0               0.0   0.0   0.0   0.0   0       0     0
+316  316    0       michael  m36      9.80000019073486  0.0   0.0   0.0   0.0   0       0     0
+317  317    0       michael  m36      7.80000019073486  0.0   0.0   0.0   0.0   0       0     0
+318  318    0       michael  m36      7.19999980926514  0.0   0.0   0.0   0.0   0       0     0
+319  319    0       michael  m36      7.69999980926514  0.0   0.0   0.0   0.0   0       0     0
+320  320    0       michael  m36      8.19999980926514  0.0   0.0   0.0   0.0   0       0     0
+321  321    0       michael  m36      7.69999980926514  0.0   0.0   0.0   0.0   0       0     0
 
 
+hmmmm....
 
+I could just save as an int
 
+cpu percent does not really need the decimal
 
+...............
 
+whay am I doing this? do I really think I will save storage space in database?
+ints are stored as 1,2,4,8 bits
+reals are always 8
 
+maybe it is worth it, but the added complexity of scaling before insert and then scaling after might make it worse...
 
+what would that look like?
 
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
+               id            INTEGER PRIMARY KEY, \
+               ss_id         INT, \
+               pl_num        INT, \
+               pl_name       TEXT, \
+               pl_host       TEXT, \
+               cpu           REAL, \
+               sync          REAL, \
+               ping          REAl, \
+               lcor          REAl, \
+               rcor          REAl, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+   execute_sql(sql, db_status);
 
+I only have 5 REALs
 
+               cpu           REAL, \
+               sync          REAL, \
+               ping          REAl, \
+               lcor          REAl, \
+               rcor          REAl, \
 
 
+* 10 
+cpu
+lcor
+rcor
 
+* 10,000
+sync
+ping
 
+and convert to int
 
+or if I don't care about 1 decimal place...
 
+just 
 
+* 1 
+cpu
+lcor
+rcor
 
+* 1000
+sync
+ping
 
+try that...this is just a quick graph anyway
 
+changed table from REAL to INT in 5 places
 
+now insert like this:
 
+         // float versions as real
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 5, mPlayer.loc[p].cpu);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 6, mPlayer.loc[p].pdsync);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 7, mPlayer.loc[p].ping);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 8, mPlayer.loc[p].client_loc_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 9, mPlayer.loc[p].client_rmt_plr_cor);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 10, mPlayer.loc[p].rewind);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 11, mPlayer.loc[p].cmp_dif_size);
+         sqlite3_bind_double(mSql.client_status_insert_stmt, 12, mPlayer.loc[p].tx_bytes_per_tally);
+*/
+         // rounded int versions
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 5, mPlayer.loc[p].cpu);
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 6, (mPlayer.loc[p].pdsync*1000));
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 7, (mPlayer.loc[p].ping*1000));
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 8, mPlayer.loc[p].client_loc_plr_cor);
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 9, mPlayer.loc[p].client_rmt_plr_cor);
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 10, mPlayer.loc[p].rewind);
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 11, mPlayer.loc[p].cmp_dif_size);
+         sqlite3_bind_int(mSql.client_status_insert_stmt, 12, mPlayer.loc[p].tx_bytes_per_tally);
 
 
+also now do WAL mode on status.db
+inserts seem to take less time, from 3ms to 1.5
+even when doing a large read of 400 items, I do not see the insert lock fail issue I was seeing before
+2026-02-18 02:11:42
 
+what do I want to do next?
 
+modify php to get various result sets
 
+fetchDataStatus.php
 
+range
 
+2 numbers (from start num to end num)
+end - range (last x numbers)
+n to e (from specific number to end)
 
+how many vars do I need to send?
 
+1 - mode 
+2 - num1
+3 - num2
 
 
+mode = 0; // range
+num1 = start
+num2 = end
 
+mode = 1; // last x (start = end - range)
+num1 = range 
+num2 = n/a
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+mode = 2; // num to end (start = num1, end = end)
+num1 = start;
+num2 = 
 
  
+mode = 0; // range
+num1 = start
+num2 = max records
 
+mode = 1; // last x (start = end - range)
+num1 = range 
+num2 = max records
 
+mode = 2; // num to end (start = num1, end = end)
+num1 = start;
+num2 = max records
 
 
+or I could just set a fixed limit in the php script for max records
 
 
 
+mode = 0; // range
+num1 = start
 
+mode = 1; // last x (start = end - range)
+num1 = 
 
+mode = 2; // num to end (start = num1, end = end)
+num1 = start;
 
 
+or I could just send the start ss_id
 
+start_ss_id
 
+if negative it would be the distance from the end
 
+otherwise it would send from ss_id to end
 
+still respecting the max records
 
 
 
+2026-02-18 03:18:16
+send only start_ssid
 
+2026-02-18 03:37:57
 
+done, now keep track of max ssid in js
 
+2026-02-18 04:40:42
 
+I now have a scrolling and updating!!!!
 
 
+make some slider to control:
+update interval
+length of chart
+a way to stop the live update and scroll old data...
 
+make colors match actual player colors....
+I will need to add that to the database...
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-   
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-   
-   
 
 
 
