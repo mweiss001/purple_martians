@@ -12,7 +12,7 @@ $db = new PDO("sqlite:/home/m/dev/purple_martians/data/status.db");
 
 // get 40 most recent times
 $ids = array(); 
-$sql = "SELECT DISTINCT(ss_id) FROM client_status ORDER BY ss_id DESC LIMIT 40";
+$sql = "SELECT DISTINCT(ss_id) FROM client_status ORDER BY ss_id DESC LIMIT 200";
 $res = $db->query($sql);
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) $ids[] = $row['ss_id'];
 //var_dump($ids);

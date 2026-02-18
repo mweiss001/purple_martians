@@ -57,6 +57,9 @@ int mwSql::open_database()
       return (0);
    }
 
+   execute_sql("PRAGMA journal_mode = WAL", db_status);
+
+
 
    // sprintf(filename, "%s", "data/logs.db");
    // if (sqlite3_open(filename, &db_logs))
@@ -173,20 +176,15 @@ void mwSql::create_tables()
                pl_num        INT, \
                pl_name       TEXT, \
                pl_host       TEXT, \
-               cpu           REAL, \
-               sync          REAL, \
-               ping          REAl, \
-               lcor          REAl, \
-               rcor          REAl, \
+               cpu           INT, \
+               sync          INT, \
+               ping          INT, \
+               lcor          INT, \
+               rcor          INT, \
                rewind        INT, \
                difs          INT, \
                tkbs          INT ); ");
    execute_sql(sql, db_status);
-
-
-
-
-
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
@@ -195,7 +193,6 @@ void mwSql::create_tables()
                val         INT, \
                mod         INT ); ");
    execute_sql(sql, db_sessions);
-
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
@@ -209,8 +206,6 @@ void mwSql::create_tables()
                z3          INT, \
                z4          INT ); ");
    execute_sql(sql, db_game_events);
-
-
 
 
 }

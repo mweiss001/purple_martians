@@ -457,6 +457,15 @@ std::string mwMiscFnx::generate_muid()
 
 
 
+
+
+
+
+
+
+
+
+
 // packs two 16 bit ints into one 32 bit int
 void mwMiscFnx::set_int_3216(int &I32, int H16, int L16)
 {
@@ -1109,6 +1118,31 @@ void mwMiscFnx::mw_round(int& val, int rnd) // pass it an int and it will round 
 
 
 }
+
+float mwMiscFnx::roundToDecimalPlaces(float value, int decimalPlaces)
+{
+   float factor = std::pow(10.0f, decimalPlaces);
+   return std::round(value * factor) / factor;
+}
+
+/*
+int main() {
+   float num = 3.1415926535f;
+   int precision = 3;
+
+   float rounded_num = roundToDecimalPlaces(num, precision);
+
+   std::cout << rounded_num << std::endl; // Output: ~3.142 (due to floating-point representation limits)
+
+   return 0;
+}
+
+*/
+
+
+
+
+
 
 
 
