@@ -60,7 +60,6 @@ int mwSql::open_database()
    execute_sql("PRAGMA journal_mode = WAL", db_status);
 
 
-
    // sprintf(filename, "%s", "data/logs.db");
    // if (sqlite3_open(filename, &db_logs))
    // {
@@ -185,6 +184,9 @@ void mwSql::create_tables()
                rewind        INT, \
                difs          INT, \
                tkbs          INT ); ");
+   execute_sql(sql, db_status);
+
+   strcpy(sql, "CREATE INDEX ON client_status(ss_id)");
    execute_sql(sql, db_status);
 
 

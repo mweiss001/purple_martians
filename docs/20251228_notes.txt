@@ -18055,30 +18055,299 @@ slider labels and values
 turn on and off different charts
 
 
+2026-02-19 03:09:46
+
+I left it running in a netgame for ~20 hours
+
+came back
+firefox frozen, hard to forcibly quit and restart
+then it was updating, but taking 25% cpu and 1G memory
+and the stop button did not work
+
+notepad++ was frozen and unresponsive also
+
+ssid was 3.1 million
+
+
+-rw-rw-r--  1 m m       5360 Feb 18 05:10 settings.pm
+-rw-r--r--  1 m m  665509888 Feb 19 03:08 status.db
+-rw-r--r--  1 m m    2981888 Feb 19 03:08 status.db-shm
+-rw-r--r--  1 m m 1520296512 Feb 19 03:08 status.db-wal
+m@o3000:~/dev/purple_martians/data$
+
+
+somwthing is wrong with the wal
+
+  665 509 888 Feb 19 03:08 status.db
+1 520 296 512 Feb 19 03:08 status.db-wal
+
+do I manually tell it to checkpoint?
+
+sqlite3_wal_checkpoint_v2())
+
+could I try my plan of storing before adding to db
+
+even if I get the data from wal to the main db will I still have issues reading large data?
+
+and how can I measure it?
+
+
+I already measure and display to console how long it takes to insert every row
+
+I would like to do the same for read.
+
+I could do that is js, measure how long the fetch takes and the number of rows
+
+i think my fetch is stacking, and I want to prevent this
+
+let isRunning = false;
+async function runOnlyOnce() {
+    if (isRunning) return; // Exit if already running
+    isRunning = true;
+    try {
+        // Your async logic here
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    } finally {
+        isRunning = false; // Release lock
+    }
+}
 
 
 
 
 
 
+m@o3000:~/dev/purple_martians/data$ ll
+total 2145556
+drwxr-xr-x  2 m m       4096 Feb 19 03:37 ./
+drwxrwxrwx 18 m m       4096 Feb 18 05:10 ../
+-rw-r--r--  1 m m       8192 Feb 18 05:10 game_events.db
+-rw-rw-r--  1 m m    4829268 Feb 19 03:37 level_data.pm
+-rw-r--r--  1 m m    6336512 Feb 19 03:37 sessions.db
+-rw-rw-r--  1 m m       5360 Feb 19 03:38 settings.pm
+-rw-r--r--  1 m m  665509888 Feb 19 03:08 status.db
+-rw-r--r--  1 m m      32768 Feb 19 03:37 status.db-shm
+-rw-r--r--  1 m m 1520296512 Feb 19 03:38 status.db-wal
+m@o3000:~/dev/purple_martians/data$ sqlite3 status.db
+SQLite version 3.45.1 2024-01-30 16:01:20
+Enter ".help" for usage hints.
+sqlite> PRAGMA wal_checkpoint(TRUNCATE);
+0|0|0
+sqlite> .quit
+m@o3000:~/dev/purple_martians/data$ ll
+total 660888
+drwxr-xr-x  2 m m      4096 Feb 19 04:15 ./
+drwxrwxrwx 18 m m      4096 Feb 18 05:10 ../
+-rw-r--r--  1 m m      8192 Feb 18 05:10 game_events.db
+-rw-rw-r--  1 m m   4829268 Feb 19 03:37 level_data.pm
+-rw-r--r--  1 m m   6336512 Feb 19 03:37 sessions.db
+-rw-rw-r--  1 m m      5360 Feb 19 03:38 settings.pm
+-rw-r--r--  1 m m 665546752 Feb 19 04:15 status.db
+m@o3000:~/dev/purple_martians/data$
+
+look like I jut killed all the data in the wal file, the main one did not get bigger...that was not what I expected...
+
+
+
+Measuring the Execution Time of an async Function
+You can measure the time taken for an async operation using Date.now() or console.time()/console.timeEnd(): 
+
+async function fetchUserData() {
+  // Simulate a network request with a delay
+  await sleep(1500); 
+  return { name: "John Doe", id: 123 };
+}
+
+async function measureTime() {
+  const startTime = Date.now();
+  console.time("fetchData"); // Start a timer
+  
+  const userData = await fetchUserData(); // Wait for the async function to complete
+  
+  const endTime = Date.now();
+  console.timeEnd("fetchData"); // Stop the timer and log duration
+  console.log(`User data received: ${userData.name}`);
+  console.log(`Total time taken: ${endTime - startTime} milliseconds`);
+}
+
+measureTime();
+
+
+m@o3000:/var/www/html/sessions$ php fetchDataStatus.php
+[{"id":12492890,"ss_id":3153056,"pl_num":0,"pl_col":2,"pl_name":"michael","pl_host":"o3000","cpu":5,"sync":0,"ping":0,"lcor":0,"rcor":0,"rewind":0,"difs":0,"tkbs":0},{"id":12492891,"ss_id":3153057,"pl_num":0,"pl_col":2,"pl_name":"michael","pl_host":"o3000","cpu":6,"sync":0,"ping":0,"lcor":0,"rcor":0,"rewind":0,"difs":0,"tkbs":0}]
+
+m@o3000:/var/www/html/sessions$
+
+
+I think I found a bug im my js, when now new data available I have error!!
+
+
+// original
+
+/*
+async function fetchData()
+{
+   try
+   {
+      var url = 'fetchDataStatus.php?start_ssid=';
+      if (curMaxSsid == 0) url += '-100'; 
+      else url += curMaxSsid;
+      const response = await fetch(url);
+      if (!response.ok)
+      { // Check if the response status is in the 200-299 range
+         throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      data = await response.json(); // Parse the response body as JSON
+      //console.log(data);
+      do_stuff();
+
+   } catch (error) { console.error("Fetch error:", error.message); }
+}
+
+*/
+
+
+// new version that ensure only one instance, includes timer, and only calls do_stuff if data
+async function fetchData()
+{
+   if (fetchRunning) return; // Exit if already running
+   fetchRunning = true;
+   const startTime = Date.now();
+   try
+   {
+      var url = 'fetchDataStatus.php?start_ssid=';
+      if (curMaxSsid == 0) url += '-100'; 
+      else url += curMaxSsid;
+      const response = await fetch(url);
+      if (!response.ok)
+      { // Check if the response status is in the 200-299 range
+         throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      data = await response.json(); // Parse the response body as JSON
+
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+     const endTime = Date.now();
+     const nr = data.length;
+     console.log(`Time:${endTime - startTime}ms - rows:${nr}`);
+     fetchRunning = false;
+     if (nr) do_stuff();
+   }
+}
+
+
+
+2026-02-19 05:12:38
+
+make label and show value for my 2 sliders
+2026-02-19 06:30:33
+that took over an hour??
+
+now the read time is 70-80ms
+initially it was aroung 15-20
+ssid is now 250,000
+
+-rw-r--r--  1 m m 36491264 Feb 19 06:33 status.db
+-rw-r--r--  1 m m    32768 Feb 19 06:33 status.db-shm
+-rw-r--r--  1 m m  4144752 Feb 19 06:33 status.db-wal
+ 
+Time:67ms - rows:9 s2.js:304:14
+Time:71ms - rows:12 s2.js:304:14
+Time:72ms - rows:12 s2.js:304:14
+Time:65ms - rows:12 s2.js:304:14
+Time:65ms - rows:9 s2.js:304:14
+Time:65ms - rows:12 s2.js:304:14
+Time:84ms - rows:12 s2.js:304:14
+
+if I am getting data every 25ms, this should be different
+
+when set to 100 it is no different
+
+Time:72ms - rows:12 s2.js:304:14
+Time:68ms - rows:12 s2.js:304:14
+Time:70ms - rows:15 s2.js:304:14
+Time:73ms - rows:12 s2.js:304:14
+Time:67ms - rows:12 s2.js:304:14
+Time:68ms - rows:15 s2.js:304:14
 
 
 
 
+200ms = 8 frames x 3 players = 24
+1771509493254 206 111 23 - rows:24 s2.js:295:12
+1771509493461 205 100 28 - rows:27 s2.js:295:12
+1771509493666 207 81 25 - rows:24 s2.js:295:12
+1771509493874 206 81 29 - rows:24 s2.js:295:12
+1771509494080 205 80 25 - rows:24 s2.js:295:12
+1771509494285 204 81 24 - rows:24 s2.js:295:12
+1771509494489 207 83 25 - rows:27 s2.js:295:12
+1771509494697 223 100 23 - rows:27 s2.js:295:12
 
 
+25ms = 1 frames x 3 players = 3
+takes too long to work properly
+I get one approx every 100ms or 4 frames which should be 12-15
+
+1771509566504 38 -- running s2.js:290:15
+1771509566536 70 -- running s2.js:290:15
+1771509566466 102 80 22 - rows:15 s2.js:295:12
+1771509566600 32 -- running s2.js:290:15
+1771509566631 63 -- running s2.js:290:15
+1771509566568 107 81 26 - rows:12 s2.js:295:12
+1771509566711 35 -- running s2.js:290:15
+1771509566743 67 -- running s2.js:290:15
+1771509566676 104 80 24 - rows:12 s2.js:295:12
+1771509566806 25 -- running s2.js:290:15
+1771509566838 57 -- running s2.js:290:15
+1771509566781 102 79 23 - rows:12 s2.js:295:12
+
+now that I have profiled it, I can see the bottleneck is reading from the database
+
+lets try to speed that up...
+
+test wal on or off
+
+test adding index to ssid
+
+first of all, erase db and start over..
 
 
+25 
+1771510111670 36 13 23 - rows:6 s2.js:295:12
+1771510111706 37 14 22 - rows:3 s2.js:295:12
+1771510111743 37 5 25 - rows:3 s2.js:295:12
+1771510111780 31 6 23 - rows:6 s2.js:295:12
+1771510111811 49 26 22 - rows:6 s2.js:295:12
+1771510111860 50 27 23 - rows:6 s2.js:295:12
+1771510111910 31 5 26 - rows:3 s2.js:295:12
+1771510111941 29 5 23 - rows:3 s2.js:295:12
+1771510111970 37 14 23 - rows:6 s2.js:295:12
+1771510112007 29 5 2
+
+200
+1771510144107 205 7 27 - rows:27 s2.js:295:12
+1771510144312 207 8 21 - rows:24 s2.js:295:12
+1771510144519 207 7 22 - rows:24 s2.js:295:12
+1771510144726 208 8 23 - rows:27 s2.js:295:12
+1771510144934 207 7 21 - rows:24 s2.js:295:12
+1771510145141 206 7 22 - rows:24 s2.js:295:12
+1771510145347 206 7 24 - rows:24 s2.js:295:12
+1771510145553 206 7 26 - rows:27 s2.js:295:12
 
 
+2026-02-19 07:33:37
 
+how to add index...
 
+have to do it after table is created
 
+CREATE INDEX index_name ON table_name (column1, column2, ...);
 
+   strcpy(sql, "CREATE INDEX ON client_status(ss_id)");
+   execute_sql(sql, db_status);
 
-
-
-
+commit all this and let it run
 
 
 

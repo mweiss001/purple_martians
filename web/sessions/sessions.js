@@ -480,7 +480,6 @@ function setupTestButtons()
    container.appendChild(button2);
 
 
-
    const in1 = document.createElement('input');
    in1.setAttribute('id', 'in1');
    in1.setAttribute('type', 'range');
@@ -502,11 +501,6 @@ function setupTestButtons()
       console.log("slider val:", in1a.value);   
       document.documentElement.style.setProperty('--testvar', `${in1a.value}px`);
    });
-
-
-
-
-
 
 
 

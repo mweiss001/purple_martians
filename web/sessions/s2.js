@@ -1,5 +1,214 @@
 
 
+function setupTestButtons()
+{
+   const button1 = document.createElement('button');
+   button1.textContent = 'Test 1';
+   button1.setAttribute('id', 'testButton1');
+   testButtons.appendChild(button1);
+
+   const button2 = document.createElement('button');
+   button2.textContent = 'Test 2';
+   button2.setAttribute('id', 'testButton2');
+   testButtons.appendChild(button2);
+
+   const in1 = document.createElement('input');
+   in1.setAttribute('id', 'in1');
+   in1.setAttribute('type', 'range');
+   in1.setAttribute('min', '10');
+   in1.setAttribute('max', '20');
+   in1.setAttribute('step', '1');
+   testButtons.appendChild(in1);
+  
+   // set initial value
+   in1.value = 14;
+   // listen for changes
+   in1.addEventListener("input", () =>
+   {
+      console.log("slider val:", in1.value);   
+   });
+
+
+   button1.addEventListener("click", function()
+   {
+      console.log("test button 1 pressed");   
+   });
+   button2.addEventListener("click", function()
+   {
+      console.log("test button 2 pressed");   
+   });
+}
+
+
+function setupControls()
+{
+   controlsContainer.style.display = 'flex';
+   controlsContainer.style.flexDirection = 'column';
+   controlsContainer.style.gap = '2px';
+   controlsContainer.style.width = '300px';
+
+//   controlsContainer.style.border = '1px solid #ff0000';
+
+
+
+   // interval control
+   const intervalSliderContainer = document.createElement('div');
+   intervalSliderContainer.style.display = 'flex';
+   intervalSliderContainer.style.gap = '4px';
+   intervalSliderContainer.style.alignItems = 'center';
+
+
+   // slider input element
+   const intervalSlider = document.createElement('input');
+   intervalSlider.setAttribute('id', "intervalSlider");
+   intervalSlider.setAttribute('type', 'range');
+   intervalSlider.setAttribute('min', '25');
+   intervalSlider.setAttribute('max', '2000');
+   intervalSliderContainer.appendChild(intervalSlider);
+
+   // label element
+   const intervalSliderLabel = document.createElement('label');
+   intervalSliderLabel.textContent = 'Interval:';
+   intervalSliderContainer.appendChild(intervalSliderLabel);
+
+
+   // span element
+   const intervalSliderSpan = document.createElement('span');
+   intervalSliderSpan.setAttribute('id', "intervalSliderSpan");
+   intervalSliderContainer.appendChild(intervalSliderSpan);
+
+   intervalSliderSpan.innerHTML = updateInterval;
+
+   controlsContainer.appendChild(intervalSliderContainer);
+
+   intervalSlider.addEventListener("input", () =>
+   {
+      updateInterval = intervalSlider.value;
+      intervalSliderSpan.innerHTML = updateInterval;
+      changeTimer();
+   });
+
+
+
+   // range control
+
+   const rangeSliderContainer = document.createElement('div');
+   rangeSliderContainer.style.display = 'flex';
+   rangeSliderContainer.style.gap = '4px';
+   rangeSliderContainer.style.alignItems = 'center';
+
+
+   // slider input element
+   const rangeSlider = document.createElement('input');
+   rangeSlider.setAttribute('id', "rangeSlider");
+   rangeSlider.setAttribute('type', 'range');
+   rangeSlider.setAttribute('min', '25');
+   rangeSlider.setAttribute('max', '2000');
+   rangeSliderContainer.appendChild(rangeSlider);
+
+   // label element
+   const rangeSliderLabel = document.createElement('label');
+   rangeSliderLabel.textContent = 'Range:';
+   rangeSliderContainer.appendChild(rangeSliderLabel);
+
+
+   // span element
+   const rangeSliderSpan = document.createElement('span');
+   rangeSliderSpan.setAttribute('id', "rangeSliderSpan");
+   rangeSliderContainer.appendChild(rangeSliderSpan);
+
+   rangeSliderSpan.innerHTML = chartTimeRange;
+
+   controlsContainer.appendChild(rangeSliderContainer);
+
+   rangeSlider.addEventListener("input", () =>
+   {
+      chartTimeRange = rangeSlider.value;
+      rangeSliderSpan.innerHTML = chartTimeRange;
+   });
+
+
+
+
+   const stopButton = document.createElement('button');
+   stopButton.textContent = 'Stop';
+   stopButton.setAttribute('id', 'stopButton');
+   controlsContainer.appendChild(stopButton);
+   stopButton.addEventListener("click", function()
+   {
+      if (intervalId)
+      {
+         stopTimer();
+         stopButton.textContent = 'Start';
+      }
+      else
+      {
+         startTimer();
+         stopButton.textContent = 'Stop';
+      }
+   });
+
+
+
+}
+
+
+
+function setupCharts()
+{
+   var option =
+   {
+      animation: false,
+      tooltip: {},
+      legend: {},
+      xAxis:
+      {
+         type: 'value',
+         min: 'dataMin', 
+         max: 'dataMax'
+      },
+      yAxis: { type: 'value' },
+  };
+
+   for (i=0; i<numCharts; i++)
+   {
+      // create div container for chart 
+      var name = "chartContainer" + i;
+      const container = document.createElement('div');
+      container.setAttribute('id', name);
+      container.style.height = '240px';
+      chartArea.appendChild(container);
+
+      // create chart and set initial options  
+      chartArray[i] = echarts.init(container);
+      chartArray[i].setOption(option);
+
+      // initialize chart data array
+      chartDataArray[i] = [];
+      chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
+   }
+
+   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
+   chartArray[1].setOption( { title: { text: 'sync' }, }, false );
+   chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const playerColors = [
    "#888888", 
@@ -20,8 +229,10 @@ const playerColors = [
    "#ffffff",
 ]
 
+var t0, t1, t2, t3;
 
-var data;
+
+var data = [];
 const chartArray = [];
 const chartDataArray = [];
 var numCharts = 3;
@@ -33,6 +244,7 @@ var i, j, k;
 var updateInterval = 200;
 var chartTimeRange = 200;
 
+let fetchRunning = false; 
 
 let intervalId; // Variable to store the interval ID
 
@@ -59,167 +271,101 @@ function changeTimer()
 }
 
 
-
-
-
 document.addEventListener('DOMContentLoaded', (event) =>
 {
-   fetchData();
-
-   var option =
-   {
-      animation: false,
-      tooltip: {},
-      legend: {},
-      xAxis:
-      {
-         type: 'value',
-         min: 'dataMin', 
-         max: 'dataMax'
-      },
-      yAxis: { type: 'value' },
-  };
-
-   const chartArea = document.getElementById("chartArea");
-
-   const controlsContainer = document.createElement('div');
-   controlsContainer.setAttribute('id', "controlsContainer");
-   chartArea.appendChild(controlsContainer);
-
-   // create slider
-   const updateIntervalSlider = document.createElement('input');
-   updateIntervalSlider.setAttribute('id', "updateIntervalSlider");
-   updateIntervalSlider.setAttribute('type', 'range');
-   updateIntervalSlider.setAttribute('min', '25');
-   updateIntervalSlider.setAttribute('max', '2000');
-   controlsContainer.appendChild(updateIntervalSlider);
-   updateIntervalSlider.addEventListener("input", () =>
-   {
-      updateInterval = updateIntervalSlider.value;
-      changeTimer();
-   });
-
-   // create slider
-   const chartTimeRangeSlider = document.createElement('input');
-   chartTimeRangeSlider.setAttribute('id', "chartTimeRangeSlider");
-   chartTimeRangeSlider.setAttribute('type', 'range');
-   chartTimeRangeSlider.setAttribute('min', '25');
-   chartTimeRangeSlider.setAttribute('max', '2000');
-   controlsContainer.appendChild(chartTimeRangeSlider);
-   chartTimeRangeSlider.addEventListener("input", () =>
-   {
-      chartTimeRange = chartTimeRangeSlider.value;
-   });
-
-   const stopButton = document.createElement('button');
-   stopButton.textContent = 'Stop';
-   stopButton.setAttribute('id', 'stopButton');
-   controlsContainer.appendChild(stopButton);
-   stopButton.addEventListener("click", function()
-   {
-      if (intervalId)
-      {
-         stopTimer();
-         stopButton.textContent = 'Start';
-      }
-      else
-      {
-         startTimer();
-         stopButton.textContent = 'Stop';
-      }
-   });
-
-
-
-
-   for (i=0; i<numCharts; i++)
-   {
-      var name = "chartContainer" + i;
-      const chartContainer = document.createElement('div');
-      chartContainer.setAttribute('id', name);
-      chartContainer.style.height = '240px';
-      chartArea.appendChild(chartContainer);
-
-      chartArray[i] = echarts.init(document.getElementById(name));
-      chartArray[i].setOption(option);
-   }
-
-   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
-   chartArray[1].setOption( { title: { text: 'sync' }, }, false );
-   chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
-
-
-   for (i=0; i<numCharts; i++)
-   {
-      chartDataArray[i] = [];
-      chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
-   }
-
-//   setInterval(fetchData, updateInterval);
+   //setupTestButtons();
+   setupControls();
+   setupCharts();
    startTimer();
-
-   document.getElementById("testButton1").addEventListener("click", function()
-   {
-      //console.log("test button 1 pressed");   
-      
-      fetchData();
-      
-   });
-   document.getElementById("testButton2").addEventListener("click", function()
-   {
-      console.log("test button 2 pressed");   
-   });
-
 });
+
+
+
 
 
 async function fetchData()
 {
-   var url = 'fetchDataStatus.php?start_ssid=';
-   if (curMaxSsid == 0) url += '-100'; 
-   else url += curMaxSsid;
+   if (fetchRunning)
+   {
+      console.log(`${Date.now()} ${Date.now()-t0} -- running`);
+      return; // ensures only one instance
+   }
 
+   // data from last run
+   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} - rows:${data.length}`);
+
+   // reset all
+   t2 = t1 = t0 = Date.now(); 
+
+
+
+
+   if (fetchRunning) return; // ensures only one instance
+   fetchRunning = true;
+//   const startTime = Date.now(); // start timer
    try
    {
+      var url = 'fetchDataStatus.php?start_ssid=';
+      if (curMaxSsid == 0) url += '-100'; 
+      else url += curMaxSsid;
       const response = await fetch(url);
-      if (!response.ok)
-      { // Check if the response status is in the 200-299 range
-         throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
       data = await response.json(); // Parse the response body as JSON
-//   console.log(data);
-      do_stuff();
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+      t1 = Date.now();
 
-   } catch (error) { console.error("Fetch error:", error.message); } // Handles network errors or the error thrown above
+//     const endTime = Date.now();
+//     console.log(`Time:${endTime - startTime}ms - rows:${data.length}`);
+     fetchRunning = false;
+     if (data.length) do_stuff(); // only if data
+
+     t2 = Date.now();
+
+   }
 }
+
 
 
 function do_stuff()
 {
+   if (data.length == 0) return;
+
+
+   // data to be processed consists of rows from client_status table
+   // each row is for one frame and player and has muliple data values
+   // ss_id is the time value
+   // data is aleady sorted by ss_id and player_num   
+   // (the player num sort is probably not required)
+
+   // data is read one row at a time and added to temporay rows for each chart
+   // when a new ss_id is read, temp rows are pushed to chart data
+
 
    const row = [];
-
    var ct = -1; // current t
-
 
    // player colors array
    const pc = Array(8).fill(0);
 
+
    for (const dat of data)
    {
-      var t = dat.ss_id;
+      var t = dat.ss_id;  // t (ss_id)
       var p = dat.pl_num; // player num
-      pc[p] = dat.pl_col; // plater color
-      var v = [];         // value array  
+      pc[p] = dat.pl_col; // player color
 
+      var v = [];         // value array  
       v[0] = dat.cpu;
       v[1] = dat.sync; 
       v[2] = dat.tkbs; 
 
-      // get the current max ssid  
+
+      // update current max ssid  
       if (t > curMaxSsid) curMaxSsid = t;
 
-      if (t !== ct) // new t
+      if (t !== ct) // new t (or first)
       {
          for (i=0; i<numCharts; i++)
          {
@@ -239,11 +385,12 @@ function do_stuff()
      for (i=0; i<numCharts; i++) row[i][p+1] = v[i];
    }
 
+
    // push last row
    for (i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
 
-   // remove elements from start of array if too big
-   //var length = 400;
+
+   // remove elements from start of array to maintain chartTimeRange
    for (i=0; i<numCharts; i++)
    {
       const extra_length = chartDataArray[i].length - chartTimeRange;
@@ -261,27 +408,22 @@ function do_stuff()
          for (k=1; k<9; k++)
             if (chartDataArray[i][j][k] !== null) vd[k-1] = 1;
 
-      // only add series and legend if valid data
       const series = [];
       const legend = [];
+
+      // only add series and legend if valid data
       for (j=0; j<8; j++)
       {
-         const tt = "P" + j;
          if (vd[j])
          {
+            const tt = "P" + j;
             series.push(
             { 
                type: 'line',
                encode: { y: `${tt}` },
                name: `${tt}`,
-
                symbolSize: 1,
-
                lineStyle: { width: 1 },  
-
-
-
-
                itemStyle: { color: playerColors[pc[j]] },
             });
             legend.push(tt); 
@@ -296,27 +438,3 @@ function do_stuff()
       }, false );
    }
 }
-
-/*
-
-series: [{
-    type: 'line',
-    data: [120, 200, 150],
-    lineStyle: {
-        width: 3,      // Sets line thickness to 3px
-        type: 'solid', // Options: 'solid', 'dashed', 'dotted'
-        color: 'blue'  // Sets line color
-    }
-}]
-
-
-
-
-series: [{
-    type: 'line',
-    data: [120, 200, 150],
-    symbol: 'circle', // Options: 'emptyCircle', 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
-    symbolSize: 10,   // Sets all points to 10px
-    // symbolSize: function (value, params) { return value / 10; }, // Example of dynamic size
-}]
-*/

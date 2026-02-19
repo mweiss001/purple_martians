@@ -21,7 +21,7 @@ if ($start_ssid < 0)
 }
 
 $data = array();
-$sql = "SELECT * FROM client_status WHERE ss_id>$start_ssid ORDER BY ss_id, pl_num LIMIT $max_records";
+$sql = "SELECT * FROM client_status WHERE ss_id>$start_ssid ORDER BY ss_id LIMIT $max_records";
 $res = $db->query($sql);
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) $data[] = $row;
 
