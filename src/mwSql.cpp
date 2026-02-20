@@ -23,7 +23,7 @@ void mwSql::create_prepared_statements()
    int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &server_status_insert_stmt, nullptr);
    if (rc1 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 
-   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
    int rc2 = sqlite3_prepare_v2(db_status, sql2, -1, &client_status_insert_stmt, nullptr);
    if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 }
@@ -172,6 +172,7 @@ void mwSql::create_tables()
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
                id            INTEGER PRIMARY KEY, \
                ss_id         INT, \
+               timestamp     TEXT, \
                pl_num        INT, \
                pl_col        INT, \
                pl_name       TEXT, \
@@ -186,9 +187,8 @@ void mwSql::create_tables()
                tkbs          INT ); ");
    execute_sql(sql, db_status);
 
-   strcpy(sql, "CREATE INDEX ON client_status(ss_id)");
+   strcpy(sql, "CREATE INDEX IF NOT EXISTS ss_id_index ON client_status(ss_id DESC)");
    execute_sql(sql, db_status);
-
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
                id          INTEGER PRIMARY KEY, \

@@ -16,6 +16,7 @@
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwGameMoves.h"
+#include "mwMiscFnx.h"
 #include "mwSql.h"
 
 mwMain mMain;
@@ -74,6 +75,8 @@ void mwMain::set_and_get_versions(void)
    printf("\nPurple Martians Version %s\n", mLoop.pm_version_string);
 
 
+   std::cout << "GCC Version: " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
+
     long standard = __cplusplus;
     // Mapping the macro values to standard names
     if (standard == 199711L) std::cout << "C++98/C++03" << std::endl;
@@ -84,6 +87,14 @@ void mwMain::set_and_get_versions(void)
     else if (standard == 202302L) std::cout << "C++23" << std::endl;
     else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
 
+
+
+
+
+/*
+   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S.%zzz");
+   printf("\nDate test: %s\n\n", ts.c_str());
+*/
 
 
    // get allegro version

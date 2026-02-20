@@ -326,18 +326,19 @@ void mwNetgame::server_insert_status()
       {
          sqlite3_reset(     mSql.client_status_insert_stmt);
          sqlite3_bind_int  (mSql.client_status_insert_stmt, 1, id);
-         sqlite3_bind_int  (mSql.client_status_insert_stmt, 2, p);
-         sqlite3_bind_int  (mSql.client_status_insert_stmt, 3, mPlayer.syn[p].color);
-         sqlite3_bind_text (mSql.client_status_insert_stmt, 4, mPlayer.syn[p].name,     -1, SQLITE_TRANSIENT);
-         sqlite3_bind_text (mSql.client_status_insert_stmt, 5, mPlayer.loc[p].hostname, -1, SQLITE_TRANSIENT);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 6,  mPlayer.loc[p].cpu);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 7, (mPlayer.loc[p].pdsync*1000));
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 8, (mPlayer.loc[p].ping*1000));
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 9,  mPlayer.loc[p].client_loc_plr_cor);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 10, mPlayer.loc[p].client_rmt_plr_cor);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 11, mPlayer.loc[p].rewind);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 12, mPlayer.loc[p].cmp_dif_size);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 13, mPlayer.loc[p].tx_bytes_per_tally);
+         sqlite3_bind_text (mSql.client_status_insert_stmt, 2, ts.c_str(),              -1, SQLITE_TRANSIENT);
+         sqlite3_bind_int  (mSql.client_status_insert_stmt, 3, p);
+         sqlite3_bind_int  (mSql.client_status_insert_stmt, 4, mPlayer.syn[p].color);
+         sqlite3_bind_text (mSql.client_status_insert_stmt, 5, mPlayer.syn[p].name,     -1, SQLITE_TRANSIENT);
+         sqlite3_bind_text (mSql.client_status_insert_stmt, 6, mPlayer.loc[p].hostname, -1, SQLITE_TRANSIENT);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 7,  mPlayer.loc[p].cpu);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 8, (mPlayer.loc[p].pdsync*1000));
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 9, (mPlayer.loc[p].ping*1000));
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 10,  mPlayer.loc[p].client_loc_plr_cor);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 11, mPlayer.loc[p].client_rmt_plr_cor);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 12, mPlayer.loc[p].rewind);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 13, mPlayer.loc[p].cmp_dif_size);
+         sqlite3_bind_int(  mSql.client_status_insert_stmt, 14, mPlayer.loc[p].tx_bytes_per_tally);
          if (sqlite3_step(  mSql.client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_status));
       }
    if (sqlite3_exec(mSql.db_status, "COMMIT TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);

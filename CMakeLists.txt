@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.1)
 project(pm)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -static")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -pedantic -static")
@@ -16,6 +16,7 @@ link_directories(${ALLEGRO_ROOT_DIR}/lib)
 add_executable(pm
         src/icon.rc
         src/libnet.h
+        src/pm.h
         src/main.cpp
         src/mwBitmap.cpp
         src/mwBitmap.h
@@ -125,6 +126,7 @@ add_executable(pm
         src/mwScreen.cpp
         src/mwScreen.h
         src/mwScreenOverlay.cpp
+        src/mwScreenOverlayDemoControls.cpp
         src/mwSettings.cpp
         src/mwSettings.h
         src/mwShot.cpp
@@ -137,6 +139,8 @@ add_executable(pm
         src/mwSql.h
         src/mwStateHistory.cpp
         src/mwStateHistory.h
+        src/mwStatusBuffer.cpp
+        src/mwStatusBuffer.h
         src/mwTally.cpp
         src/mwTally.h
         src/mwTriggerEvent.cpp
@@ -154,11 +158,11 @@ add_executable(pm
         src/mwWindowManager.h
         src/mwWindowObjectViewer.cpp
         src/mwWindowTileHelper.cpp
-        src/pm.h
+
         src/sqlite3.c
         src/sqlite3.h
-        src/mwGmInfo.cpp
-        src/mwScreenOverlayDemoControls.cpp)
+)
+
 
 target_link_libraries(pm
         allegro_monolith-static

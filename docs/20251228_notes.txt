@@ -18350,6 +18350,123 @@ CREATE INDEX index_name ON table_name (column1, column2, ...);
 commit all this and let it run
 
 
+2026-02-19 16:12:41
+
+server and 3 players full fake key
+8 hours later.....
+ssid 1.2 million
+insert on server still taking 1.5ms
+
+1771542875566 484 -- running s2.js:290:15
+1771542875597 515 -- running s2.js:290:15
+1771542875082 612 539 73 - rows:92 s2.js:295:12
+1771542875724 30 -- running s2.js:290:15
+1771542875757 63 -- running s2.js:290:15
+1771542875788 94 -- running s2.js:290:15
+1771542875819 125 -- running s2.js:290:15
+1771542875851 157 -- running s2.js:290:15
+1771542875883 189 -- running s2.js:290:15
+1771542875915 221 -- running s2.js:290:15
+1771542875946 252 -- running s2.js:290:15
+1771542875978 284 -- running s2.js:290:15
+1771542876010 316 -- running s2.js:290:15
+1771542876042 348 -- running s2.js:290:15
+1771542876074 380 -- running s2.js:290:15
+1771542876107 413 -- running s2.js:290:15
+1771542876138 444 -- running s2.js:290:15
+1771542875694 514 462 52 - rows:96 s2.js:295:12
+
+
+1771543192308 501 439 58 - rows:88 s2.js:295:12
+1771543192809 504 450 51 - rows:80 s2.js:295:12
+1771543193313 510 450 58 - rows:80 s2.js:295:12
+1771543193823 518 449 55 - rows:84 s2.js:295:12
+1771543194341 506 440 60 - rows:80 s2.js:295:12
+1771543194847 524 463 61 - rows:80 s2.js:295:12
+1771543195372 526 465 60 - rows:88 s2.js:295:12
+1771543195898 551 482 68 - rows:84 s2.js:295:12
+1771543196449 510 447 63 - rows:88 s2.js:295:12
+1771543196959 501 447 51 - rows:80
+
+looks like the php read is taking 500ms or so
+
+-rw-r--r--  1 m m 260112384 Feb 19 16:16 status.db
+-rw-r--r--  1 m m     32768 Feb 19 16:16 status.db-shm
+-rw-r--r--  1 m m   4383712 Feb 19 16:16 status.db-wal
+
+at least the wal is not that big
+ 
+
+try this:
+
+DELETE FROM client_status WHERE ss_id < 600000;
+ 
+1771543352190 507 234 65 - rows:80 s2.js:295:12
+1771543352698 507 235 62 - rows:80 s2.js:295:12
+1771543353206 505 234 67 - rows:84 s2.js:295:12
+1771543353711 506 285 58 - rows:88 s2.js:295:12
+1771543354218 503 232 57 - rows:72 s2.js:295:12
+1771543354721 508 233 149 - rows:80 s2.js:295:12
+1771543355230 505 236 55 - rows:84 s2.js:295:12
+1771543355736 504 233 54 - rows:80 s2.js:295:12
+1771543356240 503 233 56 - rows:80 s2.js:295:12
+1771543356743 506 237 55 - rows:80
+
+DELETE FROM client_status WHERE ss_id < 900000;
+ 
+1771543887467 521 132 27 - rows:68 s2.js:295:12
+1771543887988 507 133 26 - rows:84 s2.js:295:12
+1771543888495 519 133 28 - rows:80 s2.js:295:12
+1771543889014 519 135 31 - rows:84 s2.js:295:12
+1771543889533 515 134 33 - rows:84 s2.js:295:12
+1771543890048 502 135 33 - rows:80 s2.js:295:12
+1771543890550 514 133 27 - rows:80 s2.js:295:12
+1771543891064 511 133 27 - rows:84 s2.js:295:12
+1771543891575 501 134 28 - rows:80
+
+
+as you can see, the amount of time to select is directly related to the number of rows in the table
+
+
+sqlite> SELECT COUNT(*) FROM client_status;
+1420430
+134ms
+
+sqlite> DELETE FROM client_status WHERE ss_id < 1100000;
+sqlite> SELECT COUNT(*) FROM client_status;
+630558
+76ms
+
+
+
+
+
+2026-02-19 16:42:10
+
+here is one thing I want to do...
+the legend and series should be common for all charts
+only calculate it once...
+
+done, but that is far from the bottleneck
+chartArray[i].setOption(
+
+takes longer depending on how many data points are in the array
+
+
+2026-02-20 03:05:17
+
+I want to choose what charts are shown and in what order
+
+interval slider show skip value to help in adjusting
+
+show average time to get data
+show average time to update chart
+
+
+I think I might have a memory leak in firefox
+it freezes and was using 6G of memory
+
+
 
 
 
