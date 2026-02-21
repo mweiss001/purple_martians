@@ -16,7 +16,7 @@
 #include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwSql.h"
-
+#include "mwStatusBuffer.h"
 
 
 int mwNetgame::serverInitNetwork()
@@ -298,11 +298,18 @@ void mwNetgame::server_insert_status()
 {
    double t0 = al_get_time();
 
+   mStatusBuffer.add();
+
+/*
+
+
+   std::string ts = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
+
    // start transaction
    char* messageError;
    if (sqlite3_exec(mSql.db_status, "BEGIN TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);
 
-   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+//   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
 
    sqlite3_reset    (mSql.server_status_insert_stmt);
    sqlite3_bind_text(mSql.server_status_insert_stmt, 1, ts.c_str(),     -1, SQLITE_TRANSIENT);
@@ -342,6 +349,9 @@ void mwNetgame::server_insert_status()
          if (sqlite3_step(  mSql.client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_status));
       }
    if (sqlite3_exec(mSql.db_status, "COMMIT TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);
+
+   */
+
    printf("time to insert:%f\n", (al_get_time()-t0)*1000);
 }
 

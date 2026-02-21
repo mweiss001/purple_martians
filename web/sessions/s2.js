@@ -49,8 +49,6 @@ function setupControls()
 
 //   controlsContainer.style.border = '1px solid #ff0000';
 
-
-
    // interval control
    const intervalSliderContainer = document.createElement('div');
    intervalSliderContainer.style.display = 'flex';
@@ -64,6 +62,9 @@ function setupControls()
    intervalSlider.setAttribute('type', 'range');
    intervalSlider.setAttribute('min', '25');
    intervalSlider.setAttribute('max', '2000');
+   intervalSlider.setAttribute('step', '25');
+
+
    intervalSliderContainer.appendChild(intervalSlider);
 
    // label element
@@ -104,13 +105,13 @@ function setupControls()
    rangeSlider.setAttribute('type', 'range');
    rangeSlider.setAttribute('min', '25');
    rangeSlider.setAttribute('max', '2000');
+   rangeSlider.setAttribute('step', '40');
    rangeSliderContainer.appendChild(rangeSlider);
 
    // label element
    const rangeSliderLabel = document.createElement('label');
    rangeSliderLabel.textContent = 'Range:';
    rangeSliderContainer.appendChild(rangeSliderLabel);
-
 
    // span element
    const rangeSliderSpan = document.createElement('span');
@@ -160,7 +161,7 @@ function setupCharts()
    {
       animation: false,
       tooltip: {},
-      legend: {},
+//      legend: {},
       xAxis:
       {
          type: 'value',
@@ -177,7 +178,12 @@ function setupCharts()
       const container = document.createElement('div');
       container.setAttribute('id', name);
       container.style.height = '240px';
+
+      container.style.border = '1px solid #FFFFFF';
+
       chartArea.appendChild(container);
+
+
 
       // create chart and set initial options  
       chartArray[i] = echarts.init(container);
@@ -188,7 +194,7 @@ function setupCharts()
       chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
    }
 
-   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
+//   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
    chartArray[1].setOption( { title: { text: 'sync' }, }, false );
    chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
 }
@@ -229,7 +235,7 @@ const playerColors = [
    "#ffffff",
 ]
 
-var t0, t1, t2, t3;
+var t0, t1, t2, t3, t4;
 
 
 var data = [];
@@ -237,7 +243,7 @@ const chartArray = [];
 const chartDataArray = [];
 var numCharts = 3;
 
-var curMaxSsid = 0;
+var currentMaxTimestamp = 0;
 
 var i, j, k;
 
@@ -292,22 +298,19 @@ async function fetchData()
    }
 
    // data from last run
-   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} - rows:${data.length}`);
+   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} ${t3-t2} ${t4-t3} - rows:${data.length}`);
 
-   // reset all
-   t2 = t1 = t0 = Date.now(); 
-
-
-
+   // reset all timers
+   t4 = t3 = t2 = t1 = t0 = Date.now(); 
 
    if (fetchRunning) return; // ensures only one instance
    fetchRunning = true;
-//   const startTime = Date.now(); // start timer
+
    try
    {
-      var url = 'fetchDataStatus.php?start_ssid=';
-      if (curMaxSsid == 0) url += '-100'; 
-      else url += curMaxSsid;
+      var url = 'fetchDataStatus.php?start_timestamp=';
+      if (currentMaxTimestamp == 0) url += '-1000'; 
+      else url += currentMaxTimestamp;
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
       data = await response.json(); // Parse the response body as JSON
@@ -315,14 +318,8 @@ async function fetchData()
    } finally
    {
       t1 = Date.now();
-
-//     const endTime = Date.now();
-//     console.log(`Time:${endTime - startTime}ms - rows:${data.length}`);
-     fetchRunning = false;
-     if (data.length) do_stuff(); // only if data
-
-     t2 = Date.now();
-
+      fetchRunning = false;
+      if (data.length) do_stuff(); // only if data
    }
 }
 
@@ -335,12 +332,10 @@ function do_stuff()
 
    // data to be processed consists of rows from client_status table
    // each row is for one frame and player and has muliple data values
-   // ss_id is the time value
-   // data is aleady sorted by ss_id and player_num   
-   // (the player num sort is probably not required)
-
+   // timestamp is the time value
+   // data is aleady sorted by timestamp
    // data is read one row at a time and added to temporay rows for each chart
-   // when a new ss_id is read, temp rows are pushed to chart data
+   // when a new timestamp is read, temp rows are pushed to chart data
 
 
    const row = [];
@@ -349,12 +344,11 @@ function do_stuff()
    // player colors array
    const pc = Array(8).fill(0);
 
-
    for (const dat of data)
    {
-      var t = dat.ss_id;  // t (ss_id)
-      var p = dat.pl_num; // player num
-      pc[p] = dat.pl_col; // player color
+      var t = dat.timestamp;
+      var p = dat.pl_num; 
+      pc[p] = dat.pl_col; 
 
       var v = [];         // value array  
       v[0] = dat.cpu;
@@ -363,7 +357,7 @@ function do_stuff()
 
 
       // update current max ssid  
-      if (t > curMaxSsid) curMaxSsid = t;
+      if (t > currentMaxTimestamp) currentMaxTimestamp = t;
 
       if (t !== ct) // new t (or first)
       {
@@ -390,6 +384,8 @@ function do_stuff()
    for (i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
 
 
+   t2 = Date.now();
+
    // remove elements from start of array to maintain chartTimeRange
    for (i=0; i<numCharts; i++)
    {
@@ -398,18 +394,28 @@ function do_stuff()
       if (extra_length > 0) chartDataArray[i].splice(1, extra_length);
    }
 
+   t3 = Date.now();
+
+   // search for valid data in chart 0 only
+   const vd = Array(8).fill(0);
+
+   for (j=1; j<chartDataArray[0].length; j++)
+      for (k=1; k<9; k++)
+         if (chartDataArray[0][j][k] !== null) vd[k-1] = 1;
+
 
    for (i=0; i<numCharts; i++)
    {
+/*
       // search for valid data
       const vd = Array(8).fill(0);
 
       for (j=1; j<chartDataArray[i].length; j++)
          for (k=1; k<9; k++)
             if (chartDataArray[i][j][k] !== null) vd[k-1] = 1;
-
+*/
       const series = [];
-      const legend = [];
+//      const legend = [];
 
       // only add series and legend if valid data
       for (j=0; j<8; j++)
@@ -426,7 +432,7 @@ function do_stuff()
                lineStyle: { width: 1 },  
                itemStyle: { color: playerColors[pc[j]] },
             });
-            legend.push(tt); 
+//            legend.push(tt); 
          }
       }   
 
@@ -434,7 +440,10 @@ function do_stuff()
       {
          dataset: { source: chartDataArray[i] },
          series: series,  
-         legend: { data: legend },
+//         legend: { data: legend },
       }, false );
    }
+   
+   t4 = Date.now();
+   
 }

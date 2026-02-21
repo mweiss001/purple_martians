@@ -74,21 +74,27 @@ void mwMain::set_and_get_versions(void)
    sprintf(mLoop.pm_version_string, PM_VERSION);
    printf("\nPurple Martians Version %s\n", mLoop.pm_version_string);
 
-
    std::cout << "GCC Version: " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
 
-    long standard = __cplusplus;
-    // Mapping the macro values to standard names
-    if (standard == 199711L) std::cout << "C++98/C++03" << std::endl;
-    else if (standard == 201103L) std::cout << "C++11" << std::endl;
-    else if (standard == 201402L) std::cout << "C++14" << std::endl;
-    else if (standard == 201703L) std::cout << "C++17" << std::endl;
-    else if (standard == 202002L) std::cout << "C++20" << std::endl;
-    else if (standard == 202302L) std::cout << "C++23" << std::endl;
-    else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
+   long standard = __cplusplus;
+   // Mapping the macro values to standard names
+   if (standard == 199711L) std::cout << "C++98/C++03" << std::endl;
+   else if (standard == 201103L) std::cout << "C++11" << std::endl;
+   else if (standard == 201402L) std::cout << "C++14" << std::endl;
+   else if (standard == 201703L) std::cout << "C++17" << std::endl;
+   else if (standard == 202002L) std::cout << "C++20" << std::endl;
+   else if (standard == 202302L) std::cout << "C++23" << std::endl;
+   else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
 
 
 
+   // Format with milliseconds precision
+//   const auto now_ms = std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now());
+//   std::string t2 = std::format("{:%Y%m%d %H%M%S}", now_ms);
+
+
+   std::string t2 = std::format("{:%Y%m%d %H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
+   std::cout << "gmt time: " << t2 << std::endl;
 
 
 /*
@@ -96,6 +102,45 @@ void mwMain::set_and_get_versions(void)
    printf("\nDate test: %s\n\n", ts.c_str());
 */
 
+/*
+   // Get the current time from the system clock
+   auto now = std::chrono::system_clock::now();
+
+   // Convert the current time to time since epoch
+   auto duration = now.time_since_epoch();
+*/
+
+   // Get the current time from the system clock
+//   auto now = std::chrono::system_clock::now();
+/*
+   // Convert the current time to time since epoch
+   auto duration = std::chrono::system_clock::now().time_since_epoch();
+
+   // Convert duration to milliseconds
+   auto milliseconds
+       = std::chrono::duration_cast<std::chrono::milliseconds>(
+             duration)
+             .count();
+*/
+  /*
+   // Convert duration to milliseconds
+   auto milliseconds= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+   printf("\nDate test: %lld\n\n", milliseconds);
+   double tf = (double)milliseconds/1000;
+//   tf /= 1000;
+   printf("\nDate test2: %f\n", tf);
+
+
+
+   double ts = (double) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000;
+   printf("\nDate test2: %f\n", ts);
+
+
+
+   std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+   printf("\nDate test: %lld\n\n", timestamp);
+
+*/
 
    // get allegro version
    uint32_t version = al_get_allegro_version();
@@ -106,6 +151,8 @@ void mwMain::set_and_get_versions(void)
 
    sprintf(mLoop.al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
    printf("%s\n", mLoop.al_version_string);
+
+
 
    // get hostname
    FILE *fp = popen("hostname", "r");

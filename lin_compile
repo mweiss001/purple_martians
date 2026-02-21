@@ -3,7 +3,7 @@
 mkdir -p ./o/src
 
 # compiler executable and options
-gc='g++ -Wall '
+gc='g++ -std=c++20 -Wall '
 
 # iterate all *.cpp in source directory
 for filename in src/*.cpp; do

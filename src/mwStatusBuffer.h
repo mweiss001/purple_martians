@@ -5,27 +5,9 @@
 
 #include "sqlite3.h"
 
-struct client_status_buffer
+struct server_status_buffer_row
 {
-   int ss_id;
-   std::string timestamp;
-   int p;
-   int color;
-   std::string name;
-   std::string hostname;
-   int cpu;
-   int pdsync;
-   int ping;
-   int client_loc_plr_cor;
-   int client_rmt_plr_cor;
-   int rewind;
-   int cmp_dif_size;
-   int tx_bytes_per_tally;
-};
-
-struct server_status_buffer
-{
-   std::string timestamp;
+   std::uint64_t timestamp;
    int frame;
    int level;
    int moves;
@@ -33,12 +15,46 @@ struct server_status_buffer
    int uptime;
 };
 
+struct client_status_buffer_row
+{
+   std::uint64_t timestamp;
+   int frame;
+   int p;
+   int color;
+   std::string name;
+   std::string hostname;
+   int cpu;
+   int sync;
+   int ping;
+   int lcor;
+   int rcor;
+   int rwnd;
+   int difs;
+   int tkbs;
+};
+
+
+
 
 class mwStatusBuffer
 {
-
    public:
+
    mwStatusBuffer();
+
+   void init();
+   void add();
+
+   private:
+
+
+   std::vector<server_status_buffer_row> server_status_buffer_rows;
+   std::vector<client_status_buffer_row> client_status_buffer_rows;
+
+
+
+
+
 
 
 

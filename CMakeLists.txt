@@ -6,10 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -static")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -pedantic -static")
 
-
-
-
-set(ALLEGRO_ROOT_DIR "C:/allegro") # Update this path to your Allegro location
+set(ALLEGRO_ROOT_DIR "C:/allegro")
 include_directories(${ALLEGRO_ROOT_DIR}/include)
 link_directories(${ALLEGRO_ROOT_DIR}/lib)
 
@@ -61,10 +58,8 @@ add_executable(pm
         src/mwGameMoves.h
         src/mwGlobalLevelTool.cpp
         src/mwGlobalLevelTool.h
-
         src/mwGmInfo.cpp
         src/mwGmInfo.h
-
         src/mwGraph.cpp
         src/mwGraph.h
         src/mwHelp.cpp

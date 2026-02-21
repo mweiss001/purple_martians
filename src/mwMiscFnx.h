@@ -18,6 +18,10 @@ class mwMiscFnx
    int get_tag_text2(char *str, char *res, char *res1, int show);
 
    std::string timestamp(const char* format);
+
+//   std::string timestamp2(constexpr std::string_view fmt);
+
+
    std::string timestamp_UTC_ISO8601();
    int find_duration(const char* d1, const char* d2);
 

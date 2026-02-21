@@ -19,7 +19,7 @@ int mwSql::init()
 
 void mwSql::create_prepared_statements()
 {
-   const char* sql1 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?, ?) RETURNING id";
+   const char* sql1 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?, ?)";
    int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &server_status_insert_stmt, nullptr);
    if (rc1 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
 
@@ -57,7 +57,7 @@ int mwSql::open_database()
       return (0);
    }
 
-   execute_sql("PRAGMA journal_mode = WAL", db_status);
+//   execute_sql("PRAGMA journal_mode = WAL", db_status);
 
 
    // sprintf(filename, "%s", "data/logs.db");
@@ -160,7 +160,7 @@ void mwSql::create_tables()
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS server_status( \
                id            INTEGER PRIMARY KEY, \
-               timestamp     TEXT, \
+               timestamp     INT, \
                frame         INT, \
                level         INT, \
                moves         INT, \
@@ -171,8 +171,8 @@ void mwSql::create_tables()
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
                id            INTEGER PRIMARY KEY, \
-               ss_id         INT, \
-               timestamp     TEXT, \
+               timestamp     INT, \
+               frame         INT, \
                pl_num        INT, \
                pl_col        INT, \
                pl_name       TEXT, \
@@ -187,7 +187,7 @@ void mwSql::create_tables()
                tkbs          INT ); ");
    execute_sql(sql, db_status);
 
-   strcpy(sql, "CREATE INDEX IF NOT EXISTS ss_id_index ON client_status(ss_id DESC)");
+   strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
    execute_sql(sql, db_status);
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \

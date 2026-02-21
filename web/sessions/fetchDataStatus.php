@@ -8,20 +8,20 @@ $db = new PDO("sqlite:/home/m/dev/purple_martians/data/status.db");
 
 $max_records = 3200;
 
-$start_ssid = -40;
-if (isset($_GET['start_ssid'])) $start_ssid = $_GET['start_ssid'];
+$start_timestamp = -40000;
+if (isset($_GET['start_timestamp'])) $start_timestamp = $_GET['start_timestamp'];
 
-// if start_ssid < 0 then get last x values
-if ($start_ssid < 0)
+// if start_timestamp < 0 then subtract from last timestamp
+if ($start_timestamp < 0)
 {
-   // find last record
-   $res = $db->query("SELECT MAX(ss_id) FROM client_status");
-   if ($row = $res->fetch(PDO::FETCH_ASSOC)) $last_ssid = $row['MAX(ss_id)'];
-   $start_ssid = $last_ssid + $start_ssid;
+   // find last_timestamp
+   $res = $db->query("SELECT MAX(timestamp) FROM client_status");
+   if ($row = $res->fetch(PDO::FETCH_ASSOC)) $last_timestamp = $row['MAX(timestamp)'];
+   $start_timestamp = $last_timestamp + $start_timestamp;
 }
 
 $data = array();
-$sql = "SELECT * FROM client_status WHERE ss_id>$start_ssid ORDER BY ss_id LIMIT $max_records";
+$sql = "SELECT * FROM client_status WHERE timestamp>$start_timestamp ORDER BY timestamp LIMIT $max_records";
 $res = $db->query($sql);
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) $data[] = $row;
 
