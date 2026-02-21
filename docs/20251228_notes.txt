@@ -18978,8 +18978,6 @@ Recommended Method: Using a Shared Group
 This approach provides the necessary access for Apache while maintaining security and keeping your files within your home directory structure. 
 
 
-
-
 sudo groupadd webdb
 
 Add Users to the Group: Add your user (replace your_username and apache_user accordingly) to the newly created group.
@@ -19008,6 +19006,176 @@ sudo chmod -R 770 /home/m/dev/purple_martians/data/
     # Use a more specific command like:
     find /home/your_username/database_folder -type d -exec sudo chmod 770 {} \;
     find /home/your_username/database_folder -type f -exec su
+
+
+
+
+
+2026-02-21 13:59:04
+I fucked up the permissions somehow and lost all access to database file
+copied all web stuff back and committed
+
+making a new server from o7040 i7-6700 16G RAM 250GHD
+
+call it o7040
+
+download do not work after following instructions...they did after a reboot...maybe apache just needed to be restarted...
+
+setup samba
+
+2026-02-21 14:36:47
+
+now try this permissions thing again??
+
+
+first of all:
+
+m@o7040:~/dev/purple_martians/data$ namei -l /home/m/dev/purple_martians/data
+f: /home/m/dev/purple_martians/data
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--x m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxr-xr-x m    m    data
+
+try this:
+
+sudo chown m:www-data /home/m/dev/purple_martians/data/status.db
+
+-rw-r--r--  1 m m 4636672 Feb 21 14:40 status.db
+m@o7040:~/dev/purple_martians/data$ sudo chown m:www-data /home/m/dev/purple_martians/data/status.db
+m@o7040:~/dev/purple_martians/data$ ll
+total 9620
+drwxr-xr-x  2 m m           4096 Feb 21 14:41 ./
+drwxrwxrwx 18 m m           4096 Feb 21 14:15 ../
+-rw-r--r--  1 m m           8192 Feb 21 14:15 game_events.db
+-rw-rw-r--  1 m m        4829268 Feb 21 14:27 level_data.pm
+-rw-r--r--  1 m m         126976 Feb 21 14:41 sessions.db
+-rw-rw-r--  1 m m           5360 Feb 21 14:27 settings.pm
+-rw-r--r--  1 m www-data 4857856 Feb 21 14:41 status.db
+m@o7040:~/dev/purple_martians/data$
+
+
+but this is not enough...
+
+the file does not have group write
+
+sudo chmod g+w /home/m/dev/purple_martians/data/status.db
+
+
+m@o7040:~/dev/purple_martians/data$ sudo chmod g+w /home/m/dev/purple_martians/data/status.db
+m@o7040:~/dev/purple_martians/data$ ll
+total 11108
+drwxr-xr-x  2 m m           4096 Feb 21 14:48 ./
+drwxrwxrwx 18 m m           4096 Feb 21 14:15 ../
+-rw-r--r--  1 m m           8192 Feb 21 14:15 game_events.db
+-rw-rw-r--  1 m m        4829268 Feb 21 14:27 level_data.pm
+-rw-r--r--  1 m m         151552 Feb 21 14:48 sessions.db
+-rw-rw-r--  1 m m           5360 Feb 21 14:27 settings.pm
+-rw-rw-r--  1 m www-data 6356992 Feb 21 14:48 status.db
+m@o7040:~/dev/purple_martians/data$
+
+
+m@o7040:~/dev/purple_martians/data$ namei -l /home/m/dev/purple_martians/data
+f: /home/m/dev/purple_martians/data
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--x m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxr-xr-x m    m    data
+m@o7040:~/dev/purple_martians/data$
+
+all parent dir have x bit set
+
+just to see if it is a permissions thing
+
+put it in sessions...it works there!!!!!!!
+
+
+so it is a permissions thing....
+
+this file works and does not need to be modified, instead, fix permissions on the database file
+
+<?php
+header('Content-Type: application/json');
+
+// database setup
+$db_filepath = "/var/www/html/sessions/status.db";
+if (!file_exists($db_filepath)) { echo "Database file: $db_filepath not found.\n"; return; }
+$db = new PDO("sqlite:$db_filepath");
+
+// how many records
+$res = $db->query("SELECT COUNT(*) FROM client_status");
+if ($row = $res->fetch(PDO::FETCH_ASSOC)) $num_rows = $row['COUNT(*)'];
+$limit = (int) ($num_rows / 100);
+
+$sql = "DELETE FROM client_status WHERE id IN (SELECT id FROM client_status ORDER BY id ASC LIMIT $limit)";
+$db->exec($sql);
+echo json_encode($limit);
+?>
+
+
+so back to where I was before....
+
+889
+m@o7040:/var/www/html/sessions$  namei -l /home/m/dev/purple_martians/data
+f: /home/m/dev/purple_martians/data
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--x m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxr-xr-x m    m    data
+m@o7040:/var/www/html/sessions$
+
+could it be that I need r on m 
+
+chmod 777 m
+
+try that...
+nothing...
+
+I am going to one step at a time set permissions till I find it....
+
+chmod 777 status.db
+chmod 777 data
+success!!!!!
+
+
+old:
+drwxrwxrwx  2 m m    4096 Feb 21 14:08 bitmaps/
+drwxr-xr-x  2 m m    4096 Feb 21 15:12 data/
+drwxrwxrwx 10 m m    4096 Feb 21 14:08 docs/
+
+new:
+drwxrwxrwx  2 m m    4096 Feb 21 14:08 bitmaps/
+drwxrwxrwx  2 m m    4096 Feb 21 15:12 data/
+drwxrwxrwx 10 m m    4096 Feb 21 14:08 docs/
+
+can I go back?
+
+fix m..done
+drwxr-x--x m    m    m
+
+save all and commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -334,7 +334,7 @@ async function fetchNumRows()
    }
 }
 
-var data3 = [];
+var data3 = "unset";
 async function deleteRows10()
 {
    try
@@ -342,11 +342,11 @@ async function deleteRows10()
       var url = 'deleteStatusRows.php';
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
-      data2 = await response.json(); // Parse the response body as JSON
+      data3 = await response.json(); // Parse the response body as JSON
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
-      console.log(data2);
+      console.log(data3);
    }
 }
 

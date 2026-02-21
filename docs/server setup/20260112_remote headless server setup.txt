@@ -65,11 +65,6 @@ cd ~/dev/purple_martians
 # this is needed to allow php to see database file and to make apache 'downloads/' alias work 
 chmod o+x /home/m
 
-but apache cannot write to db??
-
-chmod o+x+w /home/m/dev/purplemartians/data/status.db
-
-
 
 -----------------------------------------------------------------------------------------------
 setup apache
@@ -238,7 +233,7 @@ linux
 ./pm -rc 
 
 ----------------------------------------------------------------
-manualy work on the server database 
+manually work on the server database 
 ----------------------------------------------------------------
 sqlite3 /home/m/purple_martians/data/database.db
 
