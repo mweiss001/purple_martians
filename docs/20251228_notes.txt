@@ -18860,8 +18860,6 @@ make a faster way to dev on linux:
 -copy only modified src files to linux
 
 
-
-
 time to insert:0.006135
 time to insert:0.007346
 Error: database is locked
@@ -18874,6 +18872,153 @@ Error: cannot start a transaction within a transaction
 time to insert:0.037404
 Error: cannot start a transaction within a transaction
 time to insert:0.037053
+
+maybe I do need the wal
+
+if I do then I need to remerge it periodically...
+
+2026-02-21 08:08:03
+
+where was I?
+
+
+in the s2 page I want to see the time is took to get the last database chunk
+
+
+the number is the amount of time it took between calling 
+
+var url = 'fetchDataStatus.php?start_timestamp=';
+
+and getting the response
+
+also closely realted to that is the amount of records and the time span
+time span will be measured in frames and can be compared to the time span of the refresh interval
+
+I could have some graphs based on just these values alone!!
+
+
+2026-02-21 09:15:44
+in status buffer try rollback after 10 failed lock and do not delete data....done
+
+2026-02-21 10:50:42
+
+now I have a few things to tell how the auto update is working 
+Fetch Time:
+Array Process Time:
+Update Chart Time:
+Fetch Frames:
+Fetch Rows:
+
+what else?
+
+actual refresh time to compare with set update time
+
+number of data in the table
+
+make button to remove all but last 10min
+
+make the mouse over show frame and time
+
+
+number of rows in table...
+I will need another php funtion
+done...
+
+now how to erase...
+
+
+DELETE FROM your_table
+WHERE your_unique_id_column IN (
+    SELECT your_unique_id_column
+    FROM your_table
+    ORDER BY your_unique_id_column ASC
+    LIMIT [N]
+);
+
+
+I am pretty sure there is a premissions issue why the web user cannot delete...
+do I really want the web user to have write access?
+
+
+m@o3000:/var/www/html/sessions$ namei -l /home/m/dev/purple_martians/data/
+f: /home/m/dev/purple_martians/data/
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--x m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxr-xr-x m    m    data
+m@o3000:/var/www/html/sessions$
+
+
+how else will I handle it?
+
+I could go back to the scripts I used to have and make a cleanup one...
+
+just enforce a maximum number of rows in the table
+and also do the check points
+
+so I will never let anything in the web pages alter the database?
+
+that does not seem right...
+
+
+cat /etc/apache2/envvars | grep USER
+
+m@o3000:/var/www/html/sessions$ cat /etc/apache2/envvars | grep USER
+export APACHE_RUN_USER=www-data
+m@o3000:/var/www/html/sessions$
+
+
+
+
+To allow Apache to write to a database file in your home directory, the most secure method is to
+create a shared group, add both your user and the Apache user to that group, and set the appropriate permissions on the specific directory. 
+Recommended Method: Using a Shared Group
+This approach provides the necessary access for Apache while maintaining security and keeping your files within your home directory structure. 
+
+
+
+
+sudo groupadd webdb
+
+Add Users to the Group: Add your user (replace your_username and apache_user accordingly) to the newly created group.
+bash
+
+sudo usermod -a -G webdb m
+sudo usermod -a -G webdb www-data
+
+sudo chown -R m:webdb /home/m/dev/purple_martians/data/
+
+sudo chmod -R 770 /home/m/dev/purple_martians/data/
+
+
+
+
+    Change group ownership:
+    bash
+
+    sudo chown -R your_username:webgroup /home/your_username/database_folder
+
+    Set permissions: This command gives the owner (you) and the group (webgroup) full read/write access, while denying access to others.
+    bash
+
+    sudo chmod -R 770 /home/your_username/database_folder
+    # A more secure option for files is 660, and for directories 770, or a setgid bit to ensure new files inherit the group.
+    # Use a more specific command like:
+    find /home/your_username/database_folder -type d -exec sudo chmod 770 {} \;
+    find /home/your_username/database_folder -type f -exec su
+
+
+
+
+
+
+
+
+
+
+
 
 
 

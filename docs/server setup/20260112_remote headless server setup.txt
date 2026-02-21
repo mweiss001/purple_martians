@@ -65,6 +65,11 @@ cd ~/dev/purple_martians
 # this is needed to allow php to see database file and to make apache 'downloads/' alias work 
 chmod o+x /home/m
 
+but apache cannot write to db??
+
+chmod o+x+w /home/m/dev/purplemartians/data/status.db
+
+
 
 -----------------------------------------------------------------------------------------------
 setup apache
@@ -251,7 +256,7 @@ DELETE FROM sessions;
 
 
 --------------------------------------------------------------------------------------------
-change permissions of web files on server so they can be editted with samba in windows
+change permissions of web files on server so they can be edited with samba in windows
 --------------------------------------------------------------------------------------------
 sudo chmod 777 -R /var/www/html
 
@@ -366,7 +371,9 @@ faster way to send src to linux
 
 pscp -pw zaiden c:\pm\src\mwLog.cpp  m@192.168.1.146:dev/purple_martians/src/
 
-pscp -pw zaiden c:\pm\src\mwSt*  m@192.168.1.146:dev/purple_martians/src/
+pscp -pw zaiden c:\pm\src\mwStatus*  m@192.168.1.146:dev/purple_martians/src/
+
+
 
 
 

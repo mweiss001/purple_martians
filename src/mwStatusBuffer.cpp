@@ -65,14 +65,14 @@ void mwStatusBuffer::add()
          beginTransactionError++;
          printf("Error: %s\n", messageError);
 
-         if (beginTransactionError > 100)
+         if (beginTransactionError > 10)
          {
-            printf("\n100 begin transaction errors, resetting.\n\n");
+            printf("\n10 begin transaction errors, resetting.\n\n");
 
             // Abort the transaction and undo all changes since BEGIN TRANSACTION
             sqlite3_exec(mSql.db_status, "ROLLBACK;", 0, 0, 0);
 
-            printf("\nClearing %d rows in buffer.\n\n", (int)client_status_buffer_rows.size());
+          //  printf("\nClearing %d rows in buffer.\n\n", (int)client_status_buffer_rows.size());
 
             init();
 

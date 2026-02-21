@@ -5,6 +5,7 @@ mkdir -p ./o/src
 # compiler executable and options
 gc='g++ -std=c++20 -Wall '
 
+
 # iterate all *.cpp in source directory
 for filename in src/*.cpp; do
 
@@ -18,27 +19,40 @@ fnb="$(basename "$filename" .cpp)"
 fno=o/src/$fnb'.o' 
 
 
-
 #echo fnc:$fnc fnb:$fnb fno:$fno
 
 
 
+# test if .o file is newer than .cpp file
 if [ "$fno" -nt "$fnc" ]
 then
    echo $fnb is up to date
 fi
 
 
+# test if .cpp file is newer than .o file
 if [ "$fnc" -nt "$fno" ]
 then
-
-el=$gc' -c '$fnc' -o '$fno
-echo $el
-$el
-
+   el=$gc' -c '$fnc' -o '$fno
+   echo $el
+   $el
 fi
 
+
+
+
 done
+
+
+
+
+
+# sqlite3 needs to be compiled with gcc, not g++
+
+if [  "o/src/sqlite.o" -nt "src/sqlite3.c" ]
+then
+   echo sqlite.o is up to date
+fi
 
 if [ "src/sqlite3.c" -nt "o/src/sqlite.o" ]
 then 

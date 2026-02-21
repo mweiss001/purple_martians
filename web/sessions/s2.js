@@ -32,109 +32,127 @@ function setupTestButtons()
    button1.addEventListener("click", function()
    {
       console.log("test button 1 pressed");   
+      fetchNumRows();
    });
    button2.addEventListener("click", function()
    {
       console.log("test button 2 pressed");   
+      deleteRows10();
    });
 }
 
 
-function setupControls()
+
+function createDiv()
 {
-   controlsContainer.style.display = 'flex';
-   controlsContainer.style.flexDirection = 'column';
-   controlsContainer.style.gap = '2px';
-   controlsContainer.style.width = '300px';
+   const container = document.createElement('div');
+   container.style.display = 'flex';
+   container.style.gap = '4px';
+   container.style.alignItems = 'center';
+   container.style.border = '1px solid #8000FF';
+   return container;   
+}
 
-//   controlsContainer.style.border = '1px solid #ff0000';
-
-   // interval control
-   const intervalSliderContainer = document.createElement('div');
-   intervalSliderContainer.style.display = 'flex';
-   intervalSliderContainer.style.gap = '4px';
-   intervalSliderContainer.style.alignItems = 'center';
-
+function setupRangeControl()
+{
+   const container = createDiv();
 
    // slider input element
-   const intervalSlider = document.createElement('input');
-   intervalSlider.setAttribute('id', "intervalSlider");
-   intervalSlider.setAttribute('type', 'range');
-   intervalSlider.setAttribute('min', '25');
-   intervalSlider.setAttribute('max', '2000');
-   intervalSlider.setAttribute('step', '25');
-
-
-   intervalSliderContainer.appendChild(intervalSlider);
+   const slider = document.createElement('input');
+   slider.setAttribute('id', "rangeSlider");
+   slider.setAttribute('type', 'range');
+   slider.setAttribute('min', '1');
+   slider.setAttribute('max', '60');
+   slider.setAttribute('step', '1');
+   slider.value = chartTimeRange;
+   container.appendChild(slider);
 
    // label element
-   const intervalSliderLabel = document.createElement('label');
-   intervalSliderLabel.textContent = 'Interval:';
-   intervalSliderContainer.appendChild(intervalSliderLabel);
-
+   const label = document.createElement('label');
+   label.textContent = 'Range Control:';
+   container.appendChild(label);
 
    // span element
-   const intervalSliderSpan = document.createElement('span');
-   intervalSliderSpan.setAttribute('id', "intervalSliderSpan");
-   intervalSliderContainer.appendChild(intervalSliderSpan);
+   const span = document.createElement('span');
+   span.setAttribute('id', "rangeSliderSpan");
+   container.appendChild(span);
 
-   intervalSliderSpan.innerHTML = updateInterval;
-
-   controlsContainer.appendChild(intervalSliderContainer);
-
-   intervalSlider.addEventListener("input", () =>
+   span.innerHTML = chartTimeRange;
+   slider.addEventListener("input", () =>
    {
-      updateInterval = intervalSlider.value;
-      intervalSliderSpan.innerHTML = updateInterval;
+      chartTimeRange = slider.value;
+      span.innerHTML = chartTimeRange;
+   });
+    controlsContainer.appendChild(container);
+}
+
+
+function setupIntervalControl()
+{
+   const container = createDiv();
+
+   // slider input element
+   const slider = document.createElement('input');
+   slider.setAttribute('id', "intervalSlider");
+   slider.setAttribute('type', 'range');
+   slider.setAttribute('min', '25');
+   slider.setAttribute('max', '2000');
+   slider.setAttribute('step', '25');
+   slider.value = updateInterval;
+   container.appendChild(slider);
+
+   // label element
+   const label = document.createElement('label');
+   label.textContent = 'Refresh Interval:';
+   container.appendChild(label);
+
+   // span element
+   const span = document.createElement('span');
+   span.setAttribute('id', "intervalSliderSpan");
+   container.appendChild(span);
+
+
+   span.innerHTML = updateInterval;
+   slider.addEventListener("input", () =>
+   {
+      updateInterval = slider.value;
+      span.innerHTML = updateInterval;
       changeTimer();
    });
+  
+   controlsContainer.appendChild(container);
+}
 
-
-
-   // range control
-
-   const rangeSliderContainer = document.createElement('div');
-   rangeSliderContainer.style.display = 'flex';
-   rangeSliderContainer.style.gap = '4px';
-   rangeSliderContainer.style.alignItems = 'center';
-
-
-   // slider input element
-   const rangeSlider = document.createElement('input');
-   rangeSlider.setAttribute('id', "rangeSlider");
-   rangeSlider.setAttribute('type', 'range');
-   rangeSlider.setAttribute('min', '25');
-   rangeSlider.setAttribute('max', '2000');
-   rangeSlider.setAttribute('step', '40');
-   rangeSliderContainer.appendChild(rangeSlider);
+function setupLabelValueSpan(lab, id)
+{
+   const container = createDiv();
+   container.style.justifyContent = 'right';
 
    // label element
-   const rangeSliderLabel = document.createElement('label');
-   rangeSliderLabel.textContent = 'Range:';
-   rangeSliderContainer.appendChild(rangeSliderLabel);
+   const label = document.createElement('label');
+   label.textContent = lab;
+   container.appendChild(label);
 
    // span element
-   const rangeSliderSpan = document.createElement('span');
-   rangeSliderSpan.setAttribute('id', "rangeSliderSpan");
-   rangeSliderContainer.appendChild(rangeSliderSpan);
+   const ele = document.createElement('span');
+   ele.setAttribute('id', id);
+   ele.style.width = '40px';
 
-   rangeSliderSpan.innerHTML = chartTimeRange;
-
-   controlsContainer.appendChild(rangeSliderContainer);
-
-   rangeSlider.addEventListener("input", () =>
-   {
-      chartTimeRange = rangeSlider.value;
-      rangeSliderSpan.innerHTML = chartTimeRange;
-   });
+   container.appendChild(ele);
+   controlsContainer.appendChild(container);
+}
 
 
-
+function setupStartStopButton()
+{
+   const container = createDiv();
+   container.style.justifyContent = 'center';
+   container.style.border = 'none';
 
    const stopButton = document.createElement('button');
    stopButton.textContent = 'Stop';
    stopButton.setAttribute('id', 'stopButton');
-   controlsContainer.appendChild(stopButton);
+   container.appendChild(stopButton);
    stopButton.addEventListener("click", function()
    {
       if (intervalId)
@@ -148,9 +166,32 @@ function setupControls()
          stopButton.textContent = 'Stop';
       }
    });
+   controlsContainer.appendChild(container);
+}
 
+function setupControls()
+{
+   controlsContainer.style.display = 'flex';
+   controlsContainer.style.flexDirection = 'column';
+   controlsContainer.style.gap = '2px';
+   controlsContainer.style.width = '360px';
+   //controlsContainer.style.border = '1px solid #FF0000';
 
+   setupIntervalControl();
+   setupRangeControl();
+   setupLabelValueSpan("Fetch Time:",         'fetchTimeSpan');
+   setupLabelValueSpan("Array Process Time:", 'arrayProcessTimeSpan');
+   setupLabelValueSpan("Update Chart Time:",  'updateChartTimeSpan');
+   setupLabelValueSpan("Fetch Frames:",       'fetchNumFramesSpan');
+   setupLabelValueSpan("Fetch Rows:",         'fetchNumRowsSpan');
 
+   setupLabelValueSpan("Actual Interval:",    'actualIntervalSpan');
+   
+   setupLabelValueSpan("Pile Up:",            'pileUpSpan');
+   
+   setupLabelValueSpan("Num Rows:",            'numRowsSpan');
+
+   setupStartStopButton();
 }
 
 
@@ -164,7 +205,7 @@ function setupCharts()
 //      legend: {},
       xAxis:
       {
-         type: 'value',
+         type: 'time',
          min: 'dataMin', 
          max: 'dataMax'
       },
@@ -183,8 +224,6 @@ function setupCharts()
 
       chartArea.appendChild(container);
 
-
-
       // create chart and set initial options  
       chartArray[i] = echarts.init(container);
       chartArray[i].setOption(option);
@@ -194,27 +233,10 @@ function setupCharts()
       chartDataArray[i].push(['time', 'P0', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
    }
 
-//   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
+   chartArray[0].setOption( { title: { text: 'cpu'  }, }, false );
    chartArray[1].setOption( { title: { text: 'sync' }, }, false );
    chartArray[2].setOption( { title: { text: 'tkbs' }, }, false );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const playerColors = [
    "#888888", 
@@ -235,7 +257,13 @@ const playerColors = [
    "#ffffff",
 ]
 
-var t0, t1, t2, t3, t4;
+var t0, t1, t2, t3;
+
+var fetchTime;
+var arrayProcessTime;
+var updateChartTime;
+
+var pileUp = 0;
 
 
 var data = [];
@@ -248,11 +276,11 @@ var currentMaxTimestamp = 0;
 var i, j, k;
 
 var updateInterval = 200;
-var chartTimeRange = 200;
+var chartTimeRange = 5;
 
 let fetchRunning = false; 
 
-let intervalId; // Variable to store the interval ID
+let intervalId; // Variable to store the refresh timer interval ID
 
 function startTimer()
 {
@@ -279,7 +307,7 @@ function changeTimer()
 
 document.addEventListener('DOMContentLoaded', (event) =>
 {
-   //setupTestButtons();
+   setupTestButtons();
    setupControls();
    setupCharts();
    startTimer();
@@ -289,19 +317,65 @@ document.addEventListener('DOMContentLoaded', (event) =>
 
 
 
+var data2 = [];
+async function fetchNumRows()
+{
+   try
+   {
+      var url = 'findStatusNumRows.php';
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
+      data2 = await response.json(); // Parse the response body as JSON
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+      console.log(data2);
+      document.getElementById('numRowsSpan').innerHTML = data2;
+   }
+}
+
+var data3 = [];
+async function deleteRows10()
+{
+   try
+   {
+      var url = 'deleteStatusRows.php';
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
+      data2 = await response.json(); // Parse the response body as JSON
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+      console.log(data2);
+   }
+}
+
+
+
+
+
+
 async function fetchData()
 {
+   document.getElementById('pileUpSpan').innerHTML = pileUp;
+
    if (fetchRunning)
    {
-      console.log(`${Date.now()} ${Date.now()-t0} -- running`);
+//      console.log(`${Date.now()} ${Date.now()-t0} -- running`);
+      pileUp++;
       return; // ensures only one instance
    }
+   pileUp = 0;
+
 
    // data from last run
-   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} ${t3-t2} ${t4-t3} - rows:${data.length}`);
+//   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} ${t3-t2} - rows:${data.length}`);
+
+   document.getElementById('actualIntervalSpan').innerHTML = Date.now()-t0;
 
    // reset all timers
-   t4 = t3 = t2 = t1 = t0 = Date.now(); 
+   t3 = t2 = t1 = t0 = Date.now(); 
+
 
    if (fetchRunning) return; // ensures only one instance
    fetchRunning = true;
@@ -314,10 +388,21 @@ async function fetchData()
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
       data = await response.json(); // Parse the response body as JSON
+      
+      console.log(data);
+
+
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
+
+      console.log(data);
+
+
       t1 = Date.now();
+      fetchTime = t1 - t0;
+      document.getElementById('fetchTimeSpan').innerHTML = fetchTime;
+
       fetchRunning = false;
       if (data.length) do_stuff(); // only if data
    }
@@ -327,7 +412,7 @@ async function fetchData()
 
 function do_stuff()
 {
-   if (data.length == 0) return;
+   document.getElementById('fetchNumRowsSpan').innerHTML = data.length;
 
 
    // data to be processed consists of rows from client_status table
@@ -340,6 +425,9 @@ function do_stuff()
 
    const row = [];
    var ct = -1; // current t
+
+   var fetchNumFrames = 0;
+
 
    // player colors array
    const pc = Array(8).fill(0);
@@ -361,6 +449,7 @@ function do_stuff()
 
       if (t !== ct) // new t (or first)
       {
+         fetchNumFrames++;
          for (i=0; i<numCharts; i++)
          {
             // if not first row, push old row
@@ -379,24 +468,20 @@ function do_stuff()
      for (i=0; i<numCharts; i++) row[i][p+1] = v[i];
    }
 
-
    // push last row
    for (i=0; i<numCharts; i++) chartDataArray[i].push(row[i]);
 
 
-   t2 = Date.now();
-
    // remove elements from start of array to maintain chartTimeRange
    for (i=0; i<numCharts; i++)
    {
-      const extra_length = chartDataArray[i].length - chartTimeRange;
+      const extra_length = chartDataArray[i].length - chartTimeRange*40;
       // start from 1 so we do not remove the column header row
       if (extra_length > 0) chartDataArray[i].splice(1, extra_length);
    }
 
-   t3 = Date.now();
 
-   // search for valid data in chart 0 only
+   // check for valid player data
    const vd = Array(8).fill(0);
 
    for (j=1; j<chartDataArray[0].length; j++)
@@ -404,16 +489,12 @@ function do_stuff()
          if (chartDataArray[0][j][k] !== null) vd[k-1] = 1;
 
 
+   t2 = Date.now();
+   arrayProcessTime = t2 - t1;
+   document.getElementById('arrayProcessTimeSpan').innerHTML = arrayProcessTime;
+
    for (i=0; i<numCharts; i++)
    {
-/*
-      // search for valid data
-      const vd = Array(8).fill(0);
-
-      for (j=1; j<chartDataArray[i].length; j++)
-         for (k=1; k<9; k++)
-            if (chartDataArray[i][j][k] !== null) vd[k-1] = 1;
-*/
       const series = [];
 //      const legend = [];
 
@@ -443,7 +524,12 @@ function do_stuff()
 //         legend: { data: legend },
       }, false );
    }
+      
    
-   t4 = Date.now();
-   
+   t3 = Date.now();
+   updateChartTime = t3 - t2;
+   document.getElementById('updateChartTimeSpan').innerHTML = updateChartTime;
+  
+   document.getElementById('fetchNumFramesSpan').innerHTML = fetchNumFrames;
+
 }
