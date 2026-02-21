@@ -290,6 +290,12 @@ restore:
 cp -r ~/dev/purple_martians/web/* /var/www/html
 
 
+
+
+
+
+
+
 ----------------------------------------------------------------
 erase all on remote server, reclone from git and compile
 ----------------------------------------------------------------
@@ -352,5 +358,16 @@ win_copy_to_pmh.bat copy_src
 win_copy_to_pmh.bat copy_levels
 win_copy_to_pmh.bat copy_data
 win_copy_to_pmh.bat copy_cfg
+
+
+----------------------------------------------------------------
+faster way to send src to linux
+----------------------------------------------------------------
+
+pscp -pw zaiden c:\pm\src\mwLog.cpp  m@192.168.1.146:dev/purple_martians/src/
+
+pscp -pw zaiden c:\pm\src\mwSt*  m@192.168.1.146:dev/purple_martians/src/
+
+
 
 

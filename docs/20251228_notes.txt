@@ -18831,6 +18831,52 @@ fixed php and js...
 
 do a push, rebuild and test
 
+damn, it still works
+
+
+I get spikes of cpu on p0, probably when doing a bulk insert
+
+x axis labels show huge ms epoch values
+
+I am so glad I set up the tables like I did..
+js and echarts expects time values to be in ms since epoch, exactly what I am storing
+
+change the range slider to seconds, then multiply by 40
+
+done...
+
+sometimes the server gets stuck in a loop:
+
+time to insert:0.024604
+Error: cannot start a transaction within a transaction
+time to insert:0.029765
+Error: cannot start a transaction within a transaction
+time to insert:0.025609
+
+why? and what can I do to fix it? prevent it?
+
+
+make a faster way to dev on linux:
+-copy only modified src files to linux
+
+
+
+
+time to insert:0.006135
+time to insert:0.007346
+Error: database is locked
+time to insert:0.477033
+time to insert:0.006166
+time to insert:0.004724
+time to insert:0.004900
+time to insert:0.004696
+Error: cannot start a transaction within a transaction
+time to insert:0.037404
+Error: cannot start a transaction within a transaction
+time to insert:0.037053
+
+
+
 
 
 

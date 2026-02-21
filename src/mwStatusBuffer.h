@@ -47,6 +47,8 @@ class mwStatusBuffer
 
    private:
 
+   int beginTransactionError{};
+
 
    std::vector<server_status_buffer_row> server_status_buffer_rows;
    std::vector<client_status_buffer_row> client_status_buffer_rows;

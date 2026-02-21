@@ -19,6 +19,7 @@ mwStatusBuffer::mwStatusBuffer()
 
 void mwStatusBuffer::init()
 {
+   beginTransactionError = 0;
    server_status_buffer_rows.clear();
    client_status_buffer_rows.clear();
 }
@@ -26,13 +27,15 @@ void mwStatusBuffer::init()
 
 void mwStatusBuffer::add()
 {
+   // get timestamp as msec since epoch
    std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-//   std::string timestamp = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
    int frame = mLoop.frame_num;
 
+   // add row for server
    struct server_status_buffer_row row = { timestamp, frame, mLevel.play_level, mGameMoves.entry_pos, mEnemy.num_enemy, (int) al_get_time() };
    server_status_buffer_rows.push_back(row);
 
+   // add rows for clients
    for (int p=0; p<NUM_PLAYERS; p++)
       if (mPlayer.syn[p].active)
       {
@@ -51,18 +54,33 @@ void mwStatusBuffer::add()
          client_status_buffer_rows.push_back(row);
       }
 
-
-
-   if (server_status_buffer_rows.size() > 10)
+   // periodically dump to database
+   if (server_status_buffer_rows.size() > 4)
    {
       char* messageError;
 
       // start transaction
       if (sqlite3_exec(mSql.db_status, "BEGIN TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK)
       {
+         beginTransactionError++;
          printf("Error: %s\n", messageError);
+
+         if (beginTransactionError > 100)
+         {
+            printf("\n100 begin transaction errors, resetting.\n\n");
+
+            // Abort the transaction and undo all changes since BEGIN TRANSACTION
+            sqlite3_exec(mSql.db_status, "ROLLBACK;", 0, 0, 0);
+
+            printf("\nClearing %d rows in buffer.\n\n", (int)client_status_buffer_rows.size());
+
+            init();
+
+         }
+
          return;
       }
+      beginTransactionError = 0;
 
       for (auto row: server_status_buffer_rows)
       {
@@ -97,10 +115,7 @@ void mwStatusBuffer::add()
 
       if (sqlite3_exec(mSql.db_status, "COMMIT TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);
 
-      //      printf("10 del\n");
+      init();
 
-      server_status_buffer_rows.clear();
-      client_status_buffer_rows.clear();
    }
 }
-

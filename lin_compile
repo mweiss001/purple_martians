@@ -40,6 +40,12 @@ fi
 
 done
 
-echo gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
-gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+if [ "src/sqlite3.c" -nt "o/src/sqlite.o" ]
+then 
+   echo gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+   gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+fi
+
+
+
 

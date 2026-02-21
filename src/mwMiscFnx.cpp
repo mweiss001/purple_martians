@@ -39,8 +39,6 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
-
-
 int mwMiscFnx::find_duration(const char* d1, const char* d2)
 {
    // create tm struct from date 1
@@ -66,14 +64,7 @@ int mwMiscFnx::find_duration(const char* d1, const char* d2)
 
    return duration;
 
-
 }
-
-
-
-
-
-
 
 
 // return ISO 8601 UTC timestamp from 'now' as std::string
@@ -88,115 +79,6 @@ std::string mwMiscFnx::timestamp_UTC_ISO8601()
    std::string ret(t);
    return ret;
 }
-
-
-/*
-// specific version that has ms if bool ms is true
-std::string mwMiscFnx::timestamp2(constexpr std::string_view fmt)
-{
-   bool ms = true;
-
-
-//   constexpr std::string_view fmt = "{:%Y%m%d %H%M%S}";
-
-
-
-//   auto now = std::chrono::system_clock::now();
-
-//   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-
-
-//   std::string formatted_time = std::format("{:%T}", now);
-//   std::cout << "Current time with fractional seconds: " << formatted_time << std::endl;
-
-
-   // Format with milliseconds precision
-   const auto now_ms = std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now());
-   std::string formatted_ms = std::format("{:%T}", now_ms);
-   std::cout << "Time in milliseconds: " << formatted_ms << std::endl;
-
-//   std::string t2 = std::format("{:%Y%m%d %H%M%S}", now_ms);
-
-   std::string t2 = std::format(fmt, now_ms);
-   std::cout << "T2: " << t2 << std::endl;
-
-
-   //   std::cout << std::format("{:%Y-%m-%d %H:%M:%.3S}", now) << std::endl;
-
-
-
-// does not work
-//   std::cout << std::format("{:%Y-%m-%d %H:%M:%.3S}", now) << std::endl;
-
-
-
-   /*
-
-*/
-
-
-/*
-
-#include <iostream>
-#include <chrono>
-#include <format>
-#include <string>
-
-   int main() {
-      // 1. Get the current time with high precision (e.g., system_clock's default)
-      const auto now = std::chrono::system_clock::now();
-
-      // 2. Format using "%T"
-      // The output precision is determined by the 'now' time_point's duration type
-      std::string formatted_time = std::format("{:%T}", now);
-
-      // 3. Print the result
-      std::cout << "Current time with fractional seconds: " << formatted_time << std::endl;
-
-      return 0;
-   }
-
-  */
-
-
-
-/*
-
-      std::string name = "Alice";
-      int age = 30;
-      // Basic formatting
-      std::string s = std::format("Hello {}, you are {} years old.", name, age);
-      std::cout << s << std::endl; // Output: Hello Alice, you are 30 years old.
-*/
-
-
-//   std::string ret("poop");
-
-//   return ret;
-
-   /*
-
-
-#include <iostream>
-#include <chrono>
-#include <format> // Or <fmt/core.h> if using the fmt library
-
-   int main() {
-      auto now = std::chrono::system_clock::now();
-      // Format with milliseconds precision (3 digits)
-      std::cout << std::format("{:%Y-%m-%d %H:%M:%.3S}", now) << std::endl;
-
-      // Format with microseconds precision (6 digits)
-      std::cout << std::format("{:%Y-%m-%d %H:%M:%.6S}", now) << std::endl;
-
-      return 0;
-   }
-
-*/
-
-
-
-
 
 
 // return timestamp from 'now' as std::string in passed format
