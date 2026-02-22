@@ -277,7 +277,7 @@ sudo cp -r /var/www/html/* ~/tmp
 
 
 From the a windows machine, copy from tmp location to project:
-pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+pscp -r -pw zaiden m@192.168.1.122:tmp/* c:\pm\web 
 
 ----------------------------------------------------------------
 erase all web on remote server

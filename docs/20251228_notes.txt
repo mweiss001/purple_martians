@@ -19536,6 +19536,237 @@ i am ready to deploy and test...
 I wish I had a way to gracefully shutdown the headless server
 I force quit it all the time...
 
+2026-02-22 04:38:08
+
+comitted and deployed
+
+INSERT INTO control VALUES (NULL, 'fakekey', 0, 0);
+works from sqlite console...
+now make a php script to do that..done
+
+now put this to use...
+
+implement these controls:
+
+shutdown_server
+
+status_inserts toggle
+
+this gets me thinking about the status of these controls
+how do I know what they are currently set at?
+
+this would complicate things...
+
+I could have a database table with a row for each control
+
+key
+val
+min
+max
+default
+set new val
+set new mode
+
+web would need to read this to update current controls
+web would add values to set new to change
+
+server would need to monitor this table
+
+what keys?
+fakekey
+pvp stuff
+zlib comp
+extra packets
+force client offset
+logging modes
+status inserts
+
+or...
+I could just have all these values in the status table
+I think that could work
+
+2026-02-22 06:07:59
+
+so many things, so many moving parts...
+what should I work on right now?
+
+I think I want only one server status table
+
+I have the old one and the new one...
+
+because client status is so fast updating and temporary, I kind of think it need to be in its own database
+well it could share with server status, that is temporary also...
+actually server status could have only one row....
+
+I propose:
+
+client_status to have its own db
+
+server_status and control to have its own db
+
+ok I can work with that....
+
+new name for client_status and remove server stuff
+
+
+
+time to insert 1 rows:2.594700
+time to insert 201 rows:0.600800
+time to insert 201 rows:0.596500
+time to insert 200 rows:0.746000
+time to insert 201 rows:0.627800
+time to insert 201 rows:0.694800
+
+time to insert 1 rows:2.418100
+time to insert 5 rows:0.391600
+time to insert 4 rows:0.388000
+time to insert 5 rows:0.401800
+time to insert 5 rows:0.442200
+
+time to insert 1 rows:1.868400
+time to insert 1 rows:0.406600
+time to insert 1 rows:0.418900
+time to insert 1 rows:0.388300
+time to insert 1 rows:0.378100
+time to insert 1 rows:0.392300
+
+
+
+no BEGIN and COMMIT
+
+time to insert 1 rows:2.345800
+time to insert 1 rows:0.429500
+time to insert 1 rows:0.382200
+time to insert 1 rows:0.446700
+time to insert 1 rows:0.394300
+
+time to insert 1 rows:1.848900
+time to insert 5 rows:3.043500
+time to insert 5 rows:1.727700
+time to insert 5 rows:1.745400
+time to insert 5 rows:1.796100
+time to insert 5 rows:1.883000
+
+time to insert 1 rows:2.439900
+time to insert 201 rows:71.067400
+time to insert 200 rows:67.664200
+time to insert 199 rows:64.531100
+
+so what does all this mean?
+I should use BEGIN and COMMIT
+
+2026-02-22 07:17:09
+
+next do something about control and status...
+database server_status
+
+OK those are done...
+
+erase the database and test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

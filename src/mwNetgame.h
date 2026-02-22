@@ -171,7 +171,6 @@ class mwNetgame
 
    void server_insert_status_row();
 
-   void server_insert_status();
 
    void server_process_db_control();
 

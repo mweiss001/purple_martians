@@ -19,55 +19,26 @@ int mwSql::init()
 
 void mwSql::create_prepared_statements()
 {
-   const char* sql1 = "INSERT INTO server_status VALUES(NULL, ?, ?, ?, ?, ?, ?)";
-   int rc1 = sqlite3_prepare_v2(db_status, sql1, -1, &server_status_insert_stmt, nullptr);
-   if (rc1 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
-
    const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-   int rc2 = sqlite3_prepare_v2(db_status, sql2, -1, &client_status_insert_stmt, nullptr);
-   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_status));
+   int rc2 = sqlite3_prepare_v2(db_client_status, sql2, -1, &client_status_insert_stmt, nullptr);
+   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_client_status));
 }
-
 
 int mwSql::open_database()
 {
    char filename[256];
 
    sprintf(filename, "%s", "data/sessions.db");
-   if (sqlite3_open(filename, &db_sessions))
-   {
-      printf("Can't open database %s\n", filename);
-      //sqlite3_close(db_sessions);
-      return (0);
-   }
-
+   if (sqlite3_open(filename, &db_sessions))        { printf("Can't open database %s\n", filename);  return (0); }
    sprintf(filename, "%s", "data/game_events.db");
-   if (sqlite3_open(filename, &db_game_events))
-   {
-      printf("Can't open database %s\n", filename);
-      //sqlite3_close(db_game_events);
-      return (0);
-   }
+   if (sqlite3_open(filename, &db_game_events))     { printf("Can't open database %s\n", filename);  return (0); }
+   sprintf(filename, "%s", "data/client_status.db");
+   if (sqlite3_open(filename, &db_client_status))   { printf("Can't open database %s\n", filename);  return (0); }
+   sprintf(filename, "%s", "data/server_status.db");
+   if (sqlite3_open(filename, &db_server_status))   { printf("Can't open database %s\n", filename);  return (0); }
 
-   sprintf(filename, "%s", "data/status.db");
-   if (sqlite3_open(filename, &db_status))
-   {
-      printf("Can't open database %s\n", filename);
-      //sqlite3_close(db_status);
-      return (0);
-   }
+   execute_sql("PRAGMA journal_mode = WAL", db_client_status);
 
-   execute_sql("PRAGMA journal_mode = WAL", db_status);
-
-
-   // sprintf(filename, "%s", "data/logs.db");
-   // if (sqlite3_open(filename, &db_logs))
-   // {
-   //    printf("Can't open database %s\n", filename);
-   //    sqlite3_close(db_logs);
-   //    return (0);
-   // }
-   // printf("Databases open.\n");
    return (1);
 }
 
@@ -143,31 +114,6 @@ void mwSql::create_tables()
    // execute_sql(sql, db_sessions);
 */
 
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
-               timestamp     TEXT PRIMARY KEY, \
-               version       TEXT, \
-               uptime        INT, \
-               cpu           INT, \
-               clients       INT, \
-               level         INT, \
-               level_time    INT, \
-               moves         INT, \
-               enemies       INT ); ");
-   execute_sql(sql, db_sessions);
-
-
-
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS server_status( \
-               id            INTEGER PRIMARY KEY, \
-               timestamp     INT, \
-               frame         INT, \
-               level         INT, \
-               moves         INT, \
-               enemies       INT, \
-               uptime        INT ); ");
-   execute_sql(sql, db_status);
-
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
                id            INTEGER PRIMARY KEY, \
@@ -185,18 +131,39 @@ void mwSql::create_tables()
                rewind        INT, \
                difs          INT, \
                tkbs          INT ); ");
-   execute_sql(sql, db_status);
-
+   execute_sql(sql, db_client_status);
    strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
-   execute_sql(sql, db_status);
+   execute_sql(sql, db_client_status);
 
+
+
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               version       TEXT, \
+               uptime        INT, \
+               cpu           INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               enemies       INT ); ");
+   execute_sql(sql, db_server_status);
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
                id          INTEGER PRIMARY KEY, \
                key         TEXT, \
                val         REAL, \
                mod         INT ); ");
-   execute_sql(sql, db_status);
+   execute_sql(sql, db_server_status);
+
+
+
+
+
+
+
 
 
 

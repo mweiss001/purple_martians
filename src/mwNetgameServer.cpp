@@ -293,72 +293,10 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    }
 }
 
-
-void mwNetgame::server_insert_status()
-{
-   double t0 = al_get_time();
-
-   mStatusBuffer.add();
-
-/*
-
-
-   std::string ts = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
-
-   // start transaction
-   char* messageError;
-   if (sqlite3_exec(mSql.db_status, "BEGIN TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);
-
-//   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
-
-   sqlite3_reset    (mSql.server_status_insert_stmt);
-   sqlite3_bind_text(mSql.server_status_insert_stmt, 1, ts.c_str(),     -1, SQLITE_TRANSIENT);
-   sqlite3_bind_int (mSql.server_status_insert_stmt, 2, mLoop.frame_num);
-   sqlite3_bind_int (mSql.server_status_insert_stmt, 3, mLevel.play_level);
-   sqlite3_bind_int (mSql.server_status_insert_stmt, 4, mGameMoves.entry_pos);
-   sqlite3_bind_int (mSql.server_status_insert_stmt, 5, mEnemy.num_enemy);
-   sqlite3_bind_int (mSql.server_status_insert_stmt, 6, al_get_time());
-   if (sqlite3_step( mSql.server_status_insert_stmt) != SQLITE_ROW)
-   {
-      printf("sql error, expecting row with newly inserted id: %s\n", sqlite3_errmsg(mSql.db_status));
-      return;
-   }
-   int id = sqlite3_column_int(mSql.server_status_insert_stmt, 0);
-   // step to done
-   sqlite3_step(mSql.server_status_insert_stmt);
-
-   // insert active players into client_status with ss_id from server_status
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.syn[p].active)
-      {
-         sqlite3_reset(     mSql.client_status_insert_stmt);
-         sqlite3_bind_int  (mSql.client_status_insert_stmt, 1, id);
-         sqlite3_bind_text (mSql.client_status_insert_stmt, 2, ts.c_str(),              -1, SQLITE_TRANSIENT);
-         sqlite3_bind_int  (mSql.client_status_insert_stmt, 3, p);
-         sqlite3_bind_int  (mSql.client_status_insert_stmt, 4, mPlayer.syn[p].color);
-         sqlite3_bind_text (mSql.client_status_insert_stmt, 5, mPlayer.syn[p].name,     -1, SQLITE_TRANSIENT);
-         sqlite3_bind_text (mSql.client_status_insert_stmt, 6, mPlayer.loc[p].hostname, -1, SQLITE_TRANSIENT);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 7,  mPlayer.loc[p].cpu);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 8, (mPlayer.loc[p].pdsync*1000));
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 9, (mPlayer.loc[p].ping*1000));
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 10,  mPlayer.loc[p].client_loc_plr_cor);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 11, mPlayer.loc[p].client_rmt_plr_cor);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 12, mPlayer.loc[p].rewind);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 13, mPlayer.loc[p].cmp_dif_size);
-         sqlite3_bind_int(  mSql.client_status_insert_stmt, 14, mPlayer.loc[p].tx_bytes_per_tally);
-         if (sqlite3_step(  mSql.client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_status));
-      }
-   if (sqlite3_exec(mSql.db_status, "COMMIT TRANSACTION;", nullptr, nullptr, &messageError) != SQLITE_OK) printf("Error: %s\n", messageError);
-
-   */
-
-   printf("time to insert:%f\n", (al_get_time()-t0)*1000);
-}
-
-
 // called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
+   sqlite3 *db = mSql.db_server_status;
 
    std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
    int upt = al_get_time();
@@ -372,11 +310,13 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    char sql[1024];
    sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cli, lev, lvt, mov, enm );
    //printf("%s\n", sql);
-   mSql.execute_sql(sql, mSql.db_sessions);
+   mSql.execute_sql(sql, db);
 }
 
 void mwNetgame::server_process_db_control()
 {
+   sqlite3 *db = mSql.db_server_status;
+
 
    // struct to contain of control row
    struct controlRow
@@ -395,11 +335,11 @@ void mwNetgame::server_process_db_control()
    sprintf(sql, "SELECT key, val, mod FROM control");
 
    sqlite3_stmt* stmt;
-   int rc = sqlite3_prepare_v2(mSql.db_status, sql, -1, &stmt, nullptr);
+   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
 
    if (rc != SQLITE_OK)
    {
-      printf("Failed to prepare statement: %s\n %s\n", sql, sqlite3_errmsg(mSql.db_status));
+      printf("Failed to prepare statement: %s\n %s\n", sql, sqlite3_errmsg(db));
       sqlite3_finalize(stmt);
       return;
    }
@@ -422,7 +362,7 @@ void mwNetgame::server_process_db_control()
    sqlite3_finalize(stmt);
 
    // delete all rows in table
-   mSql.execute_sql("DELETE FROM control", mSql.db_status);
+   mSql.execute_sql("DELETE FROM control", db);
 
    // process controls
    for (const auto& row : controlRows)
@@ -1069,7 +1009,10 @@ void mwNetgame::server_control()
 
    if (server_remote_control) server_send_snfo_packet();
 
-//   server_insert_status();
+
+
+   mStatusBuffer.add();
+
 
 
    server_process_db_control();

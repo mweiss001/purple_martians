@@ -5,16 +5,6 @@
 
 #include "sqlite3.h"
 
-struct server_status_buffer_row
-{
-   std::uint64_t timestamp;
-   int frame;
-   int level;
-   int moves;
-   int enemies;
-   int uptime;
-};
-
 struct client_status_buffer_row
 {
    std::uint64_t timestamp;
@@ -34,8 +24,6 @@ struct client_status_buffer_row
 };
 
 
-
-
 class mwStatusBuffer
 {
    public:
@@ -49,16 +37,9 @@ class mwStatusBuffer
 
    int beginTransactionError{};
 
+   int oldFrame = 0;
 
-   std::vector<server_status_buffer_row> server_status_buffer_rows;
    std::vector<client_status_buffer_row> client_status_buffer_rows;
-
-
-
-
-
-
-
 
 
 };

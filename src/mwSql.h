@@ -26,7 +26,11 @@ class mwSql
 
    sqlite3 *db_sessions = nullptr;
 
-   sqlite3 *db_status = nullptr;
+
+   sqlite3 *db_client_status = nullptr;
+   sqlite3 *db_server_status = nullptr;
+
+
 
    sqlite3 *db_game_events = nullptr;
 
