@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // database setup
-$db_filepath = "/home/m/dev/purple_martians/data/status.db";
+$db_filepath = "/home/m/dev/purple_martians/data/client_status.db";
 if (!file_exists($db_filepath)) { echo "Database file: $db_filepath not found."; return; }
 $db = new PDO("sqlite:$db_filepath");
 

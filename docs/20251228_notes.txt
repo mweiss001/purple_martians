@@ -19661,8 +19661,12 @@ next do something about control and status...
 database server_status
 
 OK those are done...
+erase the database and test...done
 
-erase the database and test
+get stuff from web and commit again...
+
+
+
 
 
 

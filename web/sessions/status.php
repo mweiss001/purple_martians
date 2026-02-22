@@ -4,6 +4,19 @@ session_start();
 
 include "database.php";
 
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/server_status.db";
+if (!file_exists($db_filepath)) { echo "Database file: $db_filepath not found.\n"; return; }
+$db = new PDO("sqlite:$db_filepath");
+
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
+if (!file_exists($db_filepath)) { echo "Database file: $db_filepath not found.\n"; return; }
+$db2 = new PDO("sqlite:$db_filepath");
+
+
+
 echo <<<TEXT
 
 <!DOCTYPE html>
@@ -19,7 +32,6 @@ echo <<<TEXT
 
 <body>
 TEXT;
-
 
 
 
@@ -68,10 +80,10 @@ echo "<div class='divSessionsPage'>";
    echo "<a href=\"status.php\"  $but >Status</a>";
    echo "</div>";
 
-   $res = $GLOBALS['db']->query("SELECT MAX(timestamp), * FROM status");
+   $res = $db->query("SELECT MAX(timestamp), * FROM status");
    if ($res->fetchColumn() == 0)  { echo " current status not found \n";  return; } 
 
-   $res = $GLOBALS['db']->query("SELECT MAX(timestamp), * FROM status");
+   $res = $db->query("SELECT MAX(timestamp), * FROM status");
    $row = $res->fetch(PDO::FETCH_ASSOC);
 
    $level      = $row['level'];
@@ -111,7 +123,7 @@ echo "<div class='divSessionsPage'>";
             echo "<div class='statusPage divSectionSubSectionTable'>";
             echo "<table class='statusPageTable'><tbody>";
                $sql = "SELECT id, player_name, player_num, player_color, hostname, ip FROM sessions WHERE endreason='open'";
-               $res = $GLOBALS['db']->query($sql);
+               $res = $db2->query($sql);
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
                   $num = $row['player_num'];

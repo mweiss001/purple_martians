@@ -32,12 +32,17 @@ function setupTestButtons()
    button1.addEventListener("click", function()
    {
       console.log("test button 1 pressed");   
-      fetchNumRows();
+//      fetchNumRows();
+
+      insertControl("fakekey", 0, 0);
+
+
+
    });
    button2.addEventListener("click", function()
    {
       console.log("test button 2 pressed");   
-      deleteRows10();
+//      deleteRows10();
    });
 }
 
@@ -340,6 +345,31 @@ document.addEventListener('DOMContentLoaded', (event) =>
    setupCharts();
    startTimer();
 });
+
+
+
+
+async function insertControl(key, val, mod)
+{
+   try
+   {
+      var url = 'insertStatusControl.php';
+      url += "?key=" + key; 
+      url += "&val=" + val; 
+      url += "&mod=" + mod; 
+      fetch(url);
+//      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+
+
+
+   }
+}
+
+
+
 
 
 
