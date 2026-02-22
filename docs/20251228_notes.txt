@@ -19663,7 +19663,231 @@ database server_status
 OK those are done...
 erase the database and test...done
 
-get stuff from web and commit again...
+get stuff from web and commit again...done
+
+
+now what?
+
+add some controls to status page?
+
+eventually s2 will be a part of status page
+
+I need some async cleanup scripts run by cron
+one that closes orphaned open sessions
+
+does server status use more than 1 row?
+it should not...
+the easiest was to delete before inserting...
+this way there should only ever be one row
+
+done
+
+how to clean up open sessions...
+when server first starts?
+and periodically when server has no clients?
+what is the process?
+search sessions for open
+
+made a new function:
+
+// called once per second in mLoop
+void mwNetgame::session_check_active_in_db()
+{
+   // find all open sessions in database
+   std::vector<std::vector<int>> matrix = {};
+   mSql.execute_sql_and_return_2d_vector_int("SELECT id FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
+
+   // iterate
+   for (auto m : matrix)
+   {
+      int id = m[0];
+
+      // check if id matches a currently active player
+      int still_active = 0;
+      for (int p=1; p<8; p++)
+         if (mPlayer.loc[p].session_id == id) still_active = 1;
+
+      if (!still_active)
+      {
+         printf("\nFound orphaned open session in database, setting endreason to 'unknown'\n");
+         char sql[80];
+         sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE id=%d", id);
+         mSql.execute_sql(sql, mSql.db_sessions);
+      }
+   }
+}
+
+works great!!!
+
+200x200
+
+
+    // 2. Create table (if it doesn't exist)
+    const char* createTableSQL = "CREATE TABLE IF NOT EXISTS images (id INTEGER PRIMARY KEY, name TEXT, data BLOB);";
+    sqlite3_exec(db, createTableSQL, 0, 0, 0);
+
+    // --- INSERTING the image ---
+
+    // 3. Read image file into a buffer
+    std::vector<unsigned char> imageData = readFile("input_image.jpg"); // Replace with your image path
+
+    // 4. Prepare the INSERT statement
+    const char* insertSQL = "INSERT INTO images (name, data) VALUES (?, ?);";
+    sqlite3_prepare_v2(db, insertSQL, -1, &stmt, NULL);
+
+    // 5. Bind data to the prepared statement
+    sqlite3_bind_text(stmt, 1, "My Image", -1, SQLITE_TRANSIENT);
+    sqlite3_bind_blob(stmt, 2, imageData.data(), static_cast<int>(imageData.size()), SQLITE_TRANSIENT);
+
+
+
+
+
+
+there are a lot of things that I am messing with to try to get headless server to be able to manipulate images
+
+should I give up? noo!!!! never!!!!
+
+I have the 
+
+I need to fully document how the drawing takes place.
+
+What are all the different bitmaps used?
+
+
+
+ALLEGRO_BITMAP * level_background
+---------------------------------
+blocks are drawn on this when level is loaded
+every frame it is copied to level_buffer to start the draw sequence
+
+declared: mBitmap.h
+created:  mwBitmap::create_bitmaps()
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+level_background = create_and_clear_bitmap(2000, 2000);
+
+filled:
+void mwScreen::init_level_background(void) // fill level_background with block tiles
+{
+   al_set_target_bitmap(mBitmap.level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int tile = mLevel.l[x][y] & 1023;
+         if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+{
+   //if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
+   mScreen.init_level_background(); // draw blocks on level_background
+
+
+ALLEGRO_BITMAP * level_buffer
+-----------------------------
+at the start of the draw sequence, level buffer is cleared and level_background is copied to it
+
+declared: mBitmap.h
+created:  mwBitmap::create_bitmaps()
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+level_buffer = create_and_clear_bitmap(2000, 2000);
+
+void mwScreen::get_new_background(int full)
+{
+   al_set_target_bitmap(mBitmap.level_buffer);
+   if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
+   else
+   {
+      // this only grabs the visible region, in the interests of speed
+      int x = level_display_region_x - 20; if (x < 0) x = 0;
+      int y = level_display_region_y - 20; if (y < 0) y = 0;
+      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
+   }
+}
+5 calls to this (2 from level editor do not use full) all 3 from game call with full
+one from levelDone rocket mode
+void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
+void mwDrawSequence::ds_draw(int setup_only, int flip)
+
+
+
+.....
+
+take a break documenting this...do I have tiles?
+try drawing more things
+
+now without warning it all fucking works??? that makes no sense....
+
+I don't want it to draw every frame, only when needed....
+
+put things back...
+draw_sequence has been restored to where it does nothing in noDisplay mode
+font is back to normal with fixed value for sfs if no display
+
+i think I have it all put back together...
+
+I want to load level icons...at least for overworld..done
+it looks beautiful
+
+I want to show players
+broken blocks do not show..fixed...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

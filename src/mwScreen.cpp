@@ -565,8 +565,6 @@ void mwScreen::set_map_var(void)
    splash_logo_x_dec     = (splash_logo_x     - menu_logo_x)     / 320;
    splash_logo_y_dec     = (splash_logo_y     - menu_logo_y)     / 320;
 
-
-
 }
 
 
@@ -619,7 +617,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
       if (lifts)   mLift.draw_lifts();
       if (items)   mItem.draw_items();
       if (enemies) mEnemy.draw_enemies();
-      if (mLevel.resume_allowed)
+      if (mLevel.resume_allowed || mDisplay.no_display)
       {
          if (players) mPlayer.draw_players();
          mShot.draw_eshots();

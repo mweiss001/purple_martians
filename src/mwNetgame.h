@@ -210,7 +210,7 @@ class mwNetgame
    void session_save_active_at_level_done();
    void session_flush_active_at_server_exit();
 
-
+   void session_check_active_in_db();
 
 
    // --------------------------------------------------------------------

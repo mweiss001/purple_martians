@@ -47,7 +47,8 @@ void mwFont::load_fonts(void)
    acha = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
    if (!acha) mInput.m_err("Failed to load font from bitmaps/Achafont.ttf");
 
-   int sfs = al_get_display_option(mDisplay.display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
+   int sfs = 100;
+   if (!mDisplay.no_display) sfs = al_get_display_option(mDisplay.display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
    //printf("Saucer font size:%d\n", sfs);
    al_destroy_font(sauc);
    sauc = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);
@@ -92,8 +93,8 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
    int bmp_w = (16 * step0) + bw;
    int bmp_h = (6  * step0) + bw;
 
-   ALLEGRO_BITMAP *b = al_create_bitmap(bmp_w, bmp_h);
-   al_set_target_bitmap(b);
+   ALLEGRO_BITMAP *bmp = al_create_bitmap(bmp_w, bmp_h);
+   al_set_target_bitmap(bmp);
    al_clear_to_color(al_map_rgb(255, 0, 0));  // set entire bitmap to red, this will be the background color separating the glyphs
 
    int y = bw;
@@ -107,11 +108,11 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
       }
       y+=step0;
    }
-   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // alpha does not actually save in bmp format :(
+   al_convert_mask_to_alpha(bmp, al_map_rgb(0, 0, 0)); // alpha does not actually save in bmp format :(
    al_set_target_backbuffer(mDisplay.display);
-   al_draw_bitmap(b, 0, 0, 0);
+   al_draw_bitmap(bmp, 0, 0, 0);
    sprintf(fn, "bitmaps/%s", bmp_filename);
-   al_save_bitmap(fn, b);
+   al_save_bitmap(fn, bmp);
    al_destroy_font(cf);
 }
 

@@ -1,5 +1,6 @@
 // mwNetgameServer.cpp
 
+
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwPacketBuffer.h"
@@ -17,6 +18,9 @@
 #include "mwMiscFnx.h"
 #include "mwSql.h"
 #include "mwStatusBuffer.h"
+#include "mwBitmap.h"
+#include "mwColor.h"
+#include "mwDrawSequence.h"
 
 
 int mwNetgame::serverInitNetwork()
@@ -298,6 +302,8 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
 {
    sqlite3 *db = mSql.db_server_status;
 
+   mSql.execute_sql("DELETE FROM status", db);
+
    std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
    int upt = al_get_time();
    int cli = server_num_clients;
@@ -311,14 +317,24 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cli, lev, lvt, mov, enm );
    //printf("%s\n", sql);
    mSql.execute_sql(sql, db);
+
+
+   printf("dumping lev_stat\n");
+   int sz = 400;
+   ALLEGRO_BITMAP * tmp = al_create_bitmap(sz, sz);
+   mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
+   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
+
+
+
+
 }
 
 void mwNetgame::server_process_db_control()
 {
    sqlite3 *db = mSql.db_server_status;
 
-
-   // struct to contain of control row
+   // struct to contain one control row
    struct controlRow
    {
       std::string key;
@@ -361,20 +377,23 @@ void mwNetgame::server_process_db_control()
    }
    sqlite3_finalize(stmt);
 
-   // delete all rows in table
-   mSql.execute_sql("DELETE FROM control", db);
-
-   // process controls
-   for (const auto& row : controlRows)
+   if (controlRows.size() > 0)
    {
-      printf("%s %f %d\n", row.key.c_str(), row.val, row.mod);
+      // delete all rows in table
+      mSql.execute_sql("DELETE FROM control", db);
 
-      if (row.key == "pvp_shots") printf("pvp_shots\n");
-
-      if (row.key == "fakekey")
+      // process controls
+      for (const auto& row : controlRows)
       {
-         printf("fakekey\n");
-         mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+         printf("%s %f %d\n", row.key.c_str(), row.val, row.mod);
+
+         if (row.key == "pvp_shots") printf("pvp_shots\n");
+
+         if (row.key == "fakekey")
+         {
+            printf("fakekey\n");
+            mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+         }
       }
    }
 }

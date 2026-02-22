@@ -35,6 +35,35 @@ void mwNetgame::session_check_active()
 }
 
 
+// called once per second in mLoop
+void mwNetgame::session_check_active_in_db()
+{
+   // find all open sessions in database
+   std::vector<std::vector<int>> matrix = {};
+   mSql.execute_sql_and_return_2d_vector_int("SELECT id FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
+
+   // iterate
+   for (auto m : matrix)
+   {
+      int id = m[0];
+
+      // check if id matches a currently active player
+      int still_active = 0;
+      for (int p=1; p<8; p++)
+         if (mPlayer.loc[p].session_id == id) still_active = 1;
+
+      if (!still_active)
+      {
+         printf("\nFound orphaned open session in database, setting endreason to 'unknown'\n");
+         char sql[80];
+         sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE id=%d", id);
+         mSql.execute_sql(sql, mSql.db_sessions);
+      }
+   }
+}
+
+
+
 void mwNetgame::session_flush_active_at_server_exit()
 {
    if (!mLog.log_types[LOG_NET_session].action) return;

@@ -28,7 +28,7 @@ echo <<<TEXT
 
 </head>
 
-<script type="text/javascript"> setTimeout(function() { window.location.reload(); }, 5000);  </script>
+<script type="text/javascript"> setTimeout(function() { window.location.reload(); }, 1000);  </script>
 
 <body>
 TEXT;
@@ -143,8 +143,13 @@ echo "<div class='divSessionsPage'>";
       echo "<div class='statusPage divSectionSubSectionTitleFrame'>Current Level</div>";
       echo "<div style='display:flex; gap:2px;  padding:4px;'>";
 
-         $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
-         echo "<img style=\" width: 160px; height: 160x;\" src=$iconpath alt=\"icon not found\" >";
+//         $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
+         $iconpath = sprintf("/downloads/lev_stat.bmp");
+
+//         echo "<img style=\" width: 160px; height: 160x;\" src=$iconpath alt=\"icon not found\" >";
+
+         echo "<img style=\" width: 400px; height: 400x;\" src=$iconpath alt=\"icon not found\" >";
+
 
          echo "<div class='statusPage divSectionSubSectionPretext'>";
             echo "Level   : $level\n";

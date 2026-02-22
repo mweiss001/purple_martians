@@ -40,7 +40,7 @@ void mwBitmap::create_bitmaps()
    M_dtilemap = create_and_clear_bitmap(176, 704);
 
    // this bitmap format is used for all other bitmaps
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   if (!mDisplay.no_display) al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
    tilemap  = create_and_clear_bitmap(704, 704);
@@ -154,25 +154,6 @@ int mwBitmap::load_tiles()
 
    return 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void mwBitmap::rebuild_bitmaps()

@@ -74,7 +74,16 @@ void mwMain::set_and_get_versions(void)
    sprintf(mLoop.pm_version_string, PM_VERSION);
    printf("\nPurple Martians Version %s\n", mLoop.pm_version_string);
 
-   std::cout << "GCC Version: " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
+   // allegro version
+   uint32_t version = al_get_allegro_version();
+   int major = version >> 24;
+   int minor = (version >> 16) & 255;
+   int revision = (version >> 8) & 255;
+   int release = version & 255;
+   sprintf(mLoop.al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
+   printf("%s\n", mLoop.al_version_string);
+
+   std::cout << "GCC Version: " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << " - ";
 
    long standard = __cplusplus;
    // Mapping the macro values to standard names
@@ -85,73 +94,6 @@ void mwMain::set_and_get_versions(void)
    else if (standard == 202002L) std::cout << "C++20" << std::endl;
    else if (standard == 202302L) std::cout << "C++23" << std::endl;
    else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
-
-
-
-   // Format with milliseconds precision
-//   const auto now_ms = std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now());
-//   std::string t2 = std::format("{:%Y%m%d %H%M%S}", now_ms);
-
-
-   std::string t2 = std::format("{:%Y%m%d %H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
-   std::cout << "gmt time: " << t2 << std::endl;
-
-
-/*
-   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S.%zzz");
-   printf("\nDate test: %s\n\n", ts.c_str());
-*/
-
-/*
-   // Get the current time from the system clock
-   auto now = std::chrono::system_clock::now();
-
-   // Convert the current time to time since epoch
-   auto duration = now.time_since_epoch();
-*/
-
-   // Get the current time from the system clock
-//   auto now = std::chrono::system_clock::now();
-/*
-   // Convert the current time to time since epoch
-   auto duration = std::chrono::system_clock::now().time_since_epoch();
-
-   // Convert duration to milliseconds
-   auto milliseconds
-       = std::chrono::duration_cast<std::chrono::milliseconds>(
-             duration)
-             .count();
-*/
-  /*
-   // Convert duration to milliseconds
-   auto milliseconds= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-   printf("\nDate test: %lld\n\n", milliseconds);
-   double tf = (double)milliseconds/1000;
-//   tf /= 1000;
-   printf("\nDate test2: %f\n", tf);
-
-
-
-   double ts = (double) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000;
-   printf("\nDate test2: %f\n", ts);
-
-
-
-   std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-   printf("\nDate test: %lld\n\n", timestamp);
-
-*/
-
-   // get allegro version
-   uint32_t version = al_get_allegro_version();
-   int major = version >> 24;
-   int minor = (version >> 16) & 255;
-   int revision = (version >> 8) & 255;
-   int release = version & 255;
-
-   sprintf(mLoop.al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
-   printf("%s\n", mLoop.al_version_string);
-
 
 
    // get hostname
@@ -167,6 +109,12 @@ void mwMain::set_and_get_versions(void)
    mLoop.local_hostname[loop] = 0;
    pclose(fp);
 //   printf("Hostname:%s\n", mLoop.local_hostname);
+
+//   std::string t2 = std::format("{:%Y%m%d %H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
+//   std::cout << "GMT Time: " << t2 << std::endl;
+
+
+
 }
 
 int mwMain::initial_setup(void)
@@ -182,11 +130,9 @@ int mwMain::initial_setup(void)
    set_exe_path();
    set_and_get_versions();
 
-
    al_make_directory("data"); // create if not already created
 
    mSql.init();
-
 
    mConfig.load_config();
 
@@ -218,11 +164,39 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
-   // --- things that depend on a display ---------------
+
+
+   mBitmap.create_bitmaps();
+
+   if(!al_init_image_addon())
+   {
+      mInput.m_err("Failed to initialize image addon.\n");
+      return 0;
+   }
+   if(!al_init_primitives_addon())
+   {
+      mInput.m_err("Failed to initialize primitives addon.\n");
+      return 0;
+   }
+
+   if(!al_init_font_addon())
+   {
+      mInput.m_err("Failed to initialize font addon.\n");
+      return 0;
+   }
+   if(!al_init_ttf_addon())
+   {
+      mInput.m_err("Failed to initialize ttf addon.\n");
+      return 0;
+   }
+
+   mFont.load_fonts();
+   mBitmap.load_tiles();
+
+
+   // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)
    {
-      mBitmap.create_bitmaps();
-
       al_inhibit_screensaver(true);
 
       al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
@@ -233,30 +207,6 @@ int mwMain::initial_setup(void)
          mInput.m_err("Failed to initialize native dialog addon.\n");
          return 0;
       }
-      if(!al_init_primitives_addon())
-      {
-         mInput.m_err("Failed to initialize primitives addon.\n");
-         return 0;
-      }
-
-      if(!al_init_image_addon())
-      {
-         mInput.m_err("Failed to initialize image addon.\n");
-         return 0;
-      }
-
-      if(!al_init_font_addon())
-      {
-         mInput.m_err("Failed to initialize font addon.\n");
-         return 0;
-      }
-
-      if(!al_init_ttf_addon())
-      {
-         mInput.m_err("Failed to initialize ttf addon.\n");
-         return 0;
-      }
-      mFont.load_fonts();
 
       // --- keyboard -------------------
       if (!al_install_keyboard())
@@ -266,7 +216,6 @@ int mwMain::initial_setup(void)
       }
       //else printf("installed keyboard\n");
       al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
-
 
       // --- mouse ----------------------
       if (!al_install_mouse())
@@ -300,7 +249,6 @@ int mwMain::initial_setup(void)
          al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
       }
 
-      mBitmap.load_tiles();
       al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
 
       mSound.load_sound();

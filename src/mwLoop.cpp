@@ -1045,6 +1045,8 @@ void mwLoop::main_loop(void)
                mNetgame.server_insert_status_row();
                //mNetgame.server_process_db_control();
 
+               mNetgame.session_check_active_in_db();
+
 
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)

@@ -25,9 +25,10 @@ major changes to logging
 ------------------------------------------------------------------------------
 
 
+actually save picture of current level in db for viewing on status page!!!
+you are crazy!
 
-
-
+how to put a blob in database?
 
 
 

@@ -1089,17 +1089,22 @@ void mwLevel::create_level_icons(void)
          mScreen.draw_level2(tmp_200,  x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
       }
 
-      // show progress bar
-      int pc = (i*100 + 1) / 100;
-      al_set_target_backbuffer(mDisplay.display);
-      //al_clear_to_color(al_map_rgb(0,0,0));
-      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
-      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
-      al_flip_display();
+      if (!mDisplay.no_display)
+      {
+         // show progress bar
+         int pc = (i*100 + 1) / 100;
+         al_set_target_backbuffer(mDisplay.display);
+         //al_clear_to_color(al_map_rgb(0,0,0));
+         mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
+         al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
+         al_flip_display();
+      }
+      else printf(".");
 
       // iterate through the rows and columns
       if (++x > 9) { x = 0; y++; }
    }
+   printf("\n");
 
    al_save_bitmap("data/level_icons_100.bmp", tmp_100);
    al_save_bitmap("data/level_icons_200.bmp", tmp_200);
@@ -1113,7 +1118,7 @@ void mwLevel::create_level_icons(void)
 
 void mwLevel::load_level_icons(void)
 {
-   if (!mDisplay.no_display)
+//   if (!mDisplay.no_display)
    {
       ALLEGRO_BITMAP *tmp_100 = al_load_bitmap("data/level_icons_100.bmp");
       ALLEGRO_BITMAP *tmp_200 = al_load_bitmap("data/level_icons_200.bmp");

@@ -264,8 +264,3 @@ void mwDrawSequence::ds_show_text(int x, int y)
    for (int i=1; i<ns; i++)
       al_draw_textf(mFont.pr8, mColor.pc[15], 1+x, 1+y+i*9, 0, "%3.3f - %s", RA[i].avg*1000, name[1][i]);
 }
-
-
-
-
-

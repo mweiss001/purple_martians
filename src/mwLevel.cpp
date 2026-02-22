@@ -124,7 +124,7 @@ void mwLevel::change_block(int x, int y, int block)
    if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
    {
       l[x][y] = block;
-      if (!mDisplay.no_display)
+      //if (!mDisplay.no_display)
       {
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
@@ -251,7 +251,8 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 
          mTriggerEvent.initialize();
 
-         if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
+//         if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
+         mScreen.init_level_background(); // draw blocks on level_background
 
 
          mPlayer.init_player(0, 2);
