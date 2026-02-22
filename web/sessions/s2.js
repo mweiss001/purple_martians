@@ -178,15 +178,16 @@ function setupControls()
    //controlsContainer.style.border = '1px solid #FF0000';
 
    setupIntervalControl();
-   setupRangeControl();
+   setupLabelValueSpan("Actual Interval:",    'actualIntervalSpan');
    setupLabelValueSpan("Fetch Time:",         'fetchTimeSpan');
-   setupLabelValueSpan("Array Process Time:", 'arrayProcessTimeSpan');
-   setupLabelValueSpan("Update Chart Time:",  'updateChartTimeSpan');
    setupLabelValueSpan("Fetch Frames:",       'fetchNumFramesSpan');
    setupLabelValueSpan("Fetch Rows:",         'fetchNumRowsSpan');
-
-   setupLabelValueSpan("Actual Interval:",    'actualIntervalSpan');
    
+   setupRangeControl();
+
+//   setupLabelValueSpan("Array Process Time:", 'arrayProcessTimeSpan');
+   setupLabelValueSpan("Update Chart Time:",  'updateChartTimeSpan');
+  
    setupLabelValueSpan("Pile Up:",            'pileUpSpan');
    
    setupLabelValueSpan("Num Rows:",            'numRowsSpan');
@@ -201,8 +202,19 @@ function setupCharts()
    var option =
    {
       animation: false,
+
+      // sets the padding around the chart
+      grid:
+      {
+         left: '1%',
+         top: 10,
+         right: '1%',
+         bottom: 16
+      },
+
+
       tooltip: {},
-//      legend: {},
+      //legend: {},
       xAxis:
       {
          type: 'time',
@@ -212,21 +224,37 @@ function setupCharts()
       yAxis: { type: 'value' },
   };
 
+
    for (i=0; i<numCharts; i++)
    {
+      chartArea.style.display = 'flex';
+      chartArea.style.flexDirection = 'column';
+      chartArea.style.gap = '8px';
+
       // create div container for chart 
       var name = "chartContainer" + i;
       const container = document.createElement('div');
       container.setAttribute('id', name);
       container.style.height = '240px';
-
+      container.style.width = '100%';
       container.style.border = '1px solid #FFFFFF';
-
       chartArea.appendChild(container);
 
       // create chart and set initial options  
       chartArray[i] = echarts.init(container);
       chartArray[i].setOption(option);
+
+
+      // create observer to detect container size changes
+      const resizeObserver = new ResizeObserver(() =>
+      {
+         chartArray.forEach((chart) => { chart.resize(); } );
+      });
+
+      // find chart container
+      var name = "chartContainer" + i;
+      resizeObserver.observe(document.getElementById(name));
+
 
       // initialize chart data array
       chartDataArray[i] = [];
@@ -316,7 +344,6 @@ document.addEventListener('DOMContentLoaded', (event) =>
 
 
 
-
 var data2 = [];
 async function fetchNumRows()
 {
@@ -329,12 +356,10 @@ async function fetchNumRows()
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
-      console.log(data2);
       document.getElementById('numRowsSpan').innerHTML = data2;
    }
 }
 
-var data3 = "unset";
 async function deleteRows10()
 {
    try
@@ -342,40 +367,34 @@ async function deleteRows10()
       var url = 'deleteStatusRows.php';
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
-      data3 = await response.json(); // Parse the response body as JSON
+      data2 = await response.json(); // Parse the response body as JSON
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
-      console.log(data3);
+      document.getElementById('numRowsSpan').innerHTML = data2;
    }
 }
 
 
 
-
-
-
 async function fetchData()
 {
+
    document.getElementById('pileUpSpan').innerHTML = pileUp;
 
    if (fetchRunning)
    {
-//      console.log(`${Date.now()} ${Date.now()-t0} -- running`);
       pileUp++;
       return; // ensures only one instance
    }
    pileUp = 0;
 
 
-   // data from last run
-//   console.log(`${t0} ${Date.now()-t0} ${t1-t0} ${t2-t1} ${t3-t2} - rows:${data.length}`);
 
    document.getElementById('actualIntervalSpan').innerHTML = Date.now()-t0;
 
    // reset all timers
    t3 = t2 = t1 = t0 = Date.now(); 
-
 
    if (fetchRunning) return; // ensures only one instance
    fetchRunning = true;
@@ -388,83 +407,82 @@ async function fetchData()
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); // Check if the response status is in the 200-299 range
       data = await response.json(); // Parse the response body as JSON
-      
-      console.log(data);
-
-
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
-
-      console.log(data);
-
-
       t1 = Date.now();
       fetchTime = t1 - t0;
       document.getElementById('fetchTimeSpan').innerHTML = fetchTime;
-
       fetchRunning = false;
       if (data.length) do_stuff(); // only if data
    }
 }
 
 
-
 function do_stuff()
 {
    document.getElementById('fetchNumRowsSpan').innerHTML = data.length;
 
-
    // data to be processed consists of rows from client_status table
-   // each row is for one frame and player and has muliple data values
-   // timestamp is the time value
+   // each row is 1 frame, 1 player and multiple data values
    // data is aleady sorted by timestamp
    // data is read one row at a time and added to temporay rows for each chart
-   // when a new timestamp is read, temp rows are pushed to chart data
 
+   // chartData array for each chart type looks like this
+   // each chart is for one value type of data (cpu, sync, ping, etc)
+   // each row is for one timestamp and multiple players (as many as were found) up to 8 max
 
-   const row = [];
-   var ct = -1; // current t
+   // when a new timestamp is read, all temp rows are pushed to chart data and cleared
+   
+   // array of temp rows
+   const row = []; 
 
+   // current timestamp
+   var currentTimestamp = -1;
+
+   // frame tally
    var fetchNumFrames = 0;
-
 
    // player colors array
    const pc = Array(8).fill(0);
 
+
    for (const dat of data)
    {
-      var t = dat.timestamp;
+      // get timestamp, player number and color
+      var timestamp = dat.timestamp;
       var p = dat.pl_num; 
       pc[p] = dat.pl_col; 
 
-      var v = [];         // value array  
+      // value array  
+      var v = [];        
       v[0] = dat.cpu;
       v[1] = dat.sync; 
       v[2] = dat.tkbs; 
 
 
-      // update current max ssid  
-      if (t > currentMaxTimestamp) currentMaxTimestamp = t;
+      // update current max tiomestamp  
+      if (timestamp > currentMaxTimestamp) currentMaxTimestamp = timestamp;
 
-      if (t !== ct) // new t (or first)
+      // new timestamp (or first)
+      if (timestamp !== currentTimestamp)
       {
          fetchNumFrames++;
          for (i=0; i<numCharts; i++)
          {
             // if not first row, push old row
-            if (ct !== -1) chartDataArray[i].push(row[i]);
+            if (currentTimestamp !== -1) chartDataArray[i].push(row[i]);
 
             // clear row and set all to null 
             row[i] = [];
             for (j=0; j<9; j++) row[i][j] = null;
 
             // set t
-            row[i][0] = t;
+            row[i][0] = timestamp;
          }           
-         ct = t; // new current t
+         currentTimestamp = timestamp; // new currentTimestamp
       }         
-     // set val in column by player num     
+     // set val column by player num     
      for (i=0; i<numCharts; i++) row[i][p+1] = v[i];
    }
 
@@ -482,16 +500,20 @@ function do_stuff()
 
 
    // check for valid player data
+   // series are not added for player data that is null
    const vd = Array(8).fill(0);
-
    for (j=1; j<chartDataArray[0].length; j++)
       for (k=1; k<9; k++)
          if (chartDataArray[0][j][k] !== null) vd[k-1] = 1;
 
+   // don't even bother profiling the array manipulation stuff
+   // it is rarely even 1ms, insignificant compared to fetch and add to chart
 
    t2 = Date.now();
-   arrayProcessTime = t2 - t1;
-   document.getElementById('arrayProcessTimeSpan').innerHTML = arrayProcessTime;
+   //arrayProcessTime = t2 - t1;
+   //document.getElementById('arrayProcessTimeSpan').innerHTML = arrayProcessTime;
+
+
 
    for (i=0; i<numCharts; i++)
    {

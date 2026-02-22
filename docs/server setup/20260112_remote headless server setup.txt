@@ -368,7 +368,7 @@ pscp -pw zaiden c:\pm\src\mwLog.cpp  m@192.168.1.146:dev/purple_martians/src/
 
 pscp -pw zaiden c:\pm\src\mwStatus*  m@192.168.1.146:dev/purple_martians/src/
 
-
+pscp -pw zaiden c:\pm\src\mwSql*  m@192.168.1.122:dev/purple_martians/src/
 
 
 

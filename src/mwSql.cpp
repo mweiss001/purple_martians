@@ -57,7 +57,7 @@ int mwSql::open_database()
       return (0);
    }
 
-//   execute_sql("PRAGMA journal_mode = WAL", db_status);
+   execute_sql("PRAGMA journal_mode = WAL", db_status);
 
 
    // sprintf(filename, "%s", "data/logs.db");
@@ -190,12 +190,14 @@ void mwSql::create_tables()
    strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
    execute_sql(sql, db_status);
 
+
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
                id          INTEGER PRIMARY KEY, \
                key         TEXT, \
-               val         INT, \
+               val         REAL, \
                mod         INT ); ");
-   execute_sql(sql, db_sessions);
+   execute_sql(sql, db_status);
+
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
@@ -335,8 +337,6 @@ int mwSql::execute_sql_and_return_2d_vector_int(const char *sql, sqlite3 *db, st
    sqlite3_finalize(stmt);
    return 0;
 }
-
-
 
 
 

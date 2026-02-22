@@ -377,6 +377,108 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
 
 void mwNetgame::server_process_db_control()
 {
+
+   // struct to contain of control row
+   struct controlRow
+   {
+      std::string key;
+      float val;
+      int mod;
+   };
+
+   // vector of control row
+   std::vector<controlRow> controlRows;
+
+
+   // fill rows
+   char sql[1024];
+   sprintf(sql, "SELECT key, val, mod FROM control");
+
+   sqlite3_stmt* stmt;
+   int rc = sqlite3_prepare_v2(mSql.db_status, sql, -1, &stmt, nullptr);
+
+   if (rc != SQLITE_OK)
+   {
+      printf("Failed to prepare statement: %s\n %s\n", sql, sqlite3_errmsg(mSql.db_status));
+      sqlite3_finalize(stmt);
+      return;
+   }
+
+   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+   {
+      controlRow row;
+
+      const unsigned char* sqlite_text = sqlite3_column_text(stmt, 0);
+      // Cast the result and construct the std::string
+      const char* c_str = reinterpret_cast<const char*>(sqlite_text);
+      std::string my_string(c_str); // The constructor handles the null termination
+
+      row.key = my_string;
+      row.val = sqlite3_column_double(stmt, 1);
+      row.mod = sqlite3_column_int(stmt, 2);
+
+      controlRows.push_back(row);
+   }
+   sqlite3_finalize(stmt);
+
+   // delete all rows in table
+   mSql.execute_sql("DELETE FROM control", mSql.db_status);
+
+   // process controls
+   for (const auto& row : controlRows)
+   {
+      printf("%s %f %d\n", row.key.c_str(), row.val, row.mod);
+
+      if (row.key == "pvp_shots") printf("pvp_shots\n");
+
+      if (row.key == "fakekey")
+      {
+         printf("fakekey\n");
+         mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    // read from db and check if changed
 
    // check if key exists in db
@@ -394,9 +496,9 @@ void mwNetgame::server_process_db_control()
    // // check if changed by web
    // sprintf(sql, "SELECT val, mod FROM control WHERE key='%s'", key);
 
-
+/*
    const char* key = "pvp_shots";
-   char sql[1024];
+
    sprintf(sql, "SELECT val, mod FROM control WHERE key='%s'", key);
 
    std::vector<int> v;
@@ -421,6 +523,9 @@ void mwNetgame::server_process_db_control()
       }
 
    }
+
+   */
+
    /*
 
    int new_pvp = mPlayer.syn[0].player_vs_player_shots;
@@ -436,7 +541,6 @@ void mwNetgame::server_process_db_control()
 
 
 
-}
 
 
 
@@ -965,7 +1069,11 @@ void mwNetgame::server_control()
 
    if (server_remote_control) server_send_snfo_packet();
 
-   server_insert_status();
+//   server_insert_status();
+
+
+   server_process_db_control();
+
 
    // send extra packets (testing and debug only)
    for (int i=0; i<srv_exp_num; i++)
@@ -976,8 +1084,6 @@ void mwNetgame::server_control()
             mPacketBuffer.PacketName(data, pos, "extr");
             serverSendTo(data, pos + srv_exp_siz, p);
          }
-
-
 
 
    mLog.add_log_status_db_rows();

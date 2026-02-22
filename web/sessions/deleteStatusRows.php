@@ -10,10 +10,10 @@ $db = new PDO("sqlite:$db_filepath");
 // how many records
 $res = $db->query("SELECT COUNT(*) FROM client_status");
 if ($row = $res->fetch(PDO::FETCH_ASSOC)) $num_rows = $row['COUNT(*)'];
-$limit = (int) ($num_rows / 100);
+$limit = (int) ($num_rows / 10);
 
 $sql = "DELETE FROM client_status WHERE id IN (SELECT id FROM client_status ORDER BY id ASC LIMIT $limit)";
 $db->exec($sql);
-echo json_encode($limit);
+echo json_encode($num_rows-$limit);
 ?>
 
