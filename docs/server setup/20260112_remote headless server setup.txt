@@ -38,7 +38,7 @@ git clone https://github.com/liballeg/allegro5.git
 cd allegro5
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_IMAGE_PNG=ON -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
 make
 sudo make install
 
@@ -376,3 +376,1421 @@ pscp -pw zaiden c:\pm\src\mwNet*  m@192.168.1.122:dev/purple_martians/src/
 pscp -pw zaiden c:\pm\src\*.cpp  m@192.168.1.122:dev/purple_martians/src/
 
 pscp -pw zaiden m@192.168.1.122:dev/purple_martians/lev_stat.*  c:\pm\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------
+
+
+
+m@o7040:~/dev/allegro5/build$ cmake -LAH ..
+-- [Allegro] Allegro Version: [5.2.12]
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found PkgConfig: /usr/bin/pkg-config (found version "1.8.1")
+-- Looking for include file dirent.h
+-- Looking for include file dirent.h - found
+-- Looking for include file inttypes.h
+-- Looking for include file inttypes.h - found
+-- Looking for include file linux/input.h
+-- Looking for include file linux/input.h - found
+-- Looking for include file stdbool.h
+-- Looking for include file stdbool.h - found
+-- Looking for include file stdint.h
+-- Looking for include file stdint.h - found
+-- Looking for include file sys/io.h
+-- Looking for include file sys/io.h - found
+-- Looking for include file sys/stat.h
+-- Looking for include file sys/stat.h - found
+-- Looking for include file sys/time.h
+-- Looking for include file sys/time.h - found
+-- Looking for include file time.h
+-- Looking for include file time.h - found
+-- Looking for include file sys/utsname.h
+-- Looking for include file sys/utsname.h - found
+-- Looking for include file sys/types.h
+-- Looking for include file sys/types.h - found
+-- Looking for include file soundcard.h
+-- Looking for include file soundcard.h - not found
+-- Looking for include file sys/soundcard.h
+-- Looking for include file sys/soundcard.h - found
+-- Looking for include file machine/soundcard.h
+-- Looking for include file machine/soundcard.h - not found
+-- Looking for include file linux/soundcard.h
+-- Looking for include file linux/soundcard.h - found
+-- Looking for include file libkern/OSAtomic.h
+-- Looking for include file libkern/OSAtomic.h - not found
+-- Looking for include file sys/inotify.h
+-- Looking for include file sys/inotify.h - found
+-- Looking for include file sal.h
+-- Looking for include file sal.h - not found
+-- Looking for getexecname
+-- Looking for getexecname - not found
+-- Looking for mkstemp
+-- Looking for mkstemp - found
+-- Looking for mmap
+-- Looking for mmap - found
+-- Looking for mprotect
+-- Looking for mprotect - found
+-- Looking for sched_yield
+-- Looking for sched_yield - found
+-- Looking for sysconf
+-- Looking for sysconf - found
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for ftello
+-- Looking for ftello - found
+-- Looking for strerror_r
+-- Looking for strerror_r - found
+-- Looking for strerror_s
+-- Looking for strerror_s - not found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of _Bool
+-- Check size of _Bool - done
+-- Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+-- Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+-- Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+-- Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+-- Performing Test ALLEGRO_HAVE_VA_COPY
+-- Performing Test ALLEGRO_HAVE_VA_COPY - Success
+-- Found OpenGL: /usr/lib/x86_64-linux-gnu/libOpenGL.so
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Found X11: /usr/include
+-- Looking for XOpenDisplay in /usr/lib/x86_64-linux-gnu/libX11.so;/usr/lib/x86_64-linux-gnu/libXext.so
+-- Looking for XOpenDisplay in /usr/lib/x86_64-linux-gnu/libX11.so;/usr/lib/x86_64-linux-gnu/libXext.so - found
+-- Looking for gethostbyname
+-- Looking for gethostbyname - found
+-- Looking for connect
+-- Looking for connect - found
+-- Looking for remove
+-- Looking for remove - found
+-- Looking for shmat
+-- Looking for shmat - found
+-- Looking for IceConnectionNumber in ICE
+-- Looking for IceConnectionNumber in ICE - found
+-- Looking for XcursorImageCreate in Xcursor
+-- Looking for XcursorImageCreate in Xcursor - found
+-- Looking for X11/extensions/XInput2.h
+-- Looking for X11/extensions/XInput2.h - found
+-- Performing Test XINPUT2_COMPILES
+-- Performing Test XINPUT2_COMPILES - Success
+-- Looking for X11/extensions/xf86vmode.h
+-- Looking for X11/extensions/xf86vmode.h - not found
+-- Looking for XF86VidModeQueryExtension in Xxf86vm
+-- Looking for XF86VidModeQueryExtension in Xxf86vm - found
+-- Looking for X11/extensions/Xinerama.h
+-- Looking for X11/extensions/Xinerama.h - found
+-- Looking for XineramaQueryExtension in Xinerama
+-- Looking for XineramaQueryExtension in Xinerama - found
+-- Looking for X11/extensions/Xrandr.h
+-- Looking for X11/extensions/Xrandr.h - found
+-- Looking for XRRQueryExtension in Xrandr
+-- Looking for XRRQueryExtension in Xrandr - found
+-- Looking for X11/extensions/scrnsaver.h
+-- Looking for X11/extensions/scrnsaver.h - not found
+-- Looking for XScreenSaverQueryExtension in Xss
+-- Looking for XScreenSaverQueryExtension in Xss - not found
+-- Looking for XOpenIM in X11
+-- Looking for XOpenIM in X11 - found
+WARNING: FreeImage not found, disabling support
+-- Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so (found version "1.3")
+-- Found PNG: /usr/lib/x86_64-linux-gnu/libpng.so (found version "1.6.43")
+-- Found JPEG: /usr/lib/x86_64-linux-gnu/libjpeg.so (found version "80")
+-- Found WebP: /usr/include
+-- Performing Test OSS_COMPILES
+-- Performing Test OSS_COMPILES - Success
+-- Found OSS: 1
+-- Checking for module 'libpulse-simple'
+--   Found libpulse-simple, version 16.1
+-- Performing Test PULSEAUDIO_COMPILES
+-- Performing Test PULSEAUDIO_COMPILES - Success
+-- Checking for module 'alsa'
+--   Package 'alsa', required by 'virtual:world', not found
+-- Could NOT find OpenAL (missing: OPENAL_LIBRARY OPENAL_INCLUDE_DIR)
+-- Could NOT find OPENSL (missing: OPENSL_INCLUDE_DIR OPENSL_LIBRARY)
+-- Could NOT find FLAC (missing: FLAC_INCLUDE_DIR OGG_LIBRARY FLAC_LIBRARY)
+WARNING: libFLAC not found or compile test failed, disabling support.
+-- Could NOT find DUMB (missing: DUMB_INCLUDE_DIR DUMB_LIBRARY)
+WARNING: libdumb >= 2.0 or <= 0.9.3 not found or compile test failed, disabling support. See <https://github.com/kode54/dumb> for 2.0 or <http://dumb.sourceforge.net/> for 0.9.                                                                                                             3.
+-- Could NOT find OPENMPT (missing: OPENMPT_INCLUDE_DIR OGG_LIBRARY OPENMPT_LIBRARY)
+-- Could NOT find OGG (missing: OGG_INCLUDE_DIR OGG_LIBRARY)
+WARNING: libvorbis not found or compile test failed, disabling support.
+-- Could NOT find OGG (missing: OGG_INCLUDE_DIR OGG_LIBRARY)
+WARNING: libopus not found or compile test failed, disabling support.
+-- Could NOT find MiniMP3 (missing: MINIMP3_INCLUDE_DIRS)
+WARNING: minimp3 was not found
+-- Found Freetype: /usr/lib/x86_64-linux-gnu/libfreetype.so (found version "2.13.2")
+-- Performing Test TTF_COMPILES
+-- Performing Test TTF_COMPILES - Success
+-- Could NOT find PhysFS (missing: PHYSFS_LIBRARY PHYSFS_INCLUDE_DIR)
+-- Checking for module 'gtk+-3.0'
+--   Found gtk+-3.0, version 3.24.41
+-- Checking for module 'gthread-2.0'
+--   Found gthread-2.0, version 2.80.0
+-- Could NOT find OGG (missing: OGG_INCLUDE_DIR OGG_LIBRARY)
+-- Could NOT find OGG (missing: OGG_INCLUDE_DIR OGG_LIBRARY)
+WARNING: allegro_video wanted but no supported backend found
+-- Not building ex_physfs
+-- Not building ex_video
+-- Could NOT find ENET (missing: ENET_INCLUDE_DIR ENET_LIBRARY)
+-- Could NOT find LATEX (missing: LATEX_COMPILER)
+-- Found Git: /usr/bin/git (found version "2.43.0")
+-- Using git to determine git ref for documentation.
+-- Using 01e57726b5c98d4b8db00bc948dd59e969de6b5c as the git ref for source links in the documentation.
+===========================
+Configuration summary
+===========================
+- OpenGL: Desktop
+- Primitives addon: yes
+- Image addon: yes
+ - FreeImage: NO
+ - libpng: yes
+ - libjpeg: yes
+ - libwebp: yes
+- Font addon: yes
+- Audio addon: yes
+ - OSS: yes
+ - PulseAudio: yes
+ - ALSA: NO
+ - OpenAL: NO
+ - OpenSL: NO
+- Acodec addon: yes
+ - FLAC: NO
+ - DUMB: NO
+ - OpenMPT: NO
+ - Ogg/Vorbis: NO
+ - Opus: NO
+ - MP3: NO
+- TTF addon: yes
+- Color addon: yes
+- Memfile addon: yes
+- PhysFS addon: NO
+- Native Dialog addon: yes
+- Video addon: NO
+===========================
+
+-- Configuring done (6.3s)
+-- Generating done (0.8s)
+-- Build files have been written to: /home/m/dev/allegro5/build
+-- Cache values
+// Project default name
+ALLEGRO_PROJECT_NAME:STRING=ALLEGRO
+
+// Project suffix
+ALLEGRO_PROJECT_SUFFIX:STRING=
+
+// Build using the SDL backend (experimental)
+ALLEGRO_SDL:BOOL=OFF
+
+// Path to a program.
+BIBER_COMPILER:FILEPATH=BIBER_COMPILER-NOTFOUND
+
+// Path to a program.
+BIBTEX_COMPILER:FILEPATH=BIBTEX_COMPILER-NOTFOUND
+
+// Path to a program.
+CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
+
+// Path to a program.
+CMAKE_AR:FILEPATH=/usr/bin/ar
+
+// Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profile.
+CMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+
+// Enable/Disable color output during build.
+CMAKE_COLOR_MAKEFILE:BOOL=ON
+
+// CXX compiler
+CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+
+// A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler
+CMAKE_CXX_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-13
+
+// A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler
+CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-13
+
+// Flags used by the CXX compiler during all build types.
+CMAKE_CXX_FLAGS:STRING=
+
+// Flags used by the CXX compiler during DEBUG builds.
+CMAKE_CXX_FLAGS_DEBUG:STRING=-g
+
+// Flags used by the CXX compiler during MINSIZEREL builds.
+CMAKE_CXX_FLAGS_MINSIZEREL:STRING=-Os -DNDEBUG
+
+// profiling flags
+CMAKE_CXX_FLAGS_PROFILE:STRING=-pg
+
+// Flags used by the CXX compiler during RELEASE builds.
+CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
+
+// Flags used by the CXX compiler during RELWITHDEBINFO builds.
+CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
+
+// C compiler
+CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
+
+// A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler
+CMAKE_C_COMPILER_AR:FILEPATH=/usr/bin/gcc-ar-13
+
+// A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler
+CMAKE_C_COMPILER_RANLIB:FILEPATH=/usr/bin/gcc-ranlib-13
+
+// Flags used by the C compiler during all build types.
+CMAKE_C_FLAGS:STRING=
+
+// Flags used by the C compiler during DEBUG builds.
+CMAKE_C_FLAGS_DEBUG:STRING=-g
+
+// Flags used by the C compiler during MINSIZEREL builds.
+CMAKE_C_FLAGS_MINSIZEREL:STRING=-Os -DNDEBUG
+
+// profiling flags
+CMAKE_C_FLAGS_PROFILE:STRING=-pg
+
+// Flags used by the C compiler during RELEASE builds.
+CMAKE_C_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
+
+// Flags used by the C compiler during RELWITHDEBINFO builds.
+CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
+
+// Path to a program.
+CMAKE_DLLTOOL:FILEPATH=CMAKE_DLLTOOL-NOTFOUND
+
+// Flags used by the linker during all build types.
+CMAKE_EXE_LINKER_FLAGS:STRING=
+
+// Flags used by the linker during DEBUG builds.
+CMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=
+
+// Flags used by the linker during MINSIZEREL builds.
+CMAKE_EXE_LINKER_FLAGS_MINSIZEREL:STRING=
+
+// profiling flags
+CMAKE_EXE_LINKER_FLAGS_PROFILE:STRING=-pg
+
+// Flags used by the linker during RELEASE builds.
+CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
+
+// Flags used by the linker during RELWITHDEBINFO builds.
+CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
+
+// Enable/Disable output of compile commands during generation.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
+
+// User executables (bin)
+CMAKE_INSTALL_BINDIR:PATH=bin
+
+// Read-only architecture-independent data (DATAROOTDIR)
+CMAKE_INSTALL_DATADIR:PATH=
+
+// Read-only architecture-independent data root (share)
+CMAKE_INSTALL_DATAROOTDIR:PATH=share
+
+// Documentation root (DATAROOTDIR/doc/PROJECT_NAME)
+CMAKE_INSTALL_DOCDIR:PATH=
+
+// C header files (include)
+CMAKE_INSTALL_INCLUDEDIR:PATH=include
+
+// Info documentation (DATAROOTDIR/info)
+CMAKE_INSTALL_INFODIR:PATH=
+
+// Object code libraries (lib)
+CMAKE_INSTALL_LIBDIR:PATH=lib
+
+// Program executables (libexec)
+CMAKE_INSTALL_LIBEXECDIR:PATH=libexec
+
+// Locale-dependent data (DATAROOTDIR/locale)
+CMAKE_INSTALL_LOCALEDIR:PATH=
+
+// Modifiable single-machine data (var)
+CMAKE_INSTALL_LOCALSTATEDIR:PATH=var
+
+// Man documentation (DATAROOTDIR/man)
+CMAKE_INSTALL_MANDIR:PATH=
+
+// C header files for non-gcc (/usr/include)
+CMAKE_INSTALL_OLDINCLUDEDIR:PATH=/usr/include
+
+// Install path prefix, prepended onto install directories.
+CMAKE_INSTALL_PREFIX:PATH=/usr/local
+
+// Run-time variable data (LOCALSTATEDIR/run)
+CMAKE_INSTALL_RUNSTATEDIR:PATH=
+
+// System admin executables (sbin)
+CMAKE_INSTALL_SBINDIR:PATH=sbin
+
+// Modifiable architecture-independent data (com)
+CMAKE_INSTALL_SHAREDSTATEDIR:PATH=com
+
+// Read-only single-machine data (etc)
+CMAKE_INSTALL_SYSCONFDIR:PATH=etc
+
+// Path to a program.
+CMAKE_LINKER:FILEPATH=/usr/bin/ld
+
+// Path to a program.
+CMAKE_MAKE_PROGRAM:FILEPATH=/usr/bin/gmake
+
+// Flags used by the linker during the creation of modules during all build types.
+CMAKE_MODULE_LINKER_FLAGS:STRING=
+
+// Flags used by the linker during the creation of modules during DEBUG builds.
+CMAKE_MODULE_LINKER_FLAGS_DEBUG:STRING=
+
+// Flags used by the linker during the creation of modules during MINSIZEREL builds.
+CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL:STRING=
+
+// Flags used by the linker during the creation of modules during RELEASE builds.
+CMAKE_MODULE_LINKER_FLAGS_RELEASE:STRING=
+
+// Flags used by the linker during the creation of modules during RELWITHDEBINFO builds.
+CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
+
+// Path to a program.
+CMAKE_NM:FILEPATH=/usr/bin/nm
+
+// Path to a program.
+CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
+
+// Path to a program.
+CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
+
+// Path to a program.
+CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
+
+// Path to a program.
+CMAKE_READELF:FILEPATH=/usr/bin/readelf
+
+// Flags used by the linker during the creation of shared libraries during all build types.
+CMAKE_SHARED_LINKER_FLAGS:STRING=
+
+// Flags used by the linker during the creation of shared libraries during DEBUG builds.
+CMAKE_SHARED_LINKER_FLAGS_DEBUG:STRING=
+
+// Flags used by the linker during the creation of shared libraries during MINSIZEREL builds.
+CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL:STRING=
+
+// profiling flags
+CMAKE_SHARED_LINKER_FLAGS_PROFILE:STRING=-pg
+
+// Flags used by the linker during the creation of shared libraries during RELEASE builds.
+CMAKE_SHARED_LINKER_FLAGS_RELEASE:STRING=
+
+// Flags used by the linker during the creation of shared libraries during RELWITHDEBINFO builds.
+CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO:STRING=
+
+// If set, runtime paths are not added when installing shared libraries, but are added when building.
+CMAKE_SKIP_INSTALL_RPATH:BOOL=NO
+
+// If set, runtime paths are not added when using shared libraries.
+CMAKE_SKIP_RPATH:BOOL=NO
+
+// Flags used by the linker during the creation of static libraries during all build types.
+CMAKE_STATIC_LINKER_FLAGS:STRING=
+
+// Flags used by the linker during the creation of static libraries during DEBUG builds.
+CMAKE_STATIC_LINKER_FLAGS_DEBUG:STRING=
+
+// Flags used by the linker during the creation of static libraries during MINSIZEREL builds.
+CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL:STRING=
+
+// Flags used by the linker during the creation of static libraries during RELEASE builds.
+CMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=
+
+// Flags used by the linker during the creation of static libraries during RELWITHDEBINFO builds.
+CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
+
+// Path to a program.
+CMAKE_STRIP:FILEPATH=/usr/bin/strip
+
+// Path to a program.
+CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
+
+// If this value is on, makefiles will be generated without the .SILENT directive, and all commands will be echoed to the console during the make.  This is useful for debugging                                                                                                              only. With Visual Studio IDE projects all commands are done without /nologo.
+CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
+
+// Path to a program.
+CTAGS:FILEPATH=CTAGS-NOTFOUND
+
+// Git ref to use for source links in the documentation. If empty, will query git for this.
+DOC_GIT_REF:STRING=
+
+// Path to a file.
+DUMB_INCLUDE_DIR:PATH=DUMB_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+DUMB_LIBRARY:FILEPATH=DUMB_LIBRARY-NOTFOUND
+
+// Path to a program.
+DVIPDF_CONVERTER:FILEPATH=DVIPDF_CONVERTER-NOTFOUND
+
+// Path to a program.
+DVIPS_CONVERTER:FILEPATH=DVIPS_CONVERTER-NOTFOUND
+
+// Path to a file.
+ENET_INCLUDE_DIR:PATH=ENET_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+ENET_LIBRARY:FILEPATH=ENET_LIBRARY-NOTFOUND
+
+// Path to a file.
+FLAC_INCLUDE_DIR:PATH=FLAC_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+FLAC_LIBRARY:FILEPATH=FLAC_LIBRARY-NOTFOUND
+
+// Directory in which to install Mac OS X frameworks
+FRAMEWORK_INSTALL_PREFIX:STRING=/Library/Frameworks
+
+// The directory where FreeImage.h resides
+FREEIMAGE_INCLUDE_PATH:PATH=FREEIMAGE_INCLUDE_PATH-NOTFOUND
+
+// The FreeImage library
+FREEIMAGE_LIBRARY:FILEPATH=FREEIMAGE_LIBRARY-NOTFOUND
+
+// Enable if FreeType static library needs bzip2 linked in.
+FREETYPE_BZIP2:BOOL=OFF
+
+// Enable if FreeType static library needs harfbuzz linked in.
+FREETYPE_HARFBUZZ:BOOL=OFF
+
+// Path to a file.
+FREETYPE_INCLUDE_DIR_freetype2:PATH=/usr/include/freetype2
+
+// Path to a file.
+FREETYPE_INCLUDE_DIR_ft2build:PATH=/usr/include/freetype2
+
+// Path to a library.
+FREETYPE_LIBRARY_DEBUG:FILEPATH=FREETYPE_LIBRARY_DEBUG-NOTFOUND
+
+// Path to a library.
+FREETYPE_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libfreetype.so
+
+// Enable if FreeType static library needs png linked in.
+FREETYPE_PNG:BOOL=OFF
+
+// Enable if FreeType static library needs zlib linked in.
+FREETYPE_ZLIB:BOOL=OFF
+
+// Path to a file.
+Fontconfig_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a library.
+Fontconfig_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libfontconfig.so
+
+// Git command line client
+GIT_EXECUTABLE:FILEPATH=/usr/bin/git
+
+// OpenGL profile to build Allegro against
+GL_BUILD_TYPE:STRING=auto
+
+// Path to a program.
+HTLATEX_COMPILER:FILEPATH=HTLATEX_COMPILER-NOTFOUND
+
+// Path to a file.
+JPEG_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a library.
+JPEG_LIBRARY_DEBUG:FILEPATH=JPEG_LIBRARY_DEBUG-NOTFOUND
+
+// Path to a library.
+JPEG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libjpeg.so
+
+// Path to a program.
+LATEX2HTML_CONVERTER:FILEPATH=LATEX2HTML_CONVERTER-NOTFOUND
+
+// Path to a program.
+LATEX_COMPILER:FILEPATH=LATEX_COMPILER-NOTFOUND
+
+// Path to a program.
+LUALATEX_COMPILER:FILEPATH=LUALATEX_COMPILER-NOTFOUND
+
+// Path to a program.
+MAKEINDEX_COMPILER:FILEPATH=MAKEINDEX_COMPILER-NOTFOUND
+
+// Path to a program.
+MAKEINFO:FILEPATH=MAKEINFO-NOTFOUND
+
+// Path to a file.
+MINIMP3_INCLUDE_DIRS:PATH=MINIMP3_INCLUDE_DIRS-NOTFOUND
+
+// No floating point unit
+NO_FPU:BOOL=OFF
+
+// Path to a file.
+OGG_INCLUDE_DIR:PATH=OGG_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+OGG_LIBRARY:FILEPATH=OGG_LIBRARY-NOTFOUND
+
+// Path to a file.
+OPENAL_INCLUDE_DIR:PATH=OPENAL_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+OPENAL_LIBRARY:FILEPATH=OPENAL_LIBRARY-NOTFOUND
+
+// Path to a file.
+OPENGL_EGL_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a file.
+OPENGL_GLES2_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a file.
+OPENGL_GLES3_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a file.
+OPENGL_GLX_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a file.
+OPENGL_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a library.
+OPENGL_egl_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libEGL.so
+
+// Path to a library.
+OPENGL_gles2_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libGLESv2.so
+
+// Path to a library.
+OPENGL_gles3_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libGLESv2.so
+
+// Path to a library.
+OPENGL_glu_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libGLU.so
+
+// Path to a library.
+OPENGL_glx_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libGLX.so
+
+// Path to a library.
+OPENGL_opengl_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libOpenGL.so
+
+// Path to a file.
+OPENGL_xmesa_INCLUDE_DIR:PATH=OPENGL_xmesa_INCLUDE_DIR-NOTFOUND
+
+// Path to a file.
+OPENMPT_INCLUDE_DIR:PATH=OPENMPT_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+OPENMPT_LIBRARY:FILEPATH=OPENMPT_LIBRARY-NOTFOUND
+
+// Enable if OpenMPT static library needs Ogg/Vorbis linked in.
+OPENMPT_VORBIS:BOOL=OFF
+
+// Enable if OpenMPT static library needs zlib linked in.
+OPENMPT_ZLIB:BOOL=OFF
+
+// Path to a file.
+OPENSL_INCLUDE_DIR:PATH=OPENSL_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+OPENSL_LIBRARY:FILEPATH=OPENSL_LIBRARY-NOTFOUND
+
+// Path to a program.
+PANDOC:FILEPATH=PANDOC-NOTFOUND
+
+// Path to a program.
+PDFLATEX_COMPILER:FILEPATH=PDFLATEX_COMPILER-NOTFOUND
+
+// Path to a program.
+PDFTOPS_CONVERTER:FILEPATH=PDFTOPS_CONVERTER-NOTFOUND
+
+// Path to a file.
+PHYSFS_INCLUDE_DIR:PATH=PHYSFS_INCLUDE_DIR-NOTFOUND
+
+// Path to a library.
+PHYSFS_LIBRARY:FILEPATH=PHYSFS_LIBRARY-NOTFOUND
+
+// Arguments to supply to pkg-config
+PKG_CONFIG_ARGN:STRING=
+
+// pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
+// Path to a library.
+PNG_LIBRARY_DEBUG:FILEPATH=PNG_LIBRARY_DEBUG-NOTFOUND
+
+// Path to a library.
+PNG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libpng.so
+
+// Path to a file.
+PNG_PNG_INCLUDE_DIR:PATH=/usr/include
+
+// Whether to prefer static dependencies.
+PREFER_STATIC_DEPS:BOOL=OFF
+
+// Path to a program.
+PS2PDF_CONVERTER:FILEPATH=PS2PDF_CONVERTER-NOTFOUND
+
+// Path to a program.
+SH:FILEPATH=/usr/bin/dash
+
+// Build shared libraries
+SHARED:BOOL=ON
+
+// Path to a library.
+SHARPYUV_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libsharpyuv.so
+
+// Halt at warnings
+STRICT_WARN:BOOL=OFF
+
+// Enable DLL loading in acodec (Windows)
+WANT_ACODEC_DYNAMIC_LOAD:BOOL=OFF
+
+// Allow compiler to use SSE instructions (x86)
+WANT_ALLOW_SSE:STRING=off
+
+// Enable ALSA digital audio driver (Unix)
+WANT_ALSA:BOOL=ON
+
+// Enable AudioQueue digital audio driver (Mac)
+WANT_AQUEUE:BOOL=ON
+
+// Enable allegro_audio engine
+WANT_AUDIO:BOOL=ON
+
+// Enable color addon
+WANT_COLOR:BOOL=ON
+
+// Build ex_curl example
+WANT_CURL_EXAMPLE:BOOL=OFF
+
+// Enable Direct3D graphics driver (Windows)
+WANT_D3D:BOOL=ON
+
+// Enable Direct3D 9Ex extensions (Vista)
+WANT_D3D9EX:BOOL=OFF
+
+// Build demo programs
+WANT_DEMO:BOOL=ON
+
+// Force use of DllMain for TLS (Windows)
+WANT_DLL_TLS:BOOL=OFF
+
+// Generate documentation
+WANT_DOCS:BOOL=ON
+
+// Generate HTML documentation
+WANT_DOCS_HTML:BOOL=ON
+
+// Generate Info document
+WANT_DOCS_INFO:BOOL=OFF
+
+// Generate man pages
+WANT_DOCS_MAN:BOOL=ON
+
+// Generate PDF document (requires pdflatex)
+WANT_DOCS_PDF:BOOL=OFF
+
+// Whether PDF output is destined for paper
+WANT_DOCS_PDF_PAPER:BOOL=OFF
+
+// Enable DSound digital audio driver (Windows)
+WANT_DSOUND:BOOL=ON
+
+// Enable mod audio support using DUMB
+WANT_DUMB:BOOL=ON
+
+// Make frameworks embeddable in application bundles (Mac OS X)
+WANT_EMBED:BOOL=ON
+
+// Build example programs
+WANT_EXAMPLES:BOOL=ON
+
+// Enable FLAC support
+WANT_FLAC:BOOL=ON
+
+// Enable bitmap font add-on
+WANT_FONT:BOOL=ON
+
+// Want frameworks on Mac OS X
+WANT_FRAMEWORKS:BOOL=OFF
+
+// Use GLES3-only features in a GLES2+ build
+WANT_GLES3:BOOL=OFF
+
+// Enable image load/save addon
+WANT_IMAGE:BOOL=ON
+
+// Enable FreeImage support in image addon
+WANT_IMAGE_FREEIMAGE:BOOL=ON
+
+// Enable JPEG support in image addon
+WANT_IMAGE_JPG:BOOL=ON
+
+// Enable PNG support in image addon
+WANT_IMAGE_PNG:BOOL=ON
+
+// Enable WebP support in image addon
+WANT_IMAGE_WEBP:BOOL=ON
+
+// Enable generation of the Luajit wrapper
+WANT_LUAJIT:BOOL=OFF
+
+// Enable memfile addon
+WANT_MEMFILE:BOOL=ON
+
+// Include all addons in the main library
+WANT_MONOLITH:BOOL=OFF
+
+// Enable MP3 support
+WANT_MP3:BOOL=ON
+
+// Enable gcc mudflap (requires gcc 4.0+)
+WANT_MUDFLAP:BOOL=OFF
+
+// Enable native dialog addon
+WANT_NATIVE_DIALOG:BOOL=ON
+
+// Enable the native platform image loader (if available)
+WANT_NATIVE_IMAGE_LOADER:BOOL=ON
+
+// Enable Ogg video (requires Theora and Vorbis)
+WANT_OGG_VIDEO:BOOL=ON
+
+// Enable OpenAL digital audio driver
+WANT_OPENAL:BOOL=ON
+
+// Enable OpenGL graphics driver (Windows, X11, OS X))
+WANT_OPENGL:BOOL=ON
+
+// Enable mod audio support using OpenMPT
+WANT_OPENMPT:BOOL=ON
+
+// Enable OpenSL digital audio driver (Android)
+WANT_OPENSL:BOOL=ON
+
+// Enable Opus support using libopus
+WANT_OPUS:BOOL=ON
+
+// Enable OSS digital audio driver (Unix)
+WANT_OSS:BOOL=ON
+
+// Enable PhysicsFS addon
+WANT_PHYSFS:BOOL=ON
+
+// Use popups instead of printf for fatal errors
+WANT_POPUP_EXAMPLES:BOOL=ON
+
+// Enable primitives addon
+WANT_PRIMITIVES:BOOL=ON
+
+// Enable PulseAudio audio driver (Unix)
+WANT_PULSEAUDIO:BOOL=ON
+
+// Enable generation of the Python wrapper
+WANT_PYTHON_WRAPPER:BOOL=OFF
+
+// Enable logging even in release mode
+WANT_RELEASE_LOGGING:BOOL=ON
+
+// Build HLSL shader support (Direct3D)
+WANT_SHADERS_D3D:BOOL=ON
+
+// Build GLSL shader support (OpenGL)
+WANT_SHADERS_GL:BOOL=ON
+
+// Whether or not to link the C and C++ runtimes statically (currently only implemented on Windows)
+WANT_STATIC_RUNTIME:BOOL=OFF
+
+// Build test programs
+WANT_TESTS:BOOL=ON
+
+// Enable Ogg Vorbis support using Tremor
+WANT_TREMOR:BOOL=OFF
+
+// Enable TTF addon
+WANT_TTF:BOOL=ON
+
+// Enable video player addon
+WANT_VIDEO:BOOL=ON
+
+// Enable Ogg Vorbis support using libvorbis
+WANT_VORBIS:BOOL=ON
+
+// Use sleep instead of threads in al_wait_for_event (only useful for emscripten without web workers)
+WANT_WAIT_EVENT_SLEEP:BOOL=OFF
+
+// X11 support
+WANT_X11:BOOL=ON
+
+// X11 XF86VidMode Extension support
+WANT_X11_XF86VIDMODE:BOOL=ON
+
+// X11 Xinerama Extension support
+WANT_X11_XINERAMA:BOOL=ON
+
+// X11 XRandR Extension support
+WANT_X11_XRANDR:BOOL=ON
+
+// X11 XScreenSaver Extension support
+WANT_X11_XSCREENSAVER:BOOL=ON
+
+// Path to a file.
+WEBP_INCLUDE_DIRS:PATH=/usr/include
+
+// WebP libraries
+WEBP_LIBRARIES:STRING=/usr/lib/x86_64-linux-gnu/libwebp.so;/usr/lib/x86_64-linux-gnu/libsharpyuv.so
+
+// Path to a library.
+WEBP_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libwebp.so
+
+// Path to a file.
+X11_ICE_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_ICE_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libICE.so
+
+// Path to a file.
+X11_SM_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_SM_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libSM.so
+
+// Path to a file.
+X11_X11_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_X11_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libX11.so
+
+// Path to a file.
+X11_X11_xcb_INCLUDE_PATH:PATH=X11_X11_xcb_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_X11_xcb_LIB:FILEPATH=X11_X11_xcb_LIB-NOTFOUND
+
+// Path to a file.
+X11_XRes_INCLUDE_PATH:PATH=X11_XRes_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_XRes_LIB:FILEPATH=X11_XRes_LIB-NOTFOUND
+
+// Path to a file.
+X11_XShm_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_XSync_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xaccessrules_INCLUDE_PATH:PATH=X11_Xaccessrules_INCLUDE_PATH-NOTFOUND
+
+// Path to a file.
+X11_Xaccessstr_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xau_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xau_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXau.so
+
+// Path to a file.
+X11_Xaw_INCLUDE_PATH:PATH=X11_Xaw_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xaw_LIB:FILEPATH=X11_Xaw_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xcomposite_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xcomposite_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXcomposite.so
+
+// Path to a file.
+X11_Xcursor_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xcursor_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXcursor.so
+
+// Path to a file.
+X11_Xdamage_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xdamage_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXdamage.so
+
+// Path to a file.
+X11_Xdmcp_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xdmcp_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXdmcp.so
+
+// Path to a file.
+X11_Xext_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xext_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXext.so
+
+// Path to a file.
+X11_Xfixes_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xfixes_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXfixes.so
+
+// Path to a file.
+X11_Xft_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xft_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXft.so
+
+// Path to a file.
+X11_Xi_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xi_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXi.so
+
+// Path to a file.
+X11_Xinerama_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xinerama_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXinerama.so
+
+// Path to a file.
+X11_Xkb_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xkblib_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xlib_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xmu_INCLUDE_PATH:PATH=X11_Xmu_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xmu_LIB:FILEPATH=X11_Xmu_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xpm_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xpm_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXpm.so
+
+// Path to a file.
+X11_Xrandr_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xrandr_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXrandr.so
+
+// Path to a file.
+X11_Xrender_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xrender_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXrender.so
+
+// Path to a file.
+X11_Xshape_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xss_INCLUDE_PATH:PATH=X11_Xss_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xss_LIB:FILEPATH=X11_Xss_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xt_INCLUDE_PATH:PATH=X11_Xt_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xt_LIB:FILEPATH=X11_Xt_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xtst_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xtst_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXtst.so
+
+// Path to a file.
+X11_Xutil_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_Xv_INCLUDE_PATH:PATH=X11_Xv_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xv_LIB:FILEPATH=X11_Xv_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xxf86misc_INCLUDE_PATH:PATH=X11_Xxf86misc_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_Xxf86misc_LIB:FILEPATH=X11_Xxf86misc_LIB-NOTFOUND
+
+// Path to a file.
+X11_Xxf86vm_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_Xxf86vm_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXxf86vm.so
+
+// Path to a file.
+X11_dpms_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a file.
+X11_xcb_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_xcb_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libxcb.so
+
+// Path to a file.
+X11_xcb_composite_INCLUDE_PATH:PATH=X11_xcb_composite_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_composite_LIB:FILEPATH=X11_xcb_composite_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_cursor_INCLUDE_PATH:PATH=X11_xcb_cursor_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_cursor_LIB:FILEPATH=X11_xcb_cursor_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_damage_INCLUDE_PATH:PATH=X11_xcb_damage_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_damage_LIB:FILEPATH=X11_xcb_damage_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_dpms_INCLUDE_PATH:PATH=X11_xcb_dpms_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_dpms_LIB:FILEPATH=X11_xcb_dpms_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_dri2_INCLUDE_PATH:PATH=X11_xcb_dri2_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_dri2_LIB:FILEPATH=X11_xcb_dri2_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_dri3_INCLUDE_PATH:PATH=X11_xcb_dri3_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_dri3_LIB:FILEPATH=X11_xcb_dri3_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_errors_INCLUDE_PATH:PATH=X11_xcb_errors_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_errors_LIB:FILEPATH=X11_xcb_errors_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_ewmh_INCLUDE_PATH:PATH=X11_xcb_ewmh_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_ewmh_LIB:FILEPATH=X11_xcb_ewmh_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_glx_INCLUDE_PATH:PATH=X11_xcb_glx_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_glx_LIB:FILEPATH=X11_xcb_glx_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_icccm_INCLUDE_PATH:PATH=X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_icccm_LIB:FILEPATH=X11_xcb_icccm_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_image_INCLUDE_PATH:PATH=X11_xcb_image_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_image_LIB:FILEPATH=X11_xcb_image_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_keysyms_INCLUDE_PATH:PATH=X11_xcb_keysyms_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_keysyms_LIB:FILEPATH=X11_xcb_keysyms_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_present_INCLUDE_PATH:PATH=X11_xcb_present_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_present_LIB:FILEPATH=X11_xcb_present_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_randr_INCLUDE_PATH:PATH=X11_xcb_randr_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_randr_LIB:FILEPATH=X11_xcb_randr_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_record_INCLUDE_PATH:PATH=X11_xcb_record_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_record_LIB:FILEPATH=X11_xcb_record_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_render_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_xcb_render_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libxcb-render.so
+
+// Path to a file.
+X11_xcb_render_util_INCLUDE_PATH:PATH=X11_xcb_render_util_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_render_util_LIB:FILEPATH=X11_xcb_render_util_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_res_INCLUDE_PATH:PATH=X11_xcb_res_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_res_LIB:FILEPATH=X11_xcb_res_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_screensaver_INCLUDE_PATH:PATH=X11_xcb_screensaver_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_screensaver_LIB:FILEPATH=X11_xcb_screensaver_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_shape_INCLUDE_PATH:PATH=X11_xcb_shape_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_shape_LIB:FILEPATH=X11_xcb_shape_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_shm_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_xcb_shm_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libxcb-shm.so
+
+// Path to a file.
+X11_xcb_sync_INCLUDE_PATH:PATH=X11_xcb_sync_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_sync_LIB:FILEPATH=X11_xcb_sync_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_util_INCLUDE_PATH:PATH=X11_xcb_util_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_util_LIB:FILEPATH=X11_xcb_util_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xf86dri_INCLUDE_PATH:PATH=X11_xcb_xf86dri_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xf86dri_LIB:FILEPATH=X11_xcb_xf86dri_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xfixes_INCLUDE_PATH:PATH=X11_xcb_xfixes_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xfixes_LIB:FILEPATH=X11_xcb_xfixes_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xinerama_INCLUDE_PATH:PATH=X11_xcb_xinerama_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xinerama_LIB:FILEPATH=X11_xcb_xinerama_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xinput_INCLUDE_PATH:PATH=X11_xcb_xinput_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xinput_LIB:FILEPATH=X11_xcb_xinput_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xkb_INCLUDE_PATH:PATH=X11_xcb_xkb_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xkb_LIB:FILEPATH=X11_xcb_xkb_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xrm_INCLUDE_PATH:PATH=X11_xcb_xrm_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xrm_LIB:FILEPATH=X11_xcb_xrm_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xtest_INCLUDE_PATH:PATH=X11_xcb_xtest_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xtest_LIB:FILEPATH=X11_xcb_xtest_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xv_INCLUDE_PATH:PATH=X11_xcb_xv_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xv_LIB:FILEPATH=X11_xcb_xv_LIB-NOTFOUND
+
+// Path to a file.
+X11_xcb_xvmc_INCLUDE_PATH:PATH=X11_xcb_xvmc_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xcb_xvmc_LIB:FILEPATH=X11_xcb_xvmc_LIB-NOTFOUND
+
+// Path to a file.
+X11_xkbcommon_INCLUDE_PATH:PATH=/usr/include
+
+// Path to a library.
+X11_xkbcommon_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libxkbcommon.so
+
+// Path to a file.
+X11_xkbcommon_X11_INCLUDE_PATH:PATH=X11_xkbcommon_X11_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xkbcommon_X11_LIB:FILEPATH=X11_xkbcommon_X11_LIB-NOTFOUND
+
+// Path to a file.
+X11_xkbfile_INCLUDE_PATH:PATH=X11_xkbfile_INCLUDE_PATH-NOTFOUND
+
+// Path to a library.
+X11_xkbfile_LIB:FILEPATH=X11_xkbfile_LIB-NOTFOUND
+
+// Path to a library.
+XCURSOR_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXcursor.so
+
+// Path to a program.
+XELATEX_COMPILER:FILEPATH=XELATEX_COMPILER-NOTFOUND
+
+// Path to a program.
+XINDY_COMPILER:FILEPATH=XINDY_COMPILER-NOTFOUND
+
+// Path to a library.
+XINERAMA_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXinerama.so
+
+// Path to a library.
+XRANDR_LIB:FILEPATH=/usr/lib/x86_64-linux-gnu/libXrandr.so
+
+// Path to a file.
+ZLIB_INCLUDE_DIR:PATH=/usr/include
+
+// Path to a library.
+ZLIB_LIBRARY_DEBUG:FILEPATH=ZLIB_LIBRARY_DEBUG-NOTFOUND
+
+// Path to a library.
+ZLIB_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libz.so
+
+// Path to a library.
+pkgcfg_lib_GTK_atk-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libatk-1.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_cairo:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo.so
+
+// Path to a library.
+pkgcfg_lib_GTK_cairo-gobject:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo-gobject.so
+
+// Path to a library.
+pkgcfg_lib_GTK_gdk-3:FILEPATH=/usr/lib/x86_64-linux-gnu/libgdk-3.so
+
+// Path to a library.
+pkgcfg_lib_GTK_gdk_pixbuf-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_gio-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgio-2.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_glib-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libglib-2.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_gobject-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgobject-2.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_gtk-3:FILEPATH=/usr/lib/x86_64-linux-gnu/libgtk-3.so
+
+// Path to a library.
+pkgcfg_lib_GTK_harfbuzz:FILEPATH=/usr/lib/x86_64-linux-gnu/libharfbuzz.so
+
+// Path to a library.
+pkgcfg_lib_GTK_pango-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpango-1.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_pangocairo-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so
+
+// Path to a library.
+pkgcfg_lib_GTK_z:FILEPATH=/usr/lib/x86_64-linux-gnu/libz.so
+
+// Path to a library.
+pkgcfg_lib_GT_glib-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libglib-2.0.so
+
+// Path to a library.
+pkgcfg_lib_GT_gthread-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgthread-2.0.so
+
+// Path to a library.
+pkgcfg_lib_PC_WEBP_sharpyuv:FILEPATH=/usr/lib/x86_64-linux-gnu/libsharpyuv.so
+
+// Path to a library.
+pkgcfg_lib_PC_WEBP_webp:FILEPATH=/usr/lib/x86_64-linux-gnu/libwebp.so
+
+// Path to a library.
+pkgcfg_lib_PKG_FONTCONFIG_fontconfig:FILEPATH=/usr/lib/x86_64-linux-gnu/libfontconfig.so
+
+// Path to a library.
+pkgcfg_lib_PKG_FONTCONFIG_freetype:FILEPATH=/usr/lib/x86_64-linux-gnu/libfreetype.so
+
+// Path to a library.
+pkgcfg_lib_PULSEAUDIO_pulse:FILEPATH=/usr/lib/x86_64-linux-gnu/libpulse.so
+
+// Path to a library.
+pkgcfg_lib_PULSEAUDIO_pulse-simple:FILEPATH=/usr/lib/x86_64-linux-gnu/libpulse-simple.so
+
+m@o7040:~/dev/allegro5/build$

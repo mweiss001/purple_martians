@@ -928,17 +928,13 @@ void mwLoop::main_loop(void)
          if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
          {
 
-
             frame_num++;
             frame_start_timestamp = al_get_time();
 
+            mBitmap.update_animation();
+
             if (!mDisplay.no_display)
             {
-
-               // -----------------------------------
-               // update animation and process sound
-               // -----------------------------------
-               mBitmap.update_animation();
                mSound.proc_sound();
 
                // -----------------------------------

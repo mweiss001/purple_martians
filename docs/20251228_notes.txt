@@ -19831,11 +19831,30 @@ i think I have it all put back together...
 I want to load level icons...at least for overworld..done
 it looks beautiful
 
-I want to show players
+I want to show players..done
 broken blocks do not show..fixed...
 
+the only thing that sucks is that I have to use bmp...
+480k for 400x400
+120k for 200x200
+
+vs png
+61k for 1000x1000
+18k for 400x400
+6k for 200x200
 
 
+
+
+why does png work on win but not on lin?
+fixed... added -DWANT_IMAGE_PNG=ON
+
+the refresh on status page is clunky
+I need to change the entire status page to be mostly js not php
+the only thing left is the duration function...done..kinda hacky but works
+
+animation sequence update.....done
+remove old 
 
 
 

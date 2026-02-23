@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html class="dark">
+   <head>
+      <title>Purple Martians - Status</title>
+      <link rel="stylesheet" href="./sessions.css">
+      <script src="./status.js", type="module" ></script>
+      <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+   </head>
+   <body>
+      <div class="divSessionsPage">
+         <div class="divSessionsPageTopRow">
+            <div class="divSessionsPageTopRowLeft">
+              <div id="testButtons"></div>
+            </div>
+            <div class="divSessionsPageTopRowCenter">
+               <div class="divSessionsPageLinks">
+                  <a href="../index.html"  class="button linksButton" >Back to Main Page</a>
+                  <a href="sessions.html"  class="button linksButton" >Sessions</a>
+                  <a href="status.html"    class="button linksButton" >Status</a>
+               </div>
+            </div>
+            <div class="divSessionsPageTopRowRight"></div>
+         </div>
+         <div class='statusPage divSectionContainer'>
+            <div class='statusPage divSectionTitleSectionFrame'>
+               <div class='statusPage divSectionTitleSectionContainer'>
+                  <div class='statusPage divSectionTitleFrame'>Server Status</div>
+                  <div class='statusPage divSectionTitleFrameButtonsFrame'>
+                     <button id="refreshButton" class="button linksButton">Refresh</button>
+                  </div>
+               </div>
+            </div>
+            <div style=" display:flex; gap:2px; padding:4px;">
+               <div id='statusText' class='statusPage divSectionSubSectionPretext'></div>
+            </div>
+            <div id='currentClientsTitle' class='statusPage divSectionSubSectionTitleFrame'>Current Clients</div>
+            <div class='statusPage divSectionSubSectionTable'>
+               <table class='statusPageTable'>
+                  <tbody id='currentClientsTable'></tbody>
+               </table>
+            </div>
+            <div class='statusPage divSectionSubSectionTitleFrame'>Current Level</div>
+            <div style='display:flex; gap:2px;  padding:4px;'>
+               
+               <img id='levelIcon' alt='icon not found' >
+
+               <div id='levelText' class='statusPage divSectionSubSectionPretext'></div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
+

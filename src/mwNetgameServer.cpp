@@ -318,15 +318,11 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    //printf("%s\n", sql);
    mSql.execute_sql(sql, db);
 
-
-   printf("dumping lev_stat\n");
-   int sz = 400;
+   //printf("dumping lev_stat.png\n");
+   int sz = 1000;
    ALLEGRO_BITMAP * tmp = al_create_bitmap(sz, sz);
    mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
    if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
-
-
-
 
 }
 

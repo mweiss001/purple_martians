@@ -734,8 +734,6 @@ function setUseDatatables(val)
 
 
 
-
-
 function getDuration(d1, d2)
 {
    const duration = dateFns.intervalToDuration({ start: d1, end: d2 });
