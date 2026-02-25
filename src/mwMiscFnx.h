@@ -25,7 +25,7 @@ class mwMiscFnx
    std::string timestamp_UTC_ISO8601();
    int find_duration(const char* d1, const char* d2);
 
-
+   void mw_strncpy(char* d, const char* s, int n);
 
 
    char* chrms(int time, char* ft);

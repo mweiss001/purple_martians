@@ -220,7 +220,6 @@ void mwGameMoves::proc(void)
          // old version
          if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   {  proc_game_move_player_active(        arr[x][2], arr[x][3] ); }
 
-
          if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) {  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); }
          if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   {  proc_game_move_player_hidden(        arr[x][2]            ); }
          if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     {  proc_game_move_shot_config(          arr[x][2], arr[x][3] ); }
@@ -245,11 +244,6 @@ void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
    arr[entry_pos][3] = data2;
    entry_pos++;
 }
-
-
-
-
-
 
 void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {

@@ -143,11 +143,16 @@ void mwSql::create_tables()
                timestamp     TEXT PRIMARY KEY, \
                version       TEXT, \
                uptime        INT, \
-               cpu           INT, \
+               cpua          INT, \
+               cpum          INT, \
                clients       INT, \
                level         INT, \
                level_time    INT, \
                moves         INT, \
+               fakekey       INT, \
+               ss_period     INT, \
+               ss_size       INT, \
+               ss_time       INT, \
                enemies       INT ); ");
    execute_sql(sql, db_server_status);
 

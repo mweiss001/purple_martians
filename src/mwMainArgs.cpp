@@ -575,6 +575,15 @@ void mwMain::temp_test(void)
 
 
    /*
+   sprintf(mLoop.local_hostname, "%s", "test long host name with spaces 123");
+   mLog.save_log_file();
+*/
+
+
+
+
+
+   /*
    mGmInfo.setTestData();
    mGmInfo.printTestData();
 */

@@ -17,6 +17,7 @@
 #include "mwLoop.h"
 #include "mwQuickGraph2.h"
 #include "mwGameMoves.h"
+#include "mwMiscFnx.h"
 
 
 int mwNetgame::clientInitNetwork()
@@ -259,13 +260,8 @@ int mwNetgame::client_proc_sjon_packet(char * data)
       mPlayer.syn[p].color = color;
       mNetgame.server_lev_seq_num = slsn;
 
-
-//      strncpy(mPlayer.loc[0].hostname, server_address, 16);
-//      strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
-
-      snprintf(mPlayer.loc[0].hostname, 16, "%s", server_address);
-      snprintf(mPlayer.loc[p].hostname, 16, "%s", mLoop.local_hostname);
-
+      mMiscFnx.mw_strncpy(mPlayer.loc[0].hostname, server_address, 15);
+      mMiscFnx.mw_strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 15);
 
       mLevel.play_level = pl;
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Client received join invitation from server");

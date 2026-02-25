@@ -28,16 +28,25 @@ mwScreen mScreen;
 
 void mwScreen::get_new_background(int full)
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
-   if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
+   // this is much faster in headless server mode with memory bitmaps
+   if (mDisplay.no_display)
+   {
+      al_destroy_bitmap(mBitmap.level_buffer);
+      mBitmap.level_buffer = al_clone_bitmap(mBitmap.level_background);
+   }
    else
    {
-      // this only grabs the visible region, in the interests of speed
-      int x = level_display_region_x - 20; if (x < 0) x = 0;
-      int y = level_display_region_y - 20; if (y < 0) y = 0;
-      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
-      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
-      al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
+      al_set_target_bitmap(mBitmap.level_buffer);
+      if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
+      else
+      {
+         // this only grabs the visible region, in the interests of speed
+         int x = level_display_region_x - 20; if (x < 0) x = 0;
+         int y = level_display_region_y - 20; if (y < 0) y = 0;
+         int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+         int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+         al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
+      }
    }
 }
 

@@ -172,6 +172,14 @@ class mwNetgame
    void server_insert_status_row();
 
 
+   void server_update_status_img_recurring(); // inserts row into status table
+   void server_update_status_img();
+   int server_update_status_img_cnt = 0;
+   int server_update_status_img_period = 0;
+   int server_update_status_img_size = 100;
+   int server_update_status_img_time = 0;
+
+
    void server_process_db_control();
 
    void server_send_snfo_packet();

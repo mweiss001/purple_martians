@@ -34,20 +34,18 @@ int mwLog::load_log_lines_array_from_static_file(const char* f)
          ch = fgetc(filepntr);
       }
       buff[loop] = 0; // terminate the string
-      if (loop > 99) printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
 
-
-
-//      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
-
-
-      if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
-
-
-
-
-
-
+      if (loop)
+      {
+         if (loop > 99)
+         {
+            printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
+            std::string buffFull = buff;
+            std::string buff99   = buffFull.substr(0, std::min(buffFull.length(), (size_t) 99));
+            sprintf(log_lines[num_lines++], "%s", buff99.c_str() );
+         }
+         else sprintf(log_lines[num_lines++], "%s", buff );
+      }
 
       if (num_lines >= NUM_LOG_LINES)
       {

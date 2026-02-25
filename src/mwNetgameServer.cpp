@@ -297,6 +297,56 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    }
 }
 
+
+void mwNetgame::server_update_status_img_recurring()
+{
+//   server_update_status_img_size = 100;
+//   if (mLoop.frame_num % 80 == 0) server_update_status_img();
+
+   /*
+   if (server_update_status_img_period)
+   {
+      if ((mLoop.frame_num > server_update_status_img_cnt + server_update_status_img_period) || (mLoop.frame_num < server_update_status_img_cnt))
+      {
+         server_update_status_img();
+      }
+   }
+
+   */
+
+}
+
+void mwNetgame::server_update_status_img()
+{
+   double t0 = al_get_time();
+   server_update_status_img_cnt = mLoop.frame_num;
+   //printf("dumping lev_stat.png\n");
+
+
+   int sz = server_update_status_img_size;
+   ALLEGRO_BITMAP * tmp = al_create_bitmap(sz, sz);
+
+   double t1 = al_get_time();
+
+
+   mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
+
+   double t2 = al_get_time();
+
+
+   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
+
+   double t3 = al_get_time();
+
+
+   server_update_status_img_time = (al_get_time() - t0)*1000;
+//   printf("elapsed time: %dms\n", server_update_status_img_time);
+
+   printf("Total time:%f Create:%f Draw:%f Save:%f \n", (t3-t0)*1000, (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000);
+
+
+}
+
 // called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
@@ -306,24 +356,25 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
 
    std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
    int upt = al_get_time();
+   int cpu = mRollingAverage[0].avg;
+   int cpum = mRollingAverage[0].mx;
+
    int cli = server_num_clients;
    int lev = mLevel.play_level;
    int lvt = mLoop.frame_num;
    int mov = mGameMoves.entry_pos;
+
+   int fak = mPlayer.syn[0].server_force_fakekey;
+
+   int spe = server_update_status_img_period;
+   int ssz = server_update_status_img_size;
+   int sst = server_update_status_img_time;
+
    int enm = mEnemy.num_enemy;
-   int cpu = mRollingAverage[0].avg;
 
    char sql[1024];
-   sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cli, lev, lvt, mov, enm );
-   //printf("%s\n", sql);
+   sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cpum, cli, lev, lvt, mov, fak, spe, ssz, sst, enm );
    mSql.execute_sql(sql, db);
-
-   //printf("dumping lev_stat.png\n");
-   int sz = 1000;
-   ALLEGRO_BITMAP * tmp = al_create_bitmap(sz, sz);
-   mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
-   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
-
 }
 
 void mwNetgame::server_process_db_control()
@@ -381,15 +432,38 @@ void mwNetgame::server_process_db_control()
       // process controls
       for (const auto& row : controlRows)
       {
+         int used = 0;
+
          printf("%s %f %d\n", row.key.c_str(), row.val, row.mod);
 
-         if (row.key == "pvp_shots") printf("pvp_shots\n");
 
          if (row.key == "fakekey")
          {
             printf("fakekey\n");
             mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+            used = 1;
          }
+
+         if (row.key == "ss_period")
+         {
+            server_update_status_img_period = row.val;
+            used = 1;
+         }
+
+         if (row.key == "ss_size")
+         {
+            server_update_status_img_size = row.val;
+            used = 1;
+         }
+
+         if (row.key == "ss_single")
+         {
+            server_update_status_img();
+            used = 1;
+         }
+
+         if (!used) printf("control unused: %s %f %d\n", row.key.c_str(), row.val, row.mod);
+
       }
    }
 }
@@ -1043,12 +1117,17 @@ void mwNetgame::server_control()
             serverSendTo(data, pos + srv_exp_siz, p);
          }
 
+   server_update_status_img_recurring();
+
 
    mLog.add_log_status_db_rows();
 
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
 
    server_count_clients();
+
+
+
 
 
 }

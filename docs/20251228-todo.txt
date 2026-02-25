@@ -24,99 +24,8 @@ TO DO
 major changes to logging
 ------------------------------------------------------------------------------
 
-
-actually save picture of current level in db for viewing on status page!!!
+save snapshot of current level for viewing on status page!!!
 you are crazy!
-
-how to put a blob in database?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -237,9 +146,6 @@ I think I need to figure more things out, like how to get a button to do somethi
 without reloading page
 
 
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
@@ -313,7 +219,7 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+made project compile clean on linux!!!
 
 on server, once rc quits it never stops sending rc packets
 

@@ -95,6 +95,17 @@ std::string mwMiscFnx::timestamp(const char* format)
 }
 
 
+
+// to fix snprintf and strncpy warnings
+void mwMiscFnx::mw_strncpy(char* d, const char* s, int n)
+{
+   // shorten s to n char
+   std::string sFull = s;
+   std::string sn = sFull.substr(0, std::min(sFull.length(), (size_t) n));
+   strcpy(d, sn.c_str());
+}
+
+
 void mwMiscFnx::chop_first_x_char(char *str, int n)
 {
    char tmp[500];
@@ -1558,24 +1569,11 @@ void mwMiscFnx::edit_player_name(int x, int y, int p)
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
-//         snprintf(mPlayer.syn[p].name, 9, "%s", fst);
-
-
-
-//         strncpy(mPlayer.syn[p].name, fst, 8); // copy at most 8 char
-//         mPlayer.syn[p].name[8] = 0; // ensure 9th char is null
-
-
-         snprintf(mPlayer.syn[p].name, 9, "%s", fst); // copy at most 8 char and null
-
-
-
+         mw_strncpy(mPlayer.syn[p].name, fst, 8);
          mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
          quit = 1;
       }
-
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-
    }
 }
 

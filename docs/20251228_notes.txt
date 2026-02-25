@@ -19843,9 +19843,6 @@ vs png
 18k for 400x400
 6k for 200x200
 
-
-
-
 why does png work on win but not on lin?
 fixed... added -DWANT_IMAGE_PNG=ON
 
@@ -19855,6 +19852,698 @@ the only thing left is the duration function...done..kinda hacky but works
 
 animation sequence update.....done
 remove old 
+
+2026-02-23 05:02:29
+
+the dumping of img to disk takes time, maybe so much that it will cause issues
+
+not sure if that is why but my server has been crashing lately
+
+Found orphaned open session in database, setting endreason to 'unknown'
+Killed
+
+I should get some control stuff happening so I can turn it on and off
+
+I would be nice to get some logging working also
+
+put some controls on status page
+
+
+one of the first ones will be for status image
+disable or update frame count (0 disable)
+size of image
+make some variables for that
+
+for now lets do fakekey
+add the variable to status table
+
+fake key is done...
+
+what next?
+
+common js...
+
+
+2026-02-23 07:24:27
+
+got to go...
+
+
+2026-02-24 04:14:59
+
+make top links commom and put in js...done
+
+make another control
+
+status image...
+
+send these in status
+
+   int server_update_status_img_period = 0;
+   int server_update_status_img_size = 100;
+
+already done...
+
+make slider for period
+               ss_period     INT, \
+               ss_size       INT, \
+
+done
+
+now do one for size
+
+I also want to send amount of time to generate image..done
+now size..done
+
+how about a button that just does a single update..done
+
+
+now I want to refreah after clicking the button, but delayed...
+
+console.log("Start");
+
+// Execute function after 2 seconds
+setTimeout(() => {
+  console.log("Executed after 2 seconds");
+}, 2000);
+
+console.log("End"); 
+// "End" logs immediately, "Executed after..." logs 2 seconds later
+
+I have all this working...
+
+I really don't think I want to do the recurring...
+it takes too long and will mess up the server...
+
+I might remove it altogether
+
+what actually takes the most time?
+generating or saving
+
+for 100:
+
+Total time:6.587200 Create:0.361900 Draw:0.385800 Save:5.839500
+Total time:4.040700 Create:0.318600 Draw:0.255500 Save:3.466600
+Total time:4.900000 Create:0.414300 Draw:0.269500 Save:4.216200
+Total time:5.388100 Create:0.978000 Draw:0.253000 Save:4.157100
+Total time:10.639100 Create:0.459300 Draw:0.257000 Save:9.922800
+Total time:4.267600 Create:0.462400 Draw:0.203000 Save:3.602200
+Total time:4.356400 Create:0.363600 Draw:0.254200 Save:3.738600
+Total time:6.077200 Create:0.303300 Draw:0.183200 Save:5.590700
+Total time:7.067900 Create:0.302100 Draw:0.241300 Save:6.524500
+
+
+for 1000:
+Total time:108.803200 Create:0.321800 Draw:0.140900 Save:108.340500
+Total time:118.811500 Create:0.291800 Draw:0.140500 Save:118.379200
+Total time:112.017000 Create:0.288400 Draw:0.201000 Save:111.527600
+Total time:113.807300 Create:0.289000 Draw:0.182500 Save:113.335800
+Total time:111.656300 Create:0.302900 Draw:0.134000 Save:111.219400
+
+
+this is on m36, how about headless server?
+
+Total time:34.545792 Create:0.006766 Draw:33.724141 Save:0.814885
+
+
+wildly different....
+
+
+let me guess here:
+on server bitmaps are all memory bitmaps so...
+creating is faster
+saving is faster
+but the drawing is very much slower
+
+ss_size 1000
+Total time:93.968307 Create:0.024939 Draw:47.630467 Save:46.312901
+Total time:87.788082 Create:0.007685 Draw:41.872075 Save:45.908322
+
+why when size 1000 does save double?
+
+every 2s on m36
+
+100
+Total time:3.346300 Create:0.274600 Draw:0.170000 Save:2.901700
+Total time:4.194400 Create:0.249400 Draw:0.151100 Save:3.793900
+Total time:4.326600 Create:0.247000 Draw:0.135100 Save:3.944500
+
+1000
+Total time:112.050700 Create:0.670400 Draw:0.396500 Save:110.983800
+Total time:107.622500 Create:0.273800 Draw:0.133300 Save:107.215400
+Total time:107.300900 Create:0.274500 Draw:0.135300 Save:106.891100
+Total time:105.472700 Create:0.340500 Draw:0.177000 Save:104.955200
+
+
+on server look into 
+
+mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
+
+and find what takes the longest
+
+Draw total time:33.758555 1:33.081637 2:0.532168 3:0.144750
+
+get_new_background(1) is the winner!!
+
+void mwScreen::get_new_background(int full)
+{
+   al_set_target_bitmap(mBitmap.level_buffer);
+   al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
+   
+   
+do I need to draw? is there something faster, like copy?
+the 2 bitmaps should be identical....
+
+   al_destroy_bitmap(mBitmap.level_buffer);
+   mBitmap.level_buffer = al_clone_bitmap(mBitmap.level_background);
+
+
+Draw total time:2.476783 1:1.831816 2:0.502973 3:0.141994
+Draw total time:2.490644 1:1.838913 2:0.509247 3:0.142484
+Draw total time:2.511614 1:1.833334 2:0.537650 3:0.140630
+Draw total time:2.511059 1:1.828905 2:0.539185 3:0.142969
+Draw total time:2.478036 1:1.823813 2:0.515126 3:0.139097
+Draw total time:2.631606 1:1.865459 2:0.605777 3:0.160370
+
+Am I reading this right? 10 times faster?
+
+I should do this all the time?
+or only in headless server mode?
+
+
+win is much slower
+
+Draw total time:0.104200 1:0.002600 2:0.093200 3:0.008400
+Draw total time:0.136300 1:0.004200 2:0.122500 3:0.009600
+Draw total time:0.078900 1:0.003400 2:0.071000 3:0.004500
+Draw total time:0.104700 1:0.005300 2:0.093500 3:0.005900
+Draw total time:0.092800 1:0.002800 2:0.084900 3:0.005100
+Draw total time:0.121500 1:0.004200 2:0.109500 3:0.007800
+Draw total time:0.071800 1:0.002200 2:0.065400 3:0.004200
+Draw total time:0.109800 1:0.003500 2:0.100200 3:0.006100
+Draw total time:0.076000 1:0.002500 2:0.069000 3:0.004500
+
+Draw total time:17.246800 1:17.026400 2:0.206400 3:0.014000
+Draw total time:16.285700 1:15.984900 2:0.275000 3:0.025800
+Draw total time:20.093400 1:19.919700 2:0.164300 3:0.009400
+Draw total time:16.512100 1:16.311500 2:0.182200 3:0.018400
+Draw total time:13.097300 1:12.956600 2:0.132800 3:0.007900
+Draw total time:12.446200 1:12.336100 2:0.103100 3:0.007000
+Draw total time:11.811900 1:11.686800 2:0.117700 3:0.007400
+Draw total time:10.341900 1:10.241300 2:0.094500 3:0.006100
+Draw total time:11.944100 1:11.811400 2:0.125400 3:0.007300
+
+
+so do it only in headless server mode...done
+
+
+2026-02-24 07:19:20
+
+now back to saving...
+
+win 1000
+Total time:111.493900 Create:0.261100 Draw:0.884800 Save:110.348000
+Total time:107.646800 Create:0.267500 Draw:0.136600 Save:107.242700
+Total time:106.668500 Create:0.323000 Draw:0.185700 Save:106.159800
+Total time:106.774000 Create:0.269000 Draw:0.133100 Save:106.371900
+
+win 100
+Total time:4.395000 Create:0.345000 Draw:0.188600 Save:3.861400
+Total time:4.748400 Create:0.300700 Draw:0.156700 Save:4.291000
+Total time:4.059300 Create:0.239000 Draw:0.129100 Save:3.691200
+
+
+lin 100
+Total time:3.210515 Create:0.007304 Draw:2.471383 Save:0.731828
+Total time:3.218124 Create:0.006689 Draw:2.509886 Save:0.701549
+Total time:3.241949 Create:0.006394 Draw:2.519807 Save:0.715748
+Total time:3.237316 Create:0.006627 Draw:2.522929 Save:0.707760
+Total time:3.215275 Create:0.006184 Draw:2.493015 Save:0.716076
+Total time:3.201167 Create:0.006906 Draw:2.472784 Save:0.721477
+Total time:3.209243 Create:0.007202 Draw:2.460888 Save:0.741153
+Total time:3.171013 Create:0.006445 Draw:2.448464 Save:0.716104
+Total time:3.224623 Create:0.005669 Draw:2.519900 Save:0.699054
+Total time:3.277515 Create:0.006297 Draw:2.555264 Save:0.715954
+
+lin 1000
+Total time:60.995361 Create:0.022575 Draw:14.101122 Save:46.871664
+Total time:57.745495 Create:0.007762 Draw:10.882100 Save:46.855633
+Total time:58.448599 Create:0.008267 Draw:11.476465 Save:46.963867
+Total time:60.025421 Create:0.007742 Draw:12.383023 Save:47.634656
+
+2026-02-24 07:26:17
+
+
+ran out of time... but I would like to see if I could spin off the save to another thread
+
+this should be the perfect use of a thread, offload a time consuming task from the main thread
+
+The main thread does not care at all about the results of the spun off thread...
+
+maybe I will try that later
+
+
+2026-02-25 05:46:59
+
+make controls able to show on any page...
+especially on s2...I want to see the cpu chart when changing things
+
+this was the whole point of status and control...
+make is possible to adjust settings and see the effect in realtime
+
+evetually status and s2 will be the same? maybe?
+
+
+2026-02-25 06:07:24
+
+trying to figure out that data structure for charts
+
+I have 8 possible charts
+
+I want to be able to put them in any order and make any optional
+in the most efficient way possible..
+
+this is how the data will come in the line:
+
+               cpu           INT, \
+               sync          INT, \
+               ping          INT, \
+               lcor          INT, \
+               rcor          INT, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+
+I should just put in in the v array in order
+same with the chart names
+
+      // value array  
+      var v = [];        
+      v[0] = dat.cpu;
+      v[1] = dat.sync; 
+      v[2] = dat.ping; 
+      v[3] = dat.lcor; 
+      v[4] = dat.rcor; 
+      v[5] = dat.rewind; 
+      v[6] = dat.difs; 
+      v[7] = dat.tkbs; 
+
+const chartName = ['cpu', 'sync', 'ping', 'lcor', 'rcor', 'rewind', 'difs', 'tkbs'];
+
+then somewhere, map that to charts array
+
+const chartMap = [0, 1, 7]; ///
+
+chartArray[i].setOption( { title: { text: chartName[chartMap[i]]  }, }, false );
+     // set val column by player num     
+     for (i=0; i<numCharts; i++) row[i][p+1] = v[chartMap[i]];
+
+this works great and is pretty simple...
+
+all that remains is a way for the web to change it...
+I am thinking of a setting page
+
+number of chart: 1-7
+then a drop down for each chart to choose the source
+and a few defaults
+
+controls could be stand alone, all it needs is to refresh by reading db once in a while
+
+
+add client add to db to the controls thing
+I want to know how long it takes to do the client_status update and make adjustments
+
+I see bigger spikes than I am comfortable with
+
+
+2026-02-25 08:03:35
+
+well, I took the day off work... what do I want to do today?
+
+I could start with compile clean...get rid of snprintf
+
+
+src/mwLog.cpp:155:25: warning: ‘%s’ directive output may be truncated writing up to 79 bytes into a region of size 16 [-Wformat-truncation=]
+  155 |       snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+      |                         ^~   ~~~~~~~~~~~~~~~~~~~~
+src/mwLog.cpp:155:15: note: ‘snprintf’ output between 1 and 80 bytes into a destination of size 16
+  155 |       snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+      |       ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mwLog 155 
+
+      char lh[16];
+//      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+      snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+
+
+
+
+
+actually what can I do to cleanup this all up:
+
+the end result is I want a filename in the format: 
+
+logs/%Y%m%d-%H%M%S-[lev][host].txt
+
+
+do this much simpler with std::format
+
+
+
+   if (strlen(log_msg) > 0)
+   {
+      al_make_directory("logs"); // create if not already created
+
+
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+      char lh[16];
+//      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+      snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+
+      char ph[80];
+      sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
+
+      strcat(filename, ph);
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+      erase_log();
+
+   }
+}
+
+
+I tried to use std::chrono
+
+gave up when I could not get current timezone to work...
+
+      const auto now1 = std::chrono::system_clock::now();
+      const auto now_seconds = std::chrono::floor<std::chrono::seconds>(now1);
+      const auto now_seconds_tz = std::chrono::current_zone()->to_local(now_seconds);
+      const auto tz = std::chrono::current_zone();
+      std::string t2 = std::format("{:%Y%m%d-%H%M%S}", std::chrono::current_zone()->to_local(std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now())));
+      std::string t2 = std::format("{:%Y%m%d-%H%M%S}", now_seconds_tz);
+
+
+
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+
+new version that works and compiles clean:
+
+void mwLog::save_log_file(void)
+{
+   if (strlen(log_msg) > 0)
+   {
+      al_make_directory("logs"); // create if not already created
+
+      // get timestamp
+      char timestamp[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+
+      // get hostname and limit to 16 char
+      std::string hostnameFull = mLoop.local_hostname;
+      std::string hostname16 = hostnameFull.substr(0, std::min(hostnameFull.length(), (size_t) 16));
+
+      // build filename string
+      std::string filename = "logs/" + std::string(timestamp) + "-[" + std::to_string(mLevel.play_level) + "][" + hostname16 + "].txt";
+
+      FILE *filepntr = fopen(filename.c_str(),"w");
+      fprintf(filepntr, "%s", log_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename.c_str());
+      erase_log();
+   }
+}
+
+
+next:
+
+g++ -std=c++20 -Wall -c src/mwLogViewer.cpp -o o/src/mwLogViewer.o
+src/mwLogViewer.cpp: In member function ‘int mwLog::load_log_lines_array_from_static_file(const char*)’:
+src/mwLogViewer.cpp:44:60: warning: ‘%s’ directive output may be truncated writing up to 199 bytes into a region of size 100 [-Wformat-truncation=]
+   44 |       if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+      |                                                            ^~   ~~~~
+src/mwLogViewer.cpp:44:29: note: ‘snprintf’ output between 1 and 200 bytes into a destination of size 100
+   44 |       if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+      |                     ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+try other line
+
+//      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+      if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+
+
+[  1%] Building CXX object CMakeFiles/pm.dir/src/mwLog.cpp.obj
+[  2%] Building CXX object CMakeFiles/pm.dir/src/mwLogViewer.cpp.obj
+C:\pm\src\mwLogViewer.cpp: In member function 'int mwLog::load_log_lines_array_from_static_file(const char*)':
+C:\pm\src\mwLogViewer.cpp:38:28: warning: 'char* strncpy(char*, const char*, size_t)' output may be truncated copying 99 bytes from a string of length 199 [-Wstringop-truncation]
+   38 |       if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+      |                     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+this looks kind of dumb:
+
+
+      if (loop > 99) printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
+
+//      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+//      if (loop > 0) snprintf(log_lines[num_lines++], 100, "%s", buff); // copy only first 99 char (and only copy if length > 0)
+
+      if (loop > 0)
+      {
+         std::string buffFull = buff;
+         std::string buff99   = buffFull.substr(0, std::min(buffFull.length(), (size_t) 99));
+         sprintf(log_lines[num_lines++], "%s", buff99.c_str() );
+      }
+
+
+how about this:
+
+      if (loop)
+      {
+         if (loop > 99)
+         {
+            printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
+            std::string buffFull = buff;
+            std::string buff99   = buffFull.substr(0, std::min(buffFull.length(), (size_t) 99));
+            sprintf(log_lines[num_lines++], "%s", buff99.c_str() );
+         }
+         else sprintf(log_lines[num_lines++], "%s", buff );
+      }
+
+
+works and compiles clean in both...
+
+
+src/mwLoop.cpp: In member function ‘int mwLoop::load_and_setup_level(int, int)’:
+src/mwLoop.cpp:745:49: warning: ‘%s’ directive output may be truncated writing up to 79 bytes into a region of size 16 [-Wformat-truncation=]
+  745 |          snprintf(mPlayer.loc[0].hostname, 16, "%s", local_hostname);
+
+
+should I make my own function to truncate string? yes
+
+// to fix goddamn warnings!!!
+void mwMiscFnx::mw_strncpy(char* d, const char* s, int n)
+{
+   // shorten s to n char
+   std::string sFull = s;
+   std::string sn = sFull.substr(0, std::min(sFull.length(), (size_t) n));
+   strcpy(d, sn.c_str());
+}
+
+         setup_players_after_level_load(1); // type 1 full reset,
+//         strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+//         snprintf(mPlayer.loc[0].hostname, 16, "%s", local_hostname);
+
+         mMiscFnx.mw_strncpy(mPlayer.loc[0].hostname, local_hostname, 15);
+
+done
+
+
+g++ -std=c++20 -Wall -c src/mwMiscFnx.cpp -o o/src/mwMiscFnx.o
+src/mwMiscFnx.cpp: In member function ‘void mwMiscFnx::edit_player_name(int, int, int)’:
+src/mwMiscFnx.cpp:1580:44: warning: ‘%s’ directive output may be truncated writing up to 79 bytes into a region of size 9 [-Wformat-truncation=]
+ 1580 |          snprintf(mPlayer.syn[p].name, 9, "%s", fst); // copy at most 8 char and null
+      |                                            ^~   ~~~
+src/mwMiscFnx.cpp:1580:18: note: ‘snprintf’ output between 1 and 80 bytes into a destination of size 9
+ 1580 |          snprintf(mPlayer.syn[p].name, 9, "%s", fst); // copy at most 8 char and null
+      |          ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+int mwNetgame::client_proc_sjon_packet(char * data)
+{
+   int pos = 4;
+   int pl     = mPacketBuffer.PacketGetInt32(data, pos);  // play level
+   int sfnum  = mPacketBuffer.PacketGetInt32(data, pos);  // server join frame number
+   int p      = mPacketBuffer.PacketGetInt32(data, pos);  // client player number
+   int color  = mPacketBuffer.PacketGetInt32(data, pos);  // client player color
+   int slsn   = mPacketBuffer.PacketGetInt32(data, pos);  // server level sequence number
+
+   if (p == 99) return -1; // server full, join denied
+   else // join allowed
+   {
+      mPlayer.active_local_player = p;
+      mPlayer.syn[p].active = 1;
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
+      mPlayer.syn[p].color = color;
+      mNetgame.server_lev_seq_num = slsn;
+
+//      strncpy(mPlayer.loc[0].hostname, server_address, 16);
+//      strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
+
+//      snprintf(mPlayer.loc[0].hostname, 16, "%s", server_address);
+//      snprintf(mPlayer.loc[p].hostname, 16, "%s", mLoop.local_hostname);
+
+      mMiscFnx.mw_strncpy(mPlayer.loc[0].hostname, server_address, 16);
+      mMiscFnx.mw_strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
+
+
+the c char array is only 16....
+
+   char hostname[16];
+
+should I do the limit one less?  yes...
+
+      mMiscFnx.mw_strncpy(mPlayer.loc[0].hostname, server_address, 15);
+      mMiscFnx.mw_strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 15);
+
+
+2026-02-25 10:09:48
+compiles clean on linux with -Wall
+GCC Version: 13.3.0 - C++20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

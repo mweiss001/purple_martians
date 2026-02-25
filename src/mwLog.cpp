@@ -145,28 +145,24 @@ void mwLog::save_log_file(void)
    {
       al_make_directory("logs"); // create if not already created
 
-      char filename[256];
+      // get timestamp
+      char timestamp[256];
       time_t now = time(NULL);
       struct tm *timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      char lh[16];
-//      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
-      snprintf(lh, 16, "%s", mLoop.local_hostname); // only get max 16 char of local_hostname
+      // get hostname and limit to 16 char
+      std::string hostnameFull = mLoop.local_hostname;
+      std::string hostname16 = hostnameFull.substr(0, std::min(hostnameFull.length(), (size_t) 16));
 
+      // build filename string
+      std::string filename = "logs/" + std::string(timestamp) + "-[" + std::to_string(mLevel.play_level) + "][" + hostname16 + "].txt";
 
-
-
-      char ph[80];
-      sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
-
-      strcat(filename, ph);
-
-      FILE *filepntr = fopen(filename,"w");
+      FILE *filepntr = fopen(filename.c_str(),"w");
       fprintf(filepntr, "%s", log_msg);
       fclose(filepntr);
 
-      printf("%s saved \n", filename);
+      printf("%s saved \n", filename.c_str());
       erase_log();
    }
 }
