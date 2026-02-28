@@ -149,11 +149,11 @@ void mwQuickGraph2::autorange(void)
          int new_min = data_min;
          int new_max = data_max;
 
-         if (RA.mx > data_max) new_max = RA.mx + 5;
-         if (RA.mn < data_min) new_min = RA.mn - 5;
+         if (RA.max > data_max) new_max = RA.max + 5;
+         if (RA.min < data_min) new_min = RA.min - 5;
 
-         if (RA.mx < data_max - 5) new_max = RA.mx + 5;
-         if (RA.mn > data_min + 5) new_min = RA.mn - 5;
+         if (RA.max < data_max - 5) new_max = RA.max + 5;
+         if (RA.min > data_min + 5) new_min = RA.min - 5;
 
          if (new_min < -150) new_min = -80;
          if (new_max > 50) new_max = 20;

@@ -1,21 +1,25 @@
 // mwRollingAverage.h
 #ifndef mwRollingAverage_H
 #define mwRollingAverage_H
+#include <deque>
+#include <limits>
 
 class mwRollingAverage
 {
    public:
-   mwRollingAverage(); // default constructor
-   void initialize(int arr_siz);
+   mwRollingAverage(int size = 8);
+   void initialize(int size);
    void add_data(double d);
-   double arr[4000];
-   int arr_size = 8;
-   int    num_filled;
-   int    index;
+
    double last_input;
    double avg;
-   double mn;
-   double mx;
+   double min;
+   double max;
+
+   private:
+   std::deque<double> dq;
+   int size = 8;
+
 };
 extern mwRollingAverage mRollingAverage[4];
 

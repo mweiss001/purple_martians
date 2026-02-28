@@ -156,6 +156,8 @@ add_executable(pm
 
         src/sqlite3.c
         src/sqlite3.h
+        src/mwThreadSafeQueue.cpp
+        src/mwThreadSafeQueue.h
 )
 
 

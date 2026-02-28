@@ -1,50 +1,38 @@
 // mwRollingAverage.cpp
 
-#include "pm.h"
 #include "mwRollingAverage.h"
-#include <limits>
 
 mwRollingAverage mRollingAverage[4];
 
-mwRollingAverage::mwRollingAverage()
+mwRollingAverage::mwRollingAverage(int size)
 {
-   initialize(8);
+   initialize(size);
 }
 
-void mwRollingAverage::initialize(int arr_sz)
+void mwRollingAverage::initialize(int size)
 {
-   for (int i=0; i<400; i++) arr[i] = 0;
-   arr_size = arr_sz;
-   num_filled = 0;
-   index = 0;
-   avg = 0;
-   last_input = 0;
-   mn = 0;
-   mx = 0;
+   dq.clear();
+   last_input = avg = min = max = 0;
 }
 
 void mwRollingAverage::add_data(double d)
 {
    last_input = d;
 
-   arr[index] = d;  // put new entries where index points
-   if (++index > arr_size-1) index = 0;
-   num_filled++;
+   // add to back of queue
+   dq.push_back(d);
 
-   int ul = arr_size; // find number of valid entries, arr_size by default unless not filled yet
-   if (num_filled < arr_size) ul = num_filled;
+   // remove from front of queue
+   while ((int) dq.size() > size) dq.pop_front();
 
-   mn = std::numeric_limits<double>::max();
-   mx = std::numeric_limits<double>::lowest();
-
+   min = std::numeric_limits<double>::max();
+   max = std::numeric_limits<double>::lowest();
    double tally = 0;
-   for (int i=0; i<ul; i++) // cycle all the valid entries
+   for (double v : dq)
    {
-      tally += arr[i];
-      if (arr[i] < mn) mn = arr[i]; // min
-      if (arr[i] > mx) mx = arr[i]; // max
+      tally += v;
+      if (v < min) min = v;
+      if (v > max) max = v;
    }
-   avg = tally / ul; // average
+   avg = tally / (double) dq.size();
 }
-
-

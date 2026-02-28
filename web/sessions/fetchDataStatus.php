@@ -22,7 +22,7 @@ if ($start_timestamp < 0)
 }
 
 $data = array();
-$sql = "SELECT * FROM client_status WHERE timestamp>$start_timestamp ORDER BY timestamp LIMIT $max_records";
+$sql = "SELECT * FROM client_status WHERE timestamp>=$start_timestamp ORDER BY timestamp LIMIT $max_records";
 $res = $db->query($sql);
 while ($row = $res->fetch(PDO::FETCH_ASSOC)) $data[] = $row;
 

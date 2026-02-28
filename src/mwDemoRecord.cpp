@@ -1970,7 +1970,7 @@ void mwDemoRecord::proc_cpu_time(double frame_start_timestamp)
 
    // store in local cpu variables
    mRollingAverage[0].add_data(cpu);
-   mQuickGraph2[9].add_data(0, mRollingAverage[0].mx, 0);
+   mQuickGraph2[9].add_data(0, mRollingAverage[0].max, 0);
    mQuickGraph2[9].new_entry_pos();
 
    if (sh_cpu_graph)

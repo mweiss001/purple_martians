@@ -20169,11 +20169,11 @@ and a few defaults
 
 controls could be stand alone, all it needs is to refresh by reading db once in a while
 
-
 add client add to db to the controls thing
 I want to know how long it takes to do the client_status update and make adjustments
 
 I see bigger spikes than I am comfortable with
+
 
 
 2026-02-25 08:03:35
@@ -20433,6 +20433,813 @@ should I do the limit one less?  yes...
 2026-02-25 10:09:48
 compiles clean on linux with -Wall
 GCC Version: 13.3.0 - C++20
+
+
+
+
+
+2026-02-25 10:19:33
+
+
+add client add to db to the controls thing
+I want to know how long it takes to do the client_status update and make adjustments
+
+I see bigger spikes than I am comfortable with
+
+move more control things to common
+
+make the ss control thing a common group
+
+Call it level snapshot
+if disabled show static level icon
+
+in server make a varaible to completely disable any drawing, like it is use to be
+
+then only if server snapshot is enabled do the optional drawing...
+
+also use this variable in the web page to choose icon to show
+
+added enable...
+
+now make the controls look nice
+
+should I save the values in the server config? yes
+
+I am still looking for an elegant way to show:
+label, slider, value in one line
+
+I do this 4 times now, I want a common function...done
+
+do the enable check box
+and a group of controls with title
+
+now make enabled do something.
+
+on status page choose what level icon is loaded..done
+
+now make some controls about the client status insert
+
+
+stuff is messed up...
+
+I have long wanted to make the tooltip in chart show frame number...can I do that?
+all I have is epoch ms...
+
+why is insert so long?
+
+
+
+
+I think I want to try a thread safe queue for this
+
+queue rather than vector...
+
+
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <sqlite3.h>
+#include <string>
+#include <chrono>
+
+// Data structure to store in the queue
+struct DataItem {
+    int id;
+    std::string value;
+};
+
+// Thread-safe queue class
+class SafeQueue {
+private:
+    std::queue<DataItem> q;
+    std::mutex m;
+    std::condition_variable cv;
+    bool finished = false;
+
+public:
+    void push(DataItem item) {
+        std::lock_guard<std::mutex> lock(m);
+        q.push(item);
+        cv.notify_one(); // Notify consumer that an item is available
+    }
+
+    bool pop(DataItem& item) {
+        std::unique_lock<std::mutex> lock(m);
+        // Wait until queue is not empty or the producer is finished
+        cv.wait(lock, [this]{ return !q.empty() || finished; });
+        if (q.empty() && finished) {
+            return false; // Signal end of work
+        }
+        item = q.front();
+        q.pop();
+        return true;
+    }
+
+    void complete_work() {
+        std::lock_guard<std::mutex> lock(m);
+        finished = true;
+        cv.notify_all(); // Notify all waiting consumers to stop
+    }
+};
+
+// Consumer thread function (SQLite writer)
+void sqlite_consumer(SafeQueue& queue) {
+    sqlite3 *db;
+    int rc = sqlite3_open("producer_consumer.db", &db);
+    if (rc) {
+        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+    std::cout << "Database opened successfully" << std::endl;
+
+    // Create table if it doesn't exist
+    const char* createTableSQL = "CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, value TEXT);";
+    sqlite3_exec(db, createTableSQL, 0, 0, 0);
+
+    // Use a prepared statement for efficient inserts
+    sqlite3_stmt *stmt;
+    const char* insertSQL = "INSERT INTO data (id, value) VALUES (?, ?);";
+    sqlite3_prepare_v2(db, insertSQL, -1, &stmt, NULL);
+
+    DataItem item;
+    while (queue.pop(item)) {
+        // Wrap inserts in a transaction for performance
+        sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+
+        sqlite3_bind_int(stmt, 1, item.id);
+        sqlite3_bind_text(stmt, 2, item.value.c_str(), -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            std::cerr << "Insert failed: " << sqlite3_errmsg(db) << std::endl;
+        }
+        sqlite3_reset(stmt); // Reset statement for next use
+
+        sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
+        // std::cout << "Inserted item: " << item.id << std::endl; // Optional: logging
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    std::cout << "Consumer thread finished and database closed" << std::endl;
+}
+
+// Producer thread function (fills vector/queue)
+void producer(SafeQueue& queue) {
+    for (int i = 0; i < 100; ++i) {
+        DataItem item = {i, "data_value_" + std::to_string(i)};
+        queue.push(item);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Simulate work
+    }
+    queue.complete_work(); // Signal that production is complete
+    std::cout << "Producer thread finished, signaled completion" << std::endl;
+}
+
+int main() {
+    // Ensure SQLite is in serialized mode for multi-thread safety
+    sqlite3_config(SQLITE_CONFIG_SERIALIZED);
+    sqlite3_initialize();
+
+    SafeQueue queue;
+
+    // Create producer and consumer threads
+    std::thread producer_thread(producer, std::ref(queue));
+    std::thread consumer_thread(sqlite_consumer, std::ref(queue));
+
+    // Join threads to wait for completion
+    producer_thread.join();
+    consumer_thread.join();
+
+    std::cout << "All threads finished. Program exiting." << std::endl;
+
+    return 0;
+}
+
+I made my own mwThreadSafeBuffer class, just copying this
+
+std::jthread jt(worker_function);
+
+
+well I got it working....barely
+
+fine tuned it a bit and I am quite happy...the main thread is not slowing down at all
+
+I am not using transactions to insert, but I would like to...
+
+how can I measure the difference?
+
+
+Inserted item: 21449
+Inserted item: 21449
+Inserted item: 21450
+Inserted item: 21450
+pushed row: 21453  qs:7
+pushed row: 21453  qs:8
+pushed row: 21453  qs:9
+Inserted item: 21450
+Inserted item: 21451
+Inserted item: 21451
+pushed row: 21454  qs:7
+pushed row: 21454  qs:8
+pushed row: 21454  qs:9
+Inserted item: 21451
+Inserted item: 21452
+Inserted item: 21452
+Inserted item: 21452
+Inserted item: 21453
+pushed row: 21455  qs:5
+pushed row: 21455  qs:6
+pushed row: 21455  qs:7
+Inserted item: 21453
+Inserted item: 21453
+Inserted item: 21454
+Inserted item: 21454
+pushed row: 21456  qs:4
+pushed row: 21456  qs:5
+pushed row: 21456  qs:6
+Inserted item: 21454
+Inserted item: 21455
+Inserted item: 21455
+Inserted item: 21455
+Inserted item: 21456
+Inserted item: 21456
+pushed row: 21457  qs:1
+pushed row: 21457  qs:2
+pushed row: 21457  qs:3
+Inserted item: 21456
+Inserted item: 21457
+Inserted item: 21457
+Inserted item: 21457
+pushed row: 21458  qs:1
+pushed row: 21458  qs:
+
+I can't use transactions on insert..it seems the pop function block and only returns when it can return something
+
+why cant I read numRows?..fixed
+
+here is a good indication all is well...left running overnight
+
+now have 4,697,412 row in status table, web fetch time still 6-17ms
+
+with 3 clients server idles at 10% with occasional spikes to 25-30
+
+htop shows 1 thread at 100% and others with minimal use
+
+I like this method.
+
+I need to be able to control and monitor it
+
+to start with...starting and stopping the thread
+or the insert...or
+where should I do this?
+
+if the server is not running, nothing will be added to the queue and the thread should go to its idle state
+
+I want a variable to control the entire inserting of client_status rows
+
+now I broke something...charts no longer update
+
+total 426968
+drwxrwxrwx  2 m m      4096 Feb 26 04:25 ./
+drwxrwxrwx 19 m m      4096 Feb 26 04:23 ../
+-rw-r--r--  1 m m 413122560 Feb 26 04:26 client_status.db
+-rw-r--r--  1 m m     32768 Feb 26 04:25 client_status.db-shm
+-rw-r--r--  1 m m   4152992 Feb 26 04:26 client_status.db-wal
+-rwxrwxrwx  1 m m      8192 Feb 25 15:06 game_events.db*
+-rwxrwxrwx  1 m m   4829268 Feb 26 04:24 level_data.pm*
+-rwxrwxrwx  1 m m   3000054 Feb 25 15:06 level_icons_100.bmp*
+
+thinning the data did not help
+had to drop and recreate the tables
+
+2026-02-26 04:31:36
+
+I want some controls to monitor the size of the table, thin it, or drop it completely
+
+I get gaps in my graph lines...
+could be my update fetch only going from the latest timestamp instead of id???
+fixed....changed > to >=
+$sql = "SELECT * FROM client_status WHERE timestamp>=$start_timestamp ORDER BY timestamp LIMIT $max_records";
+well maybe...I still have some
+
+did a bunch of cleanup
+
+implement the disable insert
+
+
+variable:
+
+   int server_insert_client_status_enable = 1;
+
+   if (server_insert_client_status_enable) mThreadSafeQueue.add();
+
+
+         if (row.key == "server_insert_client_status_enable")
+         {
+            server_insert_client_status_enable = !server_insert_client_status_enable;
+            used = 1;
+         }
+
+
+I have the control to disable but see no difference in htop when running or not
+only 1 core of 8 is 100%
+
+what else can I monitor?
+
+how long it takes to insert? who cares, they are all serial anyway....
+
+
+I need to make sure the thread does not run unless server is running...
+
+
+pushed row: 25179  qs:428
+pushed row: 25179  qs:429
+pushed row: 25179  qs:430
+pushed row: 25179  qs:431
+pushed row: 25179  qs:432
+Inserted item: 25093  -  3.635034
+Inserted item: 25093  -  3.613609
+Inserted item: 25093  -  3.734278
+Inserted item: 25094  -  9.242925
+pushed row: 25180  qs:429
+pushed row: 25180  qs:430
+pushed row: 25180  qs:431
+pushed row: 25180  qs:432
+pushed row: 25180  qs:433
+Inserted item: 25094  -  9.388190
+Inserted item: 25094  -  9.599183
+Inserted item: 25094  -  9.597292
+pushed row: 25181  qs:431
+pushed row: 25181  qs:432
+pushed row: 25181  qs:433
+pushed row: 25181  qs:434
+pushed row: 25181  qs:435
+
+am I falling behind??
+
+pushed row: 29235  qs:2424
+pushed row: 29235  qs:2425
+pushed row: 29235  qs:2426
+pushed row: 29235  qs:2427
+pushed row: 29235  qs:2428
+Inserted item: 28750  -  3.519684
+Inserted item: 28750  -  3.416655
+Inserted item: 28750  -  3.740233
+Inserted item: 28750  -  3.751477
+Inserted item: 28751  -  3.792854
+pushed row: 29236  qs:2424
+pushed row: 29236  qs:2425
+pushed row: 29236  qs:2426
+pushed row: 29236  qs:2427
+
+
+I might need to do something different....
+
+like:
+pull a batch from the queue to a custom non thread safe buffer
+dump that buffer in a batch, wrapped with a transaction
+
+
+
+Inserted item: 33784  -  9.232630
+Inserted item: 33784  -  3.667951
+Inserted item: 33785  -  3.630267
+Inserted item: 33785  -  3.454232
+Inserted item: 33785  -  3.588064
+Inserted item: 33785  -  3.547301
+pushed row: 34656  qs:4351
+pushed row: 34656  qs:4352
+pushed row: 34656  qs:4353
+pushed row: 34656  qs:4354
+pushed row: 34656  qs:4355
+Inserted item: 33785  -  3.615803
+Inserted item: 33786  -  3.756540
+Inserted item: 33786  -  3.663603
+Inserted item: 33786  -  3.660400
+Inserted item: 33786  -  3.606859
+Inserted item: 33786  -  3.44254
+
+2026-02-26 07:23:56
+
+gtg...
+
+im just go9ing to let this run till it dies!!!
+
+2026-02-26 12:24:32
+
+Inserted item: 78346  -  3.734263
+Inserted item: 78347  -  3.587459
+Inserted item: 78347  -  3.512405
+Inserted item: 78347  -  9.089490
+pushed row: 14735  qs:401972
+pushed row: 14735  qs:401973
+pushed row: 14735  qs:401974
+pushed row: 14735  qs:401975
+pushed row: 14735  qs:401976
+Inserted item: 78347  -  9.103846
+Inserted item: 78347  -  3.485447
+Inserted item: 78348  -  3.672728
+Inserted item: 78348  -  3.633176
+Inserted item: 78348  -  3.658745
+Inserted item: 78348  -  3.550385
+Inserted item: 78348  -  3.509505
+pushed row: 14736  qs:401970
+pushed row: 14736  qs:401971
+pushed row: 14736  qs:401972
+pushed row: 14736  qs:401973
+pushed row: 14736  qs:401974
+Inserted item: 78349  -  3.707997
+Inserted item: 78349  -  3.676335
+Inserted item: 78349  -  3.449074
+Inserted item: 78349  -  3.653880
+Inserted item: 78349  -  3.538807
+pushed row: 14737  qs:401970
+pushed row: 14737  qs:401971
+pushed row: 14737  qs:401972
+pushed row: 14737  qs:401973
+
+in 5 hours, 400k rows in queue
+
+
+Inserted item: 82813  -  3.599880
+pushed row: 19805  qs:387639
+pushed row: 19805  qs:387640
+pushed row: 19805  qs:387641
+pushed row: 19805  qs:387642
+pushed row: 19805  qs:387643
+Inserted item: 82813  -  3.725996
+Inserted item: 82813  -  3.644333
+Inserted item: 82813  -  3.548148
+Inserted item: 82813  -  3.531215
+Inserted item: 82814  -  3.585826
+Inserted item: 82814  -  3.487480
+Inserted item: 82814  -  3.610287
+pushed row: 19806  qs:387637
+pushed row: 19806  qs:387638
+pushed row: 19806  qs:387639
+pushed row: 19806  qs:387640
+
+
+implemented q2 (a non thread safe queue)
+
+pop from thread safe q and push to q2
+when q2 gets 20 items, dump them all, wrapped in a transaction
+
+
+Inserted 21 rows in 3.869830 - 0.184278 per row q1:1 q2:0
+Inserted 21 rows in 4.518425 - 0.215163 per row q1:4 q2:0
+Inserted 21 rows in 4.185304 - 0.199300 per row q1:3 q2:0
+Inserted 21 rows in 3.715337 - 0.176921 per row q1:2 q2:0
+Inserted 21 rows in 4.925731 - 0.234559 per row q1:1 q2:0
+Inserted 21 rows in 4.565730 - 0.217416 per row q1:0 q2:0
+Inserted 21 rows in 4.700718 - 0.223844 per row q1:3 q2:0
+Inserted 21 rows in 3.889082 - 0.185194 per row q1:2 q2:0
+Inserted 21 rows in 3.967137 - 0.188911 per row q1:1 q2:0
+Inserted 21 rows in 4.419477 - 0.210451 per row q1:0 q2:0
+Inserted 21 rows in 4.159128 - 0.198054 per row q1:3 q2:0
+Inserted 21 rows in 4.730068 - 0.225241 per row q1:2 q2:0
+Inserted 21 rows in 4.694849 - 0.223564 per row q1:1 q2:0
+Inserted 21 rows in 3.952447 - 0.188212 per row q1:0 q2:0
+
+
+2026-02-26 13:04:34
+
+lets see how this goes...
+
+2026-02-26 17:42:18
+Num Rows:3412206 
+Inserted 21 rows in 9.113041 - 0.433954 per row q1:4 q2:0
+Inserted 21 rows in 3.967885 - 0.188947 per row q1:3 q2:0
+Inserted 21 rows in 9.436860 - 0.449374 per row q1:2 q2:0
+Inserted 21 rows in 10.245209 - 0.487867 per row q1:1 q2:0
+Inserted 21 rows in 9.453842 - 0.450183 per row q1:0 q2:0
+Inserted 21 rows in 10.531794 - 0.501514 per row q1:4 q2:0
+Inserted 21 rows in 3.578584 - 0.170409 per row q1:3 q2:0
+Inserted 21 rows in 3.703998 - 0.176381 per row q1:2 q2:0
+Inserted 21 rows in 4.026266 - 0.191727 per row q1:1 q2:0
+Inserted 21 rows in 3.731077 - 0.177670 per row q1:0 q2:0
+Inserted 21 rows in 3.827652 - 0.182269 per row q1:4 q2:0
+Inserted 21 rows in 3.878655 - 0.184698 per row q1:3 q2:0
+Inserted 21 rows in 9.900238 - 0.471440 per row q1:2 q2:0
+Inserted 21 rows in 3.591993 - 0.171047 per row q1:1 q2:0
+Inserted 21 rows in 9.581073 - 0.456242 per row q1:0 q2:0
+Inserted 21 rows in 10.145712 - 0.483129 per row q1:4 q2:0
+Inserted 21 rows in 16.668553 - 0.793741 per row q1:3 q2:0
+Inserted 21 rows in 9.510566 - 0.452884 per row q1:2 q2:0
+Inserted 21 rows in 10.091224 - 0.480534 per row q1:1 q2:0
+Inserted 21 rows in 9.242661 - 0.440127 per row q1:0 q2:0
+Inserted 21 rows in 3.788082 - 0.180385 per row q1:4 q2:0
+
+
+
+2026-02-27 04:54:08
+Num Rows:11330781 
+Inserted 21 rows in 9.845489 - 0.468833 per row q1:1 q2:0
+Inserted 21 rows in 9.790054 - 0.466193 per row q1:4 q2:0
+Inserted 21 rows in 3.916591 - 0.186504 per row q1:3 q2:0
+Inserted 21 rows in 9.450845 - 0.450040 per row q1:2 q2:0
+Inserted 21 rows in 10.445184 - 0.497390 per row q1:1 q2:0
+Inserted 21 rows in 3.855443 - 0.183593 per row q1:0 q2:0
+Inserted 21 rows in 3.874822 - 0.184515 per row q1:3 q2:0
+Inserted 21 rows in 10.395602 - 0.495029 per row q1:2 q2:0
+Inserted 21 rows in 3.939654 - 0.187603 per row q1:1 q2:0
+Inserted 21 rows in 15.633938 - 0.744473 per row q1:0 q2:0
+Inserted 21 rows in 10.511611 - 0.500553 per row q1:3 q2:0
+Inserted 21 rows in 9.586616 - 0.456506 per row q1:2 q2:0
+Inserted 21 rows in 4.122655 - 0.196317 per row q1:1 q2:0
+Inserted 21 rows in 3.953333 - 0.188254 per row q1:0 q2:0
+Inserted 21 rows in 3.960364 - 0.188589 per row q1:3 q2:0
+Inserted 21 rows in 9.655395 - 0.459781 per row q1:2 q2:0
+
+
+this system seems to work, what can I do to control and monitor it?
+
+
+control:
+enable
+insert_batch_size
+log to console when batch inserting
+
+monitor
+q sizes
+batch insert size
+batch insert time
+
+delete rows from table
+
+to start with add timestamp to batch insert to see if cpu spike occur at same time
+
+I really want to be able to reference time points on the s2 graphs to something on the server
+
+frame would be ideal
+
+
+what if I made an array in s2 to reference timestamp to frame
+that seems to work...
+
+here is the tooltip:
+
+   tooltip:
+   {
+      trigger: 'axis', formatter: function (params)
+      {
+         let dateValue = params[0].value[0]; 
+         let formattedDate = echarts.format.formatTime('yyyy-MM-dd hh:mm:ss', dateValue);
+         let res = '<b>' + formattedDate + '</b>' + '<br/>Frame:' + frameMap.get(dateValue);
+
+         let i = 1;  
+         params.forEach(function (item)
+         {
+             res += '<br/>' + item.marker + item.seriesName + ': ' + item.value[i++];
+         });
+         return res;
+      }
+   },
+
+now use frame when dumping...done
+
+2026-02-27 08:52:18
+Num Rows:12 931 422
+9152 - Inserted 21 rows in 3.940965 - 0.187665 per row q1:0 q2:0
+9157 - Inserted 21 rows in 4.032474 - 0.192023 per row q1:4 q2:0
+9161 - Inserted 21 rows in 3.983080 - 0.189670 per row q1:3 q2:0
+9165 - Inserted 21 rows in 11.173584 - 0.532075 per row q1:2 q2:0
+9169 - Inserted 21 rows in 3.790545 - 0.180502 per row q1:1 q2:0
+9173 - Inserted 21 rows in 4.633110 - 0.220624 per row q1:0 q2:0
+9178 - Inserted 21 rows in 4.614833 - 0.219754 per row q1:4 q2:0
+9182 - Inserted 21 rows in 3.957339 - 0.188445 per row q1:3 q2:0
+9186 - Inserted 21 rows in 3.990707 - 0.190034 per row q1:2 q2:0
+9190 - Inserted 21 rows in 4.795474 - 0.228356 per row q1:1 q2:0
+9194 - Inserted 21 rows in 10.276996 - 0.489381 per row q1:0 q2:0
+9199 - Inserted 21 rows in 9.531691 - 0.453890 per row q1:4 q2:0
+9203 - Inserted 21 rows in 9.348533 - 0.445168 per row q1:3 q2:0
+9207 - Inserted 21 rows in 4.578182 - 0.218009 per row q1:2 q2:0
+9211 - Inserted 21 rows in 4.796726 - 0.228416 per row q1:1 q2:0
+9215 - Inserted 21 rows in 4.993489 - 0.237785 per row q1:0 q2:0
+9220 - Inserted 21 rows in 10.333307 - 0.492062 per row q1:4 q2:0
+9224 - Inserted 21 rows in 4.008160 - 0.190865 per row q1:3 q2:0
+9228 - Inserted 21 rows in 3.891572 - 0.185313 per row q1:2 q2:0
+9232 - Inserted 21 rows in 10.356768 - 0.493179 per row q1:1 q2:0
+
+
+2026-02-28 00:49:22
+firefox still updating, clicked and it froze...task manager shows almost 10.7G memory usage
+Num Rows:23 176 125
+132571 - Inserted 21 rows in 9.448786 - 0.449942 per row q1:1 q2:0
+132576 - Inserted 21 rows in 10.455104 - 0.497862 per row q1:0 q2:0
+132582 - Inserted 21 rows in 4.315930 - 0.205520 per row q1:3 q2:0
+132587 - Inserted 21 rows in 3.860256 - 0.183822 per row q1:2 q2:0
+132592 - Inserted 21 rows in 4.339638 - 0.206649 per row q1:1 q2:0
+132597 - Inserted 21 rows in 10.134800 - 0.482610 per row q1:0 q2:0
+132603 - Inserted 21 rows in 9.881769 - 0.470560 per row q1:3 q2:0
+132608 - Inserted 21 rows in 10.183474 - 0.484927 per row q1:2 q2:0
+
+
+-rw-r--r--  1 m m 1990176768 Feb 28 01:37 client_status.db
+-rw-r--r--  1 m m      32768 Feb 28 01:37 client_status.db-shm
+-rw-r--r--  1 m m    4173592 Feb 28 01:37 client_status.db-wal
+
+2G db file size!!!
+
+
+
+I don't see any spikes on the server cpu
+
+I still want to make a control for number of batch items and monitor for time and actual num items
+
+first make the variables
+
+   int server_insert_client_status_enable = 1;
+   int server_insert_client_status_batch_size_target = 20;
+   int server_insert_client_status_batch_size_actual;
+   int server_insert_client_status_batch_time_avg;   
+   int server_insert_client_status_batch_time_max;   
+
+
+then patch them in...
+
+I want to use a rolling avg class...
+
+
+2026-02-28 01:54:38
+
+
+looking at the rolling average class I am embarassed...
+I use a static 4000 element array...I want to refactor to use vector...
+or even queue
+all I need to do is add and delete from end if too big, sounds like what a queue can do...or deque
+much better now...
+
+what am I going to call these in the database?
+               
+sics_enable       INT, \
+sicsb_size_target INT, \
+sicsb_size_actual INT, \
+sicsb_time_avg    INT, \
+sicsb_time_max    INT, \
+
+re did server status to use prepared statement...
+
+now make a control for target size
+and status for 4 things...
+
+
+
+
+
+
+
+function setupClientStatusTargetBatchSize(parentContainer)
+{
+   setupSliderControl(parentContainer, 'sicsb_size_targetSlider', 'sicsb_size_targetSpan', 'Batch Size:', 20, 1, 200, 1);
+
+   const slider = document.getElementById('sicsb_size_targetSlider');
+   const span   = document.getElementById('sicsb_size_targetSpan');
+
+   slider.addEventListener("input", () =>
+   {
+      span.innerHTML = slider.value;
+      insertControl("sicsb_size_target", slider.value, 0);
+   });
+
+}
+
+
+2026-02-28 04:37:20
+make control groups flex row...
+
+2026-02-28 06:32:42
+
+I now have 4 control groups
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

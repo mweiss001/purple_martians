@@ -14,11 +14,7 @@
               <div id="testButtons"></div>
             </div>
             <div class="divSessionsPageTopRowCenter">
-               <div class="divSessionsPageLinks">
-                  <a href="../index.html"  class="button linksButton" >Back to Main Page</a>
-                  <a href="sessions.html"  class="button linksButton" >Sessions</a>
-                  <a href="status.html"    class="button linksButton" >Status</a>
-               </div>
+               <div id="topPageLinks" class="divSessionsPageLinks"></div>
             </div>
             <div class="divSessionsPageTopRowRight"></div>
          </div>
@@ -40,13 +36,18 @@
                   <tbody id='currentClientsTable'></tbody>
                </table>
             </div>
+            
+            <div style=" display:flex; gap:2px; padding:4px;">
+               <div id='statusControls' class='statusPage'></div>
+            </div>
+            
+            
             <div class='statusPage divSectionSubSectionTitleFrame'>Current Level</div>
             <div style='display:flex; gap:2px;  padding:4px;'>
-               
                <img id='levelIcon' alt='icon not found' >
-
                <div id='levelText' class='statusPage divSectionSubSectionPretext'></div>
             </div>
+
          </div>
       </div>
    </body>

@@ -2,6 +2,9 @@
 
 #include "sqlite3.h"
 
+#include <thread>
+
+
 
 class mwSql
 {
@@ -27,7 +30,7 @@ class mwSql
    sqlite3 *db_sessions = nullptr;
 
 
-   sqlite3 *db_client_status = nullptr;
+//   sqlite3 *db_client_status = nullptr;
    sqlite3 *db_server_status = nullptr;
 
 
@@ -37,10 +40,17 @@ class mwSql
    //   sqlite3 *db_logs     = nullptr;
 
 
+
    sqlite3_stmt *server_status_insert_stmt = nullptr;
-   sqlite3_stmt *client_status_insert_stmt = nullptr;
+//   sqlite3_stmt *client_status_insert_stmt = nullptr;
 
 
+//   void sqlite_consumer(std::stop_token stoken, int bs);
+//   void sqlite_consumer();
+
+
+private:
+   std::jthread m_thread; // jthread member variable (RAII handles joining on destruction)
 
 
 

@@ -1,22 +1,5 @@
 
-const playerColors = [
-   "#888888", 
-   "#bf6ce8", 
-   "#8820ac",
-   "#3c7fff",
-   "#e01c48",
-   "#ff00e8",
-   "#ffbf7f",
-   "#ff7f00",
-   "#7f00ff",
-   "#01ff7f",
-   "#ff0000",
-   "#01ff00",
-   "#0000ff",
-   "#01ffff",
-   "#ffff00",
-   "#ffffff",
-]
+import { playerColors, setupTopPageLinks } from './common.js';
 
 const playerColorsHSL = [
   [   0,    0,   53 ],
@@ -36,8 +19,6 @@ const playerColorsHSL = [
   [  60,  100,   50 ],
   [   0,    0,  100 ]
 ]
-
-
 
 
 function getHSL(p, lm)
@@ -674,6 +655,8 @@ function checkLoaded()
 // -----------------------------------------------
 document.addEventListener('DOMContentLoaded', (event) =>
 {
+   setupTopPageLinks();
+
    readVariablesFromSessionStorage();
    setTimeout(checkLoaded, 0); // schedule the callback to run asynchronously after the current synchronous code finishes executing
    setupSettingsDialog();

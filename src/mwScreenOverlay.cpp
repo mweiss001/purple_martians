@@ -1168,7 +1168,7 @@ void mwScreen::draw_bottom_frame(int p)
 
    int bdx2 = mDisplay.SCREEN_W - BORDER_WIDTH;
 
-   sprintf(msg, " cpu:% 2.0f%%", mRollingAverage[0].mx);
+   sprintf(msg, " cpu:% 2.0f%%", mRollingAverage[0].max);
    bdx2 -= strlen(msg)*8;
    al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
 

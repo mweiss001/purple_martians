@@ -818,12 +818,12 @@ void mwLoop::add_local_cpu_data(double cpu)
    {
       // original style graph
       mQuickGraph[0].add_data(0, mRollingAverage[0].last_input);
-      mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
-      mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
+      mQuickGraph[0].add_data(1, mRollingAverage[0].min);
+      mQuickGraph[0].add_data(2, mRollingAverage[0].max);
       mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
 
       // new style graph
-      mQuickGraph2[9].add_data(0, mRollingAverage[0].mx, 0);
+      mQuickGraph2[9].add_data(0, mRollingAverage[0].max, 0);
       mQuickGraph2[9].new_entry_pos();
    }
 }

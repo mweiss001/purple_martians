@@ -376,10 +376,9 @@ pscp -pw zaiden c:\pm\src\*.cpp  m@192.168.1.122:dev/purple_martians/src/
 
 pscp -pw zaiden m@192.168.1.122:dev/purple_martians/lev_stat.*  c:\pm\
 
-
 pscp -pw zaiden c:\pm\src\mwNetgameS*  m@192.168.1.122:dev/purple_martians/src/
 
-
+pscp -pw zaiden c:\pm\src\mwThr*  m@192.168.1.122:dev/purple_martians/src/
 
 
 
