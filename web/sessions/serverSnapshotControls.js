@@ -5,6 +5,9 @@ export function updateServerSnapshotControls(data)
 {
    if (!data) return;
 
+   if (!data[0].ss_allowed) document.getElementById('ssControlsContainer').style.display = "none";
+
+
    setCheckbox('ssEnableCheckBox', data[0].ss_enabled);
    
    setSpanInnerHTML('ss_time', data[0].ss_time);
@@ -56,7 +59,7 @@ function setupControlsSsSingle(parentContainer)
 
 function setupControlsSsPeriod(parentContainer)
 {
-   setupSliderControl(parentContainer, 'ssPeriodSlider', 'ssPeriodSpan', 'SS period:', 0, 80, 40, 0);
+   setupSliderControl(parentContainer, 'ssPeriodSlider', 'ssPeriodSpan', 'SS period:', 0, 80, 2, 0);
    const slider = document.getElementById('ssPeriodSlider');
    const span   = document.getElementById('ssPeriodSpan');
 

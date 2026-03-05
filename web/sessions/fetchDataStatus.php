@@ -7,7 +7,7 @@ if (!file_exists($db_filepath)) { echo "Database file: $db_filepath not found.";
 $db = new PDO("sqlite:$db_filepath");
 
 
-$max_records = 3200;
+$max_records = 100000;
 
 $start_timestamp = -40000;
 if (isset($_GET['start_timestamp'])) $start_timestamp = $_GET['start_timestamp'];

@@ -17,11 +17,11 @@
 #include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwSql.h"
-#include "mwStatusBuffer.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDrawSequence.h"
-#include "mwThreadSafeQueue.h"
+#include "mwClientStatusInsertQueue.h"
+#include "mwServerScreenshot.h"
 
 
 int mwNetgame::serverInitNetwork()
@@ -52,6 +52,10 @@ int mwNetgame::serverInitNetwork()
    mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
 
    ima_server = 1;
+
+   mClientStatusInsertQueue.start();
+
+
    return 1;
 }
 
@@ -61,10 +65,10 @@ void mwNetgame::serverExitNetwork()
 
    mLog.add_log_net_db_row(LOG_NET, 0, 0, "Shutting down the server network");
 
-
    networkExit();
 
    ima_server = 0;
+   mClientStatusInsertQueue.stop();
 
    // reset player data
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
@@ -273,9 +277,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
 
       mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d\n", p, packet_num+1, num_packets, src, dst, start_byte, packet_data_size, server_lev_seq_num);
-      mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, p,    "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d", p, packet_num+1, num_packets, src, dst, start_byte, packet_data_size, server_lev_seq_num);
-
-
+      mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, p,   "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d", p, packet_num+1, num_packets, src, dst, start_byte, packet_data_size, server_lev_seq_num);
 
 
       char data[PACKET_BUFFER_SIZE] = {0}; int pos;
@@ -312,32 +314,13 @@ void mwNetgame::server_update_status_img_recurring()
 
 void mwNetgame::server_update_status_img()
 {
-   if (server_update_status_img_enabled) printf("server_update_status_img_enabled:false\n");
-   else
+   if ((server_update_status_img_allowed) && (server_update_status_img_enabled))
    {
-      double t0 = al_get_time();
       server_update_status_img_period_cnt = mLoop.frame_num;
-      //printf("dumping lev_stat.png\n");
-
-      int sz = server_update_status_img_size;
-      ALLEGRO_BITMAP * tmp = al_create_bitmap(sz, sz);
-
-      double t1 = al_get_time();
-
-      mScreen.draw_level2(tmp, 0, 0, sz, 1, 1, 1, 1, 1);
-
-      double t2 = al_get_time();
-
-      if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
-
-      double t3 = al_get_time();
-
-      server_update_status_img_time = (al_get_time() - t0)*1000;
-      //   printf("elapsed time: %dms\n", server_update_status_img_time);
-
-      printf("Total time:%f Create:%f Draw:%f Save:%f \n", (t3-t0)*1000, (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000);
+      mServerScreenshot.start();
    }
 }
+
 
 // called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
@@ -362,17 +345,19 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
    sqlite3_bind_int(  stmt, i++, mPlayer.syn[0].server_force_fakekey ); // 10
 
+
    sqlite3_bind_int(  stmt, i++, server_insert_client_status_enable);
    sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_size_target);
    sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_size_actual);
    sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_time_avg);
    sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_time_max); // 15
 
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_allowed);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_enabled);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_size);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_time);
-   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 20
+   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 21
 
    if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));
 
@@ -469,11 +454,6 @@ void mwNetgame::server_process_db_control()
             used = 1;
          }
 
-         if (row.key == "sb_dump")
-         {
-            mStatusBuffer.dumpFramePeriod = row.val;
-            used = 1;
-         }
 
          if (row.key == "server_insert_client_status_enable")
          {
@@ -1021,11 +1001,7 @@ void mwNetgame::server_control()
    if (server_remote_control) server_send_snfo_packet();
 
 
-
-
-//   mStatusBuffer.add();
-
-   if (server_insert_client_status_enable) mThreadSafeQueue.add();
+   if (server_insert_client_status_enable) mClientStatusInsertQueue.add();
 
 
 

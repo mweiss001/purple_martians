@@ -1,25 +1,32 @@
 #include "pm.h"
 #include "mwLoop.h"
-#include "mwThreadSafeQueue.h"
+#include "mwClientStatusInsertQueue.h"
 
 #include "mwNetgame.h"
 #include "mwSql.h"
 
+mwClientStatusInsertQueue mClientStatusInsertQueue;
 
-mwThreadSafeQueue mThreadSafeQueue;
-
-mwThreadSafeQueue::mwThreadSafeQueue()
+mwClientStatusInsertQueue::mwClientStatusInsertQueue()
 {
-
-   // start thread
-   m_thread = std::jthread(std::bind_front(&mwThreadSafeQueue::sqlite_consumer, this));
-
    time_ra.initialize(10);
+}
 
+void mwClientStatusInsertQueue::start()
+{
+   // make sure it is stopped
+   m_thread.request_stop();
+   m_thread = std::jthread(std::bind_front(&mwClientStatusInsertQueue::sqlite_consumer, this));
+}
+
+void mwClientStatusInsertQueue::stop()
+{
+   m_thread.request_stop();
 }
 
 
-void mwThreadSafeQueue::add()
+
+void mwClientStatusInsertQueue::add()
 {
    // get timestamp as msec since epoch
    std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -46,19 +53,13 @@ void mwThreadSafeQueue::add()
          int tkbs = mPlayer.loc[p].tx_bytes_per_tally;
          struct client_status_buffer_row row = {timestamp, frame, p, color, name, hostname, cpu, sync, ping,lcor, rcor, rwnd, difs, tkbs };
          q.push(row);
-
-         //printf("pushed row: %d  qs:%d \n", frame, (int) q.size());
-
       }
-
-//   if (q.size() > 20) cv.notify_one(); // Notify consumer that items are available
-   cv.notify_one(); // Notify consumer that items are available
-
+   cv.notify_one(); // notify that items are available
 }
 
 
 
-bool mwThreadSafeQueue::pop(client_status_buffer_row &row)
+bool mwClientStatusInsertQueue::pop(client_status_buffer_row &row)
 {
    std::unique_lock<std::mutex> lock(m);
 
@@ -71,48 +72,17 @@ bool mwThreadSafeQueue::pop(client_status_buffer_row &row)
    return true;
 }
 
-/*
-
-   // Wait until queue is not empty or the producer is finished
-   cv.wait(lock, [this]{ return !q.empty() || finished; });
-
-   if (q.empty() && finished)
-   {
-      return false; // Signal end of work
-   }
-   row = q.front();
-   q.pop();
-   return true;
-
-*/
-
-
-/*
-
-void mwThreadSafeQueue::complete_work()
-{
-   std::lock_guard<std::mutex> lock(m);
-   finished = true;
-   cv.notify_all(); // Notify all waiting consumers to stop
-}
-*/
-
-
 // this is run in its own thread
 // fills q2 and dumps q2 when filled
 
-void mwThreadSafeQueue::sqlite_consumer(std::stop_token stoken)
+void mwClientStatusInsertQueue::sqlite_consumer(std::stop_token stoken)
 {
    client_status_buffer_row row;
-
    sqlite3 *db;
-
    char filename[256];
    sprintf(filename, "%s", "data/client_status.db");
    if (sqlite3_open(filename, &db))   { printf("Can't open database %s\n", filename);  }
-
    mSql.execute_sql("PRAGMA journal_mode = WAL", db);
-
    char sql[2000];
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
                id            INTEGER PRIMARY KEY, \
@@ -144,60 +114,22 @@ void mwThreadSafeQueue::sqlite_consumer(std::stop_token stoken)
    // setup done
 
    // this is the loop that continually runs in the thread
-   // I have tried to insert in a batch, wrapped in a transaction but could not get it to work
    // the while loop 'while (pop(row))' blocks until it has a row to return
-   // nothing outside that is ever executed
-
-
+   // rows are pushed on to another non thread safe queue
+   // when that reaches a certain size all rows in it are dumped, wrapped in an sql transaction
    while (!stoken.stop_requested())
    {
-      printf("client_status row insert thread outer loop\n");
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
       while (pop(row))
       {
-
-/*
-         double t0 = al_get_time();
-
-         sqlite3_reset(      client_status_insert_stmt);
-         sqlite3_bind_int64( client_status_insert_stmt, 1,  row.timestamp);
-         sqlite3_bind_int(   client_status_insert_stmt, 2,  row.frame);
-         sqlite3_bind_int(   client_status_insert_stmt, 3,  row.p);
-         sqlite3_bind_int(   client_status_insert_stmt, 4,  row.color);
-         sqlite3_bind_text(  client_status_insert_stmt, 5,  row.name.c_str(),     -1, SQLITE_TRANSIENT);
-         sqlite3_bind_text(  client_status_insert_stmt, 6,  row.hostname.c_str(), -1, SQLITE_TRANSIENT);
-         sqlite3_bind_int(   client_status_insert_stmt, 7,  row.cpu);
-         sqlite3_bind_int(   client_status_insert_stmt, 8,  row.sync);
-         sqlite3_bind_int(   client_status_insert_stmt, 9,  row.ping);
-         sqlite3_bind_int(   client_status_insert_stmt, 10, row.lcor);
-         sqlite3_bind_int(   client_status_insert_stmt, 11, row.rcor);
-         sqlite3_bind_int(   client_status_insert_stmt, 12, row.rwnd);
-         sqlite3_bind_int(   client_status_insert_stmt, 13, row.difs);
-         sqlite3_bind_int(   client_status_insert_stmt, 14, row.tkbs);
-
-         if (sqlite3_step(   client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(db));
-
-         double et = (al_get_time() - t0) * 1000;
-         printf("Inserted item: %d  -  %f\n", row.frame, et);
-
-  */
-
          q2.push_back(row);
-
          //printf("added to q2: %d\n", row.frame);
-
          if ((int) q2.size() >= mNetgame.server_insert_client_status_batch_size_target) dumpQ2(db, client_status_insert_stmt);
-
-
-
       }
    }
 }
 
 
-
-void mwThreadSafeQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_stmt)
+void mwClientStatusInsertQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_stmt)
 {
    double t0 = al_get_time();
    int count = q2.size();
@@ -206,17 +138,6 @@ void mwThreadSafeQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_s
 
    for (auto row : q2)
    {
-      /*
-
-   while (!q2.empty())
-   {
-
-
-      // get row from front and remove
-      client_status_buffer_row row = q2.front();
-      q2.pop();
-*/
-
 
       sqlite3_reset(      client_status_insert_stmt);
       sqlite3_bind_int64( client_status_insert_stmt, 1,  row.timestamp);
@@ -234,7 +155,6 @@ void mwThreadSafeQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_s
       sqlite3_bind_int(   client_status_insert_stmt, 13, row.difs);
       sqlite3_bind_int(   client_status_insert_stmt, 14, row.tkbs);
       if (sqlite3_step(   client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(db));
-//      count++;
    }
 
    q2.clear();
@@ -255,4 +175,3 @@ void mwThreadSafeQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_s
    printf("%d - Inserted %d rows in %0.2f - %0.4f per row - %f  %f q1:%d q2:%d\n", mLoop.frame_num, count, et, et/count, time_ra.avg, time_ra.max, qs, q2s);
 
 }
-

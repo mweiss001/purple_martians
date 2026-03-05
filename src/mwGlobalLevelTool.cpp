@@ -75,9 +75,89 @@ void mwGlobalLevelTool::remove_unused_tiles(int blt[])
 }
 
 
+void replaceTileIfMatch(int &tile, int match, int replace)
+{
+   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
+}
+
+void changeBlockNumber(int oldNum, int newNum)
+{
+   // block changer
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+         replaceTileIfMatch(mLevel.l[x][y], oldNum, newNum);
+
+   // block manip changer
+   for (int y=0; y<500; y++)
+      if (mItem.item[y][0] == 16)
+      {
+         replaceTileIfMatch(mItem.item[y][10], oldNum, newNum);
+         replaceTileIfMatch(mItem.item[y][11], oldNum, newNum);
+      }
+
+}
+
+
+
+
+void changeBlockNumbersRect(int oldNum, int newNum)
+{
+   changeBlockNumber(oldNum+16, newNum+0);
+   changeBlockNumber(oldNum+18, newNum+1);
+   changeBlockNumber(oldNum+14, newNum+2);
+   changeBlockNumber(oldNum+9,  newNum+3);
+   changeBlockNumber(oldNum+12, newNum+4);
+   changeBlockNumber(oldNum+15, newNum+5);
+   changeBlockNumber(oldNum+8,  newNum+6);
+   changeBlockNumber(oldNum+13, newNum+7);
+   changeBlockNumber(oldNum+0,  newNum+8);
+   changeBlockNumber(oldNum+1,  newNum+9);
+   changeBlockNumber(oldNum+2,  newNum+10);
+   changeBlockNumber(oldNum+3,  newNum+11);
+   changeBlockNumber(oldNum+4,  newNum+12);
+   changeBlockNumber(oldNum+5,  newNum+13);
+   changeBlockNumber(oldNum+6,  newNum+14);
+   changeBlockNumber(oldNum+7,  newNum+15);
+}
+
+
+
+void changeBlockNumbersFrame(int oldNum, int newNum)
+{
+   changeBlockNumber(oldNum+16, newNum+0);
+   changeBlockNumber(oldNum+18, newNum+1);
+   changeBlockNumber(oldNum+14, newNum+2);
+   changeBlockNumber(oldNum+6,  newNum+3);
+   changeBlockNumber(oldNum+12, newNum+4);
+   changeBlockNumber(oldNum+15, newNum+5);
+   changeBlockNumber(oldNum+4,  newNum+6);
+   changeBlockNumber(oldNum+13, newNum+7);
+   changeBlockNumber(oldNum+0,  newNum+8);
+   changeBlockNumber(oldNum+1,  newNum+9);
+   changeBlockNumber(oldNum+2,  newNum+10);
+   changeBlockNumber(oldNum+3,  newNum+11);
+   changeBlockNumber(oldNum+8,  newNum+12);
+   changeBlockNumber(oldNum+10, newNum+13);
+   changeBlockNumber(oldNum+9,  newNum+14);
+   changeBlockNumber(oldNum+11, newNum+15);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwGlobalLevelTool::execute(void)
 {
-   //int blt[NUM_SPRITES] = {0};
+   int blt[NUM_SPRITES] = {0};
 
    int old_start_level = mLevel.start_level;
 
@@ -132,6 +212,47 @@ void mwGlobalLevelTool::execute(void)
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
+
+//      changeBlockNumbersFrame(576, 800);
+//      changeBlockNumbersFrame(608, 832);
+
+//      changeBlockNumber(424, 870);
+//      changeBlockNumber(456, 966);
+//      changeBlockNumber(488, 934);
+
+      // changeBlockNumber(581, 806);
+      // changeBlockNumber(583, 803);
+      // changeBlockNumber(613, 838);
+      // changeBlockNumber(615, 835);
+      // changeBlockNumber(625, 848);
+
+
+
+
+
+      // block counter
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+            blt[mLevel.l[y][z] & 1023]++; // inc block counter
+
+/*
+      // block changer
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+         {
+            if ((mLevel.l[y][z] & 1023) == 21)
+            {
+               int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
+               mLevel.l[y][z] = (55 | flags);
+            }
+
+            if ((mLevel.l[y][z] & 1023) == 53)
+            {
+               int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
+               mLevel.l[y][z] = (56 | flags);
+            }
+         }
+*/
 
 
 //      for (int y=0; y<100; y++)
@@ -610,10 +731,6 @@ void mwGlobalLevelTool::execute(void)
 
 
 
-
-
-
-
       if (0)
       {
          mLevel.save_level(le[x]);
@@ -630,7 +747,7 @@ void mwGlobalLevelTool::execute(void)
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-   //show_block_list(blt);
+   show_block_list(blt);
    mInput.tsw();
    mLevel.set_start_level(old_start_level);
 }

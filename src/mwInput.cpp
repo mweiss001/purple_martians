@@ -298,14 +298,14 @@ void mwInput::serial_key_check(int key)
 
    if (serial_key_test("devset7"))
    {
-      mPlayer.syn[0].color = 7;
+      mPlayer.syn[0].color = 5;
       sprintf(mPlayer.syn[0].name, "%s", "pinky");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
    if (serial_key_test("devset8"))
    {
-      mPlayer.syn[0].color = 8;
+      mPlayer.syn[0].color = 15;
       sprintf(mPlayer.syn[0].name, "%s", "whitey");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);

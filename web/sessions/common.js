@@ -98,7 +98,8 @@ export function setupTopPageLinks()
       <a href="../index.html"  class="button linksButton" >Back to Main Page</a>
       <a href="sessions.html"  class="button linksButton" >Sessions</a>
       <a href="status.html"    class="button linksButton" >Status</a>
-      <a href="s2.html"        class="button linksButton" >S2</a> `;
+      <a href="s2.html"        class="button linksButton" >S2</a>
+      <a href="s3.html"        class="button linksButton" >S3</a>`;
 }
 
 

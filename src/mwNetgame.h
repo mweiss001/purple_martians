@@ -171,18 +171,15 @@ class mwNetgame
 
    void server_insert_status_row();
 
-
    void server_update_status_img_recurring();
    void server_update_status_img();
 
+   int server_update_status_img_allowed = 0;
    int server_update_status_img_enabled = 0;
-
-   int server_update_status_img_period = 0;
+   int server_update_status_img_period = 40;
    int server_update_status_img_period_cnt = 0;
-
-   int server_update_status_img_size = 100;
-   int server_update_status_img_time = 0;
-
+   int server_update_status_img_size = 400;
+   int server_update_status_img_time;
 
    int server_insert_client_status_enable = 1;
    int server_insert_client_status_batch_size_target = 20;

@@ -1366,8 +1366,13 @@ void mwPlayer::init_player(int p, int t)
       init_player(p, 23); // clear bandwidth counters
    }
 
-   if (t == 2) // new level
+   if (t == 2) // next level
    {
+      // changed this on 20260304
+      // server gm files would not play back properly, maybe because originally they started the level with less than 100 health ...see if this fixes that...
+      syn[p].old_health = 100;
+      syn[p].health = 100;
+
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc
       init_player(p, 23); // clear bandwidth counters

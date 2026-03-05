@@ -12,6 +12,21 @@ in sessions they all still show as open
 2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
 
 
+
+I have been having so problems playing back server games....
+My thoughts:
+they seem to occur when playing with a bunch of fakekey players...
+things to check...
+when starting new level, is health carried over from previous level?
+when do they join, instantly?? when do they joining when playing back?
+changed it so that next level resets player health to 100...
+now I need to test....
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -20,11 +35,23 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+make sure that server snapshot is fully disabled
+
+make graph selector...done
+
+I want to rename cpu to something else...
+maybe load, or busy
 
 
-mwStatusBuffer class is no longer needed, has been superceded by mwThreadSafeQueue
+make an automatic cleanup of client_status table when it gets too big
+where?
+how big?
+should I have it only insert when I am looking?
 
-make a proper way to start and stop thread
+how can I go back and look at historical data, not live?
+
+
+make something like s2, but only for static data
 
 
 
@@ -34,10 +61,6 @@ make a proper way to start and stop thread
 ------------------------------------------------------------------------------
 major changes to logging
 ------------------------------------------------------------------------------
-
-save snapshot of current level for viewing on status page!!!
-you are crazy!
-
 
 
 
@@ -229,6 +252,17 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+mwStatusBuffer class is no longer needed, has been superceded by mwThreadSafeQueue..removed
+make a proper way to start and stop thread..done
+
+
+save snapshot of current level for viewing on status page!!!
+you are crazy!
+
+
+
+
 
 made project compile clean on linux!!!
 

@@ -1,8 +1,6 @@
 import { setupTopPageLinks, getDHMSfromFrame } from './common.js';
-import { setupClientStatusControls,   updateClientStatusControls}   from './clientStatusControls.js';
 import { setupServerSnapshotControls, updateServerSnapshotControls} from './serverSnapshotControls.js';
 import { setupServerControls,         updateServerControls}         from './serverControls.js';
-
 
 
 document.addEventListener('DOMContentLoaded', (event) =>
@@ -10,8 +8,11 @@ document.addEventListener('DOMContentLoaded', (event) =>
    setupTopPageLinks();
    const statusControls = document.getElementById('statusControls');
    statusControls.style.display = 'flex';
-   setupServerSnapshotControls(statusControls);
+
    setupServerControls(statusControls);
+
+   setupServerSnapshotControls(statusControls);
+
 
    fetchDataServerStatus();
 
@@ -27,7 +28,55 @@ document.addEventListener('DOMContentLoaded', (event) =>
    {
       fetchDataServerStatus();
    });
+   
+   
 });
+
+
+
+function adjustTimer(data)
+{
+   if (!data[0].ss_allowed)
+   {
+      stopTimer();
+      updateInterval = 2000;
+      startTimer();
+      return;
+   }      
+
+
+   // stop timer
+   if ((!data[0].ss_enabled) || (!data[0].ss_period)) stopTimer();
+   else
+   {
+      stopTimer();
+      updateInterval = data[0].ss_period * 25;
+      startTimer();
+   }      
+}
+
+
+
+function startTimer()
+{
+   // Prevent multiple intervals from running simultaneously
+   if (intervalId) return; 
+   intervalId = setInterval(fetchDataServerStatus, updateInterval);
+   //console.log("Timer started/resumed");
+}
+
+function stopTimer()
+{
+   clearInterval(intervalId);
+   intervalId = null; // Clear the ID to indicate the timer is stopped
+   //console.log("Timer stopped");
+}
+
+var updateInterval = 200;
+let intervalId; // Variable to store the refresh timer interval ID
+
+
+
 
 
 async function fetchDataServerStatus()
@@ -41,12 +90,17 @@ async function fetchDataServerStatus()
    } catch (error) { console.error("Fetch error:", error.message);
    } finally
    {
+
       updateStatusText(data);
       updateLevelText(data);
       updateClientSection(data);
       updateLevelIcon(data);
       updateServerControls(data);
       updateServerSnapshotControls(data);
+      
+      adjustTimer(data);
+      
+      
    }
 }
 
@@ -99,15 +153,29 @@ function reloadImageById(imageId, imageUrl)
 
 function updateLevelIcon(data)
 {
-   // get server snapshot level icon
-   if (data[0].ss_enabled) reloadImageById('levelIcon', '/downloads/lev_stat.png');
-   else
+   if (!data[0].ss_allowed)
    {
+//      const size = data[0].ss_size + 'px'; 
+//      levelIcon.style.height = size;
+//      levelIcon.style.width  = size;
+
       // get static level icon 
       const iconpath = "/assets/icons/lev" + String(data[0].level).padStart(3, '0') + ".png";
       document.getElementById('levelIcon').src = iconpath;
+
    }
-   const size = data[0].ss_size + 'px'; 
-   levelIcon.style.height = size;
-   levelIcon.style.width  = size;
+   else
+   {
+      // get server snapshot level icon
+      if (data[0].ss_enabled) reloadImageById('levelIcon', '/downloads/lev_stat.png');
+      else
+      {
+         // get static level icon 
+         const iconpath = "/assets/icons/lev" + String(data[0].level).padStart(3, '0') + ".png";
+         document.getElementById('levelIcon').src = iconpath;
+      }
+      const size = data[0].ss_size + 'px'; 
+      levelIcon.style.height = size;
+      levelIcon.style.width  = size;
+   }
 }

@@ -11,6 +11,9 @@ class mwBitmapTools
 
 //   private:
 
+   void custom_modify();
+
+
    void fill_player_tile();
 
    void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y);

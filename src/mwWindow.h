@@ -147,9 +147,16 @@ class mwWindow
    int th_match;
    int th_group;
    int th_sel;
+
+   void th_remove_bound();
+
+   void th_find_adj(int a, int b, int &l, int &r, int &u, int &d, int &ul, int &ur, int &dl, int &dr);
+
+   int th_replace_helper3(int type, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
+   int th_replace_helper(int type, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
+
    void th_replace(int type);
    int th_draw_buttons(int x3, int x4, int yfb, int draw_only);
-   int th_compare_tile(int rb, int cb, int group);
    void th_find_connected(int x, int y, int group);
    void th_process_mouse();
 

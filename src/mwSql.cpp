@@ -25,7 +25,7 @@ void mwSql::create_prepared_statements()
 */
 
    char sql[1024];
-   sprintf(sql, "INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+   sprintf(sql, "INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
    int rc2 = sqlite3_prepare_v2(db_server_status, sql, -1, &server_status_insert_stmt, nullptr);
    if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_server_status));
 
@@ -125,8 +125,8 @@ void mwSql::create_tables()
    // execute_sql(sql, db_sessions);
 */
 
-
 /*
+
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
@@ -172,6 +172,7 @@ void mwSql::create_tables()
                sicsb_size_actual INT, \
                sicsb_time_avg    INT, \
                sicsb_time_max    INT, \
+               ss_allow      INT, \
                ss_enabled    INT, \
                ss_period     INT, \
                ss_size       INT, \

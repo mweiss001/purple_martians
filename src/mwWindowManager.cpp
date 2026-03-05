@@ -51,6 +51,7 @@ void mwWindowManager::initialize(int edit_level)
    mItem.sort_item(1);
    mWM.mW[1].em_set_swbl();
 
+
    mInput.initialize();
 }
 

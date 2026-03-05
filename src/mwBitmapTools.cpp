@@ -161,20 +161,6 @@ void mwBitmapTools::fill_player_tile(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwBitmapTools::color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y)
 {
    ALLEGRO_COLOR p = al_get_pixel(b, x, y);
@@ -367,7 +353,6 @@ void mwBitmapTools::combine_tile(void)
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mBitmap.tilemap, 0, 0, 0);
    al_flip_display(); mInput.tsw(); // wait for keypress
-
 
   //   al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
 
@@ -863,7 +848,7 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
 }
 
 
-void mwBitmapTools::edit_btile_attributes(void)
+void mwBitmapTools::edit_btile_attributes()
 {
    char msg[1024];
    int x, y;
@@ -1123,8 +1108,104 @@ void mwBitmapTools::draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int
 }
 
 
-// this one has abitrary first and second bmp file
-void mwBitmapTools::copy_tiles(void)
+void copy_tile(ALLEGRO_BITMAP *b, int s, int d)
+{
+   int sx = (s % 32)*22+1;
+   int sy = (s / 32)*22+1;
+
+   int dx = (d % 32)*22+1;
+   int dy = (d / 32)*22+1;
+
+   al_set_target_bitmap(b);
+   al_draw_bitmap_region(b, sx, sy, 20, 20, dx, dy, 0);
+}
+
+
+
+void copy_framegroup(ALLEGRO_BITMAP *b, int s, int d)
+{
+   copy_tile(b, s+16, d+0);
+   copy_tile(b, s+18, d+1);
+   copy_tile(b, s+14, d+2);
+   copy_tile(b, s+6,  d+3);
+   copy_tile(b, s+12, d+4);
+   copy_tile(b, s+15, d+5);
+   copy_tile(b, s+4,  d+6);
+   copy_tile(b, s+13, d+7);
+   copy_tile(b, s+0,  d+8);
+   copy_tile(b, s+1,  d+9);
+   copy_tile(b, s+2,  d+10);
+   copy_tile(b, s+3,  d+11);
+   copy_tile(b, s+8,  d+12);
+   copy_tile(b, s+10, d+13);
+   copy_tile(b, s+9,  d+14);
+   copy_tile(b, s+11, d+15);
+}
+
+
+void copy_rectgroup(ALLEGRO_BITMAP *b, int s, int d)
+{
+   copy_tile(b, s+16, d+0);
+   copy_tile(b, s+18, d+1);
+   copy_tile(b, s+14, d+2);
+   copy_tile(b, s+9,  d+3);
+   copy_tile(b, s+12, d+4);
+   copy_tile(b, s+15, d+5);
+   copy_tile(b, s+8,  d+6);
+   copy_tile(b, s+13, d+7);
+   copy_tile(b, s+0,  d+8);
+   copy_tile(b, s+1,  d+9);
+   copy_tile(b, s+2,  d+10);
+   copy_tile(b, s+3,  d+11);
+   copy_tile(b, s+4,  d+12);
+   copy_tile(b, s+5,  d+13);
+   copy_tile(b, s+6,  d+14);
+   copy_tile(b, s+7,  d+15);
+}
+
+void mwBitmapTools::custom_modify()
+{
+   printf("Custom Modify\n");
+
+   char msg[1024];
+
+   // main bitmap ------------------
+   char b1_fn[100];
+   char b1_fn2[100];
+   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+   sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
+
+   ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
+   if (!b1)
+   {
+      sprintf(msg, "Error loading tiles from:%s", b1_fn);
+      mInput.m_err(msg);
+   }
+
+//   copy_rectgroup(b1, 384, 896);
+//   copy_rectgroup(b1, 416, 864);
+
+//   copy_framegroup(b1, 608, 832);
+//   copy_framegroup(b1, 576, 800);
+
+//   al_save_bitmap(b1_fn, b1);
+
+
+
+
+
+
+}
+
+
+
+
+
+// this one has arbitrary first and second bmp file
+void mwBitmapTools::copy_tiles()
 {
    char msg[1024];
    int quit = 0;
@@ -1137,7 +1218,7 @@ void mwBitmapTools::copy_tiles(void)
    // main bitmap ------------------
    char b1_fn[100];
    char b1_fn2[100];
-   sprintf(b1_fn2, "bitmaps\\block_tiles.bmp");
+   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
 
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
@@ -1162,7 +1243,7 @@ void mwBitmapTools::copy_tiles(void)
    // second bitmap ------------------
    char b2_fn[100];
    char b2_fn2[100];
-   sprintf(b2_fn2, "bitmaps\\tiles.bmp");
+   sprintf(b2_fn2, "bitmaps/tiles.bmp");
 
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(b2_fn2);
@@ -1188,8 +1269,14 @@ void mwBitmapTools::copy_tiles(void)
       if (reload_b1)
       {
          al_destroy_bitmap(b1);
-         sprintf(b1_fn, "bitmaps\\");
-         if (mMiscFnx.mw_file_select("Load Bitmap File", b1_fn, ".bmp", 0)) b1 = al_load_bitmap(b1_fn);
+
+         if (reload_b1 == 2) b1 = al_load_bitmap(b1_fn);
+         else
+         {
+            sprintf(b1_fn, "bitmaps/");
+            if (mMiscFnx.mw_file_select("Load Bitmap File", b1_fn, ".bmp", 0)) b1 = al_load_bitmap(b1_fn);
+         }
+
          if (!b2) mInput.m_err("Load Error");
          else
          {
@@ -1399,6 +1486,22 @@ void mwBitmapTools::copy_tiles(void)
          while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
+
+
+      if (mInput.key[ALLEGRO_KEY_S][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
+
+         custom_modify();
+
+         reload_b1 = 2;
+
+      }
+
+
+
+
+
 
    }
    al_destroy_bitmap(b1);

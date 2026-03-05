@@ -2,6 +2,119 @@ Editing tilesets with gimp
 --------------------------
 
 
+20260301
+
+making a new block set
+
+copied 16 tiles from existing set to blank in level editor
+
+using gimp 2-10-32
+open block_tiles.bmp
+
+image->configure grid 22x22 pixels and choose a light color
+view-> show grid
+view-> snap to grid
+
+how do I create brush??
+
+right click on brushes and choose new
+
+create new brush called pixel
+radius 0.5
+spikes 2
+hardness 1.0
+aspect 1.0
+angle 0.0
+spacing 1.0
+
++ and - to zoom
+
+copy and paste an existing tile then click the green anchor in layers
+
+O sets the eyedropper tool
+N set pencil
+
+
+there are a few places in code to register the new block set:
+
+void mwWindow::em_set_block_range(void)
+
+it does it in a rather crazy way....
+
+it is called when drawing a block range
+
+the first thing it does is generate 3 arrays of block sets
+
+
+   // -------------------------------------------
+   // rectangles (h>1 && w>1)
+   // -------------------------------------------
+   int fsd[20][20] = {0};
+
+   // -------------------------------------------
+   // horizontal lines
+   // -------------------------------------------
+   int fsx[20][5] = {0};
+
+   // -------------------------------------------
+   // vertical lines
+   // -------------------------------------------
+   int fsy[20][5] = {0};
+
+I want to redo this...
+
+make a class called mwBlockSets
+
+have these structures internally as vectors
+
+do it fool!!!
+
+done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------
+older
+
+
 Download gimp-2.10.30
 
 open tiles.bmp

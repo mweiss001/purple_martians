@@ -21086,11 +21086,6 @@ now make a control for target size
 and status for 4 things...
 
 
-
-
-
-
-
 function setupClientStatusTargetBatchSize(parentContainer)
 {
    setupSliderControl(parentContainer, 'sicsb_size_targetSlider', 'sicsb_size_targetSpan', 'Batch Size:', 20, 1, 200, 1);
@@ -21113,6 +21108,2122 @@ make control groups flex row...
 2026-02-28 06:32:42
 
 I now have 4 control groups
+
+commit and push...its been a while
+
+I really need to figure out how to start and stop insert thread...i think I've got it...
+hard to tell...
+
+top -H -p [pid]
+renamed to: mwClientStatusInsertQueue
+
+
+the server screenshot thing is working, but still takes large cpu usage.....
+
+what if I wrapped it in a class?
+passed it a bitmap and told it to save it, in a different thread
+if it is already doing that, do nothing...
+
+mwServerScreenshot
+
+200 bmp
+Total time:4.274700 Create:0.000200 Draw:0.153400 Save:4.121100
+Total time:4.157800 Create:0.000200 Draw:0.178200 Save:3.979400
+Total time:4.211200 Create:0.000100 Draw:0.153900 Save:4.057200
+Total time:4.300800 Create:0.000100 Draw:0.173300 Save:4.127400
+Total time:4.576300 Create:0.000200 Draw:0.167500 Save:4.408600
+
+200 png
+Total time:5.341900 Create:0.223400 Draw:0.172200 Save:4.946300
+Total time:7.020100 Create:0.000100 Draw:0.197400 Save:6.822600
+Total time:6.180100 Create:0.000100 Draw:0.120400 Save:6.059600
+Total time:7.987700 Create:0.000100 Draw:0.130000 Save:7.857600
+Total time:6.950900 Create:0.000200 Draw:0.167300 Save:6.783400
+Total time:6.606700 Create:0.000100 Draw:0.139100 Save:6.467500
+
+set flag saving
+
+
+        The function call would look something like std::async(std::launch::async, saveBitmapFunction, bitmapData);. 
+
+Key Considerations
+
+
+
+this is for 2000
+
+the time shows 200% which is 50ms...the save is not counted!!!
+
+Total time:220.672587 Create:0.000056 Draw:49.345528 Save:171.327003
+Total time:222.338223 Create:0.000045 Draw:49.965360 Save:172.372818
+
+
+put the draw in there also...
+
+Total time:219.373324 Create:0.000113 Draw:49.346354 Save:170.026857
+Total time:219.916496 Create:0.000110 Draw:49.368845 Save:170.547541
+
+no I do not see any spikes on the cpu at all!!!
+
+I think I've got it! But I keep pushing it...will I never be happy until I can do full 40fps at 2000x2000 in a browser??
+
+The solution was quite simple...
+
+spin a new thread to draw and save the screenshot
+
+
+
+#include <thread>
+#include <functional>
+
+void mwServerScreenshot::start()
+{
+   if (!busy)
+   {
+      busy = 1;
+      // Create and run the long task in a separate thread
+      std::thread worker(std::bind_front(&mwServerScreenshot::save, this));
+      // Detach the worker thread to let it run in the background
+      worker.detach();
+
+   }
+   else printf("busy\n");
+}
+
+
+void mwServerScreenshot::save()
+{
+   size = mNetgame.server_update_status_img_size;
+
+   double t0 = al_get_time();
+   ALLEGRO_BITMAP * tmp = al_create_bitmap(size, size);
+   double t1 = al_get_time();
+
+   t0 = al_get_time();
+   mScreen.draw_level2(tmp, 0, 0, size, 1, 1, 1, 1, 1);
+   double t2 = al_get_time();
+
+   t0 = al_get_time();
+   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
+
+   al_destroy_bitmap(tmp);
+
+   double t3 = al_get_time();
+   printf("Total time:%f Create:%f Draw:%f Save:%f \n", (t3-t0)*1000, (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000);
+   
+   busy = 0;
+
+}
+
+
+Total time:11.053285 Create:0.004099 Draw:6.036538 Save:5.012648
+Total time:11.264777 Create:0.004172 Draw:6.239542 Save:5.021063
+Total time:11.070417 Create:0.003966 Draw:6.076539 Save:4.989912
+Total time:11.010434 Create:0.003892 Draw:6.006461 Save:5.000081
+Total time:11.008789 Create:0.004020 Draw:6.009187 Save:4.995582
+Total time:10.921636 Create:0.003909 Draw:5.935517 Save:4.982210
+Total time:11.013801 Create:0.003930 Draw:6.010059 Save:4.999812
+Total time:11.068113 Create:0.003583 Draw:6.033721 Save:5.030809
+Total time:11.040275 Create:0.003851 Draw:6.019041 Save:5.017383
+Total time:10.979404 Create:0.003893 Draw:5.960678 Save:5.014833
+
+This does not need to be a class at all, just a function
+
+I will keep it a class...
+
+here it is, in all its glory
+
+
+
+#ifndef PM_MWSERVERSCREENSHOT_H
+#define PM_MWSERVERSCREENSHOT_H
+
+class mwServerScreenshot
+{
+   public:
+      void start();
+
+   private:
+      void save();
+      bool busy = false;
+};
+extern mwServerScreenshot mServerScreenshot;
+#endif //PM_MWSERVERSCREENSHOT_H
+
+#include "mwServerScreenshot.h"
+
+mwServerScreenshot mServerScreenshot;
+
+#include "pm.h"
+#include "mwScreen.h"
+#include "mwNetgame.h"
+#include <thread>
+#include <functional>
+
+void mwServerScreenshot::start()
+{
+   if (!busy)
+   {
+      busy = 1;
+      // Create and run the long task in a separate thread
+      std::thread worker(std::bind_front(&mwServerScreenshot::save, this));
+      // Detach the worker thread to let it run in the background
+      worker.detach();
+
+   }
+   else printf("busy\n");
+}
+
+void mwServerScreenshot::save()
+{
+   int size = mNetgame.server_update_status_img_size;
+
+   double t0 = al_get_time();
+   ALLEGRO_BITMAP * tmp = al_create_bitmap(size, size);
+   double t1 = al_get_time();
+
+   mScreen.draw_level2(tmp, 0, 0, size, 1, 1, 1, 1, 1);
+   double t2 = al_get_time();
+
+   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
+
+   al_destroy_bitmap(tmp);
+
+   double t3 = al_get_time();
+   printf("Total time:%f Create:%f Draw:%f Save:%f \n", (t3-t0)*1000, (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000);
+
+   mNetgame.server_update_status_img_time = (t3-t0)*1000;
+
+   busy = 0;
+
+}
+
+
+what is a sane default? 
+size:400 period 10 frames
+size:300 period 40 frames
+or not at all till asked...
+I should get a better default icon for overworld...done
+
+
+why does it crash in windows?
+
+now it doesn't...hmmm
+
+how can I disable this?
+
+make a higher enable function
+
+int server_update_status_img_allowed = 1;
+for now only available with recompile
+
+pass in server control to disable web controls
+
+I think I have this done....
+
+now move on....
+there is something funny about the charts, they kind of stop and start....
+
+sometimes I get extra data points
+how and why?
+
+
+
+this is so complicated....
+
+is there an easier way?
+
+can I put the data in the database sorted closer to what I need for charts?
+
+
+It is a goddamn 3D array...
+
+but the one thing it should have in common is the time point
+all 8 players and 8 data values all belong to one time point
+
+right now I have player rows with 8 values?
+
+what if I had value rows with up to 8 players?
+
+would that fix anything?
+
+i think my problem right now is that sometimes my data update is in the middle of a data point
+
+
+how about build the row like I already do, but when I go to push it, check if it already exists
+if it does, merge the rows...
+
+non null values update null values...
+
+
+2026-02-28 16:10:34
+
+goddamn this is working well
+
+now I need to be able to pick what charts I want and chart height
+
+then add to server controls:
+shot config
+level select
+
+
+
+
+2026-03-01 02:47:05
+
+I was a little concerned about the server seg-faulting, but it just ran a long time with no problem
+
+Num Rows:9938705
+10 million rows....
+
+136049 - Inserted 20 rows in 4.04 - 0.2018 per row - 6.446461  10.965142 q1:3 q2:0
+136053 - Inserted 20 rows in 3.89 - 0.1944 per row - 5.642877  10.965142 q1:3 q2:0
+136058 - Inserted 20 rows in 17.02 - 0.8511 per row - 7.300357  17.021531 q1:8 q2:0
+136061 - Inserted 20 rows in 3.92 - 0.1961 per row - 7.225864  17.021531 q1:3 q2:0
+136065 - Inserted 20 rows in 16.18 - 0.8089 per row - 7.877587  17.021531 q1:3 q2:0
+136069 - Inserted 20 rows in 9.32 - 0.4662 per row - 7.776798  17.021531 q1:3 q2:0
+136073 - Inserted 20 rows in 9.96 - 0.4980 per row - 8.533922  17.021531 q1:3 q2:0
+136077 - Inserted 20 rows in 10.14 - 0.5069 per row - 9.308689  17.021531 q1:3 q2:0
+136081 - Inserted 20 rows in 3.68 - 0.1840 per row - 9.264207  17.021531 q1:3 q2:0
+136085 - Inserted 20 rows in 10.39 - 0.5197 per row - 10.077526  17.021531 q1:3 q2:0
+136089 - Inserted 20 rows in 4.26 - 0.2129 per row - 8.482138  16.178923 q1:3 q2:0
+136093 - Inserted 20 rows in 4.09 - 0.2047 per row - 8.503614  16.178923 q1:3 q2:0
+136097 - Inserted 20 rows in 4.19 - 0.2095 per row - 7.005108  10.394392 q1:3 q2:0
+136101 - Inserted 20 rows in 9.39 - 0.4694 per row - 7.013060  10.394392 q1:3 q2:0
+136106 - Inserted 20 rows in 27.17 - 1.3585 per row - 9.164144  27.169567 q1:8 q2:0
+136109 - Inserted 20 rows in 12.67 - 0.6336 per row - 9.480843  27.169567 q1:3 q2:0
+136113 - Inserted 20 rows in 3.72 - 0.1859 per row - 9.485661  27.169567 q1:3 q2:0
+136117 - Inserted 20 rows in 3.97 - 0.1984 per row - 8.682475  27.169567 q1:3 q2:0
+136121 - Inserted 20 rows in 3.88 - 0.1940 per row - 8.635222  27.169567 q1:3 q2:0
+136125 - Inserted 20 rows in 4.02 - 0.2011 per row - 8.626288  27.169567 q1:3 q2:0
+136129 - Inserted 20 rows in 4.18 - 0.2088 per row - 8.624501  27.169567 q1:3 q2:0
+136133 - Inserted 20 rows in 3.67 - 0.1835 per row - 7.909733  27.169567 q1:3 q2:0
+136137 - Inserted 20 rows in 10.40 - 0.5201 per row - 5.813841  12.671772 q1:3 q2:0
+136141 - Inserted 20 rows in 3.94 - 0.1970 per row - 4.722261  10.402431 q1:3 q2:0
+136145 - Inserted 20 rows in 10.11 - 0.5057 per row - 5.521807  10.402431 q1:3 q2:0
+136149 - Inserted 20 rows in 9.20 - 0.4599 per row - 6.175541  10.402431 q1:3 q2:0
+136153 - Inserted 20 rows in 3.91 - 0.1954 per row - 6.179098  10.402431 q1:3 q2:0
+136157 - Inserted 20 rows in 4.05 - 0.2026 per row - 6.182877  10.402431 q1:3 q2:0
+136161 - Inserted 20 rows in 3.94 - 0.1970 per row - 6.153339  10.402431 q1:3 q2:0
+
+I think I will call s2 something like real time client status graphs
+
+
+I need a graph chooser
+
+a series of drop down selction 
+
+143989 - Inserted 20 rows in 4.35 - 0.2176 per row - 5.538868  10.032033 q1:3 q2:0
+143993 - Inserted 20 rows in 3.66 - 0.1831 per row - 4.742563  9.985862 q1:3 q2:0
+143997 - Inserted 20 rows in 9.87 - 0.4935 per row - 4.728103  9.870180 q1:3 q2:0
+144001 - Inserted 20 rows in 3.85 - 0.1924 per row - 4.688456  9.870180 q1:3 q2:0
+
+Saving gm:savegame/20260301-025216-[13]-autosave on level done.gm
+
+Database add or update
+muid: 'ZXLCZOOZEREXWATB' does not exist  --  inserting
+link exists: muid: 'ZXLCZOOZEREXWATB' session_d: 32
+link exists: muid: 'ZXLCZOOZEREXWATB' session_d: 33
+link exists: muid: 'ZXLCZOOZEREXWATB' session_d: 36
+
+put it in its own control box
+
+2026-03-01 06:14:19
+I have num charts and select type for each one
+
+
+next chart height...
+I have it done, but it completely recreated all the charts...can I do it with a css value??
+done
+
+now how about a few default settings in a drop down?..done
+now hide controls for inactive charts...done
+
+2026-03-01 08:20:23
+
+what about legend?
+show only on top chart if possible...done...now shows in upper right hand corner
+
+now about the tooltips...
+I like the linked charts, but do not like how tooltips from all charts show at once...
+
+just live with it for now...
+
+what else needs to be done?
+
+make S3 to look at static data...just copy S2
+
+
+I now have 100,000 data rows
+12,000 in chartData
+that is only 5 minutes worth of data....
+I don't think I will be able to do this, the chart gets stupidly slow with only 15 minutes of data..but why?
+I don't know...
+
+now what?
+
+I have 2-3 big things left I want to do...
+- logging
+- stats
+- re-arrange levels again...
+what to do with logging...
+pretty much give up on saving to disk...
+that's not really what I want, its more like do it with the database
+
+I envision storing lots of data for trouble-shooting, then deleting it soon after
+
+can I do it all with one table in the database?
+
+
+here is the thing...some log messages have numbers associated with them
+
+I should have some spare numbers laying around I can use!!
+
+all will have timestamp and frame num
+
+   //             id              INTEGER PRIMARY KEY, \
+   //             msg_type        INT, \
+   //             sub_type        INT, \
+   //             created         TEXT, \
+   //             agt             REAL, \
+   //             frame_num       INT, \
+   //             player          INT, \
+   //             client          INT, \
+   //             message         TEXT ); ");
+
+
+
+   //             id              INTEGER PRIMARY KEY, \
+   //             timestamp       INT, \
+   //             frame           INT, \
+   //             msg_type        INT, \
+   //             msg_text        TEXT, \
+   //             data0           INT, \
+   //             data1           INT, \
+   //             data2           INT, \
+   //             data3           INT, \
+   
+my end goal will be to have the logging viewable in a browser 
+
+and be able to turn it on and off from browser for each logging type..
+
+I would like to change as little as possible of the way things are now...
+
+I must have 30-50 places in code where I want to log
+
+right now, everything comes through one common function, but it gets a text line only
+
+I need to make a function to add a log line to the database...
+
+hell I should make it a class...
+
+I don't actually want to insert one row at a time....
+do something just like I do for client_status
+
+What I want is a single line in code to do the logging...
+
+addLog(type, text, data0..4)
+
+any other processing should be done in the add function in the class
+
+this is very similar to what I already have...
+
+what about multiline???
+
+what about it?
+
+do this for a few...
+
+mLog.add(int type, std::string text, int d1, int d2, int d3, int d4);
+
+
+I am getting intimidated by how much work this would take...
+
+a much easier solution would be to enter what I already have into the database...(type and text) but add timstamp and frame....
+
+
+
+
+2026-03-02 05:19:17
+
+I am off on a tangent....
+
+void mwWindow::em_set_block_range(void)
+
+it does it in a rather crazy way....
+
+it is called when drawing a block range
+
+the first thing it does is generate 3 arrays of block sets
+
+   // -------------------------------------------
+   // rectangles (h>1 && w>1)
+   // -------------------------------------------
+   int fsd[20][20] = {0};
+
+   // -------------------------------------------
+   // horizontal lines
+   // -------------------------------------------
+   int fsx[20][5] = {0};
+
+   // -------------------------------------------
+   // vertical lines
+   // -------------------------------------------
+   int fsy[20][5] = {0};
+
+I want to redo this...
+
+make a class called mwBlockSets
+
+have these structures internally as vectors
+
+I think I want one for each blockset, not 3
+
+
+make it a struct...
+then do a vector of that...
+
+struct blockSet
+{
+   std::string name;
+   int baseIndex;
+   int triggerIndexStart;
+   int triggerIndexEnd;
+   int defaultIndex;
+
+   int cornerUpperLeft;
+   int cornerUpperRight;
+   int cornerLowerLeft;
+   int cornerLowerRight;
+
+   int edgeLeft;
+   int edgeRight;
+   int edgeTop;
+   int edgeBottom;
+
+   int hLineLeft;
+   int hLineMiddle;
+   int hLineRight;
+
+   int vLineTop;
+   int vLineMiddle;
+   int vLineBottom;
+
+};
+
+std::vector<blockSet> blockSets;
+
+do I want it always loaded? do I want to instantiate it every use?
+can I just load it when level editor starts?
+
+global instance, only load on first use...
+
+
+this is what i removed:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwWindow::em_set_block_range(void)
+{
+   int draw_item_flags = mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS;
+
+   // -------------------------------------------
+   // rectangles (h>1 && w>1)
+   // -------------------------------------------
+   int fsd[20][20] = {0};
+
+   // white brain with blue outline
+   b = 384; f=0;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = b+16;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // brown and yellow thatch
+   b = 416; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = b+16;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // brown brick with corners
+   b = 448; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = b+16;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // grey brick with corners
+   b = 480; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = b+16;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // blue 2
+   b = 352; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = b+16;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+//   // purple pipe with solid center
+//   b = 512; f++;
+//   fsd[f][0] = b;    // trigger blocks start
+//   fsd[f][1] = b+29; // trigger block end
+//   fsd[f][9] = b+16; // default shape
+//   fsd[f][10] = b+0; // upper left corner
+//   fsd[f][11] = b+1; // upper right corner
+//   fsd[f][12] = b+2; // lower left corner
+//   fsd[f][13] = b+3; // lower right corner
+//   fsd[f][14] = b+4; // left vertical through
+//   fsd[f][15] = b+5; // right vertical through
+//   fsd[f][16] = b+6; // upper horizontal through
+//   fsd[f][17] = b+7; // lower horizontal through
+
+   // purple pipe with solid center
+   b = 512; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+7;  // trigger block end
+   fsd[f][9] = b+16; // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // purple pipe with solid center rev
+   b = 520; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+20; // trigger block end
+   fsd[f][9] = 0;    // default shape
+   fsd[f][10] = b+7; // upper left corner
+   fsd[f][11] = b+6; // upper right corner
+   fsd[f][12] = b+5; // lower left corner
+   fsd[f][13] = b+4; // lower right corner
+   fsd[f][14] = b-3; // left vertical through
+   fsd[f][15] = b-4; // right vertical through
+   fsd[f][16] = b-1; // upper horizontal through
+   fsd[f][17] = b-2; // lower horizontal through
+
+   // purple pipe with open center
+   b = 576; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+16; // trigger block end
+   fsd[f][9] = -1;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // wires
+   b = 608; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+18; // trigger block end
+   fsd[f][9] = -1;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // rainbows
+   b = 672; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+7;  // trigger block end
+   fsd[f][9] = -1;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   // rainbows 2
+   b = 704; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+7;  // trigger block end
+   fsd[f][9] = -1;   // default shape
+   fsd[f][10] = b+0; // upper left corner
+   fsd[f][11] = b+1; // upper right corner
+   fsd[f][12] = b+2; // lower left corner
+   fsd[f][13] = b+3; // lower right corner
+   fsd[f][14] = b+4; // left vertical through
+   fsd[f][15] = b+5; // right vertical through
+   fsd[f][16] = b+6; // upper horizontal through
+   fsd[f][17] = b+7; // lower horizontal through
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<20; j++)
+         fsd[i][j] |= draw_item_flags;
+
+   // -------------------------------------------
+   // horizontal lines
+   // -------------------------------------------
+   int fsx[20][5] = {0};
+
+   // semi-solid screen
+   b=33; f=0;
+   fsx[f][0] = b; // trigger blocks start
+   fsx[f][1] = b+6; // trigger block end
+   fsx[f][2] = b+4; // middle
+   fsx[f][3] = b+3; // left end
+   fsx[f][4] = b+5; // right end
+
+   // lined platform
+   b=161; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+2;  // trigger block end
+   fsx[f][2] = b+1;  // middle
+   fsx[f][3] = b+0;  // left end
+   fsx[f][4] = b+2;  // right end
+
+   // brown bricks
+   b=177; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+2;  // trigger block end
+   fsx[f][2] = b+1;  // middle
+   fsx[f][3] = b+0;  // left end
+   fsx[f][4] = b+2;  // right end
+
+   // white brain with blue outline
+   b = 384; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+9 ; // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // brown and yellow thatch
+   b = 416; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+9 ; // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // brown brick with corners
+   b = 448; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+9 ; // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // grey bricks
+   b = 480; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+9 ; // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // purple pipes
+   b = 576; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+6;  // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // wires
+   b=608; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+6;  // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   // blue
+   b = 352; f++;
+   fsx[f][0] = b;    // trigger blocks start
+   fsx[f][1] = b+16; // trigger block end
+   fsx[f][2] = b+9 ; // middle
+   fsx[f][3] = b+14; // left end
+   fsx[f][4] = b+12; // right end
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<5; j++)
+         fsx[i][j] |= draw_item_flags;
+
+   // -------------------------------------------
+   // vertical lines
+   // -------------------------------------------
+   int fsy[20][5] = {0};
+
+   // semi-solid screen
+   b=33; f=0;
+   fsy[f][0] = b;   // trigger blocks start
+   fsy[f][1] = b+5; // trigger block end
+   fsy[f][2] = b+1; // middle
+   fsy[f][3] = b;   // upper end
+   fsy[f][4] = b+2; // lower end
+
+   // white brain with blue outline
+   b = 384; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+8;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // brown and yellow thatch
+   b = 416; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+8;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // brown brick with corners
+   b = 448; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+8;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // grey bricks
+   b = 480; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+8;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // purple pipes
+   b = 576; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+4;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // wires
+   b=608; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+4;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   // blue
+   b=352; f++;
+   fsy[f][0] = b;    // trigger blocks start
+   fsy[f][1] = b+16; // trigger block end
+   fsy[f][2] = b+8;  // middle
+   fsy[f][3] = b+15; // upper end
+   fsy[f][4] = b+13; // lower end
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<5; j++)
+         fsy[i][j] |= draw_item_flags;
+
+   if ((mWM.bx2==mWM.bx1) && (mWM.by2==mWM.by1)) mLevel.l[mWM.bx1][mWM.by1] = mWM.mW[1].draw_item_num; // single block 1 x 1
+
+   if ((mWM.bx2==mWM.bx1) && (mWM.by2-mWM.by1>0)) // vertical line 1 x >1
+   {
+      int a = mWM.bx1;
+      for (int b=mWM.by1; b<mWM.by2+1; b++) // cycle the range
+      {
+         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
+         for (int x=0; x<20; x++)
+            if (fsy[x][0]&1023)
+            {
+               if (((mWM.mW[1].draw_item_num&1023) >= (fsy[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsy[x][1]&1023)))
+               {
+                                     mLevel.l[a][b] = fsy[x][2]; // default
+                  if (b == mWM.by1) mLevel.l[a][b] = fsy[x][3]; // left end cap
+                  if (b == mWM.by2) mLevel.l[a][b] = fsy[x][4]; // right end cap
+               }
+            }
+      }
+   }
+
+   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2==mWM.by1)) // horizontal line >1 x 1
+   {
+      int b = mWM.by1;
+      for (int a=mWM.bx1; a<mWM.bx2+1; a++) // cycle the range
+      {
+         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
+         for (int x=0; x<20; x++)
+         {
+            if (fsx[x][0]&1023)
+            {
+               if (((mWM.mW[1].draw_item_num&1023) >= (fsx[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsx[x][1]&1023)))
+               {
+                                     mLevel.l[a][b] = fsx[x][2]; // default
+                  if (a == mWM.bx1) mLevel.l[a][b] = fsx[x][3]; // left end cap
+                  if (a == mWM.bx2) mLevel.l[a][b] = fsx[x][4]; // right end cap
+               }
+            }
+         }
+      }
+   }
+   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2-mWM.by1>0)) // box shape with corners >1 x >1
+   {
+      int special_handler = 0;
+      for (int a=mWM.bx1; a<mWM.bx2+1; a++)       // cycle the range
+         for (int b=mWM.by1; b<mWM.by2+1; b++)
+            for (int x=0; x<20; x++)
+               if (fsd[x][0]&1023)
+               {
+                  if (((mWM.mW[1].draw_item_num&1023) >= (fsd[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsd[x][1]&1023)))
+                  {
+                     special_handler = 1;
+
+                     if (fsd[x][9] != -1) mLevel.l[a][b] = fsd[x][9];   // default block
+                     if (b == mWM.by1)   mLevel.l[a][b] = fsd[x][16];  // upper horizontal through
+                     if (b == mWM.by2)   mLevel.l[a][b] = fsd[x][17];  // lower horizontal through
+
+
+                     if (a == mWM.bx1)
+                     {
+                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][10];  // upper-right corner
+                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][12];  // lower-right corner
+                        else                    mLevel.l[a][b] = fsd[x][14];  // right vertical through
+                     }
+                     if (a == mWM.bx2)
+                     {
+                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][11];  // upper-left corner
+                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][13];  // lower-left corner
+                        else                    mLevel.l[a][b] = fsd[x][15];  // left vertical through
+                     }
+                  }
+                  if (!special_handler)         mLevel.l[a][b] = mWM.mW[1].draw_item_num;
+
+             } // end of cycle block range
+   } // end of box shape with corners
+}
+
+I count 420 lines removed...
+my new class is 260 lines with a lots less dupliaction and much easier to add new sets
+only one public method, draw...
+
+now I have a huge mess in tile helper that I want to try to simplify
+
+
+I have some manual groups that I would like to try to use my new class with
+especially the 5 filled block sets that are pretty much all the same
+
+made common functions for 5 filled block sets and 2 cross filled ones...
+there is a large complex solid center pipe one...
+there is nothing for pipe and wire frame, says it doesn't work
+maybe that whole concept doesn't work, they are frame block sets
+when going through one block at a time, how do you know if a block is vertical or horizontal?  you can't know...
+
+what if I went in 2 passes, one to remove all blocks bound on 8 sides, then the regular
+
+that works
+the only difference is removing all bound blocks...
+make I could just have button to do that...done
+
+can I implement rainbows?
+try...done, but it has issues...call it done for now
+
+
+also added compare tile to class...
+
+I want to add chain to vline
+
+make brown bricks do rect or h lines
+
+chain will need some work...tiles are not contiguous 21,53,54...move 21 to 52...
+
+
+54 top (same)
+55 middle (old 21)
+56 bottom (old 53)
+
+lev that have 21...28 33 37 42 83
+
+how do I change only tile while preserving flags?
+get flags from old
+
+mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS
+
+int flags = mLevel.l[x][y] & PM_BTILE_MOST_FLAGS;
+
+mLevel.l[x][y] == 21 | flags;
+
+should be all done...blocks are changed globally in levels
+now add chain...
+54 top
+55 middle
+56 bottom
+done...
+
+2026-03-04 04:15:09
+
+now what?
+
+I want more blocks...
+
+I want some functions that help me create new block sets
+
+specifically the solid one to start
+
+16 shapes
+
+add single standalone and middle
+
+   b.cornerUpperLeft   = 0;
+   b.cornerUpperRight  = 0;
+   b.cornerLowerLeft   = 0;
+   b.cornerLowerRight  = 0;
+   b.edgeLeft          = 0;
+   b.edgeRight         = 0;
+   b.edgeTop           = 0;
+   b.edgeBottom        = 0;
+   b.hLineLeft         = 0;
+   b.hLineMiddle       = 0;
+   b.hLineRight        = 0;
+   b.vLineTop          = 0;
+   b.vLineMiddle       = 0;
+   b.vLineBottom       = 0;
+
+I am thinking about how to lay them out in the physical tileset...
+
+basically I have a base tile with no borders, then all the other ones have certain borders
+
+single:
+b.edgeLeft          = 0;
+b.edgeRight         = 0;
+b.edgeTop           = 0;
+b.edgeBottom        = 0;
+   
+corner:
+b.cornerUpperLeft   = 0;
+b.cornerUpperRight  = 0;
+b.cornerLowerLeft   = 0;
+b.cornerLowerRight  = 0;
+
+opposite:
+b.vLineMiddle       = 0;
+b.hLineMiddle       = 0;
+
+cap triple:
+b.hLineLeft         = 0;
+b.hLineRight        = 0;
+b.vLineTop          = 0;
+b.vLineBottom       = 0;
+
+all and none
+
+
+--------------------------------
+then I have the single block line like pipes and wires
+
+what they have in common:
+
+corner:
+b.cornerUpperLeft   = 0;
+b.cornerUpperRight  = 0;
+b.cornerLowerLeft   = 0;
+b.cornerLowerRight  = 0;
+
+opposite:
+b.vLineMiddle       = 0;
+b.hLineMiddle       = 0;
+
+cap triple:
+b.hLineLeft         = 0;
+b.hLineRight        = 0;
+b.vLineTop          = 0;
+b.vLineBottom       = 0;
+
+differences...
+singles are the same as opposite
+
+there are 4 tees...
+
+I want to make them more common
+
+0 - blank, no borders (used for middle)
+1 - all borders       (used for stand alone)
+
+b.hLineLeft  
+b.hLineMiddle
+b.hLineRight 
+b.vLineTop   
+b.vLineMiddle
+b.vLineBottom
+
+b.cornerUpperLeft
+b.cornerUpperRight
+b.cornerLowerLeft 
+b.cornerLowerRight
+
+these first 12 should be common
+
+then the last 4 will be either:
+
+
+for solid core:
+b.edgeLeft          = 0;
+b.edgeRight         = 0;
+b.edgeTop           = 0;
+b.edgeBottom        = 0;
+
+for single block width:
+b.edgeLeftTee       = 0;
+b.edgeRight         = 0;
+b.edgeTop           = 0;
+b.edgeBottom        = 0;
+
+
+2026-03-04 06:11:56
+
+should I do this?
+
+rearrange all my shit?
+
+start by moving all 5 regular block tilesets to 800
+352 blue
+384 brain
+416 yello
+448 brown
+480 grey
+
+not manually, do it in code...
+
+0 16
+1 18
+
+2 14
+3 9
+4 12
+
+5 15
+6 8
+7 13
+
+8 0
+9 1
+10 2
+11 3
+
+12 4 
+13 5
+14 6
+15 7
+
+
+2026-03-04 07:25:35
+
+I have got the first set working...
+
+when I change all these block around arw there any items that manipulate blocks?
+yes block manip has 2 blocks
+blkwok has a block also
+
+I should make a function in glt to change block in one level. it will do l[100] item blokmanip and enemy blkwok
+
+
+version for wires and pipes
+
+
+0 16
+1 18
+
+2 14
+3 6
+4 12
+
+5 15
+6 4
+7 13
+
+
+8 0
+9 1
+10 2
+11 3
+
+12 8 
+13 10
+14 9
+15 11
+
+lets move these things one line at a a time...
+
+solid blue 352 - 992
+
+1st - copy row and convert from 352 to 992
+2nd - convert all levels with glt
+
+I need to rename base and default
+
+fill 
+single
+done...
+work on glt
+
+make a function to change all block reference from one number to another
+
+
+can I simplify this?
+
+         if ((mLevel.l[y][z] & 1023) == oldNum)
+         {
+            int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
+            mLevel.l[y][z] = (newNum | flags);
+         }
+
+
+int replaceTileIfMatch(int &tile, int match, int replace)
+{
+   if ((tile & 1023) == match)
+   {
+      int flags = tile & PM_BTILE_MOST_FLAGS;
+      tile = replace | flags; 
+   }
+   return tile;
+}
+
+
+maybe I could even simplify:
+
+   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
+
+
+
+I think I am ready to test...
+
+do it with brown brick set from 448
+
+manip with 448 and 451 with custom flags on level 304
+
+move this set from to 448 to 960
+test glt only on level 304
+I think it is working....
+
+more details...
+
+grey bricks....
+
+copy from 480 to 928
+
+in mwBitmapTools:
+
+copy_rectgroup(b1, 480, 928);
+
+void copy_rectgroup(ALLEGRO_BITMAP *b, int s, int d)
+{
+   copy_tile(b, s+16, d+0);
+   copy_tile(b, s+18, d+1);
+   copy_tile(b, s+14, d+2);
+   copy_tile(b, s+9,  d+3);
+   copy_tile(b, s+12, d+4);
+   copy_tile(b, s+15, d+5);
+   copy_tile(b, s+8,  d+6);
+   copy_tile(b, s+13, d+7);
+   copy_tile(b, s+0,  d+8);
+   copy_tile(b, s+1,  d+9);
+   copy_tile(b, s+2,  d+10);
+   copy_tile(b, s+3,  d+11);
+   copy_tile(b, s+4,  d+12);
+   copy_tile(b, s+5,  d+13);
+   copy_tile(b, s+6,  d+14);
+   copy_tile(b, s+7,  d+15);
+}
+
+change flags in default flags for new blocks
+
+add some old style grey blocks and manip blocks to lev 304
+
+in glt:
+changeBlockNumbersRect(480, 928);
+void changeBlockNumbersRect(int oldNum, int newNum)
+{
+   changeBlockNumber(oldNum+16, newNum+0);
+   changeBlockNumber(oldNum+18, newNum+1);
+   changeBlockNumber(oldNum+14, newNum+2);
+   changeBlockNumber(oldNum+9,  newNum+3);
+   changeBlockNumber(oldNum+12, newNum+4);
+   changeBlockNumber(oldNum+15, newNum+5);
+   changeBlockNumber(oldNum+9,  newNum+6);
+   changeBlockNumber(oldNum+13, newNum+7);
+   changeBlockNumber(oldNum+0,  newNum+8);
+   changeBlockNumber(oldNum+1,  newNum+9);
+   changeBlockNumber(oldNum+2,  newNum+10);
+   changeBlockNumber(oldNum+3,  newNum+11);
+   changeBlockNumber(oldNum+4,  newNum+12);
+   changeBlockNumber(oldNum+5,  newNum+13);
+   changeBlockNumber(oldNum+6,  newNum+14);
+   changeBlockNumber(oldNum+7,  newNum+15);
+}
+
+run glt...
+
+blue  992
+brown 960
+grey  928
+brain 896
+yello 864
+
+now I want to do the pipes and wires
+pipes 800
+wires 832
+
+
+I have that all done...
+
+now fix bloksets...
+
+count block and remove lots...
+
+392 - 18 should be...902
++8                   +6
+
+fix by manually doing 392 to 902
+
+424 870
+456 966
+488 934
+
+nothing from 223-512
+
+576-626
+
+581 806
+583 803
+613 838
+615 835
+625 848
+
+actually, now I have nothing between 541 and 672
+now I have 5 rect and 2 frame in new format
+I want to manually put solid pipe in that format
+rainbows have only 8 shapes and are already in the correct order
+screen could be moved...but why?
+
+fix the add routines in blockset...
+
+I think that is all done...
+
+now what did I break in tile helper?
+change all tiles
+i think I am all done
+make trigger range bigger for pipes
+
+I think I have it now...
+512-541
+672+   
+
+the only complicated thing is tile helper - purple pipes with solid color center
+a big one off complicated mess with static block references
+
+disabled all stuff in glt and bitmap editor...now push all this crap...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

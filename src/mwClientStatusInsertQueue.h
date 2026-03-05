@@ -12,11 +12,15 @@
 #include "mwRollingAverage.h"
 
 
-class mwThreadSafeQueue
+class mwClientStatusInsertQueue
 {
    public:
-      mwThreadSafeQueue();
+      mwClientStatusInsertQueue();
       void add();
+
+      void start();
+      void stop();
+
 
    private:
       std::jthread m_thread;
@@ -33,7 +37,6 @@ class mwThreadSafeQueue
 
       mwRollingAverage time_ra;
 
-
 };
 
-extern mwThreadSafeQueue mThreadSafeQueue;
+extern mwClientStatusInsertQueue mClientStatusInsertQueue;

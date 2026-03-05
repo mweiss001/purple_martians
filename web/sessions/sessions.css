@@ -13,6 +13,10 @@
   --testvar : 32px;
 
 
+  --ssChartHeight       : 300px;
+
+
+
 
 }
 
@@ -39,6 +43,18 @@ a:hover { color: #FFFFFF; } /* White on hover */
 {
    height: var(--timelineHeight);
 }
+
+
+.csChartContainer
+{
+   height: var(--ssChartHeight);
+}
+
+
+
+
+
+
 
 .colorSlider
 {

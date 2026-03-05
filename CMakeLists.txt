@@ -134,8 +134,6 @@ add_executable(pm
         src/mwSql.h
         src/mwStateHistory.cpp
         src/mwStateHistory.h
-        src/mwStatusBuffer.cpp
-        src/mwStatusBuffer.h
         src/mwTally.cpp
         src/mwTally.h
         src/mwTriggerEvent.cpp
@@ -156,8 +154,12 @@ add_executable(pm
 
         src/sqlite3.c
         src/sqlite3.h
-        src/mwThreadSafeQueue.cpp
-        src/mwThreadSafeQueue.h
+        src/mwClientStatusInsertQueue.cpp
+        src/mwClientStatusInsertQueue.h
+        src/mwServerScreenshot.cpp
+        src/mwServerScreenshot.h
+        src/mwBlockSets.cpp
+        src/mwBlockSets.h
 )
 
 

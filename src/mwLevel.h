@@ -1,5 +1,9 @@
 // mwLevel.h
 
+#ifndef PM_MWLEVEL_H
+#define PM_MWLEVEL_H
+
+
 struct level_data
 {
    char level_name[200];
@@ -179,3 +183,4 @@ class mwLevel
 };
 extern mwLevel mLevel;
 
+#endif //PM_MWLEVEL_H

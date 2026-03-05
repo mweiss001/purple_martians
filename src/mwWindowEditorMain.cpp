@@ -4,6 +4,7 @@
 #include "mwWindow.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "mwBlockSets.h"
 #include "mwLift.h"
 #include "mwPDE.h"
 #include "mwColor.h"
@@ -18,7 +19,6 @@
 #include "mwScreen.h"
 #include "mwMenu.h"
 
-
 #ifndef CLASS_MWWINDOWS_DEFINED
 #include "mwWindowManager.h"
 #endif
@@ -28,16 +28,16 @@ void mwWindow::em_set_swbl(void)
    mWM.mW[2].swbn = 0;
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      mWM.swbl[c][0] = mWM.swbl[c][1] = 0;                    // erase
+      mWM.swbl[c][0] = mWM.swbl[c][1] = 0; // erase
       if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       {
-         if ((c == 384) || (c == 416) || (c == 448) || (c == 480) || (c == 512) || (c == 576) || (c == 608) || (c == 640)|| (c == 672)|| (c == 704)) // start new line
+         if (c == 512 || c == 672 || c == 704 || c == 800 || c == 864) // start new line
          {
             int off = (16 - (mWM.mW[2].swbn % 16));
             if (off < 16) mWM.mW[2].swbn += off;
          }
 
-         mWM.swbl[mWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];                // add to list with default flags
+         mWM.swbl[mWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];        // add to list with default flags+
          mWM.swbl[mWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
          mWM.mW[2].swbn++;
       }
@@ -45,414 +45,6 @@ void mwWindow::em_set_swbl(void)
    mWM.mW[2].swnbl = (mWM.mW[2].swbn / 16) + 1;
    if (mWM.mW[2].swnbl_cur == 0) mWM.mW[2].swnbl_cur = mWM.mW[2].swnbl; // initial only
 }
-
-
-
-void mwWindow::em_set_block_range(void)
-{
-   int draw_item_flags = mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS;
-
-
-   int b = 0, f = 0;
-
-
-   // -------------------------------------------
-   // rectangles (h>1 && w>1)
-   // -------------------------------------------
-   int fsd[20][20] = {0};
-
-   // white brain with blue outline
-   b = 384; f=0;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+18; // trigger block end
-   fsd[f][9] = b+16;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // brown and yellow thatch
-   b = 416; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+18; // trigger block end
-   fsd[f][9] = b+16;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // brown brick with corners
-   b = 448; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+18; // trigger block end
-   fsd[f][9] = b+16;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // grey brick with corners
-   b = 480; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+18; // trigger block end
-   fsd[f][9] = b+16;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-//   // purple pipe with solid center
-//   b = 512; f++;
-//   fsd[f][0] = b;    // trigger blocks start
-//   fsd[f][1] = b+29; // trigger block end
-//   fsd[f][9] = b+16; // default shape
-//   fsd[f][10] = b+0; // upper left corner
-//   fsd[f][11] = b+1; // upper right corner
-//   fsd[f][12] = b+2; // lower left corner
-//   fsd[f][13] = b+3; // lower right corner
-//   fsd[f][14] = b+4; // left vertical through
-//   fsd[f][15] = b+5; // right vertical through
-//   fsd[f][16] = b+6; // upper horizontal through
-//   fsd[f][17] = b+7; // lower horizontal through
-
-   // purple pipe with solid center
-   b = 512; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+7;  // trigger block end
-   fsd[f][9] = b+16; // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // purple pipe with solid center rev
-   b = 520; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+20; // trigger block end
-   fsd[f][9] = 0;    // default shape
-   fsd[f][10] = b+7; // upper left corner
-   fsd[f][11] = b+6; // upper right corner
-   fsd[f][12] = b+5; // lower left corner
-   fsd[f][13] = b+4; // lower right corner
-   fsd[f][14] = b-3; // left vertical through
-   fsd[f][15] = b-4; // right vertical through
-   fsd[f][16] = b-1; // upper horizontal through
-   fsd[f][17] = b-2; // lower horizontal through
-
-
-
-
-
-   // purple pipe with open center
-   b = 576; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+16; // trigger block end
-   fsd[f][9] = -1;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // wires
-   b = 608; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+18; // trigger block end
-   fsd[f][9] = -1;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-
-   // rainbows
-   b = 672; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+7;  // trigger block end
-   fsd[f][9] = -1;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   // rainbows 2
-   b = 704; f++;
-   fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+7;  // trigger block end
-   fsd[f][9] = -1;   // default shape
-   fsd[f][10] = b+0; // upper left corner
-   fsd[f][11] = b+1; // upper right corner
-   fsd[f][12] = b+2; // lower left corner
-   fsd[f][13] = b+3; // lower right corner
-   fsd[f][14] = b+4; // left vertical through
-   fsd[f][15] = b+5; // right vertical through
-   fsd[f][16] = b+6; // upper horizontal through
-   fsd[f][17] = b+7; // lower horizontal through
-
-   for (int i=0; i<20; i++)
-      for (int j=0; j<20; j++)
-         fsd[i][j] |= draw_item_flags;
-
-   // -------------------------------------------
-   // horizontal lines
-   // -------------------------------------------
-   int fsx[20][5] = {0};
-
-   // semi-solid screen
-   b=33; f=0;
-   fsx[f][0] = b; // trigger blocks start
-   fsx[f][1] = b+6; // trigger block end
-   fsx[f][2] = b+4; // middle
-   fsx[f][3] = b+3; // left end
-   fsx[f][4] = b+5; // right end
-
-   // lined platform
-   b=161; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+2;  // trigger block end
-   fsx[f][2] = b+1;  // middle
-   fsx[f][3] = b+0;  // left end
-   fsx[f][4] = b+2;  // right end
-
-   // brown bricks
-   b=177; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+2;  // trigger block end
-   fsx[f][2] = b+1;  // middle
-   fsx[f][3] = b+0;  // left end
-   fsx[f][4] = b+2;  // right end
-
-   // white brain with blue outline
-   b = 384; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+9 ; // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   // brown and yellow thatch
-   b = 416; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+9 ; // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   // brown brick with corners
-   b = 448; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+9 ; // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   // grey bricks
-   b = 480; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+9 ; // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   // purple pipes
-   b = 576; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+6;  // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   // wires
-   b=608; f++;
-   fsx[f][0] = b;    // trigger blocks start
-   fsx[f][1] = b+16; // trigger block end
-   fsx[f][2] = b+6;  // middle
-   fsx[f][3] = b+14; // left end
-   fsx[f][4] = b+12; // right end
-
-   for (int i=0; i<20; i++)
-      for (int j=0; j<5; j++)
-         fsx[i][j] |= draw_item_flags;
-
-
-   // -------------------------------------------
-   // vertical lines
-   // -------------------------------------------
-   int fsy[20][5] = {0};
-
-   // semi-solid screen
-   b=33; f=0;
-   fsy[f][0] = b;   // trigger blocks start
-   fsy[f][1] = b+5; // trigger block end
-   fsy[f][2] = b+1; // middle
-   fsy[f][3] = b;   // upper end
-   fsy[f][4] = b+2; // lower end
-
-   // white brain with blue outline
-   b = 384; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+8;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-   // brown and yellow thatch
-   b = 416; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+8;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-   // brown brick with corners
-   b = 448; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+8;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-   // grey bricks
-   b = 480; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+8;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-   // purple pipes
-   b = 576; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+4;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-   // wires
-   b=608; f++;
-   fsy[f][0] = b;    // trigger blocks start
-   fsy[f][1] = b+16; // trigger block end
-   fsy[f][2] = b+4;  // middle
-   fsy[f][3] = b+15; // upper end
-   fsy[f][4] = b+13; // lower end
-
-
-
-
-
-
-   for (int i=0; i<20; i++)
-      for (int j=0; j<5; j++)
-         fsy[i][j] |= draw_item_flags;
-
-
-   if ((mWM.bx2==mWM.bx1) && (mWM.by2==mWM.by1)) mLevel.l[mWM.bx1][mWM.by1] = mWM.mW[1].draw_item_num; // single block 1 x 1
-
-   if ((mWM.bx2==mWM.bx1) && (mWM.by2-mWM.by1>0)) // vertical line 1 x >1
-   {
-      int a = mWM.bx1;
-      for (int b=mWM.by1; b<mWM.by2+1; b++) // cycle the range
-      {
-         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
-         for (int x=0; x<20; x++)
-            if (fsy[x][0]&1023)
-            {
-               if (((mWM.mW[1].draw_item_num&1023) >= (fsy[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsy[x][1]&1023)))
-               {
-                                     mLevel.l[a][b] = fsy[x][2]; // default
-                  if (b == mWM.by1) mLevel.l[a][b] = fsy[x][3]; // left end cap
-                  if (b == mWM.by2) mLevel.l[a][b] = fsy[x][4]; // right end cap
-               }
-            }
-      }
-   }
-   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2==mWM.by1)) // horizontal line >1 x 1
-   {
-      int b = mWM.by1;
-      for (int a=mWM.bx1; a<mWM.bx2+1; a++) // cycle the range
-      {
-         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
-         for (int x=0; x<20; x++)
-         {
-            if (fsx[x][0]&1023)
-            {
-               if (((mWM.mW[1].draw_item_num&1023) >= (fsx[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsx[x][1]&1023)))
-               {
-                                     mLevel.l[a][b] = fsx[x][2]; // default
-                  if (a == mWM.bx1) mLevel.l[a][b] = fsx[x][3]; // left end cap
-                  if (a == mWM.bx2) mLevel.l[a][b] = fsx[x][4]; // right end cap
-               }
-            }
-         }
-      }
-   }
-   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2-mWM.by1>0)) // box shape with corners >1 x >1
-   {
-      int special_handler = 0;
-      for (int a=mWM.bx1; a<mWM.bx2+1; a++)       // cycle the range
-         for (int b=mWM.by1; b<mWM.by2+1; b++)
-            for (int x=0; x<20; x++)
-               if (fsd[x][0]&1023)
-               {
-                  if (((mWM.mW[1].draw_item_num&1023) >= (fsd[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsd[x][1]&1023)))
-                  {
-                     special_handler = 1;
-
-                     if (fsd[x][9] != -1) mLevel.l[a][b] = fsd[x][9];   // default block
-                     if (b == mWM.by1)   mLevel.l[a][b] = fsd[x][16];  // upper horizontal through
-                     if (b == mWM.by2)   mLevel.l[a][b] = fsd[x][17];  // lower horizontal through
-
-
-                     if (a == mWM.bx1)
-                     {
-                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][10];  // upper-right corner
-                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][12];  // lower-right corner
-                        else                    mLevel.l[a][b] = fsd[x][14];  // right vertical through
-                     }
-                     if (a == mWM.bx2)
-                     {
-                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][11];  // upper-left corner
-                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][13];  // lower-left corner
-                        else                    mLevel.l[a][b] = fsd[x][15];  // left vertical through
-                     }
-                  }
-                  if (!special_handler)         mLevel.l[a][b] = mWM.mW[1].draw_item_num;
-
-             } // end of cycle block range
-   } // end of box shape with corners
-}
-
 
 char* mwWindow::em_get_text_description_of_block_based_on_flags(int flags, char * msg)
 {
@@ -627,7 +219,7 @@ void mwWindow::em_process_mouse(void)
             mWM.bx1 = mWM.gx;
             mWM.by1 = mWM.gy;
             mWM.get_new_box();
-            em_set_block_range();
+            mBlockSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num&1023, mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS, mLevel.l);
             mScreen.init_level_background();
             al_set_target_backbuffer(mDisplay.display);
          }
