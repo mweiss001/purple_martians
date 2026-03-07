@@ -13,6 +13,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
+#include "mwSelectionWindow.h"
 
 
 mwBitmapTools mBitmapTools;
@@ -961,7 +962,7 @@ void mwBitmapTools::edit_btile_attributes()
          al_draw_textf(mFont.pr8, mColor.pc[15], csx+24, csy,   0, "Mouse Pointer %d", pointer);
 
 
-         // show the the flags of the pointer
+         // show the flags of the pointer
          draw_and_proc_flag_rects_for_sa(pointer, frx-24, fry, frw, frh, ys);
 
          if (mInput.mouse_b[2][0])
@@ -1091,7 +1092,9 @@ void mwBitmapTools::edit_btile_attributes()
       }
 
    }
-   mWM.mW[1].em_set_swbl();
+   mSelectionWindow.init();
+
+
 }
 
 

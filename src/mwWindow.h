@@ -26,9 +26,7 @@ class mwWindow
    int show_non_default_blocks;
    void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
-
-  // e_editor_main.h
-   void em_set_swbl();
+   // e_editor_main.h
    void em_set_block_range();
    char* em_get_text_description_of_block_based_on_flags(int flags, char*);
    void em_show_draw_item_cursor();
@@ -37,20 +35,12 @@ class mwWindow
    void em_process_mouse();
 
    // mW[2] - select window only
-   int select_window_block_on;
-   int select_window_special_on;
-   int select_window_num_special_lines;
-   int swbn;  // number of blocks
-   int swnbl; // number of block lines (just swbn / 16 + 1)
-   int swnbl_cur; // current number of lines shown
    void cm_draw_selection_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
-
 
    // mW[3] - filter window only
    int collapsed;
    int filter_mode;
    int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int draw_only);
-
 
    // mW[4] - edit selection window only
    int copy_mode;
@@ -117,7 +107,6 @@ class mwWindow
 
    int snap;
 
-
    // e_object_viewer.h
    int create_obj(int obt, int type, int num);
    void ov_get_size();
@@ -159,7 +148,6 @@ class mwWindow
    int th_draw_buttons(int x3, int x4, int yfb, int draw_only);
    void th_find_connected(int x, int y, int group);
    void th_process_mouse();
-
 
 
    mwWindow(); // default constructor

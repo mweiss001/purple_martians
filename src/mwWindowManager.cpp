@@ -5,7 +5,6 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwLift.h"
-#include "mwPDE.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -16,6 +15,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
+#include "mwSelectionWindow.h"
 
 mwWindowManager mWM;
 
@@ -33,10 +33,8 @@ void mwWindowManager::initialize(int edit_level)
    bx2=40;
    by2=30;
 
-
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++) thl[x][y] = 0; // tile helper
-
 
    // set all filters on
    for (int i=0; i<5; i++)
@@ -45,13 +43,9 @@ void mwWindowManager::initialize(int edit_level)
    if (edit_level) mLevel.load_level(edit_level, 0, 0); // load passed level
    else mLevel.load_level_prompt();                  // prompt for level
 
-
-   mPDE.load();
+   mSelectionWindow.init();
    mEnemy.sort_enemy();
    mItem.sort_item(1);
-   mWM.mW[1].em_set_swbl();
-
-
    mInput.initialize();
 }
 

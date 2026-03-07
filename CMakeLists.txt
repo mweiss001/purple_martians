@@ -108,8 +108,6 @@ add_executable(pm
         src/mwNetgameServerSession.cpp
         src/mwPacketBuffer.cpp
         src/mwPacketBuffer.h
-        src/mwPDE.cpp
-        src/mwPDE.h
         src/mwPlayer.cpp
         src/mwPlayer.h
         src/mwQuickGraph.cpp
@@ -160,6 +158,8 @@ add_executable(pm
         src/mwServerScreenshot.h
         src/mwBlockSets.cpp
         src/mwBlockSets.h
+        src/mwSelectionWindow.cpp
+        src/mwSelectionWindow.h
 )
 
 

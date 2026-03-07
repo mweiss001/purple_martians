@@ -297,7 +297,7 @@ int mwEnemy::create_vinepod(void)
    Ei[e][29] = 10;   // default collision box
 
    Ef[e][4] = 2;     // damage
-   Ef[e][6] = 1;     // control point multipier
+   Ef[e][6] = 1;     // control point multiplier
    Ef[e][7] = 6;     // shot speed
    Ef[e][9] = 20;    // pause
    Ef[e][12] = 1;    // scale

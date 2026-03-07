@@ -1,5 +1,8 @@
 // mwBitmap.h
 
+#ifndef PM_MWBITMAP_H
+#define PM_MWBITMAP_H
+
 class mwBitmap
 {
    public:
@@ -54,4 +57,34 @@ class mwBitmap
 };
 
 extern mwBitmap mBitmap;
+
+
+
+
+
+
+#endif // PM_MWBITMAP_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -17,13 +17,10 @@ class mwWindowManager
 
    int active;
 
-   int swbl[NUM_SPRITES][2];
-
    int obj_list[NUM_OBJ][3];
    int obj_filter[5][20];
 
    int thl[100][100]; // tile helper
-
 
    int gx; // mouse position relative to scaled level background
    int gy;

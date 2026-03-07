@@ -14,7 +14,6 @@
 #include "mwLift.h"
 #include "mwWidget.h"
 #include "mwVisualLevel.h"
-#include "mwPDE.h"
 #include "mwTriggerEvent.h"
 #include "mwEventQueue.h"
 #include "mwLoop.h"
@@ -24,8 +23,7 @@
 
 #include "mwGlobalLevelTool.h"
 #include "mwHelp.h"
-
-
+#include "mwSelectionWindow.h"
 
 
 mwWindow::mwWindow()
@@ -40,9 +38,9 @@ mwWindow::mwWindow()
    title[0] = 0;
    active = 0;
 
-   select_window_block_on = 1;
-   select_window_special_on = 1;
-   select_window_num_special_lines = 4;
+   mSelectionWindow.block_on = 1;
+   mSelectionWindow.special_on = 1;
+//   select_window_num_special_lines = 4;
 
    obt = 0;
    num = 0;
@@ -216,8 +214,6 @@ void mwWindow::process_mouse(void)
          {
             sprintf(mMenu.menu_string[0],"Group Edit Object List");
             sprintf(mMenu.menu_string[1],"----------------------");
-
-
 
             if (mWM.mW[5].show_sel_frame)
             {
@@ -404,27 +400,6 @@ void mwWindow::draw(int draw_only)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwWindow::cm_process_menu_bar(int d)
 {
    char msg[1024];
@@ -533,7 +508,7 @@ void mwWindow::cm_process_menu_bar(int d)
       strcpy (mMenu.menu_string[6],"Default Flag Editor");
       strcpy (mMenu.menu_string[7],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) mPDE.run();
+//      if (ret == 1) mPDE.run();
       if (ret == 2) mGlobalLevelTool.execute();
       if (ret == 3) mVisualLevel.level_viewer();
       if (ret == 4) mBitmapTools.animation_sequence_editor();
@@ -766,25 +741,25 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
 
    if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mWM.mW[2].active = 0;
    if (mWidget.buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
-   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mWM.mW[2].select_window_block_on = !mWM.mW[2].select_window_block_on;
-   if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mWM.mW[2].select_window_special_on = !mWM.mW[2].select_window_special_on;
+   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mSelectionWindow.block_on = !mSelectionWindow.block_on;
+   if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mSelectionWindow.special_on = !mSelectionWindow.special_on;
 
    int c = 11;  // first y line of sub-windows;
 
    // set special start y
    int select_window_special_y = 0;
-   if (mWM.mW[2].select_window_special_on)
+   if (mSelectionWindow.special_on)
    {
       select_window_special_y = c;
-      c = 16 + c + mWM.mW[2].select_window_num_special_lines*20;
+      c += mSelectionWindow.special_array_cur_lines*20 + 16;
    }
 
    // set block start y
    int select_window_block_y = 0;
-   if (mWM.mW[2].select_window_block_on)
+   if (mSelectionWindow.block_on)
    {
       select_window_block_y = c;
-      c = 16 + c + mWM.mW[2].swnbl_cur*20;
+      c += mSelectionWindow.block_array_cur_lines*20 + 16;
    }
    // set text start y
    int select_window_text_y = c;
@@ -799,40 +774,36 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
    int syb = y1 + select_window_block_y;
    int syt = y1 + select_window_text_y;
 
-
    int vx = (mInput.mouse_x-x1)/20; // column
 
    if (vx < 0) vx = 0;
    if (vx > 15) vx = 15;
 
-
-   if (mWM.mW[2].select_window_special_on)
+   if (mSelectionWindow.special_on)
    {
       by1 = sys+2;
       al_draw_rectangle(x1, sys, x2, sys+12, mColor.pc[9], 1);
       al_draw_text(mFont.pr8, mColor.pc[9], x1+2, sys+2, 0, "Special Items");
 
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mWM.mW[2].select_window_special_on = 0;
+      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.special_on = 0;
 
       if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-         if (++mWM.mW[2].select_window_num_special_lines > 4 ) mWM.mW[2].select_window_num_special_lines = 4;
+         if (++mSelectionWindow.special_array_cur_lines > mSelectionWindow.special_array_num_lines) mSelectionWindow.special_array_cur_lines = mSelectionWindow.special_array_num_lines;
 
       if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-         if (--mWM.mW[2].select_window_num_special_lines < 1 )
+         if (--mSelectionWindow.special_array_cur_lines < 1 )
          {
-            mWM.mW[2].select_window_num_special_lines++;
-            mWM.mW[2].select_window_special_on = 0;
+            mSelectionWindow.special_array_cur_lines++;
+            mSelectionWindow.special_on = 0;
          }
       // draw special blocks
-      for (c=0; c<16*mWM.mW[2].select_window_num_special_lines; c++)
-      {
-         int tn = mPDE.PDEi[c][1]; // default is the mBitmap.tile in PDEi[c][1]
-         if (tn > 999) tn = mBitmap.zz[0][tn-1000]; // ans
-         al_draw_bitmap(mBitmap.tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
-
-         if ((mPDE.PDEi[c][0] == 108) && (mPDE.PDEi[c][11])) al_draw_bitmap(mBitmap.tile[440], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0); // bomb sticky spikes
-
-      }
+      for (c=0; c<mSelectionWindow.special_array_cur_lines * 16; c++)
+         if (c < (int) mSelectionWindow.pdes.size() && mSelectionWindow.pdes[c].type != -1)
+         {
+            int tn = mSelectionWindow.pdes[c].ia[1]; // default is the mBitmap.tile in PDEi[c][1]
+            if (tn > 999) tn = mBitmap.zz[0][tn-1000]; // ans
+            al_draw_bitmap(mBitmap.tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
+         }
    }
 
    // frame title bar
@@ -841,49 +812,40 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
    al_draw_rectangle(x1, y1, x2, y1+11, mColor.pc[col], 1);
    al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2,   y1+2, 0, "Selection Window");
 
-   if (mWM.mW[2].select_window_block_on)
+   if (mSelectionWindow.block_on)
    {
       by1 = syb+2;
       al_draw_rectangle(x1, syb, x2, syb+12, mColor.pc[9], 1);
       al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Block Selection");
 
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mWM.mW[2].select_window_block_on = 0;
+      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
 
       if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-         if (++mWM.mW[2].swnbl_cur > mWM.mW[2].swnbl) mWM.mW[2].swnbl_cur = mWM.mW[2].swnbl;
+         if (++mSelectionWindow.block_array_cur_lines > mSelectionWindow.block_array_num_lines) mSelectionWindow.block_array_cur_lines = mSelectionWindow.block_array_num_lines;
 
       if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-         if (--mWM.mW[2].swnbl_cur < 1 )
+         if (--mSelectionWindow.block_array_cur_lines < 1 )
          {
-            mWM.mW[2].swnbl_cur++;
-            mWM.mW[2].select_window_block_on = 0;
+            mSelectionWindow.block_array_cur_lines++;
+            mSelectionWindow.block_on = 0;
          }
       // draw blocks
-      for (c=0; c<16*mWM.mW[2].swnbl_cur; c++)
-         al_draw_bitmap(mBitmap.btile[mWM.swbl[c][0] & 1023], x1+(c-((c/16)*16) )*20+1, y1+select_window_block_y+1+14+(c/16*20), 0 );
+      for (int y=0; y<mSelectionWindow.block_array_cur_lines; y++)
+         for (int x=0; x<16; x++)
+            al_draw_bitmap(mBitmap.btile[mSelectionWindow.block_array[y][x] & 1023], x1+x*20+1, y1+select_window_block_y+1+14+(y*20), 0 );
+
    }
    if (!d)
    {
       // check for mouse on special window
-      if ((mWM.mW[2].select_window_special_on) && (mInput.mouse_y > 15 + sys) && (mInput.mouse_y < 16 + sys + mWM.mW[2].select_window_num_special_lines * 20))
+      if ((mSelectionWindow.special_on) && (mInput.mouse_y > 15 + sys) && (mInput.mouse_y < 16 + sys + mSelectionWindow.special_array_cur_lines * 20))
       {
          int vy = (mInput.mouse_y-sys-15)/20; // row
          int ret = vy*16+vx;
-         int tl = 0; // text lines
-         if (ret < 100) // dont try to show anything above PDE[99]
+         if (ret < (int) mSelectionWindow.pdes.size() && mSelectionWindow.pdes[ret].type != -1)
          {
-            // set  text length (number of lines)
-            for (int x=0; x<20; x++)
-               if (strncmp(mPDE.PDEt[ret][x],"<end>", 5) == 0) tl = x;
-            if (tl<5) tl = 5;
-
-             // remove line endings
-            for (int x=0; x<20; x++)
-               for (int z=0; z<40; z++)
-               {
-                  if (mPDE.PDEt[ret][x][z] == 10) mPDE.PDEt[ret][x][z] = 32;
-                  if (mPDE.PDEt[ret][x][z] == 13) mPDE.PDEt[ret][x][z] = 32;
-               }
+            std::string desc = mSelectionWindow.pdes[ret].desc;
+            int tl = std::count(desc.begin(), desc.end(), '\n') + 1; // text lines
 
             // erase and frame
             al_draw_filled_rectangle(x1, syt, x2, 12+syt+3+(8*tl), mColor.pc[0]);
@@ -893,14 +855,12 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
             al_draw_rectangle(x1, syt, x2, syt+12, mColor.pc[9], 1);
             al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syt+2, 0, "Description ");
 
-            // draw text for this pde
-            for (int x=0; x<tl; x++)
-               al_draw_text(mFont.pr8, mColor.pc[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, mPDE.PDEt[ret][x]);
+            al_draw_multiline_text(mFont.pr8, mColor.pc[15], x1+2, y1 + select_window_text_y+14, 800, 0, 0, desc.c_str());
 
             if (mInput.mouse_b[1][0])
             {
                while (mInput.mouse_b[1][0]) mEventQueue.proc(1);     // wait for release
-               int pn = mPDE.PDEi[ret][0];
+               int pn = mSelectionWindow.pdes[ret].ia[0];
                if (pn < 200)
                {
                   mWM.mW[1].draw_item_type = 5;
@@ -922,7 +882,6 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
                      case 210: mItem.create_door(2); break; // one way linked exit door
                      case 211: mItem.create_door(3); break; // two way door set
 
-
                      case 213: create_obj(2, 9, 0);  break; // trigger
                      case 214: create_obj(2, 16, 0); break; // block manip
                      case 215: create_obj(2, 17, 0); break; // block damage
@@ -935,14 +894,15 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
       }
 
       // check for mouse on block window
-      if ( (mWM.mW[2].select_window_block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mWM.mW[2].swnbl_cur * 20))
+      if ( (mSelectionWindow.block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mSelectionWindow.block_array_cur_lines * 20))
       {
          int vy = (mInput.mouse_y-syb-14)/20; // row
-         int ret = vy*16+vx;
+         int ret = mSelectionWindow.block_array[vy][vx];
+
          int tl = 3; // text lines
          int syt2 = syt+15+(8*tl);
          if (mWM.mW[1].show_flag_details) syt2 += 140;
-         ret = mWM.swbl[ret][0];
+
          al_draw_filled_rectangle(x1, syt, x2, syt2, mColor.pc[0]); // erase
          al_draw_rectangle(x1, syt, x2, syt2, mColor.pc[9], 1);     // frame
          al_draw_rectangle(x1, syt, x2, syt+12, mColor.pc[9], 1); // title and frame
@@ -966,12 +926,4 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
       }
    }
 }
-
-
-
-
-
-
-
-
 

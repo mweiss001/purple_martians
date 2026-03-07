@@ -6,7 +6,6 @@
 #include "mwBitmap.h"
 #include "mwBlockSets.h"
 #include "mwLift.h"
-#include "mwPDE.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
@@ -18,33 +17,12 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwMenu.h"
+#include "mwSelectionWindow.h"
 
 #ifndef CLASS_MWWINDOWS_DEFINED
 #include "mwWindowManager.h"
 #endif
 
-void mwWindow::em_set_swbl(void)
-{
-   mWM.mW[2].swbn = 0;
-   for (int c=0; c<NUM_SPRITES; c++)
-   {
-      mWM.swbl[c][0] = mWM.swbl[c][1] = 0; // erase
-      if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-      {
-         if (c == 512 || c == 672 || c == 704 || c == 800 || c == 864) // start new line
-         {
-            int off = (16 - (mWM.mW[2].swbn % 16));
-            if (off < 16) mWM.mW[2].swbn += off;
-         }
-
-         mWM.swbl[mWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];        // add to list with default flags+
-         mWM.swbl[mWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
-         mWM.mW[2].swbn++;
-      }
-   }
-   mWM.mW[2].swnbl = (mWM.mW[2].swbn / 16) + 1;
-   if (mWM.mW[2].swnbl_cur == 0) mWM.mW[2].swnbl_cur = mWM.mW[2].swnbl; // initial only
-}
 
 char* mwWindow::em_get_text_description_of_block_based_on_flags(int flags, char * msg)
 {
@@ -80,10 +58,9 @@ void mwWindow::em_show_draw_item_cursor(void)
             mEnemy.draw_enemy(num, 1, x*20, y*20);
          break;
          case 5: // PDE
-            int a = mPDE.PDEi[num][1]; // bmp or ans
+            int a = mSelectionWindow.pdes[num].ia[1]; // bmp or ans
             if (a > 999) a = mBitmap.zz[5][a-1000]; // ans
             al_draw_bitmap(mBitmap.tile[a], x*20, y*20, 0);
-            if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mBitmap.tile[440], x*20, y*20, 0); // bomb sticky spikes
          break;
       }
       al_draw_rectangle(x*20, y*20, x*20+21, y*20+21, mColor.pc[15], 1);
@@ -125,16 +102,12 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
       }
       break;
       case 5:
-         a = mPDE.PDEi[num][1]; // bmp or ans
+         a = mSelectionWindow.pdes[num].ia[1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = mBitmap.zz[5][a-1000]; // ans
          al_draw_bitmap(mBitmap.tile[b], x, y, 0);
-
-         if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
-
-         a = mEnemy.Ei[num][0]; // type
          al_draw_text(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Special Item");
-         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", mPDE.PDEt[num][1]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", mSelectionWindow.pdes[num].name.c_str());
       break;
    }
 }
@@ -148,7 +121,7 @@ void mwWindow::em_find_point_item(void)
    int max_ob = 20;                  // max objects to find
    int ob = 0;                       // objects found
    int mo[20][2];                    // array of objects found
-   for (int a=0; a<max_ob; a++)          // clear array
+   for (int a=0; a<max_ob; a++)      // clear array
    {
        mo[a][0] = 0;
        mo[a][1] = 1;
@@ -284,13 +257,13 @@ void mwWindow::em_process_mouse(void)
          }
          break;
          case 5: // PDE
-            if ((mPDE.PDEi[din][0] > 99) && (mPDE.PDEi[din][0] < 200)) // PDE item
+            if ((mSelectionWindow.pdes[din].ia[0] > 99) && (mSelectionWindow.pdes[din].ia[0] < 200)) // PDE item
             {
                int d = mItem.get_empty_item(); // get a place to put it
                if (d == -1)  break;
                // copy from pde
                for (int x=0; x<16; x++) // item
-                  mItem.item[d][x] = mPDE.PDEi[din][x];
+                  mItem.item[d][x] = mSelectionWindow.pdes[din].ia[x];
                mItem.item[d][0] -= 100;
                mItem.item[d][4] = mWM.gx*20;
                mItem.item[d][5] = mWM.gy*20;
@@ -302,12 +275,12 @@ void mwWindow::em_process_mouse(void)
                }
                mItem.sort_item(1);
             }
-            if (mPDE.PDEi[din][0] < 99) // PDE enemy
+            if (mSelectionWindow.pdes[din].ia[0] < 99) // PDE enemy
             {
                int d = mEnemy.get_empty_enemy(); // get a place to put it
                if (d == -1)  break;
-               for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mPDE.PDEi[din][x];
-               for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mPDE.PDEf[din][x];
+               for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mSelectionWindow.pdes[din].ia[x];
+               for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mSelectionWindow.pdes[din].fa[x];
                mEnemy.Ef[d][0] = mWM.gx*20;  // set new x,y
                mEnemy.Ef[d][1] = mWM.gy*20;
                mEnemy.sort_enemy();
