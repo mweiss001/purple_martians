@@ -91,9 +91,16 @@ void mwSelectionWindow::fill_block_array(void)
    x = 0;
    y++;
 
-   set_block_set_rainbow(672, x, y);
-   set_block_set_rainbow(704, x+4, y);
-   set_block_set(992, x+8, y); // blue
+//   set_block_set_rainbow(672, x, y);
+//   set_block_set_rainbow(704, x+4, y);
+
+
+//   set_block_set(992, x+8, y); // blue
+
+   set_block_set(352, x+0, y); // exp
+   set_block_set(384, x+8, y); // exp
+
+
    y+=2;
 
    set_block_set(800, x, y);
@@ -107,6 +114,11 @@ void mwSelectionWindow::fill_block_array(void)
    set_block_set(928, x, y);
    set_block_set(960, x+8, y);
    y+=2;
+
+
+
+
+
 
    // add from 512 - 541
    for (int c=512; c<542; c++)

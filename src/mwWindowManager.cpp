@@ -41,7 +41,7 @@ void mwWindowManager::initialize(int edit_level)
       for (int j=0; j<20; j++) obj_filter[i][j] = 1;
 
    if (edit_level) mLevel.load_level(edit_level, 0, 0); // load passed level
-   else mLevel.load_level_prompt();                  // prompt for level
+   else mLevel.load_level_prompt();                     // prompt for level
 
    mSelectionWindow.init();
    mEnemy.sort_enemy();

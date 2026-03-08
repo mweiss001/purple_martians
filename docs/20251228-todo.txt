@@ -35,23 +35,27 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-make sure that server snapshot is fully disabled
+I really need a visual level load in level editor
 
+
+
+
+
+to finish client_status:
+------------------------
 make graph selector...done
+automatic cleanup based on size (num rows) or time 
+option to not insert unless web page is being viewed
+i really want to be able to view static, historical data
+my attempt at that was very slow...why?
 
 I want to rename cpu to something else...
 maybe load, or busy
 
 
-make an automatic cleanup of client_status table when it gets too big
-where?
-how big?
-should I have it only insert when I am looking?
-
-how can I go back and look at historical data, not live?
 
 
-make something like s2, but only for static data
+make sure that server snapshot is fully disabled
 
 
 

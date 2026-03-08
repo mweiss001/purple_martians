@@ -1166,19 +1166,469 @@ void copy_rectgroup(ALLEGRO_BITMAP *b, int s, int d)
    copy_tile(b, s+7,  d+15);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void create_tileset_frame(int bs)
+{
+
+   char msg[1024];
+
+   char b1_fn2[100];
+   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+
+   char b1_fn[100];
+   sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
+
+   ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
+   if (!b1)
+   {
+      sprintf(msg, "Error loading tiles from:%s", b1_fn);
+      mInput.m_err(msg);
+   }
+
+
+   float baseHue = 270;
+   float baseSat = 0.9;
+   float light1 = 0.15;
+   float light2 = 0.40;
+
+   float steps = 10;
+   float inc = (light2 - light1) / steps;
+
+   ALLEGRO_BITMAP *tmp1;
+   tmp1 = al_create_bitmap(60, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+   {
+      al_draw_rectangle(   i+0.5,    i+0.5, 59-i+0.5, 59-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+      al_draw_rectangle(19-i+0.5, 19-i+0.5, 40+i+0.5, 40+i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+      printf("l:%f\n", light1+i*inc);
+   }
+
+   al_set_target_bitmap(b1);
+
+   int s = bs;
+   al_draw_bitmap_region(tmp1, 20, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // middle
+
+   s = bs+8;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ul corner
+   s = bs+9;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ur corner
+   s = bs+10;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ll corner
+   s = bs+11;
+   al_draw_bitmap_region(tmp1, 40, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // lr corner
+
+
+   ALLEGRO_BITMAP *cn = al_create_bitmap(10, 10);
+   al_set_target_bitmap(cn);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap_region(tmp1, 10, 10, 10, 10, 0, 0, 0); // inside corner
+
+   ALLEGRO_BITMAP *hf = al_create_bitmap(10, 20);
+   al_set_target_bitmap(hf);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap_region(tmp1, 0, 20, 10, 20, 0, 0, 0); // half
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(60, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 59-i+0.5, 19-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+2;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline l
+   s = bs+3;
+   al_draw_bitmap_region(tmp1, 20, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline m
+   s = bs+4;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline r
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 19-i+0.5, 59-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+5;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline u
+   s = bs+6;
+   al_draw_bitmap_region(tmp1, 0, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline m
+   s = bs+7;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline l
+
+
+   // single blocks
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+
+   // single
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 20-i+0.5, 20-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+   al_set_target_bitmap(b1);
+   s = bs+1;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // single
+
+   // cross
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 10, 10, 0); // inside corner
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 0, 10, ALLEGRO_FLIP_HORIZONTAL); // inside corner
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 10, 0, ALLEGRO_FLIP_VERTICAL); // inside corner
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 0, 0, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL); // inside corner
+   al_set_target_bitmap(b1);
+   s = bs;
+   al_draw_bitmap(tmp1, (s % 32)*22+1, (s / 32)*22+1, 0);
+
+
+   // tees
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   al_draw_bitmap_region(hf, 0, 0, 10, 20, 0,  0, 0); // left half
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 10, 10, 0); // inside corner for lr
+   al_draw_bitmap_region(cn, 0, 0, 10, 10, 10,  0, ALLEGRO_FLIP_VERTICAL); // inside corner for ur
+
+   al_set_target_bitmap(b1);
+
+   s = bs+12;
+   al_draw_bitmap(tmp1, (s % 32)*22+1, (s / 32)*22+1, 0);
+   s = bs+13;
+   al_draw_bitmap(tmp1, (s % 32)*22+1, (s / 32)*22+1, ALLEGRO_FLIP_HORIZONTAL);
+   s = bs+14;
+   al_draw_rotated_bitmap(tmp1, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI / 2, 0);
+   s = bs+15;
+   al_draw_rotated_bitmap(tmp1, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI / 2, ALLEGRO_FLIP_HORIZONTAL);
+
+
+
+   al_save_bitmap(b1_fn, b1);
+
+   al_destroy_bitmap(tmp1);
+   al_destroy_bitmap(cn);
+   al_destroy_bitmap(hf);
+
+
+
+}
+
+
+void create_tileset_solid(int bs)
+{
+
+   char msg[1024];
+
+   char b1_fn2[100];
+   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+
+   char b1_fn[100];
+   sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
+
+   ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
+   if (!b1)
+   {
+      sprintf(msg, "Error loading tiles from:%s", b1_fn);
+      mInput.m_err(msg);
+   }
+
+   float baseHue = 270;
+   float baseSat = 0.9;
+   float light1 = 0.15;
+   float light2 = 0.40;
+
+   float steps = 10;
+   float inc = (light2 - light1) / steps;
+
+   ALLEGRO_BITMAP *tmp1;
+   tmp1 = al_create_bitmap(60, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+   {
+      al_draw_rectangle(i+0.5, i+0.5, 60-i+0.5, 60-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+      printf("l:%f\n", light1+i*inc);
+   }
+
+   al_set_target_bitmap(b1);
+
+
+   int s = bs;
+   al_draw_bitmap_region(tmp1, 20, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // middle
+
+   s = bs+8;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ul corner
+   s = bs+9;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ur corner
+   s = bs+10;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ll corner
+   s = bs+11;
+   al_draw_bitmap_region(tmp1, 40, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // lr corner
+
+   s = bs+12;
+   al_draw_bitmap_region(tmp1, 0, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // l edge
+   s = bs+13;
+   al_draw_bitmap_region(tmp1, 40, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // r edge
+   s = bs+14;
+   al_draw_bitmap_region(tmp1, 20, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // u edge
+   s = bs+15;
+   al_draw_bitmap_region(tmp1, 20, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // d edge
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(60, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 60-i+0.5, 20-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+2;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline l
+   s = bs+3;
+   al_draw_bitmap_region(tmp1, 20, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline m
+   s = bs+4;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline r
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 20-i+0.5, 60-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+5;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline u
+   s = bs+6;
+   al_draw_bitmap_region(tmp1, 0, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline m
+   s = bs+7;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline l
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 20-i+0.5, 20-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+1;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // single
+
+   al_save_bitmap(b1_fn, b1);
+
+   al_destroy_bitmap(tmp1);
+
+
+}
+
+
+
+
+
+
+void create_tileset_solid_just_frame(int bs)
+{
+
+   char msg[1024];
+
+   char b1_fn2[100];
+   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+
+   char b1_fn[100];
+   sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
+
+   ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
+   if (!b1)
+   {
+      sprintf(msg, "Error loading tiles from:%s", b1_fn);
+      mInput.m_err(msg);
+   }
+
+   float baseHue = 270;
+   float baseSat = 0.9;
+   float light1 = 0.15;
+   float light2 = 0.40;
+
+   float steps = 10;
+   float inc = (light2 - light1) / steps;
+
+   ALLEGRO_BITMAP *tmp1;
+   tmp1 = al_create_bitmap(60, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+   {
+      al_draw_rectangle(i+0.5, i+0.5, 60-i+0.5, 60-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+      printf("l:%f\n", light1+i*inc);
+   }
+
+   al_set_target_bitmap(b1);
+
+
+   int s = bs;
+   al_draw_bitmap_region(tmp1, 20, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // middle
+
+   s = bs+8;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ul corner
+   s = bs+9;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ur corner
+   s = bs+10;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // ll corner
+   s = bs+11;
+   al_draw_bitmap_region(tmp1, 40, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // lr corner
+
+   s = bs+12;
+   al_draw_bitmap_region(tmp1, 0, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // l edge
+   s = bs+13;
+   al_draw_bitmap_region(tmp1, 40, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // r edge
+   s = bs+14;
+   al_draw_bitmap_region(tmp1, 20, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // u edge
+   s = bs+15;
+   al_draw_bitmap_region(tmp1, 20, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // d edge
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(60, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 60-i+0.5, 20-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+2;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline l
+   s = bs+3;
+   al_draw_bitmap_region(tmp1, 20, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline m
+   s = bs+4;
+   al_draw_bitmap_region(tmp1, 40, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline r
+
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 60);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 20-i+0.5, 60-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+5;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline u
+   s = bs+6;
+   al_draw_bitmap_region(tmp1, 0, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline m
+   s = bs+7;
+   al_draw_bitmap_region(tmp1, 0, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline l
+
+   al_destroy_bitmap(tmp1);
+   tmp1 = al_create_bitmap(20, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_color_hsl(baseHue, baseSat, light2));
+   for (float i=0; i<steps; i++)
+      al_draw_rectangle(i+0.5, i+0.5, 20-i+0.5, 20-i+0.5, al_color_hsl(baseHue, baseSat, light1+i*inc), 1);
+
+   al_set_target_bitmap(b1);
+   s = bs+1;
+   al_draw_bitmap_region(tmp1, 0, 0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // single
+
+   al_save_bitmap(b1_fn, b1);
+
+   al_destroy_bitmap(tmp1);
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwBitmapTools::custom_modify()
 {
    printf("Custom Modify\n");
 
    char msg[1024];
 
-   // main bitmap ------------------
-   char b1_fn[100];
    char b1_fn2[100];
    sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
 
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+
+   char b1_fn[100];
    sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
 
    ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
@@ -1194,11 +1644,10 @@ void mwBitmapTools::custom_modify()
 //   copy_framegroup(b1, 608, 832);
 //   copy_framegroup(b1, 576, 800);
 
+
+
+
 //   al_save_bitmap(b1_fn, b1);
-
-
-
-
 
 
 }
@@ -1469,6 +1918,11 @@ void mwBitmapTools::copy_tiles()
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             al_set_target_bitmap(b1);                                                 // point at bitmap 1
             al_draw_filled_rectangle(bp_x1, bp_y1, bp_x1+20, bp_y1+20, mColor.pc[0]); // erase
+
+            al_draw_filled_rectangle(bp_x1-1, bp_y1-1, bp_x1+21, bp_y1+21, mColor.pc[0]); // erase
+
+
+
             al_draw_bitmap(qtmp, bp_x1, bp_y1, 0);                                     // draw new tile
             al_set_target_backbuffer(mDisplay.display);
          }
@@ -1495,7 +1949,11 @@ void mwBitmapTools::copy_tiles()
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
 
-         custom_modify();
+         //custom_modify();
+
+         create_tileset_frame(352);
+
+         create_tileset_solid(384);
 
          reload_b1 = 2;
 

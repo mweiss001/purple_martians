@@ -127,11 +127,17 @@ void mwBlockSets::init()
    blockSets.push_back(constructRectSet("brown bricks", 960));
    blockSets.push_back(constructRectSet("blue solid", 992));
 
+   blockSets.push_back(constructFrameSet("experimental", 352));
+   blockSets.push_back(constructRectSet("experimental2", 384));
+
    blockSets.push_back(constructFrameSet("purple pipe with open center", 800));
    blockSets.push_back(constructFrameSet("wires", 832));
 
    blockSets.push_back(constructHlineSet("lined platform", 161));
    blockSets.push_back(constructHlineSet("brown bricks", 177));
+
+
+
 
    constructEmptySet();
    b.name = "white chain";

@@ -22537,6 +22537,752 @@ a big one off complicated mess with static block references
 
 disabled all stuff in glt and bitmap editor...now push all this crap...
 
+2026-03-05 07:21:19
+commit and push
+
+server has been running for a few days now...
+Server Version : 7.24.0811.1b
+Last Update    : 20260305-072229
+Server Uptime  : 4 14:47:22
+
+185 items in sessions timeline
+
+Client Status Insert Controls
+Num Rows: 81,863,585
+Batch Size Target:20
+Batch Size Actual:20
+Batch Time Avg:7.9
+Batch Time Max:16.2
+Avg per row:0.40
+
+Client Status Chart Controls
+Refresh Interval:200
+Actual Interval:215
+Fetch Time:4
+Fetch Frames:11
+Fetch Rows:43
+Range Control:5
+Array Process Time:1
+Update Chart Time:120
+Pile Up:0
+
+Wow! > 80 million rows in client_status
+insert and fetch still are just as quick..
+
+m@o7040:~$ cd dev/purple_martians/data/
+m@o7040:~/dev/purple_martians/data$ ll
+total 6809404
+drwxrwxrwx  2 m m       4096 Mar  5 07:27 ./
+drwxrwxrwx 18 m m       4096 Feb 28 15:54 ../
+-rwxrwxrwx  1 m m 6948663296 Mar  5 07:27 client_status.db*
+-rwxrwxrwx  1 m m      32768 Mar  5 07:27 client_status.db-shm*
+-rwxrwxrwx  1 m m    4173592 Mar  5 07:27 client_status.db-wal*
+-rwxrwxrwx  1 m m       8192 Feb 28 07:11 game_events.db*
+-rwxrwxrwx  1 m m    4829268 Mar  1 12:34 level_data.pm*
+-rwxrwxrwx  1 m m    3000054 Feb 28 07:11 level_icons_100.bmp*
+-rwxrwxrwx  1 m m   12000054 Feb 28 07:11 level_icons_200.bmp*
+-rwxrwxrwx  1 m m      16384 Mar  5 07:27 server_status.db*
+-rwxrwxrwx  1 m m      77824 Mar  5 06:44 sessions.db*
+-rwxrwxrwx  1 m m       5360 Feb 28 16:35 settings.pm*
+
+7G in db file
+
+m@o7040:~/dev/purple_martians/data$ df -H
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           1.7G  8.0M  1.7G   1% /run
+efivarfs        263k  195k   63k  76% /sys/firmware/efi/efivars
+/dev/sda2       244G   17G  215G   8% /
+tmpfs           8.4G     0  8.4G   0% /dev/shm
+tmpfs           5.3M     0  5.3M   0% /run/lock
+/dev/sda1       1.2G  6.5M  1.2G   1% /boot/efi
+tmpfs           1.7G   17k  1.7G   1% /run/user/1000
+
+
+
+
+2026-03-05 20:06:13
+
+I want to make the large blockset more generic so I can make copies of it
+
+describe it better
+
+8 rect with faded outer frame and solid center
+8 frame with faded inner frame and solid outer frame 
+
+I have 7 groups of 4, plus 2 singles
+
+can each group be the same shape rotated 4 times?
+
+hox can you describe them:
+
+traditiontal corner
+2 adjacent sides fade ins
+
+describe the corners?
+solid corner
+from corner to center dark to light 
+notch corner
+all solid with one corner notch
+
+
+I have 9 sets of 4
+each set can be made by rotating members
+set0 purple pipes single corners
+set1 purple pipes solid center outer corners
+set2 purple pipes solid center inner corners
+
+set3 purple pipes solid center pipe connection 
+set4 purple pipes solid center pipe connection reversed
+
+set5 purple pipes open center pipe connection 
+set6 purple pipes open center pipe connection reversed
+
+set7 purple pipes solid center pipe double pipe connection
+
+set8 purple pipes single three way tee connection
+
+then I have 2 sets of 3 for hlines and vlines
+
+then some singles
+4 way pipe connection
+solid center
+single stand alone 
+
+
+9x4 = 36
+6
+3
+
+45 blocks in this set
+
+start with singles, then lines, the groups of 4 blocks, may need to add more...
+
+this will not show nicely in block selection
+
+custom arrange block selection list
+
+put the first 256 in like normal...
+
+then do custom after that...
+
+swbl is a 1d array of 1024
+when displayed it is in rows of 16
+
+basically it is just a map of tile number to grid
+
+a grid with a fixed width of 16 and variable height
+
+right now I just have a long list of blocks
+
+what variables do I have now?
+
+   int swbl[NUM_SPRITES];
+   int swbn;  // number of blocks
+   int swnbl; // number of block lines (just swbn / 16 + 1)
+   int swnbl_cur; // current number of lines shown
+
+
+I want to change to a 2D array
+   int swba[100][16]; // select block array
+   int swnal;         // number of block array lines
+   int swnal_cur;     // current number of lines shown
+
+done...
+
+I kind of want to kill PDE... why the hell do I need it to save to disk?
+
+so unneccsarily complex
+
+make a struct
+
+int id
+
+string text
+16 floats
+32 ints
+can I start by printing what I already have?
+
+struct pde
+{
+   std::string text;
+   int id;
+   int type;
+   int   ia[32];
+   float fa[16];
+};
+
+then define a vector of pdes
+
+   std::vector<pde> pdes;
+
+
+then manually fill them...
+
+add method init
+
+I thinl I am going to go with std::array because I can initialize them with a list after creation
+
+I think I have everything dumped and created manually with init()
+
+
+old: mPDE.PDEi[num][1]
+new: mPDE.pdes[num].ia[1]
+
+replace .PDEi[num] .pdes[num].ia 
+I should have a single text line for when I need it...done...
+
+I now have every PDE done
+
+the next thing is to implement a mapping like I have with blocks so I can arrange pdes how I like
+
+I think I am ready to kill everything else in PDE....
+load
+save
+run
+sort
+...
+
+done!!!
+
+select window is a part of editor main
+which is one of my window classes
+
+there is a lot of things in the window class that are specific to
+only selection window...
+these are dupicated with every instance of window
+
+I want to make selection a standalone class and ony have one instance
+owned by one specific window, editor
+
+mwSelectionWindow
+
+before you go too far...what windows do I have?
+
+      mW[1].set_title("Status Window");
+      mW[2].set_title("Selection Window");
+      mW[3].set_title("Filters");
+      mW[4].set_title("selection edit");
+      mW[5].set_title("ge list");
+      mW[6].set_title("ge controls");
+      mW[7].set_title("viewer");
+      mW[8].set_title("top menu");
+      mW[9].set_title("Tile Helper");
+
+
+how about mwSelectionWindow has one global instance
+and is used mostly to store info and methods related to selection window
+
+not 'owned' by mW[2].set_title("Selection Window");
+
+made these
+
+   int block_array[100][16];
+   int block_array_num_lines;  // number of lines
+   int block_array_cur_lines;  // number of lines currently shown
+
+done...
+now add something like that for special...
+
+what am I storing in the array? the id of the pde
+get this correct before moving on
+
+i have the id, which is unique, which came from the old PDE array index
+
+I also have the first int in the array which is not unique...???
+
+when I manually enter them into my vector I can choose whatever id I want
+but then I hard code that into the map so I shouldn't change it later
+
+the old id was purely for how things lined up in the special selection window
+
+What is the simplest solution?
+
+what is required?
+they all need to have a unique id in pdes
+they already do...
+
+then my map should be nothing more than mapping the 4x16 array to that unique id
+
+I really want to have id==0 be invalid
+
+do it...made 0 (start) 40
+
+and maybe also index ==0 invalid
+
+actually i dont care if id is zero, but index
+
+give up already!!!
+make -1 invalid
+
+int mwPDE::find_index_of_id(int id)
+{
+   for (int index=0; index < pdes.size(); index++)
+      if (pdes[index].id == id) return index;
+   return -1;
+}
+
+If I was looking for the easiest way to do this....
+
+I would just enter them into the pdes vector in the order I wanted...
+no mapping required...no id required
+
+type -1 means a no-op spacer
+
+remove id...
+simplify the creation..done
+
+now creators take 1 line, items 2, enemies 3
+
+the whole pde class is less than 250 line, I think I should merge it with mwSelection Window
+
+do it fool!!..done!!
+
+
+what am I working on now?
+
+I was trying to get the extended block selection sorted out...
+
+also trying to make some functions to dynamically generate tiles
+
+I also really miss my tile editor stuff
+
+what if I draw a 3x3 grid....60x60
+
+then do a frame, then cut it up into 9 peices
+
+do it fool!!
+2026-03-07 14:09:39
+
+where will i put it?
+
+384
+in this order:
+b.fill
+b.single           
+b.hLineLeft       
+b.hLineMiddle       
+b.hLineRight        
+b.vLineTop          
+b.vLineMiddle       
+b.vLineBottom       
+b.cornerUpperLeft   
+b.cornerUpperRight  
+b.cornerLowerLeft   
+b.cornerLowerRight  
+b.edgeLeft          
+b.edgeRight         
+b.edgeTop           
+b.edgeBottom        
+
+
+now how will I modify colors?
+
+
+allegro can do hsl and hsv...
+
+in hsl what is my purple color?
+   "#7f00ff",
+   
+   
+  [ 270,  100,   50 ],   
+  
+   
+
+ALLEGRO_COLOR al_color_hsl(float h, float s, float l)
+
+
+in order for my blocks to be perfectly symmetrical with a fade the center 2 lines must be the same
+
+go back and do it again
+
+done...
+
+
+2026-03-07 21:46:15
+
+Server Version : 7.24.0811.1b
+Last Update    : 20260307-214655
+Server Uptime  : 7 05:11:48
+Server Load    : 14
+
+Client Status Insert Controls
+Num Rows: 118367905
+Batch Size Target:20
+Batch Size Actual:20
+Batch Time Avg:5.3
+Batch Time Max:9.6
+Avg per row:0.26
+
+Client Status Chart Controls
+Refresh Interval:200
+Actual Interval:204
+Fetch Time:6
+Fetch Frames:9
+Fetch Rows:44
+Range Control:5
+Array Process Time:0
+Update Chart Time:168
+
+100 million rows!!!
+10G in db file
+
+m@o7040:~/dev/purple_martians/data$ df -H
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           1.7G  8.1M  1.7G   1% /run
+efivarfs        263k  195k   63k  76% /sys/firmware/efi/efivars
+/dev/sda2       244G   21G  212G   9% /
+tmpfs           8.4G     0  8.4G   0% /dev/shm
+tmpfs           5.3M     0  5.3M   0% /run/lock
+/dev/sda1       1.2G  6.5M  1.2G   1% /boot/efi
+tmpfs           1.7G   17k  1.7G   1% /run/user/1000
+m@o7040:~/dev/purple_martians/data$ ll
+total 9849856
+drwxrwxrwx  2 m m        4096 Mar  7 21:49 ./
+drwxrwxrwx 18 m m        4096 Feb 28 15:54 ../
+-rwxrwxrwx  1 m m 10062045184 Mar  7 21:49 client_status.db*
+-rwxrwxrwx  1 m m       32768 Mar  7 21:49 client_status.db-shm*
+-rwxrwxrwx  1 m m     4177712 Mar  7 21:49 client_status.db-wal*
+-rwxrwxrwx  1 m m        8192 Feb 28 07:11 game_events.db*
+-rwxrwxrwx  1 m m     4829268 Mar  1 12:34 level_data.pm*
+-rwxrwxrwx  1 m m     3000054 Feb 28 07:11 level_icons_100.bmp*
+-rwxrwxrwx  1 m m    12000054 Feb 28 07:11 level_icons_200.bmp*
+-rwxrwxrwx  1 m m       16384 Mar  7 21:49 server_status.db*
+-rwxrwxrwx  1 m m       12824 Mar  7 21:49 server_status.db-journal*
+-rwxrwxrwx  1 m m       98304 Mar  7 21:07 sessions.db*
+-rwxrwxrwx  1 m m        5360 Feb 28 16:35 settings.pm*
+m@o7040:~/dev/purple_martians/data$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
