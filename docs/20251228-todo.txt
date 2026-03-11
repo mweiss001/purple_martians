@@ -11,8 +11,6 @@ in sessions they all still show as open
 2026-01-25 19:19:14	9 10:43:01	816181	192.168.1.113	4230h	open
 2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
 
-
-
 I have been having so problems playing back server games....
 My thoughts:
 they seem to occur when playing with a bunch of fakekey players...
@@ -20,7 +18,15 @@ things to check...
 when starting new level, is health carried over from previous level?
 when do they join, instantly?? when do they joining when playing back?
 changed it so that next level resets player health to 100...
-now I need to test....
+now I need to test....did one test good...do some more...did a second one... all good
+
+
+2026-03-08 07:03:44
+started new server last night around 11
+lev 16, fakekey many clients
+all gms in timeline show as 2H long, or 1H longer than they should
+DST happened, but does not full explain wtf
+actually the wrong durations are only in timeline, they look fine in gm table
 
 
 
@@ -48,6 +54,11 @@ automatic cleanup based on size (num rows) or time
 option to not insert unless web page is being viewed
 i really want to be able to view static, historical data
 my attempt at that was very slow...why?
+even on the main graph s2, if I set the range higher, it crawls....
+
+
+
+
 
 I want to rename cpu to something else...
 maybe load, or busy

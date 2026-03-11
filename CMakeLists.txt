@@ -156,8 +156,8 @@ add_executable(pm
         src/mwClientStatusInsertQueue.h
         src/mwServerScreenshot.cpp
         src/mwServerScreenshot.h
-        src/mwBlockSets.cpp
-        src/mwBlockSets.h
+        src/mwTileSets.cpp
+        src/mwTileSets.h
         src/mwSelectionWindow.cpp
         src/mwSelectionWindow.h
 )

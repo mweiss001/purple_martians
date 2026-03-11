@@ -50,6 +50,9 @@ private:
    void set_block_set_rainbow(int t, int x, int y);
    void set_block_set(int t, int x, int y);
 
+   void set_block_extended(int t, int y);
+
+
 };
 
 

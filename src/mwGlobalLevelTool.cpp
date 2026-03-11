@@ -50,7 +50,7 @@ void mwGlobalLevelTool::show_block_list(int blt[])
    mInput.tsw();
 
 }
-
+/*
 
 void mwGlobalLevelTool::remove_unused_tiles(int blt[])
 {
@@ -74,7 +74,7 @@ void mwGlobalLevelTool::remove_unused_tiles(int blt[])
 
 }
 
-
+*/
 void replaceTileIfMatch(int &tile, int match, int replace)
 {
    if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
@@ -97,8 +97,19 @@ void changeBlockNumber(int oldNum, int newNum)
 
 }
 
+/*
 
+void clearTileRange()
+{
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int tile = mLevel.l[x][y] & 1023;
+         if (tile > 302 && tile < 672) mLevel.l[x][y] = PM_BTILE_SHOW_SELECT_WIN;
+      }
+}
 
+*/
 
 void changeBlockNumbersRect(int oldNum, int newNum)
 {
@@ -212,6 +223,106 @@ void mwGlobalLevelTool::execute(void)
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
+
+
+
+
+/*
+      
+      changeBlockNumber(800, 271);
+      changeBlockNumber(801, 256);
+
+      changeBlockNumber(802, 257);
+      changeBlockNumber(803, 258);
+      changeBlockNumber(804, 259);
+
+      changeBlockNumber(805, 260);
+      changeBlockNumber(806, 261);
+      changeBlockNumber(807, 262);
+
+      changeBlockNumber(808, 263);
+      changeBlockNumber(809, 264);
+      changeBlockNumber(810, 266);
+      changeBlockNumber(811, 265);
+
+      changeBlockNumber(812, 267);
+      changeBlockNumber(813, 269);
+      changeBlockNumber(814, 268);
+      changeBlockNumber(815, 270);
+
+*/
+
+
+/*
+
+      changeBlockNumber(512, 276);
+      changeBlockNumber(513, 277);
+      changeBlockNumber(514, 279);
+      changeBlockNumber(515, 278);
+
+      changeBlockNumber(516, 280);
+      changeBlockNumber(517, 282);
+      changeBlockNumber(518, 281);
+      changeBlockNumber(519, 283);
+
+      changeBlockNumber(520, 286);
+      changeBlockNumber(521, 287);
+      changeBlockNumber(522, 284);
+      changeBlockNumber(523, 285);
+
+      changeBlockNumber(524, 274);
+      changeBlockNumber(525, 275);
+      changeBlockNumber(526, 273);
+      changeBlockNumber(527, 272);
+
+      changeBlockNumber(528, 302); // solid
+
+      changeBlockNumber(529, 288);
+      changeBlockNumber(530, 295);
+      changeBlockNumber(531, 293);
+      changeBlockNumber(532, 290);
+
+      changeBlockNumber(533, 292);
+      changeBlockNumber(534, 289);
+      changeBlockNumber(535, 291);
+      changeBlockNumber(536, 294);
+
+      changeBlockNumber(537, 298);
+      changeBlockNumber(538, 299);
+      changeBlockNumber(539, 296);
+      changeBlockNumber(540, 297);
+
+      changeBlockNumber(541, 256);
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
 
 //      changeBlockNumbersFrame(576, 800);
 //      changeBlockNumbersFrame(608, 832);
@@ -715,11 +826,6 @@ void mwGlobalLevelTool::execute(void)
 //         }
 //
 //      }
-//
-//
-
-
-
 
 
 //      for (int y=0; y<500; y++)
@@ -728,8 +834,6 @@ void mwGlobalLevelTool::execute(void)
 //            int h = mItem.item[y][9];
 //            if (h < 15) printf("l:%3d item_num:%3d height:%d\n", le[x], y, h);
 //         }
-
-
 
       if (0)
       {

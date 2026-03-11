@@ -4,7 +4,7 @@
 #include "mwWindow.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwBlockSets.h"
+#include "mwTileSets.h"
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
@@ -192,7 +192,7 @@ void mwWindow::em_process_mouse(void)
             mWM.bx1 = mWM.gx;
             mWM.by1 = mWM.gy;
             mWM.get_new_box();
-            mBlockSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num&1023, mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS, mLevel.l);
+            mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num&1023, mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS, mLevel.l);
             mScreen.init_level_background();
             al_set_target_backbuffer(mDisplay.display);
          }

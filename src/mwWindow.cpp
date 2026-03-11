@@ -389,6 +389,7 @@ void mwWindow::draw(int draw_only)
       if (have_focus) fc = 13;
       int ys = th_draw_buttons(x1+1, x2-1, y1+20, d);
       set_size(w, ys-y1+4);
+
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
    }
 }

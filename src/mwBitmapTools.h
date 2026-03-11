@@ -9,12 +9,25 @@ class mwBitmapTools
    void edit_btile_attributes();
    void copy_tiles();
 
+
+   ALLEGRO_BITMAP* load_block_tiles_to_bitmap();
+   void save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1);
+   char b1ock_tiles_fn[100];
+
+   void create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+   void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+   void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+
+
+
+
 //   private:
 
    void custom_modify();
 
-
    void fill_player_tile();
+
+   void modify_tile_set();
 
    void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y);
    void color_shift4(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3, int cs4);

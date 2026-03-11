@@ -139,7 +139,7 @@ class mwWindow
 
    void th_remove_bound();
 
-   void th_find_adj(int a, int b, int &l, int &r, int &u, int &d, int &ul, int &ur, int &dl, int &dr);
+   void th_find_adj(int x, int y, int &l, int &r, int &t, int &b, int &tl, int &tr, int &bl, int &br);
 
    int th_replace_helper3(int type, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
    int th_replace_helper(int type, int l, int r, int u, int d, int ul, int ur, int dl, int dr);

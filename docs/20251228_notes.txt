@@ -22952,6 +22952,1233 @@ drwxrwxrwx 18 m m        4096 Feb 28 15:54 ../
 -rwxrwxrwx  1 m m        5360 Feb 28 16:35 settings.pm*
 m@o7040:~/dev/purple_martians/data$
 
+2026-03-07 22:33:59
+
+
+what am I doing?
+
+I want to get the big tileset auto generated and manipulate it
+
+2026-03-08 07:12:46
+
+I want a quicker way of testing minor bitmap changes
+
+
+something where I can see a tileset drawn in a huge scale then adjust it...
+
+I could use the actual level editor
+
+
+make a new mode and a new window
+
+what do I need to do after changing tilemap...how can I completely reload that?
+
+I have a quite nice display thing...
+
+
+I have this function perfectly done...
+void create_tileset_solid(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps)
+next 
+what if I tried the same with lch...no
+
+I now have three tilesets I can modify
+solid
+frame
+solid frame on background block
+
+now what
+
+can I do the frame with rounded corners?
+what if I draw from inside out?
+try...
+
+
+I am very happy!!!
+
+2026-03-08 13:55:32
+
+to make rounded corners look nice when drawing shrinking rectangles,
+run the loop at a smaller increment than 1!!
+
+to erase outside the rounded part, search pixel by pixel... 
+
+It looks great!!!
+
+Now implement for frames and other rects...
+
+did it for solid...it is 95% the same
+
+takes a 60x60 bitmap and does the rest automatically
+what can I do to make things easier?
+
+both solids have been combined into one
+lets see what they have in common with frame...
+
+common:
+   erase_pixels_outside_rounded_corners(tmp1, c[0]);
+   make_hline_vline_and_single(b1, tmp1, bs);
+
+
+
+2026-03-08 17:40:56
+this is looking good
+
+now what?
+the adjustments could use some adjusting
+adjust hue just once
+same for sat and light
+work on the huge tileset
+
+
+
+this looks good:
+320: solid
+solid:
+steps:9
+h1: 271.5
+h2: 256.6
+s1: 0.63
+s2: 0.80
+l1: 0.10
+l2: 0.35
+r: 7.5
+
+352:frame
+258 268
+s 0.63 0.80
+l 0.10 0.35
+r 12
+no inner round
+
+2026-03-08 20:38:06
+
+huge tileset
+
+
+just add additional blocks to existing struct
+
+int extendedMode
+
+has 30 blocks in total
+
+uses frame or rect set single or block mode depending
+
+pipe set - all 16
+rect version 4 corners, 4 sides 1 solid center
+inverse rect corners (4)
+inverse rect corners with pipe attach (8) same shape just rotated
+
+inverse rect corners with double pipe attach (4)
+
+3 way pipe tee (4)
+2 way tee with solid corner 
+
+I think I found some duplicates
+
+and some missed
+
+when I do an extended, I will build on frame
+
+
+
+
+here are 8 more
+   int frameTeeLeft;
+   int frameTeeRight;
+   int frameTeeTop;
+   int frameTeeBottom;
+   int solidTeeLeft;
+   int solidTeeRight;
+   int solidTeeTop;
+   int solidTeeBottom;
+
+12 more again
+   int cornerUpperLeftTeeUpper;
+   int cornerUpperLeftTeeLeft;
+   int cornerUpperLeftTeeBoth;
+   int cornerUpperRightTeeUpper;
+   int cornerUpperRightTeeRight;
+   int cornerUpperRightTeeBoth;
+   int cornerLowerLeftTeeLower;
+   int cornerLowerLeftTeeLeft;
+   int cornerLowerLeftTeeBoth;
+   int cornerLowerRightTeeLower;
+   int cornerLowerRightTeeRight;
+   int cornerLowerRightTeeBoth;
+
+
+
+
+
+I should make some termininology and abbreviations
+
+U D L R
+do not use L for lower use D
+F - frame
+S - solid
+I - inner solid
+
+
+always do y first then x
+always do L before R and U before D
+
+when doing corners do UL UR DL DR
+when doing sides L R U D
+
+
+
+   int FteeL;
+   int FteeR;
+   int FteeT;
+   int FteeB;
+   int SteeL;
+   int SteeR;
+   int SteeT;
+   int SteeB;
+
+
+   int FcorULteeU;
+   int FcorULteeL;
+   int FcorULteeUL;
+   int FcorURteeU;
+   int FcorURteeR;
+   int FcorURteeUR;
+   int FcorDLteeD;
+   int FcorDLteeL;
+   int FcorDLteeDL;
+   int FcorDRteeD;
+   int FcorDRteeR;
+   int FcorDRteeDR;
+
+
+I am now up to 48 tiles!!!
+
+   // frame single line
+   int hLineLeft;
+   int hLineMiddle;
+   int hLineRight;
+
+   int vLineTop;
+   int vLineMiddle;
+   int vLineBottom;
+
+6
+
+
+   int FcorUL;
+   int FcorUR;
+   int FcorDL;
+   int FcorDR;
+
+   // these are the same as hline and vline middle
+   int FedgL;
+   int FedgR;
+   int FedgT;
+   int FedgB;
+
+   int FteeL;
+   int FteeR;
+   int FteeT;
+   int FteeB;
+
+12 (6)
+
+
+   // solid
+   int ScorUL;
+   int ScorUR;
+   int ScorDL;
+   int ScorDR;
+
+   int SedgL;
+   int SedgR;
+   int SedgT;
+   int SedgB;
+
+   int SteeL;
+   int SteeR;
+   int SteeT;
+   int SteeB;
+
+12
+
+   int ScorULteeU;
+   int ScorULteeL;
+   int ScorULteeUL;
+
+   int ScorURteeU;
+   int ScorURteeR;
+   int ScorURteeUR;
+
+   int ScorDLteeD;
+   int ScorDLteeL;
+   int ScorDLteeDL;
+
+   int ScorDRteeD;
+   int ScorDRteeR;
+   int ScorDRteeDR;
+
+
+12
+
+
+   // inner solid
+   int IcorUL;
+   int IcorUR;
+   int IcorDL;
+   int IcorDR;
+
+   // these are the same as Sedge only reversed
+   int IedgL;
+   int IedgR;
+   int IedgT;
+   int IedgB;
+
+8 (4)
+
+
+I think I should make a separarte struct and make this a one off for now
+make later all the smaller ones can copy this
+
+I think I want to dynamically create it as well
+
+
+2026-03-09 05:19:01
+
+Inner
+Outer
+Frame
+
+Corner
+Edge
+HLine
+Vline
+
+UDLR? ... would not TBLR be better? yes! ... do it fool!!
+
+
+2026-03-09 05:41:20
+
+here is my new revised list:
+I am going add it to existing struct...
+   
+   // single blocks
+   int FrameCross;  // 4 way Tee
+   int FrameSingle; // standalone single block
+   int SolidFill;   // center block with no borders
+   
+   
+   // frame single line
+   int FrameHLineL;
+   int FrameHLineM;
+   int FrameHLineR;
+
+   int FrameVLineT;
+   int FrameVLineM;
+   int FrameVLineB;
+
+
+   // frame corners 
+   int FrameCornerTL;
+   int FrameCornerTR;
+   int FrameCornerBL;
+   int FrameCornerBR;
+
+   // frame edges (these are the same as hline and vline middle)
+   int FrameEdgeL;
+   int FrameEdgeR;
+   int FrameEdgeT;
+   int FrameEdgeB;
+
+   // frame edges tees
+   int FrameEdgeLTee;
+   int FrameEdgeRTee;
+   int FrameEdgeTTee;
+   int FrameEdgeBTee;
+
+   // solid outer corners 
+   int OuterCornerTL;
+   int OuterCornerTR;
+   int OuterCornerBL;
+   int OuterCornerBR;
+   
+   // solid outer edges
+   int OuterEdgeL;
+   int OuterEdgeR;
+   int OuterEdgeT;
+   int OuterEdgeB;
+
+   // solid outer edge tees
+   int OuterEdgeLTee;
+   int OuterEdgeRTee;
+   int OuterEdgeTTee;
+   int OuterEdgeBTee;
+
+   // solid outer corner tees 
+   int OuterCornerTLTeeT;
+   int OuterCornerTLTeeL;
+   int OuterCornerTLTeeTL;
+   int OuterCornerTRTeeT;
+   int OuterCornerTRTeeR;
+   int OuterCornerTRTeeTR;
+   int OuterCornerBLTeeB;
+   int OuterCornerBLTeeL;
+   int OuterCornerBLTeeBL;
+   int OuterCornerBRTeeB;
+   int OuterCornerBRTeeR;
+   int OuterCornerBRTeeBR;
+   
+   // solid inner corners
+   int InnerCornerTL;
+   int InnerCornerTR;
+   int InnerCornerBL;
+   int InnerCornerBR;
+
+   // solid inner edges (these are the same as OuterEdge* only reversed)
+   int InnerEdgeL;
+   int InnerEdgeR;
+   int InnerEdgeT;
+   int InnerEdgeB;
+
+
+2026-03-09 05:43:32
+
+now I want to dynamically create one of these
+
+do it at 416
+
+2026-03-09 07:27:17
+
+gtg, I think I have them all done except inner...!!!
+
+
+2026-03-09 12:03:24
+
+inner corner and edge tees
+
+inner corner
+make from solid with notched corner
+
+edge tees...
+make from solid with 2 notched corners
+
+
+2026-03-09 12:38:58
+
+18 short of full 64
+
+show 4 full rows in select
+
+2026-03-10 03:36:27
+
+what am I going to do for blocksets?
+
+make a super set? only used for tilehelper
+
+make one common set, with flags
+
+frame
+solid
+hline
+vline
+extended
+
+
+where do I plan to use blockSets?
+
+- when drawing rectangles and lines in editor
+
+- when adding blockSets to selectionWindow
+
+- tileHelper when determining what set a tile belongs to
+- tileHelper when applying a blockSet to a selection
+
+
+change the name block to tile..done
+
+this is how I envision all this working:
+
+- make the big common block set
+use mode flags
+
+extended will not have any line or frame modes set
+they will need to be set up individally
+
+
+
+first change:
+
+make common tileSet struture
+
+make sure it works with all tilesets up to extended
+
+wires..good
+solid auto good
+they all seem to be working in editor
+
+next, copy my auto generated extended set to tileset
+
+done...
+
+2026-03-10 07:00:38
+now, go to work and get truck...
+
+call Nathan and tell him to go ahead...done
+take garbage out...done
+
+then come back and make extended work in tileset
+set alarm to stop working...
+
+what do I need to do?
+
+brush teeth, drive there...
+stop at 9:20...
+
+2026-03-10 08:49:40
+
+the new tileset seem sto work perfectly in tile helper
+
+I am missing one type of tile
+
+like diagonal cross
+
+how to detect: solid TBLR
+
+TL and BR solid
+TR and BL open
+
+TL and BR open
+TR and BL solid
+
+create 2 new tiles..done
+
+single block when only diagonal? done... this looks perfect!!
+
+2026-03-10 10:54:43
+
+now what?
+
+how can I clean this up?
+
+show better in selection
+
+I still have 16 spare blocks in extended tileset
+
+now make other tilesets from extended
+
+do not need to show in selection
+
+first frame
+
+
+the goddamn ranges!!!
+
+this is why I has it set up like that
+
+what do I need for a standard frame
+4 corners, 4 edges and optionaly middle
+
+the only change this will need is how they are laid out in in the tilemap
+
+frame, outer, and inner will all need to be laid out in a straight line
+
+frame range could be the entire extended range
+
+what uses range?
+- when drawing in editor
+- when figuring out whether or not to add a block to selection
+
+
+what if they overlap and a tile belongs to more than one set?
+
+
+split extended into three regular sets:
+
+- inner (the easiest) only the inner corners
+- outer (only the outer corners)
+- frame (everything else)
+
+inner edges are the same as outer edges, just reversed
+
+
+how about a frame set that includes everything, then 4 corners for outer and inner
+
+
+serial
+
+
+frame
+-------
+single 1
+hline 3
+vline 3
+corners 4
+tee 4
+cross 1
+---
+16
+
+
+outer
+------
+center 1
+edges 4
+edges tees 4 
+corners 4
+corner tees 12 
+corner diag 2
+---
+27
+
+
+
+inner
+-----
+corners 4
+
+
+It looks like the extended set just adds on to the basic set
+
+the first 16 should be common
+
+tile index 0: single
+hline
+vline
+corners
+3 way tees
+4 way tee 1
+
+-----
+16
+
+common for all tileSets
+
+
+then extended adds
+
+4 for inner
+corners 4
+
+27 for outer
+
+-----
+
+why am I doing this?
+so that the tile indexes are contiguous ranges
+
+is that a good enough reason?
+
+
+now I have a new tileset at 736
+frame 736 to 751 (16 tiles) 0-15
+inner 752 to 755 (4 tiles) 16-19
+outer 756 to 782 (26 tiles) 20-45 
+
+add it to blockset and make a nice viewer..done
+
+2026-03-11 06:50:29
+
+when I create extended tileSet, I automatically create frame, solid and inner tileSets
+and they work...
+
+so now lets see what else I have broken...
+
+do regular solid tilesets still work?
+yes as far as I can tell
+
+so what do I have?
+
+my new extended set will replace the old purple pipes
+this is huge
+
+wires is a custom frame set
+
+bring them back where they belong
+
+672 rainbow 1
+704 rainbow 2
+512 pipe solid
+800 pipe frame
+832 wires
+
+I am going to make the new permanent extended pipe set at 256
+
+then I will need to convert all blocks in levels to reflect this
+      
+      changeBlockNumber(800, 271);
+      changeBlockNumber(801, 256);
+
+      changeBlockNumber(802, 257);
+      changeBlockNumber(803, 258);
+      changeBlockNumber(804, 259);
+
+      changeBlockNumber(805, 260);
+      changeBlockNumber(806, 261);
+      changeBlockNumber(807, 262);
+
+      changeBlockNumber(808, 263);
+      changeBlockNumber(809, 264);
+      changeBlockNumber(810, 266);
+      changeBlockNumber(811, 265);
+
+      changeBlockNumber(812, 267);
+      changeBlockNumber(813, 269);
+      changeBlockNumber(814, 268);
+      changeBlockNumber(815, 270);
+
+
+done...
+
+
+next set
+
+
+
+changeBlockNumber(512, 276);
+changeBlockNumber(513, 277);
+changeBlockNumber(514, 279);
+changeBlockNumber(515, 278);
+
+changeBlockNumber(516, 280);
+changeBlockNumber(517, 282);
+changeBlockNumber(518, 281);
+changeBlockNumber(519, 283);
+
+changeBlockNumber(520, 286);
+changeBlockNumber(521, 287);
+changeBlockNumber(522, 284);
+changeBlockNumber(523, 285);
+
+changeBlockNumber(524, 274);
+changeBlockNumber(525, 275);
+changeBlockNumber(526, 273);
+changeBlockNumber(527, 272);
+
+changeBlockNumber(528, 302); // solid
+
+changeBlockNumber(529, 288);
+changeBlockNumber(530, 295);
+changeBlockNumber(531, 293);
+changeBlockNumber(532, 290);
+
+changeBlockNumber(533, 292);
+changeBlockNumber(534, 289);
+changeBlockNumber(535, 291);
+changeBlockNumber(536, 294);
+
+changeBlockNumber(537, 298);
+changeBlockNumber(538, 299);
+changeBlockNumber(539, 296);
+changeBlockNumber(540, 297);
+
+changeBlockNumber(541, 256);
+
+done...
+
+now what have I broken? 
+
+levels 2-10 all look good...
+
+erased old blocks from tilemap
+
+removed from all levels
+303-671
+
+done...
+
+2026-03-11 08:30:25
+
+making the selection window look nice
+testing all sets in editor...all good
+
+test all in tile helper...all good
+
+why does blue rect get drawn on level when tile helper replaces blocks?
+mScreen.init_level_background();
+al_set_target_backbuffer(mDisplay.display);
+
+2026-03-11 08:49:01
+
+I am very far along..so many things working now...
+
+the pipe set is dynaimcally created
+same with most solid block sets
+
+I should move the custom pipe locked and B shapes to the tileset
+why? no reason other than to dynamically create them so they match the set
+that will be only 10 shapes
+then maybe I could do some more custom shapes like cracked pipes
+
+I really want to re-create a tile editor, how hard could it be?
+
+for now I need to commit and push...
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

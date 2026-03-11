@@ -2,6 +2,7 @@
 
 #include "pm.h"
 #include "mwBitmap.h"
+#include "mwTileSets.h"
 
 
 mwSelectionWindow mSelectionWindow;
@@ -41,10 +42,81 @@ void mwSelectionWindow::set_block_set_rainbow(int t, int x, int y)
 
 }
 
+
+void mwSelectionWindow::set_block_extended(int t, int y)
+{
+   int x = 0;
+
+   mTileSets.init();
+
+   for (const auto& s : mTileSets.tileSets)
+      if (s.startIndex == t && s.extendedMode)
+      {
+         block_set_set(s.FrameCornerTL,       x+0, y+0);
+         block_set_set(s.FrameEdgeBTee,       x+1, y+0);
+         block_set_set(s.FrameCornerTR,       x+2, y+0);
+         block_set_set(s.VLineT,              x+3, y+0);
+
+         block_set_set(s.FrameEdgeLTee,       x+0, y+1);
+         block_set_set(s.FrameCross,          x+1, y+1);
+         block_set_set(s.FrameEdgeRTee,       x+2, y+1);
+         block_set_set(s.VLineM,              x+3, y+1);
+
+         block_set_set(s.FrameCornerBL,       x+0, y+2);
+         block_set_set(s.FrameEdgeTTee,       x+1, y+2);
+         block_set_set(s.FrameCornerBR,       x+2, y+2);
+         block_set_set(s.VLineB,              x+3, y+2);
+
+         block_set_set(s.HLineL,              x+0, y+3);
+         block_set_set(s.HLineM,              x+1, y+3);
+         block_set_set(s.HLineR,              x+2, y+3);
+         block_set_set(s.Single,         x+3, y+3);
+
+         block_set_set(s.OuterCornerTL,       x+4, y+0);
+         block_set_set(s.OuterCornerTR,       x+5, y+0);
+         block_set_set(s.OuterCornerBL,       x+4, y+1);
+         block_set_set(s.OuterCornerBR,       x+5, y+1);
+
+         block_set_set(s.InnerCornerTL,       x+4, y+2);
+         block_set_set(s.InnerCornerTR,       x+5, y+2);
+         block_set_set(s.InnerCornerBL,       x+4, y+3);
+         block_set_set(s.InnerCornerBR,       x+5, y+3);
+
+         block_set_set(s.OuterEdgeL,          x+6, y+0);
+         block_set_set(s.OuterEdgeT,          x+7, y+0);
+         block_set_set(s.OuterEdgeB,          x+6, y+1);
+         block_set_set(s.OuterEdgeR,          x+7, y+1);
+
+         block_set_set(s.OuterEdgeLTee,       x+6, y+2);
+         block_set_set(s.OuterEdgeTTee,       x+7, y+2);
+         block_set_set(s.OuterEdgeBTee,       x+6, y+3);
+         block_set_set(s.OuterEdgeRTee,       x+7, y+3);
+
+         block_set_set(s.OuterCornerTLTeeT,   x+8, y+0);
+         block_set_set(s.OuterCornerTRTeeR,   x+9, y+0);
+         block_set_set(s.OuterCornerBLTeeL,   x+8, y+1);
+         block_set_set(s.OuterCornerBRTeeB,   x+9, y+1);
+
+         block_set_set(s.OuterCornerTLTeeL,   x+8, y+2);
+         block_set_set(s.OuterCornerTRTeeT,   x+9, y+2);
+         block_set_set(s.OuterCornerBLTeeB,   x+8, y+3);
+         block_set_set(s.OuterCornerBRTeeR,   x+9, y+3);
+
+         block_set_set(s.OuterCornerTLTeeTL,  x+10, y+0);
+         block_set_set(s.OuterCornerTRTeeTR,  x+11, y+0);
+         block_set_set(s.OuterCornerBLTeeBL,  x+10, y+1);
+         block_set_set(s.OuterCornerBRTeeBR,  x+11, y+1);
+
+         block_set_set(s.OuterCornerTRDiag,   x+10, y+2);
+         block_set_set(s.OuterCornerTLDiag,   x+10, y+3);
+
+         block_set_set(s.SolidFill,           x+11, y+2);
+      }
+
+}
+
 void mwSelectionWindow::set_block_set(int t, int x, int y)
 {
-
-   // for (int c=t; c<t+16; c++) em_set_swba_add(c, x, y);
 
    block_set_set(t+8,  x++, y); // tl corner
    block_set_set(t+9,  x++, y); // tr corner
@@ -70,8 +142,6 @@ void mwSelectionWindow::set_block_set(int t, int x, int y)
 }
 
 
-
-
 void mwSelectionWindow::fill_block_array(void)
 {
    // erase all
@@ -87,46 +157,34 @@ void mwSelectionWindow::fill_block_array(void)
    // add first 256
    for (int c=0; c<256; c++)
       if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN) block_set_add(c, x, y);
-
    x = 0;
    y++;
 
-//   set_block_set_rainbow(672, x, y);
-//   set_block_set_rainbow(704, x+4, y);
+   set_block_extended(256, y);
+   y+=4;
 
-
-//   set_block_set(992, x+8, y); // blue
-
-   set_block_set(352, x+0, y); // exp
-   set_block_set(384, x+8, y); // exp
-
-
+   set_block_set(832, x, y);   // wires
    y+=2;
 
-   set_block_set(800, x, y);
-   set_block_set(832, x+8, y);
+   set_block_set(864, x, y);   // yellow thatch
+   set_block_set(896, x+8, y); // brain
    y+=2;
 
-   set_block_set(864, x, y);
-   set_block_set(896, x+8, y);
+   set_block_set(928, x, y);   // grey bricks
+   set_block_set(960, x+8, y); // brown bricks
    y+=2;
 
-   set_block_set(928, x, y);
-   set_block_set(960, x+8, y);
+   set_block_set(992, x, y); // blue
+   set_block_set_rainbow(672, x+8, y);
+   set_block_set_rainbow(704, x+12, y);
    y+=2;
 
 
 
-
-
-
-   // add from 512 - 541
-   for (int c=512; c<542; c++)
-      if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN) block_set_add(c, x, y);
-
-   y++;
    block_array_cur_lines = block_array_num_lines = y; // number of block array lines
 }
+
+
 
 
 
