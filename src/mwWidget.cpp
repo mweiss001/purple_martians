@@ -92,6 +92,20 @@ colsel 6
 
 void mwWidget::draw_widget_area(int x1, int y1, int x2, int y2, int base_color)
 {
+   if (base_color == -1000) // hue slider only
+   {
+      float width = x2-x1;
+      float hue_inc = 360 / width;
+      for (int x=0; x<width; x++)
+         al_draw_line(x1+x, y1, x1+x, y2, al_color_hsl(x*hue_inc, 1, 0.5), 1);
+
+      for (int c=0; c<1; c++)
+         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, mColor.White, 1);
+
+      return;
+   }
+
+
    if (base_color != -1)
    {
       for (int c=0; c<((y2-y1)/2+1); c++)
@@ -310,9 +324,11 @@ void mwWidget::slider0(int x1, int &y1, int x2, int bts, int bn, int num, int ty
 }
 
 
-void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                 int &var, float sul, float sll, float sinc, const char *txt)
+bool mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2,
+                       int q3, int q4, int q5, int q6, int q7,
+                       int &var, float sul, float sll, float sinc, const char *txt)
 {
+   bool changed = false;
    char msg[80];
    int y2 = y1+bts-2;
    float sdx = (float) var;
@@ -327,6 +343,7 @@ void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       draw_widget_text(x1, y1, x2, y2, q2, q5, msg);
       if (mInput.mouse_b[3][0])
       {
+         changed = true;
          while (mInput.mouse_b[3][0])
          {
             var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
@@ -336,6 +353,7 @@ void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       }
       if (mInput.mouse_b[1][0])
       {
+         changed = true;
          while (mInput.mouse_b[1][0])
          {
             var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
@@ -345,12 +363,16 @@ void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       }
    }
    if (q6 == 1) y1+=bts;
+   return changed;
+
 }
 
 // float version
-void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                 float &var, float sul, float sll, float sinc, const char *txt)
+bool mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2,
+                       int q3, int q4, int q5, int q6, int q7,
+                       float &var, float sul, float sll, float sinc, const char *txt)
 {
+   bool changed = false;
    char msg[80];
    int y2 = y1+bts-2;
    float sdx = var;
@@ -366,6 +388,7 @@ void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int ty
 
       if (mInput.mouse_b[3][0])
       {
+         changed = true;
          while (mInput.mouse_b[3][0])
          {
             var = get_slider_position3(var, sul, sll, sinc, q4, x1, y1, x2, y2);
@@ -376,6 +399,7 @@ void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       }
       if (mInput.mouse_b[1][0])
       {
+         changed = true;
          while (mInput.mouse_b[1][0])
          {
             var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
@@ -386,6 +410,7 @@ void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       }
    }
    if (q6 == 1) y1+=bts;
+   return changed;
 }
 
 
@@ -2115,10 +2140,11 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    int y2 = y1+bts-2;
    int press = 0;
 
+   /*
    // debug show mouse detection area
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-
+*/
 
    // is mouse pressed on this button?
    if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
@@ -2448,7 +2474,6 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 
    if (yType == 1) y2 = ya + yb; // abs ya, yb is width
    if (yType == 2) y1 = yb - ya; // abs yb, ya is width
-
    if (yType == 5) // abs center ya,  y1, y2 is auto from yb width
    {
       y1 = ya - yb/2;
@@ -2557,7 +2582,7 @@ void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       // debug show mouse detection area
-      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+      // al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
       // is mouse pressed on this button?
       if (mInput.mouse_b[1][0])
@@ -2835,23 +2860,6 @@ bool mwWidget::mButtonSmallText(int xType, int xa, int xb, int yType, int ya, in
    }
    return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,6 +1,10 @@
 #include "mwTileSets.h"
 mwTileSets mTileSets;
 
+
+mwTileSets::mwTileSets() { init(); }
+
+
 void mwTileSets::constructEmptySet()
 {
    ts.name = "";
@@ -68,6 +72,15 @@ void mwTileSets::constructEmptySet()
    ts.OuterCornerTRDiag = 0;
    ts.OuterCornerTLDiag = 0;
 
+   ts.HLineMKeyR        = 0;
+   ts.HLineMKeyG        = 0;
+   ts.HLineMKeyB        = 0;
+   ts.HLineMKeyP        = 0;
+
+   ts.VLineMKeyR        = 0;
+   ts.VLineMKeyG        = 0;
+   ts.VLineMKeyB        = 0;
+   ts.VLineMKeyP        = 0;
 
 
 }
@@ -82,7 +95,7 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.name              = name;
    ts.extendedMode      = 1;
    ts.startIndex        = i;
-   ts.endIndex          = i+63;
+   ts.endIndex          = i + 63;
 
    ts.Single            = i;
 
@@ -158,6 +171,17 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.OuterCornerTLDiag = i + 45;
 
    ts.SolidFill         = i + 46;
+
+   ts.HLineMKeyR        = i + 56;
+   ts.HLineMKeyG        = i + 57;
+   ts.HLineMKeyB        = i + 58;
+   ts.HLineMKeyP        = i + 59;
+
+   ts.VLineMKeyR        = i + 60;
+   ts.VLineMKeyG        = i + 61;
+   ts.VLineMKeyB        = i + 62;
+   ts.VLineMKeyP        = i + 63;
+
 
    tileSets.push_back(ts);
 
@@ -366,7 +390,6 @@ tileSet mwTileSets::constructHlineSet(std::string name, int i)
 
 void mwTileSets::init()
 {
-   loaded = 1;
 
    constructExtendedSet("pipes", 256);
 
@@ -433,26 +456,15 @@ void mwTileSets::init()
 }
 
 
-
-bool mwTileSets::findTileFrameSet(struct tileSet &t, int tile)
+bool mwTileSets::isTileKeyedBlock(int tileIndex, int keyIndex)
 {
    for (auto ts : tileSets)
-      if (tile >= ts.startIndex && tile <= ts.endIndex && ts.frameMode)
+      if (tileIndex >= ts.startIndex && tileIndex <= ts.endIndex && ts.extendedMode)
       {
-         t = ts;
-         return true;
-      }
-   return false;
-}
-
-
-bool mwTileSets::findTileSolidSet(struct tileSet &t, int tile)
-{
-   for (auto ts : tileSets)
-      if (tile >= ts.startIndex && tile <= ts.endIndex && ts.solidMode)
-      {
-         t = ts;
-         return true;
+         if ((keyIndex == 0) && ((tileIndex == ts.HLineMKeyR) || (tileIndex == ts.VLineMKeyR))) return true;
+         if ((keyIndex == 1) && ((tileIndex == ts.HLineMKeyG) || (tileIndex == ts.VLineMKeyG))) return true;
+         if ((keyIndex == 2) && ((tileIndex == ts.HLineMKeyB) || (tileIndex == ts.VLineMKeyB))) return true;
+         if ((keyIndex == 3) && ((tileIndex == ts.HLineMKeyP) || (tileIndex == ts.VLineMKeyP))) return true;
       }
    return false;
 }
@@ -460,9 +472,20 @@ bool mwTileSets::findTileSolidSet(struct tileSet &t, int tile)
 
 
 
-
-
-
+bool mwTileSets::findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type)
+{
+   for (auto ts : tileSets)
+      if (tileIndex >= ts.startIndex && tileIndex <= ts.endIndex)
+      {
+         if (type == 0)                    { t = ts; return true; }
+         if (type == 1 && ts.frameMode)    { t = ts; return true; }
+         if (type == 2 && ts.solidMode)    { t = ts; return true; }
+         if (type == 3 && ts.hlineMode)    { t = ts; return true; }
+         if (type == 4 && ts.vlineMode)    { t = ts; return true; }
+         if (type == 5 && ts.extendedMode) { t = ts; return true; }
+      }
+   return false;
+}
 
 
 
@@ -473,7 +496,6 @@ bool mwTileSets::findTileSolidSet(struct tileSet &t, int tile)
 // if drawItem is part of a tile set, use appropriate tiles from that set
 void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int drawItemFlags, int level[][100])
 {
-   if (!loaded) init();
 
    int bw = bx2-bx1; // width
    int bh = by2-by1; // height
@@ -483,98 +505,94 @@ void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int d
    // single tile
    if (bw==0 && bh==0) level[bx1][by1] = drawTile | drawItemFlags; // single tile 1 x 1
 
+
    // vertical line
    if (bw==0 && bh>0)
    {
-      int a = bx1;
-      for (int b=by1; b<by2+1; b++) // cycle the range
+      int drawMode = 0;
+      struct tileSet s;
+      if (findTileSetContainingIndex(s, drawItemNum, 4)) drawMode = 1;
+      for (int y=by1; y<by2+1; y++) // cycle the range
       {
-         drawTile = drawItemNum; // default
-         // search for tile set
-         for (const auto& s : tileSets)
-            if (drawItemNum >= s.startIndex && drawItemNum <= s.endIndex && s.vlineMode)
-            {
-               drawTile = s.VLineM;
-               if (b == by1) drawTile = s.VLineT;
-               if (b == by2) drawTile = s.VLineB;
-            }
-         // draw the tile
-         level[a][b] = drawTile |= drawItemFlags;
+         if (drawMode)
+         {
+            drawTile = s.VLineM;
+            if (y == by1) drawTile = s.VLineT;
+            if (y == by2) drawTile = s.VLineB;
+         }
+         level[bx1][y] = drawTile |= drawItemFlags;
       }
    }
+
 
    // horizontal line
    if (bw>0 && bh==0)
    {
-      int b = by1;
-      for (int a=bx1; a<bx2+1; a++) // cycle the range
+      int drawMode = 0;
+      struct tileSet s;
+      if (findTileSetContainingIndex(s, drawItemNum, 3)) drawMode = 1;
+      for (int x=bx1; x<bx2+1; x++) // cycle the range
       {
-         drawTile = drawItemNum; // default
-         // search for tile set
-         for (const auto& s : tileSets)
-            if (drawItemNum >= s.startIndex && drawItemNum <= s.endIndex && s.hlineMode)
-            {
-               drawTile = s.HLineM;
-               if (a == bx1) drawTile = s.HLineL;
-               if (a == bx2) drawTile = s.HLineR;
-            }
-         // draw the tile
-         level[a][b] = drawTile |= drawItemFlags;
+         if (drawMode)
+         {
+            drawTile = s.HLineM;
+            if (x == bx1) drawTile = s.HLineL;
+            if (x == bx2) drawTile = s.HLineR;
+         }
+         level[x][by1] = drawTile |= drawItemFlags;
       }
    }
 
-   // rectangle where w and h are both > 0
+   // rectangle (where w and h are both > 0)
    if (bw>0 && bh>0)
    {
       struct tileSet s;
       // get draw mode
       int drawMode = 0; // default
-      if (findTileFrameSet(s, drawItemNum)) drawMode = 1; // frame
-      if (findTileSolidSet(s, drawItemNum)) drawMode = 2; // solid
+      if (findTileSetContainingIndex(s, drawItemNum, 1)) drawMode = 1; // frame
+      if (findTileSetContainingIndex(s, drawItemNum, 2)) drawMode = 2; // solid
 
-      for (int a=bx1; a<bx2+1; a++)
-         for (int b=by1; b<by2+1; b++)
+      for (int x=bx1; x<bx2+1; x++)
+         for (int y=by1; y<by2+1; y++)
          {
-            if (drawMode == 0)       drawTile = drawItemNum; // default
             if (drawMode == 1)
             {
                                      drawTile = -1;
-               if (b == by1)         drawTile = s.FrameEdgeT;
-               if (b == by2)         drawTile = s.FrameEdgeB;
-               if (a == bx1)
+               if (y == by1)         drawTile = s.FrameEdgeT;
+               if (y == by2)         drawTile = s.FrameEdgeB;
+               if (x == bx1)
                {
-                  if      (b == by1) drawTile = s.FrameCornerTL;
-                  else if (b == by2) drawTile = s.FrameCornerBL;
+                  if      (y == by1) drawTile = s.FrameCornerTL;
+                  else if (y == by2) drawTile = s.FrameCornerBL;
                   else               drawTile = s.FrameEdgeL;
                }
-               if (a == bx2)
+               if (x == bx2)
                {
-                  if      (b == by1) drawTile = s.FrameCornerTR;
-                  else if (b == by2) drawTile = s.FrameCornerBR;
+                  if      (y == by1) drawTile = s.FrameCornerTR;
+                  else if (y == by2) drawTile = s.FrameCornerBR;
                   else               drawTile = s.FrameEdgeR;
                }
             }
             if (drawMode == 2)
             {
                                      drawTile = s.SolidFill;
-               if (b == by1)         drawTile = s.OuterEdgeT;
-               if (b == by2)         drawTile = s.OuterEdgeB;
-               if (a == bx1)
+               if (y == by1)         drawTile = s.OuterEdgeT;
+               if (y == by2)         drawTile = s.OuterEdgeB;
+               if (x == bx1)
                {
-                  if      (b == by1) drawTile = s.OuterCornerTL;
-                  else if (b == by2) drawTile = s.OuterCornerBL;
+                  if      (y == by1) drawTile = s.OuterCornerTL;
+                  else if (y == by2) drawTile = s.OuterCornerBL;
                   else               drawTile = s.OuterEdgeL;
                }
-               if (a == bx2)
+               if (x == bx2)
                {
-                  if      (b == by1) drawTile = s.OuterCornerTR;
-                  else if (b == by2) drawTile = s.OuterCornerBR;
+                  if      (y == by1) drawTile = s.OuterCornerTR;
+                  else if (y == by2) drawTile = s.OuterCornerBR;
                   else               drawTile = s.OuterEdgeR;
                }
             }
-            // draw the tile
-            if (drawTile != -1) level[a][b] = drawTile |= drawItemFlags;
-         } // end of cycle range
+            if (drawTile != -1) level[x][y] = drawTile |= drawItemFlags;
+         } 
    }
 }
 
@@ -583,7 +601,6 @@ void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int d
 // do tiles match exactly, or are they part of the same set?
 bool mwTileSets::compareTile(int rb, int cb, int set)
 {
-   if (!loaded) init();
 
    // remove flags for comparison
    int r = rb & 1023;

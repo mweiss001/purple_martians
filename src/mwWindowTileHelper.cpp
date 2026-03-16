@@ -225,7 +225,7 @@ void mwWindow::th_replace(int type)
                      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // solid except for top
                      {
                         if ((bl == 1) && (br == 1)) fb = s.OuterEdgeT;        // solid to bl and br
-                        if ((bl == 0) && (br == 1)) fb = s.OuterCornerTLTeeT; // open to bl and solid to br
+                        if ((bl == 0) && (br == 1)) fb = s.OuterCornerTLTeeL; // open to bl and solid to br
                         if ((bl == 1) && (br == 0)) fb = s.OuterCornerTRTeeR; // solid to bl and open to br
                         if ((bl == 0) && (br == 0)) fb = s.FrameEdgeBTee;     // open to bl and br
                      }

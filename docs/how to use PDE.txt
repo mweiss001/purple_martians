@@ -80,5 +80,32 @@ then there is this section that lines them up in rows
 might need to be manually tweaked as numbers grow...
 
 
+------------------
+
+20260306
+
+PDE has been completely removed.
+No load and save to file, no editor
+Now stored in a vector of structs, manually created in class 'mWSelectionWindow'
+
+struct pde
+{
+   int type;
+   std::string name;
+   std::string desc;
+   std::array<int, 32> ia;
+   std::array<float, 16> fa;
+};
+
+pushCreator("Start Block Creator", 1, 201, 383, "Where players start the level\n\nor re-spawn after death.");
+
+p.ia = { 102, 197, 0, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+pushRegular(p, "Purple Coin", 1,  "");
+
+p.ia = { 3, 500, 1, 2, 2, 0, 0, 30, 1, 0, 0, 5, 30, 0, 0, 18, 0, 160, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 10, 0, 0 };
+p.fa = { 0.00, 0.00, 3.00, 3.57, 2.52, 0.00, 3.00, 10.21, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
+pushRegular(p, "ArchWagon 2", 1,  "Faster");
+
+
 
 

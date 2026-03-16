@@ -9,6 +9,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
+#include "mwBitmapTools.h"
 #include "mwLoop.h"
 #include "mwItem.h"
 #include "mwEnemy.h"
@@ -208,11 +209,24 @@ void mwWindowManager::process_keypress(void)
       mEventQueue.proc(1);
    }
 
+   if (mInput.key[ALLEGRO_KEY_Q][0])
+   {
+      while (mInput.key[ALLEGRO_KEY_Q][0]) mEventQueue.proc(1);
+      mBitmapTools.copy_tiles();
+   }
+
+
+
    if (active == 0)
    {
-      int ret = mMiscFnx.exit_level_editor_dialog();
-      if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
-      if (ret == 2) active = 1; // cancel
+
+
+      // int ret = mMiscFnx.exit_level_editor_dialog();
+      // if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
+      // if (ret == 2) active = 1; // cancel
+
+
+
    }
 }
 

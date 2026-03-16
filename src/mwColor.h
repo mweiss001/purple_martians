@@ -9,6 +9,9 @@ class mwColor
    void show_palette();
    int get_contrasting_color(int color);
 
+
+
+
    ALLEGRO_COLOR pc[256];
    int flash_color = 0;
    int flash_color2 = 0;
@@ -33,6 +36,12 @@ class mwColor
    ALLEGRO_COLOR Aqua;
    ALLEGRO_COLOR Yellow;
    ALLEGRO_COLOR White;
+
+
+   void map_rgb_to_hsl(ALLEGRO_COLOR, float &h, float &s, float &l);
+
+   bool compareColor(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float tolerance);
+
 
 };
 extern mwColor mColor;

@@ -41,6 +41,17 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+to do for tilesets:
+
+make color controls better
+
+add locked and breakable to tileset
+
+
+
+
+
+
 I really need a visual level load in level editor
 
 

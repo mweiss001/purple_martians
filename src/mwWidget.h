@@ -15,10 +15,14 @@ class mwWidget
 
    void slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                     int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
-   void slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                    int &var, float sul, float sll, float sinc, const char *txt);
-   void sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                    float &var, float sul, float sll, float sinc, const char *txt);
+
+   bool slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
+                int q4, int q5, int q6, int q7,
+                int &var, float sul, float sll, float sinc, const char *txt);
+
+   bool sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
+                int q4, int q5, int q6, int q7,
+                float &var, float sul, float sll, float sinc, const char *txt);
 
 
 

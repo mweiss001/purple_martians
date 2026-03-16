@@ -99,6 +99,16 @@ struct tileSet
    int OuterCornerTLDiag;
 
 
+   int HLineMKeyR;
+   int HLineMKeyG;
+   int HLineMKeyB;
+   int HLineMKeyP;
+
+   int VLineMKeyR;
+   int VLineMKeyG;
+   int VLineMKeyB;
+   int VLineMKeyP;
+
 
 
 };
@@ -108,14 +118,9 @@ class mwTileSets
 {
    private:
 
-      bool findTileFrameSet(struct tileSet &t, int tile);
-      bool findTileSolidSet(struct tileSet &t, int tile);
-
-      struct tileSet ts;
+   void init();
 
       void constructExtendedSet(std::string name, int i);
-
-
 
       tileSet constructSolidRectangleSet(std::string name, int i);
       tileSet constructFrameRectangleSet(std::string name, int i);
@@ -127,12 +132,16 @@ class mwTileSets
       void setHline(int i, int left, int middle, int right);
       void setVline(int i, int top, int middle, int bottom);
 
-      int loaded = 0;
 
    public:
 
-   void init();
+      mwTileSets();
 
+      struct tileSet ts;
+
+      bool findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type = 0);
+
+      bool isTileKeyedBlock(int tileIndex, int keyIndex);
 
       std::vector<tileSet> tileSets;
 

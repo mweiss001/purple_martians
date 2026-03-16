@@ -8,6 +8,7 @@
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwDisplay.h"
+#include "mwTileSets.h"
 #include "mwTriggerEvent.h"
 
 
@@ -135,7 +136,9 @@ void mwItem::proc_key_block_range(int i, int action)
          if (item[i][12]) // matching keyed blocks only
          {
             int key = item[i][1] - 1039;
-            if (((mLevel.l[x][y]&1023) == 188 + key) || ((mLevel.l[x][y]&1023) == 204 + key) || ((mLevel.l[x][y]&1023) == 220 + key))
+            int t = mLevel.l[x][y] & 1023;
+            // is tile part of extended block set and matches color, or legacy set from 220
+            if (mTileSets.isTileKeyedBlock(t, key) || (t == 220 + key))
             {
                if (action == 1) mLevel.change_block(x, y, 0);
                if (action == 2) bomb_block_crosshairs(x, y);

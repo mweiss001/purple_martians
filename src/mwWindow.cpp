@@ -501,20 +501,18 @@ void mwWindow::cm_process_menu_bar(int d)
    if (mWidget.buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Advanced"))
    {
       strcpy (mMenu.menu_string[0],"Advanced");
-      strcpy (mMenu.menu_string[1],"Predefined Enemy Editor");
-      strcpy (mMenu.menu_string[2],"Global Level Tool");
-      strcpy (mMenu.menu_string[3],"Level Viewer!");
-      strcpy (mMenu.menu_string[4],"Animation Sequence Editor");
-      strcpy (mMenu.menu_string[5],"Copy Tiles");
-      strcpy (mMenu.menu_string[6],"Default Flag Editor");
-      strcpy (mMenu.menu_string[7],"end");
+      strcpy (mMenu.menu_string[1],"Global Level Tool");
+      strcpy (mMenu.menu_string[2],"Level Viewer!");
+      strcpy (mMenu.menu_string[3],"Animation Sequence Editor");
+      strcpy (mMenu.menu_string[4],"Copy Tiles");
+      strcpy (mMenu.menu_string[5],"Default Flag Editor");
+      strcpy (mMenu.menu_string[6],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
-//      if (ret == 1) mPDE.run();
-      if (ret == 2) mGlobalLevelTool.execute();
-      if (ret == 3) mVisualLevel.level_viewer();
-      if (ret == 4) mBitmapTools.animation_sequence_editor();
-      if (ret == 5) mBitmapTools.copy_tiles();
-      if (ret == 6) mBitmapTools.edit_btile_attributes();
+      if (ret == 1) mGlobalLevelTool.execute();
+      if (ret == 2) mVisualLevel.level_viewer();
+      if (ret == 3) mBitmapTools.animation_sequence_editor();
+      if (ret == 4) mBitmapTools.copy_tiles();
+      if (ret == 5) mBitmapTools.edit_btile_attributes();
    }
    x1 += 76;
 

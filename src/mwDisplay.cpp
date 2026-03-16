@@ -251,6 +251,12 @@ int mwDisplay::init_display(void)
    // see visual level select, etc..
    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
 
+   /*
+
+   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
+   al_set_new_display_option(ALLEGRO_SAMPLES, 2, ALLEGRO_REQUIRE);
+
+*/
   // al_set_new_display_option(ALLEGRO_SWAP_METHOD, 1, ALLEGRO_REQUIRE);
   // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
   // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);

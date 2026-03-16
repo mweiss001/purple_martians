@@ -23713,6 +23713,807 @@ I really want to re-create a tile editor, how hard could it be?
 
 for now I need to commit and push...
 
+2026-03-12 04:44:00
+
+
+I have a bug in the tileset extended code
+test on level 32..fixed
+
+make color controls better
+
+why do I keep getting errors when loading mW.pm
+now I can't reproduce the error...
+in code, I delete the file after loading
+my issues could come from force exiting the program...then it won't get resaved...
+
+work on auto gen tileset
+make block display look nicer
+
+make color controls better
+
+
+---------------------------------------------------------
+temp disable level editor exit prompt
+---------------------------------------------------------
+void mwWindowManager::process_keypress(void)
+
+
+  76543210765432107654321076543210
+0b01111111111111110000000000000000
+                      0b1111111111
+2^0  = 1     = 1
+2^1  = 2     = 10
+2^2  = 4     = 100
+2^3  = 8     = 1000
+2^4  = 16    = 10000
+2^5  = 32    = 100000
+2^6  = 64    = 1000000
+2^7  = 128   = 10000000
+2^8  = 256   = 100000000
+2^9  = 512   = 1000000000
+2^10 = 1024  = 10000000000
+       1023  =  1111111111
+
+
+
+
+I have 6 extra bits
+
+///
+
+
+thoughts for how the keys could work...
+
+iterate tiles in range
+if tiles are part of extended block set and match appropriate position for key
+
+
+problems?  I used 8 tiles for locked block and still have a very limited set
+
+
+2026-03-13 05:34:07
+
+just do it...
+put those 8 tiles last
+
+make it so that keys respect that...done
+
+
+now should I move all the old keyed pipes to new version?
+
+188, 312
+189, 313
+190, 314
+191, 315
+
+204, 316
+205, 317
+206, 318
+207, 319
+
+yes...done
+now remove old blocks from tilemap...done...
+
+now I want to make a tile in the extended set that looks broken, for B  
+
+I need to make the tile editor
+
+
+there will be a section where the tile is drawn really big
+
+there will also need to be color selection area
+
+I will need to make my own widget for this
+
+mwBitmapTools is over 2500 lines, maybe I should split it...
+
+make something like the framework for copy tiles
+
+what tile?
+
+should I get it from copy?
+
+
+2026-03-14 03:16:47
+
+
+make a color selection/display widget
+
+first rgb sliders
+
+
+I will need to do HSL conversion myself
+
+I already have mwColor class...
+
+I want to make a hue slider that shows the color in a line
+
+I want to modify slider so that it returns true if changed..done
+
+2026-03-14 08:05:05
+
+I have a nice color selector done
+now what?
+
+
+I looked back at what I used to have....
+
+I could make a selection then modify it flip, scroll rotate, but no copy?
+
+I need to implement that...
+
+make a button to get a new selection...
+too much hassle for now, key 8 for sx1 key 9 for sx2
+
+implemented scroll
+
+2026-03-14 09:04:25
+now do flip...done
+rotate..done
+2026-03-14 09:18:18
+
+wow that was fast...now what?
+
+how do I set selection?
+
+hold control and start dragging...
+
+
+2026-03-14 09:20:30
+
+how about I make bitmap editor its own class?
+
+right now I am trying to jam everything into one function
+then I can have a class wide selection
+
+2026-03-14 09:49:36
+
+ok it is now a class mwTileEditor
+
+
+now what?
+
+sx...are all private class variables
+
+make another way to set selection
+hold control and drag
+2026-03-14 10:16:39
+done
+
+now what if I want to paste selection?
+make a button for that
+
+seems to be working!!
+
+now what?
+
+primitive drawing:
+line
+rect
+rectfill
+circle
+circlefill
+
+color replace:
+
+multiple tiles:
+
+original color palette detection and selection
+
+draw mode:
+primitive and paste
+
+what can I make common?
+draw the bitmap at scale, frame and gridline and selection
+pass arbitrary  bitmap for when using temp...
+
+that is all done and looking good...
+do something more with draw mode
+add line width slider
+
+I think I have all the primitives done...
+
+now do something more with color palette...added legacy colors
+
+add a load button right beside save for undo...done
+
+now how about a find or replace color
+
+I really want a palette of tiles accessible from with editor that I can copy and past from
+
+what would that look like?
+
+how about a 3x3 grid?
+
+how will I fill it?
+
+copy to other tile
+
+2026-03-15 04:49:15
+many things are done
+
+what do I want to get done today?
+
+remove pde from menu..done
+
+link bitmap things better
+
+copy is where they all start from
+
+tileset creation and bitmap editor all start from there
+
+- make a way to merge bitmaps, or draw one on another
+
+what if I had selection shown separately 
+then I could manip it separately and paste it back instead of in place like I do now
+
+2026-03-15 08:27:57
+
+spent a few hours cleaning up and refactoring
+
+now what?
+
+I want the color select things to look better...
+right now they are functional but ugly
+
+can i also get a color swatch to click on to set color?
+
+instead of a slider I want an area I can just click on
+or mouse over.
+
+should I make a widget?
+
+fuck yeah!!
+
+do it for red
+
+live mouse over non-slider
+
+lmons
+click to set slider with mouse over capability
+
+what if I just work with doubles or floats for rgb....
+convert if necessary to display...
+
+2026-03-15 11:40:50
+
+colorClickSliders with hover position are fucking amazing!!
+
+now lets see if I can make them more compact
+
+maybe put a + - button on either side for fine adjust
+2026-03-15 13:08:06
+
+the color controls are done and look amazing...
+
+now what?
+
+I kind of wanted to be able to replace a color
+
+set that draw mode...
+
+then when hovering over tilemap, show colors that would be replaced if you click
+
+sounds good...
+
+2026-03-15 13:15:46
+
+2026-03-15 14:05:56
+replace color done
+
+
+
+2026-03-15 14:06:48
+now how about merging tiles
+
+I could just modify paste selection and make it do an alpha mask first...
+I was as easy as one line
+now make it so I can change it..done
+2026-03-15 14:27:02
+
+make it so that mouse b2 will cancel paste mode..done
+make it so that in paste mode selection yellow rect is either hidden or follows paste..hidden
+make it so that mouse off screen could still paste
+only for less than zero...done...
+now what?
+
+I think I want to dogfood it a bit...
+
+
+2026-03-15 15:09:40
+
+create_tileset_solid(bs, 896, h1, h2, s1, s2, l1, l2, steps, round);
+
+
+2026-03-15 16:48:51
+
+how do I autogenerate tilesets?
+
+there should always be the main extended tileset from 256-319
+it is completely generated from code
+
+the only frame set I have is the wire and that is manually created
+832-848
+
+then I have 2 rainbow sets of 8 tiles each, also manually created
+672 and 704
+
+then I have 5 solid sets, mostly generated but based on a solid starting shape
+
+
+2026-03-15 18:47:14
+
+I want to document this much better...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

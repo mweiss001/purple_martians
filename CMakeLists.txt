@@ -160,6 +160,8 @@ add_executable(pm
         src/mwTileSets.h
         src/mwSelectionWindow.cpp
         src/mwSelectionWindow.h
+        src/mwTileEditor.cpp
+        src/mwTileEditor.h
 )
 
 

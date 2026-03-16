@@ -24,6 +24,7 @@ mwColor::mwColor()
    pc[14] = al_map_rgb(255, 255,   0); // yellow
    pc[15] = al_map_rgb(255, 255, 255); // white
 
+
    // fade base colors 1-15
    for (int a=1; a<16; a++)
    {
@@ -39,6 +40,7 @@ mwColor::mwColor()
          pc[a+x*16]  = al_map_rgb_f(nr, ng, nb);
       }
    }
+
 
    // reverse fade black (color 0)
    for (int x=1; x<16; x++)
@@ -132,3 +134,79 @@ int mwColor::get_contrasting_color(int color)
 //   if (color == 0) return 15;
    return 15;
 }
+
+
+bool mwColor::compareColor(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float tolerance)
+{
+   if ( (abs(c1.r - c2.r) < tolerance) && (abs(c1.g - c2.g) < tolerance) && (abs(c1.b - c2.b) < tolerance) ) return true;
+   return false;
+}
+
+
+
+
+
+void mwColor::map_rgb_to_hsl(ALLEGRO_COLOR c, float &h, float &s, float &l)
+{
+   float r, g, b;
+   al_unmap_rgb_f(c, &r, &g, &b);
+
+   // Find the maximum and minimum values of normalized R, G, B
+   double maxVal = std::max({r, g, b});
+   double minVal = std::min({r, g, b});
+   double delta = maxVal - minVal;
+
+   h = 0;
+   s = 0;
+   l = (maxVal + minVal) / 2.0;
+
+   if (delta == 0)
+   {
+      // Achromatic (grey) case
+      h = 0;
+      s = 0;
+   }
+   else
+   {
+      // Chromatic case: calculate saturation
+      s = (l <= 0.5) ? (delta / (maxVal + minVal)) : (delta / (2.0 - maxVal - minVal));
+
+      // Calculate hue based on which channel is maximum
+      if (maxVal == r)
+      {
+         h = (g-b) / delta + (g < b ? 6.0 : 0.0);
+      }
+      else if (maxVal == g)
+      {
+         h = 2.0 + (b-r) / delta;
+      }
+      else if (maxVal == b)
+      {
+         h = 4.0 + (r-g) / delta;
+      }
+      h *= 60.0; // Convert to degrees
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

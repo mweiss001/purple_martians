@@ -47,8 +47,6 @@ void mwSelectionWindow::set_block_extended(int t, int y)
 {
    int x = 0;
 
-   mTileSets.init();
-
    for (const auto& s : mTileSets.tileSets)
       if (s.startIndex == t && s.extendedMode)
       {
@@ -111,6 +109,21 @@ void mwSelectionWindow::set_block_extended(int t, int y)
          block_set_set(s.OuterCornerTLDiag,   x+10, y+3);
 
          block_set_set(s.SolidFill,           x+11, y+2);
+
+
+         block_set_set(s.HLineMKeyR,          x+12, y+0);
+         block_set_set(s.HLineMKeyG,          x+12, y+1);
+         block_set_set(s.HLineMKeyB,          x+12, y+2);
+         block_set_set(s.HLineMKeyP,          x+12, y+3);
+
+         block_set_set(s.VLineMKeyR,          x+13, y+0);
+         block_set_set(s.VLineMKeyG,          x+13, y+1);
+         block_set_set(s.VLineMKeyB,          x+13, y+2);
+         block_set_set(s.VLineMKeyP,          x+13, y+3);
+
+
+
+
       }
 
 }
@@ -291,30 +304,32 @@ void mwSelectionWindow::load_pde()
    pushRegular(p, "Rocket", 1,  "");
 
 
-   p.ia = { 104, 1041, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-   pushRegular(p, "Blue Key", 1,  "");
+   p.ia = { 104, 1039, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   pushRegular(p, "Red Key", 1,  "");
 
    p.ia = { 104, 1040, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Green Key", 1,  "");
 
+   p.ia = { 104, 1041, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   pushRegular(p, "Blue Key", 1,  "");
+
    p.ia = { 104, 1042, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Purple Key", 1,  "");
 
-   p.ia = { 104, 1039, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-   pushRegular(p, "Red Key", 1,  "");
 
 
-   p.ia = { 114, 99, 0, 0, 0, 0, 0, 0, 2000, 2000, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   p.ia = { 114, 98, 0, 0, 0, 0, 0, 0, 2000, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Red Switch", 1,  "");
 
    p.ia = { 114, 97, 0, 0, 0, 0, 0, 0, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Green Switch", 1,  "");
 
+   p.ia = { 114, 99, 0, 0, 0, 0, 0, 0, 2000, 2000, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   pushRegular(p, "Blue Switch", 1,  "");
+
    p.ia = { 114, 100, 0, 0, 0, 0, 0, 0, 2000, 2000, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Purple Switch", 1,  "");
 
-   p.ia = { 114, 98, 0, 0, 0, 0, 0, 0, 2000, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-   pushRegular(p, "Red Switch", 1,  "");
 
 
 
@@ -391,10 +406,6 @@ void mwSelectionWindow::load_pde()
 
    p.ia = { 118, 940, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Gate", 1,  "");
-
-
-
-
 
 
 }
