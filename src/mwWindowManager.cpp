@@ -17,6 +17,7 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
+#include "mwTileEditor.h"
 
 mwWindowManager mWM;
 
@@ -214,6 +215,20 @@ void mwWindowManager::process_keypress(void)
       while (mInput.key[ALLEGRO_KEY_Q][0]) mEventQueue.proc(1);
       mBitmapTools.copy_tiles();
    }
+
+
+   if (mInput.key[ALLEGRO_KEY_E][0])
+   {
+      while (mInput.key[ALLEGRO_KEY_E][0]) mEventQueue.proc(1);
+      {
+         mwTileEditor te;
+         te.edit_tile(0);
+      }
+
+
+
+   }
+
 
 
 

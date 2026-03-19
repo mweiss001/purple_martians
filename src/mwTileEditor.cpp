@@ -90,7 +90,7 @@ void mwTileEditor::flip_selection(ALLEGRO_BITMAP *t, int x, int y)
    al_destroy_bitmap(tmp);
 }
 
-void mwTileEditor::rotate_selection(ALLEGRO_BITMAP *t, float a)
+void mwTileEditor::rotate_selection(ALLEGRO_BITMAP *t, float deg)
 {
    fix_sel();
    // get selection
@@ -102,179 +102,11 @@ void mwTileEditor::rotate_selection(ALLEGRO_BITMAP *t, float a)
    float cy = (float)sh/2;
 
    al_set_target_bitmap(t);
-   if (a>0) al_draw_rotated_bitmap(tmp, cx, cy, sx1+cx, sy1+cy, ALLEGRO_PI * a, 0);
-   if (a<0) al_draw_rotated_bitmap(tmp, cx, cy, sx1+cx, sy1+cy, ALLEGRO_PI * a, 0);
+   al_draw_rotated_bitmap(tmp, cx, cy, sx1+cx, sy1+cy, deg * ALLEGRO_PI / 180, 0);
    al_destroy_bitmap(tmp);
 }
 
-bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c)
-{
-   bool changed = false;
-
-   // for the slider only
-   float sx1 = x1+bts;
-   float sx2 = x2-bts;
-
-   float y2 = y1 + bts - 1;
-
-   float min = 0;
-   float max = 1;
-
-   if (type == 4) max = 360;
-
-   float sw = sx2-sx1;
-   float sxc = sx1+sw/2;
-   float tyc = y1+(y2-y1-8)/2;
-
-
-   // color incs
-   float ri = 0;
-   float gi = 0;
-   float bi = 0;
-   float hi = 0;
-   float si = 0;
-   float li = 0;
-   if (type == 1) ri = 1 / sw;
-   if (type == 2) gi = 1 / sw;
-   if (type == 3) bi = 1 / sw;
-   if (type == 4) hi = 360/sw;
-   if (type == 5) si = 1 / sw;
-   if (type == 6) li = 1 / sw;
-
-
-   // draw background
-   if (type > 0 && type < 4)
-   {
-      for (float i=0; i<sw; i++)
-         al_draw_line(sx1+i, y1, sx1+i, y2, al_map_rgb_f(i*ri, i*gi, i*bi), 1);
-   }
-   if (type == 4)
-   {
-      for (float i=0; i<sw; i++)
-         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(i*hi, 1.0, 0.5), 1);
-   }
-   if (type == 5)
-   {
-      float h, s, l;
-      mColor.map_rgb_to_hsl(c, h, s, l);
-
-      for (float i=0; i<sw; i++)
-         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(h, i*si, l), 1);
-   }
-   if (type == 6)
-   {
-      float h, s, l;
-      mColor.map_rgb_to_hsl(c, h, s, l);
-      for (float i=0; i<sw; i++)
-         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(h, s, i*li), 1);
-   }
-
-   // frame
-   al_draw_rectangle(x1, y1, x2, y2, mColor.White, 1);
-
-   // get var position and draw
-   float vx = map_range(val, min, max,  sx1, sx2);
-   al_draw_line(vx, y1, vx, y2, mColor.White, 2);
-
-   // draw + and minus lines and text
-   al_draw_rectangle(sx1, y1, sx1, y2, mColor.White, 1);
-   al_draw_rectangle(sx2, y1, sx2, y2, mColor.White, 1);
-
-   al_draw_text(mFont.pr8, mColor.White, x1 + (sx1-x1)/2, tyc, ALLEGRO_ALIGN_CENTER, "-");
-   al_draw_text(mFont.pr8, mColor.White, x2 + (sx2-x2)/2, tyc, ALLEGRO_ALIGN_CENTER, "+");
-
-
-   // mouse on - button
-   if (mInput.mouse_x > x1 && mInput.mouse_x < sx1 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
-   {
-      if (mInput.mouse_b[1][0])
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         changed = true;
-         if (type == 4) val -= 0.5;
-         else val -= 0.002;
-         if (val < 0) val = 0;
-      }
-   }
-
-
-   // mouse on + button
-   if (mInput.mouse_x > sx2 && mInput.mouse_x < x2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
-   {
-      if (mInput.mouse_b[1][0])
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         changed = true;
-         if (type == 4) val += 0.5;
-         else val += 0.002;
-         if (val > 360) val = 360;
-         if (type != 4) if (val > 1.0) val = 1.0;
-      }
-   }
-
-
-
-
-
-
-   if (mInput.mouse_x > sx1 && mInput.mouse_x < sx2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
-   {
-      hover = true;
-
-      // get hover value from mouse position and draw
-      float x = mInput.mouse_x;
-      hover_val = map_range(x, sx1, sx2, min, max);
-      al_draw_line(x, y1, x, y2, mColor.White, 2);
-
-      if (mInput.mouse_b[1][0])
-      {
-         changed = true;
-         val = hover_val;
-      }
-   }
-
-   char name[256];
-   sprintf(name, "%s", "");
-   if (type == 1) sprintf(name, "%s", "red");
-   if (type == 2) sprintf(name, "%s", "green");
-   if (type == 3) sprintf(name, "%s", "blue");
-   if (type == 4) sprintf(name, "%s", "hue");
-   if (type == 5) sprintf(name, "%s", "sat");
-   if (type == 6) sprintf(name, "%s", "light");
-
-   char msg[80];
-   if (type > 0 && type < 4)
-   {
-      int ival = (int)(val*255);
-      int hval = (int)(hover_val*255);
-      sprintf(msg, "%s:%d", name, ival);
-      if (hover) sprintf(msg, "%s:%d [%d]", name, ival, hval);
-      al_draw_text(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, msg);
-   }
-
-   if (type == 4)
-   {
-      int ival = (int)val;
-      int hval = (int)hover_val;
-      sprintf(msg, "%s:%d", name, ival);
-      if (hover) sprintf(msg, "%s:%d [%d]", name, ival, hval);
-      al_draw_text(mFont.pr8, mColor.Black, sxc, tyc, ALLEGRO_ALIGN_CENTER, msg);
-   }
-
-   if (type > 4 && type < 7)
-   {
-      sprintf(msg, "%s:%3.2f", name, val);
-      if (hover) sprintf(msg, "%s:%3.2f [%3.2f]", name, val, hover_val);
-      al_draw_text(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, msg);
-   }
-
-  y1 += bts;
-
-  return changed;
-}
-
-
-void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width)
+void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width, int bts)
 {
    ALLEGRO_COLOR show_color = c;
 
@@ -283,11 +115,11 @@ void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int
 
    float xa = x+o+fpw+2;
    float xb = x+o+width-2;
-   int bts = 16;
+
    //bts += mLoop.pct_y;
 
    int height = 4 + bts*6;
-   height += mLoop.pct_y;
+   //height += mLoop.pct_y;
 
    float r, g, b;
    al_unmap_rgb_f(c, &r, &g, &b);
@@ -302,6 +134,8 @@ void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int
    bool s_hover = false;
    bool l_hover = false;
 
+   bool na = false;
+
    float r_hover_val = 0;
    float g_hover_val = 0;
    float b_hover_val = 0;
@@ -311,9 +145,9 @@ void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int
 
    float ya = y+2;
 
-   if (colorClickSlider(1, xa, ya, xb, bts, r, r_hover, r_hover_val, c)) c = al_map_rgb_f(r,g,b);
-   if (colorClickSlider(2, xa, ya, xb, bts, g, g_hover, g_hover_val, c)) c = al_map_rgb_f(r,g,b);
-   if (colorClickSlider(3, xa, ya, xb, bts, b, b_hover, b_hover_val, c)) c = al_map_rgb_f(r,g,b);
+   if (mWidget.colorClickSlider(1, xa, ya, xb, bts, r, r_hover, r_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
+   if (mWidget.colorClickSlider(2, xa, ya, xb, bts, g, g_hover, g_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
+   if (mWidget.colorClickSlider(3, xa, ya, xb, bts, b, b_hover, b_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
    if (r_hover) show_color = al_map_rgb_f(r_hover_val, g,           b );
    if (g_hover) show_color = al_map_rgb_f(r,           g_hover_val, b );
    if (b_hover) show_color = al_map_rgb_f(r,           g,           b_hover_val );
@@ -321,9 +155,9 @@ void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int
    ya +=2;
    al_draw_line(x+o+fpw, ya+o-2, x+o+width, ya+o+-2, mColor.White, 1); // line between rgb and hsl
    
-   if (colorClickSlider(4, xa, ya, xb, bts, h, h_hover, h_hover_val, c)) c = al_color_hsl(h, s, l);
-   if (colorClickSlider(5, xa, ya, xb, bts, s, s_hover, s_hover_val, c)) c = al_color_hsl(h, s, l);
-   if (colorClickSlider(6, xa, ya, xb, bts, l, l_hover, l_hover_val, c)) c = al_color_hsl(h, s, l);
+   if (mWidget.colorClickSlider(4, xa, ya, xb, bts, h, h_hover, h_hover_val, c, na)) c = al_color_hsl(h, s, l);
+   if (mWidget.colorClickSlider(5, xa, ya, xb, bts, s, s_hover, s_hover_val, c, na)) c = al_color_hsl(h, s, l);
+   if (mWidget.colorClickSlider(6, xa, ya, xb, bts, l, l_hover, l_hover_val, c, na)) c = al_color_hsl(h, s, l);
    if (h_hover) show_color = al_color_hsl(h_hover_val, s,           l );
    if (s_hover) show_color = al_color_hsl(h,           s_hover_val, l );
    if (l_hover) show_color = al_color_hsl(h,           s,           l_hover_val );
@@ -449,24 +283,37 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
 
 
 
-
 void mwTileEditor::legacy_color_select(int x1, int y1, int size)
 {
-   int x2 = x1 + size*16;
-   int y2 = y1 + size*16;
+   ALLEGRO_COLOR sfc = mColor.Aqua;
+
+   int x2 = x1 + size*16 + 1;
+   int y2 = y1 + size*16 + 18;
+
+   // frame
+   al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, sfc, 1);
+
+   int xc = x1 + (x2-x1)/2;
+   int ya = y1+3;
+   mWidget.mButton(5, xc, -1, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Legacy Color Select");
+   al_draw_line(x1+o, ya+o+14, x2+o, ya+o+14, sfc, 1);
+
+   // grid coordinates
+   float gx1 = x1+1;
+   float gy1 = ya+15;
+   float gx2 = gx1 + size*16;
+   float gy2 = gy1 + size*16;
 
    for (int x=0; x<16; x++)
       for (int y=0; y<16; y++)
-         al_draw_filled_rectangle(x1+x*size, y1+y*size, x1+(x+1)*size, y1+(y+1)*size, mColor.pc[y*16+x]);
-
-   al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, highlight_color, 1);
+         al_draw_filled_rectangle(gx1+x*size, gy1+y*size, gx1+(x+1)*size, gy1+(y+1)*size, mColor.pc[y*16+x]);
 
    // is mouse on grid?
-   if (mInput.mouse_x > x1 && mInput.mouse_x < x2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
+   if (mInput.mouse_x > gx1 && mInput.mouse_x < gx2 && mInput.mouse_y > gy1 && mInput.mouse_y < gy2)
    {
       // what color is mouse pointing at?
-      int x = (mInput.mouse_x - x1) / size;
-      int y = (mInput.mouse_y - y1) / size;
+      int x = (mInput.mouse_x - gx1) / size;
+      int y = (mInput.mouse_y - gy1) / size;
       int pc = y*16 + x;
       point_color = mColor.pc[pc];
 
@@ -474,7 +321,7 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, 0, "col:%d", pc);
 
-      color_controls("point", point_color, dx1+200, dy2+14, 170);
+      color_controls("point", point_color, pcw_x, pcw_y, pcw_w, pcw_bts);
 
       if (mInput.mouse_b[1][0])
       {
@@ -483,6 +330,14 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
       }
    }
 }
+
+
+
+
+
+
+
+
 
 void mwTileEditor::tile_palette_select(int x1, int y1, int size)
 {
@@ -510,22 +365,37 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
       }
 
    al_set_target_backbuffer(mDisplay.display);
-   al_draw_scaled_bitmap(tile_palette_bitmap, 0,0,60,60, x1, y1, size*60, size*60, 0);
 
-   int x2 = x1 + size*60;
-   int y2 = y1 + size*60;
+   ALLEGRO_COLOR sfc = mColor.Green;
 
-   al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, highlight_color, 1);
+   int x2 = x1 + size*60+1;
+   int y2 = y1 + size*60+18;
+
+   // frame
+   al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, sfc, 1);
+
+   int xc = x1 + (x2-x1)/2;
+   int ya = y1+3;
+   mWidget.mButton(5, xc, -1, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Tile Select");
+   al_draw_line(x1+o, ya+o+14, x2+o, ya+o+14, sfc, 1);
+
+   // grid coordinates
+   float gx1 = x1+1;
+   float gy1 = ya+15;
+   float gx2 = gx1 + size*60;
+   float gy2 = gy1 + size*60;
+
+   al_draw_scaled_bitmap(tile_palette_bitmap, 0,0,60,60, gx1, gy1, size*60, size*60, 0);
 
    // is mouse on grid?
-   if (mInput.mouse_x > x1 && mInput.mouse_x < x2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
+   if (mInput.mouse_x > gx1 && mInput.mouse_x < gx2 && mInput.mouse_y > gy1 && mInput.mouse_y < gy2)
    {
       // what tile is mouse pointing at?
-      int x = (mInput.mouse_x - x1) / (size*20);
-      int y = (mInput.mouse_y - y1) / (size*20);
+      int x = (mInput.mouse_x - gx1) / (size*20);
+      int y = (mInput.mouse_y - gy1) / (size*20);
       int tile = tile_palette[y][x];
 
-      // show text of current mouse pixel position x, y
+      // show text of current mouse position x, y
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, 0, "tile:%d", tile);
 
@@ -541,7 +411,7 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
 void mwTileEditor::selection_controls(int x, int y)
 {
    int x1 = x;
-   int xw = 168;
+   int xw = 180;
    //xw += mLoop.pct_x;
 
    int x2 = x1 + xw;
@@ -570,6 +440,8 @@ void mwTileEditor::selection_controls(int x, int y)
    int xa = x1+2;
    int xb = x2-2;
 
+   int tty = ya; // save tool tip y position to draw later
+
    mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Selection");
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
@@ -581,6 +453,9 @@ void mwTileEditor::selection_controls(int x, int y)
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
+
+   mWidget.mToolTip(5, xc, -1, 1, tty+bts+5, bts,    0,   1, 1, 3,    0, 15, 15,   "CTRL + mouse drag sets new selection", xa, tty-2, xb, tty+20);
+
 
    if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Up"))    scroll_selection(edit_tile_bitmap,  0, -1);
    ya+= bts+2;
@@ -602,10 +477,21 @@ void mwTileEditor::selection_controls(int x, int y)
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
 
-   if (mWidget.mButton(3, xa, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "CCW"))  rotate_selection(edit_tile_bitmap, 0.5);
-   if (mWidget.mButton(3, xa+20, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "CCW"))  rotate_selection(edit_tile_bitmap, .25);
-       mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, "Rotate");
-   if (mWidget.mButton(4, -1, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "CW"))  rotate_selection(edit_tile_bitmap, 1.5);
+   char rot[256];
+   sprintf(rot, "Rotate %2.0f", rotate_degrees);
+
+   if (mWidget.mButton(3, xa, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "-"))  rotate_selection(edit_tile_bitmap, -rotate_degrees);
+   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, rot))
+   {
+      if      (rotate_degrees == 90) rotate_degrees = 45;
+      else if (rotate_degrees == 45) rotate_degrees = 30;
+      else if (rotate_degrees == 30) rotate_degrees = 22.5;
+      else if (rotate_degrees == 22.5) rotate_degrees = 15;
+      else if (rotate_degrees == 15) rotate_degrees = 10;
+      else if (rotate_degrees == 10) rotate_degrees = 5;
+      else if (rotate_degrees == 5) rotate_degrees = 90;
+   }
+   if (mWidget.mButton(4, -1, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "+"))  rotate_selection(edit_tile_bitmap, rotate_degrees);
    ya+= bts-1;
 
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
@@ -664,16 +550,7 @@ void mwTileEditor::selection_controls(int x, int y)
             }
          }
 
-
-
-
-
-
-
-
-
-
-
+         // allow changing tile while pasting
          tile_palette_select(dx2+20, dy2+20, 3);
 
 
@@ -698,7 +575,7 @@ void mwTileEditor::selection_controls(int x, int y)
 int mwTileEditor::draw_mode_controls(int x, int y)
 {
    int x1 = x;
-   int xw = 168;
+   int xw = 180;
    //xw += mLoop.pct_x;
 
    int x2 = x1 + xw;
@@ -723,12 +600,10 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    // frame
    al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, sfc, 1);
 
-
    // running y
    int ya = y + line_spacing/2;
    int xa = x1+2;
    int xb = x2-2;
-
 
    mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Draw Mode");
    ya+= bts-1;
@@ -746,7 +621,6 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    if (draw_mode == 7) sprintf(dmt, "%s", "Filled Circle");
    if (draw_mode == 8) sprintf(dmt, "%s", "Filled Ellipse");
    if (draw_mode == 9) sprintf(dmt, "%s", "Replace Color");
-
 
    mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, dmt);
    ya+= bts-1;
@@ -777,13 +651,9 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    ya+=bts+2;
    if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Ellipse")) draw_mode = 8;
    ya+=bts+2;
-
    if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Replace Color")) draw_mode = 9;
    ya+=bts+2;
-
-
    return h;
-
 }
 
 
@@ -952,10 +822,21 @@ void mwTileEditor::edit_tile(int tile)
    dx2 = dx1 + dw;
    dy2 = dy1 + dh;
 
+   // screen position of draw and point color widgets
+   dcw_y   = pcw_y   = dy2+14;
+   dcw_w   = pcw_w   = (dw-20) / 2;
+   dcw_bts = pcw_bts = 20;
+   dcw_x   = dx1;
+   pcw_x   = dcw_x + dcw_w + 20;
+
+
+
 
    int quit = 0;
    while (!quit)
    {
+
+
       sprintf(title, "Edit Tile:%d", edit_tile_index);
       edit_tile_redraw(edit_tile_bitmap, true);
 
@@ -969,7 +850,7 @@ void mwTileEditor::edit_tile(int tile)
          // get color of pixel
          point_color = al_get_pixel(edit_tile_bitmap, mx, my);
 
-         color_controls("point", point_color, dx1+200, dy2+14, 170);
+         color_controls("point", point_color, pcw_x, pcw_y, pcw_w, pcw_bts);
 
 
          if (draw_mode == 9)
@@ -1023,8 +904,11 @@ void mwTileEditor::edit_tile(int tile)
          }
       }
 
+
       // show save and load buttons
       int ya = dy1-14;
+
+
       int xa = dx2-86;
       if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,11, 1,0,0,0, "Load"))
       {
@@ -1039,23 +923,62 @@ void mwTileEditor::edit_tile(int tile)
          al_set_target_backbuffer(mDisplay.display);
       }
 
-      int dcw = 170;
-      // dcw += mLoop.pct_x;
-      color_controls("draw", draw_color, dx1, dy2+14, dcw);
 
-      legacy_color_select(dx1+400, dy2+14, 12);
+      xa = dx1+142;
+      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Select Tile"))
+      {
+         set_edit_tile(mBitmapTools.select_bitmap());
+      }
+
+
+      xa = dx1+282;
+      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Copy Tiles"))
+      {
+         mBitmapTools.copy_tiles();
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      color_controls("draw", draw_color, dcw_x, dcw_y, dcw_w, dcw_bts);
 
       // all the widgets to the right of the main tile area
-
       xa = dx2+20;
       ya = 20;
+
       selection_controls(xa, ya);
-
       ya+=152;
-      ya += draw_mode_controls(xa, ya);
 
+      ya += draw_mode_controls(xa, ya);
       ya+=20;
+
       tile_palette_select(xa, ya, 3);
+      ya+=220;
+
+      legacy_color_select(xa, ya, 11);
+
 
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])

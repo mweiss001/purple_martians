@@ -50,7 +50,9 @@ class mwBitmap
    void reset_animation_sequences();
    void update_animation();
 
-   int sa[NUM_SPRITES][2]; // shape attributes
+   int tileFlags[NUM_SPRITES][2]; // shape attributes
+
+
 
    ALLEGRO_BITMAP * create_and_clear_bitmap(int x, int y);
 

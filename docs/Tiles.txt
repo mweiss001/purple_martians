@@ -1,0 +1,135 @@
+20260315
+
+Tiles
+
+
+I have been making a lots of changed recently.
+
+
+
+-------------------
+mwTileSets
+-------------------
+
+I have a new class 'mwTileSets'
+
+It has a vector of 'tileSet' structs
+
+They are a mostly a group of tile indexes.
+
+They are used for:
+- displaying tiles in the selectionWindow
+- drawing tile lines and rects in level editor
+- replacing tiles in tile helper
+- determining if a tile should be removed with a colored keys
+
+
+
+-----------------
+
+I have been working on generating tiles in code:
+void create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+void fill_step_color_array(float h1, float h2, float s1, float s2, float l1, float l2, int steps);
+ALLEGRO_COLOR step_color_array[20];
+int step_color_array_size;
+void draw_and_frame_3x3_bitmap(int type, float round, ALLEGRO_BITMAP *bmp, int tile = 0);
+void draw_lock_overlay_bitmap(ALLEGRO_BITMAP *b, ALLEGRO_COLOR lc);
+void erase_pixels_outside_rounded_corners(ALLEGRO_BITMAP *b, ALLEGRO_COLOR c);
+void make_hline_vline_and_single(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *b60, int indexS, int indexH, int indexV);
+void showTileSet(int x, int y, int type, int bs);
+void showLiveTile(int x, int y, int type, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
+
+void modify_tile_set();
+
+
+what is the procedure right now?
+
+modify this:
+
+void mwTileSet::modify_tile_set()
+{
+   int type = 1; // 0-frame 1-solid 2-extended
+   int base_tile_index = 864;
+   int solid_source_tile_index = 192;
+
+then from copy tiles, press S
+adjust till you like it then record function call
+
+
+These are all the generated tileSets
+
+// yellow thatch
+mTileSets.create_tileset_solid(864, 192, 141.00, 83.00, 0.71, 0.37, 0.36, 0.30, 2, 2.00);
+
+// brain
+mTileSets.create_tileset_solid(896, 193, 237.00, 237.00, 0.15, 0.17, 0.27, 0.13, 2, 2.00);
+
+// grey bricks
+mTileSets.create_tileset_solid(928, 194, 145.00, 145.00, 0.07, 0.10, 0.55, 0.35, 2, 2.00);
+
+// brown bricks
+mTileSets.create_tileset_solid(960, 195, 12.00, 12.00, 0.76, 0.93, 0.12, 0.37, 1, 0.0);
+
+// main extended tileset purple pipes
+mTileSets.create_tileset_extended(256, 266.00, 270.00, 0.88, 0.95, 0.10, 0.35, 10, 0.00);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

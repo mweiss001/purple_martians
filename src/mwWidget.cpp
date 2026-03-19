@@ -1000,7 +1000,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    {
       int tn = mItem.item[num][10]&1023; // block 1
       sprintf(msg, "Block 1: %d", tn);
-      if (press) mBitmapTools.select_bitmap(mItem.item[num][10]);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][10]);
 
       if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
@@ -1018,7 +1018,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    {
       int tn = mItem.item[num][11]&1023; // block 2
       sprintf(msg, "Block 2: %d", tn);
-      if (press) mBitmapTools.select_bitmap(mItem.item[num][11]);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][11]);
 
       if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
@@ -1037,7 +1037,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    {
       int tn = mEnemy.Ei[num][13]&1023;
       sprintf(msg, "Block:%d", tn);
-      if (press) mBitmapTools.select_bitmap(mEnemy.Ei[num][13]);
+      if (press) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[num][13]);
 
       if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
@@ -2491,15 +2491,25 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 
 
 
+void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
+{
+   //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.White, 1); // debug show trigger area
 
+   // check if mouse is on button
+   if ((mInput.mouse_x > tx1) && (mInput.mouse_x < tx2) && (mInput.mouse_y > ty1) && (mInput.mouse_y < ty2))
+   {
+      int x1, y1, x2, y2;
+      xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
 
+      // if (backgroundType == 0) ; do nothing
+      if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+      if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
 
+      if (frameType) al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[fcol], 1);
 
-
-
-
-
-
+      draw_widget_text(x1, y1+1, x2, y2, tcol, 0, txt);
+   }
+}
 
 
 
@@ -2863,6 +2873,164 @@ bool mwWidget::mButtonSmallText(int xType, int xa, int xb, int yType, int ya, in
 
 
 
+bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &changed_flag, bool display_only)
+{
+   bool changed = false;
+   float min = 0;
+   float max = 1;
+   float step = 0.002;
+   int round_decimals = 3;
+
+   if ((type == 1) || (type == 2) || (type == 3)) step = 1/256; // r g b
+
+   if (type == 4) // hue
+   {
+      step = 1.0;
+      max = 360;
+      round_decimals = 0;
+   }
+
+   if ((type == 5) || (type == 6)) // sat and light
+   {
+      step = 0.01;
+      round_decimals = 2;
+   }
+
+
+   if (type == 7) // steps
+   {
+      step = 1.0;
+      max = 20;
+      round_decimals = 0;
+   }
+   if (type == 8)
+   {
+      max = 20; // round
+      step = 0.2;
+      round_decimals = 1;
+   }
+
+   float y2 = y1 + bts - 1;
+
+   // erase background
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.Black);
+
+   // slider position
+   float sx1 = x1+bts;
+   float sx2 = x2-bts;
+   float sw = sx2-sx1;
+   float sxc = sx1+sw/2;
+   float tyc = y1+(y2-y1-8)/2;
+
+   // draw slider background
+   if (type >= 1 && type <= 3) // r g b
+   {
+      float ri = 0;
+      float gi = 0;
+      float bi = 0;
+      if (type == 1) ri = 1 / sw;
+      if (type == 2) gi = 1 / sw;
+      if (type == 3) bi = 1 / sw;
+      for (float i=0; i<sw; i++)
+         al_draw_line(sx1+i, y1, sx1+i, y2, al_map_rgb_f(i*ri, i*gi, i*bi), 1);
+   }
+   if (type == 4) // hue
+   {
+      for (float i=0; i<sw; i++)
+         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(i * (max/sw), 1.0, 0.5), 1);
+   }
+   if (type == 5) // sat
+   {
+      float h, s, l;
+      mColor.map_rgb_to_hsl(c, h, s, l);
+      for (float i=0; i<sw; i++)
+         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(h, i * (max/sw), l), 1);
+   }
+   if (type == 6) // light
+   {
+      float h, s, l;
+      mColor.map_rgb_to_hsl(c, h, s, l);
+      for (float i=0; i<sw; i++)
+         al_draw_line(sx1+i, y1, sx1+i, y2, al_color_hsl(h, s, i * (max/sw)), 1);
+   }
+
+   // frame
+   al_draw_rectangle(x1, y1, x2, y2, mColor.White, 1);
+
+   // draw + and minus lines and text
+   al_draw_rectangle(sx1, y1, sx1, y2, mColor.White, 1);
+   al_draw_rectangle(sx2, y1, sx2, y2, mColor.White, 1);
+   al_draw_text(mFont.pr8, mColor.White, x1 + (sx1-x1)/2, tyc, ALLEGRO_ALIGN_CENTER, "-");
+   al_draw_text(mFont.pr8, mColor.White, x2 + (sx2-x2)/2, tyc, ALLEGRO_ALIGN_CENTER, "+");
+
+
+   if (!display_only)
+   {
+      // mouse on - button
+      if (mInput.mouse_x > x1 && mInput.mouse_x < sx1 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
+      {
+         if (mInput.mouse_b[1][0])
+         {
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+            changed = changed_flag = true;
+            val -= step;
+            if (val < min) val = min;
+         }
+      }
+
+      // mouse on + button
+      if (mInput.mouse_x > sx2 && mInput.mouse_x < x2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
+      {
+         if (mInput.mouse_b[1][0])
+         {
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+            changed = changed_flag = true;
+            val += step;
+            if (val > max) val = max;
+         }
+      }
+
+      if (mInput.mouse_x > sx1 && mInput.mouse_x < sx2 && mInput.mouse_y > y1 && mInput.mouse_y < y2)
+      {
+         hover = true;
+         // get hover value from mouse position
+         hover_val = map_range((float)mInput.mouse_x, sx1, sx2, min, max);
+         if (mInput.mouse_b[1][0])
+         {
+            changed = changed_flag = true;
+            val = hover_val;
+         }
+      }
+   }
+
+   // round here
+   if (type == 8) val = mMiscFnx.roundToDecimalPlaces(val, 1);
+   if (type == 8) hover_val = mMiscFnx.roundToDecimalPlaces(hover_val, 1);
+
+   val = mMiscFnx.roundToDecimalPlaces(val, round_decimals);
+   hover_val = mMiscFnx.roundToDecimalPlaces(hover_val, round_decimals);
+
+   // set display value from either actual value or hover value
+   float display_val = val;
+   if (hover) display_val = hover_val;
+
+   // get x position from display val and draw line
+   float vx = map_range(display_val, min, max,  sx1, sx2);
+   al_draw_line(vx, y1, vx, y2, mColor.White, 2);
+
+   if (type == 1) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "red:%d",       (int) (display_val * 255));
+   if (type == 2) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "green:%d",     (int) (display_val * 255));
+   if (type == 3) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "blue:%d",      (int) (display_val * 255));
+   if (type == 4) al_draw_textf(mFont.pr8, mColor.Black, sxc, tyc, ALLEGRO_ALIGN_CENTER, "hue:%d",       (int) display_val);
+   if (type == 5) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "sat:%3.2f",          display_val);
+   if (type == 6) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "light:%3.2f",        display_val);
+   if (type == 7) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "steps:%d",     (int) display_val);
+   if (type == 8) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "round:%3.1f",        display_val);
+
+   y1 += bts;
+
+  return changed;
+}
 
 
 

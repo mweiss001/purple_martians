@@ -1871,3 +1871,83 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             }
          }
 */
+
+
+
+
+
+
+
+
+
+
+void mwGlobalLevelTool::countTiles()
+{
+   int old_start_level = mLevel.start_level;
+   int le[200] = {0}; // level exists array
+   int num_levs = 0;
+   char fn[20] = "levels/level000.PML";
+   // level range to look for
+   for (int x=0; x<400; x++)
+   {
+      int h, d, rem = x;
+      h = rem/100;
+      fn[12] = 48+h;
+      rem -=h*100;
+      d = rem/10;
+      fn[13] = 48 + d;
+      rem -=d*10;
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   for (int t=0; t<1024;t++)
+      for (int l=0; l<400; l++)
+         tileCount[t][l] = 0;
+
+   // iterate array of found levels
+   for (int i=0; i<num_levs; i++)
+   {
+      mLevel.load_level(le[i], 1, 1);
+
+      if (1)
+      {
+         // tile counter
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
+            {
+               int t = mLevel.l[x][y] & 1023;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+      if (0)
+      {
+         // block manip counter
+         for (int y=0; y<500; y++)
+            if (mItem.item[y][0] == 16)
+            {
+               int t = mItem.item[y][10] & 1023;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+
+               t = mItem.item[y][11] & 1023;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+      if (0)
+      {
+         // block walker counter
+         for (int y=0; y<100; y++)
+            if (mEnemy.Ei[y][0] == 4)
+            {
+               int t = mEnemy.Ei[y][13] & 1023;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+   }
+   mLevel.set_start_level(old_start_level);
+}
+

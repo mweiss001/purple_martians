@@ -24045,1140 +24045,301 @@ then I have 5 solid sets, mostly generated but based on a solid starting shape
 
 I want to document this much better...
 
+started file tiles.txt in docs
 
 
+put my new colder sliders in modify tileset
 
+put it in widget first..done
 
+make a temp show things in modify so I can see the effects of hovering
 
+now extended clickSlider to include steps and round
 
+done...
 
+extend click slider to have passed parameter, changed in addition to return
 
+the function will never clear it, only set it if changed
 
+2026-03-16 07:31:23
 
 
+this is all looking well...
 
+next up, I want some more controls like:
 
+- making both h1 and h2 the same
+- keeping a constant distance between them
+- both independant
 
+same for s and l
 
 
- 
+how will that look like?
 
+mode:
+independant (both h1 and h2 can be adjusted freely)
+locked (moving one moves both with the same offset between them)
 
+I think I just need this.
+- start with them the same and locked
+- unlock and move one
+- lock and they keep offset
 
 
+make 3 checkboxes
 
+I need to implement this for the hover also...
 
+2026-03-17 00:27:01
+if locked, make h2 display only
+add option to clickSlider to make it display only...
+2026-03-17 01:51:12
+I am very happy with clickSlider and lock buttons
 
+now make quick display better...
 
+done...
 
+now back to documenting tilesets...
 
 
+make a common function to set color array from h1, etc
 
+check that it is filled properly
 
 
 
+h1=234.00 h2=87.00  s1=0.10  s2=0.12  l1=0.27  l2=0.47 steps=2
+i:0 - h=234.00  s=0.10  l=0.27
+i:1 - h=160.50  s=0.11  l=0.37
 
+not right!!!
 
+h1=234.00 h2=87.00  s1=0.10  s2=0.12  l1=0.27  l2=0.47 steps=3
+i:0 - h=234.00  s=0.10  l=0.27
+i:1 - h=185.00  s=0.11  l=0.34
+i:2 - h=136.00  s=0.11  l=0.40
 
 
 
 
+h1=234.00 h2=87.00  s1=0.10  s2=0.12  l1=0.27  l2=0.47 steps=2
+i:0 - h=234.00  s=0.10  l=0.27
+i:1 - h=159.50  s=-0.89  l=-0.63
 
 
+h1=234.00 h2=87.00  s1=0.10  s2=0.12  l1=0.27  l2=0.47 steps=2
+i:0 - h=234.00  s=0.10  l=0.27
+i:1 - h=87.00  s=0.12  l=0.47
 
 
+h1=234.00 h2=87.00  s1=0.10  s2=0.12  l1=0.27  l2=0.47 steps=4
+i:0 - h=234.00  s=0.10  l=0.27
+i:1 - h=185.00  s=0.11  l=0.34
+i:2 - h=136.00  s=0.11  l=0.40
+i:3 - h=87.00  s=0.12  l=0.47
 
+fixed by doing div = steps -1
 
 
+should I move all this stuff from mwBitmapTools to mwTileSets
 
+its like 1000 lines
+do it fool!!!
 
+2026-03-17 02:49:17  done
 
+now patch in the common color array thing everywhere..done
 
+can I make the clickSlider round?
+I want hue to be int and wrap
+I want steps to be int
+i want round to be 0.2
+done...
 
 
 
+2026-03-17 06:46:10
+I think I have the tilesets stuff figured out, some notes in tiles.txt
+How about tileEditor?
+that seems to be working well also...
 
+add 'select tile' and 'copy tiles' buttons to top of main grid
 
+make all widgets on right hand side panel have same width as tile select, 180..done
+add title to tile select and legacy color select..done
 
+do something about rotate...
+maybe click rotate button to change from 90 to 45
 
+when hover over select title, pop up text that tells to CTRL mouse drag to set new selection
+why dont I make a widget for that?
+kind of like a combination of a button and a pop-up massage
+I want to have all the same stuff as a regular button but also a 2nd frame
+maybe simpler, just modify existing button
+keep the draw stuff the same, just add a trigger box to display it..
+done...
 
+click rotate button to change from 90 to 45
+just send degrees to function
+done..
+add 'select tile' and 'copy tiles' buttons to top of main grid
+done...
 
+remove link from copy tiles to tile editor and make its own menu item...
+Tile Editor
+how about a keyboard short cut as well? E from level editor
+done..
 
+I think Tile Editor is done!!!
 
+add reload button to copy tiles
+if load is cancelled in copy tiles, program crashes
+fixed
 
 
 
+2026-03-19 02:59:03
 
+I want to add something to copy tile
 
+show usages of each tile
 
 
+It will be an overlay in copy tiles...for each tile show how many usages in levels
 
+the number might be too big, so do mouse over
 
 
+I also want to know what levels...
 
+array of 1024 tiles
+total usages and usgaes per level
 
 
 
+it will need to be an array of arrays, or a vector of vectors
 
 
+i think the outer one can be an array, it is always fixed at 1024 size
 
 
+then it can contain a variable number of tiles per level
 
 
+I need to get the data structure figured out first
 
 
+level - tile - count (by level)
+150 - 1024 - 
+tile - level - count (by tile)
+1024 - 150
 
+150k that is nothing...
 
 
+tile
+total count
+count per level
 
+struct tileCount
+int tile
 
+at the heart each peice of data is, level, block count
 
+a flat array would work:
+int tileCount[1024][200]
+use the special level number 0 for total
+do it fool!!
+where and how?
 
 
 
+level 1 has block 580  589, 591 ??
 
+I should fix this:
 
 
+look like they are hard coded into:
 
+void mwLevel::sob_hline(int x1, int x2, int y, int a)
+{
+   for(int x=x1; x<x2+1; x++)
+   {
+      int block = 0;
+      if (a)
+      {
+                      block = 582 | PM_BTILE_ALL_SOLID; // thru
+         if (x == x1) block = 590 | PM_BTILE_ALL_SOLID;
+         if (x == x2) block = 588 | PM_BTILE_ALL_SOLID;
+      }
+      mLevel.l[x][y] = block;
+   }
+}
 
+void mwLevel::sob_vline(int x, int y1, int y2, int a)
+{
+   for(int y=y1; y<y2+1; y++)
+   {
+      int block = 0;
+      if (a)
+      {
+                      block = 580 | PM_BTILE_ALL_SOLID; // thru
+         if (y == y1) block = 591 | PM_BTILE_ALL_SOLID;
+         if (y == y2) block = 589 | PM_BTILE_ALL_SOLID;
+      }
+      mLevel.l[x][y] = block;
+   }
+}
 
 
+582 = 258
+590 = 257
+588 = 259
 
+580 = 261
+589 = 262
+591 = 260
 
 
+2026-03-19 06:17:07
+I have done tilecount overlays for copy tiles
+and fixed a few things
 
+I want to show overlay about default flags
 
 
+what are they called
 
+   int sa[NUM_SPRITES][2]; // shape attributes
 
+sa shape attributes
+it looks like sa[][1] is not used
+they are saved to sprit file along with animation sequences
 
+what if I just renamed it to 
 
 
+old:
 
+mBitmap.sa
 
+new
+mBitmap.defaultTileFlags
 
+mBitmap.tileFlags
+do it fool!!
 
+now can I reduce it to a single dimension array?
 
+make a temp array in save
 
 
+2026-03-19 06:37:19
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
- 
- 
- 
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+lets commit first...
 
 
 
@@ -25378,132 +24539,6 @@ I want to document this much better...
 
 
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -25521,1037 +24556,6 @@ I want to document this much better...
 
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

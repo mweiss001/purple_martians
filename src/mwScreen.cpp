@@ -580,7 +580,7 @@ void mwScreen::set_map_var(void)
 void mwScreen::mark_non_default_block(int x, int y)
 {
    int c = mLevel.l[x][y] & 1023;
-   if ((mBitmap.sa[c][0] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
+   if ((mBitmap.tileFlags[c][0] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);

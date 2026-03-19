@@ -57,6 +57,11 @@ class mwMiscFnx
    void printBits(size_t const size, void const * const ptr);
 
 
+   void drawTextOnClearedBackground(int x, int y, const char* text, int text_color);
+
+
+
+
 
 
    void printBits2(size_t const size, void const * const ptr);

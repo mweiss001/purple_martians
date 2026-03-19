@@ -31,11 +31,8 @@ if multiple hit cannon, get bigger and faster
 but most of the time, the enemy will die
 
 
-
-
 in mwShot::move_pshots, pshots are checked for wall collisions and out of bounds
 in mwShot::move_eshots, pshots are checked for wall collisions and out of bounds
-
 
 
 
@@ -68,41 +65,9 @@ block damage:
 checks for player, enemy, item, pshot, eshot
 
 
-
 there is one more case:
 vinepod trigger box
 which check for players
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

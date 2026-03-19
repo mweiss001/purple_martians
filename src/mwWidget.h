@@ -4,7 +4,7 @@ class mwWidget
 {
    private:
    void draw_widget_area(int x1, int y1, int x2, int y2, int q1);
-   void draw_widget_text(int x1, int y1, int x2, int y2, int q2, int q5, const char* msg);
+   void draw_widget_text(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg);
    float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2);
    float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2);
    float get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2);
@@ -112,11 +112,12 @@ class mwWidget
                     float sdx, float sul, float sll, int order, const char *msg);
 
 
+   bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
+                         changed_flag, bool display_only = false);
 
 
 
-
-
+   void mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2);
 
 
 

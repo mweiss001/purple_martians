@@ -17,6 +17,23 @@ private:
    // selection in pixels relative the 20x20 tile
    int sx1, sy1, sx2, sy2, sw, sh;
 
+
+   // screen position of draw and point color widgets
+
+   float pcw_x;
+   float pcw_y;
+   float pcw_w;
+   float pcw_bts;
+
+   float dcw_x;
+   float dcw_y;
+   float dcw_w;
+   float dcw_bts;
+
+   float rotate_degrees = 90;
+
+
+
    // mouse index if on main tile
    bool mouse_on_grid;
    int mx, my;
@@ -56,7 +73,7 @@ private:
    void flip_selection(ALLEGRO_BITMAP *t, int x, int y);
    void rotate_selection(ALLEGRO_BITMAP *t, float a);
 
-   void color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width);
+   void color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width, int bts);
 
 
    void selection_controls(int x, int y);

@@ -24,6 +24,7 @@
 #include "mwGlobalLevelTool.h"
 #include "mwHelp.h"
 #include "mwSelectionWindow.h"
+#include "mwTileEditor.h"
 
 
 mwWindow::mwWindow()
@@ -505,14 +506,22 @@ void mwWindow::cm_process_menu_bar(int d)
       strcpy (mMenu.menu_string[2],"Level Viewer!");
       strcpy (mMenu.menu_string[3],"Animation Sequence Editor");
       strcpy (mMenu.menu_string[4],"Copy Tiles");
-      strcpy (mMenu.menu_string[5],"Default Flag Editor");
-      strcpy (mMenu.menu_string[6],"end");
+      strcpy (mMenu.menu_string[5],"Tile Editor");
+      strcpy (mMenu.menu_string[6],"Default Flag Editor");
+      strcpy (mMenu.menu_string[7],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mGlobalLevelTool.execute();
       if (ret == 2) mVisualLevel.level_viewer();
       if (ret == 3) mBitmapTools.animation_sequence_editor();
       if (ret == 4) mBitmapTools.copy_tiles();
-      if (ret == 5) mBitmapTools.edit_btile_attributes();
+      if (ret == 5)
+      {
+         mwTileEditor te;
+         te.edit_tile(0);
+      }
+      if (ret == 6) mBitmapTools.edit_btile_attributes();
+
+
    }
    x1 += 76;
 

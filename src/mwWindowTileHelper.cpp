@@ -1,7 +1,8 @@
 // mwWindowTileHelper.cpp
 
-#include "mwTileSets.h"
+
 #include "pm.h"
+#include "mwTileSets.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 

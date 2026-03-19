@@ -251,8 +251,6 @@ void mwLevel::update_level_status(int lev)
    if (data[lev].status == 3) { sprintf(data[lev].status_text, "Perfect");  data[lev].status_color = 8;  } // purple
 }
 
-
-
 void mwLevel::sob_hline(int x1, int x2, int y, int a)
 {
    for(int x=x1; x<x2+1; x++)
@@ -260,9 +258,12 @@ void mwLevel::sob_hline(int x1, int x2, int y, int a)
       int block = 0;
       if (a)
       {
-                      block = 582 | PM_BTILE_ALL_SOLID; // thru
-         if (x == x1) block = 590 | PM_BTILE_ALL_SOLID;
-         if (x == x2) block = 588 | PM_BTILE_ALL_SOLID;
+                      block = 258 | PM_BTILE_ALL_SOLID; // thru
+         if (x == x1) block = 257 | PM_BTILE_ALL_SOLID;
+         if (x == x2) block = 259 | PM_BTILE_ALL_SOLID;
+         //block = 582 | PM_BTILE_ALL_SOLID; // thru
+         //if (x == x1) block = 590 | PM_BTILE_ALL_SOLID;
+         //if (x == x2) block = 588 | PM_BTILE_ALL_SOLID;
       }
       mLevel.l[x][y] = block;
    }
@@ -275,9 +276,12 @@ void mwLevel::sob_vline(int x, int y1, int y2, int a)
       int block = 0;
       if (a)
       {
-                      block = 580 | PM_BTILE_ALL_SOLID; // thru
-         if (y == y1) block = 591 | PM_BTILE_ALL_SOLID;
-         if (y == y2) block = 589 | PM_BTILE_ALL_SOLID;
+                      block = 261 | PM_BTILE_ALL_SOLID; // thru
+         if (y == y1) block = 260 | PM_BTILE_ALL_SOLID;
+         if (y == y2) block = 262 | PM_BTILE_ALL_SOLID;
+         // block = 580 | PM_BTILE_ALL_SOLID; // thru
+         // if (y == y1) block = 591 | PM_BTILE_ALL_SOLID;
+         // if (y == y2) block = 589 | PM_BTILE_ALL_SOLID;
       }
       mLevel.l[x][y] = block;
    }

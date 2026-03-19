@@ -1,7 +1,6 @@
 Editing tilesets with gimp
 --------------------------
 
-
 20260301
 
 making a new block set
@@ -34,7 +33,6 @@ copy and paste an existing tile then click the green anchor in layers
 O sets the eyedropper tool
 N set pencil
 
-
 there are a few places in code to register the new block set:
 
 void mwWindow::em_set_block_range(void)
@@ -44,7 +42,6 @@ it does it in a rather crazy way....
 it is called when drawing a block range
 
 the first thing it does is generate 3 arrays of block sets
-
 
    // -------------------------------------------
    // rectangles (h>1 && w>1)
@@ -70,6 +67,19 @@ have these structures internally as vectors
 do it fool!!!
 
 done...
+
+
+20260315
+I recreated my bitmap editor, lost when I converted from A4 to A5.
+Now it is back and mush better than the original.
+I no longer need to use an external editor.
+
+
+
+
+
+
+
 
 
 

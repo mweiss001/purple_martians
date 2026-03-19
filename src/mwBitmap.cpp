@@ -232,12 +232,12 @@ void mwBitmap::save_sprit()
    // ensure sa[][0] does not have any bits set other than the ones we want
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      sa[c][0] &= PM_BTILE_ALL_FLAGS;
-      sa[c][1] = 0; // not used
+      tileFlags[c][0] &= PM_BTILE_ALL_FLAGS;
+      tileFlags[c][1] = 0; // not used
    }
    FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
    fwrite(zz, sizeof(zz), 1, fp);
-   fwrite(sa, sizeof(sa), 1, fp);
+   fwrite(tileFlags, sizeof(tileFlags), 1, fp);
    fclose(fp);
 }
 
@@ -247,7 +247,7 @@ int mwBitmap::load_sprit()
    if (fp)
    {
       fread(zz, sizeof(zz), 1, fp);
-      fread(sa, sizeof(sa), 1, fp);
+      fread(tileFlags, sizeof(tileFlags), 1, fp);
       fclose(fp);
       return 1;
    }
