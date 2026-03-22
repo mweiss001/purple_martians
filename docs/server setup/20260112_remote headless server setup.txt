@@ -288,12 +288,6 @@ restore:
 cp -r ~/dev/purple_martians/web/* /var/www/html
 
 
-
-
-
-
-
-
 ----------------------------------------------------------------
 erase all on remote server, reclone from git and compile
 ----------------------------------------------------------------

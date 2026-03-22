@@ -24829,8 +24829,53 @@ save, commit, test
 
 it has been a while since i tested on linux...
 
-
 2026-03-22 09:04:03
+
+
+trying on scat u20
+
+make release
+
+win_copy_to_pmh.bat lin_build_and_release 192.168.1.122
+
+do i not have ssh installed on windows?
+how did this work before?
+
+looks like it is there but path was not...
+C:\Windows\System32\OpenSSH
+sysdm.cpl 
+
+
+now I made a release, but allegro monolith is missing....
+
+
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+cd /usr/lib
+
+
+now it looks like they are here:
+
+-- Installing: /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2.12
+-- Installing: /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2
+-- Installing: /usr/lib/x86_64-linux-gnu/liballegro_monolith.so
+
+changed...
+
+mkdir linux_libs/
+#cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
+#cp /usr/lib/liballegro_monolith-debug.so.5.2 ./linux_libs/
+#cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+
+cp /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2 ./linux_libs/
+cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
+
+
+make another release:
+
+I should really bump version...
+
+
+
 
 
 

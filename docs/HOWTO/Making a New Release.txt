@@ -49,7 +49,6 @@ Then it won't run on ubuntu 20.04 which only has GLIBC_2.31
 The best way is to build with the older version.
 It is forward compatible but not backwards compatible.
 
-
 Follow the instructions to set up a dev system on ubuntu:
 'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
 
