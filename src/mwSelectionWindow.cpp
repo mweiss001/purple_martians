@@ -15,7 +15,7 @@ void mwSelectionWindow::init()
 
 void mwSelectionWindow::block_set_set(int t, int x, int y)
 {
-   block_array[y][x] = t | mBitmap.tileFlags[t][0];        // add to list with default flags+
+   block_array[y][x] = t | mBitmap.tileFlags[t];        // add to list with default flags+
    block_array[y][x] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear select win flag
 }
 
@@ -169,7 +169,7 @@ void mwSelectionWindow::fill_block_array(void)
 
    // add first 256
    for (int c=0; c<256; c++)
-      if (mBitmap.tileFlags[c][0] & PM_BTILE_SHOW_SELECT_WIN) block_set_add(c, x, y);
+      if (mBitmap.tileFlags[c] & PM_BTILE_SHOW_SELECT_WIN) block_set_add(c, x, y);
    x = 0;
    y++;
 

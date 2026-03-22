@@ -23,6 +23,7 @@
 
 #include "mwGlobalLevelTool.h"
 #include "mwHelp.h"
+#include "mwLevelIcons.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
 
@@ -434,7 +435,7 @@ void mwWindow::cm_process_menu_bar(int d)
          }
          mLevel.load_level(mLevel.last_level_loaded, 0, 0);
       }
-      if (ret == 2) mLevel.load_level_prompt();
+      if (ret == 2) mVisualLevel.visual_level_select(400);
       if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
       if (ret == 4) mLevel.save_level(mLevel.last_level_loaded);
       if (ret == 5) mLevel.save_level_prompt();
@@ -519,7 +520,7 @@ void mwWindow::cm_process_menu_bar(int d)
          mwTileEditor te;
          te.edit_tile(0);
       }
-      if (ret == 6) mBitmapTools.edit_btile_attributes();
+      if (ret == 6) mBitmapTools.edit_tile_flags();
 
 
    }

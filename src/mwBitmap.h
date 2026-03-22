@@ -18,7 +18,6 @@ class mwBitmap
    void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
 
-
    ALLEGRO_BITMAP *tilemap;
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;
@@ -50,20 +49,12 @@ class mwBitmap
    void reset_animation_sequences();
    void update_animation();
 
-   int tileFlags[NUM_SPRITES][2]; // shape attributes
-
-
+   int tileFlags[NUM_SPRITES];
 
    ALLEGRO_BITMAP * create_and_clear_bitmap(int x, int y);
-
 };
 
 extern mwBitmap mBitmap;
-
-
-
-
-
 
 #endif // PM_MWBITMAP_H
 

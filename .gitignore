@@ -11,15 +11,8 @@
 
 pm.exe
 
-
 /gmon.out
 /pm.depend
 /pm.layout
 
-
-
-
-
-
-
-
+/bitmaps/level_icons

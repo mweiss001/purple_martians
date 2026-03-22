@@ -580,7 +580,7 @@ void mwScreen::set_map_var(void)
 void mwScreen::mark_non_default_block(int x, int y)
 {
    int c = mLevel.l[x][y] & 1023;
-   if ((mBitmap.tileFlags[c][0] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
+   if ((mBitmap.tileFlags[c] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
@@ -601,9 +601,10 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
-
+   //printf("play_level:%d lll:%d\n", mLevel.play_level, mLevel.last_level_loaded);
    // if level 1 draw all the gates
-   if (mLevel.play_level == 1)
+//   if (mLevel.start_level == 1)
+   if (mLevel.last_level_loaded == 1)
    {
       for (int i=0; i<500; i++)
          if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);

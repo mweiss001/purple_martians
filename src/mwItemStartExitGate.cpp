@@ -16,6 +16,7 @@
 #include "mwDemoMode.h"
 #include "mwScreen.h"
 #include "mwDisplay.h"
+#include "mwLevelIcons.h"
 #include "mwNetgame.h"
 
 
@@ -309,7 +310,6 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          }
       }
 
-
       al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 
       mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, stat_txt); // draw status text
@@ -324,8 +324,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       if ((mLevel.data[lev].time_best_all_coins > 0) && (mLevel.data[lev].time_best_all_coins < mLevel.data[lev].time_par))
          al_draw_scaled_bitmap(mBitmap.tile[542], 3, 3, 14, 14, x+12, y-11, 14, 14, 0); // show clock
 
-
-      // al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev); // draw the level number (optional, comment out for release)
+      //al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev); // draw the level number (optional, comment out for release)
 
       // draw level icon with frame
       int ls = 100;
@@ -334,7 +333,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       al_draw_filled_rectangle(lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
       al_draw_rectangle(       lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
 
-      if (mLevel.level_icon_100[lev]) al_draw_bitmap(mLevel.level_icon_100[lev], lx, ly, 0);
+      mLevelIcons.draw_level_icon(lx, ly, 100, lev);
 
       ly+=101;
 
@@ -357,7 +356,6 @@ void mwItem::draw_gate_info(int i)
    int by = y+35; // info y start pos
 
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
-
 
    int status = mLevel.data[lev].status;
    int col = mLevel.data[lev].status_color;
@@ -501,7 +499,10 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
    if (page == 0) // level icon map
    {
       al_draw_rectangle(bx, yp, bx+bs+1, by+bs+13, mColor.pc[col], 1);
-      al_draw_bitmap(mLevel.level_icon_200[lev], bx, by+12, 0);
+//      al_draw_bitmap(mLevel.level_icon_200[lev], bx, by+12, 0);
+
+      mLevelIcons.draw_level_icon(bx, by+12, 200, lev);
+
    }
 
    if (page == 1) // general

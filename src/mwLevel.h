@@ -158,19 +158,19 @@ class mwLevel
 
    void update_level_status(int lev);
 
+   /*
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];
-
    int level_icons_loaded = 0;
-
+*/
 
    ALLEGRO_BITMAP * level_stats_bitmap = NULL;
    int level_stats_bmp_msg_type = 0;
    int level_stats_bmp_w;
    int level_stats_bmp_h;
 
-   void load_level_icons();
-   void create_level_icons();
+//   void load_level_icons();
+//   void create_level_icons();
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

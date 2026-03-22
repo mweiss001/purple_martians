@@ -24338,8 +24338,968 @@ make a temp array in save
 
 
 2026-03-19 06:37:19
-
 lets commit first...
+
+2026-03-19 06:54:31
+it is now called tileFlags and is a single dimension array
+saves and loads fine
+
+made a method to view default flags...needs to be manually run...disable for now...
+
+2026-03-19 07:23:31
+
+time to go...
+
+
+what next?
+
+can I clean up and document tileSets and creator better
+
+make visual level select for level editor
+
+I really like the existing one, but i does not go above 100
+
+how can I modify it so that it does?
+
+
+I think I might want to re-do how I save icons for levels
+
+there seems to be a lot of duplication...
+
+I have:
+level 100 and 200 for gates
+level vls for visual level select
+all of these are 100x100 bitmap tilemaps arrays
+
+then I have some for the web viewer
+individual files 200x200 only for levels that exist
+
+how can I simplify all this?
+Only have 1 for each level, not 4
+
+200x200 pixel version in indivual files
+I could make a class for this:
+- generate the files if they do not exist, or I want to update them
+- load bitmaps into memory when needed
+
+class mwLevelIcons
+
+store the files where?
+
+bitmaps/level_icons
+or
+web/assets/icons
+
+do this one for now: 
+bitmaps/level_icons
+
+
+2026-03-21 05:18:51
+
+create done, now load and make bitmaps for them
+what will that data struct look like?
+what do I already have?
+
+
+this is in vls:
+   ALLEGRO_BITMAP* level_icon_vls[100];
+   int level_icon_size;
+   void create_level_icons_vls();
+   void load_level_icons_vls();
+
+   private:
+   ALLEGRO_BITMAP* grid_bmp = NULL;
+   ALLEGRO_BITMAP* level_icon_bmp[NUM_LEV];
+   ALLEGRO_BITMAP* le_temp = NULL;
+   int le[NUM_LEV]; // level exists array
+   int num_levs;
+
+
+this is in mLevel
+   ALLEGRO_BITMAP * level_icon_100[100];
+   ALLEGRO_BITMAP * level_icon_200[100];
+
+wow, it just got even more confusing!  glad I'm sorting it out...
+only one usage...removed  ALLEGRO_BITMAP* level_icon_bmp[NUM_LEV];
+
+
+these are used for gates, put them in level_icon
+
+   ALLEGRO_BITMAP * level_icon_100[100];
+   ALLEGRO_BITMAP * level_icon_200[100];
+
+
+
+I am thinking maybe I want only one entry function
+
+if the level_icon does not exist, do nothing
+
+void draw_level_icon(int x, int y, int size, int level)
+{
+
+}
+
+first make data struct
+
+struct level_icon
+{
+   int level_num;
+   ALLEGRO_BITMAP * bmp;
+};
+  
+   std::vector<level_icon> level_icons;
+
+
+
+iterate all icon files and load to bitmaps...
+
+
+   int num_files = mFileIterator.iterate("src/");
+
+   if (num_files == 0) printf("No files found.\n");
+   else
+   {
+      for (int i=0; i<num_files; i++)
+      {
+         strcpy(cs[i].fname, al_get_fs_entry_name(mFileIterator.filenames[i]));
+         fill_stat_struct(cs[i]);
+
+         // get just the name part of the path
+         ALLEGRO_PATH * path = al_create_path(cs[i].fname);
+         sprintf(cs[i].name, "%s", al_get_path_filename(path));
+         al_destroy_path(path);
+      }
+   }
+
+
+where should I load this?
+int mwBitmap::load_tiles()
+done
+
+now try to use them in gate...
+I have it working for both gates...
+now what?
+
+set when to create files
+
+loading when rebuilding bitmaps
+
+I should have a flag in the class that says when they are valid
+
+
+I need a way to reload them
+should I do the old memory bitmap trick? yes
+
+
+make struct have mem and vid..
+
+initial load is mem
+then copy to vid
+copy to vid at rebuild
+
+done enough that I want to profile...
+
+[44][0][0]tmst tiles:[21.1089] fonts:[29.4094] icons:[178.7992] lvbk:[6.7151] misc:[0.0033] totl:[236.0359]
+[44][0][0]tmst tiles:[25.4533] fonts:[4.4856] icons:[112.2260] lvbk:[6.4336] misc:[0.0035] totl:[148.6020]
+[44][0][0]tmst tiles:[24.7789] fonts:[24.2599] icons:[171.1005] lvbk:[6.4547] misc:[0.0033] totl:[226.5973]
+[44][0][0]tmst tiles:[25.1735] fonts:[7.0985] icons:[167.4543] lvbk:[6.9349] misc:[0.0051] totl:[206.6663]
+
+[44][0][0]tmst tiles:[21.9119] fonts:[4.8687] icons:[31.1160] lvbk:[5.6426] misc:[0.0033] totl:[63.5425]
+[44][0][0]tmst tiles:[15.1203] fonts:[22.1831] icons:[39.3862] lvbk:[6.9714] misc:[0.0035] totl:[83.6645]
+[44][0][0]tmst tiles:[11.4047] fonts:[4.0056] icons:[28.8033] lvbk:[5.8032] misc:[0.0031] totl:[50.0199]
+[44][0][0]tmst tiles:[12.9537] fonts:[22.6707] icons:[38.4156] lvbk:[7.1667] misc:[0.0030] totl:[81.2097]
+
+my new method takes a lot longer
+
+the old method loaded 100 and 200 tilemap from disk,
+then the redrew individual tiles
+
+I think there are a few ways I could make that better, faster...
+
+initially load all tiles and make a tilemap
+it can be in one dimesion
+save index between tilemap and tile
+then when reload, just copy one to the other
+
+make sub bitmaps for drawing...hell why even bother with that? just do regions
+
+make 2 tilemaps M_ and video
+
+for each icon, just store level num and offset into tilemap
+
+step 1 - get number of levels
+step 2 - create bitmaps that size
+step 3 
+
+what is max bitmap size?
+failed creating video bitmap 29800 x 200
+failed creating video bitmap 30000 x 200
+failed creating video bitmap 29000 x 200
+failed creating video bitmap 28000 x 200
+failed creating video bitmap 27000 x 200
+failed creating video bitmap 26000 x 200
+failed creating video bitmap 25000 x 200
+failed creating video bitmap 24000 x 200
+failed creating video bitmap 23000 x 200
+failed creating video bitmap 22000 x 200
+failed creating video bitmap 21000 x 200
+failed creating video bitmap 20000 x 200
+failed creating video bitmap 19000 x 200
+failed creating video bitmap 18000 x 200
+failed creating video bitmap 17000 x 200
+looks like 16384??
+
+will this even work on less capable machines?
+
+I think I want to do 10 across and however many down
+10 x 200 = 2000
+
+
+2026-03-21 08:53:21
+
+now that is implemented
+
+size: 149
+[44][0][0]tmst tiles:[12.5561] fonts:[4.2684] icons:[46.2108] lvbk:[9.7227] misc:[0.0042] totl:[72.7622]
+[44][0][0]tmst tiles:[22.1630] fonts:[23.9973] icons:[66.4719] lvbk:[12.0742] misc:[0.0039] totl:[124.7103]
+[44][0][0]tmst tiles:[17.2254] fonts:[4.7379] icons:[67.1112] lvbk:[10.6550] misc:[0.0042] totl:[99.7337]
+
+faster...
+
+what if I only did < 100?
+
+size: 80
+[44][0][0]tmst tiles:[26.8749] fonts:[26.7221] icons:[47.9932] lvbk:[10.8834] misc:[0.0041] totl:[112.4777]
+[44][0][0]tmst tiles:[29.3266] fonts:[8.1417] icons:[39.3069] lvbk:[8.2502] misc:[0.0041] totl:[85.0295]
+[44][0][0]tmst tiles:[12.9685] fonts:[23.8091] icons:[32.0786] lvbk:[9.3915] misc:[0.0042] totl:[78.2519]
+[44][0][0]tmst tiles:[13.0743] fonts:[23.6004] icons:[30.3970] lvbk:[9.7134] misc:[0.0043] totl:[76.7894]
+
+
+I like it enopugh to go with it...
+
+what about the other stuff?
+
+make a reload flag
+set it when you run reload
+
+
+
+
+created memory bitmap 2000 x 1800
+size: 80
+[44][0][0]tmst tiles:[24.4865] fonts:[24.2980] icons:[43.4474] lvbk:[10.1680] misc:[0.0051] totl:[102.4050]
+[44][0][0]tmst tiles:[17.4485] fonts:[4.9346] icons:[37.1214] lvbk:[9.2767] misc:[0.0046] totl:[68.7858]
+[44][0][0]tmst tiles:[25.0614] fonts:[25.1875] icons:[46.3567] lvbk:[10.2997] misc:[0.0044] totl:[106.9097]
+[44][0][0]tmst tiles:[23.0403] fonts:[7.4587] icons:[42.7678] lvbk:[8.7144] misc:[0.0050] totl:[81.9862]
+
+Process finished with exit code 0
+
+
+created memory bitmap 2000 x 1800
+size: 80
+[44][0][205]tmst tiles:[51.8762] fonts:[27.3225] icons:[63.8490] lvbk:[12.4244] misc:[0.0042] totl:[155.4763]
+[44][0][252]tmst tiles:[28.4475] fonts:[6.7995] icons:[45.3837] lvbk:[12.9534] misc:[0.0040] totl:[93.5881]
+
+
+on not level 1
+
+
+size: 80
+[44][0][107]tmst tiles:[51.3734] fonts:[27.1365] icons:[0.0003] lvbk:[2.1264] misc:[0.0047] totl:[80.6413]
+[44][0][130]tmst tiles:[52.2635] fonts:[6.7485] icons:[0.0004] lvbk:[1.9250] misc:[0.0041] totl:[60.9415]
+[44][0][149]tmst tiles:[28.2240] fonts:[7.0404] icons:[0.0003] lvbk:[1.9831] misc:[0.0035] totl:[37.2513]
+[44][0][167]tmst tiles:[29.9633] fonts:[5.5262] icons:[0.0007] lvbk:[1.8934] misc:[0.0032] totl:[37.3868]
+
+
+
+OK this is looking good
+
+now how to determine whether or not to create files
+check how many files are in the dir
+
+do this at load
+if no files then run create...
+when running create, also erase everything in dir..done
+seems to be working fine...
+
+am I ready to remove all references to old system?
+
+   /*
+   ALLEGRO_BITMAP * level_icon_100[100];
+   ALLEGRO_BITMAP * level_icon_200[100];
+   int level_icons_loaded = 0;
+*/
+
+It has all been commented out
+
+what else?
+
+it seems so simple...
+
+I should have a function also to recreate everything...
+
+won't create do that? yes...
+
+so if I need to manually call it to update I can call that...
+
+I want to put the web level icons there also..
+
+do not generate if no display
+manually create the web ones
+
+how to make level001 have all the items...
+
+
+2026-03-21 10:50:39
+
+I have some more bugs
+
+where do the big tilemaps get created...in load
+
+
+where do the gates get drawn?
+
+why do they show in level editor but not in icon?
+
+are they drawn somewhere else?
+
+yes, only on init level background
+
+
+
+
+2026-03-21 11:16:05
+
+
+this is so dumb
+
+init level background should draw the gates....why doesn't it?
+
+I cannot figure out how to draw gates on level background...why do I get errors....
+
+maybe its recursive
+drawing gates calls draw level_icon
+
+just dont do level 1 on first pass...do it later when level_icons are loaded...
+
+holy fuck, this is complicated!
+It was supposed to be simpler...
+
+- I draw gate info on level background when loading level...this is ok
+- drawing gate info needs level icons
+- level icons are created after loading level...
+
+what do I need to do?
+start from create that erases everything....
+
+- load levels 2 - end and make icons
+
+- load level 1 with newly made icons and create icon from that..
+
+
+
+what is my entry point? load or create? I need to make sure bitmaps are in place
+
+it will be an new function called initialize
+- count existing levels
+- count existing icon files
+
+
+entry points
+load
+reload
+rebuild
+
+load will be called when creating bitmap
+reload when screen changes
+
+rebuild to delete all file and call load
+
+what is bitmap 111 127
+with a lock 303 overlay
+
+2026-03-21 14:57:22
+why don't I just create one later...this is talking so much time...just for icon for level001
+
+2026-03-21 16:57:45
+I need to load level_data before I draw level001!!
+
+
+num_lev_files149
+void mwLevelIcons::reload() - 47.3ms
+void mwLevelIcons::load() - 307.8ms
+void mwLevelIcons::create() - 1623.94ms
+void mwLevelIcons::reload() - 46.5ms
+void mwLevelIcons::load() - 1950.2ms
+
+void mwLevelIcons::reload() - 47.1ms
+void mwLevelIcons::load() - 311.6ms
+void mwLevelIcons::create() - 1634.16ms
+void mwLevelIcons::reload() - 48.8ms
+void mwLevelIcons::load() - 1968.9ms
+
+
+num_lev_files149
+void mwLevelIcons::reload() - 50.0ms
+void mwLevelIcons::load() - 314.4ms
+
+void mwLevelIcons::reload() - 47.6ms
+void mwLevelIcons::load() - 313.2ms
+
+I am happy with how long this takes
+saved as 200x200 png files
+149 takes 350k (650k disk)
+80 takes 225k (400k disk)
+
+next, make it so that web also uses these
+where to put them...
+
+for the headless server I can generate them without a display
+
+I think I should put them in web/assets/icons and save with project
+that's what I was already doing anyway
+
+when I go to make a release, just copy the ones < 100 to 
+
+i think I have that done...I copy <100 to web
+
+now make it so that sh is good
+
+do nothing with level icons in no display mode...done
+
+now figure out why vls does not work
+
+trying to draw lev>100
+
+patched in the new levelIcon and it works great!!!
+
+removed a bunch of crap related to old bitmap tilemaps
+
+I think I can use the same vls for editor as for level editor...
+
+
+2026-03-22 07:32:13
+
+refactored and cleaned up vls...
+
+what does it reyrn and can I clean that up?
+
+only called twice so far...from loop menu and remote control
+
+right now it returns 1 2 3
+error when coming back...fixed
+
+
+now when changing screen position all my icons dissapear
+
+
+void mwLevelIcons::reload() - 45.7ms
+load_visual_level_select
+[44][0][0]tmst tiles:[43.2136] fonts:[28.9529] icons:[0.0002] lvbk:[6.2055] misc:[0.0051] totl:[78.3773]
+load_visual_level_select
+void mwLevelIcons::reload() - 105.0ms
+
+why are these out of order?
+
+
+   // rebuild level_icons
+   if (mLevel.last_level_loaded == 1) mLevelIcons.reload();
+   else mLevelIcons.reload_needed = true;
+
+
+this is the fix:
+
+   // rebuild level_icons
+
+   // delay loading, just set flag that it needs to be done
+   // this is to prevent the delay in the middle of a game
+   mLevelIcons.reload_needed = true;
+
+   // if last loaded level is overworld, or we are in visual level select, reload now
+   if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
+
+
+2026-03-22 08:19:58
+this is looking almost done
+documented in mwVisualLevel and mwLevelIcons header files
+
+now I need to put player icons back...
+
+save, commit, test
+
+it has been a while since i tested on linux...
+
+
+2026-03-22 09:04:03
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -24,7 +24,6 @@
 #include "mwSound.h"
 
 
-
 mwInput mInput;
 
 mwInput::mwInput()

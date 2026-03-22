@@ -209,7 +209,7 @@ void mwLoop::remote_control_loop()
    int cxc2 = cx + 100;
    if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, " Select and Reload Level ") )
    {
-      if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
+      if (mVisualLevel.visual_level_select(100) == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
    }
    cy+=6;
    if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, "  Reload Current Level   ") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);

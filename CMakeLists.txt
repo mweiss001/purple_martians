@@ -162,6 +162,8 @@ add_executable(pm
         src/mwSelectionWindow.h
         src/mwTileEditor.cpp
         src/mwTileEditor.h
+        src/mwLevelIcons.cpp
+        src/mwLevelIcons.h
 )
 
 

@@ -384,7 +384,7 @@ void mwMiscFnx::draw_block_non_default_flags(int tn, int x, int y)
 {
    int c = tn & 1023;
    al_draw_bitmap(mBitmap.btile[c], x, y, 0);
-   if ((mBitmap.tileFlags[c][0] & PM_BTILE_MOST_FLAGS) != (tn & PM_BTILE_MOST_FLAGS))
+   if ((mBitmap.tileFlags[c] & PM_BTILE_MOST_FLAGS) != (tn & PM_BTILE_MOST_FLAGS))
    {
       al_draw_line(x, y, x+20, y+20, mColor.pc[10], 1);
       al_draw_line(x+20, y, x, y+20, mColor.pc[10], 1);

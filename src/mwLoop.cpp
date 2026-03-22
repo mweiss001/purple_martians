@@ -177,7 +177,7 @@ void mwLoop::game_menu(void)
 
          if (top_menu_sel == 0) // visual level select
          {
-            int r = mVisualLevel.visual_level_select();
+            int r = mVisualLevel.visual_level_select(100);
             if (r == 1) top_menu_sel = 1; // start new game
             if (r == 3) top_menu_sel = 6; // start level editor
          }

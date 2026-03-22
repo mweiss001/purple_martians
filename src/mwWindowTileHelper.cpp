@@ -1,75 +1,175 @@
 // mwWindowTileHelper.cpp
 
-
 #include "pm.h"
 #include "mwTileSets.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 
-#include "mwFont.h"
+#include "mwScreen.h"
+#include "mwDisplay.h"
 #include "mwWidget.h"
 #include "mwColor.h"
-#include "mwDisplay.h"
-#include "mwInput.h"
-#include "mwEventQueue.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
-#include "mwScreen.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwFont.h"
 
 
 // for rainbows only
-int mwWindow::th_replace_helper3(int t, int bl_l, int bl_r, int bl_u, int bl_d, int bl_ul, int bl_ur, int bl_dl, int bl_dr)
+int mwWindow::th_replace_helper_extended(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
 {
    int fb = -1;
 
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+   // find the extended tiles
+   for (const auto& s : mTileSets.tileSets)
+      if (s.startIndex == tile && s.extendedMode)
+      {
+         fb = s.SolidFill;
 
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+         if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = s.OuterCornerTL;
+         if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = s.OuterCornerTR;
+         if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = s.OuterCornerBL;
+         if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = s.OuterCornerBR;
 
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // vertical through line
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 6;  // horizontal through line
+         // solid interior
+         if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all l r t b
+         {
 
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 6; // right end line
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 4; // lower end line
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 6; // left end line
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 4; // upper end line
+            // single corner notch
+            if (tl == 0) fb = s.InnerCornerBR; // empty to tl
+            if (tr == 0) fb = s.InnerCornerBL; // empty to tr
+            if (bl == 0) fb = s.InnerCornerTR; // empty to bl
+            if (br == 0) fb = s.InnerCornerTL; // empty to br
+
+            // double corner notches
+            if ((tr == 0) && (br == 0)) fb = s.OuterEdgeRTee; // empty to tr and br
+            if ((br == 0) && (bl == 0)) fb = s.OuterEdgeBTee; // empty to br and bl
+            if ((bl == 0) && (tl == 0)) fb = s.OuterEdgeLTee; // empty to bl and tl
+            if ((tl == 0) && (tr == 0)) fb = s.OuterEdgeTTee; // empty to tl and tr
+
+            // triple corner notches
+            if ((tr == 0) && (tl == 1) && (bl == 0) && (br == 0)) fb = s.OuterCornerBRTeeBR; // only tl
+            if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 0)) fb = s.OuterCornerBLTeeBL; // only tr
+            if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 1)) fb = s.OuterCornerTLTeeTL; // only br
+            if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 0)) fb = s.OuterCornerTRTeeTR; // only bl
+
+            // opposite corner notches
+            if ((tr == 0) && (tl == 1) && (bl == 0) && (br == 1)) fb = s.OuterCornerTRDiag;
+            if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 0)) fb = s.OuterCornerTLDiag;
+
+            // all corner notches (full cross)
+            if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = s.FrameCross; // no diagonals
+
+
+         }
+
+         if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // solid except for left
+         {
+            if ((tr == 1) && (br == 1)) fb = s.OuterEdgeL;        // solid to tr and br
+            if ((tr == 0) && (br == 1)) fb = s.OuterCornerTLTeeT; // open to tr and solid to br
+            if ((tr == 1) && (br == 0)) fb = s.OuterCornerBLTeeB; // solid to tr and open to br
+            if ((tr == 0) && (br == 0)) fb = s.FrameEdgeLTee;     // open to tr and br
+         }
+
+         if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // solid except for right
+         {
+            if ((tl == 1) && (bl == 1)) fb = s.OuterEdgeR;        // solid to tl and bl
+            if ((tl == 0) && (bl == 1)) fb = s.OuterCornerTRTeeT; // open to tl and solid to bl
+            if ((tl == 1) && (bl == 0)) fb = s.OuterCornerBRTeeB; // solid to tl and open to bl
+            if ((tl == 0) && (bl == 0)) fb = s.FrameEdgeRTee;     // open to tl and bl
+         }
+
+         if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // solid except for top
+         {
+            if ((bl == 1) && (br == 1)) fb = s.OuterEdgeT;        // solid to bl and br
+            if ((bl == 0) && (br == 1)) fb = s.OuterCornerTLTeeL; // open to bl and solid to br
+            if ((bl == 1) && (br == 0)) fb = s.OuterCornerTRTeeR; // solid to bl and open to br
+            if ((bl == 0) && (br == 0)) fb = s.FrameEdgeBTee;     // open to bl and br
+         }
+
+         if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // solid except for bottom
+         {
+            if ((tl == 1) && (tr == 1)) fb = s.OuterEdgeB;         // solid to tl and tr
+            if ((tl == 0) && (tr == 1)) fb = s.OuterCornerBLTeeL;  // open to tl and solid to tr
+            if ((tl == 1) && (tr == 0)) fb = s.OuterCornerBRTeeR;  // solid to tl and open to tr
+            if ((tl == 0) && (tr == 0)) fb = s.FrameEdgeTTee;      // open to tl and tr
+         }
+
+         if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
+             fb = s.Single;  // orphan single block
+
+         // single block line corners
+         if ((l == 0) && (r == 1) && (t == 0) && (b == 1) && (br == 0)) fb = s.FrameCornerTL; // top left corner
+         if ((l == 1) && (r == 0) && (t == 0) && (b == 1) && (bl == 0)) fb = s.FrameCornerTR; // top right corner
+         if ((l == 0) && (r == 1) && (t == 1) && (b == 0) && (tr == 0)) fb = s.FrameCornerBL; // bottom left corner
+         if ((l == 1) && (r == 0) && (t == 1) && (b == 0) && (tl == 0)) fb = s.FrameCornerBR; // bottom right corner
+
+         if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = s.VLineM; // vertical through line
+         if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineM; // horizontal through line
+
+         if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = s.HLineR; // right end line
+         if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = s.VLineB; // bottom end line
+         if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineL; // left end line
+         if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = s.VLineT; // top end line
+      }
+   return fb;
+}
+
+
+// for rainbows only
+int mwWindow::th_replace_helper3(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
+{
+   int fb = -1;
+
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 0;  // upper left corner
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 1;  // upper right corner
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 2;  // lower left corner
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 3;  // lower right corner
+
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = tile + 4;  // left vertical tee
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 5;  // right vertical tee
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 6;  // upper horizontal tee
+   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 7;  // lower horizontal tee
+
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 4;  // vertical through line
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 6;  // horizontal through line
+
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = tile + 6; // right end line
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 4; // lower end line
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 6; // left end line
+   if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 4; // upper end line
 
    return fb;
 }
 
 
 // for all solid rect types and purple pipes cross center and wires cross center
-int mwWindow::th_replace_helper(int t, int bl_l, int bl_r, int bl_u, int bl_d, int bl_ul, int bl_ur, int bl_dl, int bl_dr)
+int mwWindow::th_replace_helper(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
 {
-   int fb = t; //  default
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 8;   // upper left corner
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 9;   // upper right corner
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 10;  // lower left corner
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 11;  // lower right corner
+   int fb = tile; //  default
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 8;   // upper left corner
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 9;   // upper right corner
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 10;  // lower left corner
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 11;  // lower right corner
 
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 12;  // left vertical tee
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 13;  // right vertical tee
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 14;  // upper horizontal tee
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 15;  // lower horizontal tee
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = tile + 12;  // left vertical tee
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 13;  // right vertical tee
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 14;  // upper horizontal tee
+   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 15;  // lower horizontal tee
 
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 6;  // vertical through line
-   if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 3;  // horizontal through line
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 6;  // vertical through line
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 3;  // horizontal through line
 
-   if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 4; // right end line
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 7; // lower end line
-   if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 2; // left end line
-   if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 5; // upper end line
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = tile + 4; // right end line
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 7; // lower end line
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 2; // left end line
+   if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 5; // upper end line
 
 
-   if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
-      if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
-         fb = t+1;  // orphan single block
+   if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) // no diagonals
+      if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
+         fb = tile+1;  // orphan single block
 
    return fb;
 }
@@ -146,9 +246,8 @@ void mwWindow::th_replace(int type)
          if (mWM.thl[x][y])
          {
             th_find_adj(x, y, l, r, t, b, tl, tr, bl, br);
-
             int fb = -1; // default shape
-
+            if (type == 1)  fb = th_replace_helper_extended(256, l, r, t, b, tl, tr, bl, br); // extended purple pipe set
             if (type == 2)  fb = th_replace_helper(832, l, r, t, b, tl, tr, bl, br); // wires
             if (type == 3)  fb = th_replace_helper(928, l, r, t, b, tl, tr, bl, br); // grey bricks
             if (type == 5)  fb = th_replace_helper(960, l, r, t, b, tl, tr, bl, br); // brown bricks
@@ -157,106 +256,6 @@ void mwWindow::th_replace(int type)
             if (type == 9)  fb = th_replace_helper(992, l, r, t, b, tl, tr, bl, br); // blue solid
             if (type == 10) fb = th_replace_helper3(672, l, r, t, b, tl, tr, bl, br); // rainbow
             if (type == 11) fb = th_replace_helper3(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
-
-
-            if (type == 1) // extended tileset
-            {
-               // find the extended tiles
-               for (const auto& s : mTileSets.tileSets)
-                  if (s.startIndex == 256 && s.extendedMode)
-                  {
-                     fb = s.SolidFill;
-
-                     if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = s.OuterCornerTL;
-                     if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = s.OuterCornerTR;
-                     if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = s.OuterCornerBL;
-                     if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = s.OuterCornerBR;
-
-                     // solid interior
-                     if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all l r t b
-                     {
-
-                        // single corner notch
-                        if (tl == 0) fb = s.InnerCornerBR; // empty to tl
-                        if (tr == 0) fb = s.InnerCornerBL; // empty to tr
-                        if (bl == 0) fb = s.InnerCornerTR; // empty to bl
-                        if (br == 0) fb = s.InnerCornerTL; // empty to br
-
-                        // double corner notches
-                        if ((tr == 0) && (br == 0)) fb = s.OuterEdgeRTee; // empty to tr and br
-                        if ((br == 0) && (bl == 0)) fb = s.OuterEdgeBTee; // empty to br and bl
-                        if ((bl == 0) && (tl == 0)) fb = s.OuterEdgeLTee; // empty to bl and tl
-                        if ((tl == 0) && (tr == 0)) fb = s.OuterEdgeTTee; // empty to tl and tr
-
-
-                        // triple corner notches
-                        if ((tr == 0) && (tl == 1) && (bl == 0) && (br == 0)) fb = s.OuterCornerBRTeeBR; // only tl
-                        if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 0)) fb = s.OuterCornerBLTeeBL; // only tr
-                        if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 1)) fb = s.OuterCornerTRTeeTR; // only br
-                        if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 0)) fb = s.OuterCornerTLTeeTL; // only bl
-
-
-                        // opposite corner notches
-                        if ((tr == 0) && (tl == 1) && (bl == 0) && (br == 1)) fb = s.OuterCornerTRDiag;
-                        if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 0)) fb = s.OuterCornerTLDiag;
-
-
-                        // all corner notches (full cross)
-                        if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = s.FrameCross; // no diagonals
-
-
-                     }
-
-                     if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // solid except for left
-                     {
-                        if ((tr == 1) && (br == 1)) fb = s.OuterEdgeL;        // solid to tr and br
-                        if ((tr == 0) && (br == 1)) fb = s.OuterCornerTLTeeT; // open to tr and solid to br
-                        if ((tr == 1) && (br == 0)) fb = s.OuterCornerBLTeeB; // solid to tr and open to br
-                        if ((tr == 0) && (br == 0)) fb = s.FrameEdgeLTee;     // open to tr and br
-                     }
-
-                     if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // solid except for right
-                     {
-                        if ((tl == 1) && (bl == 1)) fb = s.OuterEdgeR;        // solid to tl and bl
-                        if ((tl == 0) && (bl == 1)) fb = s.OuterCornerTRTeeT; // open to tl and solid to bl
-                        if ((tl == 1) && (bl == 0)) fb = s.OuterCornerBRTeeB; // solid to tl and open to bl
-                        if ((tl == 0) && (bl == 0)) fb = s.FrameEdgeRTee;     // open to tl and bl
-                     }
-
-                     if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // solid except for top
-                     {
-                        if ((bl == 1) && (br == 1)) fb = s.OuterEdgeT;        // solid to bl and br
-                        if ((bl == 0) && (br == 1)) fb = s.OuterCornerTLTeeL; // open to bl and solid to br
-                        if ((bl == 1) && (br == 0)) fb = s.OuterCornerTRTeeR; // solid to bl and open to br
-                        if ((bl == 0) && (br == 0)) fb = s.FrameEdgeBTee;     // open to bl and br
-                     }
-
-                     if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // solid except for bottom
-                     {
-                        if ((tl == 1) && (tr == 1)) fb = s.OuterEdgeB;         // solid to tl and tr
-                        if ((tl == 0) && (tr == 1)) fb = s.OuterCornerBLTeeL;  // open to tl and solid to tr
-                        if ((tl == 1) && (tr == 0)) fb = s.OuterCornerBRTeeR;  // solid to tl and open to tr
-                        if ((tl == 0) && (tr == 0)) fb = s.FrameEdgeTTee;      // open to tl and tr
-                     }
-
-                     if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
-                         fb = s.Single;  // orphan single block
-
-                     // single block line corners
-                     if ((l == 0) && (r == 1) && (t == 0) && (b == 1) && (br == 0)) fb = s.FrameCornerTL; // top left corner
-                     if ((l == 1) && (r == 0) && (t == 0) && (b == 1) && (bl == 0)) fb = s.FrameCornerTR; // top right corner
-                     if ((l == 0) && (r == 1) && (t == 1) && (b == 0) && (tr == 0)) fb = s.FrameCornerBL; // bottom left corner
-                     if ((l == 1) && (r == 0) && (t == 1) && (b == 0) && (tl == 0)) fb = s.FrameCornerBR; // bottom right corner
-
-                     if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = s.VLineM; // vertical through line
-                     if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineM; // horizontal through line
-
-                     if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = s.HLineR; // right end line
-                     if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = s.VLineB; // bottom end line
-                     if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineL; // left end line
-                     if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = s.VLineT; // top end line
-                  }
-            }
 
             if (fb == -1)
             {
@@ -276,8 +275,6 @@ void mwWindow::th_replace(int type)
          }
    mScreen.init_level_background();
    al_set_target_backbuffer(mDisplay.display);
-
-
 }
 
 int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)

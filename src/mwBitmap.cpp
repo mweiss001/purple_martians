@@ -12,6 +12,7 @@
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwHelp.h"
+#include "mwLevelIcons.h"
 
 
 mwBitmap mBitmap;
@@ -55,19 +56,12 @@ void mwBitmap::create_bitmaps()
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
 
-   // create level_icon bitmaps
-   for (int i=0; i<100; i++)
-   {
-      mLevel.level_icon_100[i] = create_and_clear_bitmap(100, 100);
-      mLevel.level_icon_200[i] = create_and_clear_bitmap(200, 200);
-   }
 }
 
 // done only once in initial_setup
 int mwBitmap::load_tiles()
 {
    //printf("load tiles\n");
-
 
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
@@ -126,10 +120,11 @@ int mwBitmap::load_tiles()
       for (int a=0; a<16; a++)
       {
          char fn[80];
-         sprintf(fn, "bitmaps/player_icon_%d.png", a);
+         sprintf(fn, "web/assets/icons/player_icon_%d.png", a);
          al_save_bitmap(fn, player_tile[a][2]);
       }
    }
+
 
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
@@ -151,6 +146,10 @@ int mwBitmap::load_tiles()
          }
    }
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
+
+
+
+
 
    return 1;
 }
@@ -188,18 +187,20 @@ void mwBitmap::rebuild_bitmaps()
    mFont.load_fonts();
    t[2] = al_get_time();
 
+
    // rebuild level_icons
-
-   if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
-
-
-   else mLevel.level_icons_loaded = 0;
-
+   // delay loading, just set flag that it needs to be done
+   // this is to prevent the delay in the middle of a game
+   mLevelIcons.reload_needed = true;
+   // if last loaded level is overworld, or we are in visual level select, reload now
+   if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
    t[3] = al_get_time();
+
 
    // rebuild level_background
    mScreen.init_level_background();
    t[4] = al_get_time();
+
 
    // misc setup
    mDisplay.set_display_transform();
@@ -229,12 +230,11 @@ void mwBitmap::save_sprit()
          zz[2][c]=0;
       }
 
-   // ensure sa[][0] does not have any bits set other than the ones we want
+   // ensure tileFlags does not have any bits set other than the ones we want
    for (int c=0; c<NUM_SPRITES; c++)
-   {
-      tileFlags[c][0] &= PM_BTILE_ALL_FLAGS;
-      tileFlags[c][1] = 0; // not used
-   }
+      tileFlags[c] &= PM_BTILE_ALL_FLAGS;
+
+
    FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
    fwrite(zz, sizeof(zz), 1, fp);
    fwrite(tileFlags, sizeof(tileFlags), 1, fp);
@@ -257,9 +257,6 @@ int mwBitmap::load_sprit()
       return 0;
    }
 }
-
-
-
 
 
 void mwBitmap::reset_animation_sequences()

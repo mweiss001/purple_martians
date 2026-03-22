@@ -752,28 +752,28 @@ int mwBitmapTools::draw_flag_rects(int tn, int x, int y, int w, int h, int ys, i
 // this is for edit attributes only and only only affects sa[][]
 void mwBitmapTools::draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 {
-   int highlight = draw_flag_rects(mBitmap.tileFlags[tn][0], x, y, w, h, ys, 15);
+   int highlight = draw_flag_rects(mBitmap.tileFlags[tn], x, y, w, h, ys, 15);
    if (highlight > -1)
    {
       al_draw_rectangle(x-1, y+(ys*highlight), x+w+1, y+h+(ys*highlight), mColor.pc[15], 1);
       if (mInput.mouse_b[1][0])
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-         if (highlight ==  0) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SOLID_PLAYER;
-         if (highlight ==  1) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SOLID_ENEMY;
-         if (highlight ==  2) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SOLID_ITEM;
-         if (highlight ==  3) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SOLID_PBUL;
-         if (highlight ==  4) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SOLID_EBUL;
-         if (highlight ==  5) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SEMISOLID_PLAYER;
-         if (highlight ==  6) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SEMISOLID_ENEMY;
-         if (highlight ==  7) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SEMISOLID_ITEM;
-         if (highlight ==  8) mBitmap.tileFlags[tn][0] ^= PM_BTILE_BOMBABLE;
-         if (highlight ==  9) mBitmap.tileFlags[tn][0] ^= PM_BTILE_BREAKABLE_PSHOT;
-         if (highlight == 10) mBitmap.tileFlags[tn][0] ^= PM_BTILE_BREAKABLE_ESHOT;
-         if (highlight == 11) mBitmap.tileFlags[tn][0] ^= PM_BTILE_LADDER_MOVE;
-         if (highlight == 12) mBitmap.tileFlags[tn][0] ^= PM_BTILE_ROPE_MOVE;
-         if (highlight == 13) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SECRET;
-         if (highlight == 14) mBitmap.tileFlags[tn][0] ^= PM_BTILE_SHOW_SELECT_WIN;
+         if (highlight ==  0) mBitmap.tileFlags[tn] ^= PM_BTILE_SOLID_PLAYER;
+         if (highlight ==  1) mBitmap.tileFlags[tn] ^= PM_BTILE_SOLID_ENEMY;
+         if (highlight ==  2) mBitmap.tileFlags[tn] ^= PM_BTILE_SOLID_ITEM;
+         if (highlight ==  3) mBitmap.tileFlags[tn] ^= PM_BTILE_SOLID_PBUL;
+         if (highlight ==  4) mBitmap.tileFlags[tn] ^= PM_BTILE_SOLID_EBUL;
+         if (highlight ==  5) mBitmap.tileFlags[tn] ^= PM_BTILE_SEMISOLID_PLAYER;
+         if (highlight ==  6) mBitmap.tileFlags[tn] ^= PM_BTILE_SEMISOLID_ENEMY;
+         if (highlight ==  7) mBitmap.tileFlags[tn] ^= PM_BTILE_SEMISOLID_ITEM;
+         if (highlight ==  8) mBitmap.tileFlags[tn] ^= PM_BTILE_BOMBABLE;
+         if (highlight ==  9) mBitmap.tileFlags[tn] ^= PM_BTILE_BREAKABLE_PSHOT;
+         if (highlight == 10) mBitmap.tileFlags[tn] ^= PM_BTILE_BREAKABLE_ESHOT;
+         if (highlight == 11) mBitmap.tileFlags[tn] ^= PM_BTILE_LADDER_MOVE;
+         if (highlight == 12) mBitmap.tileFlags[tn] ^= PM_BTILE_ROPE_MOVE;
+         if (highlight == 13) mBitmap.tileFlags[tn] ^= PM_BTILE_SECRET;
+         if (highlight == 14) mBitmap.tileFlags[tn] ^= PM_BTILE_SHOW_SELECT_WIN;
       }
    }
 }
@@ -838,50 +838,50 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
       {
          int tn = cx + (cy*32);
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SOLID_PLAYER)     fa[0][1] += 1; // tally set
-         else                                               fa[0][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SOLID_PLAYER)     fa[0][1] += 1; // tally set
+         else                                                   fa[0][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SOLID_ENEMY)      fa[1][1] += 1; // tally set
-         else                                               fa[1][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SOLID_ENEMY)      fa[1][1] += 1; // tally set
+         else                                                   fa[1][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SOLID_ITEM)       fa[2][1] += 1; // tally set
-         else                                               fa[2][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SOLID_ITEM)       fa[2][1] += 1; // tally set
+         else                                                   fa[2][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SOLID_PBUL)       fa[3][1] += 1; // tally set
-         else                                               fa[3][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SOLID_PBUL)       fa[3][1] += 1; // tally set
+         else                                                   fa[3][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SOLID_EBUL)       fa[4][1] += 1; // tally set
-         else                                               fa[4][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SOLID_EBUL)       fa[4][1] += 1; // tally set
+         else                                                   fa[4][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SEMISOLID_PLAYER) fa[5][1] += 1; // tally set
-         else                                               fa[5][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SEMISOLID_PLAYER) fa[5][1] += 1; // tally set
+         else                                                   fa[5][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SEMISOLID_ENEMY)  fa[6][1] += 1; // tally set
-         else                                               fa[6][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SEMISOLID_ENEMY)  fa[6][1] += 1; // tally set
+         else                                                   fa[6][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SEMISOLID_ITEM)   fa[7][1] += 1; // tally set
-         else                                               fa[7][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SEMISOLID_ITEM)   fa[7][1] += 1; // tally set
+         else                                                   fa[7][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_BOMBABLE)         fa[8][1] += 1; // tally set
-         else                                               fa[8][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_BOMBABLE)         fa[8][1] += 1; // tally set
+         else                                                   fa[8][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_BREAKABLE_PSHOT)  fa[9][1] += 1; // tally set
-         else                                               fa[9][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_BREAKABLE_PSHOT)  fa[9][1] += 1; // tally set
+         else                                                   fa[9][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_BREAKABLE_ESHOT)  fa[10][1] += 1; // tally set
-         else                                               fa[10][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_BREAKABLE_ESHOT)  fa[10][1] += 1; // tally set
+         else                                                   fa[10][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_LADDER_MOVE)      fa[11][1] += 1; // tally set
-         else                                               fa[11][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_LADDER_MOVE)      fa[11][1] += 1; // tally set
+         else                                                   fa[11][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_ROPE_MOVE)        fa[12][1] += 1; // tally set
-         else                                               fa[12][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_ROPE_MOVE)        fa[12][1] += 1; // tally set
+         else                                                   fa[12][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SECRET)           fa[13][1] += 1; // tally set
-         else                                               fa[13][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SECRET)           fa[13][1] += 1; // tally set
+         else                                                   fa[13][0] += 1; // tally clear
 
-         if (mBitmap.tileFlags[tn][0] & PM_BTILE_SHOW_SELECT_WIN)  fa[14][1] += 1; // tally set
-         else                                               fa[14][0] += 1; // tally clear
+         if (mBitmap.tileFlags[tn] & PM_BTILE_SHOW_SELECT_WIN)  fa[14][1] += 1; // tally set
+         else                                                   fa[14][0] += 1; // tally clear
       }
 
    for (int i=0; i<15; i++)
@@ -927,15 +927,16 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
             for (int cy = by1; cy < by2; cy++)
             {
                int tn = cx + (cy*32);
-               if (action == 0) mBitmap.tileFlags[tn][0] &= ~set_flag;
-               if (action == 1) mBitmap.tileFlags[tn][0] |= set_flag;
+               if (action == 0) mBitmap.tileFlags[tn] &= ~set_flag;
+               if (action == 1) mBitmap.tileFlags[tn] |= set_flag;
             }
       }
    }
 }
 
 
-void mwBitmapTools::edit_btile_attributes()
+
+void mwBitmapTools::edit_tile_flags()
 {
    char msg[1024];
    int x, y;
@@ -1054,7 +1055,7 @@ void mwBitmapTools::edit_btile_attributes()
          if (mInput.mouse_b[2][0])
          {
             while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-            if (mode == 0) mBitmap.tileFlags[pointer][0] = mBitmap.tileFlags[current_selection][0];
+            if (mode == 0) mBitmap.tileFlags[pointer] = mBitmap.tileFlags[current_selection];
          }
 
          if (mInput.mouse_b[1][0])
@@ -1260,6 +1261,41 @@ void mwBitmapTools::draw_tilecount_overlays(int x1, int y1)
       for (int y=0; y<32; y++)
          draw_tilecount_overlay(x1, y1, y*32+x, 0);
 }
+
+
+
+
+void mwBitmapTools::draw_flags_overlay(int x1, int y1, int tile, int flags)
+{
+   char msg[80];
+   int t = tile & 1023;
+
+   if (mBitmap.tileFlags[t] & flags)
+   {
+      // get x and y from tile number
+      int x = t % 32;
+      int y = t / 32;
+
+      // get display position
+      int ty = y1+y*22+4;
+      int tx = x1+x*22+4;
+
+
+      sprintf(msg, "%s", "!");
+      mMiscFnx.drawTextOnClearedBackground(tx, ty, msg, 15);
+   }
+}
+
+
+void mwBitmapTools::draw_flags_overlays(int x1, int y1, int flags)
+{
+   for (int x=0; x<32; x++)
+      for (int y=0; y<32; y++)
+         draw_flags_overlay(x1, y1, y*32+x, flags);
+}
+
+
+
 
 
 
@@ -1504,6 +1540,33 @@ void mwBitmapTools::copy_tiles()
 
       draw_tilecount_overlays(b1_x, b1_y);
 
+
+      //draw_flags_overlays(b1_x, b1_y, PM_BTILE_SHOW_SELECT_WIN);
+
+      //draw_flags_overlays(b1_x, b1_y, PM_BTILE_SOLID_PLAYER);
+
+/*
+#define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
+#define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
+#define PM_BTILE_ALL_SOLID         0b00000000000111110000000000000000
+#define PM_BTILE_ALL_SEMI          0b00000000111001110000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+#define PM_BTILE_SEMISOLID_PLAYER  0b00000000001000000000000000000000
+#define PM_BTILE_SEMISOLID_ENEMY   0b00000000010000000000000000000000
+#define PM_BTILE_SEMISOLID_ITEM    0b00000000100000000000000000000000
+#define PM_BTILE_BOMBABLE          0b00000001000000000000000000000000
+#define PM_BTILE_BREAKABLE_PSHOT   0b00000010000000000000000000000000
+#define PM_BTILE_BREAKABLE_ESHOT   0b00000100000000000000000000000000
+#define PM_BTILE_LADDER_MOVE       0b00001000000000000000000000000000
+#define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
+#define PM_BTILE_SECRET            0b00100000000000000000000000000000
+#define PM_BTILE_SHOW_SELECT_WIN   0b01000000000000000000000000000000
+
+  */
 
 
 

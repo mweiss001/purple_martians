@@ -45,8 +45,10 @@ void mwLevel::unlock_all_levels(void)
 void mwLevel::setup_data(void)
 {
    load_data();
-   load_level_icons();
+//   load_level_icons();
 }
+
+
 
 void mwLevel::level_start_data(void)
 {
@@ -1053,7 +1055,7 @@ void mwLevel::dump_level_data(void)
 
 
 }
-
+/*
 void mwLevel::create_level_icons(void)
 {
    //double t0 = al_get_time();
@@ -1077,7 +1079,7 @@ void mwLevel::create_level_icons(void)
    int x=0;
    int y=0;
 
-   level_icons_loaded = 1; // this has to be here to prevent a recursive loop when load level gets called 100 times
+//   level_icons_loaded = 1; // this has to be here to prevent a recursive loop when load level gets called 100 times
 
    for (int i=0; i<100; i++)
    {
@@ -1120,6 +1122,9 @@ void mwLevel::create_level_icons(void)
    load_level_icons();
 }
 
+
+
+
 void mwLevel::load_level_icons(void)
 {
 //   if (!mDisplay.no_display)
@@ -1157,3 +1162,4 @@ void mwLevel::load_level_icons(void)
       }
    }
 }
+*/

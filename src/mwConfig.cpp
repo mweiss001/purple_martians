@@ -96,9 +96,6 @@ void mwConfig::save_config(int type)
 
       asci(GAME, mLoop.reset_frame_speed_at_program_start)
 
-      asci(GAME, mVisualLevel.max_level_num)
-      asci(GAME, mVisualLevel.level_icon_size)
-
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
       asci(GAMECONTROLS, mPlayer.loc[0].down_key)
       asci(GAMECONTROLS, mPlayer.loc[0].left_key)
@@ -298,10 +295,6 @@ void mwConfig::load_config(int type)
    {
       agci(GAME, mLoop.frame_speed, 40)
    }
-
-   agci(GAME, mVisualLevel.max_level_num, 100)
-   agci(GAME, mVisualLevel.level_icon_size, 40)
-
 
    agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
    agci(GAMECONTROLS, mPlayer.loc[0].down_key,  ALLEGRO_KEY_DOWN)

@@ -6,7 +6,7 @@ class mwBitmapTools
    void select_bitmap_from_level(int& tn);
    void animation_sequence_editor();
    void draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow);
-   void edit_btile_attributes();
+   void edit_tile_flags();
    void copy_tiles();
 
    int select_bitmap();
@@ -35,11 +35,15 @@ class mwBitmapTools
    void redraw_grid(int x, int y, int current_selection);
 
 
-
    void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw);
 
    void draw_tilecount_overlays(int x1, int y1);
    void draw_tilecount_overlay(int x1, int y1, int tile, int extended);
+
+
+   void draw_flags_overlay(int x1, int y1, int tile, int flags);
+   void draw_flags_overlays(int x1, int y1, int flags);
+
 
 
 

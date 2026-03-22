@@ -226,8 +226,11 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          if (level_num == 1)
          {
             set_overworld_barriers();
-            if (!level_icons_loaded) load_level_icons();
+            // if (!level_icons_loaded) load_level_icons();
          }
+
+
+
 
          mLevel.valid_level_loaded = 1;
          mLift.lift_setup();

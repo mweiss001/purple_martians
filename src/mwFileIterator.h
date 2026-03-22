@@ -13,7 +13,11 @@ class mwFileIterator
 
    char* get_most_recent_fname(const char* fname, char* tmp);
 
-   ALLEGRO_FS_ENTRY *filenames[1000];
+   ALLEGRO_FS_ENTRY *filenames[1000] = { nullptr };
+
+
+
+
    int num_filenames;
 };
 extern mwFileIterator mFileIterator;

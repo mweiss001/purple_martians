@@ -581,8 +581,6 @@ void mwMain::temp_test(void)
 
 
 
-
-
    /*
    mGmInfo.setTestData();
    mGmInfo.printTestData();
@@ -609,9 +607,6 @@ void mwMain::temp_test(void)
    }
    if (ret == 1) printf("no results : %s\n", sql);
    if (ret == 2) printf("error: %s\n", sql);
-
-
-
 
 
 */
@@ -649,10 +644,6 @@ void mwMain::temp_test(void)
 //
 //   mMiscFnx.gma_to_val(type, d1, d2, p, c, name);
 //
-
-
-
-
 
 
 

@@ -18,6 +18,11 @@
 #include "mwNetgame.h"
 
 
+#include "mwLevelIcons.h"
+
+
+
+
 mwVisualLevel mVisualLevel;
 
 void mwVisualLevel::mark_rect(int sel, int color)
@@ -28,50 +33,27 @@ void mwVisualLevel::mark_rect(int sel, int color)
    al_draw_rectangle(x+1, y+1, x+48, y+48, mColor.pc[color], 1);
 }
 
-void mwVisualLevel::show_cur(void)
+
+void mwVisualLevel::show_big_lev(int level, const char * text, int x, int y, int color)
 {
-   int xpos = 1000+ (1280 - 1000)/2;
-   al_draw_text(mFont.pr8, mColor.pc[14], xpos, 4, ALLEGRO_ALIGN_CENTER, "Currently selected level");
-   al_draw_textf(mFont.pr8, mColor.pc[15], xpos, 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", cur);
-   al_draw_rectangle(1000, 24, 1279, 303, mColor.pc[14], 1 );
-   al_draw_rectangle(1001, 25, 1278, 302, mColor.pc[14], 1 );
+   al_draw_text(mFont.pr8, mColor.pc[14],  x, y+4, ALLEGRO_ALIGN_CENTER, text);
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, y+15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", level);
+   al_draw_rectangle(1000, y+24, 1279, y+303, mColor.pc[color], 1 );
+   al_draw_rectangle(1001, y+25, 1278, y+302, mColor.pc[color], 1 );
 
    int ts = 110;
-   al_draw_rectangle(1000, 24, 1279, 303+ts, mColor.pc[14], 1 );
-   al_draw_rectangle(1001, 25, 1278, 302+ts, mColor.pc[14], 1 );
+   al_draw_rectangle(1000, y+24, 1279, y+303+ts, mColor.pc[color], 1 );
+   al_draw_rectangle(1001, y+25, 1278, y+302+ts, mColor.pc[color], 1 );
 
-   if (mLevel.load_level(cur, 0, 1))
+   if (mLevel.load_level(level, 0, 1))
    {
       al_set_target_backbuffer(mDisplay.display);
-      mScreen.draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
+      mScreen.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(mDisplay.display);
-      mLevel.show_level_data(1010, 308, 0);
+      mLevel.show_level_data(1010, y+308, 0);
    }
-   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, 30, ALLEGRO_ALIGN_CENTER, "not found");
+   else al_draw_text(mFont.pr8, mColor.pc[10], x, y+30, ALLEGRO_ALIGN_CENTER, "not found");
 
-}
-
-void mwVisualLevel::show_msel(void)
-{
-   int xpos = 1000+ (1280 - 1000)/2;
-   int yo = 1024/2 - 96;
-   al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 4, ALLEGRO_ALIGN_CENTER, "Level under mouse");
-   al_draw_textf(mFont.pr8, mColor.pc[10], xpos, yo + 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", sel);
-   al_draw_rectangle(1000, yo + 24, 1279, yo + 303, mColor.pc[10], 1 );
-   al_draw_rectangle(1001, yo + 25, 1278, yo + 302, mColor.pc[10], 1 );
-
-   int ts = 110;
-   al_draw_rectangle(1000, yo + 24, 1279, yo + 303+ts, mColor.pc[10], 1 );
-   al_draw_rectangle(1001, yo + 25, 1278, yo + 302+ts, mColor.pc[10], 1 );
-
-   if (mLevel.load_level(sel, 0, 1))
-   {
-      al_set_target_backbuffer(mDisplay.display);
-      mScreen.draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
-      al_set_target_backbuffer(mDisplay.display);
-      mLevel.show_level_data(1010, yo + 308, 0);
-   }
-   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER, "not found");
 }
 
 
@@ -294,14 +276,8 @@ void mwVisualLevel::compare_all(void)
 }
 
 
-
-
-
-
-
-void mwVisualLevel::lev_draw(int full)
+void mwVisualLevel::lev_draw(int full, int sel, int cur)
 {
-
    int ms = 50; // map size
    if (full) // load all the levels again
    {
@@ -333,8 +309,12 @@ void mwVisualLevel::lev_draw(int full)
    mark_rect(sel, 10);
    mark_rect(cur, 14);
 
-   show_cur();
-   show_msel();
+
+   show_big_lev(cur, "Currently selected level", 1000+ (1280 - 1000)/2,           0, 10);
+   show_big_lev(sel, "Level under mouse",        1000+ (1280 - 1000)/2, 1024/2 - 96, 14);
+
+//   show_cur();
+//   show_msel();
 
    int xpos = 1000 + (1280 - 1000)/2;
    int ty1 = 840;
@@ -364,6 +344,10 @@ void mwVisualLevel::level_viewer(void)
 //   show_pixel_format(al_get_bitmap_format(le_temp));
 //   show_bitmap_flags(al_get_bitmap_flags(le_temp));
 
+   int sel = 0;
+   int cur = 0;
+   int old_sel = 0;
+
    int redraw = 2;
    int quit = 0;
 
@@ -375,8 +359,8 @@ void mwVisualLevel::level_viewer(void)
       {
          al_set_target_backbuffer(mDisplay.display);
          al_clear_to_color(al_map_rgb(0,0,0));
-         if (redraw == 1) lev_draw(0);
-         if (redraw == 2) lev_draw(1); // full reload of levels
+         if (redraw == 1) lev_draw(0, sel, cur);
+         if (redraw == 2) lev_draw(1, sel, cur); // full reload of levels
          redraw = 0;
          al_flip_display();
       }
@@ -453,6 +437,47 @@ void mwVisualLevel::level_viewer(void)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 {
    int x2 = x1 + size;
@@ -464,7 +489,6 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    int tc = 15;
    if (fc == 15) tc = 0;
 
-//   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
    if (mLevel.load_level(cur, 0, 1))
@@ -478,17 +502,14 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 }
 
 
-
-
-void mwVisualLevel::load_visual_level_select(void)
+void mwVisualLevel::load_visual_level_select(int max_level_num, int &sel_x, int &sel_y, int &sel_size, int &grid_cols, int &grid_rows, int &grid_size, int &grid_width, int &grid_height)
 {
    int mod_size = 10;
    int min_size = 10;
 
-
-   num_levs = 0;
+   num_levs_found = 0;
    load_visual_level_select_done = 1;
-   for (int x=0; x<NUM_LEV; x++) le[x] = 0;
+   for (int x=0; x<NUM_LEV; x++) level_exists_array[x] = 0;
 
    // level range to look for
    int lll = 1;   // lower level limit
@@ -499,7 +520,7 @@ void mwVisualLevel::load_visual_level_select(void)
    {
       char fn[256];
       sprintf(fn, "levels/level%03d.pml", x);
-      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+      if (al_filename_exists(fn)) level_exists_array[num_levs_found++] = x; // put in array
    }
 
    // now we have the number of levels, we can figure out grid sizes
@@ -518,24 +539,23 @@ void mwVisualLevel::load_visual_level_select(void)
 
 
    // how much space for each icon
-   int ia = area / num_levs;
-//   printf("ia:%d\n", ia);
+   int ia = area / num_levs_found;
+   //printf("ia:%d\n", ia);
 
    // get the size from this
    grid_size = (int) sqrt((float)ia);
-//   printf("gs:%d\n", grid_size);
+   //printf("gs:%d\n", grid_size);
    grid_size -= grid_size % mod_size; // mod 20
-//   printf("gs:%d\n", grid_size);
+   //printf("gs:%d\n", grid_size);
    if (grid_size < mod_size) grid_size = min_size;
-//   printf("gs:%d\n", grid_size);
+   //printf("gs:%d\n", grid_size);
 
    // how many icon will fit vertically?
    grid_cols = x_space / grid_size;
    grid_width = grid_cols * grid_size;
 
-
    // how many horizontal rows are needed?
-   grid_rows = (num_levs-1) / grid_cols+1;
+   grid_rows = (num_levs_found-1) / grid_cols+1;
    grid_height = grid_rows * grid_size;
 
 
@@ -555,34 +575,21 @@ void mwVisualLevel::load_visual_level_select(void)
       grid_width = grid_cols * grid_size;
 
       // how many horizontal rows are needed?
-      grid_rows = (num_levs-1) / grid_cols+1;
+      grid_rows = (num_levs_found-1) / grid_cols+1;
       grid_height = grid_rows * grid_size;
    }
-
 
    // how many icon will fit vertically
    grid_cols = x_space / grid_size;
    grid_width = grid_cols * grid_size;
 
    // how many horizontal rows are needed?
-   grid_rows = (num_levs-1) / grid_cols+1;
+   grid_rows = (num_levs_found-1) / grid_cols+1;
    grid_height = grid_rows * grid_size;
 
    // resize the selection map to fit available space
    sel_size = mDisplay.SCREEN_W - 64 - grid_width; // (32 for grid frame, 32 for selmap frame)
    sel_x = mDisplay.SCREEN_W - sel_size - 16;  // -16 for frame
-
-
-   if (grid_size != level_icon_size)
-   {
-      level_icon_size = grid_size;
-      create_level_icons_vls();
-   }
-   load_level_icons_vls();
-
-
-
-
 
    // create the icon grid bitmap
    al_destroy_bitmap(grid_bmp);
@@ -594,20 +601,40 @@ void mwVisualLevel::load_visual_level_select(void)
    for (int row=0; row<grid_rows; row++)
       for (int col=0; col<grid_cols; col++)
       {
-         int grid_pos = (row * grid_cols) + col;     // the position in the grid
-         int lev = le[grid_pos];                     // the level number that corresponds to that grid position
-         int bx1 = col * grid_size;                  // the screen position of that grid cell
+         int grid_pos = (row * grid_cols) + col;  // the position in the grid
+         int lev = level_exists_array[grid_pos];  // the level number that corresponds to that grid position
+         int bx1 = col * grid_size;               // the screen position of that grid cell
          int by1 = row * grid_size;
          if (lev)
          {
-            al_draw_bitmap(level_icon_vls[lev], bx1, by1, 0);
+            mLevelIcons.draw_level_icon(bx1, by1, grid_size, lev);
             al_draw_textf(mFont.pr8, mColor.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
          }
       }
 }
 
-int mwVisualLevel::visual_level_select(void)
+
+int mwVisualLevel::visual_level_select(int max_level)
 {
+   int sel_x = 0;
+   int sel_y = 0;
+   int sel_size = 0;
+   int grid_cols = 0;
+   int grid_rows = 0;
+   int grid_size = 0;
+   int grid_width = 0;
+   int grid_height = 0;
+
+
+   int up_held = 0;
+   int down_held = 0;
+   int left_held = 0;
+   int right_held = 0;
+
+   while ( (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) ) mEventQueue.proc_menu();;
+
+
+   // this function will reload level, so this is our last chance to save it
    if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
 
    mLoop.visual_level_select_running = 1;
@@ -615,35 +642,28 @@ int mwVisualLevel::visual_level_select(void)
    int p = mPlayer.active_local_player;
    int fc = mPlayer.syn[p].color; // frame color
 
-   while ( (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) ) mEventQueue.proc_menu();;
+   load_visual_level_select(max_level, sel_x, sel_y, sel_size, grid_cols, grid_rows, grid_size, grid_width, grid_height);
+   int vl_redraw = 1;
 
-   if (!load_visual_level_select_done) load_visual_level_select();
+   // set initial selection
+   int selected_level = mLevel.start_level;
+   int ss = 0;
+   for (int x=0; x<num_levs_found; x++)
+      if (level_exists_array[x] == selected_level) ss = x;
+   int grid_sel_row = ss / grid_cols;
+   int grid_sel_col = ss - grid_sel_row * grid_cols;
+
+
 
    int quit = 0;
-   int grid_sel_row, grid_sel_col;
-
-   int up_held = 0;
-   int down_held = 0;
-   int left_held = 0;
-   int right_held = 0;
-
-   // get the initial selection
-   int selected_level = mLevel.start_level;
-
-   int ss = 0;
-   for (int x=0; x<num_levs; x++)
-      if (le[x] == selected_level) ss = x;
-   grid_sel_row = ss / grid_cols;
-   grid_sel_col = ss - grid_sel_row * grid_cols;
-
-   vl_redraw = 1;
    while (!quit)
    {
       if (!load_visual_level_select_done)
       {
-         load_visual_level_select();
+         load_visual_level_select(max_level, sel_x, sel_y, sel_size, grid_cols, grid_rows, grid_size, grid_width, grid_height);
          vl_redraw = 1;
       }
+
       if (vl_redraw)
       {
          vl_redraw = 0;
@@ -686,7 +706,7 @@ int mwVisualLevel::visual_level_select(void)
          al_draw_text(mFont.pr8, mColor.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
          al_draw_text(mFont.pr8, mColor.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
          al_draw_text(mFont.pr8, mColor.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
-//         al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
+         //al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
 
          al_flip_display();
       } // end of redraw
@@ -696,11 +716,11 @@ int mwVisualLevel::visual_level_select(void)
          {
             int mpc = (mInput.mouse_x-16) / grid_size;
             int mpr = (mInput.mouse_y-16) / grid_size;
-            if (le[(mpr * grid_cols) + mpc]) // if valid level
+            if (level_exists_array[(mpr * grid_cols) + mpc]) // if valid level
             {
                grid_sel_row = mpr;
                grid_sel_col = mpc;
-               selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
+               selected_level = level_exists_array[grid_sel_row * grid_cols + grid_sel_col];
                vl_redraw = 1;
 
                if (mInput.mouse_b[1][0])
@@ -723,7 +743,7 @@ int mwVisualLevel::visual_level_select(void)
          {
             grid_sel_col = grid_cols -1; // wrap at border
             if (--grid_sel_row < 0) grid_sel_row = grid_rows-1; // next row up
-            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+            while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
          vl_redraw = 1;
       }
@@ -737,7 +757,7 @@ int mwVisualLevel::visual_level_select(void)
          if (--grid_sel_row < 0)
          {
             grid_sel_row = grid_rows-1; // wrap at border
-            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+            while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
          vl_redraw = 1;
       }
@@ -751,7 +771,7 @@ int mwVisualLevel::visual_level_select(void)
          {
             grid_sel_col = 0; // wrap at border
             if (++grid_sel_row > grid_rows-1) grid_sel_row = 0; // next row down
-            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+            while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
          vl_redraw = 1;
       }
@@ -762,23 +782,22 @@ int mwVisualLevel::visual_level_select(void)
          down_held = 1;
          while ((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) mEventQueue.proc_menu();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = 0; // wrap at border
-         while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+         while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          vl_redraw = 1;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down)) ) down_held = 0;
 
-
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
       if (grid_sel_row > grid_rows-1) grid_sel_row = 0;
-      if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0)
+      if (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0)
       {
          grid_sel_row = 0;
          grid_sel_col = 0;
       }
 
       // update selected row
-      selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
+      selected_level = level_exists_array[grid_sel_row * grid_cols + grid_sel_col];
 
       if ( (mInput.key[ALLEGRO_KEY_ENTER][3]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) )
       {
@@ -793,24 +812,17 @@ int mwVisualLevel::visual_level_select(void)
          quit = 3;
       }
 
-
       if (mInput.mouse_b[2][0])
       {
          while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
          quit = 2;
       }
 
-
-
-
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3])
       {
          mLevel.set_start_level(selected_level);
          quit = 2;
       }
-
-
-
    }
    mLoop.visual_level_select_running = 0;
    if (quit == 1) return 1;
@@ -818,78 +830,4 @@ int mwVisualLevel::visual_level_select(void)
    return 0;
 }
 
-
-
-
-
-
-
-
-
-void mwVisualLevel::create_level_icons_vls(void)
-{
-   int sz = level_icon_size;
-   ALLEGRO_BITMAP *tmp = al_create_bitmap(sz*10, sz*10);
-   al_set_target_bitmap(tmp);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-
-   int x=0;
-   int y=0;
-   for (int i=0; i<100; i++)
-   {
-
-      if (mLevel.load_level(i, 0, 1)) mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
-
-      // show progress bar
-      int pc = i*100 / 100;
-      al_set_target_backbuffer(mDisplay.display);
-      //al_clear_to_color(al_map_rgb(0,0,0));
-      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
-      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
-      al_flip_display();
-
-      if (++x > 9)
-      {
-         x = 0;
-         y++;
-      }
-   }
-   al_save_bitmap("data/level_icons_vls.bmp", tmp);
-   al_destroy_bitmap(tmp);
-   load_level_icons_vls();
-}
-
-
-void mwVisualLevel::load_level_icons_vls(void)
-{
-   int sz = level_icon_size;
-   ALLEGRO_BITMAP *tmp = al_load_bitmap("data/level_icons_vls.bmp");
-   if (!tmp)
-   {
-      printf("Error loading tiles from:level_icons_vls.bmp - recreating\n");
-      create_level_icons_vls();
-   }
-   else
-   {
-      int x=0;
-      int y=0;
-      for (int i=0; i<100; i++)
-      {
-         al_destroy_bitmap(level_icon_vls[i]);
-         level_icon_vls[i] = al_create_bitmap(sz, sz);
-         al_set_target_bitmap(level_icon_vls[i]);
-         al_clear_to_color(al_map_rgba(0,0,0,0));
-         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
-         if (++x > 9)
-         {
-            x = 0;
-            y++;
-         }
-     }
-     //double llt1 = al_get_time() - llt0;
-     //printf("Load level icons time:%f\n", llt1*1000);
-     al_destroy_bitmap(tmp);
-   }
-}
 

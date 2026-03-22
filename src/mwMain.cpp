@@ -16,6 +16,7 @@
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwGameMoves.h"
+#include "mwLevelIcons.h"
 #include "mwMiscFnx.h"
 #include "mwSql.h"
 
@@ -190,14 +191,20 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
+   mLevel.setup_data();
+
    mFont.load_fonts();
+
    mBitmap.load_tiles();
+
 
 
    // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)
    {
       al_inhibit_screensaver(true);
+
+      mLevelIcons.load(0);
 
       al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
 
@@ -261,8 +268,6 @@ int mwMain::initial_setup(void)
    mPlayer.syn[0].active = 1;
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
-
-   mLevel.setup_data();
 
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
