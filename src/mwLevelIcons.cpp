@@ -156,7 +156,7 @@ void mwLevelIcons::load(int rebuild_all)
 
    // count number of level files
    int num_lev_files = mFileIterator.iterate("levels");
-   printf("num_lev_files%d\n", num_lev_files);
+   //printf("num_lev_files%d\n", num_lev_files);
 
    // get size of tilemaps
    int w = size * 10;

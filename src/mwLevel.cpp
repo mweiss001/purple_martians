@@ -34,7 +34,9 @@ void mwLevel::set_start_level(int s)
    if (s < 1  ) s = 1;
    if (s > 399) s = 399;
    play_level = start_level = s;
+
    load_level(s, 0, 0);
+
    resume_allowed = 0;
    mConfig.save_config(PM_CFG_SAVE_START_LEVEL);
 }
@@ -223,13 +225,13 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
       if (!load_only)
       {
 
+
+
          if (level_num == 1)
          {
             set_overworld_barriers();
             // if (!level_icons_loaded) load_level_icons();
          }
-
-
 
 
          mLevel.valid_level_loaded = 1;
@@ -254,9 +256,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 
          mTriggerEvent.initialize();
 
-//         if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
-         mScreen.init_level_background(); // draw blocks on level_background
-
+         if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
 
          mPlayer.init_player(0, 2);
 

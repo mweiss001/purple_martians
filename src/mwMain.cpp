@@ -115,11 +115,13 @@ void mwMain::set_and_get_versions(void)
 //   std::cout << "GMT Time: " << t2 << std::endl;
 
 
-
 }
 
 int mwMain::initial_setup(void)
 {
+   //printf("initial_setup(void)\n");
+
+
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
    if (!al_init())
@@ -165,9 +167,8 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
-
-
    mBitmap.create_bitmaps();
+
 
    if(!al_init_image_addon())
    {
@@ -192,12 +193,8 @@ int mwMain::initial_setup(void)
    }
 
    mLevel.setup_data();
-
    mFont.load_fonts();
-
    mBitmap.load_tiles();
-
-
 
    // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)
@@ -261,17 +258,14 @@ int mwMain::initial_setup(void)
       mSound.load_sound();
    }
 
-
    // init players
    mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
-
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
-
    return 1;
 }
 
