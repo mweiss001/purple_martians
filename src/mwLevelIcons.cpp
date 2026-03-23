@@ -68,6 +68,10 @@ void mwLevelIcons::create()
    // load the icons into the tilemaps
    load();
 
+
+   // teststststs
+
+
    // do level 1
    // this has to be last, because gates drawn on this level require level_icons created above
    int level = 1;

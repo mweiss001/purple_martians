@@ -24952,6 +24952,57 @@ replace WANT_MODAUDIO with WANT_DUMB:BOOL=ON
 
 
 
+sudo apt-get install libdumb1 libdumb1-dev
+
+
+
+2026-03-23 06:22:21
+
+now linux version is stuck in a loop of trying to create level icons
+add check and error message if saving level icon file fails
+could it be that I don't have png support?
+yes, I am getting an error saving...
+yes it is because of lack of png support. bmp works fine
+
+how can I fix this?
+
+btw no audio works!!!
+first doc what you did there:
+added: 
+sudo apt-get install libdumb1 libdumb1-dev
+-DWANT_DUMB=ON
+
+added these in the lists in dev_setup_20260112
+
+then I duplicate that in another file?
+I should just have one place where that exists...
+
+
+
+
+
+
+found some old notes:
+why does png work on win but not on lin?
+fixed... added -DWANT_IMAGE_PNG=ON
+
+i might also need this:
+
+libpng-dev
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
