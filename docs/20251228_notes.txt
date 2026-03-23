@@ -24866,6 +24866,8 @@ mkdir linux_libs/
 #cp /usr/lib/liballegro_monolith-debug.so.5.2 ./linux_libs/
 #cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
 
+
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
 cp /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 
@@ -24873,6 +24875,149 @@ cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 make another release:
 
 I should really bump version...
+
+---------------------
+did a linux version with u24
+works on u24desktop
+Kernel: Linux 6.8.0-100-generic
+
+not on linux mint 21.3
+kernel 5.15.0-107-generic
+missing
+GLIBC_2.38
+GLIBCXX_3.4.31
+GLIBCXX_3.4.32
+
+grrr
+
+other issues...
+gate 100 icon frame is missing top line
+initial S on settings looks funny, but only in smallest text_double
+text in tile Editor is dumb but only some
+
+I want a fast way to test linux vs windows graphics shit...
+kind of like:
+
+- make changes on windows and test
+- copy only changed files to lin
+- recompile and test on lin
+
+I think I want to fix the small pixel text font...
+
+why does it not behave like the other text?
+draw in boxes
+
+pixel is otf
+h=5 with a few decenders
+w = 1 to 5 (only 5's are M and W)
+pristine is ttf
+
+2026-03-23 05:19:12
+setup new scat as dev machine
+192.168.1.142
+
+2026-03-23 05:48:04
+
+sound does not work
+
+-- Configuring done (5.2s)
+-- Generating done (0.0s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    WANT_MODAUDIO
+
+-- Build files have been written to: /home/m/dev/allegro5/build
+
+try this:
+
+// Enable mod audio support using DUMB
+WANT_DUMB:BOOL=ON
+
+replace WANT_MODAUDIO with WANT_DUMB:BOOL=ON 
+
+[ 87%] Building C object CMakeFiles/allegro_monolith.dir/addons/audio/pulseaudio.c.o
+[ 87%] Building C object CMakeFiles/allegro_monolith.dir/addons/acodec/acodec.c.o
+/home/m/dev/allegro5/addons/acodec/acodec.c: In function ‘al_init_acodec_addon’:
+/home/m/dev/allegro5/addons/acodec/acodec.c:23:9: warning: variable ‘acodec_prefer_dumb’ set but not used [-Wunused-but-set-variable]
+   23 |    bool acodec_prefer_dumb = false;
+      |         ^~~~~~~~~~~~~~~~~~
+[ 89%] Building C object CMakeFiles/allegro_monolith.dir/addons/acodec/wav.c.o
+[ 89%] Building C object CMakeFiles/allegro_monolith.dir/addons/acodec/helper.c.o
+[ 91%] Building C object CMakeFiles/allegro_monolith.dir/addons/acodec/voc.c.o
+[ 91%] Building C object CMakeFiles/allegro_monolith.dir/addons/ttf/ttf.c.o
+[ 91%] Building C object CMakeFiles/allegro_monolith.dir/addons/color/color.c.o
+[ 92%] Building C object CMakeFiles/allegro_monolith.dir/addons/native_dialog/dialog.c.o
+[ 92%] Building C object CMakeFiles/allegro_monolith.dir/addons/native_dialog/textlog.c.o
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

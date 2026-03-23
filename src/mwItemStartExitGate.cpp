@@ -326,14 +326,15 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
       //al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev); // draw the level number (optional, comment out for release)
 
+
       // draw level icon with frame
-      int ls = 100;
-      int lx = xc-ls/2;  // level icon x1
+      int ls = 100;      // level icon size
+      int lx = xc-ls/2;  // level icon x pos
       int ly = y-130;    // level icon y pos
       al_draw_filled_rectangle(lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+      mLevelIcons.draw_level_icon(lx, ly, 100, lev);                         // level icon
       al_draw_rectangle(       lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
 
-      mLevelIcons.draw_level_icon(lx, ly, 100, lev);
 
       ly+=101;
 

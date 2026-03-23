@@ -2,6 +2,7 @@ mkdir linux_libs/
 
 cp /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
 
 version=7.24.0811.3a
 

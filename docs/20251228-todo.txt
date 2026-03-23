@@ -31,8 +31,6 @@ actually the wrong durations are only in timeline, they look fine in gm table
 
 
 
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -41,25 +39,12 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-
-find a way to patch in the tile editor and tileset creator
-
-tileEditor could be standalone if I add a way to change tiles
-
-
-
-
-
-
-
-
-
 to do for tilesets:
-make color controls better
 add locked and breakable to tileset
+find a way to patch in tileset creator
 
 
-I really need a visual level load in level editor
+
 
 
 
@@ -73,9 +58,6 @@ option to not insert unless web page is being viewed
 i really want to be able to view static, historical data
 my attempt at that was very slow...why?
 even on the main graph s2, if I set the range higher, it crawls....
-
-
-
 
 
 I want to rename cpu to something else...
@@ -285,6 +267,12 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+tileEditor could be standalone if I add a way to change tiles...done
+I really need a visual level load in level editor
+
+
+
 
 mwStatusBuffer class is no longer needed, has been superceded by mwThreadSafeQueue..removed
 make a proper way to start and stop thread..done
