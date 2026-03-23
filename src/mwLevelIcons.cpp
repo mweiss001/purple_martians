@@ -49,14 +49,13 @@ void mwLevelIcons::create()
 
          // save level
          sprintf(fname,"bitmaps/level_icons/lev%03d.png", level);
-         al_save_bitmap(fname, tmp);
+         if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
 
          if (save_web && level < 100)
          {
             sprintf(fname,"web/assets/icons/lev%03d.png", level);
-            al_save_bitmap(fname, tmp);
+            if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
          }
-
 
          // show progress bar
          int pc = level*100 / max_level;
@@ -156,7 +155,7 @@ void mwLevelIcons::load(int rebuild_all)
 
    // count number of level files
    int num_lev_files = mFileIterator.iterate("levels");
-   //printf("num_lev_files%d\n", num_lev_files);
+   printf("num_lev_files%d\n", num_lev_files);
 
    // get size of tilemaps
    int w = size * 10;
