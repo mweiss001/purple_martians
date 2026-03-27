@@ -28,6 +28,9 @@ void mwTileSets::constructEmptySet()
    ts.FrameCross        = 0;
    ts.Single            = 0;
    ts.SolidFill         = 0;
+
+   ts.SingleReverse     = 0;
+
    ts.HLineL            = 0;
    ts.HLineM            = 0;
    ts.HLineR            = 0;
@@ -92,6 +95,15 @@ void mwTileSets::constructEmptySet()
    ts.VLineMKeyB        = 0;
    ts.VLineMKeyP        = 0;
 
+   ts.HLineMBreakable     = 0;
+   ts.VLineMBreakable     = 0;
+   ts.SingleReverseBreakable  = 0;
+
+   ts.HLineMBomb        = 0;
+   ts.VLineMBomb        = 0;
+   ts.SingleReverseBomb     = 0;
+
+   ts.SemiSolid         = 0;
 
 }
 
@@ -181,6 +193,17 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.OuterCornerTLDiag = i + 45;
 
    ts.SolidFill         = i + 46;
+   ts.SingleReverse     = i + 47;
+
+   ts.HLineMBreakable     = i + 48;
+   ts.VLineMBreakable     = i + 49;
+   ts.SingleReverseBreakable  = i + 50;
+
+   ts.HLineMBomb        = i + 51;
+   ts.VLineMBomb        = i + 52;
+   ts.SingleReverseBomb     = i + 53;
+
+   ts.SemiSolid         = i + 54;
 
    ts.HLineMKeyR        = i + 56;
    ts.HLineMKeyG        = i + 57;
@@ -191,6 +214,8 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.VLineMKeyG        = i + 61;
    ts.VLineMKeyB        = i + 62;
    ts.VLineMKeyP        = i + 63;
+
+
 
 
    tileSets.push_back(ts);
@@ -272,13 +297,6 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    tileSets.push_back(ts);
 
 }
-
-
-
-
-
-
-
 
 
 
@@ -1064,6 +1082,65 @@ void mwTileSets::make_hline_vline_and_single(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *
    al_destroy_bitmap(tmp3);
 }
 
+
+void mwTileSets::draw_bomb_overlay()
+{
+   al_draw_filled_rectangle(6.5,5.5,14.5,15.5, al_map_rgb(0,0,0));
+   al_draw_filled_rectangle(5.5,6.5,15.5,14.5, al_map_rgb(0,0,0));
+
+   al_put_pixel( 9, 13, al_map_rgb(130,130,130));
+   al_put_pixel(10, 13, al_map_rgb(130,130,130));
+   al_put_pixel( 9, 10, al_map_rgb(130,130,130));
+   al_put_pixel(10, 10, al_map_rgb(130,130,130));
+   al_put_pixel( 8, 11, al_map_rgb(130,130,130));
+   al_put_pixel( 8, 12, al_map_rgb(130,130,130));
+   al_put_pixel(11, 11, al_map_rgb(130,130,130));
+   al_put_pixel(11, 12, al_map_rgb(130,130,130));
+
+   al_put_pixel( 9, 11, al_map_rgb(65,65,65));
+   al_put_pixel( 9, 12, al_map_rgb(65,65,65));
+   al_put_pixel(10, 11, al_map_rgb(65,65,65));
+   al_put_pixel(10, 12, al_map_rgb(65,65,65));
+
+   al_put_pixel(10, 9,  al_map_rgb(185,185,185));
+   al_put_pixel(11, 8,  al_map_rgb(185,185,185));
+
+   al_put_pixel(12, 7,  al_map_rgb(202,202,0));
+
+}
+
+void mwTileSets::draw_B_overlay()
+{
+   ALLEGRO_COLOR c = al_map_rgb(0,219,105);
+   al_draw_filled_rectangle(4.5 , 3.5, 14.5, 5.5, c);
+   al_draw_filled_rectangle(4.5,  9.5, 15.5, 11.5, c);
+   al_draw_filled_rectangle(4.5, 15.5, 14.5, 17.5, c);
+   al_draw_filled_rectangle(4.5 , 3.5, 6.5, 17.5, c);
+   al_draw_line(14.5,  4.5, 14.5, 16.5, c, 1); // 14,4   14,15
+   al_draw_line(15.5,  5.5, 15.5,  8.5, c, 1); // 15,5   15,7
+   al_draw_line(15.5, 11.5, 15.5, 15.5, c, 1); // 15,11  15,14
+   al_put_pixel(13, 5, c);
+   al_put_pixel(13, 8, c);
+   al_put_pixel(13, 11, c);
+   al_put_pixel(13, 14, c);
+}
+
+
+
+void mwTileSets::draw_lightning_crack_overlay()
+{
+   ALLEGRO_COLOR c = al_map_rgb(0,0,0);
+   al_draw_line(5.5, 10.5, 16.5,    0, c, 0); // 5,10 15,0
+   al_draw_line(6.5, 10.5, 17.5,    0, c, 0);
+   al_draw_line(7.5, 10.5, 18.5,    0, c, 0);
+   al_draw_line(2.5, 19.5, 13.5,    9, c, 0);
+   al_draw_line(3.5, 19.5, 14.5,    9, c, 0);
+   al_draw_line(4.5, 19.5, 15.5,    9, c, 0);
+   al_draw_line(5.5, 10.5, 13.5, 10.5, c, 0);
+   al_draw_line(6.5,  9.5, 14.5,  9.5, c, 0);
+}
+
+
 void mwTileSets::draw_lock_overlay_bitmap(ALLEGRO_BITMAP *b, ALLEGRO_COLOR lc)
 {
    al_set_target_bitmap(b);
@@ -1258,13 +1335,15 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    // background color
    ALLEGRO_COLOR bc = step_color_array[step_color_array_size-1];
 
-   ALLEGRO_BITMAP *tmp1 = al_create_bitmap(60, 60);
-   draw_and_frame_3x3_bitmap(2, round, tmp1, 0);
 
    // load block tiles from file to bitmap, so we can modify it
    ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
    al_set_target_bitmap(b1);
    int s=bs;
+
+   // draw 3x3 with frame fade color and round
+   ALLEGRO_BITMAP *tmp1 = al_create_bitmap(60, 60);
+   draw_and_frame_3x3_bitmap(2, round, tmp1, 0);
 
    // get single, hline and vline
    make_hline_vline_and_single(b1, tmp1, bs, bs+1, bs+4);
@@ -1273,7 +1352,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    s = bs +  7;  al_draw_bitmap_region(tmp1, 0,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tl corner
    s = bs +  8;  al_draw_bitmap_region(tmp1, 40,  0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tr corner
    s = bs +  9;  al_draw_bitmap_region(tmp1, 40, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // br corner
-   s = bs +  10; al_draw_bitmap_region(tmp1, 0,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // bl corner
+   s = bs + 10;  al_draw_bitmap_region(tmp1, 0,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // bl corner
 
    // get some pieces to construct more complex blocks
    ALLEGRO_BITMAP *cf = al_create_bitmap(10, 10);
@@ -1312,9 +1391,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    s = bs + 15; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
 
 
-
    // the first 16 tiles should be done.......they are all part of the 'frame' tileset
-
 
 
    // inner corners
@@ -1344,8 +1421,6 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    s = bs+27; al_draw_bitmap_region(tmp1, 20, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // d edge
 
 
-
-
    // edge tees
    al_set_target_bitmap(sb);
    al_clear_to_color(bc);
@@ -1356,8 +1431,6 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    s = bs+29; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 1.5, 0);
    s = bs+30; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.0, 0);
    s = bs+31; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.5, 0);
-
-
 
    // solid corner 1 way tees
    al_set_target_bitmap(sb);
@@ -1385,6 +1458,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_clear_to_color(bc);
    al_draw_bitmap(cf,  0,  0, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);  // faded corner tl
    al_draw_bitmap(cf, 10,  0, ALLEGRO_FLIP_VERTICAL);                            // faded corner tr
+
    al_draw_bitmap(cf,  0, 10, ALLEGRO_FLIP_HORIZONTAL);                          // faded corner bl
    al_set_target_bitmap(b1);
    s = bs+40; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.0, 0);
@@ -1402,6 +1476,19 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    s = bs+45; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.5, 0);
 
 
+   // single reverse
+   al_set_target_bitmap(sb);
+   al_clear_to_color(bc);
+   al_draw_bitmap(cf, 0,   0, 0);                                                // reverse faded corner tl
+   al_draw_bitmap(cf, 0,  10, ALLEGRO_FLIP_VERTICAL);                            // reverse faded corner bl
+   al_draw_bitmap(cf, 10,  0, ALLEGRO_FLIP_HORIZONTAL);                          // reverse faded corner tr
+   al_draw_bitmap(cf, 10, 10, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);  // reverse faded corner br
+   al_set_target_bitmap(b1);
+   s = bs+47; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.0, 0);
+
+
+
+
    // create lock overlays
    ALLEGRO_BITMAP *lkr = al_create_bitmap(12, 12);
    draw_lock_overlay_bitmap(lkr, mColor.pc[10]);
@@ -1415,61 +1502,90 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    ALLEGRO_BITMAP *lkp = al_create_bitmap(12, 12);
    draw_lock_overlay_bitmap(lkp, mColor.pc[8]);
 
-   // create background vertical pipe
-   ALLEGRO_BITMAP *sb_ph = al_create_bitmap(20, 20);
-   al_set_target_bitmap(sb_ph);
-   al_draw_bitmap(hf, 0,  0,  0);                             // faded left half
-   al_draw_bitmap(hf, 10,  0,   ALLEGRO_FLIP_HORIZONTAL);     // faded right half
 
-
-   al_set_target_bitmap(sb);
-   al_draw_rotated_bitmap(sb_ph, 10,  10,  10, 10, ALLEGRO_PI * 0.5, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
    al_draw_bitmap(lkr, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+56; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+56);
 
-   al_set_target_bitmap(sb);
-   al_draw_rotated_bitmap(sb_ph, 10,  10,  10, 10, ALLEGRO_PI * 0.5, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
    al_draw_bitmap(lkg, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+57; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+57);
 
-   al_set_target_bitmap(sb);
-   al_draw_rotated_bitmap(sb_ph, 10,  10,  10, 10, ALLEGRO_PI * 0.5, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
    al_draw_bitmap(lkb, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+58; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+58);
 
-   al_set_target_bitmap(sb);
-   al_draw_rotated_bitmap(sb_ph, 10,  10,  10, 10, ALLEGRO_PI * 0.5, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
    al_draw_bitmap(lkp, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+59; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+59);
 
 
-   al_set_target_bitmap(sb);
-   al_draw_bitmap(sb_ph, 0, 0, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
    al_draw_bitmap(lkr, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+60; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+60);
 
-   al_set_target_bitmap(sb);
-   al_draw_bitmap(sb_ph, 0, 0, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
    al_draw_bitmap(lkg, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+61; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+61);
 
-   al_set_target_bitmap(sb);
-   al_draw_bitmap(sb_ph, 0, 0, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
    al_draw_bitmap(lkb, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+62; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+62);
 
-   al_set_target_bitmap(sb);
-   al_draw_bitmap(sb_ph, 0, 0, 0);
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
    al_draw_bitmap(lkp, 4, 4, 0);
-   al_set_target_bitmap(b1);
-   s = bs+63; al_draw_bitmap(sb, (s % 32)*22+1, (s / 32)*22+1, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
+
+
+
+
+   // create B blocks
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
+   draw_B_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+48);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
+   draw_B_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+49);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
+   draw_B_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
+
+/*
+   // create lightning cracks
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
+   draw_lightning_crack_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+48);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
+   draw_lightning_crack_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+49);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
+   draw_lightning_crack_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
+*/
+
+   // create bombable
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
+   draw_bomb_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+51);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
+   draw_bomb_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+52);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
+   draw_bomb_overlay();
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+53);
+
+
+
+   // create semisolid from base tile
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+54);
+
 
    // save modified block tiles bitmap to file
    mBitmapTools.save_bitmap_to_block_tiles_file(b1);
@@ -1584,16 +1700,31 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_draw_bitmap(mBitmap.btile[s.OuterCornerTLDiag],  10*20, 3*20, 0);
 
          al_draw_bitmap(mBitmap.btile[s.SolidFill],          11*20, 2*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.SingleReverse],      11*20, 3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyR],         12*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyG],         12*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyB],         12*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyP],         12*20, 3*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.HLineMKeyR],         14*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.HLineMKeyG],         14*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.HLineMKeyB],         14*20, 2*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.HLineMKeyP],         14*20, 3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyR],         13*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyG],         13*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyB],         13*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyP],         13*20, 3*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMKeyR],         15*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMKeyG],         15*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMKeyB],         15*20, 2*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMKeyP],         15*20, 3*20, 0);
+
+         al_draw_bitmap(mBitmap.btile[s.HLineMBreakable],    12*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMBreakable],    12*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.SingleReverseBreakable], 12*20, 2*20, 0);
+
+         al_draw_bitmap(mBitmap.btile[s.SemiSolid],          12*20, 3*20, 0);
+
+         al_draw_bitmap(mBitmap.btile[s.HLineMBomb],         13*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.VLineMBomb],         13*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.btile[s.SingleReverseBomb],      13*20, 2*20, 0);
+
+
+
+
 
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(tmp1, 0, 0, 320, 80, x, y, 640, 160, 0);
@@ -1725,8 +1856,9 @@ void mwTileSets::modify_tile_set()
 
 
 
+
    // main extended purple pipe set
-   if (solid_source_tile_index == 256)
+   if (base_tile_index == 256)
    {
       h1=266;
       h2=270;

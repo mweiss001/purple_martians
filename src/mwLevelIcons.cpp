@@ -19,7 +19,7 @@ void mwLevelIcons::create()
 {
    bool save_web = true;
 
-   //double t0 = al_get_time();
+   if (profile) t0 = al_get_time();
 
    char fname[256];
 
@@ -69,9 +69,6 @@ void mwLevelIcons::create()
    load();
 
 
-   // teststststs
-
-
    // do level 1
    // this has to be last, because gates drawn on this level require level_icons created above
    int level = 1;
@@ -94,7 +91,7 @@ void mwLevelIcons::create()
    mLoop.level_editor_running = old_level_editor_running;
    if (old_start_level)  mLevel.set_start_level(old_start_level);
 
-   //printf("void mwLevelIcons::create() - %3.2fms\n", (al_get_time()- t0)*1000);
+   if (profile) printf("void mwLevelIcons::create() - %3.2fms\n", (al_get_time()- t0)*1000);
 }
 
 
@@ -147,7 +144,7 @@ void mwLevelIcons::add(const char* fn, int &index)
 // load all level icon files and draw level icons on tilemaps
 void mwLevelIcons::load(int rebuild_all)
 {
-   //double t0 = al_get_time();
+   if (profile) t0 = al_get_time();
 
    if (rebuild_all)
    {
@@ -159,7 +156,7 @@ void mwLevelIcons::load(int rebuild_all)
 
    // count number of level files
    int num_lev_files = mFileIterator.iterate("levels");
-   printf("num_lev_files%d\n", num_lev_files);
+   //printf("num_lev_files:%d\n", num_lev_files);
 
    // get size of tilemaps
    int w = size * 10;
@@ -191,19 +188,18 @@ void mwLevelIcons::load(int rebuild_all)
 
    reload();
 
-   //printf("void mwLevelIcons::load() - %3.1fms\n", (al_get_time()- t0)*1000);
-
+   if (profile)  printf("void mwLevelIcons::load() - %3.1fms\n", (al_get_time()- t0)*1000);
 
 }
 
 void mwLevelIcons::reload()
 {
-   // double t0 = al_get_time();
+   // printf("mwLevelIcons::reload()\n");
+   if (profile) t0 = al_get_time();
    al_set_target_bitmap(tilemap);
    al_draw_bitmap(M_tilemap, 0, 0, 0);
    reload_needed = false;
-   //printf("void mwLevelIcons::reload() - %3.1fms\n", (al_get_time()- t0)*1000);
-
+   if (profile) printf("void mwLevelIcons::reload() - %3.1fms\n", (al_get_time()- t0)*1000);
 }
 
 
@@ -224,13 +220,15 @@ void mwLevelIcons::draw_level_icon(int x, int y, int draw_size, int level)
       // get sub bitmap of region to draw
       int sx = (li.index % 10) * size;
       int sy = (li.index / 10) * size;
+
       ALLEGRO_BITMAP *tmp = al_create_sub_bitmap(tilemap, sx, sy, size, size);
-
       al_draw_scaled_bitmap(tmp, 0, 0, size, size, x, y, draw_size, draw_size, 0);
-
       al_destroy_bitmap(tmp);
-   }
-   else printf("level icon %d not found\n", level);
-}
 
+      // or I can do this in one line (not sure if this leaks memory)
+      //al_draw_scaled_bitmap(al_create_sub_bitmap(tilemap, sx, sy, size, size), 0, 0, size, size, x, y, draw_size, draw_size, 0);
+
+   }
+   else printf("level %d icon not found\n", level);
+}
 

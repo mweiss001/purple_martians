@@ -1,0 +1,44 @@
+
+Game Menu
+---------
+
+in mwMenu.cpp -> zmenu()
+
+L - level editor
+CTRL SHIFT O - settings
+D - demo record
+
+
+
+
+Level Editor
+------------
+
+in mwWindowManager.cpp -> process_keypress()
+
+Q - copy tiles
+E - tile editor
+
+also this is where you can enable or disable the level editor save on quit dialog
+
+
+
+
+
+Copy Tiles
+----------
+
+in mwBitmapTools -> copy_tiles()
+
+C - count tiles
+S - modify tileset
+
+
+
+
+
+
+
+
+
+

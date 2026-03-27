@@ -504,6 +504,8 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 
 void mwVisualLevel::load_visual_level_select(int max_level_num, int &sel_x, int &sel_y, int &sel_size, int &grid_cols, int &grid_rows, int &grid_size, int &grid_width, int &grid_height)
 {
+   if (mLevelIcons.reload_needed) mLevelIcons.reload();
+
    int mod_size = 10;
    int min_size = 10;
 
@@ -633,35 +635,37 @@ int mwVisualLevel::visual_level_select(int max_level)
 
    while ( (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) ) mEventQueue.proc_menu();;
 
-
    // this function will reload level, so this is our last chance to save it
    if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
 
    mLoop.visual_level_select_running = 1;
+   load_visual_level_select_done = 0;
 
-   int p = mPlayer.active_local_player;
-   int fc = mPlayer.syn[p].color; // frame color
-
-   load_visual_level_select(max_level, sel_x, sel_y, sel_size, grid_cols, grid_rows, grid_size, grid_width, grid_height);
-   int vl_redraw = 1;
+   int fc = mPlayer.syn[0].color; // frame color
 
    // set initial selection
    int selected_level = mLevel.start_level;
-   int ss = 0;
-   for (int x=0; x<num_levs_found; x++)
-      if (level_exists_array[x] == selected_level) ss = x;
-   int grid_sel_row = ss / grid_cols;
-   int grid_sel_col = ss - grid_sel_row * grid_cols;
 
-
+   int grid_sel_row;
+   int grid_sel_col;
 
    int quit = 0;
    while (!quit)
    {
+      int vl_redraw = 1;
+
+
       if (!load_visual_level_select_done)
       {
          load_visual_level_select(max_level, sel_x, sel_y, sel_size, grid_cols, grid_rows, grid_size, grid_width, grid_height);
          vl_redraw = 1;
+
+         int ss = 0;
+         for (int x=0; x<num_levs_found; x++)
+            if (level_exists_array[x] == selected_level) ss = x;
+         grid_sel_row = ss / grid_cols;
+         grid_sel_col = ss - grid_sel_row * grid_cols;
+
       }
 
       if (vl_redraw)

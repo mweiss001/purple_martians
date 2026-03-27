@@ -22,6 +22,8 @@ struct tileSet
    int Single;      // standalone single tile
    int SolidFill;   // center tile with no borders
 
+   int SingleReverse;
+
    // single lines
    int HLineL;
    int HLineM;
@@ -108,6 +110,20 @@ struct tileSet
    int VLineMKeyB;
    int VLineMKeyP;
 
+   int HLineMBreakable;
+   int VLineMBreakable;
+   int SingleReverseBreakable;
+
+   int HLineMBomb;
+   int VLineMBomb;
+   int SingleReverseBomb;
+
+   int SemiSolid;
+
+
+
+
+
 };
 
 
@@ -142,6 +158,12 @@ class mwTileSets
    void draw_lock_overlay_bitmap(ALLEGRO_BITMAP *b, ALLEGRO_COLOR lc);
    void erase_pixels_outside_rounded_corners(ALLEGRO_BITMAP *b, ALLEGRO_COLOR c);
    void make_hline_vline_and_single(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *b60, int indexS, int indexH, int indexV);
+
+   void draw_lightning_crack_overlay();
+   void draw_bomb_overlay();
+   void draw_B_overlay();
+
+
 
    void showTileSet(int x, int y, int type, int bs);
    void showLiveTile(int x, int y, int type, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);

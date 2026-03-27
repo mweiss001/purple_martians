@@ -166,8 +166,8 @@ void mwTileEditor::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int
    al_draw_filled_rectangle(x, y+20, x+o+fpw, y+o+height, show_color);
 
    // show text
-   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+2,  ALLEGRO_ALIGN_CENTER, text);
-   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+10, ALLEGRO_ALIGN_CENTER, "color");
+   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+2,  ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, text);
+   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+10, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "color");
 
    // frame all
    al_draw_rectangle(x+o, y+o, x+o+width, y+o+height, mColor.White, 1);
@@ -266,7 +266,7 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
 
       // show text of current mouse pixel position x, y
       al_draw_rectangle(dx2+o-76, dy2+o, dx2+o, dy2+o+12, highlight_color, 0);
-      al_draw_textf(mFont.pr8, mColor.pc[15], dx2+o-74, dy2+o+2, 0, "x:%-2d y:%-2d", mx, my);
+      al_draw_textf(mFont.pr8, mColor.pc[15], dx2+o-74, dy2+o+2, ALLEGRO_ALIGN_INTEGER, "x:%-2d y:%-2d", mx, my);
 
 
    }
@@ -319,7 +319,7 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
 
       // show text of current mouse pixel position x, y
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
-      al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, 0, "col:%d", pc);
+      al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, ALLEGRO_ALIGN_INTEGER, "col:%d", pc);
 
       color_controls("point", point_color, pcw_x, pcw_y, pcw_w, pcw_bts);
 
@@ -395,9 +395,10 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
       int y = (mInput.mouse_y - gy1) / (size*20);
       int tile = tile_palette[y][x];
 
+
       // show text of current mouse position x, y
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
-      al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, 0, "tile:%d", tile);
+      al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, ALLEGRO_ALIGN_INTEGER, "tile:%d", tile);
 
       if (mInput.mouse_b[1][0])
       {
@@ -904,10 +905,11 @@ void mwTileEditor::edit_tile(int tile)
          }
       }
 
+      color_controls("draw", draw_color, dcw_x, dcw_y, dcw_w, dcw_bts);
 
-      // show save and load buttons
+
+      // show top row of buttons
       int ya = dy1-14;
-
 
       int xa = dx2-86;
       if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,11, 1,0,0,0, "Load"))
@@ -923,46 +925,13 @@ void mwTileEditor::edit_tile(int tile)
          al_set_target_backbuffer(mDisplay.display);
       }
 
-
       xa = dx1+142;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Select Tile"))
-      {
-         set_edit_tile(mBitmapTools.select_bitmap());
-      }
-
+      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Select Tile")) set_edit_tile(mBitmapTools.select_bitmap());
 
       xa = dx1+282;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Copy Tiles"))
-      {
-         mBitmapTools.copy_tiles();
-      }
+      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Copy Tiles")) mBitmapTools.copy_tiles();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      color_controls("draw", draw_color, dcw_x, dcw_y, dcw_w, dcw_bts);
 
       // all the widgets to the right of the main tile area
       xa = dx2+20;

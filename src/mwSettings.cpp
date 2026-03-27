@@ -376,14 +376,14 @@ void mwSettings::settings_pages(int set_page)
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
 
-      // frame from top of page to to top of window, this is here to draw under the tabs
+      // frame from top of page to top of window, this is here to draw under the tabs
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, mColor.pc[fc+a*48], 1.5);
 
       // frame and draw title, this needs to go on top of previous frame
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
-      al_draw_text(mFont.pr8, mColor.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
+      al_draw_text(mFont.pr8, mColor.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, title);
 
       int xa = title_xc+46;
       int ya = title_ty;

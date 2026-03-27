@@ -29,8 +29,6 @@ DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 
 
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -40,8 +38,29 @@ TO DO
 ------------------------------------------------------------------------------
 
 to do for tilesets:
-add locked and breakable to tileset
+add locked and breakable to tileset..done
 find a way to patch in tileset creator
+
+
+go through all levels and replace:
+96 - 306  old B block
+99 - 305
+100 - 304
+done...
+
+
+replace all selected tiles with single shape
+
+
+
+maybe I could redo the main tileset in the player color!!!
+
+
+
+
+
+
+
 
 
 

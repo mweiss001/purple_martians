@@ -4,7 +4,6 @@
 #include "mwBitmap.h"
 #include "mwTileSets.h"
 
-
 mwSelectionWindow mSelectionWindow;
 
 void mwSelectionWindow::init()
@@ -39,9 +38,7 @@ void mwSelectionWindow::set_block_set_rainbow(int t, int x, int y)
    block_set_set(t+3, x++, y); // lr corner
    block_set_set(t+6, x++, y);
    block_set_set(t+7, x++, y);
-
 }
-
 
 void mwSelectionWindow::set_block_extended(int t, int y)
 {
@@ -68,7 +65,7 @@ void mwSelectionWindow::set_block_extended(int t, int y)
          block_set_set(s.HLineL,              x+0, y+3);
          block_set_set(s.HLineM,              x+1, y+3);
          block_set_set(s.HLineR,              x+2, y+3);
-         block_set_set(s.Single,         x+3, y+3);
+         block_set_set(s.Single,              x+3, y+3);
 
          block_set_set(s.OuterCornerTL,       x+4, y+0);
          block_set_set(s.OuterCornerTR,       x+5, y+0);
@@ -107,25 +104,29 @@ void mwSelectionWindow::set_block_extended(int t, int y)
 
          block_set_set(s.OuterCornerTRDiag,   x+10, y+2);
          block_set_set(s.OuterCornerTLDiag,   x+10, y+3);
-
          block_set_set(s.SolidFill,           x+11, y+2);
+         block_set_set(s.SingleReverse,       x+11, y+3);
 
+         block_set_set(s.HLineMBreakable,        x+12, y+0);
+         block_set_set(s.VLineMBreakable,        x+12, y+1);
+         block_set_set(s.SingleReverseBreakable, x+12, y+2);
+         block_set_set(s.SemiSolid,              x+12, y+3);
 
-         block_set_set(s.HLineMKeyR,          x+12, y+0);
-         block_set_set(s.HLineMKeyG,          x+12, y+1);
-         block_set_set(s.HLineMKeyB,          x+12, y+2);
-         block_set_set(s.HLineMKeyP,          x+12, y+3);
+         block_set_set(s.HLineMBomb,          x+13, y+0);
+         block_set_set(s.VLineMBomb,          x+13, y+1);
+         block_set_set(s.SingleReverseBomb,   x+13, y+2);
 
-         block_set_set(s.VLineMKeyR,          x+13, y+0);
-         block_set_set(s.VLineMKeyG,          x+13, y+1);
-         block_set_set(s.VLineMKeyB,          x+13, y+2);
-         block_set_set(s.VLineMKeyP,          x+13, y+3);
+         block_set_set(s.HLineMKeyR,          x+14, y+0);
+         block_set_set(s.HLineMKeyG,          x+14, y+1);
+         block_set_set(s.HLineMKeyB,          x+14, y+2);
+         block_set_set(s.HLineMKeyP,          x+14, y+3);
 
-
-
+         block_set_set(s.VLineMKeyR,          x+15, y+0);
+         block_set_set(s.VLineMKeyG,          x+15, y+1);
+         block_set_set(s.VLineMKeyB,          x+15, y+2);
+         block_set_set(s.VLineMKeyP,          x+15, y+3);
 
       }
-
 }
 
 void mwSelectionWindow::set_block_set(int t, int x, int y)
@@ -176,8 +177,25 @@ void mwSelectionWindow::fill_block_array(void)
    set_block_extended(256, y);
    y+=4;
 
-   set_block_set(832, x, y);   // wires
+
+   int t = 832;
+
+   set_block_set(t, x, y);   // wires
+
+   block_set_set(t+17, x+8, y);   // B H
+   block_set_set(t+18, x+8, y+1);  // B V
+
+   block_set_set(t+19, x+9, y);    // I H
+   block_set_set(t+20, x+9, y+1);   // I V
+
+   block_set_set(t+16, x+10, y);    // V H
+
+
    y+=2;
+
+
+
+
 
    set_block_set(864, x, y);   // yellow thatch
    set_block_set(896, x+8, y); // brain
@@ -331,8 +349,6 @@ void mwSelectionWindow::load_pde()
    pushRegular(p, "Purple Switch", 1,  "");
 
 
-
-
    p.ia = { 1, 336, 0, 29, 1, 29, 31, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 10, 0, 0 };
    p.fa = { 0.00, 0.00, 0.00, 3.00, 1.62, 3.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "FlickenBy", 1,  "Normal Speed.\n\nPod seek ans!");
@@ -372,7 +388,6 @@ void mwSelectionWindow::load_pde()
    p.fa = { 0.00, 0.00, 3.00, 3.57, 2.52, 0.00, 3.00, 10.21, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "ArchWagon 2", 1,  "Faster");
 
-
    p.ia = { 4, 864, 1, 56, 2, 0, 0, 30, 1, 0, 0, 5, 40, 35586216, 0, 0, 100, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0 };
    p.fa = { 0.00, 0.00, 2.16, 2.87, 2.52, 0.00, 2.16, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "Block Walker", 1,  "");
@@ -385,7 +400,6 @@ void mwSelectionWindow::load_pde()
    p.fa = { 0.00, 0.00, 0.00, 2.00, 3.00, 2.63, 0.20, 4.00, 0.76, 0.00, 3.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "Flapper", 1,  "Standard");
 
-
    p.ia = { 8, 384, 1, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 40, 0, 80, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 10, 0, 0 };
    p.fa = { 0.00, 0.00, 1.37, 1.31, 2.52, 0.00, 0.00, 2.69, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "TrakBot 1", 1,  "Standard");
@@ -397,7 +411,6 @@ void mwSelectionWindow::load_pde()
    pushBlankSpacer();
    pushBlankSpacer();
 
-
    p.ia = { 19, 401, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    p.fa = { 0.00, 0.00, 0.00, 2.00, 0.00, 0.00, 2.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 };
    pushRegular(p, "Crew (NPC)", 1,  "Children to rescue");
@@ -407,8 +420,4 @@ void mwSelectionWindow::load_pde()
    p.ia = { 118, 940, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Gate", 1,  "");
 
-
 }
-
-
-

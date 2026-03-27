@@ -24977,18 +24977,284 @@ added these in the lists in dev_setup_20260112
 then I duplicate that in another file?
 I should just have one place where that exists...
 
-
-
-
-
-
 found some old notes:
 why does png work on win but not on lin?
 fixed... added -DWANT_IMAGE_PNG=ON
+i might also need this:libpng-dev
 
-i might also need this:
+2026-03-23 07:20:07
+now I have updated notes for linux dev setup and headless server setup...
+now dumb and png are working like they should
 
-libpng-dev
+
+2026-03-23 07:28:02
+now see why things don't line up properly for gate 100 and 200 icons
+i think I have that fixed...
+
+next vls
+on time the vls background had extra crap on it
+
+vls background needs to get re-loaded with all the other video bitmaps
+that works fine if screen changes when vls is running, but not if screen changes at other times
+why?
+also why do I care to save that? could I not just create it when vls runs? i do.
+
+fixed this by forcing this:
+
+void mwVisualLevel::load_visual_level_select(int max_level_num, int &sel_x, int &sel_y, int &sel_size, int &grid_cols, int &grid_rows, int &grid_size, int &grid_width, int &grid_height)
+{
+   if (mLevelIcons.reload_needed) mLevelIcons.reload();
+
+
+makes not sense, later in the same function, when I draw level icon: 
+
+   // create the icon grid bitmap
+   al_destroy_bitmap(grid_bmp);
+   grid_bmp = al_create_bitmap(grid_width, grid_height);
+   al_set_target_bitmap(grid_bmp);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   // draw the level icon grid on its bitmap
+   for (int row=0; row<grid_rows; row++)
+      for (int col=0; col<grid_cols; col++)
+      {
+         int grid_pos = (row * grid_cols) + col;  // the position in the grid
+         int lev = level_exists_array[grid_pos];  // the level number that corresponds to that grid position
+         int bx1 = col * grid_size;               // the screen position of that grid cell
+         int by1 = row * grid_size;
+         if (lev)
+         {
+            mLevelIcons.draw_level_icon(bx1, by1, grid_size, lev);
+            al_draw_textf(mFont.pr8, mColor.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
+         }
+      }
+
+
+void mwLevelIcons::draw_level_icon(int x, int y, int draw_size, int level)
+{
+   if (reload_needed) reload();
+
+
+it should reload there, but for some reason that does not work...
+
+like I said it does not make sense....
+
+redo all:
+pscp -pw zaiden c:\pm\src\*  m@192.168.1.142:dev/purple_martians/src/
+
+
+next tile editor
+only some text looks funny and only on smallest text double
+just like the letter 'S' on Settings
+
+pscp -pw zaiden c:\pm\src\mwTi*  m@192.168.1.142:dev/purple_martians/src/
+
+OMG I figured it out!!!
+add this flag to al_draw_text: ALLEGRO_ALIGN_INTEGER
+I have fixed all the things I found:
+Settings Title
+Tile Editor
+
+2026-03-24 07:14:56
+
+I have fixed all weird linux display issues...
+now where was I and what was I working on?
+
+add breakable to tileset...
+I think I will do this manually
+then I just need to set the flags to breakable, or bombable
+
+Should I add actual named blocks in the tileset?
+
+like cracked, bomb, etc
+
+   int HLineMCracked;
+   int VLineMCracked;
+
+color for default pipes...
+
+h 265-270
+s .88 - .96
+l .1 - .35
+
+      h1=266;
+      h2=270;
+      s1=0.88;
+      s2=0.95;
+      l1=0.10;
+      l2=0.35;
+      steps=10;
+      round=0.0;
+      create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
+
+now show in selection window
+
+
+make cracked blocks automatically generate and do all three
+
+make B blocks also for all three hlinem vlinem solid
+
+make reverse fade single block
+
+
+2026-03-24 20:22:47
+
+
+all that is done and I am removing old B blocks...
+
+I don't like the solid cracked...change it to single reverse cracked
+
+what ever I do for B blocks, all I need to do it change the shape
+
+I am thinking of going with the original 'B' block also...
+
+Also I want some kind of semi solid, maybe a half block hline
+
+2026-03-25 06:57:40
+
+made a function the draw original B
+I will use that instead of lightning crack
+
+bomb solid to also use same background as B
+done
+
+2026-03-25 07:17:33
+
+go through levels and reassign blocks..done for all breakable
+
+next to do:
+figure out something for semi solid..just use screen
+
+go through levels and see if that will work...
+
+semi solid 32 replace all with 256...done
+
+can I move custom wire block to its set?
+block 97 to 849 and 98 to 850
+moved it close to its set, now show it..done
+
+add semi solid to tileset???
+
+yes, make it an official tile
+
+replace 256 with 310
+
+all done...
+all levels play properly
+
+could I do something where tileset creator also creates default flags? at least for extended tileset...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

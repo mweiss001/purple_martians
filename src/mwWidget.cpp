@@ -2875,6 +2875,8 @@ bool mwWidget::mButtonSmallText(int xType, int xa, int xb, int yType, int ya, in
 
 bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &changed_flag, bool display_only)
 {
+   int df = ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER;
+
    bool changed = false;
    float min = 0;
    float max = 1;
@@ -2960,8 +2962,8 @@ bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float b
    // draw + and minus lines and text
    al_draw_rectangle(sx1, y1, sx1, y2, mColor.White, 1);
    al_draw_rectangle(sx2, y1, sx2, y2, mColor.White, 1);
-   al_draw_text(mFont.pr8, mColor.White, x1 + (sx1-x1)/2, tyc, ALLEGRO_ALIGN_CENTER, "-");
-   al_draw_text(mFont.pr8, mColor.White, x2 + (sx2-x2)/2, tyc, ALLEGRO_ALIGN_CENTER, "+");
+   al_draw_text(mFont.pr8, mColor.White, x1 + (sx1-x1)/2, tyc, df, "-");
+   al_draw_text(mFont.pr8, mColor.White, x2 + (sx2-x2)/2, tyc, df, "+");
 
 
    if (!display_only)
@@ -3018,14 +3020,14 @@ bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float b
    float vx = map_range(display_val, min, max,  sx1, sx2);
    al_draw_line(vx, y1, vx, y2, mColor.White, 2);
 
-   if (type == 1) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "red:%d",       (int) (display_val * 255));
-   if (type == 2) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "green:%d",     (int) (display_val * 255));
-   if (type == 3) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "blue:%d",      (int) (display_val * 255));
-   if (type == 4) al_draw_textf(mFont.pr8, mColor.Black, sxc, tyc, ALLEGRO_ALIGN_CENTER, "hue:%d",       (int) display_val);
-   if (type == 5) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "sat:%3.2f",          display_val);
-   if (type == 6) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "light:%3.2f",        display_val);
-   if (type == 7) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "steps:%d",     (int) display_val);
-   if (type == 8) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, ALLEGRO_ALIGN_CENTER, "round:%3.1f",        display_val);
+   if (type == 1) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "red:%d",       (int) (display_val * 255));
+   if (type == 2) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "green:%d",     (int) (display_val * 255));
+   if (type == 3) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "blue:%d",      (int) (display_val * 255));
+   if (type == 4) al_draw_textf(mFont.pr8, mColor.Black, sxc, tyc, df, "hue:%d",       (int) display_val);
+   if (type == 5) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "sat:%3.2f",          display_val);
+   if (type == 6) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "light:%3.2f",        display_val);
+   if (type == 7) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "steps:%d",     (int) display_val);
+   if (type == 8) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "round:%3.1f",        display_val);
 
    y1 += bts;
 

@@ -296,16 +296,10 @@ void mwGlobalLevelTool::execute(void)
       changeBlockNumber(541, 256);
 
 
-
+      changeBlockNumber(97, 849);
+      changeBlockNumber(98, 850);
 
 */
-
-
-
-
-
-
-
 
 
 
@@ -331,15 +325,6 @@ void mwGlobalLevelTool::execute(void)
 //      changeBlockNumber(424, 870);
 //      changeBlockNumber(456, 966);
 //      changeBlockNumber(488, 934);
-
-      // changeBlockNumber(581, 806);
-      // changeBlockNumber(583, 803);
-      // changeBlockNumber(613, 838);
-      // changeBlockNumber(615, 835);
-      // changeBlockNumber(625, 848);
-
-
-
 
 
       // block counter
@@ -835,7 +820,6 @@ void mwGlobalLevelTool::execute(void)
 //            int h = mItem.item[y][9];
 //            if (h < 15) printf("l:%3d item_num:%3d height:%d\n", le[x], y, h);
 //         }
-
       if (0)
       {
          mLevel.save_level(le[x]);

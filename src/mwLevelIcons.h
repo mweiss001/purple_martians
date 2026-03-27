@@ -18,6 +18,9 @@ public:
 
 private:
 
+   bool profile = false;
+   double t0;
+
    int size = 200;
    void create();
    int get_level_num_from_filepath(const char* fn);

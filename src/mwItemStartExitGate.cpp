@@ -312,7 +312,14 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
       al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 
-      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, stat_txt); // draw status text
+
+
+
+//      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, stat_txt); // draw status text
+
+//      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, 0, 15, stat_txt); // draw status text
+
+      mScreen.draw_framed_text(xc, y-19, 0, mFont.pixl, col, 15, stat_txt); // draw status text
 
       if (status == 0) al_draw_scaled_bitmap(mBitmap.tile[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
 
@@ -328,18 +335,24 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
 
       // draw level icon with frame
-      int ls = 100;      // level icon size
-      int lx = xc-ls/2;  // level icon x pos
-      int ly = y-130;    // level icon y pos
-      al_draw_filled_rectangle(lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
-      mLevelIcons.draw_level_icon(lx, ly, 100, lev);                         // level icon
-      al_draw_rectangle(       lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
+      int ls = 100;              // level icon size
+      float lx = 0.5 + xc-ls/2;  // level icon x pos
+      float ly = 0.5 + y-131;    // level icon y pos
+      al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+      mLevelIcons.draw_level_icon(lx+1, ly+1, 100, lev);                        // level icon
+      al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
 
 
-      ly+=101;
+
+      ly+=102;
 
       // draw and frame the level name
-      mScreen.draw_framed_text(xc, ly, 1, mFont.pixl, col, 15, mLevel.data[lev].level_name);
+//      mScreen.draw_framed_text(xc, ly, 1, mFont.pixl, col, 15, mLevel.data[lev].level_name);
+
+
+      mScreen.draw_framed_text(xc, ly-1, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name);
+
+
       ly+=8;
    }
    return 1;
@@ -371,7 +384,9 @@ void mwItem::draw_gate_info(int i)
       }
    }
 
-   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+//   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+   mScreen.draw_framed_text(xc, by, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 
    if (status == 0)
    {
@@ -494,16 +509,12 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
    int bx = xc-bs/2;  // level icon x1
    int bx2 = xc+bs/2; // level icon x2
-
    float yp = by+11.5; // top of frame
 
    if (page == 0) // level icon map
    {
-      al_draw_rectangle(bx, yp, bx+bs+1, by+bs+13, mColor.pc[col], 1);
-//      al_draw_bitmap(mLevel.level_icon_200[lev], bx, by+12, 0);
-
+      al_draw_rectangle(bx, yp, bx+bs+1, by+bs+12.5, mColor.pc[col], 1);
       mLevelIcons.draw_level_icon(bx, by+12, 200, lev);
-
    }
 
    if (page == 1) // general

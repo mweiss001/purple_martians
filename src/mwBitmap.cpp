@@ -192,6 +192,8 @@ void mwBitmap::rebuild_bitmaps()
    // delay loading, just set flag that it needs to be done
    // this is to prevent the delay in the middle of a game
    mLevelIcons.reload_needed = true;
+
+   // these are exceptions, when I want to immediately reload level icons
    // if last loaded level is overworld, or we are in visual level select, reload now
    if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
    t[3] = al_get_time();

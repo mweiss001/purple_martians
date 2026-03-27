@@ -98,9 +98,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
    blocks until a menu item is selected
    navigate with arrow keys, ENTER and ESC
    can also navigate with game controls
-
-   now also for more menus
-
 */
 
 {
@@ -170,12 +167,12 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          sprintf(menu_string[demo_mode_menu_item_num], "Demo Current Level");
       }
 
-//      debug draw rectangle around menu area
-//      float hx1 = mx - mScreen.menu_w/2;
-//      float hx2 = mx + mScreen.menu_w/2;
-//      float hy1 = y;
-//      float hy2 = y + mScreen.menu_h;
-//      al_draw_rectangle(hx1-1, hy1, hx2+1, hy2, mColor.pc[10], 0);
+      //debug draw rectangle around menu area
+      // float hx1 = mx - mScreen.menu_w/2;
+      // float hx2 = mx + mScreen.menu_w/2;
+      // float hy1 = y;
+      // float hy2 = y + mScreen.menu_h;
+      // al_draw_rectangle(hx1-1, hy1, hx2+1, hy2, mColor.pc[10], 0);
 
       // draw the menu items
       int c = 0;
@@ -250,8 +247,8 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       if (menu_num == 1)
       {
          // shortcut keys
-         //if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
-         //if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
+         if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
+         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
          //if (mInput.key[ALLEGRO_KEY_D][0])                                    return 66; // demo record
       }
       if (menu_num == 2)
@@ -279,9 +276,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
 int mwMenu::tmenu(int menu_pos, int x1, int y1)
 // level editor main menu
-
-
-
 {
    int pc = mPlayer.syn[mPlayer.active_local_player].color;
 
@@ -298,7 +292,6 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
       c++;
    }
    last_list_item = c;
-
 
    int yh = 12; // y height
 
