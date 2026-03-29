@@ -85,14 +85,6 @@ void mwTileSets::constructEmptySet()
    ts.OuterCornerTRDiag = 0;
    ts.OuterCornerTLDiag = 0;
 
-   ts.HLineMBreakable     = 0;
-   ts.VLineMBreakable     = 0;
-   ts.SingleReverseBreakable  = 0;
-
-   ts.HLineMBomb        = 0;
-   ts.VLineMBomb        = 0;
-   ts.SingleReverseBomb     = 0;
-
    ts.SemiSolid         = 0;
 
 }
@@ -185,18 +177,9 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.SolidFill         = i + 46;
    ts.SingleReverse     = i + 47;
 
-   ts.HLineMBreakable     = i + 48;
-   ts.VLineMBreakable     = i + 49;
-   ts.SingleReverseBreakable  = i + 50;
-
-   ts.HLineMBomb        = i + 51;
-   ts.VLineMBomb        = i + 52;
-   ts.SingleReverseBomb = i + 53;
    ts.SemiSolid         = i + 54;
 
-
    tileSets.push_back(ts);
-
 
 
    // frame
@@ -1538,7 +1521,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_draw_bitmap(lkp, 4, 4, 0);
    mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
 
-*/
+
 
 
    // create B blocks
@@ -1554,7 +1537,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    draw_B_overlay();
    mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
 
-/*
+
    // create lightning cracks
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
    draw_lightning_crack_overlay();
@@ -1567,7 +1550,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
    draw_lightning_crack_overlay();
    mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
-*/
+
 
    // create bombable
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
@@ -1582,7 +1565,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    draw_bomb_overlay();
    mBitmapTools.put_tile_to_tilemap(b1, sb, bs+53);
 
-
+*/
 
    // create semisolid from base tile
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs);
@@ -1597,12 +1580,6 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_destroy_bitmap(sb);
    al_destroy_bitmap(hf);
    al_destroy_bitmap(cf);
-/*
-   al_destroy_bitmap(lkr);
-   al_destroy_bitmap(lkg);
-   al_destroy_bitmap(lkb);
-   al_destroy_bitmap(lkp);
-*/
 
    // set default tile flags
 
@@ -1610,6 +1587,8 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    int flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SOLID_PBUL | PM_BTILE_SOLID_EBUL | PM_BTILE_SHOW_SELECT_WIN;
    for (int i=bs; i<bs+64; i++)
       mBitmap.tileFlags[i] = flag;
+
+   /*
 
    // breakable
    int br_flag = flag;
@@ -1622,6 +1601,8 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    int bm_flag = flag | PM_BTILE_BOMBABLE;
    for (int i=bs+51; i<bs+54; i++)
       mBitmap.tileFlags[i] = bm_flag;
+
+*/
 
    // semisolid
    int ss_flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SEMISOLID_PLAYER | PM_BTILE_SEMISOLID_ENEMY | PM_BTILE_SEMISOLID_ITEM | PM_BTILE_SHOW_SELECT_WIN;
@@ -1735,16 +1716,19 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_draw_bitmap(mBitmap.btile[s.SolidFill],          11*20, 2*20, 0);
          al_draw_bitmap(mBitmap.btile[s.SingleReverse],      11*20, 3*20, 0);
 
+         al_draw_bitmap(mBitmap.btile[s.SemiSolid],          12*20, 3*20, 0);
+
+         /*
          al_draw_bitmap(mBitmap.btile[s.HLineMBreakable],    12*20, 0*20, 0);
          al_draw_bitmap(mBitmap.btile[s.VLineMBreakable],    12*20, 1*20, 0);
          al_draw_bitmap(mBitmap.btile[s.SingleReverseBreakable], 12*20, 2*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.SemiSolid],          12*20, 3*20, 0);
+
 
          al_draw_bitmap(mBitmap.btile[s.HLineMBomb],         13*20, 0*20, 0);
          al_draw_bitmap(mBitmap.btile[s.VLineMBomb],         13*20, 1*20, 0);
          al_draw_bitmap(mBitmap.btile[s.SingleReverseBomb],  13*20, 2*20, 0);
-
+*/
 
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(tmp1, 0, 0, 320, 80, x, y, 640, 160, 0);

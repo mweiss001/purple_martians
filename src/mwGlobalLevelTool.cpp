@@ -168,11 +168,11 @@ void changeBlockNumbersFrame(int oldNum, int newNum)
 
 void mwGlobalLevelTool::execute(void)
 {
-   int blt[NUM_SPRITES] = {0};
+//   int blt[NUM_SPRITES] = {0};
 
    int old_start_level = mLevel.start_level;
 
-   int le[200] = {0}; // level exists array
+   int le[400] = {0}; // level exists array
 
    int num_levs = 0;
    char fn[20] = "levels/level000.PML";
@@ -195,15 +195,15 @@ void mwGlobalLevelTool::execute(void)
       if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
    }
 
-   int count0 = 0;
-   int count1 = 0;
-   int count2 = 0;
-   int count3 = 0;
+   // int count0 = 0;
+   // int count1 = 0;
+   // int count2 = 0;
+   // int count3 = 0;
 //   int count4 = 0;
 //   int count5 = 0;
 
-   int max = 0;
-   int min = 9990;
+   // int max = 0;
+   // int min = 9990;
 
    al_set_target_backbuffer(mDisplay.display);
    al_flip_display();
@@ -211,6 +211,7 @@ void mwGlobalLevelTool::execute(void)
 
    printf("\nRunning Global Level Test\n");
 
+   printf("\nnum levels:%d\n", num_levs);
 
    // iterate array of found levels
    for (int x=0; x<num_levs; x++)
@@ -225,100 +226,6 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
-
-
-
-/*
-      
-      changeBlockNumber(800, 271);
-      changeBlockNumber(801, 256);
-
-      changeBlockNumber(802, 257);
-      changeBlockNumber(803, 258);
-      changeBlockNumber(804, 259);
-
-      changeBlockNumber(805, 260);
-      changeBlockNumber(806, 261);
-      changeBlockNumber(807, 262);
-
-      changeBlockNumber(808, 263);
-      changeBlockNumber(809, 264);
-      changeBlockNumber(810, 266);
-      changeBlockNumber(811, 265);
-
-      changeBlockNumber(812, 267);
-      changeBlockNumber(813, 269);
-      changeBlockNumber(814, 268);
-      changeBlockNumber(815, 270);
-
-*/
-
-
-/*
-
-      changeBlockNumber(512, 276);
-      changeBlockNumber(513, 277);
-      changeBlockNumber(514, 279);
-      changeBlockNumber(515, 278);
-
-      changeBlockNumber(516, 280);
-      changeBlockNumber(517, 282);
-      changeBlockNumber(518, 281);
-      changeBlockNumber(519, 283);
-
-      changeBlockNumber(520, 286);
-      changeBlockNumber(521, 287);
-      changeBlockNumber(522, 284);
-      changeBlockNumber(523, 285);
-
-      changeBlockNumber(524, 274);
-      changeBlockNumber(525, 275);
-      changeBlockNumber(526, 273);
-      changeBlockNumber(527, 272);
-
-      changeBlockNumber(528, 302); // solid
-
-      changeBlockNumber(529, 288);
-      changeBlockNumber(530, 295);
-      changeBlockNumber(531, 293);
-      changeBlockNumber(532, 290);
-
-      changeBlockNumber(533, 292);
-      changeBlockNumber(534, 289);
-      changeBlockNumber(535, 291);
-      changeBlockNumber(536, 294);
-
-      changeBlockNumber(537, 298);
-      changeBlockNumber(538, 299);
-      changeBlockNumber(539, 296);
-      changeBlockNumber(540, 297);
-
-      changeBlockNumber(541, 256);
-
-
-      changeBlockNumber(97, 849);
-      changeBlockNumber(98, 850);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
-
-
 //      changeBlockNumbersFrame(576, 800);
 //      changeBlockNumbersFrame(608, 832);
 
@@ -326,22 +233,54 @@ void mwGlobalLevelTool::execute(void)
 //      changeBlockNumber(456, 966);
 //      changeBlockNumber(488, 934);
 
-
-      changeBlockNumber(312, 258);
-      changeBlockNumber(313, 258);
-      changeBlockNumber(314, 258);
-      changeBlockNumber(315, 258);
-
-      changeBlockNumber(316, 261);
-      changeBlockNumber(317, 261);
-      changeBlockNumber(318, 261);
-      changeBlockNumber(319, 261);
-
-
+/*
       // block counter
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
             blt[mLevel.l[y][z] & 1023]++; // inc block counter
+*/
+
+      if (0)
+      {
+         mLevel.save_level(le[x]);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_textf(mFont.pr8, mColor.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);
+      }
+   } // end of level iterate
+
+   al_flip_display();
+
+   /*
+
+   printf("Total count0:%d \n",count0 );
+   printf("Total count1:%d \n",count1 );
+   printf("Total count2:%d \n",count2 );
+   printf("Total count3:%d \n",count3 );
+   printf("min:%d max:%d\n", min, max);
+
+*/
+
+//   show_block_list(blt);
+   mInput.tsw();
+   mLevel.set_start_level(old_start_level);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -878,28 +817,6 @@ void mwGlobalLevelTool::execute(void)
 
 //      if (0)
 //     if (le[x] == 8)
-
-     if (1)
-     {
-         mLevel.save_level(le[x]);
-         al_set_target_backbuffer(mDisplay.display);
-         al_draw_textf(mFont.pr8, mColor.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);
-      }
-   } // end of level iterate
-
-   al_flip_display();
-
-   printf("Total count0:%d \n",count0 );
-   printf("Total count1:%d \n",count1 );
-   printf("Total count2:%d \n",count2 );
-   printf("Total count3:%d \n",count3 );
-   printf("min:%d max:%d\n", min, max);
-
-   show_block_list(blt);
-   mInput.tsw();
-   mLevel.set_start_level(old_start_level);
-}
-
 
 
 

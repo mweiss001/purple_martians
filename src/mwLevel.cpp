@@ -41,7 +41,7 @@ void mwLevel::set_start_level(int s)
    mConfig.save_config(PM_CFG_SAVE_START_LEVEL);
 }
 
-int level_exists(int level)
+int mwLevel::level_exists(int level)
 {
    char fn[256];
    sprintf(fn, "levels/level%03d.pml", level);
@@ -110,17 +110,6 @@ int mwLevel::get_prev_level(int lev, int max_lev, int wrap)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 void mwLevel::change_block(int x, int y, int block)
 {
    if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
@@ -139,28 +128,28 @@ void mwLevel::change_block(int x, int y, int block)
 
 int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
-   int mpty = 0; // default is not empty (because if x and y not valid, I don't want to use it)
-   if ((x > -1) && (x < 100) & (y > -1) && (y < 100)) // if valid x and y
+   int empty = 0; // default is not empty (because if x and y are not valid, I don't want to use it)
+   if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100)) // if valid x and y
    {
-      mpty = 1; // default is empty
-      if (test_block) if (mLevel.l[x][y] & PM_BTILE_ALL_SOLID) mpty = 0; // if any of the solids match, it is not empty
+      empty = 1; // default is empty
+      if (test_block) if (mLevel.l[x][y] & PM_BTILE_ALL_SOLID) empty = 0; // if any of the solids match, it is not empty
       if (test_enemy)
          for (int c=0; c<100; c++)
             if (mEnemy.Ei[c][0])
-               if ((mEnemy.Ef[c][0] == x*20) && (mEnemy.Ef[c][1] == y*20)) mpty = 0;
+               if ((mEnemy.Ef[c][0] == x*20) && (mEnemy.Ef[c][1] == y*20)) empty = 0;
       if (test_item)
          for (int c=0; c<500; c++)
             if (mItem.item[c][0])
-               if ((mItem.item[c][4] == (x*20)) && (mItem.item[c][5] == (y*20))) mpty = 0;
+               if ((mItem.item[c][4] == x*20) && (mItem.item[c][5] == y*20)) empty = 0;
    }
-   return mpty;
+   return empty;
 }
 
 
 
 #define PML_SIZE 384080
 
-void pml_to_var(char * b) // for load level
+void mwLevel::pml_to_var(char * b) // for load level
 {
    int sz = 0, offset = 0;
    sz = sizeof(mLevel.l);       memcpy(mLevel.l,       b+offset, sz); offset += sz;
@@ -172,7 +161,7 @@ void pml_to_var(char * b) // for load level
    sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
 }
 
-void var_to_pml(char * b) // for save level
+void mwLevel::var_to_pml(char * b) // for save level
 {
    int sz = 0, offset = 0;
    offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);

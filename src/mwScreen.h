@@ -114,7 +114,7 @@ class mwScreen
 
    void draw_scaled_level_region_to_display();
    void set_map_var();
-   void mark_non_default_block(int x, int y);
+   void mark_non_default_block(int x, int y, int tile);
 
    void init_level_background();
 

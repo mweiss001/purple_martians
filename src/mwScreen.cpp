@@ -577,10 +577,10 @@ void mwScreen::set_map_var(void)
 }
 
 
-void mwScreen::mark_non_default_block(int x, int y)
+
+void mwScreen::mark_non_default_block(int x, int y, int tile)
 {
-   int c = mLevel.l[x][y] & 1023;
-   if ((mBitmap.tileFlags[c] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
+   if ((mBitmap.tileFlags[tile & 1023] & PM_BTILE_MOST_FLAGS) != (tile & PM_BTILE_MOST_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
@@ -597,32 +597,26 @@ void mwScreen::init_level_background(void) // fill level_background with block t
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         int tile = mLevel.l[x][y] & 1023;
-         if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
-         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         int tile = mLevel.l[x][y];
+         int tile_num = tile & 1023;
+
+         if (tile_num) al_draw_bitmap(mBitmap.btile[tile_num], x*20, y*20, 0);
+         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y, tile);
 
          // draw lock overlays
-         int kb = (mLevel.l[x][y] & 0b00000000000000001110000000000000) >> 13;
+         int kb = (tile & 0b00000000000000001110000000000000) >> 13;
          if (kb>3) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
 
+         // draw bomb overlays
+         if (tile & PM_BTILE_BOMBABLE) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
 
+         // draw B overlays
+         if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
 
 
       }
-   //printf("play_level:%d lll:%d\n", mLevel.play_level, mLevel.last_level_loaded);
-   // if level 1 draw all the gates
-//   if (mLevel.start_level == 1)
 
-   // draw all keyed blocks
-
-
-
-
-
-
-
-
-
+   // draw gates for overworld level
    if (mLevel.last_level_loaded == 1)
    {
       for (int i=0; i<500; i++)

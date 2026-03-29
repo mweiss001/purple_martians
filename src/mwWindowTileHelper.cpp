@@ -112,6 +112,8 @@ int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, 
          if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineL; // left end line
          if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = s.VLineT; // top end line
 
+         /*
+
          // if original tile is breakable
          if ((ot & PM_BTILE_BREAKABLE_ESHOT) || (ot & PM_BTILE_BREAKABLE_PSHOT))
          {
@@ -127,6 +129,10 @@ int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, 
             else if (fb == s.HLineM) fb = s.HLineMBomb;
             else fb = s.SingleReverseBomb;
          }
+
+         */
+
+
       }
 
    return fb;

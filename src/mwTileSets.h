@@ -99,18 +99,7 @@ struct tileSet
    int OuterCornerTRDiag;
    int OuterCornerTLDiag;
 
-   int HLineMBreakable;
-   int VLineMBreakable;
-   int SingleReverseBreakable;
-
-   int HLineMBomb;
-   int VLineMBomb;
-   int SingleReverseBomb;
-
    int SemiSolid;
-
-
-
 
 
 };

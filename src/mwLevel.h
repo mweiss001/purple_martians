@@ -79,7 +79,6 @@ class mwLevel
    int save_level_prompt();
 
 
-
    void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
    void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, int msg_type);
@@ -158,19 +157,16 @@ class mwLevel
 
    void update_level_status(int lev);
 
-   /*
-   ALLEGRO_BITMAP * level_icon_100[100];
-   ALLEGRO_BITMAP * level_icon_200[100];
-   int level_icons_loaded = 0;
-*/
+
+   int level_exists(int level);
+
+   void pml_to_var(char * b);
+   void var_to_pml(char * b);
 
    ALLEGRO_BITMAP * level_stats_bitmap = NULL;
    int level_stats_bmp_msg_type = 0;
    int level_stats_bmp_w;
    int level_stats_bmp_h;
-
-//   void load_level_icons();
-//   void create_level_icons();
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;
@@ -178,6 +174,8 @@ class mwLevel
 
    int skc_trigger_demo;
    int skc_trigger_demo_cheat;
+
+
 
 
 };

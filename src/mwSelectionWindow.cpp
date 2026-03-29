@@ -107,15 +107,20 @@ void mwSelectionWindow::set_block_extended(int t, int y)
          block_set_set(s.SolidFill,           x+11, y+2);
          block_set_set(s.SingleReverse,       x+11, y+3);
 
+         block_set_set(s.SemiSolid,              x+12, y+3);
+
+
+         /*
+
          block_set_set(s.HLineMBreakable,        x+12, y+0);
          block_set_set(s.VLineMBreakable,        x+12, y+1);
          block_set_set(s.SingleReverseBreakable, x+12, y+2);
-         block_set_set(s.SemiSolid,              x+12, y+3);
+
 
          block_set_set(s.HLineMBomb,          x+13, y+0);
          block_set_set(s.VLineMBomb,          x+13, y+1);
          block_set_set(s.SingleReverseBomb,   x+13, y+2);
-
+*/
 
       }
 }
