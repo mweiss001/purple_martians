@@ -1,8 +1,5 @@
 // pm.h
 
-
-
-
 #define PM_VERSION "7.24.0811.1b"
 
 #include <stdio.h>
@@ -17,9 +14,7 @@
 #include <iomanip>
 #include <format>
 
-
 #include <random>
-
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
@@ -32,9 +27,8 @@
 #include <allegro5/allegro_color.h>
 
 
-
-template <typename T>
-T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh) {
+template <typename T> T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh)
+{
    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
 }
 
@@ -60,8 +54,6 @@ struct client_status_buffer_row
 
 
 
-
-
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
 #define NUM_PLAYERS 8
@@ -82,11 +74,6 @@ struct client_status_buffer_row
 #define PM_COMPMOVE_MENU   0b01000000
 
 
-
-
-
-
-
 #define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
 #define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
@@ -97,9 +84,6 @@ struct client_status_buffer_row
 //                                                    3       2       1       0
 //                                             76543210765432107654321076543210
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG  0b00000000100000000000000000000000
-
-
-
 
 
 #define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0
@@ -122,6 +106,7 @@ struct client_status_buffer_row
 #define PM_NETGAME_PACKET_TYPE_SFAK 6
 #define PM_NETGAME_PACKET_TYPE_CRFL 7
 #define PM_NETGAME_PACKET_TYPE_CLOG 8
+
 
 
 #define PM_NETGAME_PACKET_TYPE_STDF 11
@@ -155,7 +140,6 @@ struct client_status_buffer_row
 #define PM_PROGRAM_STATE_NEXT_LEVEL                    12
 #define PM_PROGRAM_STATE_RESUME                        13
 #define PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT            14
-
 
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
@@ -192,6 +176,7 @@ struct client_status_buffer_row
 #define PM_ENEMY_VINEPOD_USE_TRIGGER 0b00000000000100000
 #define PM_ENEMY_VINEPOD_FIRE_SHOT   0b00000000001000000
 
+
 #define PM_LIFT_TYPE_BITS        0b00000000000000000000000000011111
 #define PM_LIFT_FLAG_BITS        0b00001111111111111111111111100000
 #define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
@@ -203,8 +188,14 @@ struct client_status_buffer_row
 
 //                                   3       2       1       0
 //                                   76543210765432107654321076543210
-#define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
-#define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
+#define PM_BTILE_TILENUM_FLAGS     0b00000000000000000000001111111111
+
+#define PM_BTILE_KEY_ACTIVE        0b00000000000000001000000000000000
+#define PM_BTILE_KEY_COLOR1        0b00000000000000000100000000000000
+#define PM_BTILE_KEY_COLOR0        0b00000000000000000010000000000000
+
+#define PM_BTILE_MOST_FLAGS        0b00111111111111111110000000000000
+#define PM_BTILE_ALL_FLAGS         0b01111111111111111110000000000000
 #define PM_BTILE_ALL_SOLID         0b00000000000111110000000000000000
 #define PM_BTILE_ALL_SEMI          0b00000000111001110000000000000000
 #define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
@@ -220,8 +211,9 @@ struct client_status_buffer_row
 #define PM_BTILE_BREAKABLE_ESHOT   0b00000100000000000000000000000000
 #define PM_BTILE_LADDER_MOVE       0b00001000000000000000000000000000
 #define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
-#define PM_BTILE_SECRET            0b00100000000000000000000000000000
+//#define PM_BTILE_SECRET            0b00100000000000000000000000000000
 #define PM_BTILE_SHOW_SELECT_WIN   0b01000000000000000000000000000000
+
 
 #define PM_ITEM_TRIGGER_PLAYER   0b00000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b00000000000000010
@@ -277,24 +269,19 @@ struct client_status_buffer_row
 #define PM_ITEM_PMSG_FRAME4        0b00000000001000000
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
 
-#define PM_CFG_SAVE_DISPLAY                     1
-#define PM_CFG_SAVE_SOUND                       2
-#define PM_CFG_SAVE_CONTROLS                    3
-#define PM_CFG_SAVE_BOTTOM_MESSAGE              4
-#define PM_CFG_SAVE_LOCAL_PLAYER_COLOR          5
-#define PM_CFG_SAVE_START_LEVEL                 6
 
-#define PM_CFG_SAVE_SERVER_ADDRESS              7
-#define PM_CFG_SAVE_NETGAME_SHOTS               8
-#define PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET 9
-#define PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED 10
-
-#define PM_CFG_SAVE_PLAYER_NAME                 11
-
-#define PM_CFG_LOAD_PLAYER_NAME_AND_COLOR       12
-
-
-
+#define PM_CFG_SAVE_DISPLAY                        1
+#define PM_CFG_SAVE_SOUND                          2
+#define PM_CFG_SAVE_CONTROLS                       3
+#define PM_CFG_SAVE_BOTTOM_MESSAGE                 4
+#define PM_CFG_SAVE_LOCAL_PLAYER_COLOR             5
+#define PM_CFG_SAVE_START_LEVEL                    6
+#define PM_CFG_SAVE_SERVER_ADDRESS                 7
+#define PM_CFG_SAVE_NETGAME_SHOTS                  8
+#define PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET    9
+#define PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED    10
+#define PM_CFG_SAVE_PLAYER_NAME                    11
+#define PM_CFG_LOAD_PLAYER_NAME_AND_COLOR          12
 
 
 

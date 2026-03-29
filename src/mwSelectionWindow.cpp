@@ -116,15 +116,6 @@ void mwSelectionWindow::set_block_extended(int t, int y)
          block_set_set(s.VLineMBomb,          x+13, y+1);
          block_set_set(s.SingleReverseBomb,   x+13, y+2);
 
-         block_set_set(s.HLineMKeyR,          x+14, y+0);
-         block_set_set(s.HLineMKeyG,          x+14, y+1);
-         block_set_set(s.HLineMKeyB,          x+14, y+2);
-         block_set_set(s.HLineMKeyP,          x+14, y+3);
-
-         block_set_set(s.VLineMKeyR,          x+15, y+0);
-         block_set_set(s.VLineMKeyG,          x+15, y+1);
-         block_set_set(s.VLineMKeyB,          x+15, y+2);
-         block_set_set(s.VLineMKeyP,          x+15, y+3);
 
       }
 }
@@ -176,6 +167,10 @@ void mwSelectionWindow::fill_block_array(void)
 
    set_block_extended(256, y);
    y+=4;
+
+   set_block_extended(320, y);
+   y+=4;
+
 
 
    int t = 832;

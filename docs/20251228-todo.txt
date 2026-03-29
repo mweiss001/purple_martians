@@ -37,25 +37,25 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+finish tilesets....
+
 to do for tilesets:
-add locked and breakable to tileset..done
-find a way to patch in tileset creator
 
-
-go through all levels and replace:
-96 - 306  old B block
-99 - 305
-100 - 304
-done...
-
-
-replace all selected tiles with single shape
-
-
+find a way to patch in tileset creator? now it is manually enabled and run from code
 
 maybe I could redo the main tileset in the player color!!!
 
+create second extended tileset in red...
 
+
+
+
+
+
+
+
+
+save the path in load demo from file...this has always annoyed me...
 
 
 
@@ -286,6 +286,9 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+replace all selected tiles with single shape in tile helper..done
+
 
 tileEditor could be standalone if I add a way to change tiles...done
 I really need a visual level load in level editor

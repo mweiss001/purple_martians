@@ -327,10 +327,63 @@ void mwGlobalLevelTool::execute(void)
 //      changeBlockNumber(488, 934);
 
 
+      changeBlockNumber(312, 258);
+      changeBlockNumber(313, 258);
+      changeBlockNumber(314, 258);
+      changeBlockNumber(315, 258);
+
+      changeBlockNumber(316, 261);
+      changeBlockNumber(317, 261);
+      changeBlockNumber(318, 261);
+      changeBlockNumber(319, 261);
+
+
       // block counter
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
             blt[mLevel.l[y][z] & 1023]++; // inc block counter
+
+
+/*
+
+      // key flags
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+         {
+            int t = mLevel.l[y][z] & 1023;
+
+            if (t == 220 || t == 312 || t == 316) // red keyed block 100
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR0;
+            }
+
+            if (t == 221 || t == 313 || t == 317) // green keyed block 101
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR0;
+            }
+
+            if (t == 222 || t == 314 || t == 318) // blue keyed block 110
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR0;
+            }
+
+            if (t == 223 || t == 315 || t == 319) // purple keyed block 111
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR0;
+            }
+         }
+
+*/
+
+
 
 /*
       // block changer
@@ -820,8 +873,14 @@ void mwGlobalLevelTool::execute(void)
 //            int h = mItem.item[y][9];
 //            if (h < 15) printf("l:%3d item_num:%3d height:%d\n", le[x], y, h);
 //         }
-      if (0)
-      {
+
+
+
+//      if (0)
+//     if (le[x] == 8)
+
+     if (1)
+     {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);
          al_draw_textf(mFont.pr8, mColor.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);

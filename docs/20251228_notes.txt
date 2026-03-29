@@ -25142,7 +25142,536 @@ replace 256 with 310
 all done...
 all levels play properly
 
-could I do something where tileset creator also creates default flags? at least for extended tileset...
+2026-03-28 09:51:35
+
+made second tileset
+
+need to patch in a few places
+
+
+when doing th_replace
+
+if existing tile has breakable flag set
+try to replace with suitable tile
+
+I have done breakable and bombable
+now looking at keys
+
+I have always been thinking about redoing how I do keys
+I am doing a specific block range, and I am thinking about doing flags
+
+I would need 2 bits for color and one to mark that it is a keyed block
+
+what if I also rolled in switch?
+
+I could use 4 bits in total
+
+00 nothing
+01 keyed
+10 empty switch block
+11 solid switch block
+
+00 red
+01 green
+10 blue
+11 purple
+
+then what about breakable and bombable
+I currently use 3 bits for all that
+
+
+2026-03-28 13:49:37
+
+thinking a little more:
+switch probably wont work, no idea what block to change it back to
+
+What If I just do key and use 3 bits?
+
+what will I gain?
+
+- simplification of detection code
+- no need to have specialized versions of tiles with lock overlays
+- i can have lock overlays on any kind of tile
+
+
+
+what will I lose?
+- hours of time
+- i will now have to draw the overlay when doing draw_level_background..
+
+Have I talked myself into it?
+
+What is first?
+
+Make lock overlay tiles
+
+test them in tileset creator
+
+tile 27 is red lock
+
+188 red
+189 green
+190 blue
+191 purple
+
+done...
+
+next... set aside the bits needed
+
+#define PM_BTILE_KEY_ACTIVE        0b00000000000000001000000000000000
+#define PM_BTILE_KEY_COLOR1        0b00000000000000000100000000000000
+#define PM_BTILE_KEY_COLOR0        0b00000000000000000010000000000000
+
+next set all existing keyed tiles to have these flags
+
+
+r: 220, 312, 316
+g: 221, 313, 317
+b: 222, 314, 318
+p: 223, 315, 319
+
+      // key flags
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+         {
+            int t = mLevel.l[y][z] & 1023;
+
+            if (t == 220 || t == 312 || t == 316) // red keyed block 100
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR0;
+            }
+
+            if (t == 221 || t == 313 || t == 317) // green keyed block 101
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR0;
+            }
+
+            if (t == 222 || t == 314 || t == 318) // blue keyed block 110
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] &= ~PM_BTILE_KEY_COLOR0;
+            }
+            
+            if (t == 223 || t == 315 || t == 319) // purple keyed block 111
+            {
+               mLevel.l[y][z] |= PM_BTILE_KEY_ACTIVE;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR1;
+               mLevel.l[y][z] |= PM_BTILE_KEY_COLOR0;
+            }
+         }
+
+next I want to be able to view and manipulate these flags
+
+remove secret for now...not used
+
+
+need to make it so that mouse pointer on flag rects does not allow block selection in level
+that works when mouse is on status window, do the same when on flag rects
+
+
+can I make status window have a variable to indicate it has the mouse?
+int status_window_has_mouse;
+
+
+can I make it so that ifo mouse is off level to right or down, not valid
+
+int mwWindowManager::is_mouse_on_any_window(void) 582
+
+now make flags for selected tiles line up
+
+good...
+
+
+I think I have draw, point and select working...keep going...
+I think default flags is good...
+what else?
+
+widget stuff...
+
+block 1 select
+block 2 select
+block walk select
+2 each all good...
+am I really done with flags...
+
+I also think that secret is done, not used any more
+
+soon select win could be done also...
+
+2026-03-28 20:07:25
+
+what is next?
+
+check the flags are set with glt like I think they should be...
+
+I need a function to get key info from tile
+
+            int kb = (mLevel.l[x][y] & 0b00000000000000001110000000000000) >> 13;
+
+            if (kb > 3)
+            {
+               kb -=4;
+
+               if (kb == key)
+               {
+                  if (action == 1) mLevel.change_block(x, y, 0);
+                  if (action == 2) bomb_block_crosshairs(x, y);
+               }
+
+
+or:
+
+            int key = item[i][1] - 1039;
+            int kb = (mLevel.l[x][y] & 0b00000000000000001110000000000000) >> 13;
+            if (kb-4 == key)
+            {
+               if (action == 1) mLevel.change_block(x, y, 0);
+               if (action == 2) bomb_block_crosshairs(x, y);
+            }
+
+that was so simple...
+
+now change all levels..done
+
+now draw key overlay on background..done
+
+now what?
+try it out on some levels
+
+what is my end goal? to get rid of all 188-191? no they can stay
+
+get rid of all in the tileset, then get rid of them in the tileset
+
+312-319
+
+
+example level 8
+
+change 312 to 258
+
+see if that works automatically..seems to
+
+do 312-315 to 258 for all levels
+
+316-319 to 261 also
+
+
+...
+done and almost everything still passes stats except for level 12...moving key gets killed by bd...wtf?
+
+when I restore the level from git...
+
+when I touch the key, the blocks are removed 4 frames after that...that is not normal....
+they are not supposed to get erased until the key gets to the destination...
+
+it is beacase there is a block manip that actually does the erasing!!!
+
+now everything plays back perfectly
+next...remove locked from tilesets...
+bug default flags last 2 cannot be changed..fixed
+
+
+2026-03-28 23:13:40
+
+I think I have permanently removed all locked blocks from tilesets....
+
+I could make tile helper detect the locked flag and apply to new tileset...
+you know...I don't have to do anything to make that happen...:)
+
+2026-03-28 23:20:01
+
+that did not take as long as I thought...
+
+Next I want to do bombs...
+first make an overlay shape...done...159
+
+then draw that in level background...
+
+lets commit...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,7 @@
 // mwWindowTileHelper.cpp
 
 #include "pm.h"
+#include "mwBitmapTools.h"
 #include "mwTileSets.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
@@ -16,12 +17,11 @@
 #include "mwFont.h"
 
 
-// for rainbows only
-int mwWindow::th_replace_helper_extended(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
+int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, int b, int tl, int tr, int bl, int br)
 {
    int fb = -1;
 
-   // find the extended tiles
+   // find the tileSet
    for (const auto& s : mTileSets.tileSets)
       if (s.startIndex == tile && s.extendedMode)
       {
@@ -60,7 +60,6 @@ int mwWindow::th_replace_helper_extended(int tile, int l, int r, int t, int b, i
 
             // all corner notches (full cross)
             if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = s.FrameCross; // no diagonals
-
 
          }
 
@@ -112,7 +111,24 @@ int mwWindow::th_replace_helper_extended(int tile, int l, int r, int t, int b, i
          if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = s.VLineB; // bottom end line
          if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineL; // left end line
          if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = s.VLineT; // top end line
+
+         // if original tile is breakable
+         if ((ot & PM_BTILE_BREAKABLE_ESHOT) || (ot & PM_BTILE_BREAKABLE_PSHOT))
+         {
+            if (fb == s.VLineM) fb = s.VLineMBreakable;
+            else if (fb == s.HLineM) fb = s.HLineMBreakable;
+            else fb = s.SingleReverseBreakable;
+         }
+
+         // if original tile is bombable
+         if (ot & PM_BTILE_BOMBABLE)
+         {
+            if (fb == s.VLineM) fb = s.VLineMBomb;
+            else if (fb == s.HLineM) fb = s.HLineMBomb;
+            else fb = s.SingleReverseBomb;
+         }
       }
+
    return fb;
 }
 
@@ -240,14 +256,19 @@ void mwWindow::th_find_adj(int x, int y, int &l, int &r, int &t, int &b, int &tl
 void mwWindow::th_replace(int type)
 {
    int l, r, t, b, tl, tr, bl, br;
-   
+
+   int tile = 0;
+   if (type == 20) tile = mBitmapTools.select_bitmap();
+
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
          if (mWM.thl[x][y])
          {
+            int ot = mLevel.l[x][y]; // original tile
+
             th_find_adj(x, y, l, r, t, b, tl, tr, bl, br);
             int fb = -1; // default shape
-            if (type == 1)  fb = th_replace_helper_extended(256, l, r, t, b, tl, tr, bl, br); // extended purple pipe set
+            if (type == 1)  fb = th_replace_helper_extended(256, ot, l, r, t, b, tl, tr, bl, br); // extended purple pipe set
             if (type == 2)  fb = th_replace_helper(832, l, r, t, b, tl, tr, bl, br); // wires
             if (type == 3)  fb = th_replace_helper(928, l, r, t, b, tl, tr, bl, br); // grey bricks
             if (type == 5)  fb = th_replace_helper(960, l, r, t, b, tl, tr, bl, br); // brown bricks
@@ -256,6 +277,8 @@ void mwWindow::th_replace(int type)
             if (type == 9)  fb = th_replace_helper(992, l, r, t, b, tl, tr, bl, br); // blue solid
             if (type == 10) fb = th_replace_helper3(672, l, r, t, b, tl, tr, bl, br); // rainbow
             if (type == 11) fb = th_replace_helper3(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
+
+            if (type == 20) fb = tile; // single block
 
             if (fb == -1)
             {
@@ -282,6 +305,9 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    int bts = 18;
    x3+=4;
    x4-=4;
+
+
+
 
    // background, title and frame for this group of buttons
    int c1 = 12; // frame color
@@ -355,7 +381,12 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    c1 = 10; // color
    bts = 24;
    int bsp = 4; // spacing in between buttons
-   y2f = yfb + bts*7 + bsp*7 + 18;
+
+   int num_buttons = 10;
+
+   y2f = yfb + num_buttons * (bts + bsp) + 18;
+
+
 
    al_draw_filled_rectangle(x3-1, yfb, x4+1, y2f-1, mColor.pc[c1+192]); // background color
    mMiscFnx.titlex("Change Marked Tiles To Tileset", 15, c1, x3-1, x4+1, yfb); // title
@@ -385,6 +416,8 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    if (mWidget.buttontt(x3, yfb, x4, bts, 672,14,0,0, 0,c,15,0, 1,1,1,d, "     Rainbow")) choice = 10;
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 704,14,0,0, 0,c,15,0, 1,1,1,d, "     Rainbow 2")) choice = 11;
+   yfb+=bsp;
+   if (mWidget.buttontt(x3, yfb, x4, bts,   0,14,0,0, 0,c,15,0, 1,1,1,d, "     Single Tile")) choice = 20;
 
    if (choice) th_replace(choice);
    return yfb;

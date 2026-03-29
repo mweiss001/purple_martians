@@ -130,15 +130,15 @@ void mwItem::proc_key_block_range(int i, int action)
    if (y1 < 0) y1 = 0;
    if (y2 > 100) y2 = 100;
 
+   int key = item[i][1] - 1039;
+
    for (int x=x1; x<x2; x++)
       for (int y=y1; y<y2; y++)
       {
          if (item[i][12]) // matching keyed blocks only
          {
-            int key = item[i][1] - 1039;
-            int t = mLevel.l[x][y] & 1023;
-            // is tile part of extended block set and matches color, or legacy set from 220
-            if (mTileSets.isTileKeyedBlock(t, key) || (t == 220 + key))
+            int kb = (mLevel.l[x][y] & 0b00000000000000001110000000000000) >> 13;
+            if (kb-4 == key)
             {
                if (action == 1) mLevel.change_block(x, y, 0);
                if (action == 2) bomb_block_crosshairs(x, y);

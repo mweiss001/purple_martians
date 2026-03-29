@@ -26,6 +26,10 @@ class mwWindow
    int show_non_default_blocks;
    void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
+   int status_window_has_mouse;
+
+
+
    // e_editor_main.h
    void em_set_block_range();
    char* em_get_text_description_of_block_based_on_flags(int flags, char*);
@@ -141,7 +145,7 @@ class mwWindow
 
    void th_find_adj(int x, int y, int &l, int &r, int &t, int &b, int &tl, int &tr, int &bl, int &br);
 
-   int th_replace_helper_extended(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
+   int th_replace_helper_extended(int tile, int ot, int l, int r, int t, int b, int tl, int tr, int bl, int br);
    int th_replace_helper3(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
    int th_replace_helper(int tile, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
 

@@ -85,16 +85,6 @@ void mwTileSets::constructEmptySet()
    ts.OuterCornerTRDiag = 0;
    ts.OuterCornerTLDiag = 0;
 
-   ts.HLineMKeyR        = 0;
-   ts.HLineMKeyG        = 0;
-   ts.HLineMKeyB        = 0;
-   ts.HLineMKeyP        = 0;
-
-   ts.VLineMKeyR        = 0;
-   ts.VLineMKeyG        = 0;
-   ts.VLineMKeyB        = 0;
-   ts.VLineMKeyP        = 0;
-
    ts.HLineMBreakable     = 0;
    ts.VLineMBreakable     = 0;
    ts.SingleReverseBreakable  = 0;
@@ -201,21 +191,8 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
 
    ts.HLineMBomb        = i + 51;
    ts.VLineMBomb        = i + 52;
-   ts.SingleReverseBomb     = i + 53;
-
+   ts.SingleReverseBomb = i + 53;
    ts.SemiSolid         = i + 54;
-
-   ts.HLineMKeyR        = i + 56;
-   ts.HLineMKeyG        = i + 57;
-   ts.HLineMKeyB        = i + 58;
-   ts.HLineMKeyP        = i + 59;
-
-   ts.VLineMKeyR        = i + 60;
-   ts.VLineMKeyG        = i + 61;
-   ts.VLineMKeyB        = i + 62;
-   ts.VLineMKeyP        = i + 63;
-
-
 
 
    tileSets.push_back(ts);
@@ -420,6 +397,9 @@ void mwTileSets::init()
 {
 
    constructExtendedSet("pipes", 256);
+   constructExtendedSet("pipes2", 320);
+
+
 
    tileSets.push_back(constructFrameRectangleSet("wires", 832));
 
@@ -483,19 +463,6 @@ void mwTileSets::init()
    tileSets.push_back(ts);
 }
 
-
-bool mwTileSets::isTileKeyedBlock(int tileIndex, int keyIndex)
-{
-   for (auto ts : tileSets)
-      if (tileIndex >= ts.startIndex && tileIndex <= ts.endIndex && ts.extendedMode)
-      {
-         if ((keyIndex == 0) && ((tileIndex == ts.HLineMKeyR) || (tileIndex == ts.VLineMKeyR))) return true;
-         if ((keyIndex == 1) && ((tileIndex == ts.HLineMKeyG) || (tileIndex == ts.VLineMKeyG))) return true;
-         if ((keyIndex == 2) && ((tileIndex == ts.HLineMKeyB) || (tileIndex == ts.VLineMKeyB))) return true;
-         if ((keyIndex == 3) && ((tileIndex == ts.HLineMKeyP) || (tileIndex == ts.VLineMKeyP))) return true;
-      }
-   return false;
-}
 
 
 
@@ -1488,19 +1455,54 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
 
 
 
+/*
+
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
+   al_draw_bitmap(mBitmap.btile[188], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+56);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
+   al_draw_bitmap(mBitmap.btile[189], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+57);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
+   al_draw_bitmap(mBitmap.btile[190], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+58);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
+   al_draw_bitmap(mBitmap.btile[191], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+59);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
+   al_draw_bitmap(mBitmap.btile[188], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+60);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
+   al_draw_bitmap(mBitmap.btile[189], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+61);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
+   al_draw_bitmap(mBitmap.btile[190], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+62);
+
+   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
+   al_draw_bitmap(mBitmap.btile[191], 0, 0, 0);
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
 
    // create lock overlays
-   ALLEGRO_BITMAP *lkr = al_create_bitmap(12, 12);
-   draw_lock_overlay_bitmap(lkr, mColor.pc[10]);
+      ALLEGRO_BITMAP *lkr = al_create_bitmap(12, 12);
+      draw_lock_overlay_bitmap(lkr, mColor.pc[10]);
 
-   ALLEGRO_BITMAP *lkg = al_create_bitmap(12, 12);
-   draw_lock_overlay_bitmap(lkg, mColor.pc[11]);
+      ALLEGRO_BITMAP *lkg = al_create_bitmap(12, 12);
+      draw_lock_overlay_bitmap(lkg, mColor.pc[11]);
 
-   ALLEGRO_BITMAP *lkb = al_create_bitmap(12, 12);
-   draw_lock_overlay_bitmap(lkb, mColor.pc[13]);
+      ALLEGRO_BITMAP *lkb = al_create_bitmap(12, 12);
+      draw_lock_overlay_bitmap(lkb, mColor.pc[13]);
 
-   ALLEGRO_BITMAP *lkp = al_create_bitmap(12, 12);
-   draw_lock_overlay_bitmap(lkp, mColor.pc[8]);
+      ALLEGRO_BITMAP *lkp = al_create_bitmap(12, 12);
+      draw_lock_overlay_bitmap(lkp, mColor.pc[8]);
+
 
 
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
@@ -1536,7 +1538,7 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_draw_bitmap(lkp, 4, 4, 0);
    mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
 
-
+*/
 
 
    // create B blocks
@@ -1595,11 +1597,42 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_destroy_bitmap(sb);
    al_destroy_bitmap(hf);
    al_destroy_bitmap(cf);
-
+/*
    al_destroy_bitmap(lkr);
    al_destroy_bitmap(lkg);
    al_destroy_bitmap(lkb);
    al_destroy_bitmap(lkp);
+*/
+
+   // set default tile flags
+
+   // set all to solid
+   int flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SOLID_PBUL | PM_BTILE_SOLID_EBUL | PM_BTILE_SHOW_SELECT_WIN;
+   for (int i=bs; i<bs+64; i++)
+      mBitmap.tileFlags[i] = flag;
+
+   // breakable
+   int br_flag = flag;
+   br_flag |= PM_BTILE_BREAKABLE_ESHOT;
+   br_flag |= PM_BTILE_BREAKABLE_PSHOT;
+   for (int i=bs+48; i<bs+51; i++)
+      mBitmap.tileFlags[i] = br_flag;
+
+   // bombable
+   int bm_flag = flag | PM_BTILE_BOMBABLE;
+   for (int i=bs+51; i<bs+54; i++)
+      mBitmap.tileFlags[i] = bm_flag;
+
+   // semisolid
+   int ss_flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SEMISOLID_PLAYER | PM_BTILE_SEMISOLID_ENEMY | PM_BTILE_SEMISOLID_ITEM | PM_BTILE_SHOW_SELECT_WIN;
+   mBitmap.tileFlags[bs+54] = ss_flag;
+
+   // unused
+   for (int i=bs+55; i<bs+64; i++)
+      mBitmap.tileFlags[i] = 0;
+
+
+   mBitmap.save_sprit();
 
 }
 
@@ -1702,16 +1735,6 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_draw_bitmap(mBitmap.btile[s.SolidFill],          11*20, 2*20, 0);
          al_draw_bitmap(mBitmap.btile[s.SingleReverse],      11*20, 3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyR],         14*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyG],         14*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyB],         14*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineMKeyP],         14*20, 3*20, 0);
-
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyR],         15*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyG],         15*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyB],         15*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMKeyP],         15*20, 3*20, 0);
-
          al_draw_bitmap(mBitmap.btile[s.HLineMBreakable],    12*20, 0*20, 0);
          al_draw_bitmap(mBitmap.btile[s.VLineMBreakable],    12*20, 1*20, 0);
          al_draw_bitmap(mBitmap.btile[s.SingleReverseBreakable], 12*20, 2*20, 0);
@@ -1720,10 +1743,7 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
 
          al_draw_bitmap(mBitmap.btile[s.HLineMBomb],         13*20, 0*20, 0);
          al_draw_bitmap(mBitmap.btile[s.VLineMBomb],         13*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.SingleReverseBomb],      13*20, 2*20, 0);
-
-
-
+         al_draw_bitmap(mBitmap.btile[s.SingleReverseBomb],  13*20, 2*20, 0);
 
 
          al_set_target_backbuffer(mDisplay.display);
@@ -1731,6 +1751,9 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
 
          al_destroy_bitmap(tmp1);
       }
+      else printf("tileset not found\n");
+
+
    }
 
 
@@ -1835,6 +1858,14 @@ void mwTileSets::modify_tile_set()
    base_tile_index = 256;
    solid_source_tile_index = 0;
 
+/*
+   // red pipes extended
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 320;
+   solid_source_tile_index = 0;
+*/
+
+
 
    int quit = 0;
    float h1 = 270;
@@ -1854,9 +1885,6 @@ void mwTileSets::modify_tile_set()
       round = 2.0;
    }
 
-
-
-
    // main extended purple pipe set
    if (base_tile_index == 256)
    {
@@ -1870,6 +1898,25 @@ void mwTileSets::modify_tile_set()
       round=0.0;
       create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
    }
+
+
+   // 2nd extended red pipe set
+   if (base_tile_index == 320)
+   {
+      h1=346;
+      h2=350;
+      s1=0.88;
+      s2=0.95;
+      l1=0.10;
+      l2=0.35;
+      steps=10;
+      round=0.0;
+      create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
+   }
+
+
+
+
 
 
    // yellow thatch

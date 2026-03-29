@@ -581,18 +581,33 @@ void mwWindowManager::set_windows(int mode)
 
 int mwWindowManager::is_mouse_on_any_window(void)
 {
-   int mow = 0;
+   // check all windows declared sizes
    for (int a=0; a<NUM_MW; a++)
-      if ((mW[a].active) && (mW[a].detect_mouse())) mow = 1;
+      if ((mW[a].active) && (mW[a].detect_mouse())) return 1;
 
-   if (mInput.mouse_x < BORDER_WIDTH) mow = 1;
-   if (mInput.mouse_y < BORDER_WIDTH) mow = 1;
+   // check if on draw flags area
+   if (mW[1].status_window_has_mouse) return 1;
 
-   if (mInput.mouse_x > mDisplay.SCREEN_W - BORDER_WIDTH) mow = 1;
-   if (mInput.mouse_y > mDisplay.SCREEN_H - BORDER_WIDTH) mow = 1;
+   // check if mouse position gx, gy is valid
+   // x, y in 0-99 scale
+   // the mouse position past the border width is how far we are into the scaled map
+   float mx1 = mInput.mouse_x-BORDER_WIDTH;
+   float my1 = mInput.mouse_y-BORDER_WIDTH;
 
+   // divide that by bs to get how many blocks we are into the map
+   float mx2 = mx1 / (mDisplay.scale_factor_current * 20);
+   float my2 = my1 / (mDisplay.scale_factor_current * 20);
 
-   return mow;
+   // get block position
+   float mx3 = (float)mScreen.level_display_region_x / 20;
+   float my3 = (float)mScreen.level_display_region_y / 20;
+
+   // add to tl corner index
+   int mx4 = (mx3 + mx2);
+   int my4 = (my3 + my2);
+   if (mx4 < 0 || mx4 > 99 || my4 < 0 || my4 > 99) return 1;
+
+   return 0;
 }
 
 void mwWindowManager::set_focus(int n)

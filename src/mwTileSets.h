@@ -99,17 +99,6 @@ struct tileSet
    int OuterCornerTRDiag;
    int OuterCornerTLDiag;
 
-   // with key overlays
-   int HLineMKeyR;
-   int HLineMKeyG;
-   int HLineMKeyB;
-   int HLineMKeyP;
-
-   int VLineMKeyR;
-   int VLineMKeyG;
-   int VLineMKeyB;
-   int VLineMKeyP;
-
    int HLineMBreakable;
    int VLineMBreakable;
    int SingleReverseBreakable;

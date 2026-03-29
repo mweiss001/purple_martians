@@ -600,10 +600,29 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          int tile = mLevel.l[x][y] & 1023;
          if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+
+         // draw lock overlays
+         int kb = (mLevel.l[x][y] & 0b00000000000000001110000000000000) >> 13;
+         if (kb>3) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
+
+
+
+
       }
    //printf("play_level:%d lll:%d\n", mLevel.play_level, mLevel.last_level_loaded);
    // if level 1 draw all the gates
 //   if (mLevel.start_level == 1)
+
+   // draw all keyed blocks
+
+
+
+
+
+
+
+
+
    if (mLevel.last_level_loaded == 1)
    {
       for (int i=0; i<500; i++)

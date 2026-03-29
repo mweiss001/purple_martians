@@ -88,7 +88,15 @@ void mwWindow::set_size(int sw, int sh)
 
 int mwWindow::detect_mouse(void)
 {
+// check also if mouse on draw flags, if
+
+
+
    if ((mInput.mouse_x >= x1) && (mInput.mouse_x <= x2) && (mInput.mouse_y >= y1) && (mInput.mouse_y <= y2) && (!hidden)) return 1;
+
+
+
+
    else return 0;
 }
 
@@ -726,14 +734,15 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y1 + 13, 0, "mouse");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y1 + 13, 0, "b1");
-   em_show_item_info(                    x1 + 2,   y1 + 20, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
-   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, mow, d, 1, 0); // flags
+   em_show_item_info(                     x1 + 2,   y1 + 20, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
+   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, status_window_has_mouse, d, 1, 0); // flags
+
 
    // view item area
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y1 + 13, 0, "View Item ");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 261, y1 + 13, 0, "mouse");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 303, y1 + 13, 0, "b2");
-   em_show_item_info(                    x1 + 162, y1 + 20, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
+   em_show_item_info(                     x1 + 162, y1 + 20, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
    if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y1+47, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
 }
 
@@ -908,8 +917,8 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
          int vy = (mInput.mouse_y-syb-14)/20; // row
          int ret = mSelectionWindow.block_array[vy][vx];
 
-         int tl = 3; // text lines
-         int syt2 = syt+15+(8*tl);
+         int tl = 5; // text lines
+         int syt2 = syt+17+(8*tl);
          if (mWM.mW[1].show_flag_details) syt2 += 140;
 
          al_draw_filled_rectangle(x1, syt, x2, syt2, mColor.pc[0]); // erase
