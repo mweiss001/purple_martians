@@ -192,7 +192,9 @@ void mwWindow::em_process_mouse(void)
             mWM.bx1 = mWM.gx;
             mWM.by1 = mWM.gy;
             mWM.get_new_box();
-            mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num&1023, mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS, mLevel.l);
+
+            mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
+
             mScreen.init_level_background();
             al_set_target_backbuffer(mDisplay.display);
          }

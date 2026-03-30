@@ -6,6 +6,9 @@ class mwGlobalLevelTool
    void execute();
    void countTiles();
 
+   void changeTileNumber(int oldNumber, int newNumber, int level = 0);
+
+
    int tileCount[1024][400] = {};
 
    private:

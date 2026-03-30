@@ -1,3 +1,5 @@
+
+
 #include "pm.h"
 #include "mwTileSets.h"
 #include "mwInput.h"
@@ -7,6 +9,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwEventQueue.h"
+#include "mwLevel.h"
 #include "mwWidget.h"
 
 mwTileSets mTileSets;
@@ -177,7 +180,7 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    ts.SolidFill         = i + 46;
    ts.SingleReverse     = i + 47;
 
-   ts.SemiSolid         = i + 54;
+   ts.SemiSolid         = i + 48;
 
    tileSets.push_back(ts);
 
@@ -257,23 +260,6 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    tileSets.push_back(ts);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // solid rectangle set
 tileSet mwTileSets::constructSolidRectangleSet(std::string name, int i)
@@ -378,21 +364,18 @@ tileSet mwTileSets::constructHlineSet(std::string name, int i)
 
 void mwTileSets::init()
 {
-
-   constructExtendedSet("pipes", 256);
-   constructExtendedSet("pipes2", 320);
-
-
+   constructExtendedSet("purple pipes ", 256);
+   constructExtendedSet("red pipes", 320);
+   constructExtendedSet("green pipes", 384);
+   constructExtendedSet("blue pipes", 448);
 
    tileSets.push_back(constructFrameRectangleSet("wires", 832));
-
 
    tileSets.push_back(constructSolidRectangleSet("brown and yellow thatch", 864));
    tileSets.push_back(constructSolidRectangleSet("brain", 896));
    tileSets.push_back(constructSolidRectangleSet("grey bricks", 928));
    tileSets.push_back(constructSolidRectangleSet("brown bricks", 960));
    tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
-
 
    // single hline
    tileSets.push_back(constructHlineSet("lined platform", 161));
@@ -468,20 +451,51 @@ bool mwTileSets::findTileSetContainingIndex(struct tileSet &t, int tileIndex, in
 
 
 
+
+
+
+
+void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode)
+{
+   // replace with tileNum and drawItemFlags
+   if (drawTileMode == 1) mLevel.l[x][y] = tileNum | drawItemFlags;
+
+   // change only tile portion (lower 10 bits)
+   if (drawTileMode == 2)
+   {
+      mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
+      mLevel.l[x][y] |= tileNum; // merge tileNum
+   }
+
+   // change only flags portion (upper 22 bits)
+   if (drawTileMode == 3)
+   {
+      mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
+      mLevel.l[x][y] |= drawItemFlags; // merge drawItemFlags
+   }
+}
+
+
+
+
 // passed a rect to draw from level editor
 // bx and by are tile positions in the level array
 // rect is guaranteed to have bx1 < bx2 and by1 < by2
 // if drawItem is part of a tile set, use appropriate tiles from that set
-void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int drawItemFlags, int level[][100])
+
+void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode)
 {
+   int drawItemNum  = drawItem & 1023;
+   int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
+
+
 
    int bw = bx2-bx1; // width
    int bh = by2-by1; // height
+   int drawTileNum = drawItemNum; // default
 
-   int drawTile = drawItemNum; // default
-
-   // single tile
-   if (bw==0 && bh==0) level[bx1][by1] = drawTile | drawItemFlags; // single tile 1 x 1
+   // single tile 1 x 1
+   if (bw==0 && bh==0) drawTile(bx1, by1, drawTileNum, drawItemFlags, drawTileMode);
 
 
    // vertical line
@@ -494,14 +508,13 @@ void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int d
       {
          if (drawMode)
          {
-            drawTile = s.VLineM;
-            if (y == by1) drawTile = s.VLineT;
-            if (y == by2) drawTile = s.VLineB;
+            drawTileNum = s.VLineM;
+            if (y == by1) drawTileNum = s.VLineT;
+            if (y == by2) drawTileNum = s.VLineB;
          }
-         level[bx1][y] = drawTile |= drawItemFlags;
+         drawTile(bx1, y, drawTileNum, drawItemFlags, drawTileMode);
       }
    }
-
 
    // horizontal line
    if (bw>0 && bh==0)
@@ -513,11 +526,11 @@ void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int d
       {
          if (drawMode)
          {
-            drawTile = s.HLineM;
-            if (x == bx1) drawTile = s.HLineL;
-            if (x == bx2) drawTile = s.HLineR;
+            drawTileNum = s.HLineM;
+            if (x == bx1) drawTileNum = s.HLineL;
+            if (x == bx2) drawTileNum = s.HLineR;
          }
-         level[x][by1] = drawTile |= drawItemFlags;
+         drawTile(x, by1, drawTileNum, drawItemFlags, drawTileMode);
       }
    }
 
@@ -535,44 +548,45 @@ void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int d
          {
             if (drawMode == 1)
             {
-                                     drawTile = -1;
-               if (y == by1)         drawTile = s.FrameEdgeT;
-               if (y == by2)         drawTile = s.FrameEdgeB;
+                                     drawTileNum = -1;
+               if (y == by1)         drawTileNum = s.FrameEdgeT;
+               if (y == by2)         drawTileNum = s.FrameEdgeB;
                if (x == bx1)
                {
-                  if      (y == by1) drawTile = s.FrameCornerTL;
-                  else if (y == by2) drawTile = s.FrameCornerBL;
-                  else               drawTile = s.FrameEdgeL;
+                  if      (y == by1) drawTileNum = s.FrameCornerTL;
+                  else if (y == by2) drawTileNum = s.FrameCornerBL;
+                  else               drawTileNum = s.FrameEdgeL;
                }
                if (x == bx2)
                {
-                  if      (y == by1) drawTile = s.FrameCornerTR;
-                  else if (y == by2) drawTile = s.FrameCornerBR;
-                  else               drawTile = s.FrameEdgeR;
+                  if      (y == by1) drawTileNum = s.FrameCornerTR;
+                  else if (y == by2) drawTileNum = s.FrameCornerBR;
+                  else               drawTileNum = s.FrameEdgeR;
                }
             }
             if (drawMode == 2)
             {
-                                     drawTile = s.SolidFill;
-               if (y == by1)         drawTile = s.OuterEdgeT;
-               if (y == by2)         drawTile = s.OuterEdgeB;
+                                     drawTileNum = s.SolidFill;
+               if (y == by1)         drawTileNum = s.OuterEdgeT;
+               if (y == by2)         drawTileNum = s.OuterEdgeB;
                if (x == bx1)
                {
-                  if      (y == by1) drawTile = s.OuterCornerTL;
-                  else if (y == by2) drawTile = s.OuterCornerBL;
-                  else               drawTile = s.OuterEdgeL;
+                  if      (y == by1) drawTileNum = s.OuterCornerTL;
+                  else if (y == by2) drawTileNum = s.OuterCornerBL;
+                  else               drawTileNum = s.OuterEdgeL;
                }
                if (x == bx2)
                {
-                  if      (y == by1) drawTile = s.OuterCornerTR;
-                  else if (y == by2) drawTile = s.OuterCornerBR;
-                  else               drawTile = s.OuterEdgeR;
+                  if      (y == by1) drawTileNum = s.OuterCornerTR;
+                  else if (y == by2) drawTileNum = s.OuterCornerBR;
+                  else               drawTileNum = s.OuterEdgeR;
                }
             }
-            if (drawTile != -1) level[x][y] = drawTile |= drawItemFlags;
-         } 
+            if (drawTileNum != -1) drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode);
+         }
    }
 }
+
 
 
 // from tile helper
@@ -1436,141 +1450,9 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    al_set_target_bitmap(b1);
    s = bs+47; al_draw_rotated_bitmap(sb, 10, 10, (s % 32)*22+11, (s / 32)*22+11, ALLEGRO_PI * 0.0, 0);
 
-
-
-/*
-
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(mBitmap.btile[188], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+56);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(mBitmap.btile[189], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+57);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(mBitmap.btile[190], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+58);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(mBitmap.btile[191], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+59);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(mBitmap.btile[188], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+60);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(mBitmap.btile[189], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+61);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(mBitmap.btile[190], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+62);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(mBitmap.btile[191], 0, 0, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
-
-   // create lock overlays
-      ALLEGRO_BITMAP *lkr = al_create_bitmap(12, 12);
-      draw_lock_overlay_bitmap(lkr, mColor.pc[10]);
-
-      ALLEGRO_BITMAP *lkg = al_create_bitmap(12, 12);
-      draw_lock_overlay_bitmap(lkg, mColor.pc[11]);
-
-      ALLEGRO_BITMAP *lkb = al_create_bitmap(12, 12);
-      draw_lock_overlay_bitmap(lkb, mColor.pc[13]);
-
-      ALLEGRO_BITMAP *lkp = al_create_bitmap(12, 12);
-      draw_lock_overlay_bitmap(lkp, mColor.pc[8]);
-
-
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(lkr, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+56);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(lkg, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+57);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(lkb, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+58);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); // hline through
-   al_draw_bitmap(lkp, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+59);
-
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(lkr, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+60);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(lkg, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+61);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(lkb, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+62);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); // vline through
-   al_draw_bitmap(lkp, 4, 4, 0);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+63);
-
-
-
-
-   // create B blocks
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
-   draw_B_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+48);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
-   draw_B_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+49);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
-   draw_B_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
-
-
-   // create lightning cracks
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
-   draw_lightning_crack_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+48);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
-   draw_lightning_crack_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+49);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
-   draw_lightning_crack_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+50);
-
-
-   // create bombable
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+2); //  hline through
-   draw_bomb_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+51);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+5); //  vline through
-   draw_bomb_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+52);
-
-   mBitmapTools.get_tile_from_tilemap(b1, sb, bs+47); //  single reverse
-   draw_bomb_overlay();
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+53);
-
-*/
-
    // create semisolid from base tile
    mBitmapTools.get_tile_from_tilemap(b1, sb, bs);
-   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+54);
-
+   mBitmapTools.put_tile_to_tilemap(b1, sb, bs+48);
 
    // save modified block tiles bitmap to file
    mBitmapTools.save_bitmap_to_block_tiles_file(b1);
@@ -1584,37 +1466,19 @@ void mwTileSets::create_tileset_extended(int bs, float h1, float h2, float s1, f
    // set default tile flags
 
    // set all to solid
-   int flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SOLID_PBUL | PM_BTILE_SOLID_EBUL | PM_BTILE_SHOW_SELECT_WIN;
-   for (int i=bs; i<bs+64; i++)
+   int flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SOLID_PBUL | PM_BTILE_SOLID_EBUL;
+   for (int i=bs; i<bs+48; i++)
       mBitmap.tileFlags[i] = flag;
 
-   /*
-
-   // breakable
-   int br_flag = flag;
-   br_flag |= PM_BTILE_BREAKABLE_ESHOT;
-   br_flag |= PM_BTILE_BREAKABLE_PSHOT;
-   for (int i=bs+48; i<bs+51; i++)
-      mBitmap.tileFlags[i] = br_flag;
-
-   // bombable
-   int bm_flag = flag | PM_BTILE_BOMBABLE;
-   for (int i=bs+51; i<bs+54; i++)
-      mBitmap.tileFlags[i] = bm_flag;
-
-*/
-
    // semisolid
-   int ss_flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SEMISOLID_PLAYER | PM_BTILE_SEMISOLID_ENEMY | PM_BTILE_SEMISOLID_ITEM | PM_BTILE_SHOW_SELECT_WIN;
-   mBitmap.tileFlags[bs+54] = ss_flag;
+   int ss_flag = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SEMISOLID_PLAYER | PM_BTILE_SEMISOLID_ENEMY | PM_BTILE_SEMISOLID_ITEM;
+   mBitmap.tileFlags[bs+48] = ss_flag;
 
    // unused
-   for (int i=bs+55; i<bs+64; i++)
+   for (int i=bs+49; i<bs+64; i++)
       mBitmap.tileFlags[i] = 0;
 
-
    mBitmap.save_sprit();
-
 }
 
 
@@ -1717,18 +1581,6 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_draw_bitmap(mBitmap.btile[s.SingleReverse],      11*20, 3*20, 0);
 
          al_draw_bitmap(mBitmap.btile[s.SemiSolid],          12*20, 3*20, 0);
-
-         /*
-         al_draw_bitmap(mBitmap.btile[s.HLineMBreakable],    12*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMBreakable],    12*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.SingleReverseBreakable], 12*20, 2*20, 0);
-
-
-
-         al_draw_bitmap(mBitmap.btile[s.HLineMBomb],         13*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineMBomb],         13*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.SingleReverseBomb],  13*20, 2*20, 0);
-*/
 
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(tmp1, 0, 0, 320, 80, x, y, 640, 160, 0);
@@ -1842,12 +1694,24 @@ void mwTileSets::modify_tile_set()
    base_tile_index = 256;
    solid_source_tile_index = 0;
 
-/*
+
+
    // red pipes extended
    type = 2; // 0-frame 1-solid 2-extended
    base_tile_index = 320;
    solid_source_tile_index = 0;
-*/
+
+
+
+   // green pipes extended
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 384;
+   solid_source_tile_index = 0;
+
+   // blue pipes extended
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 448;
+   solid_source_tile_index = 0;
 
 
 
@@ -1898,6 +1762,33 @@ void mwTileSets::modify_tile_set()
       create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
    }
 
+   // 3rd extended green pipe set
+   if (base_tile_index == 384)
+   {
+      h1=86;
+      h2=100;
+      s1=0.88;
+      s2=0.95;
+      l1=0.10;
+      l2=0.35;
+      steps=10;
+      round=0.0;
+      create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
+   }
+
+   // 4th extended blue pipe set
+   if (base_tile_index == 448)
+   {
+      h1=222;
+      h2=236;
+      s1=0.88;
+      s2=0.95;
+      l1=0.10;
+      l2=0.35;
+      steps=10;
+      round=0.0;
+      create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
+   }
 
 
 

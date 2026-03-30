@@ -24,8 +24,8 @@ class mwBitmapTools
    private:
 
    void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight);
-   void draw_flag_text(int x, int y, int ys, int col, bool show_select_win);
-   int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_show);
+   void draw_flag_text(int x, int y, int ys, int col);
+   int draw_flag_rects(int tn, int x, int y, int w, int h, int ys);
    void draw_and_proc_flag_rects(int tn, int x, int y, int w, int h, int ys);
    void redraw_grid(int x, int y, int current_selection);
 

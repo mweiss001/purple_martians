@@ -345,7 +345,7 @@ void mwWindow::es_selection_to_ft(int save_to_disk)
          if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mWM.bx1+x >= 0) && (mWM.bx1+x < 100) && (mWM.by1+y >= 0) && (mWM.by1+y < 100) )
          {
             if (mWM.obj_filter[1][1])                               ft_l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y];                       // get block and flags
-            if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) ft_l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
+            if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) ft_l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
 
@@ -829,8 +829,8 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
       // flags only
       if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2]))
       {
-         int flags = tn & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-         mLevel.l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+         int flags = tn & PM_BTILE_ALL_FLAGS; // get only flags from draw item
+         mLevel.l[x][y] &= ~PM_BTILE_ALL_FLAGS;                       // clear flags in destination
          mLevel.l[x][y] |= flags;                                      // merge
       }
       // blocks only (same as block and flags?)

@@ -25407,974 +25407,383 @@ change tiles:
 306 - 303
 
 
-
 what if I want to draw lock, bomb and breakable all on the same tile?
-first of all, make all overlays 10x10
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+first of all, make all overlays 10x10..done
+
+now whichever was last will overwrite previous
+
+I am thinking aboout having a flag to not draw overlays....
+
+test on the level with 10,000 breakable and bombable..
+
+actually 9286
+init_level_background time:8.761400
+
+bomb overlays:
+init_level_background time:16.318300
+
+bomb and breakable overlays:
+init_level_background time:23.858300
+
+what if I try drawing them smaller?
+
+takes the same amount of time either way...
+
+original:
+if (tile & PM_BTILE_BOMBABLE) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
+
+region:
+if (tile & PM_BTILE_BOMBABLE) al_draw_bitmap_region(mBitmap.btile[159], 5, 5, 10, 10, x*20+5, y*20+5, 0);
+
+predrawn region:
+ALLEGRO_BITMAP *bo = al_create_bitmap(10,10);
+al_set_target_bitmap(bo);
+al_clear_to_color(al_map_rgb(0,0,0));
+al_draw_bitmap_region(mBitmap.btile[159], 5, 5, 10, 10, 0, 0, 0);
+
+if (tile & PM_BTILE_BOMBABLE) al_draw_bitmap(bo, x*20+5, y*20+5, 0);
+
+for this reason alone, I am thinking of implementing a tile flag to not draw overlays
+
+I want to load all levels and see the load times
+
+Running Global Level Test
+
+marking non-default blocks takes a lot of time as well:
+  6 init_level_background time:24.867000
+  6 init_level_background time:8.441600
+
+is it just how many solid blocks there are?
+
+try a different solid level...
+
+300..with 10,000 solid blocks:
+300 init_level_background time:9.431100
+
+I guess that is just what it takes to draw 10,000 tiles
+
+8 ms to draw 10,000 tiles
+no matter the size
+also when I draw 2 lines to mark non default blocks, each line takes 8ms per 10,000
+
+
+Running Global Level Test
+
+num levels:149
+  1 init_level_background time:4.277100
+  2 init_level_background time:0.721400
+  3 init_level_background time:0.491900
+  4 init_level_background time:3.102300
+  5 init_level_background time:0.583800
+  6 init_level_background time:8.441600
+  7 init_level_background time:0.399200
+  8 init_level_background time:1.058100
+  9 init_level_background time:0.463700
+ 10 init_level_background time:2.923400
+ 11 init_level_background time:1.307600
+ 12 init_level_background time:2.489900
+ 13 init_level_background time:1.464600
+ 14 init_level_background time:0.182900
+ 15 init_level_background time:0.239200
+ 16 init_level_background time:3.324600
+ 17 init_level_background time:2.887600
+ 18 init_level_background time:1.902900
+ 19 init_level_background time:4.367000
+ 20 init_level_background time:0.858300
+ 21 init_level_background time:0.589700
+ 22 init_level_background time:0.615600
+ 23 init_level_background time:3.542700
+ 24 init_level_background time:3.621700
+ 25 init_level_background time:0.697400
+ 26 init_level_background time:0.640600
+ 27 init_level_background time:0.606600
+ 28 init_level_background time:0.585500
+ 29 init_level_background time:2.367800
+ 30 init_level_background time:4.085000
+ 31 init_level_background time:1.955500
+ 32 init_level_background time:1.632700
+ 33 init_level_background time:2.865400
+ 34 init_level_background time:0.422000
+ 35 init_level_background time:2.028300
+ 37 init_level_background time:0.382100
+ 38 init_level_background time:0.360100
+ 39 init_level_background time:0.383800
+ 40 init_level_background time:0.587500
+ 41 init_level_background time:1.721500
+ 42 init_level_background time:1.879000
+ 43 init_level_background time:0.709600
+ 44 init_level_background time:0.559000
+ 45 init_level_background time:0.567500
+ 46 init_level_background time:0.383200
+ 47 init_level_background time:0.271800
+ 48 init_level_background time:0.400500
+ 49 init_level_background time:0.703900
+ 50 init_level_background time:0.677900
+ 51 init_level_background time:0.769900
+ 52 init_level_background time:0.378500
+ 53 init_level_background time:0.442400
+ 54 init_level_background time:0.438900
+ 55 init_level_background time:1.337400
+ 56 init_level_background time:1.086000
+ 57 init_level_background time:1.273100
+ 58 init_level_background time:0.086100
+ 60 init_level_background time:0.208200
+ 61 init_level_background time:1.147400
+ 64 init_level_background time:3.851900
+ 70 init_level_background time:1.847100
+ 80 init_level_background time:1.101000
+ 81 init_level_background time:1.115300
+ 82 init_level_background time:1.863100
+ 83 init_level_background time:1.280000
+ 84 init_level_background time:0.424900
+ 85 init_level_background time:1.448100
+ 86 init_level_background time:2.268600
+ 87 init_level_background time:1.111400
+ 88 init_level_background time:1.257200
+ 89 init_level_background time:0.592900
+ 90 init_level_background time:1.307600
+ 91 init_level_background time:0.731100
+ 92 init_level_background time:1.387600
+ 93 init_level_background time:0.805600
+ 94 init_level_background time:0.656600
+ 95 init_level_background time:0.337500
+ 96 init_level_background time:0.733400
+ 97 init_level_background time:1.309400
+ 98 init_level_background time:1.120900
+101 init_level_background time:0.196500
+102 init_level_background time:0.192100
+103 init_level_background time:0.051000
+301 init_level_background time:0.061700
+302 init_level_background time:0.034500
+304 init_level_background time:1.193300
+305 init_level_background time:0.125800
+306 init_level_background time:0.084700
+307 init_level_background time:0.081600
+309 init_level_background time:0.096600
+310 init_level_background time:0.059100
+311 init_level_background time:0.140700
+312 init_level_background time:8.122800
+313 init_level_background time:0.138900
+314 init_level_background time:0.093600
+316 init_level_background time:0.601000
+317 init_level_background time:0.439500
+318 init_level_background time:0.138500
+320 init_level_background time:0.920800
+321 init_level_background time:2.656200
+323 init_level_background time:0.356700
+324 init_level_background time:0.813700
+325 init_level_background time:0.364600
+326 init_level_background time:0.364400
+327 init_level_background time:0.693200
+328 init_level_background time:0.551000
+329 init_level_background time:0.595800
+330 init_level_background time:0.437100
+331 init_level_background time:0.225600
+332 init_level_background time:0.427600
+333 init_level_background time:0.594300
+334 init_level_background time:0.337700
+335 init_level_background time:0.466600
+336 init_level_background time:0.105100
+337 init_level_background time:0.446500
+338 init_level_background time:0.190000
+341 init_level_background time:0.113000
+342 init_level_background time:2.414600
+343 init_level_background time:0.900000
+344 init_level_background time:0.088900
+345 init_level_background time:0.131000
+346 init_level_background time:0.065600
+347 init_level_background time:0.395200
+348 init_level_background time:0.876900
+350 init_level_background time:0.631300
+351 init_level_background time:0.495500
+352 init_level_background time:0.491000
+353 init_level_background time:0.437700
+354 init_level_background time:0.129100
+355 init_level_background time:0.170700
+356 init_level_background time:0.380800
+357 init_level_background time:0.115200
+358 init_level_background time:1.144500
+360 init_level_background time:2.691000
+361 init_level_background time:1.582700
+362 init_level_background time:1.540300
+363 init_level_background time:1.096300
+364 init_level_background time:5.014200
+365 init_level_background time:1.254200
+366 init_level_background time:0.873900
+367 init_level_background time:0.617200
+368 init_level_background time:1.302800
+369 init_level_background time:0.557100
+370 init_level_background time:3.488200
+371 init_level_background time:0.762300
+372 init_level_background time:1.261300
+373 init_level_background time:1.522100
+374 init_level_background time:1.245900
+375 init_level_background time:0.970300
+
+
+
+
+
+-------------------------------------
+
+2026-03-29 09:48:48
+
+should I implement the do not draw overlay flag?
+It could be usefull for other things as well...
+
+like when I don't want to advertise overlay status
+
+then I should also do the pick only one overlay to draw things
+what is least important?
+key, bomb, break
+...done
+
+
+what else should I do?
+move semi-solid from 310 to 304
+then all the blanks will be at the end of the level
+done..
+all levels play back properly
+Tile helper is good
+
+Do I want to implement draw overlay flag?
+
+Do i want to to remove show win flag...do this first
+
+manually add things in block selection
+
+make a funnction in glt to change tile number
+
+pass it old and new tile number and optionally level...done
+
+now where will I patch it in?
+
+copy tiles...
+mouse over tile to move
+ctrl shift alt m
+then trigger a pop up asking where to move to...
+make a function value b1_mouse_pointer
+set to -1 if not valid
+
+this is working great...re-arranging tiles..done
+find all refs to select win
+
+move switch blocks 8 in total
+
+empty
+7
+8
+9
+10
  
+solid
+172
+173
+174
+175
 
+old color g r b p, new r g b p
 
+er 8  72
+eg 7  73
+eb 9  74
+ep 10 75
 
+sr 173 76
+sg 172 77
+sb 174 78
+sp 175 79
+done and tested...
 
+move keyed blocks to right after switch blocks..done
 
+now that I am done movoing blocks around....
 
+remove SELECT_WIN
+add draw overlay
 
+done...now make it work
+first of all in all flag viewers... there will be no dual sizes
+i think I have all that done..
+now make default flags for everything...done
+now patch in the no overlay..done
 
+do something about wires breakable blocks
+lev 23
+lev 35
 
+level 23 does not play back....
+I made the mistake of restoring it...many blocks are changed...damn...
 
+how am I going to figure this out?
+get a prevous version...
 
+manually fixed it!!!!
 
+2026-03-29 14:50:06
+back to perfect...
 
+removed wires B..
 
+lets look at some levels
 
+first fix the demo dir thing...done!!!
 
+add red blue and green extended tilesets..done
 
+make it so that when tilehelper replace blocks it keeps the original flags..done
 
 
+I want to be able to paste tile only, flags only, or both in main edit
+I think I could do this with the menu...
 
 
+   int em_draw_tile_mode;
 
+0 - none (not used)
+1 - tile only
+2 - flags only
+3 - both
 
 
+It looks like I pass all the drawing from:
+void mwWindow::em_process_mouse(void)
+to: 
+void mwTileSets::draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int drawItemFlags, int level[][100])
 
+so when I actually put the tile should I use the default flags from the new tile or the old ones
 
 
+this is only for when drawing in main edit mode
 
+what I have:
+tile range
+draw_item (includes number and flags)
+flags from block being replaced
 
+options:
+- replace tile or leave original tile 
 
+- replace flags with default flags for new tile
+- replace flags with flags from draw item
+- leave flags from original tile
 
+mode 1 replace tile, use flags from draw item
+mode 2 replace tile, leave original flags
+mode 3 leave tile,  use flags from draw item
 
+this is working, make it changeable from pop-up menu..done
+make the default to replace both..done...
 
 
 
+2026-03-29 21:35:42
 
+I am going through levels again...now with 4 color extended sets and optional flag and block stuff...
 
+I might want to make overlays slightly bigger, there is no draw time penalty...
 
+the nice thing is all I have to do is change the tiles...
 
 
 
@@ -26413,7 +25822,6 @@ first of all, make all overlays 10x10
 
 
 
- 
 
 
 
@@ -26529,72 +25937,6 @@ first of all, make all overlays 10x10
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 
 
 

@@ -77,7 +77,7 @@ void mwGlobalLevelTool::remove_unused_tiles(int blt[])
 */
 void replaceTileIfMatch(int &tile, int match, int replace)
 {
-   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
+   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_ALL_FLAGS);
 }
 
 void changeBlockNumber(int oldNum, int newNum)
@@ -225,13 +225,14 @@ void mwGlobalLevelTool::execute(void)
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
 
-
 //      changeBlockNumbersFrame(576, 800);
 //      changeBlockNumbersFrame(608, 832);
 
 //      changeBlockNumber(424, 870);
 //      changeBlockNumber(456, 966);
 //      changeBlockNumber(488, 934);
+
+//      changeBlockNumber(310, 304);
 
 /*
       // block counter
@@ -1834,12 +1835,10 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 
-
-
 void mwGlobalLevelTool::countTiles()
 {
    int old_start_level = mLevel.start_level;
-   int le[200] = {0}; // level exists array
+   int le[400] = {0}; // level exists array
    int num_levs = 0;
    char fn[20] = "levels/level000.PML";
    // level range to look for
@@ -1905,4 +1904,59 @@ void mwGlobalLevelTool::countTiles()
    }
    mLevel.set_start_level(old_start_level);
 }
+
+
+
+
+void mwGlobalLevelTool::changeTileNumber(int oldNumber, int newNumber, int level)
+{
+   int old_start_level = mLevel.start_level;
+   int le[400] = {0}; // level exists array
+   int num_levs = 0;
+   char fn[20] = "levels/level000.PML";
+
+   // level range to look for
+   for (int x=0; x<400; x++)
+   {
+      int h, d, rem = x;
+      h = rem/100;
+      fn[12] = 48+h;
+      rem -=h*100;
+      d = rem/10;
+      fn[13] = 48 + d;
+      rem -=d*10;
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   // iterate array of found levels
+   for (int i=0; i<num_levs; i++)
+   {
+      mLevel.load_level(le[i], 1, 1);
+      changeBlockNumber(oldNumber, newNumber);
+      if (level == 0 || level == le[i]) mLevel.save_level(le[i]);
+   }
+
+   mLevel.set_start_level(old_start_level);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

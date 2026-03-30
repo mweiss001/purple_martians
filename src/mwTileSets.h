@@ -156,7 +156,12 @@ class mwTileSets
    bool findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type = 0);
    bool isTileKeyedBlock(int tileIndex, int keyIndex);
 
-   void draw(int bx1, int bx2, int by1, int by2, int drawItemNum, int drawItemFlags, int level[][100]);
+
+   void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode);
+
+   void draw(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode);
+
+
    bool compareTile(int rb, int cb, int set);
 
    void modify_tile_set();

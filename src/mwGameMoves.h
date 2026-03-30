@@ -14,6 +14,7 @@ private:
 public:
 
 
+
    void clear_single(int i);
 
 
@@ -25,6 +26,7 @@ public:
 
 
    int has_player_acknowledged(int p);
+
 
 
 
@@ -96,6 +98,9 @@ public:
    int      HEADER_num_entries;
 
    char last_loaded_gm_filename[256];
+
+   char last_loaded_gm_path[256] {};
+
 
    int autosave_game_on_level_done = 0;
    int autosave_game_on_level_quit = 0;

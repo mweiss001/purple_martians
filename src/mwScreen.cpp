@@ -580,7 +580,7 @@ void mwScreen::set_map_var(void)
 
 void mwScreen::mark_non_default_block(int x, int y, int tile)
 {
-   if ((mBitmap.tileFlags[tile & 1023] & PM_BTILE_MOST_FLAGS) != (tile & PM_BTILE_MOST_FLAGS))
+   if ((mBitmap.tileFlags[tile & 1023] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
@@ -590,7 +590,7 @@ void mwScreen::mark_non_default_block(int x, int y, int tile)
 
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
-   //double t0 = al_get_time();
+   // double t0 = al_get_time();
    //printf("init_level_background\n");
    al_set_target_bitmap(mBitmap.level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -598,22 +598,28 @@ void mwScreen::init_level_background(void) // fill level_background with block t
       for (int y=0; y<100; y++)
       {
          int tile = mLevel.l[x][y];
-         int tile_num = tile & 1023;
 
-         if (tile_num) al_draw_bitmap(mBitmap.btile[tile_num], x*20, y*20, 0);
+         // only draw tile if non-zero
+         if (tile & 1023) al_draw_bitmap(mBitmap.btile[tile & 1023], x*20, y*20, 0);
+
+         // check for overlays
+         if (tile & PM_BTILE_SHOW_OVERLAY || mLoop.level_editor_running)
+         {
+            int draw_overlay = 0;
+            int kb = (tile & 0b00000000000000001110000000000000) >> 13;
+            if (kb > 3) draw_overlay = 1;
+            if (tile & PM_BTILE_BOMBABLE) draw_overlay = 2;
+            if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
+
+            // only draw one overlay
+            if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
+            if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
+            if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
+         }
+
+
+         // mark tiles with non-default flags in level editor only
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y, tile);
-
-         // draw lock overlays
-         int kb = (tile & 0b00000000000000001110000000000000) >> 13;
-         if (kb>3) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
-
-         // draw bomb overlays
-         if (tile & PM_BTILE_BOMBABLE) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
-
-         // draw B overlays
-         if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
-
-
       }
 
    // draw gates for overworld level
@@ -622,13 +628,15 @@ void mwScreen::init_level_background(void) // fill level_background with block t
       for (int i=0; i<500; i++)
          if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);
    }
+
+   // draw messages that are always on
    char msg[256];
-   // draw all messages that are always on
    for (int i=0; i<500; i++)
       if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
          mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
 
-   // printf("init_level_background time:%f\n", al_get_time() - t0);
+   // printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
+
 }
 
 

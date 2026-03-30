@@ -24,7 +24,13 @@
 
 mwGameMoves mGameMoves;
 
-mwGameMoves::mwGameMoves() { initialize(); }
+mwGameMoves::mwGameMoves()
+{
+   sprintf(last_loaded_gm_filename, "%s", "");
+   sprintf(last_loaded_gm_path, "%s", "");
+
+   initialize();
+}
 
 
 void mwGameMoves::initialize(void)
@@ -42,9 +48,11 @@ void mwGameMoves::initialize(void)
    HEADER_last_frame = 0;
    HEADER_num_entries = 0;
 
-   sprintf(last_loaded_gm_filename, "%s", "");
+
    status = 0;
 }
+
+
 
 
 void mwGameMoves::new_level()
@@ -946,12 +954,27 @@ int mwGameMoves::load_demo_level(int lev)
 }
 
 // prompts for filename
-int mwGameMoves::load_gm_file_select(void)
+int mwGameMoves::load_gm_file_select()
 {
+   //printf("mwGameMoves::load_gm_file_select()\n" );
+
    int good_load = 0;
 
+   // starting dir
    char fname[1024];
    sprintf(fname, "savegame/");
+
+   //printf("last level loaded: %s\n", last_loaded_gm_filename );
+
+   // get path from last loaded gm
+   ALLEGRO_PATH *path = al_create_path_for_directory(last_loaded_gm_filename);
+   if (al_get_path_num_components(path))
+   {
+      al_remove_path_component(path, -1);
+      //printf("path: %s\n", al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+      sprintf(fname, "%s", al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   }
+
    // convert to 'ALLEGRO_FS_ENTRY' (to make fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
    sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));

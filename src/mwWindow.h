@@ -28,6 +28,9 @@ class mwWindow
 
    int status_window_has_mouse;
 
+   int em_draw_tile_mode = 3;
+
+
 
 
    // e_editor_main.h

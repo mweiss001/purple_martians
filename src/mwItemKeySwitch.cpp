@@ -209,49 +209,27 @@ void mwItem::proc_switch_block_range(int i, int action)
          for (int y=y1; y<y2; y++)
          {
             int tn = mLevel.l[x][y]&1023;
-            if ((item[i][10] & 0b0001) && (tn == 172)) mLevel.change_block(x, y, 7);  // green  solid to empty
-            if ((item[i][10] & 0b0010) && (tn == 173)) mLevel.change_block(x, y, 8);  // red    solid to empty
-            if ((item[i][10] & 0b0100) && (tn == 174)) mLevel.change_block(x, y, 9);  // blue   solid to empty
-            if ((item[i][10] & 0b1000) && (tn == 175)) mLevel.change_block(x, y, 10); // purple solid to empty
-            if ((item[i][10] & 0b0001) && (tn ==  7))  mLevel.change_block(x, y, (172 | PM_BTILE_ALL_SOLID)); // green  empty to solid
-            if ((item[i][10] & 0b0010) && (tn ==  8))  mLevel.change_block(x, y, (173 | PM_BTILE_ALL_SOLID)); // red    empty to solid
-            if ((item[i][10] & 0b0100) && (tn ==  9))  mLevel.change_block(x, y, (174 | PM_BTILE_ALL_SOLID)); // blue   empty to solid
-            if ((item[i][10] & 0b1000) && (tn == 10))  mLevel.change_block(x, y, (175 | PM_BTILE_ALL_SOLID)); // purple empty to solid
+            if ((item[i][10] & 0b0010) && (tn == 76)) mLevel.change_block(x, y,  72); // red    solid to empty
+            if ((item[i][10] & 0b0001) && (tn == 77)) mLevel.change_block(x, y,  73); // green  solid to empty
+            if ((item[i][10] & 0b0100) && (tn == 78)) mLevel.change_block(x, y,  74); // blue   solid to empty
+            if ((item[i][10] & 0b1000) && (tn == 79)) mLevel.change_block(x, y,  75); // purple solid to empty
+            if ((item[i][10] & 0b0010) && (tn == 72)) mLevel.change_block(x, y, (76 | PM_BTILE_ALL_SOLID)); // red    empty to solid
+            if ((item[i][10] & 0b0001) && (tn == 73)) mLevel.change_block(x, y, (77 | PM_BTILE_ALL_SOLID)); // green  empty to solid
+            if ((item[i][10] & 0b0100) && (tn == 74)) mLevel.change_block(x, y, (78 | PM_BTILE_ALL_SOLID)); // blue   empty to solid
+            if ((item[i][10] & 0b1000) && (tn == 75)) mLevel.change_block(x, y, (79 | PM_BTILE_ALL_SOLID)); // purple empty to solid
          }
       al_set_target_backbuffer(mDisplay.display);
-
    }
-
-   // this method sets block then calls init_level..
-//   if (action == 1)
-//   {
-//      for (int x=x1; x<x2; x++)
-//         for (int y=y1; y<y2; y++)
-//         {
-//            int tn = l[x][y]&1023;
-//
-//            if ((item[i][10] & 0b0001) && (tn == 172)) l[x][y] = 7;  // green  solid to empty
-//            if ((item[i][10] & 0b0010) && (tn == 173)) l[x][y] = 8;  // red    solid to empty
-//            if ((item[i][10] & 0b0100) && (tn == 174)) l[x][y] = 9;  // blue   solid to empty
-//            if ((item[i][10] & 0b1000) && (tn == 175)) l[x][y] = 10; // purple solid to empty
-//            if ((item[i][10] & 0b0001) && (tn ==  7))  l[x][y] = (172 | PM_BTILE_ALL_SOLID); // green  empty to solid
-//            if ((item[i][10] & 0b0010) && (tn ==  8))  l[x][y] = (173 | PM_BTILE_ALL_SOLID); // red    empty to solid
-//            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
-//            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
-//         }
-//      if (action == 1) init_level_background();
-//   }
-
    if (action == 2)
    {
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {
             int tn = mLevel.l[x][y]&1023;
-            if ((item[i][10] & 0b0001) && ( (tn == 7)  || (tn == 172)) ) bomb_block_crosshairs(x, y);
-            if ((item[i][10] & 0b0010) && ( (tn == 8)  || (tn == 173)) ) bomb_block_crosshairs(x, y);
-            if ((item[i][10] & 0b0100) && ( (tn == 9)  || (tn == 174)) ) bomb_block_crosshairs(x, y);
-            if ((item[i][10] & 0b1000) && ( (tn == 10) || (tn == 175)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b0010) && ( (tn == 72) || (tn == 76)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b0001) && ( (tn == 73) || (tn == 77)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b0100) && ( (tn == 74) || (tn == 78)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b1000) && ( (tn == 75) || (tn == 79)) ) bomb_block_crosshairs(x, y);
          }
    }
 }

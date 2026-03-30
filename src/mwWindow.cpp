@@ -42,7 +42,6 @@ mwWindow::mwWindow()
 
    mSelectionWindow.block_on = 1;
    mSelectionWindow.special_on = 1;
-//   select_window_num_special_lines = 4;
 
    obt = 0;
    num = 0;
@@ -206,18 +205,19 @@ void mwWindow::process_mouse(void)
          {
             sprintf(mMenu.menu_string[0],"Status Window");
             sprintf(mMenu.menu_string[1],"--------------");
+            sprintf(mMenu.menu_string[2], mWM.mW[1].show_flag_details       ? "Hide Block Flags"        : "Show Block Flags");
+            sprintf(mMenu.menu_string[3], mWM.mW[1].show_non_default_blocks ? "Hide Non Default Blocks" : "Show Non Default Blocks");
 
-            if (mWM.mW[1].show_flag_details) sprintf(mMenu.menu_string[2],"Hide Block Flags");
-            else                   sprintf(mMenu.menu_string[2],"Show Block Flags");
+            if (mWM.mW[1].em_draw_tile_mode == 1) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile and Flags");
+            if (mWM.mW[1].em_draw_tile_mode == 2) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile Only");
+            if (mWM.mW[1].em_draw_tile_mode == 3) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Flags Only");
 
-            if (mWM.mW[1].show_non_default_blocks) sprintf(mMenu.menu_string[3],"Hide Non-Default Blocks");
-            else                         sprintf(mMenu.menu_string[3],"Show Non-Default Blocks");
-
-            sprintf(mMenu.menu_string[4],"end");
+            sprintf(mMenu.menu_string[5],"end");
             switch (mMenu.pmenu(6, 13, -20, 2))
             {
                 case 2: mWM.mW[1].show_flag_details =! mWM.mW[1].show_flag_details; break;
                 case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(); break;
+                case 4: if (++mWM.mW[1].em_draw_tile_mode > 3) mWM.mW[1].em_draw_tile_mode = 1; break;
             }
          }
          if (index == 5) // ge list
@@ -917,8 +917,8 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
          int vy = (mInput.mouse_y-syb-14)/20; // row
          int ret = mSelectionWindow.block_array[vy][vx];
 
-         int tl = 5; // text lines
-         int syt2 = syt+17+(8*tl);
+         int tl = 6; // text lines
+         int syt2 = syt+19+(8*tl);
          if (mWM.mW[1].show_flag_details) syt2 += 140;
 
          al_draw_filled_rectangle(x1, syt, x2, syt2, mColor.pc[0]); // erase
