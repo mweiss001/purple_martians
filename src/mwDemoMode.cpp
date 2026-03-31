@@ -28,7 +28,7 @@ void mwDemoMode::initialize()
 {
    pass = 0;
    prev_index = -1;
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 
@@ -61,7 +61,7 @@ int mwDemoMode::load_demo_file_array()
    if (num_demo_filenames == 0)
    {
       printf("No demo files found.\n");
-      play_mode = 0;
+      play_mode_active = 0;
       return 0;
    }
    files_for_random_loaded = 1;
@@ -91,7 +91,13 @@ void mwDemoMode::play_demo_for_stats()
    int done = 0;
    while (!done)
    {
-      if (mLoop.frame_num > last_frame+200) done = 1;
+      if (mLoop.frame_num > last_frame+200)
+      {
+         done = 1;
+         // this is so that I can track if demo level play back did not complete
+         mLevel.add_play_data_record(mLevel.play_level, 0); // count this as quitting
+      }
+
       if (mPlayer.syn[0].level_done_mode) done = 1;
       mLoop.frame_num++;
       mGameMoves.proc();
@@ -139,7 +145,7 @@ int mwDemoMode::load_random_demo()
 {
    if (!load_demo_file_array())
    {
-      play_mode = 0;
+      play_mode_active = 0;
       return 0;
    }
 
@@ -203,7 +209,7 @@ int mwDemoMode::load_random_demo()
       //if (debug_print) printf("Demo Mode random file chooser - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
       return 1;
    }
-   play_mode = 0;
+   play_mode_active = 0;
    return 0;
 }
 
@@ -251,7 +257,7 @@ int mwDemoMode::key_check()
    if (mInput.key[ALLEGRO_KEY_6][0]) set_active_local_player(6);
    if (mInput.key[ALLEGRO_KEY_7][0]) set_active_local_player(7);
 
-   if (mInput.key[ALLEGRO_KEY_N][0] && play_mode == 2) return 2; // next level for random mode
+   if (mInput.key[ALLEGRO_KEY_N][0] && play_mode_active == 2) return 2; // next level for random mode
 
    int key_used = 0;
 
@@ -291,42 +297,42 @@ int mwDemoMode::key_check()
 
 void mwDemoMode::run_single_from_menu()
 {
-   play_mode = 1;
+   play_mode_active = 1;
    if ((mGameMoves.load_demo_level(mLevel.play_level)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(2, 1, mLevel.play_level);
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 void mwDemoMode::run_single_from_settings()
 {
-   play_mode = 1;
+   play_mode_active = 1;
    const int original_level = mLevel.play_level;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 1, original_level);
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 void mwDemoMode::run_single_from_cmd_fn(const char* fn)
 {
-   play_mode = 1;
+   play_mode_active = 1;
    if (mGameMoves.load_gm(fn) && mLoop.load_and_setup_level(mLevel.play_level, 4)) run_loop(0, 0, mLevel.play_level);
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 void mwDemoMode::run_single_from_cmd_prompt()
 {
-   play_mode = 1;
+   play_mode_active = 1;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 0, mLevel.play_level);
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 // this takes care of its own loading and running of overworld when done
 void mwDemoMode::run_single_from_gate(const int lev)
 {
-   play_mode = 1;
+   play_mode_active = 1;
    if ((mGameMoves.load_demo_level(lev)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(3, 1, -1);
    mLevel.play_level = 1;
    mLoop.load_and_setup_level(1, 0);
    mLoop.state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-   play_mode = 0;
+   play_mode_active = 0;
 }
 
 
@@ -334,12 +340,7 @@ void mwDemoMode::run_single_from_gate(const int lev)
 void mwDemoMode::seek_to_frame(const int frame, const int draw)
 {
    // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
-//   mGameMoves.load_gm(mGameMoves.last_loaded_gm_filename);
-
    mGameMoves.current_pos = 0;
-
-
-
    mLoop.load_and_setup_level(mLevel.play_level, 4);
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
@@ -354,9 +355,6 @@ void mwDemoMode::seek_to_frame(const int frame, const int draw)
    if (draw) mDrawSequence.ds_draw(0, 0);
    mLoop.ff_state = 0;
 }
-
-
-
 
 // this takes care of advancing the frame and drawing
 // also pause and controls
@@ -399,13 +397,13 @@ bool mwDemoMode::check_level_done()
 void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 {
    mScreen.transition_cutscene(ti, tf); // initial to final (game)
-   while (play_mode)
+   while (play_mode_active)
    {
       mEventQueue.proc(1);
       if (mEventQueue.program_update)
       {
          frame_advance();
-         if (key_check() || check_level_done()) play_mode = 0;
+         if (key_check() || check_level_done()) play_mode_active = 0;
       }
    }
    common_exit();
@@ -442,7 +440,7 @@ void mwDemoMode::continuous_random_next_level()
 void mwDemoMode::run_continuous_random()
 {
    const int original_level = mLevel.play_level;
-   play_mode = 2;
+   play_mode_active = 2;
    int done = 0;
    while (!done)
    {
@@ -450,14 +448,14 @@ void mwDemoMode::run_continuous_random()
       if (mLoop.load_and_setup_level(mLevel.play_level, 4))
       {
          //mScreen.transition_cutscene(0, 1); // nothing to game
-         while (play_mode)
+         while (play_mode_active)
          {
             mEventQueue.proc(1);
             if (mEventQueue.program_update)
             {
                frame_advance();
                const int k = key_check();
-               if (k == 1) { play_mode = 0; done = 1; } // quit
+               if (k == 1) { play_mode_active = 0; done = 1; } // quit
                if (k == 2 || check_level_done()) continuous_random_next_level();
             }
          }

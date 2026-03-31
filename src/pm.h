@@ -73,8 +73,6 @@ struct client_status_buffer_row
 #define PM_COMPMOVE_FIRE   0b00100000
 #define PM_COMPMOVE_MENU   0b01000000
 
-
-#define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
 #define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
 #define PM_GAMEMOVE_TYPE_PLAYER_HIDDEN    3
@@ -84,6 +82,8 @@ struct client_status_buffer_row
 //                                                    3       2       1       0
 //                                             76543210765432107654321076543210
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG  0b00000000100000000000000000000000
+
+
 
 
 #define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0

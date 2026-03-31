@@ -1207,12 +1207,12 @@ void mwBitmapTools::edit_tile_flags()
 
 
 
-void mwBitmapTools::draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw)
+void mwBitmapTools::draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw, int ts)
 {
    if (gd) // gridline draw
    {
-      for (int x=x1; x<=x2; x+=22) al_draw_line(x, y1, x, y2, mColor.pc[gc], gw);
-      for (int y=y1; y<=y2; y+=22) al_draw_line(x1, y, x2, y, mColor.pc[gc], gw);
+      for (int x=x1; x<=x2; x+=ts) al_draw_line(x, y1, x, y2, mColor.pc[gc], gw);
+      for (int y=y1; y<=y2; y+=ts) al_draw_line(x1, y, x2, y, mColor.pc[gc], gw);
    }
    if (fd) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], fw);
 }
@@ -1336,7 +1336,6 @@ void mwBitmapTools::copy_tiles()
    int b1_mouse_tile_pointer = -1;
 
 
-
    // second bitmap ------------------
    char b2_fn[100];
    char b2_fn2[100];
@@ -1353,6 +1352,11 @@ void mwBitmapTools::copy_tiles()
    int b2_x2{};
    int b2_y2{};
    int b2_tw{};
+
+   int b2_pad = 0;
+   int b2_ts = 20 + b2_pad*2;
+
+
 
    int quit = 0;
    while (!quit)
@@ -1417,10 +1421,12 @@ void mwBitmapTools::copy_tiles()
             b2_h = al_get_bitmap_height(b2);
             b2_x2 = b2_x + b2_w;
             b2_y2 = b2_y + b2_h;
-            b2_tw = b2_w/22; // tile grid width
+            b2_tw = b2_w/b2_ts; // tile grid width
          }
          reload_b2 = 0;
       }
+
+
 
 //      if (reload_b2 == 3) // load and scale to 1/2
 //      {
@@ -1470,6 +1476,7 @@ void mwBitmapTools::copy_tiles()
       // draw the second bitmap to copy from only
       al_draw_bitmap(b2, b2_x, b2_y, 0);
 
+
       // title with filename only, no path
       ALLEGRO_PATH *ap = al_create_path(b2_fn);
       al_draw_textf(mFont.pr8, mColor.pc[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap));
@@ -1479,8 +1486,9 @@ void mwBitmapTools::copy_tiles()
       if (mWidget.buttontcb(b2_x,    ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load") )     reload_b2 = 1;
       //if (mWidget.buttontcb(b2_x+42, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load 1/2") ) reload_b2 = 3;
 
+
       // draw a dim rectangle around the entire grid
-      draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
+      draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15+64, 1, gridlines, 15+128, 0, b2_ts );
 
 
 
@@ -1489,23 +1497,22 @@ void mwBitmapTools::copy_tiles()
       if ((mInput.mouse_x > b2_x) && (mInput.mouse_x < (b2_x + b2_w)) && (mInput.mouse_y > b2_y) && (mInput.mouse_y < (b2_y+b2_h)))
       {
          // draw a rectangle around the entire grid
-         draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15, 1, gridlines, 15+64, 0 );
+         draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15, 1, gridlines, 15+64, 0, b2_ts);
 
          // what tile is mouse pointing at?
-         int mx = (mInput.mouse_x-b2_x)/22;
-         int my = (mInput.mouse_y-b2_y)/22;
-
+         int mx = (mInput.mouse_x-b2_x) / b2_ts;
+         int my = (mInput.mouse_y-b2_y) / b2_ts;
 
          int pointer = mx + my*b2_tw;
 
          // mouse pointer offset relative to bitmap
-         int bp_x1 = mx*22+1;
-         int bp_y1 = my*22+1;
+         int bp_x1 = mx*b2_ts + b2_pad;
+         int bp_y1 = my*b2_ts + b2_pad;
 
          // outline tile that mouse is pointing at
-         int mx1 = b2_x + bp_x1 - 1;
-         int my1 = b2_y + bp_y1 - 1;
-         al_draw_rectangle(mx1, my1, mx1+22, my1+22, mColor.pc[10], 0);
+         int mx1 = b2_x + bp_x1 - b2_pad;
+         int my1 = b2_y + bp_y1 - b2_pad;
+         al_draw_rectangle(mx1, my1, mx1+b2_ts, my1+b2_ts, mColor.pc[10], 0);
 
          // copy tile to qtmp2
          al_set_target_bitmap(qtmp2);
@@ -1547,7 +1554,7 @@ void mwBitmapTools::copy_tiles()
       if (mWidget.buttontcb(b1_x+50,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload")) reload_b1 = 2;
       if (mWidget.buttontcb(b1_x2-40, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save")) al_save_bitmap(b1_fn, b1);
 
-      draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
+      draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0, 22 );
 
       draw_tilecount_overlays(b1_x, b1_y);
 
@@ -1583,7 +1590,7 @@ void mwBitmapTools::copy_tiles()
       // is mouse on grid 1
       if ((mInput.mouse_x > b1_x) && (mInput.mouse_x < (b1_x + b1_w)) && (mInput.mouse_y > b1_y) && (mInput.mouse_y < (b1_y+b1_h)))
       {
-         draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15, 1, gridlines, 15+64, 0 );
+         draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15, 1, gridlines, 15+64, 0, 22 );
 
          // what tile is mouse pointing at?
          int mx = (mInput.mouse_x-b1_x)/22;
@@ -1680,7 +1687,7 @@ void mwBitmapTools::copy_tiles()
 
             // draw the main bitmap
             al_draw_bitmap(b1, b1_x, b1_y, 0);
-            draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15, 1, gridlines, 15+64, 0 );
+            draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15, 1, gridlines, 15+64, 0, 22 );
 
             // is mouse on grid
             if ((mInput.mouse_x > b1_x) && (mInput.mouse_x < (b1_x + b1_w)) && (mInput.mouse_y > b1_y) && (mInput.mouse_y < (b1_y+b1_h)))
@@ -1716,7 +1723,6 @@ void mwBitmapTools::copy_tiles()
                   while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
                   mGlobalLevelTool.changeTileNumber(b1_mouse_tile_pointer, pointer);
-
 
                }
             }

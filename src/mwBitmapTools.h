@@ -42,7 +42,7 @@ class mwBitmapTools
    int select_bitmap_ans(int zzindx, int& bmp_index);
 
 
-   void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw);
+   void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
 
    void draw_tilecount_overlays(int x1, int y1);
    void draw_tilecount_overlay(int x1, int y1, int tile, int extended);

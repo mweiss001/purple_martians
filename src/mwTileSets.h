@@ -115,7 +115,13 @@ class mwTileSets
 
    tileSet constructSolidRectangleSet(std::string name, int i);
    tileSet constructFrameRectangleSet(std::string name, int i);
-   tileSet constructHlineSet(std::string name, int i);
+   tileSet constructHlineSetMulti(std::string name, int i);
+
+   tileSet constructHlineVlineSet(std::string name, int i);
+
+   tileSet constructVlineSet(std::string name, int i);
+
+
 
    void constructEmptySet();
    void setBasicRect(int i);

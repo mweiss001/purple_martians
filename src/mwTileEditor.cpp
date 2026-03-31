@@ -211,25 +211,23 @@ void mwTileEditor::fix_sel()
 
 void mwTileEditor::draw_frame_and_gridlines()
 {
-   // frame
-   al_draw_rectangle(dx1+o, dy1+o, dx2+o, dy2+o, highlight_color, 0);
-
-   // gridlines
+   al_draw_rectangle(dx1+o, dy1+o, dx2+o, dy2+o, highlight_color, 0); // frame
    if (gridlines)
    {
       for (int i=0; i<20; i++)
       {
-         al_draw_rectangle(dx1+o+i*d_scale, dy1+o, dx1+o+i*d_scale, dy2+o, frame_color, 0);
-         al_draw_rectangle(dx1+o, dy1+o+i*d_scale, dx2+o, dy1+o+i*d_scale, frame_color, 0);
+         int line_size = 0;
+         ALLEGRO_COLOR color = frame_color;
+
+         if (i == 10) // highlight center gridlines
+         {
+            line_size = 1;
+            color = highlight_color;
+         }
+         al_draw_rectangle(dx1+o+i*d_scale, dy1+o, dx1+o+i*d_scale, dy2+o, color, line_size);
+         al_draw_rectangle(dx1+o, dy1+o+i*d_scale, dx2+o, dy1+o+i*d_scale, color, line_size);
       }
    }
-
-   // hightlight center gridlines
-   int i = 10;
-   al_draw_rectangle(dx1+o+i*d_scale, dy1+o, dx1+o+i*d_scale, dy2+o, highlight_color, 1);
-   al_draw_rectangle(dx1+o, dy1+o+i*d_scale, dx2+o, dy1+o+i*d_scale, highlight_color, 1);
-
-
 }
 
 
@@ -251,7 +249,6 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
 
    draw_frame_and_gridlines();
 
-
    // show selection
    if (show_selection) al_draw_rectangle(dx1+o+sx1*d_scale, dy1+o+sy1*d_scale, dx1+o+(sx2+1)*d_scale, dy1+o+(sy2+1)*d_scale, mColor.Yellow, 2);
 
@@ -267,8 +264,6 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
       // show text of current mouse pixel position x, y
       al_draw_rectangle(dx2+o-76, dy2+o, dx2+o, dy2+o+12, highlight_color, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], dx2+o-74, dy2+o+2, ALLEGRO_ALIGN_INTEGER, "x:%-2d y:%-2d", mx, my);
-
-
    }
    else mouse_on_grid = false;
 
@@ -276,11 +271,7 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
    int xa = dx2+o-190;
    int ya = dy1+o-15;
    mWidget.togglec(xa, ya, xa+20, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
-
-
-
 }
-
 
 
 void mwTileEditor::legacy_color_select(int x1, int y1, int size)
@@ -317,7 +308,7 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
       int pc = y*16 + x;
       point_color = mColor.pc[pc];
 
-      // show text of current mouse pixel position x, y
+      // show text of color mouse is pointing at
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, ALLEGRO_ALIGN_INTEGER, "col:%d", pc);
 
@@ -330,11 +321,6 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
       }
    }
 }
-
-
-
-
-
 
 
 
@@ -395,8 +381,7 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
       int y = (mInput.mouse_y - gy1) / (size*20);
       int tile = tile_palette[y][x];
 
-
-      // show text of current mouse position x, y
+      // show text of tile mouse is pointing at
       al_draw_rectangle(x2+o-76, y2+o, x2+o, y2+o+12, highlight_color, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], x2+o-68, y2+o+2, ALLEGRO_ALIGN_INTEGER, "tile:%d", tile);
 
@@ -516,7 +501,6 @@ void mwTileEditor::selection_controls(int x, int y)
          sprintf(title, "Paste Selection");
          edit_tile_redraw(edit_tile_bitmap, false);
 
-
          // this is so that I can have the mouse off the grid and still be able to paste
          // this is only if x<0 or y<0
          // magnified a lot because the edge of the screen is close
@@ -584,7 +568,6 @@ int mwTileEditor::draw_mode_controls(int x, int y)
 
    int bts = 12;
    //bts += mLoop.pct_y;
-
 
    int line_spacing = 6;
    //line_spacing += mLoop.pct_y;
@@ -667,7 +650,6 @@ void mwTileEditor::set_edit_tile(int tile)
 
 void mwTileEditor::process_draw()
 {
-
    if (draw_mode == 1) // point or single pixel mode
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
@@ -694,26 +676,23 @@ void mwTileEditor::process_draw()
             al_clear_to_color(al_map_rgb(0,0,0));
             al_draw_bitmap(edit_tile_bitmap,0,0,0);
 
-
             if (draw_mode == 2)
             {
                sprintf(title, "Draw Line x1:%d y1:%d  x2:%d y2:%d", px1, py1, mx, my);
                al_draw_line(px1+o, py1+o, mx+o, my+o, draw_color, th);
-               // draw the line with filled circles for custom endpoints
+               // filled circles for ends
                al_draw_filled_circle(px1+o, py1+o, th/2, draw_color);
                al_draw_filled_circle(mx+o,  my+o,  th/2, draw_color);
             }
-
             if (draw_mode == 3)
             {
                sprintf(title, "Draw Rectangle x1:%d y1:%d  x2:%d y2:%d", px1, py1, mx, my);
                al_draw_rectangle(px1+o, py1+o, mx+o, my+o, draw_color, th);
-
+               // filled circles for corners
                al_draw_filled_circle(px1+o, py1+o, th/2, draw_color);
                al_draw_filled_circle(px1+o, my+o,  th/2, draw_color);
                al_draw_filled_circle(mx+o,  py1+o, th/2, draw_color);
                al_draw_filled_circle(mx+o,  my+o,  th/2, draw_color);
-
             }
             if (draw_mode == 4)
             {
@@ -728,11 +707,10 @@ void mwTileEditor::process_draw()
                sprintf(title, "Draw Ellipse x1:%d y1:%d  r1:%2.1f r2:%2.1f ", px1, py1, r1, r2);
                al_draw_ellipse(px1+o, py1+o, r1, r2, draw_color, th);
             }
-
             if (draw_mode == 6)
             {
                sprintf(title, "Draw Filled Rectangle x1:%d y1:%d  x2:%d y2:%d", px1, py1, mx, my);
-               al_draw_filled_rectangle(px1+o, py1+o, mx+o, my+o, draw_color);
+               al_draw_filled_rectangle(px1+o, py1+o, mx+1+0, my+1+o, draw_color);
             }
             if (draw_mode == 7)
             {
@@ -765,27 +743,22 @@ void mwTileEditor::process_draw()
 }
 
 
-
 void mwTileEditor::show_color_replace_preview()
 {
    al_set_target_bitmap(edit_tile_preview_bitmap);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(edit_tile_bitmap, 0,0,0);
 
-
-   for (int x=0; x<20; x++)
-      for (int y=0; y<20; y++)
-      {
-         ALLEGRO_COLOR s = al_get_pixel(edit_tile_bitmap, x, y);
-         if (mColor.compareColor(s, point_color, 0.01)) al_put_pixel(x, y, draw_color);
-      }
-
-
+   if (mouse_on_grid)
+   {
+      for (int x=0; x<20; x++)
+         for (int y=0; y<20; y++)
+         {
+            ALLEGRO_COLOR s = al_get_pixel(edit_tile_bitmap, x, y);
+            if (mColor.compareColor(s, point_color, 0.01)) al_put_pixel(x, y, draw_color);
+         }
+   }
 }
-
-
-
-
 
 
 void mwTileEditor::edit_tile(int tile)
@@ -793,12 +766,11 @@ void mwTileEditor::edit_tile(int tile)
    al_show_mouse_cursor(mDisplay.display);
 
    // load block tiles from file to bitmap, so we can modify it
-   tilemap_bitmap      = mBitmapTools.load_block_tiles_to_bitmap();
+   tilemap_bitmap           = mBitmapTools.load_block_tiles_to_bitmap();
 
    // create bitmaps
-   edit_tile_bitmap    = al_create_bitmap(20, 20);
-   tile_palette_bitmap = al_create_bitmap(60, 60);
-
+   edit_tile_bitmap         = al_create_bitmap(20, 20);
+   tile_palette_bitmap      = al_create_bitmap(60, 60);
    edit_tile_preview_bitmap = al_create_bitmap(20, 20);
 
    // set initial edit tile
@@ -830,16 +802,20 @@ void mwTileEditor::edit_tile(int tile)
    dcw_x   = dx1;
    pcw_x   = dcw_x + dcw_w + 20;
 
-
-
-
    int quit = 0;
    while (!quit)
    {
-
-
-      sprintf(title, "Edit Tile:%d", edit_tile_index);
-      edit_tile_redraw(edit_tile_bitmap, true);
+      if (draw_mode == 9)
+      {
+         sprintf(title, "Replace Color");
+         show_color_replace_preview();
+         edit_tile_redraw(edit_tile_preview_bitmap, false);
+      }
+      else
+      {
+         sprintf(title, "Edit Tile:%d", edit_tile_index);
+         edit_tile_redraw(edit_tile_bitmap, true);
+      }
 
       if (mouse_on_grid)
       {
@@ -853,30 +829,22 @@ void mwTileEditor::edit_tile(int tile)
 
          color_controls("point", point_color, pcw_x, pcw_y, pcw_w, pcw_bts);
 
-
-         if (draw_mode == 9)
+         // set draw color
+         if (mInput.mouse_b[2][0])
          {
-            sprintf(title, "Replace Color");
-            show_color_replace_preview();
-            edit_tile_redraw(edit_tile_preview_bitmap, false);
+            while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
+            draw_color = point_color;
+         }
 
-            if (mInput.mouse_b[1][0])
+         if (mInput.mouse_b[1][0])
+         {
+            if (draw_mode == 9)
             {
                while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
                al_set_target_bitmap(edit_tile_bitmap);
                al_draw_bitmap(edit_tile_preview_bitmap, 0,0,0);
             }
-         }
-         else
-         {
-            // set draw color
-            if (mInput.mouse_b[2][0])
-            {
-               while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-               draw_color = point_color;
-            }
-
-            if (mInput.mouse_b[1][0])
+            else
             {
                if (!mInput.CTRL()) process_draw();
                else // get new selection
@@ -907,7 +875,6 @@ void mwTileEditor::edit_tile(int tile)
 
       color_controls("draw", draw_color, dcw_x, dcw_y, dcw_w, dcw_bts);
 
-
       // show top row of buttons
       int ya = dy1-14;
 
@@ -932,8 +899,7 @@ void mwTileEditor::edit_tile(int tile)
       if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Copy Tiles")) mBitmapTools.copy_tiles();
 
 
-
-      // all the widgets to the right of the main tile area
+      // show all the widgets to the right of the main tile area
       xa = dx2+20;
       ya = 20;
 
@@ -947,7 +913,6 @@ void mwTileEditor::edit_tile(int tile)
       ya+=220;
 
       legacy_color_select(xa, ya, 11);
-
 
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])

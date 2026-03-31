@@ -25776,7 +25776,6 @@ this is working, make it changeable from pop-up menu..done
 make the default to replace both..done...
 
 
-
 2026-03-29 21:35:42
 
 I am going through levels again...now with 4 color extended sets and optional flag and block stuff...
@@ -25784,6 +25783,535 @@ I am going through levels again...now with 4 color extended sets and optional fl
 I might want to make overlays slightly bigger, there is no draw time penalty...
 
 the nice thing is all I have to do is change the tiles...
+
+2026-03-30 08:37:19
+
+what am I going to do today?
+
+make a grid beam tileset
+
+copy some tiles from the internet!!
+
+Make a load 2nd that does straight 20x20 instead of with spaces
+
+I think I need to specify the padding for b2
+
+right now I can have 0 or 1
+
+
+moved tiles to:
+red column from 116 to 118...
+changed default flags
+added to selection window
+added to tilesets
+done
+
+Thanks for downloading Free 8-Bit Pixel Pack by Super Icon.
+You can find more from the same creator on their page: Super Icon.
+The download should start momentarily. If it doesn't, check your popup blocker.
+license:
+Free 8-Bit Pixel Pack
+
+A nice free pack of pixel level tiles and two background textures, all created in 8-bit pixel art style.
+
+With a varied selection of tile types, this pack provides a good starting point to create 8-bit themed levels. You can create castles, secret bases, sci-fi levels, towns, and more.
+
+Pack includes 2 different backgrounds and over fifty tiles and objects, split into the following categories:
+
+Blocks, Bricks, Bricks Wide, Columns, Crate, Gems and Platforms.
+
+    32x32 size tiles.
+    512x1024 backgrounds.
+    Included png format and example Tiled Map Editor project files.
+
+WANT MORE?
+
+Try our bigger pixel packs... 
+
+- Mega 8-Bit Pixel Pack
+- Mega Handheld 8-Bit Pixel Pack
+More information
+Status	Released
+Category	Assets
+Rating	
+Rated 5.0 out of 5 stars
+(2 total ratings)
+Author	Super Icon
+Genre	Platformer
+Tags	16-bit, 2D, NES (Nintendo Entertainment System), Pixel Art, Retro, Tilemap, tiles
+Content	No generative AI was used
+
+
+I am thinking of buying the mega pack for $12
+done...what license? does not say. I would assume since I paid for it I am good
+
+
+
+1024 / 32 = 32
+
+32 * 20 = 640
+
+I think I want to make another tileset,
+one that does only hline, vlines and frames with no corners
+
+608 611 grey hole beam
+614 617 red cross beam
+
+It just occurred to me how to draw large jagged edge regions...keep drawing overlapping rectangles
+
+that works for some things well, others not so well
+
+2026-03-30 13:40:44
+I am not sure if I am getting more lost here...
+I have made a bunch more tiles...now what?
+
+went through levels up to level 6
+do another platform
+
+fix grey girders with hole to have nice left and right end pieces
+
+done...
+
+
+I just discovered a bug...
+
+when I am testing my levels with demo things....
+if it gets to the end without finishing, i might never know....
+it does not count as finished, or started, or anything like that
+
+how can I capture that...
+   if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
+
+
+fixed...
+
+now can I run demo record?
+it has been a long time....
+
+
+I can get it working in demo record mode, but then when I try to save it something bad happens....
+
+
+does it just not save the ending?
+
+do I need to add more?
+
+
+lev009-4P-30.gm
+
+PMSAVEGAME
+MUID:SSKZWWRMDYLWHFVG
+VERSION:3
+CREATE_TIMESTAMP:20260101-000000
+MODIFY_TIMESTAMP:2026-03-30T22:03:01
+LEVEL:9
+LAST_FRAME:1164
+GAMEMOVE_NUM_ENTRIES:485
+GAMEMOVE_DATA_START:
+0,0,0,9
+0,0,0,9
+
+
+
+this is what demo record finds:
+490 lines, last frame is 1137
+
+
+
+what is this? PM_GAMEMOVE_TYPE_LEVEL_START
+
+is it still used?
+
+
+demo record - 9 times
+
+once to print in game moves
+once in widget button...
+
+once in mLoop
+
+int mwLoop::load_and_setup_level(int level, int type)
+
+added when shot config is added...
+
+I really don't think it is used...
+
+
+
+can I run gdt and check?
+
+they all have one except for the one I just saved which has 5!!!
+
+GDT lev:[ 9] ----level start found
+level start found
+level start found
+level start found
+level start found
+GDT lev:[10] ----level start found
+GDT lev:[11] ----level start found
+GDT lev:[12] ----level start found
+
+
+I think I am going to remove this from code...
+
+I am not ready to kill the actual game move in gm_files yet though...
+I have commented it out everywhere
+now I should search demo record for PM_GAMEMOVE_TYPE_PLAYER_ACTIVE 
+
+I have been through all 2000 lines of demo record...lets test again...
+
+
+can I erase all the levelstart game moves??
+how?
+
+
+gdt
+search and clear, sort and save
+
+
+
+GDT lev:[ 5] ----level start found 1068 - removed 1067
+GDT lev:[ 6] ----level start found 2411 - removed 2410
+GDT lev:[ 8] ----level start found 990 - removed 989
+GDT lev:[ 9] ----level start found 485 - removed 484
+level start found 484 - removed 483
+level start found 483 - removed 482
+GDT lev:[10] ----level start found 1289 - removed 1288
+GDT lev:[11] ----level start found 2618 - removed 2617
+GDT lev:[12] ----level start found 1534 - removed 1533
+
+
+GDT lev:[ 8] ----
+level start found 990 - removed 989
+Saving gm:C:\pm\savegame\demo\TAS\lev008-6P-55.gm
+saved 989
+
+GDT lev:[ 9] ----
+level start found 485 - removed 484
+level start found 484 - removed 483
+level start found 483 - removed 482
+Saving gm:C:\pm\savegame\demo\TAS\lev009-4P-30.gm
+saved 480
+
+
+
+
+GDT lev:[10] ----level start found 1289 - removed 1288
+
+Saving gm:C:\pm\savegame\demo\TAS\lev010-8P-105.gm
+
+Database add or update
+Error parsing time
+saved 1288
+GDT lev:[11] ----level start found 2618 - removed 2617
+
+
+then next time through it does the same thing...
+
+why?
+
+maybe the remove thing does not work....
+
+
+I am removing in the middle of iterating!!..duh
+
+clear it, then sort after???
+it still plays back perfectly???
+
+I am so confused...
+
+
+all I am trying to do is remove game move type 0 from game moves array file... why is it so hard?
+
+it could be that I need to shorten the entrypos??
+
+
+I manually removed 5 from lev9 and changed 485 to 480...seems to work
+
+
+it always finds the 0 at the end of the level
+
+
+
+this all can happen on frame 1
+
+1, 9 shot config
+1 5 initial player moves for all 8
+1 active for all 8
+
+
+why is it so hard to keep track of the size of array?
+I could sort it, remove extra zeros, then manually count the size
+
+actually I don't care if there are extra zeros at the end...
+
+
+I think the only one I need to manually fix is lev09
+all I needed to do was remove 1 from the length...
+
+
+I have fixed all those...
+
+now manually fix 9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

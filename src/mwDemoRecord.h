@@ -4,10 +4,18 @@ class mwDemoRecord
 {
    public:
 
+
+   int record_mode_active{};
+
+
+
    int lnk_arr[10000] = {0};
    int lnk_entry_pos = 0;
 
    int player_sections[20][20] = {0};
+   char player_sections_names[20][9] = {0};
+
+
    char current_loaded_demo_file[256];
 
    int fhs[10000][4] = {0};

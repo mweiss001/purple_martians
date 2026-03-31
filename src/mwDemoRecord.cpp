@@ -22,10 +22,7 @@
 #include "mwConfig.h"
 #include "mwItem.h"
 
-
-
 mwDemoRecord mDemoRecord;
-
 
 void mwDemoRecord::gdt(void)
 {
@@ -41,6 +38,34 @@ void mwDemoRecord::gdt(void)
 //      printf("GDT lev:[%2d] --------------------------------\n", mLevel.play_level);
 
       printf("GDT lev:[%2d] ----", mLevel.play_level);
+
+
+/*
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if (mGameMoves.arr[x][1] == 0) // PM_GAMEMOVE_TYPE_LEVEL_START)
+         {
+            printf("level start found %d %d - \n", x, mGameMoves.entry_pos);
+
+//            mGameMoves.entry_pos--;
+//            mGameMoves.HEADER_num_entries = mGameMoves.entry_pos;
+
+//            mGameMoves.gm_remove(x);
+
+//            mGameMoves.clear_single(x);
+
+//            printf("removed %d\n", mGameMoves.entry_pos);
+
+         }
+
+//      mGameMoves.gm_sort();
+
+
+//      mGameMoves.save_gm(current_loaded_demo_file, 0);
+
+//      printf("saved %d\n", mGameMoves.entry_pos);
+
+*/
+
 
 /*
 
@@ -144,7 +169,6 @@ void mwDemoRecord::gdt(void)
 
    float et = (float) ( (al_get_time() - t1) * 1);
 
-
    printf("\ngdt took %f seconds to process %d files\n", et, mDemoMode.num_demo_filenames);
 
 
@@ -164,20 +188,9 @@ void mwDemoRecord::gdt(void)
 
 
 
-
-
-
-
-
-
 void mwDemoRecord::seek_to_frame(int frame, int draw)
 {
-   printf("seek_to_frame() - b4 load\n");
-
-
    mLevel.load_level(mLevel.play_level, 0, 0);    // load level
-
-   printf("seek_to_frame() - af load\n");
 
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -199,6 +212,7 @@ void mwDemoRecord::seek_to_frame(int frame, int draw)
 }
 
 
+// translation table from gm index to index in gm_txt_line array
 void mwDemoRecord::load_lnk_arr(void)
 {
    lnk_entry_pos = 0;
@@ -210,7 +224,6 @@ void mwDemoRecord::load_lnk_arr(void)
       {
          if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) add = 1; // new version with embedded name
          if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
-         if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) add = 1;
          if (mGameMoves.arr[i][2] == player_sections[current_section][1]) add = 1;
       }
       if (add)
@@ -297,8 +310,8 @@ void mwDemoRecord::draw_gm_txt_lines(int x, int y, int dump)
          char name[9] = { 0 };
          mMiscFnx.gma_to_val(mGameMoves.arr[gi][1], mGameMoves.arr[gi][2], mGameMoves.arr[gi][3], p, v, name);
          snprintf(mPlayer.syn[p].name, 9, "%s", name);
-
       }
+
 
       sprintf(msg, "%s", mGameMoves.get_gm_text2(i, f, t, p, v, msg));
       if (dump) printf("%s\n", msg);
@@ -307,7 +320,6 @@ void mwDemoRecord::draw_gm_txt_lines(int x, int y, int dump)
       int tx2 = x+strlen(msg)*8;
 
       int text_col = mPlayer.syn[p].color;
-      if (t == PM_GAMEMOVE_TYPE_LEVEL_START) text_col = 15;
       if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
       if (gm_list_mono) text_col = 15;
 
@@ -372,30 +384,46 @@ void mwDemoRecord::draw_gm_txt_lines(int x, int y, int dump)
 
 void mwDemoRecord::copy_ptp(int sp, int dp)
 {
-   // erase all moves for this player
+   // erase all moves for destination player
    for (int x=0; x<mGameMoves.entry_pos; x++)
    {
       int do_erase = 0;
       if (mGameMoves.arr[x][2] == dp) do_erase = 1; // player num match
-      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_START) do_erase = 0;
       if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_erase = 0;
+      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+      {
+         int gm_player;
+         int gm_color;
+         char gm_name[9] = { 0 };
+         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, gm_name);
+         if (dp == gm_player) do_erase = 1;
+      }
       if (do_erase) mGameMoves.clear_single(x);
    }
 
+   // copy all moves from source player to destination player
    for (int x=0; x<mGameMoves.entry_pos; x++)
    {
       int do_copy = 0;
       if (mGameMoves.arr[x][2] == sp) do_copy = 1; // player num match
-      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_START) do_copy = 0;
       if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_copy = 0;
-
-      if (do_copy)
+      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
       {
-         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-            mGameMoves.add_game_move2(mGameMoves.arr[x][0], mGameMoves.arr[x][1], dp, mPlayer.syn[dp].color);
-
-         else mGameMoves.add_game_move2(mGameMoves.arr[x][0], mGameMoves.arr[x][1], dp, mGameMoves.arr[x][3]);
+         // extract info to see if player matches
+         int gm_player;
+         int gm_color;
+         char gm_name[9] = { 0 };
+         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, gm_name);
+         if (sp == gm_player)
+         {
+            // make new active game move with dp number, name, and color
+            int t, d1, d2;
+            mMiscFnx.val_to_gma(t, d1, d2, dp, mPlayer.syn[dp].color, mPlayer.syn[dp].name);
+            mGameMoves.add_game_move2(mGameMoves.arr[x][0], t, d1, d2);
+         }
+         do_copy = 0;
       }
+      if (do_copy) mGameMoves.add_game_move2(mGameMoves.arr[x][0], mGameMoves.arr[x][1], dp, mGameMoves.arr[x][3]);
    }
    mGameMoves.gm_sort();
    refresh();
@@ -495,22 +523,19 @@ void mwDemoRecord::proc_edit_gm_type_menu(int & t)
       al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
 
       sprintf(mMenu.menu_string[0],"PLAYER_MOVE");
-      sprintf(mMenu.menu_string[1],"PLAYER_ACTIVE");
+      sprintf(mMenu.menu_string[1],"--");
       sprintf(mMenu.menu_string[2],"PLAYER_INACTIVE");
       sprintf(mMenu.menu_string[3],"SHOT_CONFIG");
       sprintf(mMenu.menu_string[4],"PLAYER_HIDDEN");
       sprintf(mMenu.menu_string[5],"LEVEL_DONE_ACK");
-      sprintf(mMenu.menu_string[6],"LEVEL_START");
-      sprintf(mMenu.menu_string[7],"end");
+      sprintf(mMenu.menu_string[6],"end");
       switch (mMenu.pmenu(5, 13, -4, 99))
       {
          case 0: t = PM_GAMEMOVE_TYPE_PLAYER_MOVE; break;
-         case 1: t = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE; break;
          case 2: t = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE; break;
          case 3: t = PM_GAMEMOVE_TYPE_SHOT_CONFIG; break;
          case 4: t = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN; break;
          case 5: t = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK; break;
-         case 6: t = PM_GAMEMOVE_TYPE_LEVEL_START; break;
       }
       mInput.mouse_y-=8;
       al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
@@ -545,8 +570,10 @@ void mwDemoRecord::edit_gm(int gi)
    int t = mGameMoves.arr[gi][1];
    int p = mGameMoves.arr[gi][2];
    int v = mGameMoves.arr[gi][3];
+   char name[9] = { 0 };
 
-   int x1 = sb_x1-1;
+
+   int x1 = sb_x1;
    int y1 = mInput.mouse_y-6;
    int x2 = x1 + 329;
    int y2 = y1 + 46;
@@ -581,9 +608,8 @@ void mwDemoRecord::edit_gm(int gi)
 
       if ((mInput.mouse_y >= tb_y1) && (mInput.mouse_y < tb_y2))
       {
-
          // player num pop-up menu
-         if ((t != PM_GAMEMOVE_TYPE_LEVEL_START) && (t != PM_GAMEMOVE_TYPE_SHOT_CONFIG))
+         if (t != PM_GAMEMOVE_TYPE_SHOT_CONFIG)
          {
             int p_x1 = tb_x1;
             int p_x2 = p_x1+16;
@@ -597,13 +623,15 @@ void mwDemoRecord::edit_gm(int gi)
          // game move type pop-up menu
          int t_x1 = tb_x1 + 24;
          int t_x2 = 0;
-         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     { t_x2 = t_x1+34; }
-         if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   { t_x2 = t_x1+50; }
-         if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) { t_x2 = t_x1+68; }
-         if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   { t_x2 = t_x1+50; }
-         if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  { t_x2 = t_x1+26; }
-         if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     { t_x1 -= 24; t_x2 = t_x1+42; }
-         if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     { t_x1 -= 24; t_x2 = t_x1+88; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)       { t_x2 = t_x1+34; }
+//         if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) { t_x2 = t_x1+70; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)   { t_x2 = t_x1+68; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)     { t_x2 = t_x1+50; }
+         if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)    { t_x2 = t_x1+26; }
+         if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)       { t_x1 -= 24; t_x2 = t_x1+42; }
+
+
+
          if ((mInput.mouse_x > t_x1) && (mInput.mouse_x < t_x2))
          {
             al_draw_rectangle(t_x1, tb_y1, t_x2, tb_y2, mColor.pc[10], 1);
@@ -662,31 +690,49 @@ void mwDemoRecord::edit_gm(int gi)
       mWidget.slideri(xa, ya, x2-2, 16,  0,0,0,0,  0,c,15,15,  0,0,1,0, f, mDemoMode.last_frame+1000, 0, 1, "");
       if (f < 0) f = 0;
 
-      if ((t == PM_GAMEMOVE_TYPE_LEVEL_START) || (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE) || (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG))
+
+      if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
       {
          // erase and frame
-         al_draw_filled_rectangle(x1, ya, x2, ya+18, mColor.pc[col+208]);
-         al_draw_rectangle(x1, ya, x2, ya+18, mColor.pc[col], 1);
+         int yi = 31;
+         al_draw_filled_rectangle(x1, ya, x2, ya+yi, mColor.pc[col+208]);
+         al_draw_rectangle(x1, ya, x2, ya+yi, mColor.pc[col], 1);
          ya+=2;
-      }
 
-      if (t == PM_GAMEMOVE_TYPE_LEVEL_START)
-      {
-         mWidget.slideri(xa, ya, x2-2, 16,  0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, 1, 1, "Level:");
-      }
+         // extract values
+         int pp, c;
+         mMiscFnx.gma_to_val(mGameMoves.arr[gi][1], mGameMoves.arr[gi][2], mGameMoves.arr[gi][3], pp, c, name);
 
-      if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-      {
          int cl = mWidget.colsel(xa, ya, x2-2, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
          if (cl != -1) v = cl;
+
+         ya+=2;
+         al_draw_text( mFont.pr8, mColor.pc[15], xa+2, ya, 0, "Player Name:");
+         ya -=2;
+
+         if (mWidget.buttontcb(xa+102, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, name))
+         {
+            ya -=15;
+            mMiscFnx.edit_player_name(xa+138, ya, pp);
+            mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
+            //refresh();
+         }
+         ya+=13;
       }
 
       if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
       {
+         // erase and frame
+         int yi = 18;
+         al_draw_filled_rectangle(x1, ya, x2, ya+yi, mColor.pc[col+208]);
+         al_draw_rectangle(x1, ya, x2, ya+yi, mColor.pc[col], 1);
+         ya+=2;
+
          mWidget.togglfc(xa,     ya, xa+20,  16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b01, "Other Players", 15, 15);
          mWidget.togglfc(xa+128, ya, xa+148, 16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b10, "Self", 15, 15);
          mWidget.slideri(xa+180, ya, x2-2,   16, 0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, -100, 1, "Damage:");
       }
+
 
       // erase and frame
       al_draw_filled_rectangle(x1, ya, x2, ya+24, mColor.pc[col+208]);
@@ -706,9 +752,19 @@ void mwDemoRecord::edit_gm(int gi)
       if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Commit"))
       {
          mGameMoves.arr[gi][0] = f;
-         mGameMoves.arr[gi][1] = t;
-         mGameMoves.arr[gi][2] = p;
-         mGameMoves.arr[gi][3] = v;
+
+         if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+         {
+            mGameMoves.gma_change_color(gi, v);
+         }
+         else
+         {
+            mGameMoves.arr[gi][1] = t;
+            mGameMoves.arr[gi][2] = p;
+            mGameMoves.arr[gi][3] = v;
+         }
+
+
          mGameMoves.gm_sort();
          refresh();
          set_active_section(current_section);
@@ -717,7 +773,7 @@ void mwDemoRecord::edit_gm(int gi)
       x7 += 60 + sp;
       if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Cancel")) quit = 1;
 
-      al_draw_filled_rectangle(x1, ya+21, x2, ya+40, mColor.pc[0]);
+      al_draw_filled_rectangle(x1+1, ya+21, x2-1, ya+40, mColor.pc[0]);
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -880,6 +936,7 @@ void mwDemoRecord::find_fire_held_sections(int p)
          }
    }
 
+
    // then play the level and detect when fire held sections are used
    seek_to_frame(0, 0);
    mLoop.ff_state = 1;
@@ -949,19 +1006,20 @@ void mwDemoRecord::start_record(void)
    play = 1;
    record = 1;
 
-   // erase all game moves for this player that have a frame number equal or higher than current frame number
-   // also check if there still is PM_GAMEMOVE_TYPE_PLAYER_ACTIVE game move after erasing
-   // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
-   int aa = 0;
    int p = record_player_number;
-   for (int x=0; x<mGameMoves.entry_pos; x++)
-      if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][1] != PM_GAMEMOVE_TYPE_SHOT_CONFIG))
-      {
-         if ((mGameMoves.arr[x][0] >= mLoop.frame_num)) mGameMoves.clear_single(x); // erase all game moves that have a higher frame number than current
-         if ((mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)) aa = 1;      // do we still have an active game move?
-      }
 
-   if (!aa) // player does not have a PM_GAMEMOVE_TYPE_PLAYER_ACTIVE game move
+   // erase all game moves for this player that have a frame number equal or higher than current frame number
+   for (int x=0; x<mGameMoves.entry_pos; x++)
+      if (mGameMoves.arr[x][0] >= mLoop.frame_num)
+         {
+            int do_clear = 0;
+            if (mGameMoves.does_game_move_contain_player(x, p)) do_clear = 1;
+            if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_clear = 0; // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
+            if (do_clear) mGameMoves.clear_single(x);
+          }
+
+   // check if there still is an active game move after erasing
+   if (!mGameMoves.find_first_active_game_move_for_player(p, 0, mGameMoves.entry_pos))
    {
       int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
       mPlayer.init_player(p, 1);                  // full player reset
@@ -974,9 +1032,11 @@ void mwDemoRecord::start_record(void)
       // insert 'active' game move
       int fn = mLoop.frame_num;
       if (fn < 1) fn = 1;
-      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
 
+      // this is compatible with the new PM_GAMEMOVE_TYPE_PLAYER_ACTIVE 20260330
+      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
    }
+
    mPlayer.active_local_player = p;
    mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 }
@@ -1022,6 +1082,7 @@ void mwDemoRecord::set_player_section(int i, int p, int c, int f1, int f2, int y
    player_sections[i][7] = screen_pos_from_frame_num(f2, mDemoMode.last_frame, sb_x1, sb_w);
    player_sections[i][8] = y - sb_size;
    player_sections[i][9] = end_type;
+   sprintf(player_sections_names[i], "%s", mPlayer.syn[p].name);
 }
 
 
@@ -1057,7 +1118,6 @@ void mwDemoRecord::fill_player_sections(void)
    sb_x2 = mDisplay.SCREEN_W - 20;
    sb_w = sb_x2 - sb_x1;
    sb_y2 = mDisplay.SCREEN_H - 14;
-
 
    if (timeline_size == 5)
    {
@@ -1101,10 +1161,13 @@ void mwDemoRecord::fill_player_sections(void)
    }
 
 
-
    // clear
    for (int i=0; i<20; i++)
+   {
       for (int j=0; j<20; j++) player_sections[i][j] = 0;
+      sprintf(player_sections_names[i], "%s", "");
+   }
+
 
    int psi = 0;
    int y = sb_y2-sb_spacing;
@@ -1121,34 +1184,36 @@ void mwDemoRecord::fill_player_sections(void)
 
       for (int x=0; x<mGameMoves.entry_pos; x++)
       {
-         int pp = mGameMoves.arr[x][2]; // get player number of game move
-         int t = mGameMoves.arr[x][1]; // get type of game move
-         int cc;
+         int gm_frame  = mGameMoves.arr[x][0];
+         int gm_type   = mGameMoves.arr[x][1]; // get type of game move
+         int gm_player = mGameMoves.arr[x][2]; // get player num of game move
+         int gm_color  = 0;                    // get player color of game move
 
-         if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+         // need to do this here to get embedded player number and color
+         if (gm_type & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
          {
             char name[9] = { 0 };
-            mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], pp, cc, name);
-            snprintf(mPlayer.syn[p].name, 9, "%s", name);
+            mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, name);
+            snprintf(mPlayer.syn[gm_player].name, 9, "%s", name);
          }
-         if (p == pp)
+
+         if (gm_player == p)
          {
+            if (gm_color) col = gm_color;
 
-            player_sections[psi][14]++; // number of game moves
+            // inc tally of number of game moves
+            player_sections[psi][14]++;
 
-            player_sections[psi][15] = mGameMoves.arr[x][0]; // frame of last game move
+            // check and update max frame number
+            if (mGameMoves.arr[x][0] > player_sections[psi][15]) player_sections[psi][15] = mGameMoves.arr[x][0];
 
-            if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN) player_sections[psi][13] = 1;
+            if (gm_type == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN) player_sections[psi][13] = 1;
 
-            if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+            if (gm_type & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) f1 = gm_frame;
+
+            if (gm_type == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
             {
-               f1 = mGameMoves.arr[x][0];
-               col = cc;
-            }
-
-            if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
-            {
-               f2 = mGameMoves.arr[x][0];
+               f2 = gm_frame;
 
                set_player_section(psi, p, col, f1, f2, y, 1);
                y -= (sb_size + sb_spacing);
@@ -1277,16 +1342,14 @@ void mwDemoRecord::proc_section_details_menu(void)
          mGameMoves.add_game_move2(current_frame_num, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 0);
          mGameMoves.gm_sort();
          refresh();
+
       }
-      if (mp == 4)
+      if (mp == 4 && p != 0) // delete section -- but don't delete player 0
       {
-         if (p != 0) // dont delete player 0
-         {
-            for (int x=0; x<mGameMoves.entry_pos; x++)
-               if (mGameMoves.arr[x][2] == p) mGameMoves.clear_single(x);
-            mGameMoves.gm_sort();
-            refresh();
-         }
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if (mGameMoves.does_game_move_contain_player(x, p)) mGameMoves.clear_single(x);
+         mGameMoves.gm_sort();
+         refresh();
       }
       if (mp == 5)
       {
@@ -1372,38 +1435,40 @@ int mwDemoRecord::draw_section_details(int x1, int y1)
    int y = y1;
 
 
-
    al_draw_bitmap(mBitmap.player_tile[col][1], x+124, y1, 0 );
    al_draw_text(mFont.pr8, mColor.pc[col], x+146, y1+7, 0, mColor.color_name[col]);
 
-
    al_draw_textf(mFont.pr8, mColor.pc[15], x, y+1, 0, "Player Number:%d", p);
+
    y+=line_space+1;
    al_draw_text( mFont.pr8, mColor.pc[15], x, y, 0, "Player Color:");
 
    y+=line_space+1;
-
+   al_draw_text( mFont.pr8, mColor.pc[15], x, y, 0, "Player Name:");
+   int ya = y-2;
+   if (mWidget.buttontcb(x+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, mPlayer.syn[p].name))
+   {
+      ya = y-17;
+      mMiscFnx.edit_player_name(x+134, ya, p);
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1, f2);
+      if (gi) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+      refresh();
+   }
+   y+=line_space+1;
    al_draw_line(x1, y, x2, y, mColor.pc[col], 1);
-
    y+=3;
 
    al_draw_text(mFont.pr8, mColor.pc[15], (x1+w/2), y, ALLEGRO_ALIGN_CENTER, "Change Player Color");
-
    y+=line_space;
-
    int cl = mWidget.colsel(x, y, x+200, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
    if (cl != -1)
    {
-      for (int x=0; x<mGameMoves.entry_pos; x++)
-         if ((mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE) && (mGameMoves.arr[x][2] == p))
-            if ((mGameMoves.arr[x][0] >= f1) && (mGameMoves.arr[x][0] <= f2)) mGameMoves.arr[x][3] = cl;
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1, f2);
+      if (gi) mGameMoves.gma_change_color(gi, cl);
       refresh();
    }
-
    y+=2;
-
    al_draw_line(x1, y, x2, y, mColor.pc[col], 1);
-
    y+=2;
 
    char m1[64], m2[64];
@@ -2055,6 +2120,9 @@ void mwDemoRecord::demo_record(void)
 
    mLoop.frame_num = 0;
 
+   record_mode_active = 1;
+
+
    record_player_number = 0;
    record_player_color = 8;
    record = 0;
@@ -2121,4 +2189,7 @@ void mwDemoRecord::demo_record(void)
 
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
    mLoop.quit_action = 1; // menu
+
+   record_mode_active = 0;
+
 }

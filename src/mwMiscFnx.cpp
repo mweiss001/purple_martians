@@ -569,15 +569,6 @@ void mwMiscFnx::printBits2(size_t const size, void const * const ptr)
 
 
 
-
-
-
-
-
-
-
-
-
 void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)
 {
    // get the player number and color from the bitfield
@@ -597,6 +588,7 @@ void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name
 
 void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
 {
+   // embed player number and color in the bitfield
    type = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG; // start with flag
    type    += p;     // add player number
    type    += c * 256; // shift and add color
@@ -610,6 +602,10 @@ void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * nam
    }
    //printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
 }
+
+
+
+
 
 
 

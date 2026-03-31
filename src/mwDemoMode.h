@@ -33,7 +33,7 @@ class mwDemoMode
    int prev_index{};
    int last_frame{};
 
-   int play_mode{};
+   int play_mode_active{};
 
 
 

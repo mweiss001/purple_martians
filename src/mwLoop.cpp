@@ -773,7 +773,7 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       mSound.start_music(0); // rewind and start theme
 
-      if (!mDemoMode.play_mode)
+      if ((!mDemoMode.play_mode_active) && (!mDemoRecord.record_mode_active))
       {
          state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
          // add initial special game moves
@@ -781,7 +781,6 @@ int mwLoop::load_and_setup_level(int level, int type)
          mLog.add_headerf(LOG_NET, -1, 1, "LEVEL %d STARTED", mLevel.play_level);
          mLog.add_log_net_db_row(LOG_NET, 0, 0, "LEVEL %d STARTED", mLevel.play_level);
 
-         mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
          mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
 
          // save colors in game moves array

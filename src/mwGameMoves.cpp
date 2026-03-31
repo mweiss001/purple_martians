@@ -269,6 +269,10 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       return;
    }
 
+
+
+
+
    if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
       int sc = 0;
@@ -483,27 +487,14 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
 char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 {
    char dsc[80] = {0};
-
-
    if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
    {
       int col;
       char name[9] = { 0 };
       mMiscFnx.gma_to_val(mGameMoves.arr[gm][1], mGameMoves.arr[gm][2], mGameMoves.arr[gm][3], p, col, name);
       snprintf(mPlayer.syn[p].name, 9, "%s", name);
-
       sprintf(dsc, " P%d ACTIVE", p);
-
    }
-
-
-
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, " START LEVEL %d", v);
-
-//   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE", p);
-
-
-
 
    if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   sprintf(dsc, " P%d HIDDEN", p);
    if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, " P%d INACTIVE", p);
@@ -518,11 +509,6 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       if (p & 0b10) pvs = 1;
       sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
    }
-
-
-
-
-
 
 
    if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
@@ -676,7 +662,6 @@ void mwGameMoves::find_player_info()
 
 //   int par[10][10] = { 0 };
 
-
    // first count active and inactive game moves
    for (int x=0; x<entry_pos; x++)
    {
@@ -686,6 +671,70 @@ void mwGameMoves::find_player_info()
    printf("player active/inactive moves: %d %d\n", am_count, im_count);
 //      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
 }
+
+
+bool mwGameMoves::does_game_move_contain_player(int i, int p)
+{
+   int gm_player = mGameMoves.arr[i][2]; // get player num of game move
+
+   // need to do this here to get embedded player number and color
+   if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+   {
+      int col  = 0;
+      char name[9] = { 0 };
+      mMiscFnx.gma_to_val(mGameMoves.arr[i][1], mGameMoves.arr[i][2], mGameMoves.arr[i][3], gm_player, col, name);
+   }
+
+   if (gm_player == p) return true;
+   return false;
+}
+
+int mwGameMoves::find_first_active_game_move_for_player(int p, int start, int end)
+{
+   if (start > entry_pos-1) start = entry_pos-1;
+   if (start < 0) start = 0;
+   if (end > entry_pos) end = entry_pos;
+
+   for (int x=start; x<end; x++)
+   {
+      if (arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+      {
+         int pp, c;
+         char name[9] = { 0 };
+         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], pp, c, name);
+
+         if (p == pp) return x;
+      }
+   }
+   return 0;
+}
+
+
+
+
+
+void mwGameMoves::gma_change_color(int x, int new_color)
+{
+   int p, c;
+   char name[9] = { 0 };
+   mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, name);
+   mMiscFnx.val_to_gma(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, new_color, name);
+}
+
+
+void mwGameMoves::gma_change_name(int x, char * new_name)
+{
+   int p, c;
+   char name[9] = { 0 };
+   mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, name);
+   mMiscFnx.val_to_gma(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, new_name);
+}
+
+
+
+
+
+
 
 
 // checks a single gma for old player active type and converts if found
@@ -721,7 +770,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    int ret = 0; // good return by default
    if (entry_pos == 0)          ret = 1; // No game moves to save
    if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
-   if (mDemoMode.play_mode)          ret = 3; // Never save demo when in demo mode
+   if (mDemoMode.play_mode_active)          ret = 3; // Never save demo when in demo mode
    if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
    if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
@@ -747,22 +796,13 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
 }
 
 
-
-
-
-
-
-
-
 bool mwGameMoves::save_gm(const char *fname)
 {
-
 
 //   // convert to 'ALLEGRO_FS_ENTRY' (makes fully qualified path)
 //   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
 //   char fname[256];
 //   sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
 
 
    printf("\nSaving gm:%s\n", fname);
@@ -795,11 +835,9 @@ bool mwGameMoves::save_gm(const char *fname)
       printf("HEADER_muid was not set. Setting to '%s'\n", HEADER_muid.c_str());
    }
 
-   if (status == 1) // new level
-   {
-      HEADER_num_entries = entry_pos;
-      HEADER_last_frame = arr[entry_pos-1][0];
-   }
+   HEADER_num_entries = entry_pos;
+   HEADER_last_frame = arr[entry_pos-1][0];
+
 
    fprintf(file, "%s", "PMSAVEGAME\n");
    fprintf(file,       "MUID:%s\n",                 HEADER_muid.c_str());
@@ -829,19 +867,10 @@ bool mwGameMoves::save_gm(const char *fname)
    char fn[256];
    sprintf(fn, "%s", al_get_path_filename(path));
 
-
-
    add_gm_to_db(fn);
 
    return 1;
 }
-
-
-
-
-
-
-
 
 
 
@@ -962,7 +991,9 @@ int mwGameMoves::load_gm_file_select()
 
    // starting dir
    char fname[1024];
-   sprintf(fname, "savegame/");
+//   sprintf(fname, "savegame/");
+   sprintf(fname, "savegame/demo/TAS");
+
 
    //printf("last level loaded: %s\n", last_loaded_gm_filename );
 
@@ -996,10 +1027,9 @@ int mwGameMoves::load_gm_file_select()
    return good_load;
 }
 
+
 // this is the function that actually loads the gm from the full file path
 // -------------------------------------------------------------------------
-
-
 int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
 {
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
@@ -1018,18 +1048,13 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
       printf("Error opening file:%s\n", fname);
       return 0;
    }
-
-//   printf("\nLoading gm: '%s'\n", fname);
-
-
-
+   //printf("\nLoading gm: '%s'\n", fname);
 
    // clear the game moves array
    initialize();
 
    // save filename
    sprintf(last_loaded_gm_filename, "%s", fname);
-
 
    int read_last_frame = 0;
 
@@ -1041,27 +1066,10 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
       bool read_header = 1;
       while ((read_header) && (fgets(buffer, 100, file)))
          read_header = parse_header_line(buffer);
-
       if (HEADER_num_entries)
          for (int x=0; x<HEADER_num_entries; x++)
             if (fscanf(file, "%d,%d,%d,%d\n", &arr[x][0], &arr[x][1], &arr[x][2], &arr[x][3]) > 0) read_last_frame = arr[x][0];
    }
-   else
-   {
-      // did not find "PMSAVEGAME" at start of file, this is the old legacy version
-
-      // get number entries from first line (already in buffer)
-      HEADER_num_entries = atoi(buffer);
-      if (HEADER_num_entries)
-         for (int x=0; x<HEADER_num_entries; x++)
-            for (int y=0; y<4; y++)
-               if (fgets(buffer, 100, file))
-               {
-                  arr[x][y] = atoi(buffer);
-                  if (y == 0) read_last_frame = arr[x][y];
-               }
-   }
-
    fclose(file);
 
    if (HEADER_num_entries == 0)
@@ -1074,10 +1082,9 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
 
    entry_pos = HEADER_num_entries;
 
-
    int trigger_resave = 0;
 
-   // if HEADER_last_frame was not set from header, set it here form the last frame read
+   // if HEADER_last_frame was not set from header, set it here from the last frame read
    if (HEADER_last_frame == 0)
    {
       printf("Last frame not set from header, setting to:%d\n", read_last_frame);
@@ -1092,20 +1099,7 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
       else trigger_resave = 1;
    }
 
-   // if HEADER_level was not set from header, set it here from the first entry
-   if (HEADER_level == 0)
-   {
-      printf("Level number not set from header, setting to:%d\n", arr[0][3]);
-      HEADER_level = arr[0][3];
-      if (HEADER_level == 0)
-      {
-         printf("Error! LEVEL:0\n");
-         print_header();
-         initialize();
-         return 0;
-      }
-      else trigger_resave = 1;
-   }
+   if (HEADER_level == 0) printf("Error! Level number not set from header!\n");
 
    // if HEADER_create_timestamp was not set from header, set it here
    if (HEADER_create_timestamp.empty())
@@ -1140,15 +1134,25 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
    mDemoMode.last_frame = HEADER_last_frame;
    sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
 
-//   find_player_info();
+   // just counts and lists active and inactive game moves
+   // find_player_info();
 
-   printf("Loaded gm file:%s\n", fname);
+
+   //   printf("Loaded gm file:%s\n", fname);
 
    status = 2;
 
+
+   // does this run every time? no
    if (fillGmInfo) mGmInfo.fill();
 
-//   add_gm_to_db(fname);
+
+   // why do this with every load? was it a temporary thing?
+   //add_gm_to_db(fname);
+
+
+
+
 
    return 1;
 }

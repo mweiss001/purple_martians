@@ -138,6 +138,7 @@ void mwSelectionWindow::set_block_set(int t, int x, int y)
 }
 
 
+
 void mwSelectionWindow::fill_block_array(void)
 {
    // erase all
@@ -150,6 +151,7 @@ void mwSelectionWindow::fill_block_array(void)
    int x = 0;
    int y = 0;
 
+   // row 0 -----------------------------------------
 
    // empty block and blocks with grass
    for (int c=0; c<7; c++) block_set_add(c, x, y);
@@ -157,54 +159,81 @@ void mwSelectionWindow::fill_block_array(void)
    // empty blocks with arrows
    for (int c=11; c<16; c++) block_set_add(c, x, y);
 
+   x=12;
+   // empty switch blocks
+   for (int c=72; c<76; c++) block_set_add(c, x, y);
 
 
 
-   // ropes and ladders
-   for (int c=50; c<57; c++) block_set_add(c, x, y);
+   x=0; y=1; // row 1 -----------------------------------------
+   // solid color blocks
+   for (int c=135; c<146; c++) block_set_add(c, x, y);
+
+   x=12;
+   // solid switch blocks
+   for (int c=76; c<80; c++) block_set_add(c, x, y);
+
+
+
+   x=0; y=2; // row 2 -----------------------------------------
+   // other solid blocks
+   for (int c=129; c<135; c++) block_set_add(c, x, y);
+
+   // bombable
+   x=7;
+   for (int c=64; c<68; c++) block_set_add(c, x, y);
+
+   x++;
+
+   // keyed blocks
+   for (int c=80; c<84; c++) block_set_add(c, x, y);
+
+
+   x=0; y=3; // row 3 -----------------------------------------
 
    // semi-solid screen
    for (int c=33; c<41; c++) block_set_add(c, x, y);
 
+   x++;
+   // ropes and ladders
+   for (int c=50; c<57; c++) block_set_add(c, x, y);
 
 
-   // these all take up the last 4 columns
-   x=12; y=0;
-   // empty switch blocks
-   for (int c=72; c<76; c++) block_set_add(c, x, y);
+   x=0; y=4; // row 4 -----------------------------------------
 
-   x=12; y=1;
-   // solid switch blocks
-   for (int c=76; c<80; c++) block_set_add(c, x, y);
-
-   x=12; y=2;
-   // keyed blocks
-   for (int c=80; c<84; c++) block_set_add(c, x, y);
-
-   x=12; y=3;
    // brown bricks and column
    for (int c=176; c<180; c++) block_set_add(c, x, y);
 
-   x=8; y=3;
-   // weird purple platform
-   for (int c=180; c<183; c++) block_set_add(c, x, y);
+   x++;
 
+   // gold column
+   for (int c=576; c<579; c++) block_set_add(c, x, y);
+   x++;
 
-   // solid color blocks
-   x=0; y=1;
-   for (int c=135; c<146; c++) block_set_add(c, x, y);
+   // curved floater
+   for (int c=579; c<582; c++) block_set_add(c, x, y);
+   x++;
 
-   // other solid blocks
-   x=0; y=2;
-   for (int c=129; c<135; c++) block_set_add(c, x, y);
-
-   // bombable
-   x=0; y=3;
-   for (int c=64; c<68; c++) block_set_add(c, x, y);
+   // second floater
+   for (int c=582; c<585; c++) block_set_add(c, x, y);
 
 
 
+   x=0; y=5; // row 5 -----------------------------------------
 
+   // red cross beam
+   for (int c=614; c<620; c++) block_set_add(c, x, y);
+
+   // grey hole beam
+   for (int c=608; c<614; c++) block_set_add(c, x, y);
+
+   x=0; y=6; // row 6 -----------------------------------------
+
+   // grey cross beam
+   for (int c=620; c<626; c++) block_set_add(c, x, y);
+
+   // grey rivet beam
+   for (int c=626; c<632; c++) block_set_add(c, x, y);
 
 
    // new row
@@ -246,7 +275,17 @@ void mwSelectionWindow::fill_block_array(void)
    set_block_set(960, x+8, y); // brown bricks
    y+=2;
 
-   set_block_set(992, x, y); // blue
+
+//   tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
+
+   set_block_set(544, x, y); // new brick solid
+
+//   set_block_set(992, x, y); // blue
+
+
+
+
+
    set_block_set_rainbow(672, x+8, y);
    set_block_set_rainbow(704, x+12, y);
    y+=2;

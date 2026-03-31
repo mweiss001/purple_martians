@@ -1827,12 +1827,16 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
    if (bn == 414) // Game Move Type
    {
+
+      /*
       if (var == PM_GAMEMOVE_TYPE_LEVEL_START)
       {
          sprintf(msg, "Level Start");
          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
       }
-      else if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+*/
+
+      if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
       {
          sprintf(msg, "Player Active");
          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE;
@@ -1860,7 +1864,7 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       else if (var == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
       {
          sprintf(msg, "Shot Config");
-         if (press) var = PM_GAMEMOVE_TYPE_LEVEL_START;
+         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
       }
       else sprintf(msg, "Invalid Type:%d", var);
    }

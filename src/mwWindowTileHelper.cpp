@@ -266,6 +266,10 @@ void mwWindow::th_replace(int type)
 
             if (type == 15)  fb = th_replace_helper(992, l, r, t, b, tl, tr, bl, br); // blue solid
 
+            if (type == 16)  fb = th_replace_helper(544, l, r, t, b, tl, tr, bl, br); // new bricks
+
+
+
             if (type == 17) fb = th_replace_helper3(672, l, r, t, b, tl, tr, bl, br); // rainbow
             if (type == 18) fb = th_replace_helper3(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
 
@@ -405,13 +409,23 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 896,14,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 12;
    yfb+=bsp;
+
    if (mWidget.buttontt(x3, yfb, x4, bts, 992,14,0,0, 0,c,15,0, 1,1,1,d, "     Blue")) choice = 15;
    yfb+=bsp;
+
+   if (mWidget.buttontt(x3, yfb, x4, bts, 544,14,0,0, 0,c,15,0, 1,1,1,d, "     New Bricks")) choice = 16;
+   yfb+=bsp;
+
+
+
    if (mWidget.buttontt(x3, yfb, x4, bts, 672,14,0,0, 0,c,15,0, 1,1,1,d, "     Rainbow")) choice = 17;
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 704,14,0,0, 0,c,15,0, 1,1,1,d, "     Rainbow 2")) choice = 18;
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts,   0,14,0,0, 0,c,15,0, 1,1,1,d, "     Single Tile")) choice = 20;
+
+
+
 
    if (choice) th_replace(choice);
    return yfb;

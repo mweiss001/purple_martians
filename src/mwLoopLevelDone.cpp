@@ -217,7 +217,7 @@ void mwLoop::proc_level_done_mode(void)
    {
       mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - skippable 15s timeout\n", frame_num, mPlayer.syn[0].level_done_mode);
 
-      if (mDemoMode.play_mode)
+      if (mDemoMode.play_mode_active)
       {
          if (mPlayer.syn[0].level_done_timer == 999) mPlayer.syn[0].level_done_timer++;
       }
@@ -251,7 +251,7 @@ void mwLoop::proc_level_done_mode(void)
 
          if (mPlayer.syn[0].level_done_mode == 5)
          {
-            if (mDemoMode.play_mode)
+            if (mDemoMode.play_mode_active)
             {
                if (mScreen.demo_controls_pause_when_done) mPlayer.syn[0].level_done_timer = 999; // special value to mark wait forever
                else mPlayer.syn[0].level_done_timer = 160; // skippable 4s delay;

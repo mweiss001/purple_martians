@@ -39,10 +39,24 @@ TO DO
 
 finish tilesets....
 to do for tilesets:
-find a way to patch in tileset creator? now it is manually enabled and run from code
-maybe I could redo the main tileset in the player color!!!
-save the path in load demo from file...this has always annoyed me...done
 
+find a way to patch in tileset creator? now it is manually enabled and run from code
+this will be the way it stays...
+in release, just remove the keyboard shortcut 'S' from copy tiles
+
+
+get a nice bitmap for replace single tile in tile helper
+
+remove blue from tile helper list
+
+
+
+
+
+I want to add something to tile editor
+shift colors
+
+add or subtract from all colors 
 
 
 
@@ -66,6 +80,21 @@ maybe load, or busy
 
 
 make sure that server snapshot is fully disabled
+
+
+
+
+
+
+make some levels that have a ladder that appear after killing all the bad guys....
+
+
+
+
+
+
+
+
 
 
 
@@ -266,6 +295,27 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+tile Editor:
+make replace color less blinky
+can you even pick up a color in replace color mode?
+you can from the palette but not from the bitmap
+fixed..
+filled rectangle will not draw to bottom right corner
+added offest so it will, but now it acts funny if x2<x1 or y2<y1...gaah! just leave it
+I am calling tile Editor done...
+
+
+
+
+
+
+
+
+
+save the path in load demo from file...this has always annoyed me...done
+
 
 replace all selected tiles with single shape in tile helper..done
 
@@ -803,6 +853,9 @@ in .gitignore
 ------------------------------------------------------------------------------
 crazy ideas that I probably will never do
 ------------------------------------------------------------------------------
+
+
+maybe I could redo the main tileset in the player color!!!
 
 
 ------------------------------------------------------------------------------

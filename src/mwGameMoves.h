@@ -27,6 +27,12 @@ public:
 
    int has_player_acknowledged(int p);
 
+   bool does_game_move_contain_player(int i, int p);
+
+   void gma_change_color(int x, int c);
+   void gma_change_name(int x, char * new_name);
+
+   int find_first_active_game_move_for_player(int p, int start, int end);
 
 
 

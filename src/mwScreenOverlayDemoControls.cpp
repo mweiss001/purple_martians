@@ -410,12 +410,12 @@ void mwScreen::draw_demo_controls_overlay_pwd_nrd(int fx1, int fx2, int fy1, int
    if (smallText)
    {
       mWidget.mCheckBoxSmallText(1,fx1, 78,  0,y1,y2, pwd_col, demo_controls_pause_when_done, "Pause when done", 15, pwd_col);
-      if (mDemoMode.play_mode == 2 && mWidget.mButtonSmallText(2,70,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
+      if (mDemoMode.play_mode_active == 2 && mWidget.mButtonSmallText(2,70,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
    }
    else
    {
       mWidget.mCheckBox(1,fx1, 138,  0,y1,y2, pwd_col, demo_controls_pause_when_done, "Pause when done", 15, pwd_col);
-      if (mDemoMode.play_mode == 2 && mWidget.mButton(2,136,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
+      if (mDemoMode.play_mode_active == 2 && mWidget.mButton(2,136,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
    }
 }
 
@@ -729,7 +729,7 @@ void mwScreen::draw_demo_controls_overlay_bottom_line()
 
    int nrd_length = 40;
    //  nrd_length += mLoop.pct_x;
-   if (mDemoMode.play_mode == 2)
+   if (mDemoMode.play_mode_active == 2)
    {
       if (mWidget.mButton(0,x,x+nrd_length,  2,h,y2,  1,  1,3,1,  12+192,12+80,15, 15,0, "Next")) mDemoMode.continuous_random_next_level();
       x += nrd_length + s; // update running position

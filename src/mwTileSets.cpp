@@ -270,7 +270,7 @@ tileSet mwTileSets::constructSolidRectangleSet(std::string name, int i)
    ts.solidMode       = 1;
    ts.startIndex      = i;
    ts.endIndex        = i+15;
-   ts.Single     = i+1;
+   ts.Single          = i+1;
    ts.SolidFill       = i;
    ts.OuterCornerTL   = i + 8;
    ts.OuterCornerTR   = i + 9;
@@ -338,8 +338,49 @@ void mwTileSets::setVline(int i, int top, int middle, int bottom)
 }
 
 
+
+
+// combo hline and vline set to draw frame
+tileSet mwTileSets::constructHlineVlineSet(std::string name, int i)
+{
+   constructEmptySet();
+   setHline(i, 0, 1, 2);
+   setVline(i, 3, 4, 5);
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i + 5;
+   ts.frameMode       = 1;
+   ts.FrameCornerTL   = i + 0;
+   ts.FrameCornerTR   = i + 2;
+   ts.FrameCornerBL   = i + 0;
+   ts.FrameCornerBR   = i + 2;
+   ts.FrameEdgeL      = i + 4;
+   ts.FrameEdgeR      = i + 4;
+   ts.FrameEdgeT      = i + 1;
+   ts.FrameEdgeB      = i + 1;
+   return ts;
+}
+
+
+
+
+
+
+// basic vline
+tileSet mwTileSets::constructVlineSet(std::string name, int i)
+{
+   constructEmptySet();
+   setVline(i, 0, 1, 2);
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i + 2;
+   return ts;
+}
+
+
+
 // hline with addition of multiple hlines when drawing rect
-tileSet mwTileSets::constructHlineSet(std::string name, int i)
+tileSet mwTileSets::constructHlineSetMulti(std::string name, int i)
 {
    constructEmptySet();
    setHline(i, 0, 1, 2);
@@ -377,18 +418,48 @@ void mwTileSets::init()
    tileSets.push_back(constructSolidRectangleSet("brown bricks", 960));
    tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
 
-   // single hline
-   tileSets.push_back(constructHlineSet("lined platform", 161));
-   tileSets.push_back(constructHlineSet("brown bricks", 177));
+   tileSets.push_back(constructSolidRectangleSet("new bricks solid", 544));
 
 
-   // single vline
+   // single hline (platforms)
+   tileSets.push_back(constructHlineSetMulti("brown bricks", 177));
+   tileSets.push_back(constructHlineSetMulti("curved floater", 579));
+   tileSets.push_back(constructHlineSetMulti("grey floater", 582));
+
+
+
+   // single vlines (columns)
+
+   tileSets.push_back(constructVlineSet("white chain", 54));
+   tileSets.push_back(constructVlineSet("gold column", 576));
+
+/*
+
    constructEmptySet();
    ts.name = "white chain";
    ts.startIndex = 54;
    ts.endIndex   = 56;
    setVline(54, 0, 1, 2);
    tileSets.push_back(ts);
+
+
+   constructEmptySet();
+   ts.name = "gold column";
+   ts.startIndex = 576;
+   ts.endIndex   = 578;
+   setVline(576, 0, 1, 2);
+   tileSets.push_back(ts);
+
+*/
+
+
+   // combo hline vline frames
+   tileSets.push_back(constructHlineVlineSet("grey hole beam", 608));
+   tileSets.push_back(constructHlineVlineSet("red cross beam", 614));
+   tileSets.push_back(constructHlineVlineSet("grey cross beam", 620));
+   tileSets.push_back(constructHlineVlineSet("grey rivet beam", 626));
+
+
 
 
    int i = 33;

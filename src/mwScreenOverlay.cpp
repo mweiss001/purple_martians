@@ -17,6 +17,7 @@
 #include "mwWidget.h"
 #include "mwGameMoves.h"
 #include "mwColor.h"
+#include "mwDemoRecord.h"
 #include "mwInput.h"
 #include "mwLoop.h"
 #include "mwEnemy.h"
@@ -1335,9 +1336,7 @@ void mwScreen::draw_screen_overlay()
       //draw_demo_debug_overlay(p, cx, cy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
 
-
-
-      draw_demo_controls_overlay();
+      if (!mDemoRecord.record_mode_active) draw_demo_controls_overlay();
    }
 
 
