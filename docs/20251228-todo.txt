@@ -29,6 +29,20 @@ DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 
 
+
+WTF is happening with purple coin counter in multiplayer, it is ususally wrong!!
+
+single door creator prompts for both...
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -36,6 +50,66 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+
+I need a better way to change the tile draw mode, maybe a small button on a titlebar
+T F B (tiles, flags, both)
+
+I want to be able to have multiple pages of tiles, its getting rather busy
+again, another control on title bar
+
+I also want to be able to hide or show overlay in level editor, 
+it will help set the flags properly
+
+When I have a selection in tile helper, I want to be able to set flags for it as well.
+
+I want to have many more tile helper things
+
+extended but frame only for pipes not solid...
+same for wires
+
+hlines or vlines for rect selection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 finish tilesets....
 to do for tilesets:

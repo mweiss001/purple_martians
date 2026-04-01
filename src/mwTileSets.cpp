@@ -234,6 +234,7 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    tileSets.push_back(ts);
 
 
+
    // solid
    constructEmptySet();
    ts.name              = name;
@@ -260,6 +261,73 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
    tileSets.push_back(ts);
 
 }
+
+
+
+
+// atomic 24 shape set hline, vline, rect solid, and inner
+void mwTileSets::construct24tileSet(std::string name, int i)
+{
+   constructEmptySet();
+
+   // first do solid set
+
+   ts.name            = name;
+   ts.solidMode       = 1;
+   ts.startIndex      = i;
+   ts.endIndex        = i+15;
+   ts.Single          = i+1;
+   ts.SolidFill       = i;
+   ts.OuterCornerTL   = i + 8;
+   ts.OuterCornerTR   = i + 9;
+   ts.OuterCornerBL   = i + 10;
+   ts.OuterCornerBR   = i + 11;
+   ts.OuterEdgeL      = i + 12;
+   ts.OuterEdgeR      = i + 13;
+   ts.OuterEdgeT      = i + 14;
+   ts.OuterEdgeB      = i + 15;
+   setHline(i, 2, 3, 4);
+   setVline(i, 5, 6, 7);
+
+   tileSets.push_back(ts);
+
+
+   // then do inner
+
+   constructEmptySet();
+   ts.name              = name;
+   ts.frameMode         = 1;
+   ts.hlineMode         = 1;
+   ts.vlineMode         = 1;
+   ts.startIndex        = i+16;
+   ts.endIndex          = i+23;
+
+   ts.HLineL            = i + 1;
+   ts.HLineM            = i + 2;
+   ts.HLineR            = i + 3;
+   ts.VLineT            = i + 4;
+   ts.VLineM            = i + 5;
+   ts.VLineB            = i + 6;
+
+   ts.FrameCornerTL     = i + 16;
+   ts.FrameCornerTR     = i + 17;
+   ts.FrameCornerBR     = i + 19;
+   ts.FrameCornerBL     = i + 18;
+   ts.FrameEdgeL        = i + 13;
+   ts.FrameEdgeT        = i + 15;
+   ts.FrameEdgeR        = i + 12;
+   ts.FrameEdgeB        = i + 14;
+   tileSets.push_back(ts);
+}
+
+
+
+
+
+
+
+
+
 
 // solid rectangle set
 tileSet mwTileSets::constructSolidRectangleSet(std::string name, int i)
@@ -420,38 +488,32 @@ void mwTileSets::init()
 
    tileSets.push_back(constructSolidRectangleSet("new bricks solid", 544));
 
+//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 800));
+   construct24tileSet("industrial solid", 800);
+   construct24tileSet("industrial solid", 768);
+
+
+
+//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 768));
+
+
+
+
+   construct24tileSet("template test", 736);
+
+
+
+
+
 
    // single hline (platforms)
    tileSets.push_back(constructHlineSetMulti("brown bricks", 177));
    tileSets.push_back(constructHlineSetMulti("curved floater", 579));
    tileSets.push_back(constructHlineSetMulti("grey floater", 582));
 
-
-
    // single vlines (columns)
-
    tileSets.push_back(constructVlineSet("white chain", 54));
    tileSets.push_back(constructVlineSet("gold column", 576));
-
-/*
-
-   constructEmptySet();
-   ts.name = "white chain";
-   ts.startIndex = 54;
-   ts.endIndex   = 56;
-   setVline(54, 0, 1, 2);
-   tileSets.push_back(ts);
-
-
-   constructEmptySet();
-   ts.name = "gold column";
-   ts.startIndex = 576;
-   ts.endIndex   = 578;
-   setVline(576, 0, 1, 2);
-   tileSets.push_back(ts);
-
-*/
-
 
    // combo hline vline frames
    tileSets.push_back(constructHlineVlineSet("grey hole beam", 608));
@@ -530,6 +592,7 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
 {
    // replace with tileNum and drawItemFlags
    if (drawTileMode == 1) mLevel.l[x][y] = tileNum | drawItemFlags;
+
 
    // change only tile portion (lower 10 bits)
    if (drawTileMode == 2)

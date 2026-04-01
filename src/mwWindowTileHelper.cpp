@@ -263,6 +263,7 @@ void mwWindow::th_replace(int type)
             if (type == 11)  fb = th_replace_helper(864, l, r, t, b, tl, tr, bl, br); // brown and yellow thatch
             if (type == 12)  fb = th_replace_helper(896, l, r, t, b, tl, tr, bl, br); // white brain
 
+            if (type == 13)  fb = th_replace_helper(800, l, r, t, b, tl, tr, bl, br); // industrial 1
 
             if (type == 15)  fb = th_replace_helper(992, l, r, t, b, tl, tr, bl, br); // blue solid
 
@@ -274,6 +275,13 @@ void mwWindow::th_replace(int type)
             if (type == 18) fb = th_replace_helper3(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
 
             if (type == 20) fb = tile; // single block
+
+
+
+
+
+
+
 
             if (fb == -1)
             {
@@ -409,6 +417,11 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 896,14,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 12;
    yfb+=bsp;
+
+
+   if (mWidget.buttontt(x3, yfb, x4, bts, 800,14,0,0, 0,c,15,0, 1,1,1,d, "     Industrial 1")) choice = 13;
+   yfb+=bsp;
+
 
    if (mWidget.buttontt(x3, yfb, x4, bts, 992,14,0,0, 0,c,15,0, 1,1,1,d, "     Blue")) choice = 15;
    yfb+=bsp;

@@ -826,15 +826,68 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
       // blocks and flags
       if ((mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
 
+
+      // this is wrong!!!!
+      // blocks only (same as block and flags?) mLevel.l[x][y] = tn;
+
+
+      if ((mWM.obj_filter[1][1]) && (!mWM.obj_filter[1][2]))
+      {
+         mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
+
+         int mtn = tn & 1023; // strip flags from tile
+
+         mLevel.l[x][y] |= mtn; // merge tileNum
+
+      }
+
+
       // flags only
       if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2]))
       {
-         int flags = tn & PM_BTILE_ALL_FLAGS; // get only flags from draw item
-         mLevel.l[x][y] &= ~PM_BTILE_ALL_FLAGS;                       // clear flags in destination
-         mLevel.l[x][y] |= flags;                                      // merge
+         mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
+         mLevel.l[x][y] &= ~PM_BTILE_ALL_FLAGS;   // clear flags in destination
+         int flags = tn & PM_BTILE_ALL_FLAGS;     // get only flags from draw item
+         mLevel.l[x][y] |= flags;                 // merge
       }
-      // blocks only (same as block and flags?)
-      if ((mWM.obj_filter[1][1]) && (!mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
+
+
+
+
+/*
+
+      void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode)
+      {
+         // replace with tileNum and drawItemFlags
+         if (drawTileMode == 1) mLevel.l[x][y] = tileNum | drawItemFlags;
+
+
+         // change only tile portion (lower 10 bits)
+         if (drawTileMode == 2)
+         {
+            mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
+            mLevel.l[x][y] |= tileNum; // merge tileNum
+         }
+
+         // change only flags portion (upper 22 bits)
+         if (drawTileMode == 3)
+         {
+            mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
+            mLevel.l[x][y] |= drawItemFlags; // merge drawItemFlags
+         }
+      }
+
+*/
+
+
+
+
+
+
+
+
+
+
    }
 }
 

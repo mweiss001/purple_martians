@@ -113,6 +113,9 @@ class mwTileSets
 
    void constructExtendedSet(std::string name, int i);
 
+   void construct24tileSet(std::string name, int i);
+
+
    tileSet constructSolidRectangleSet(std::string name, int i);
    tileSet constructFrameRectangleSet(std::string name, int i);
    tileSet constructHlineSetMulti(std::string name, int i);

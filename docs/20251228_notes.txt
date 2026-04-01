@@ -26054,6 +26054,584 @@ I have fixed all those...
 
 now manually fix 9
 
+Ok I am ready to try to fix 9
+
+
+472 entries
+last frame
+
+1134,5,2,32
+1135,5,2,0
+1135,5,3,16
+1136,5,2,32
+1137,5,2,0
+but header says 1164
+
+
+to start with it loads very badly..players are all wrong....
+
+
+I am still having the same issues as before, reading past the ednd of the file...
+
+check when loading, show entry_pos and last 20 entries
+
+System ID: Windows
+Desktop Resolution: 3840x2160
+file and path selected:C:\pm\savegame\demo\lev009.gm
+Loaded:C:\pm\savegame\demo\lev009.gm - HEADER_num_entries:323
+x:303 0:2024 1:5 2:0 3:0
+x:304 0:2029 1:5 2:0 3:2
+x:305 0:2045 1:5 2:0 3:10
+x:306 0:2046 1:5 2:0 3:2
+x:307 0:2060 1:5 2:0 3:18
+x:308 0:2066 1:5 2:0 3:2
+x:309 0:2087 1:5 2:0 3:1
+x:310 0:2088 1:5 2:0 3:17
+x:311 0:2093 1:5 2:0 3:16
+x:312 0:2095 1:5 2:0 3:18
+x:313 0:2098 1:5 2:0 3:16
+x:314 0:2099 1:5 2:0 3:2
+x:315 0:2100 1:5 2:0 3:0
+x:316 0:2103 1:5 2:0 3:2
+x:317 0:2104 1:5 2:0 3:0
+x:318 0:2106 1:5 2:0 3:2
+x:319 0:2109 1:5 2:0 3:0
+x:320 0:2110 1:5 2:0 3:2
+x:321 0:2115 1:5 2:0 3:18
+x:322 0:2132 1:5 2:0 3:0
+x:2 0:1 1:8390656 2:2036427856 3:807432805
+x:2 f:1 p:0 col:8 name:Player 0
+x:324 0:1 1:8390912 2:1634100580 3:7629941
+x:324 f:1 p:0 col:9 name:default
+x:326 0:1 1:8390912 2:1634100580 3:7629941
+
+this tells me that it is loading fine, but something else is messing with it after the fact...
+
+Loaded: - mGameMoves.entry_pos:327
+x:307 0:2060 1:5 2:0 3:18
+x:308 0:2066 1:5 2:0 3:2
+x:309 0:2087 1:5 2:0 3:1
+x:310 0:2088 1:5 2:0 3:17
+x:311 0:2093 1:5 2:0 3:16
+x:312 0:2095 1:5 2:0 3:18
+x:313 0:2098 1:5 2:0 3:16
+x:314 0:2099 1:5 2:0 3:2
+x:315 0:2100 1:5 2:0 3:0
+x:316 0:2103 1:5 2:0 3:2
+x:317 0:2104 1:5 2:0 3:0
+x:318 0:2106 1:5 2:0 3:2
+x:319 0:2109 1:5 2:0 3:0
+x:320 0:2110 1:5 2:0 3:2
+x:321 0:2115 1:5 2:0 3:18
+x:322 0:2132 1:5 2:0 3:0
+x:323 0:1 1:9 2:0 3:5
+x:324 0:1 1:8390912 2:1634100580 3:7629941
+x:325 0:1 1:9 2:0 3:5
+x:326 0:1 1:8390912 2:1634100580 3:7629941
+x:2 0:1 1:8390656 2:2036427856 3:807432805
+
+
+
+
+int mwDemoRecord::load_demo_record(void)
+{
+   if (!mGameMoves.load_gm_file_select()) return 0;
+   current_frame_num = 1;
+   refresh();
+   set_active_section(0);
+   return 1;
+}
+
+void mwDemoRecord::refresh(void)
+{
+   fill_player_sections();
+   find_level_done();
+   load_lnk_arr();    // load games moves into link array
+   //get_more_player_section_info();
+   //find_ack_moves(0);
+   seek_to_frame(current_frame_num, 1);
+}
+
+
+when fill_player_sections(); runs it is already done
+
+
+Desktop Resolution: 3840x2160
+file and path selected:C:\pm\savegame\demo\lev009.gm
+Loaded:C:\pm\savegame\demo\lev009.gm - HEADER_num_entries:323
+x:303 0:2024 1:5 2:0 3:0
+x:304 0:2029 1:5 2:0 3:2
+x:305 0:2045 1:5 2:0 3:10
+x:306 0:2046 1:5 2:0 3:2
+x:307 0:2060 1:5 2:0 3:18
+x:308 0:2066 1:5 2:0 3:2
+x:309 0:2087 1:5 2:0 3:1
+x:310 0:2088 1:5 2:0 3:17
+x:311 0:2093 1:5 2:0 3:16
+x:312 0:2095 1:5 2:0 3:18
+x:313 0:2098 1:5 2:0 3:16
+x:314 0:2099 1:5 2:0 3:2
+x:315 0:2100 1:5 2:0 3:0
+x:316 0:2103 1:5 2:0 3:2
+x:317 0:2104 1:5 2:0 3:0
+x:318 0:2106 1:5 2:0 3:2
+x:319 0:2109 1:5 2:0 3:0
+x:320 0:2110 1:5 2:0 3:2
+x:321 0:2115 1:5 2:0 3:18
+x:322 0:2132 1:5 2:0 3:0
+Loaded: - mGameMoves.entry_pos:327
+x:307 0:2060 1:5 2:0 3:18
+x:308 0:2066 1:5 2:0 3:2
+x:309 0:2087 1:5 2:0 3:1
+x:310 0:2088 1:5 2:0 3:17
+x:311 0:2093 1:5 2:0 3:16
+x:312 0:2095 1:5 2:0 3:18
+x:313 0:2098 1:5 2:0 3:16
+x:314 0:2099 1:5 2:0 3:2
+x:315 0:2100 1:5 2:0 3:0
+x:316 0:2103 1:5 2:0 3:2
+x:317 0:2104 1:5 2:0 3:0
+x:318 0:2106 1:5 2:0 3:2
+x:319 0:2109 1:5 2:0 3:0
+x:320 0:2110 1:5 2:0 3:2
+x:321 0:2115 1:5 2:0 3:18
+x:322 0:2132 1:5 2:0 3:0
+x:323 0:1 1:9 2:0 3:5
+x:324 0:1 1:8390912 2:1634100580 3:7629941
+x:325 0:1 1:9 2:0 3:5
+x:326 0:1 1:8390912 2:1634100580 3:7629941
+x:2 0:1 1:8390656 2:2036427856 3:807432805
+x:2 f:1 p:0 col:8 name:Player 0
+x:324 0:1 1:8390912 2:1634100580 3:7629941
+x:324 f:1 p:0 col:9 name:default
+x:326 0:1 1:8390912 2:1634100580 3:7629941
+x:326 f:1 p:0 col:9 name:default
+
+it is happening in load!!!!
+
+
+I need to mark that we are in demo record mode
+
+
+
+here is the culprit:
+
+this adds game moves
+int mwLoop::load_and_setup_level(int level, int type)
+      if ((!mDemoMode.play_mode_active) && (!mDemoRecord.record_mode_active))
+
+added check to not do that in demo reocrd mode as well as demo play mode
+clean up....
+
+2026-03-31 06:42:55
+
+back to demo record
+colors in tracks are wrong...fixed
+
+try saving gm past end
+
+gm list in dr shows: 471 - 1137
+
+I can change frame number of last and it saves
+
+add new move...
+
+after saving the last move in the list is gone
+
+when adding gm do I increment entry pos?
+when saving do I use entry pos?
+
+the whole status thing for gm loading and saving is kind of dumb
+
+it is only ever read here:
+
+//   if (status == 1) // new level
+   {
+      HEADER_num_entries = entry_pos;
+      HEADER_last_frame = arr[entry_pos-1][0];
+   }
+
+set:
+init - 0
+new level 1
+load level 2
+
+leave it for now, maybe will be used to determine whether or not to add to db later...
+I can add gm's now...
+fixed lev09
+
+I should check other stuff in demo record
+- disable other control for demo play..done
+- change player color..done
+- show player name..done
+add player name to store in sections..done
+- change player name..done
+
+OMG I think I've got it!!!
+changing name and color seems to work fine
+
+then only minor issue is:
+if multiple players with the same player num exist, they will all be changed....
+
+what else needs to be fixed?
+
+copy_ptp
+called from gm list menu copy to rec player
+what does it do?
+copies all gm's from one player to another
+I think it is done
+
+next...
+
+what if I made a helper function:
+
+bool does_game_move_contain_player(int i, int p)
+{
+   int gm_player = mGameMoves.arr[i][2]; // get player num of game move
+                                 
+   // need to do this here to get embedded player number and color
+   if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+   {
+      int col  = 0;
+      char name[9] = { 0 };
+      mMiscFnx.gma_to_val(mGameMoves.arr[i][1], mGameMoves.arr[i][2], mGameMoves.arr[i][3], gm_player, col, name);
+   }
+
+   if (gm_player == p) return true;
+   return false;
+}
+
+I think the only thing I have not done is allow editing of active game move
+do it fool!!
+
+color and name...
+
+line 700
+make a function:
+void gma_change_color(int x, int c)
+
+I think I have all the player name change and color stuff done...
+test....all levels still play back
+
+try a punch in
+it makes player respawn??
+fixed yet another bug!!!
+
+OK I should be good now....
+
+2026-03-31 12:14:31
+
+now what was I doing?
+
+fixing tiles and I had got up to level 9
+
+
+
+I really like my new blocks, can I do more?
+
+
+I want some more columns and brick sets
+
+maybe a double wide column
+
+
+192/128 6 x 4
+
+
+
+made a new tileset at 800
+
+736
+768
+
+
+industrial tilesets 3I 3L 31 ???
+
+
+1l
+
+
+3H
+
+
+I am going to officially keep:
+Industrial Tileset 1 800 done
+
+I used it on level 9
+
+make a solid version with alternating inner patterns
+
+try that for the huge solid section of yellow cake
+
+what can I do with the 8 extra blocks?
+
+
+3 of them match up with bottom edge l m r
+
+draw as solid
+
+2026-03-31 17:14:36
+
+
+when pasting in edit selection, even if flags are not set they still get overwritten...fixed
+
+
+
+
+I want to figure out the tileset I got from atomic
+
+
+how can I patch them in better
+
+they do not have a center as far as I can tell 
+
+
+
+
+the first 4 are corners br bl tr tl
+the next 4 are edges l t r b
+
+
+The 4 corners, along with the 4 edges from the first are what I call inside in my tileset
+
+what are the last 4 for? double corners?
+
+try to patch this into an extended tileset and see what you get
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

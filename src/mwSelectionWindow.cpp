@@ -265,25 +265,54 @@ void mwSelectionWindow::fill_block_array(void)
 
 
 
+   t = 800;
+   set_block_set(t, x, y); // industrial
+   for (int i=0; i<8; i++) block_set_set(t+16+i, x+8+i, y);
+   y+=2;
 
+   t = 768;
+   set_block_set(t, x, y); // industrial
+   for (int i=0; i<8; i++) block_set_set(t+16+i, x+8+i, y);
+   y+=2;
+
+
+   t = 736;
+   set_block_set(t, x, y); // template
+
+   block_set_set(t+16, x+8, y);
+   block_set_set(t+17, x+9, y);
+   block_set_set(t+18, x+8, y+1);
+   block_set_set(t+19, x+9, y+1);
+
+
+   block_set_set(t+20, x+10, y);
+   block_set_set(t+21, x+11, y);
+   block_set_set(t+22, x+10, y+1);
+   block_set_set(t+23, x+11, y+1);
+
+   y+=2;
+
+
+
+
+
+
+
+/*
 
    set_block_set(864, x, y);   // yellow thatch
    set_block_set(896, x+8, y); // brain
-   y+=2;
 
    set_block_set(928, x, y);   // grey bricks
    set_block_set(960, x+8, y); // brown bricks
    y+=2;
-
+*/
 
 //   tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
 
    set_block_set(544, x, y); // new brick solid
 
 //   set_block_set(992, x, y); // blue
-
-
-
 
 
    set_block_set_rainbow(672, x+8, y);
