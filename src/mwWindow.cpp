@@ -201,25 +201,7 @@ void mwWindow::process_mouse(void)
               es_draw_fsel();
             }
          }
-         if (index == 1) // status window
-         {
-            sprintf(mMenu.menu_string[0],"Status Window");
-            sprintf(mMenu.menu_string[1],"--------------");
-            sprintf(mMenu.menu_string[2], mWM.mW[1].show_flag_details       ? "Hide Block Flags"        : "Show Block Flags");
-            sprintf(mMenu.menu_string[3], mWM.mW[1].show_non_default_blocks ? "Hide Non Default Blocks" : "Show Non Default Blocks");
 
-            if (mWM.mW[1].em_draw_tile_mode == 1) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile and Flags");
-            if (mWM.mW[1].em_draw_tile_mode == 2) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile Only");
-            if (mWM.mW[1].em_draw_tile_mode == 3) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Flags Only");
-
-            sprintf(mMenu.menu_string[5],"end");
-            switch (mMenu.pmenu(6, 13, -20, 2))
-            {
-                case 2: mWM.mW[1].show_flag_details =! mWM.mW[1].show_flag_details; break;
-                case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(); break;
-                case 4: if (++mWM.mW[1].em_draw_tile_mode > 3) mWM.mW[1].em_draw_tile_mode = 1; break;
-            }
-         }
          if (index == 5) // ge list
          {
             sprintf(mMenu.menu_string[0],"Group Edit Object List");
@@ -687,14 +669,21 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
 
 void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus)
 {
+
+   int y3 = y1 + 12; // start of second line
+
+   int y4 = y3 + 12; // start of items
+
+
+
    // frame entire window
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[9], 1);
 
    // frame draw item
-   al_draw_rectangle(x1, y1 + 11, x1 + 160, y2, mColor.pc[9], 1);
+   al_draw_rectangle(x1, y4-2, x1 + 160, y2, mColor.pc[9], 1);
 
    // frame view item
-   al_draw_rectangle(x1 + 160, y1 + 11, x2, y2, mColor.pc[9], 1);
+   al_draw_rectangle(x1 + 160, y4-2, x2, y2, mColor.pc[9], 1);
 
    // title bar background color
    al_draw_filled_rectangle(x1, y1, x2, y1 + 11, mColor.pc[9+192]);
@@ -730,20 +719,55 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    if (mWM.mW[2].moving) d = 1;
    else d = 0;
 
+   // second line
+   c = 9;
+   by1 = y3+1;
+
+   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
+   mWidget.buttonp(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
+
+
+   int x3 = x1 + 160; // middle
+   al_draw_line(x3, y3-1, x3, y4-1, mColor.pc[c], 1);
+   x3+=2;
+
+//   al_draw_textf(mFont.pr8, mColor.pc[9],  x3, by1, 0, "Show:");
+//   x3+=40;
+
+   mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_flag_details, "flags", c, 15, d);
+   x3+=64;
+
+   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_non_default_blocks, "ndf", c, 15, d))
+   {
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+   x3+=48;
+
+
+   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_tile_overlays, "ovr", c, 15, d))
+   {
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+
+
+
    // draw item area
-   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y1 + 13, 0, "mouse");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y1 + 13, 0, "b1");
-   em_show_item_info(                     x1 + 2,   y1 + 20, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
-   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, status_window_has_mouse, d, 1, 0); // flags
+   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y4, 0, "Draw Item   ");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y4, 0, "mouse");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y4, 0, "b1");
+   em_show_item_info(                     x1 + 2,   y4+7, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
+   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y4+34, mWM.mW[1].draw_item_num, status_window_has_mouse, d, 1, 0); // flags
 
 
    // view item area
-   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y1 + 13, 0, "View Item ");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 261, y1 + 13, 0, "mouse");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 303, y1 + 13, 0, "b2");
-   em_show_item_info(                     x1 + 162, y1 + 20, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
-   if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y1+47, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
+   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y4, 0, "View Item ");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 261, y4, 0, "mouse");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 303, y4, 0, "b2");
+   em_show_item_info(                     x1 + 162, y4+7, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
+   if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y4+34, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
 }
 
 void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_focus)

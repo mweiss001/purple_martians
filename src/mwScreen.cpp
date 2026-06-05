@@ -603,9 +603,7 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          if (tile & 1023) al_draw_bitmap(mBitmap.btile[tile & 1023], x*20, y*20, 0);
 
          // check for overlays
-         if (tile & PM_BTILE_SHOW_OVERLAY)
-//         if (tile & PM_BTILE_SHOW_OVERLAY || mLoop.level_editor_running)
-
+         if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mWM.mW[1].show_tile_overlays)))
          {
             int draw_overlay = 0;
             int kb = (tile & 0b00000000000000001110000000000000) >> 13;

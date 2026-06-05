@@ -90,7 +90,8 @@ class mwWidget
 
 
 
-   void          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
+   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool
+                           disable_input = false);
 
    void mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
 

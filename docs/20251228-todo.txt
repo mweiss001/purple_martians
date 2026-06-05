@@ -28,18 +28,9 @@ all gms in timeline show as 2H long, or 1H longer than they should
 DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 
-
-
 WTF is happening with purple coin counter in multiplayer, it is ususally wrong!!
 
 single door creator prompts for both...
-
-
-
-
-
-
-
 
 
 
@@ -69,6 +60,11 @@ extended but frame only for pipes not solid...
 same for wires
 
 hlines or vlines for rect selection
+
+copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
+
+
+
 
 
 
@@ -119,6 +115,7 @@ this will be the way it stays...
 in release, just remove the keyboard shortcut 'S' from copy tiles
 
 
+
 get a nice bitmap for replace single tile in tile helper
 
 remove blue from tile helper list
@@ -131,9 +128,6 @@ I want to add something to tile editor
 shift colors
 
 add or subtract from all colors 
-
-
-
 
 
 
@@ -151,24 +145,9 @@ I want to rename cpu to something else...
 maybe load, or busy
 
 
-
-
 make sure that server snapshot is fully disabled
 
-
-
-
-
-
 make some levels that have a ladder that appear after killing all the bad guys....
-
-
-
-
-
-
-
-
 
 
 
@@ -178,39 +157,6 @@ make some levels that have a ladder that appear after killing all the bad guys..
 ------------------------------------------------------------------------------
 major changes to logging
 ------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -334,15 +280,6 @@ even if I change servers, I want to always keep all the sessions and games files
 never lose them!!
 
 
-
-
-
-
-
-
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -379,10 +316,6 @@ fixed..
 filled rectangle will not draw to bottom right corner
 added offest so it will, but now it acts funny if x2<x1 or y2<y1...gaah! just leave it
 I am calling tile Editor done...
-
-
-
-
 
 
 

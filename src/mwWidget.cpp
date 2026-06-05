@@ -1961,6 +1961,22 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg, "Mode 1 - Prox Run and Reset");
       if (var == 2) sprintf(msg, "Mode 2 - Prox Reset");
    }
+
+
+
+   if (bn == 600)
+   {
+      if (press) var++;
+      if ((var < 1) || (var > 3)) var = 1;
+
+      if (var == 1) sprintf(msg, "Both");
+      if (var == 2) sprintf(msg, "Tile");
+      if (var == 3) sprintf(msg, "Flag");
+
+   }
+
+
+
    draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
    draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6) y1+=bts;
@@ -2586,14 +2602,31 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // toggles the int and displays text, text color, and frame color based on value  -- check box style
-void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
+bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input)
 {
+   bool changed = 0;
+
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
 
    // check if mouse is on button
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       // debug show mouse detection area
       // al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
@@ -2603,6 +2636,7 @@ void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
          var = !var;
+         changed = 1;
       }
    }
 
@@ -2628,6 +2662,9 @@ void mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
 
    al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
+
+   return changed;
+
 }
 
 

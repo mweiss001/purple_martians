@@ -26398,573 +26398,149 @@ what are the last 4 for? double corners?
 
 try to patch this into an extended tileset and see what you get
 
+I already have solid
 
+just add inner...
 
+I have it kind of working
 
 
 
 
+2026-06-03 04:37:05
 
+I have been away from this project since March 31, 2026
 
+working on wmc comtroller and other things...
 
+I really want to get it finished...
 
+what ip is the dev server? 192.168.1.138
 
+what many things do I have to do to finish?
 
+I am in the middle of doing things with tiles...
 
 
+also what about the web stuff, do I really want all the logging?
 
+I want the sessions and status, maybe control, but logging?
 
 
 
+2026-06-03 05:27:03
 
+find something to do:
 
+do this from the TODO list:
 
+I need a better way to change the tile draw mode, maybe a small button on a titlebar
+T F B (tiles, flags, both)
+or maybe a control in the top menu bar, like snap
 
+try doing the one in titlebar
 
+I could make a second line under the titlebar with more options
 
+show|hide non-default blocks
+show|hide block flags
+draw mode: T F B (tiles, flags, both)
 
+yes do this...
 
+where?
+in mwWindow.cpp
+cm_draw_status_windows
 
+I think I have made room for a second line
+Draw Mode: 
 
 
+                case 4: if (++mWM.mW[1].em_draw_tile_mode > 3) mWM.mW[1].em_draw_tile_mode = 1; break;
 
+            if (mWM.mW[1].em_draw_tile_mode == 1) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile and Flags");
+            if (mWM.mW[1].em_draw_tile_mode == 2) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile Only");
+            if (mWM.mW[1].em_draw_tile_mode == 3) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Flags Only");
 
 
+I have draw mode done, next is show ndf and show flags, each should be a simple checkbox toggle
 
 
+what are the variables?
 
+mWM.mW[1].show_flag_details      
+mWM.mW[1].show_non_default_blocks
 
+how do I draw a check box?
 
 
 
+show hide ndf require that I redraw level background,
 
+how do I restore the proper draw bitmap after that?
 
 
+I have it all working, but maybe I could make the controls easier:
 
+I have approx 40 char
 
+0123456789012345678901234567890123456789
+Draw:both  @:flags @:ndf
 
+Draw %flags @tiles  Show %flags %ndf
 
+and then I want to get rid of the context menu, it was always awkward to use....
 
 
- 
- 
- 
- 
- 
+need to make new toggle things ignore d like old ones
 
+this is how the old one does it:
 
+// ------------------------------------------------------------------------------------
+// --------------------------buttons---------------------------------------------------
+// ------------------------------------------------------------------------------------
 
+int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+{
+   char msg[80];
+   int y2 = y1+bts-2;
 
+   // is mouse pressed on this button?
+   int press = 0;
+   int retval = 0;
 
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      press = 1;
+   }
 
 
+I could add bool disable_input to this function
 
+// toggles the int and displays text, text color, and frame color based on value  -- check box style
+bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col)
 
+done...I love refactor in CLion!! that was so easy...
 
+Now I want to change the other to 2 flags
 
 
+right now it is a single int
 
+mWM.mW[1].em_draw_tile_mode
 
+            if (mWM.mW[1].em_draw_tile_mode == 1) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile and Flags");
+            if (mWM.mW[1].em_draw_tile_mode == 2) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile Only");
+            if (mWM.mW[1].em_draw_tile_mode == 3) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Flags Only");
 
 
+how many places is it referenced?
 
+this is the only one that counts:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
 
 
 

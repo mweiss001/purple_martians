@@ -24,6 +24,13 @@ class mwWindow
    int point_item_num;
    int show_flag_details;
    int show_non_default_blocks;
+
+   int show_tile_overlays;
+
+
+
+
+
    void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
    int status_window_has_mouse;

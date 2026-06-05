@@ -441,10 +441,12 @@ void mwWindowManager::set_windows(int mode)
       mW[1].layer = 0;
       mW[1].active = 1;
       mW[1].set_pos(100, 100);
-      mW[1].set_size(320, 41);
+      mW[1].set_size(320, 53);
       mW[1].set_title("Status Window");
       mW[1].show_flag_details = 1;
       mW[1].show_non_default_blocks = 1;
+      mW[1].show_tile_overlays = 1;
+
 
       mW[2].index = 2;
       mW[2].layer = 1;
