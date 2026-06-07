@@ -32,6 +32,17 @@ WTF is happening with purple coin counter in multiplayer, it is ususally wrong!!
 
 single door creator prompts for both...
 
+in level editor, when loading new level and cancelling, new level is loaded anyway
+
+which demo's have you broken?
+clear and play all levels for demos then look for quits (should be 0)
+
+16 - big apple regular demo
+32 - yellow cake regular demo
+
+
+
+
 
 
 ------------------------------------------------------------------------------
@@ -43,14 +54,13 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-I need a better way to change the tile draw mode, maybe a small button on a titlebar
-T F B (tiles, flags, both)
-
 I want to be able to have multiple pages of tiles, its getting rather busy
 again, another control on title bar
+or maybe a config page where I can choose which groups of blocks to show|hide
 
-I also want to be able to hide or show overlay in level editor, 
-it will help set the flags properly
+
+
+
 
 When I have a selection in tile helper, I want to be able to set flags for it as well.
 
@@ -306,6 +316,15 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+I need a better way to change the tile draw mode, maybe a small button on a titlebar
+T F B (tiles, flags, both)
+
+I also want to be able to hide or show overlay in level editor, 
+it will help set the flags properly
+
+
 
 
 tile Editor:

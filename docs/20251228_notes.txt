@@ -26542,6 +26542,177 @@ this is the only one that counts:
 
             mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
 
+I dont think I will change it...
+
+I think I have it how I like
+
+removed:
+
+         /*
+
+         if (index == 1) // status window
+         {
+            sprintf(mMenu.menu_string[0],"Status Window");
+            sprintf(mMenu.menu_string[1],"--------------");
+            sprintf(mMenu.menu_string[2], mWM.mW[1].show_flag_details       ? "Hide Block Flags"        : "Show Block Flags");
+            sprintf(mMenu.menu_string[3], mWM.mW[1].show_non_default_blocks ? "Hide Non Default Blocks" : "Show Non Default Blocks");
+
+            if (mWM.mW[1].em_draw_tile_mode == 1) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile and Flags");
+            if (mWM.mW[1].em_draw_tile_mode == 2) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Tile Only");
+            if (mWM.mW[1].em_draw_tile_mode == 3) sprintf(mMenu.menu_string[4],"Tile Draw Mode - Flags Only");
+
+            sprintf(mMenu.menu_string[5],"end");
+            switch (mMenu.pmenu(6, 13, -20, 2))
+            {
+                case 2: mWM.mW[1].show_flag_details =! mWM.mW[1].show_flag_details; break;
+                case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(); break;
+                case 4: if (++mWM.mW[1].em_draw_tile_mode > 3) mWM.mW[1].em_draw_tile_mode = 1; break;
+            }
+         }
+
+         */
+
+
+in my notes I have be able to toggle overlay
+where is that set?
+in void mwScreen::init_level_background(void) // fill level_background with block tiles
+
+
+I have a per tile flag called show overlay that controls whether the overlay is shown
+what I want is an overide to force always shown when in level editor (to make editing easier)
+
+I will need a variable for this...
+
+em_draw_tile_mode??
+
+mWM.mW[1].show_non_default_blocks
+
+   int show_tile_overlays;
+
+I think I have that working as well, move that to the done pile....
+
+
+next:
+
+why does main pm server not work?
+
+ran top and it does not seem to be running...
+
+sudo systemctl status pm
+
+m@pmh:~$ ^C
+m@pmh:~$ ^C
+m@pmh:~$ sudo systemctl status pm
+[sudo] password for m:
+× pm.service - Purple Martians server
+     Loaded: loaded (/etc/systemd/system/pm.service; enabled; preset: enabled)
+     Active: failed (Result: core-dump) since Thu 2026-06-04 09:32:43 MDT; 21h ago
+   Duration: 2h 51min 47.660s
+    Process: 43939 ExecStart=/home/m/dev/purple_martians/pm -sh (code=dumped, signal=SEGV)
+   Main PID: 43939 (code=dumped, signal=SEGV)
+        CPU: 2h 50min 48.893s
+
+Jun 04 09:32:43 pmh systemd[1]: pm.service: Main process exited, code=dumped, status=11/SEGV
+Jun 04 09:32:43 pmh systemd[1]: pm.service: Failed with result 'core-dump'.
+Jun 04 09:32:43 pmh systemd[1]: pm.service: Consumed 2h 50min 48.893s CPU time.
+m@pmh:~$
+
+
+looks like it died when I tried to connect with Jazper yesterday...
+could it be that the version on github is too old? yes...
+if I overwrite with latest version, what would I lose? 
+do I have any history there that I care about?
+
+this is the version on pmh:
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.12.0
+
+that version matches the current dev, but I don't think I can trust that, many things change without incremneting that number....
+
+what version is on github? 7.24.0811.1 from April 2024...
+
+I also have an wip version
+
+
+
+
+2026-06-05 07:06:55
+
+level 32 yellow cake regular demo broken...
+gets to the end but still 4 flappers alive...I could manually find opportunites to kill them...
+
+2026-06-07 07:06:58...done!!!
+
+
+now the only one left is level 16 regular
+
+
+4 minutes left with 68 enemies left....can I get an earlier working version?
+pretty sure it happened when I was messing with blocks...
+
+fixed that...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

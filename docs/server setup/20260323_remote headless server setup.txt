@@ -226,9 +226,6 @@ DELETE FROM gm_sessions;
 DELETE FROM sessions;
 
 
-
-
-
 --------------------------------------------------------------------------------------------
 change permissions of web files on server so they can be edited with samba in windows
 --------------------------------------------------------------------------------------------
@@ -265,6 +262,7 @@ sudo rm -r /var/www/html/*
 restore:
 
 cp -r ~/dev/purple_martians/web/* /var/www/html
+
 
 
 ----------------------------------------------------------------
