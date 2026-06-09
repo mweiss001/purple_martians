@@ -1,6 +1,8 @@
 // mwItemEditorFnx.cpp
 
+
 #include "pm.h"
+#include "mwBitmap.h"
 #include "mwWindowManager.h"
 #include "mwWindow.h"
 #include "mwItem.h"
@@ -10,9 +12,6 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwInput.h"
-
-
-
 
 int mwItem::item_data(int x, int y)
 {
@@ -69,11 +68,17 @@ void mwItem::show_all_items(void)
 
    for (int i=0; i<num_items; i++)
    {
+
+      /*
       al_set_target_bitmap(tmp);
       al_clear_to_color(al_map_rgb(0,0,0));
       draw_item(i, 1, 0, 0);
       al_set_target_backbuffer(mDisplay.display);
       al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
+     */
+
+      al_draw_scaled_bitmap(mBitmap.tile[item_tile[mItem.item[i][0]]], 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
+
 
       sprintf(msg,"item:[%2d] ",i );
       for (int j=0; j<16; j++)
@@ -280,10 +285,6 @@ void mwItem::check_item(int i, int ct)
 }
 
 
-
-
-
-
 void mwItem::test_items(void)
 {
    for (int c=0; c<500; c++)
@@ -291,30 +292,15 @@ void mwItem::test_items(void)
       {
          int type = mItem.item[c][0];
          // first check for valid type
-         int good = 0;
-         if (type == 1) good = 1;
-         if (type == 2) good = 1;
-         if (type == 3) good = 1;
-         if (type == 4) good = 1;
-         if (type == 5) good = 1;
-         if (type == 7) good = 1;
-         if (type == 8) good = 1;
-         if (type == 9) good = 1;
-         if (type == 10) good = 1;
-         if (type == 11) good = 1;
-         if (type == 12) good = 1;
-         if (type == 14) good = 1;
-         if (type == 15) good = 1;
-         if (type == 16) good = 1;
-         if (type == 17) good = 1;
+         int good = 1;
+         if ((type < 1) || (type > 19)) good = 0; // out of range
+         if (type == 12) good = 0; // no item 12
 
-
-         if (!good)  printf("Item:%d - bad type:%d\n", c, mItem.item[c][0]);
-         // if (!good)  mItem.item[c][0] = 0; //erase bad type
-         if (good)
+         if (!good)  printf("Item:%d - bad type:%d\n", c, type);
+         else
          {
-            if ( ((mItem.item[c][1] < 95) || (mItem.item[c][1] > 1084)) && (type != 9) && (type != 16) && (type != 17) )
-               printf("Item:%d - bad shape:%d\n", c, mItem.item[c][1]);
+            if ( ((mItem.item[c][1] < 95) || (mItem.item[c][1] > 1084)) && (type != 9) && (type != 16) && (type != 17) && (type != 18) )
+               printf("Item:%d - type:%d - bad shape:%d\n", c, type, mItem.item[c][1]);
             int xpos = mItem.item[c][4];
             if ((xpos < 20) || (xpos > 1960))
                 printf("Item:%d - bad xpos%d\n", c, xpos);

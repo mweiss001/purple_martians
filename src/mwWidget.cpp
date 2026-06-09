@@ -2721,14 +2721,25 @@ void mwWidget::mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, 
 
 
 
+// displays a scaled tile and returns true if pressed
+bool mwWidget::mButtonTile(int x1, int y1, int scale, int tn)
+{
+   int x2 = x1 + scale;
+   int y2 = y1 + scale;
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1, y1, scale, scale, 0);
+
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      return true;
 
 
 
 
-
-
-
-
+   }
+   return false;
+}
 
 
 

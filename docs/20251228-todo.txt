@@ -33,13 +33,11 @@ WTF is happening with purple coin counter in multiplayer, it is ususally wrong!!
 single door creator prompts for both...
 
 in level editor, when loading new level and cancelling, new level is loaded anyway
+don't know if I will be able to fix, I think the visual preview loads the level...
 
-which demo's have you broken?
-clear and play all levels for demos then look for quits (should be 0)
 
-16 - big apple regular demo
-32 - yellow cake regular demo
-
+right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
+hurry up and fix it!!!
 
 
 
@@ -57,8 +55,6 @@ TO DO
 I want to be able to have multiple pages of tiles, its getting rather busy
 again, another control on title bar
 or maybe a config page where I can choose which groups of blocks to show|hide
-
-
 
 
 
@@ -103,7 +99,10 @@ copy to new tileset of the same type, exact translation, no figuring out what ti
 
 
 
-
+in help screens,
+- fix references to bombable blocks, breakable, switchable
+- add description for status window controls
+- at the start of level editor, mention only avaibale in classic mode
 
 
 
@@ -129,8 +128,6 @@ in release, just remove the keyboard shortcut 'S' from copy tiles
 get a nice bitmap for replace single tile in tile helper
 
 remove blue from tile helper list
-
-
 
 
 
@@ -161,15 +158,9 @@ make some levels that have a ladder that appear after killing all the bad guys..
 
 
 
-
-
-
 ------------------------------------------------------------------------------
 major changes to logging
 ------------------------------------------------------------------------------
-
-
-
 
 
 make some kind of database cleanup function for sessions

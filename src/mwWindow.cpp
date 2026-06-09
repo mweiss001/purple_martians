@@ -26,6 +26,7 @@
 #include "mwLevelIcons.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
+#include "mwTileSets.h"
 
 
 mwWindow::mwWindow()
@@ -719,24 +720,25 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    if (mWM.mW[2].moving) d = 1;
    else d = 0;
 
-   // second line
+   // second line with controls
    c = 9;
    by1 = y3+1;
 
+   // tile draw mode (tile | flag | both
    al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
    mWidget.buttonp(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
 
-
-   int x3 = x1 + 160; // middle
+   // draw vline at middle to separate draw and show controls
+   int x3 = x1 + 160; // x middle
    al_draw_line(x3, y3-1, x3, y4-1, mColor.pc[c], 1);
    x3+=2;
 
-//   al_draw_textf(mFont.pr8, mColor.pc[9],  x3, by1, 0, "Show:");
-//   x3+=40;
 
+   // show flags toggle
    mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_flag_details, "flags", c, 15, d);
    x3+=64;
 
+   // show non default blocks toggle
    if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_non_default_blocks, "ndf", c, 15, d))
    {
       mScreen.init_level_background();
@@ -744,14 +746,12 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    }
    x3+=48;
 
-
+   // force showing of tile overlay toggle
    if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_tile_overlays, "ovr", c, 15, d))
    {
       mScreen.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
-
-
 
 
    // draw item area
@@ -769,6 +769,10 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    em_show_item_info(                     x1 + 162, y4+7, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
    if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y4+34, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
 }
+
+
+
+
 
 void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_focus)
 {
@@ -862,6 +866,37 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
 
       if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
 
+
+      int x3 = x1+130;
+
+      for (auto &g : mTileSets.tileSetGroups)
+      {
+         if (mWidget.mButtonTile(x3, by1-1, 10, g.display_tile)) { g.visible = !g.visible; mSelectionWindow.fill_block_array(); }
+         x3+=10;
+      }
+
+
+      // all on
+      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+      {
+         for (auto &g : mTileSets.tileSetGroups) g.visible = 1;
+         mSelectionWindow.fill_block_array();
+      }
+
+      // all off
+      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+      {
+         for (auto &g : mTileSets.tileSetGroups) g.visible = 0;
+         mSelectionWindow.fill_block_array();
+      }
+
+
+
+
+
+
+/*
+
       if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
          if (++mSelectionWindow.block_array_cur_lines > mSelectionWindow.block_array_num_lines) mSelectionWindow.block_array_cur_lines = mSelectionWindow.block_array_num_lines;
 
@@ -871,6 +906,12 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
             mSelectionWindow.block_array_cur_lines++;
             mSelectionWindow.block_on = 0;
          }
+*/
+
+
+
+
+
       // draw blocks
       for (int y=0; y<mSelectionWindow.block_array_cur_lines; y++)
          for (int x=0; x<16; x++)

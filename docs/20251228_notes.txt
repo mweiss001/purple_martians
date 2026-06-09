@@ -26653,6 +26653,51 @@ pretty sure it happened when I was messing with blocks...
 fixed that...
 
 
+2026-06-08 05:50:15
+
+make a way to show sub set of drawing block
+?
+- pages
+- checkboxes for individual sections
+
+the first 5 lines can be called base and should pretty much always be there
+full pipe sets for p r g b (each have 4 lines for 16 lines total)
+
+
+main
+p pipe
+r pipe
+g pipe
+b pipe
+
+can I use names from tilesets?
+
+where are the blocks drawn from?
+
+I have a class for that mWSelectionWindow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

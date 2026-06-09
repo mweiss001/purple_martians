@@ -84,8 +84,16 @@ void mwItem::initialize(void)
    item_tile[PM_ITEM_TYPE_SPRING] = 237;
    item_tile[PM_ITEM_TYPE_BLKMNP] = 989;
    item_tile[PM_ITEM_TYPE_BLKDMG] = 988;
-   item_tile[PM_ITEM_TYPE_HIDER]  = 940;
-   item_tile[PM_ITEM_TYPE_GATE]   = 476;
+
+
+//   item_tile[PM_ITEM_TYPE_HIDER]  = 940;
+//   item_tile[PM_ITEM_TYPE_GATE]   = 476;
+
+   item_tile[PM_ITEM_TYPE_HIDER]  = 476;
+   item_tile[PM_ITEM_TYPE_GATE]   = 135;
+
+
+
 
 }
 
@@ -578,190 +586,4 @@ void mwItem::proc_sproingy_collision(int p, int i)
       mPlayer.syn[p].yinc = 0 - (float) item[i][7] / 7.1;
    }
 }
-
-
-/*
-
-item variable descriptions
-
-list of items
-
-
-[1]  - door
-[2]  - bonus
-[3]  - exit
-[4]  - key
-[5]  - start
-[6]  - orb
-[7]  - mine
-[8]  - bomb
-[9]  - trigger
-[10] - pop-up msg
-[11] - rocket
-[13] - timer
-[14] - switch
-[15] - sproingy
-[16] - block manip
-[17] - block damage
-[18] - gate
-
-[98] - lit rocket
-[99] - lit bomb
-
-// common
-item[][0] = active and type
-item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
-item[][4] = x pos
-item[][5] = y pos
-item[][14] = time to live
-item[][15] = tag with cloner item id
-
-// type specific
-
-[1] - door
-item[][1]  draw type (0=hidden, 1=static door, 2=animated warp)
-item[][6]  color
-item[][7]  move type (0=auto, 1=force instant, 2=force move)
-item[][8]  type (0=exit only, 1=linked dest)
-item[][9]  linked destination item
-item[][10] key held flag
-item[][11] door entry type (0=immed, 1=up, 2=down)
-item[][12] draw lines always, never, only when touched
-
-
-
-
-[2] - bonus
-item[][6] bonus type
-1 - Health
-2 - Free Man
-3 - Purple Coin
-item[][7] health bonus
-
-[3] - exit
-item[][8] exit with x enemies left
-
-[4] - key
-item[][6]  block range x
-item[][7]  block range y
-item[][8]  block range w
-item[][9]  block range h
-item[][10] rotation for key move
-item[][11] counter for key move
-item[][12] matching keyed blocks only
-
-[5] - start
-item[][6] mode
-item[][7] start index
-item[][8] no backsies
-
-
-
-[6] - orb
-
-
-[7] - mine
-item[][8] mine damage
-
-[8] - bomb
-item[][6]  mode (2=explosion)
-item[][7]  blast size
-item[][8]  fuse length counter
-item[][9]  fuse length value
-item[][11]  sticky
-item[][12]  timer / remote
-
-[9]  - Trigger
-item[][2] = draw_type (color)
-item[][3] = flags
-item[][6]  = trigger field x (2000)
-item[][7]  = trigger field y (2000)
-item[][8]  = trigger field w (2000)
-item[][9]  = trigger field x (2000)
-item[][10] = trigger field lift number
-item[][11] = CURR ON  pm_event
-item[][12] = CURR OFF pm_event
-item[][13] = TGON pm_event #
-item[][14] = TGOF pm_event #
-
-[10] - msg
-item[][1] event trigger
-item[][2] draw flags
-item[][6]  msg x
-item[][7]  msg y
-item[][8]  msg w
-item[][9]  msg h
-item[][10]
-item[][11]
-item[][12] timer count and val  (packed)
-item[][13] text and frame color (packed)
-
-[11] - rocket
-item[][6]  steerabaility
-item[][7]  blast size
-item[][8]  max speed
-item[][9]  accel
-item[][10] rocket rotation (scaled by 10)
-
-[14]  - switch
-item[][6]  block range x
-item[][7]  block range y
-item[][8]  block range w
-item[][9]  block range h
-item[][10] color flags
-item[][11]  lockout
-
-[15] - sproingy
-item[][6] jump length (only used in level editor)
-item[][7] sproinginess
-
-[16] - Block Manip
-item[][1] = pm_event_trigger
-item[][2] = draw on
-item[][3] = mode
-item[][6]  = trigger field x (2000)
-item[][7]  = trigger field y (2000)
-item[][8]  = trigger field w (2000)
-item[][9]  = trigger field x (2000)
-item[][10] block 1
-item[][11] block 2
-item[][12] = draw color
-
-[17] - Block Damage
-item[][6]  = field x (2000)
-item[][7]  = field y (2000)
-item[][8]  = field w (2000)
-item[][9]  = field h (2000)
-item[][10] = lift number
-item[][11] = mode
-item[][12] = t1 val
-item[][13] = count
-item[][14] = t2 val
-item[][15] = damage
-
-[18] - gate
-item[][6] level num
-item[][7] player touching
-item[][8] display page
-item[][9]
-item[][10]
-item[][11]
-item[][12]
-
-
-
-[98] - lit rocket
-[99] - lit bomb
-item[][6]  mode (1=lit, 2=explosion, 3=remote detonator)
-item[][7]  blast size
-item[][8]  fuse length counter
-item[][9]  fuse length value
-
-item[][11] sticky
-item[][12] timer | remote
-item[][13] last player to touch
-
-*/
 

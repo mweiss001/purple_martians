@@ -5,6 +5,15 @@
 #include <vector>
 
 
+struct tileSetGroup
+{
+   std::string name;
+   int display_tile;
+   bool visible;
+};
+
+
+
 struct tileSet
 {
    std::string name;
@@ -161,6 +170,12 @@ class mwTileSets
 
    struct tileSet ts;
    std::vector<tileSet> tileSets;
+
+   struct tileSetGroup tsg;
+   std::vector<tileSetGroup> tileSetGroups;
+
+   bool isTileSetGroupVisible(std::string name);
+
 
    bool findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type = 0);
    bool isTileKeyedBlock(int tileIndex, int keyIndex);
