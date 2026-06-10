@@ -1,5 +1,4 @@
 
-
 #include "pm.h"
 #include "mwTileSets.h"
 #include "mwInput.h"
@@ -13,7 +12,6 @@
 #include "mwWidget.h"
 
 mwTileSets mTileSets;
-
 
 mwTileSets::mwTileSets() { init(); }
 
@@ -557,105 +555,10 @@ void mwTileSets::init()
    setBasicRect(i);
    tileSets.push_back(ts);
 
-
    //printf("num of tilesets:%d\n", (int) tileSets.size());
    //for (auto ts : tileSets) printf("%s\n", ts.name.c_str());
 
-   // set up tile set groups
-
-   tsg.name = "Platforms";
-   tsg.display_tile = 178;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Purple Pipes";
-   tsg.display_tile = 256;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Red Pipes";
-   tsg.display_tile = 320;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Green Pipes";
-   tsg.display_tile = 384;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Blue Pipes";
-   tsg.display_tile = 448;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Wires";
-   tsg.display_tile = 832;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-
-   tsg.name = "Template";
-   tsg.display_tile = 737;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-
-   tsg.name = "Industrial 1";
-   tsg.display_tile = 776;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Industrial 2";
-   tsg.display_tile = 808;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Yellow Thatch";
-   tsg.display_tile = 864;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Brain";
-   tsg.display_tile = 896;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Grey Bricks";
-   tsg.display_tile = 928;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Brown Bricks";
-   tsg.display_tile = 960;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Slate Bricks";
-   tsg.display_tile = 544;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-   tsg.name = "Rainbow";
-   tsg.display_tile = 672;
-   tsg.visible = 1;
-   tileSetGroups.push_back(tsg);
-
-
-
-
 }
-
-
-bool mwTileSets::isTileSetGroupVisible(std::string name)
-{
-   for (auto g : tileSetGroups)
-      if (g.name == name && g.visible) return true;
-
-   return false;
-}
-
-
-
 
 
 

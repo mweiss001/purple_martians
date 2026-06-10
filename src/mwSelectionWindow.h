@@ -31,7 +31,7 @@ public:
    bool special_on;
 
    int block_array_num_lines;  // number of lines
-   int block_array_cur_lines;  // number of lines currently shown
+
 
    int special_array_num_lines = 4;  // number of lines
    int special_array_cur_lines = 3;  // number of lines currently shown
@@ -39,7 +39,6 @@ public:
    void fill_block_array(void);
 
 private:
-
 
    void load_pde(void);
 
@@ -54,6 +53,7 @@ private:
 
    void set_block_extended(int t, int y);
 
+   bool isTileSetGroupVisible(std::string name);
 
 };
 

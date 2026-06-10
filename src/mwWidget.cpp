@@ -2721,37 +2721,34 @@ void mwWidget::mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, 
 
 
 
-// displays a scaled tile and returns true if pressed
-bool mwWidget::mButtonTile(int x1, int y1, int scale, int tn)
+// displays a framed, scaled tile and toggled int if pressed
+bool mwWidget::mButtonTile(int x1, int y1, int size, int tn, bool &var, bool disable_input)
 {
-   int x2 = x1 + scale;
-   int y2 = y1 + scale;
-   // draw tile
-   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1, y1, scale, scale, 0);
+   int x2 = x1 + size;
+   int y2 = y1 + size;
 
-   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   bool mouse_on_tile = false;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouse_on_tile = true;
+
+   // determine frame color
+   int c = 15;
+   if (!var) c += 128;
+   if (mouse_on_tile) c = 12;
+
+   // draw frame
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[c], 1);
+
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
+
+   if (mouse_on_tile && mInput.mouse_b[1][0])
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      var = !var;
       return true;
-
-
-
-
    }
    return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -49,6 +49,96 @@ void mwWindowManager::initialize(int edit_level)
    mEnemy.sort_enemy();
    mItem.sort_item(1);
    mInput.initialize();
+
+      // set up tile set groups
+
+   int i;
+
+   for (i=0; i<32; i++)
+   {
+      tileSetGroups[i].name = "";
+      tileSetGroups[i].display_tile = 0;
+      tileSetGroups[i].visible= 0;
+   }
+
+   i=0;
+   tileSetGroups[i].name = "Platforms";
+   tileSetGroups[i].display_tile = 178;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Purple Pipes";
+   tileSetGroups[i].display_tile = 256;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Red Pipes";
+   tileSetGroups[i].display_tile = 320;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Green Pipes";
+   tileSetGroups[i].display_tile = 384;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Blue Pipes";
+   tileSetGroups[i].display_tile = 448;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Wires";
+   tileSetGroups[i].display_tile = 832;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Template";
+   tileSetGroups[i].display_tile = 737;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Industrial 1";
+   tileSetGroups[i].display_tile = 776;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Industrial 2";
+   tileSetGroups[i].display_tile = 808;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Yellow Thatch";
+   tileSetGroups[i].display_tile = 864;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Brain";
+   tileSetGroups[i].display_tile = 896;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Grey Bricks";
+   tileSetGroups[i].display_tile = 928;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Brown Bricks";
+   tileSetGroups[i].display_tile = 960;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Slate Bricks";
+   tileSetGroups[i].display_tile = 544;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Rainbow";
+   tileSetGroups[i].display_tile = 672;
+   tileSetGroups[i].visible= 1;
+
+   mSelectionWindow.fill_block_array();
+
+
 }
 
 int mwWindowManager::loop(int edit_level)
@@ -714,6 +804,12 @@ void mwWindowManager::load_mW(void)
    }
    // why do I delete it after I load it?
    al_remove_filename("data/mW.pm");
+
+
+
+   mSelectionWindow.fill_block_array();
+
+
 
 }
 

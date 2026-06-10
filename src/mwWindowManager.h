@@ -7,6 +7,17 @@
 
 #define NUM_OBJ 600
 
+
+struct tileSetGroup
+{
+   std::string name;
+   int display_tile;
+   bool visible;
+};
+
+
+
+
 class mwWindowManager
 {
    public:
@@ -21,6 +32,10 @@ class mwWindowManager
    int obj_filter[5][20];
 
    int thl[100][100]; // tile helper
+
+
+   tileSetGroup tileSetGroups[32];
+
 
    int gx; // mouse position relative to scaled level background
    int gy;

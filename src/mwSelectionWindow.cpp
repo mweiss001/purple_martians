@@ -3,6 +3,7 @@
 #include "pm.h"
 #include "mwBitmap.h"
 #include "mwTileSets.h"
+#include "mwWindowManager.h"
 
 mwSelectionWindow mSelectionWindow;
 
@@ -138,6 +139,16 @@ void mwSelectionWindow::set_block_set(int t, int x, int y)
 }
 
 
+bool mwSelectionWindow::isTileSetGroupVisible(std::string name)
+{
+   for (int i=0; i<32; i++)
+      if (mWM.tileSetGroups[i].name == name && mWM.tileSetGroups[i].visible) return true;
+   return false;
+}
+
+
+
+
 
 void mwSelectionWindow::fill_block_array(void)
 {
@@ -200,7 +211,7 @@ void mwSelectionWindow::fill_block_array(void)
 
 
 
-   if (mTileSets.isTileSetGroupVisible("Platforms"  ))
+   if (isTileSetGroupVisible("Platforms"  ))
    {
       x=0; y=4; // row 4 -----------------------------------------
 
@@ -246,13 +257,13 @@ void mwSelectionWindow::fill_block_array(void)
    x = 0;
 
 
-   if (mTileSets.isTileSetGroupVisible("Purple Pipes")) { set_block_extended(256, y);  y+=4; }
-   if (mTileSets.isTileSetGroupVisible("Red Pipes"   )) { set_block_extended(320, y);  y+=4; }
-   if (mTileSets.isTileSetGroupVisible("Green Pipes" )) { set_block_extended(384, y);  y+=4; }
-   if (mTileSets.isTileSetGroupVisible("Blue Pipes"  )) { set_block_extended(448, y);  y+=4; }
+   if (isTileSetGroupVisible("Purple Pipes")) { set_block_extended(256, y);  y+=4; }
+   if (isTileSetGroupVisible("Red Pipes"   )) { set_block_extended(320, y);  y+=4; }
+   if (isTileSetGroupVisible("Green Pipes" )) { set_block_extended(384, y);  y+=4; }
+   if (isTileSetGroupVisible("Blue Pipes"  )) { set_block_extended(448, y);  y+=4; }
 
 
-   if (mTileSets.isTileSetGroupVisible("Wires"  ))
+   if (isTileSetGroupVisible("Wires"  ))
    {
       int t = 832;
 
@@ -269,7 +280,7 @@ void mwSelectionWindow::fill_block_array(void)
       y+=2;
    }
 
-   if (mTileSets.isTileSetGroupVisible("Template"  ))
+   if (isTileSetGroupVisible("Template"  ))
    {
       int t = 736;
       set_block_set(t, x, y); // template
@@ -287,7 +298,7 @@ void mwSelectionWindow::fill_block_array(void)
       y+=2;
    }
 
-   if (mTileSets.isTileSetGroupVisible("Industrial 1" ))
+   if (isTileSetGroupVisible("Industrial 1" ))
    {
       int t = 768;
       set_block_set(t, x, y); // industrial
@@ -295,7 +306,7 @@ void mwSelectionWindow::fill_block_array(void)
       y+=2;
    }
 
-   if (mTileSets.isTileSetGroupVisible("Industrial 2" ))
+   if (isTileSetGroupVisible("Industrial 2" ))
    {
       int t = 800;
       set_block_set(t, x, y); // industrial
@@ -304,35 +315,35 @@ void mwSelectionWindow::fill_block_array(void)
    }
 
 
-   if (mTileSets.isTileSetGroupVisible("Yellow Thatch" ))
+   if (isTileSetGroupVisible("Yellow Thatch" ))
    {
       set_block_set(864, x, y);
       if (x == 0) x = 8;
       else { x=0; y+=2; }
    }
 
-   if (mTileSets.isTileSetGroupVisible("Brain" ))
+   if (isTileSetGroupVisible("Brain" ))
    {
       set_block_set(896, x, y);
       if (x == 0) x = 8;
       else { x=0; y+=2; }
    }
 
-   if (mTileSets.isTileSetGroupVisible("Grey Bricks" ))
+   if (isTileSetGroupVisible("Grey Bricks" ))
    {
       set_block_set(928, x, y);
       if (x == 0) x = 8;
       else { x=0; y+=2; }
    }
 
-   if (mTileSets.isTileSetGroupVisible("Brown Bricks" ))
+   if (isTileSetGroupVisible("Brown Bricks" ))
    {
       set_block_set(960, x, y);
       if (x == 0) x = 8;
       else { x=0; y+=2; }
    }
 
-   if (mTileSets.isTileSetGroupVisible("Slate Bricks" ))
+   if (isTileSetGroupVisible("Slate Bricks" ))
    {
       set_block_set(544, x, y);
       if (x == 0) x = 8;
@@ -340,7 +351,7 @@ void mwSelectionWindow::fill_block_array(void)
    }
 
 
-   if (mTileSets.isTileSetGroupVisible("Rainbow" ))
+   if (isTileSetGroupVisible("Rainbow" ))
    {
       set_block_set_rainbow(672, x, y);
       set_block_set_rainbow(704, x+4, y);
@@ -351,41 +362,8 @@ void mwSelectionWindow::fill_block_array(void)
    // if in the middle of a row, set new one
    if (x == 8) { x=0; y+=2; }
 
-
-/*
-
-   set_block_set(864, x, y);   // yellow thatch
-   set_block_set(896, x+8, y); // brain
-
-   set_block_set(928, x, y);   // grey bricks
-   set_block_set(960, x+8, y); // brown bricks
-   y+=2;
-*/
-
-//   tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
-
-
-   // if in the middle of a row, set new one
-//   if (x == 8) { x=0; y+=2; }
-
-
-
-//   set_block_set(544, x, y); // new brick solid
-
-//   set_block_set(992, x, y); // blue
-
-/*
-   set_block_set_rainbow(672, x+8, y);
-   set_block_set_rainbow(704, x+12, y);
-   y+=2;
-*/
-
-
-   block_array_cur_lines = block_array_num_lines = y; // number of block array lines
+   block_array_num_lines = y;
 }
-
-
-
 
 
 

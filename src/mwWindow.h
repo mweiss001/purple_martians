@@ -28,16 +28,11 @@ class mwWindow
    int show_tile_overlays;
 
 
-
-
-
    void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
    int status_window_has_mouse;
 
-   int em_draw_tile_mode = 3;
-
-
+   int em_draw_tile_mode = 1;
 
 
    // e_editor_main.h

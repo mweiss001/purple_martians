@@ -98,7 +98,7 @@ class mwWidget
 
    bool mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight);
 
-   bool mButtonTile(int x1, int y1, int size, int tn);
+   bool mButtonTile(int x1, int y1, int size, int tn, bool &var, bool disable_input);
 
 
    void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,

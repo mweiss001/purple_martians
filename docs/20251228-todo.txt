@@ -28,7 +28,7 @@ all gms in timeline show as 2H long, or 1H longer than they should
 DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 
-WTF is happening with purple coin counter in multiplayer, it is ususally wrong!!
+WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 
 single door creator prompts for both...
 
@@ -38,6 +38,13 @@ don't know if I will be able to fix, I think the visual preview loads the level.
 
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
 hurry up and fix it!!!
+I think I will just deploy the test version
+
+
+tile editor -> tile select, pointer in lower right shows tile from wrong tileset
+
+copy tiles -> second bitmap does not line up with grid
+
 
 
 
@@ -52,12 +59,23 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-I want to be able to have multiple pages of tiles, its getting rather busy
-again, another control on title bar
-or maybe a config page where I can choose which groups of blocks to show|hide
+
+Tilesets
+------------
+
+give credit to where I got some tilesets
+
+figure out the 24 set tile group that I have a template for
+
+find a way to patch in tileset creator? now it is manually enabled and run from code
+this will be the way it stays...
+in release, just remove the keyboard shortcut 'S' from copy tiles
 
 
 
+
+Tile helper
+-----------
 When I have a selection in tile helper, I want to be able to set flags for it as well.
 
 I want to have many more tile helper things
@@ -69,73 +87,28 @@ hlines or vlines for rect selection
 
 copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-in help screens,
-- fix references to bombable blocks, breakable, switchable
-- add description for status window controls
-- at the start of level editor, mention only avaibale in classic mode
-
-
-
-
-
-
-
-
-
-
-
-
-
-finish tilesets....
-to do for tilesets:
-
-find a way to patch in tileset creator? now it is manually enabled and run from code
-this will be the way it stays...
-in release, just remove the keyboard shortcut 'S' from copy tiles
-
-
-
 get a nice bitmap for replace single tile in tile helper
 
 remove blue from tile helper list
 
 
+Tile editor
+-----------
 
 I want to add something to tile editor
 shift colors
 
 add or subtract from all colors 
 
+
+
+
+help screens
+----------------
+- fix references to bombable blocks, breakable, switchable
+- add description for status window controls
+- at the start of level editor, mention only available in classic mode
+- redo section of block selection
 
 
 to finish client_status:
@@ -151,8 +124,9 @@ even on the main graph s2, if I set the range higher, it crawls....
 I want to rename cpu to something else...
 maybe load, or busy
 
-
 make sure that server snapshot is fully disabled
+
+
 
 make some levels that have a ladder that appear after killing all the bad guys....
 
@@ -229,12 +203,9 @@ from this pop-up menu allow a very limited set of things...
 - change viewport
 
 
- 
 
 
 ------------------------------------------------------------------------------
-
-
 
 ------------------------------------------------------------------------------
 server control from web:
@@ -248,7 +219,6 @@ without reloading page
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-
 
 ------------------------------------------------------------------------------
 
@@ -307,6 +277,13 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+I want to be able to have multiple pages of tiles, its getting rather busy
+again, another control on title bar
+or maybe a config page where I can choose which groups of blocks to show|hide
+done with a row of group tile icons on the titlebar...
+
 
 
 I need a better way to change the tile draw mode, maybe a small button on a titlebar
@@ -852,19 +829,6 @@ in .gitignore
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -882,10 +846,6 @@ allegro in browser also
 
 
 There is a lot of info in level stats that would be better suited in database. Just saying..
-
-
-
-
 
 
 ------------------------------------------------------------------------------
@@ -978,9 +938,7 @@ session ------------------------------------------------
 
 there will never be concurrent gms
 
-
-
-                   
+                
 
 
 ------------------------
@@ -992,48 +950,9 @@ I'm looking at the table and wish I had a nice visual comparison of sessions and
 and where the saved games fit into that as well
 
 
-
-
-
-
-
-
 I want a timer independant of the game frame timer
 or maybe another method...
 my input is tied to the frame rate, I find it hard to change things with a slow frame rate
 hmmm...just a thought...think about it...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

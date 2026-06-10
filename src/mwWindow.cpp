@@ -805,7 +805,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
    if (mSelectionWindow.block_on)
    {
       select_window_block_y = c;
-      c += mSelectionWindow.block_array_cur_lines*20 + 16;
+      c += mSelectionWindow.block_array_num_lines*20 + 16;
    }
    // set text start y
    int select_window_text_y = c;
@@ -862,58 +862,36 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
    {
       by1 = syb+2;
       al_draw_rectangle(x1, syb, x2, syb+12, mColor.pc[9], 1);
-      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Block Selection");
+      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Blocks");
 
       if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
 
+      int x3 = x1 + 80;
 
-      int x3 = x1+130;
-
-      for (auto &g : mTileSets.tileSetGroups)
-      {
-         if (mWidget.mButtonTile(x3, by1-1, 10, g.display_tile)) { g.visible = !g.visible; mSelectionWindow.fill_block_array(); }
-         x3+=10;
-      }
-
+      for (int i=0; i<32; i++)
+         if (mWM.tileSetGroups[i].display_tile)
+         {
+            if (mWidget.mButtonTile(x3, by1-1, 10, mWM.tileSetGroups[i].display_tile, mWM.tileSetGroups[i].visible, d)) mSelectionWindow.fill_block_array();
+            x3+=11;
+          }
 
       // all on
       if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
       {
-         for (auto &g : mTileSets.tileSetGroups) g.visible = 1;
+         for (int i=0; i<32; i++) if (mWM.tileSetGroups[i].display_tile) mWM.tileSetGroups[i].visible = 1;
          mSelectionWindow.fill_block_array();
       }
 
       // all off
       if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
       {
-         for (auto &g : mTileSets.tileSetGroups) g.visible = 0;
+         for (int i=0; i<32; i++) if (mWM.tileSetGroups[i].display_tile) mWM.tileSetGroups[i].visible = 0;
          mSelectionWindow.fill_block_array();
       }
 
 
-
-
-
-
-/*
-
-      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-         if (++mSelectionWindow.block_array_cur_lines > mSelectionWindow.block_array_num_lines) mSelectionWindow.block_array_cur_lines = mSelectionWindow.block_array_num_lines;
-
-      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-         if (--mSelectionWindow.block_array_cur_lines < 1 )
-         {
-            mSelectionWindow.block_array_cur_lines++;
-            mSelectionWindow.block_on = 0;
-         }
-*/
-
-
-
-
-
       // draw blocks
-      for (int y=0; y<mSelectionWindow.block_array_cur_lines; y++)
+      for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)
          for (int x=0; x<16; x++)
             al_draw_bitmap(mBitmap.btile[mSelectionWindow.block_array[y][x] & 1023], x1+x*20+1, y1+select_window_block_y+1+14+(y*20), 0 );
 
@@ -977,7 +955,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
       }
 
       // check for mouse on block window
-      if ( (mSelectionWindow.block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mSelectionWindow.block_array_cur_lines * 20))
+      if ( (mSelectionWindow.block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mSelectionWindow.block_array_num_lines * 20))
       {
          int vy = (mInput.mouse_y-syb-14)/20; // row
          int ret = mSelectionWindow.block_array[vy][vx];

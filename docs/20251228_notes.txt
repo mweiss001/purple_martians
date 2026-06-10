@@ -26676,6 +26676,256 @@ where are the blocks drawn from?
 
 I have a class for that mWSelectionWindow
 
+In that class I can have variables to determine what tileset show in selection window
+
+I have 42 tilesets, but some have multiple
+
+purple pipes
+purple pipes
+purple pipes
+purple pipes
+red pipes
+red pipes
+red pipes
+red pipes
+green pipes
+green pipes
+green pipes
+green pipes
+blue pipes
+blue pipes
+blue pipes
+blue pipes
+wires
+brown and yellow thatch
+brain
+grey bricks
+brown bricks
+blue solid
+new bricks solid
+industrial solid
+industrial solid
+industrial solid
+industrial solid
+template test
+template test
+brown bricks
+curved floater
+grey floater
+white chain
+gold column
+grey hole beam
+red cross beam
+grey cross beam
+grey rivet beam
+semi-solid screen
+rainbows
+rainbows2
+
+
+I can't use these names, I will need to manually set up groups
+
+
+do the big ones first...pipes
+
+how about creating a vector of structs
+
+tilesetgroups
+
+name
+type
+visible in selection window
+
+
+
+struct tileSetGroup
+{
+   std::string name;
+   bool visible;
+};
+
+   struct tileSetGroup tsg;
+   std::vector<tileSetGroup> tileSetGroups;
+
+
+now set up a menu on the title bar (or context) to show hide groups
+
+or I could have an entire row of tiles under the title bar, always shown, that would toggle groups
+
+this is more complex, but I think I would like it better...
+
+do it fool!!
+
+
+first, figure out how to insert the control row
+
+I think having small icons in the existing title bar would be a good solution
+
+I don't really need the + and - buttons, I have never used them...
+
+
+this is coming along nicely..now add more groups
+
+
+I want to be able to save selection....
+
+implement all on and all off buttons..done
+
+I have them all done...
+next:
+
+change the name from Block Selection to Blocks to make more room for icons
+maybe even change to Tiles
+did blocks for now
+make disable_input for new widget...done
+
+make an outline to show active inactive mouse_over...done
+
+make a way of saving the selection
+
+the way of saving the window manager object is a posibility
+
+I would need to make the vector a part of that instead of tileSet
+do it fool!!!
+
+then maybe don't make it a vector, make it a static array, to help with saving
+
+first make it a static array...then move to wM
+
+now move to wM..done
+also move bool isTileSetGroupVisible(std::string name) to selection window
+
+2026-06-10 07:00:26 I now have the selection getting saved!!!
+
+am I done with this feature?
+
+I want to remove the part where the number of lines shown was adjusted...done
+
+add to do for help screens
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
