@@ -415,8 +415,8 @@ void mwSelectionWindow::load_pde()
    pushCreator("Exit Creator",        1, 202, 398, "Where players exit the level.\n\nMultiple exits can exist.");
 
    pushCreator("One Way Door Set Creator", 1, 210, 972, "Set of one way linked doors.");
-   pushCreator("Two Way Door Set Creator", 1, 210, 972, "Set of two way linked doors.");
-   pushCreator("Single Door Item Creator", 1, 210, 972, "Door with no exit link.");
+   pushCreator("Two Way Door Set Creator", 1, 211, 972, "Set of two way linked doors.");
+   pushCreator("Single Door Item Creator", 1, 209, 972, "Door with no exit link.");
 
    pushCreator("VinePod Creator", 1, 204, 374, "Step 1 - Set initial location.\n\nStep 2 - Set extended position.\n\nStep 3 - Draw trigger box.");
    pushCreator("Lift Creator",    1, 208, 505, "Step 1 - Set initial location.\n\nStep 2 - Add additional steps.\n\nStep 3 - Edit with lift viewer.");

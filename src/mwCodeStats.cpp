@@ -20,6 +20,8 @@ void mwCodeStats::fill_stat_struct(struct code_stat &cs)
    cs.code_and_comment = 0;
    cs.max_line_length = 0;
 
+   int comment_block_open = 0;
+
 
    FILE *filepntr=fopen(cs.fname,"r");
    while(!done)
@@ -35,55 +37,81 @@ void mwCodeStats::fill_stat_struct(struct code_stat &cs)
       buff[loop] = 0; // terminate the string
       if (loop >= 500) printf("line exceeded 500 char - %s\n", buff);
 
-
       if (debug_print) printf("%d - %s\n", cs.lines, buff);
 
       if (ch == EOF) done = 1;
       else
       {
-         cs.lines++;                                          // add to line count
-         int len = strlen(buff);                           // get line length
-         cs.chars += len;                                     // add to total num of char
-         if (len > cs.max_line_length) cs.max_line_length = len; // get max line length
+         cs.lines++;                                              // add to line count
+         int len = strlen(buff);                                  // get line length
+         cs.chars += len;                                         // add to total num of char
+         if (len > cs.max_line_length) cs.max_line_length = len;  // get max line length
          //printf("\n%d - len:%d\n%s\n", lines, len, buff);
-         if (len < 1) cs.blanks++;                            // zero length line is blank
-         else                                              // process non zero length line
+         if (len < 1) cs.blanks++;                                // zero length line is blank
+         else                                                     // process non zero length line
          {
             int blank_c = 1; // set line blank by default, if any non blank space is found clear it
             int comment_c = 0;
             int code_c = 0;
 
-            // go through the line one char at a time
-            for (int i=0; i<len; i++)
+            int comment_eol_found = 0;
+
+            if (len == 1) // single char line
             {
-               int c = buff[i]; // current char
-               //printf("%c[%d] ", buff[i], buff[i]);
-
-               // look for lines that have only (9-tab or 32-space)
-               // this never fires, I think the IDE (code::blocks) does not save spaces or tabs on a line if that is the only thing on the line
-               if ((c == 9) || (c == 32)) cs.blank_chars++; // add to blank char count
-               else blank_c = 0;  // entire line has at least one non blank
-
-               if (i > 0) // look for patterns that include previous char
-               {
-                  int pc = buff[i-1];  // previous char
-                  if ((c == 47) && (pc == 47)) // current and previous are both /
-                  {
-                     comment_c = 1;
-
-                     // check if not first non blank thing on line
-                     if ((i-1) > 0)
-                     {
-                        for (int j=0; j<(i-1); j++)
-                        {
-                           int jc = buff[j];
-                           if ((jc != 9) && (jc != 32)) code_c = 1;
-                        }
-                     }
-                  }
-               }
+               int c = buff[0]; // current char
+               if (comment_block_open) comment_c = 1;
+               else if (c != 9 && c != 32) code_c = 1;
             }
-            if ((!blank_c) && (!comment_c)) code_c = 1; // code only (line is not blank and does not have a comment)
+
+            // go through the line one char at a time
+            for (int i=0; i<len-1; i++)
+            {
+
+               // if comment block open at any point, mark this line as having comment
+               if (comment_block_open) comment_c = 1;
+
+               int c = buff[i]; // current char
+
+               int nc = buff[i+1];  // next char
+
+               // look for patterns that include next char
+               int comment_chord_match = 0;
+
+
+               if ((c == 47) && (nc == 42)) // current is '/' next is '*'
+               {
+                  if (comment_block_open) printf("error! - nested '/*'\n");
+                  comment_block_open = 1;
+                  comment_c = 1;
+                  comment_chord_match = 1;
+               }
+
+               if ((c == 42) && (nc == 47)) // current is '*' next is '/'
+               {
+                  if (!comment_block_open) printf("error! - found orphan '*/'\n");
+                  comment_block_open = 0;
+                  comment_c = 1;
+                  comment_chord_match = 1;
+               }
+
+               if ((c == 47) && (nc == 47)) // current is '/' next is '/'
+               {
+                  comment_eol_found = 1;
+                  comment_c = 1;
+                  comment_chord_match = 1;
+               }
+
+               // if not comment_chord_match and not comment_block_open and not comment_eol_found and we found a non blank char...count line as having code
+               if (!comment_chord_match && !comment_block_open && !comment_eol_found && c != 9 && c != 32) code_c = 1;
+
+               if (c != 9 && c != 32) blank_c = 0;  // entire line has at least one non blank
+
+
+            }
+
+//            if (code_c) printf("code detected: %s\n", buff);
+//            if (comment_c) printf("comment detected: %s\n", buff);
+
             if (blank_c) cs.blanks++;
             if (code_c) cs.code++;
             if (comment_c) cs.comment++;
@@ -128,39 +156,52 @@ void mwCodeStats::run(void)
 {
    char msg[1024];
    struct code_stat cs[200] = {};
+   int csi = 0;
+
 
    int num_files = mFileIterator.iterate("src/");
 
    if (num_files == 0) printf("No files found.\n");
    else
    {
+
       for (int i=0; i<num_files; i++)
       {
-         strcpy(cs[i].fname, al_get_fs_entry_name(mFileIterator.filenames[i]));
-         fill_stat_struct(cs[i]);
+         // get full filepath
+         char filepath[1024];
+         strcpy(filepath, al_get_fs_entry_name(mFileIterator.filenames[i]));
 
-         // get just the name part of the path
-         ALLEGRO_PATH * path = al_create_path(cs[i].fname);
-         sprintf(cs[i].name, "%s", al_get_path_filename(path));
+         // get filename from path
+         char fname[256];
+         ALLEGRO_PATH * path = al_create_path(filepath);
+         sprintf(fname, "%s", al_get_path_filename(path));
          al_destroy_path(path);
+
+         if (strncmp(fname, "sqlite", 6) && strncmp(fname, "libnet", 6)) // exclude
+         {
+            strcpy(cs[csi].fname, filepath);
+            strcpy(cs[csi].name, fname);
+            fill_stat_struct(cs[csi]);
+            csi++;
+         }
       }
    }
    // do the totals
-   for (int i=0; i<num_files; i++)
+   for (int i=0; i<csi; i++)
    {
-      cs[199].lines +=            cs[i].lines;
-      cs[199].chars +=            cs[i].chars;
-      cs[199].blank_chars +=      cs[i].blank_chars;
-      cs[199].blanks +=           cs[i].blanks;
-      cs[199].code +=             cs[i].code;
-      cs[199].comment +=          cs[i].comment;
-      cs[199].comment_only +=     cs[i].comment_only;
-      cs[199].code_only +=        cs[i].code_only;
+      cs[199].lines            += cs[i].lines;
+      cs[199].chars            += cs[i].chars;
+      cs[199].blank_chars      += cs[i].blank_chars;
+      cs[199].blanks           += cs[i].blanks;
+      cs[199].code             += cs[i].code;
+      cs[199].comment          += cs[i].comment;
+      cs[199].comment_only     += cs[i].comment_only;
+      cs[199].code_only        += cs[i].code_only;
       cs[199].code_and_comment += cs[i].code_and_comment;
-      cs[199].max_line_length +=  cs[i].max_line_length;
+      cs[199].max_line_length  += cs[i].max_line_length;
    }
-//   sprintf(cs[199].name, "Total");
-   sprintf(cs[199].name, "%d files", num_files);
+
+   sprintf(cs[199].name, "Totals (%d files)", csi);
 
    time_t now = time(NULL);
    struct tm *timenow = localtime(&now);
@@ -168,24 +209,28 @@ void mwCodeStats::run(void)
    printf("\n\nPurple Martians Source Code Line Counts [%s]\n\n", msg);
 
    printf("[%6s][%6s][%6s][%6s][%6s][%6s][%6s]\n", "total", "code", "cd_onl", "commnt", "cm_onl", "cd+cm", "blank");
-   printf("--------------------------------------------------------\n");
 
-  // int init_max = cs[199].code; // save this because we erase it when sorting by code size
+
+   int i = 199;
+   printf("-------------------------------------------------------- - totals\n");
+   printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
+
 
    if (0) // list sorted alphabetically (or how file iterator chose them)
    {
-      for (int i=0; i<num_files; i++)
+      for (int i=0; i<csi; i++)
          printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
    }
-   else  // list sorted by code size
+   else  // list sorted by code size (print the largest, then set size to zero and repeat)
    {
-
       int cur_s = 1;  // current max size
-      int i = 0; // current max size index
       while (cur_s)
       {
+         int i = 0; // current max size index
          cur_s = 0;
-         for (int j=0; j<num_files; j++)
+
+         // search the list and find max
+         for (int j=0; j<csi; j++)
             if (cs[j].code > cur_s)
             {
                cur_s = cs[j].code;
@@ -194,13 +239,12 @@ void mwCodeStats::run(void)
          if (cur_s > 0)
          {
             printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
-            cs[i].code = 0; // set to zero so we won't print again
+            cs[i].code = 0; // set to zero to mark as done...it won't be max next iteration
          }
       }
    }
 
-   int i = 199;
-//   cs[i].code = init_max;
+   i = 199;
    printf("-------------------------------------------------------- - totals\n");
    printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
 

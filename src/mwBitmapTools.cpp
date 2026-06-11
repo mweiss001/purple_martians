@@ -496,7 +496,7 @@ int mwBitmapTools::select_bitmap()
       {
          int pointer = (mInput.mouse_x/20) + (mInput.mouse_y/20) * 32 ;
          al_draw_textf(mFont.pr8, mColor.pc[13], 522, 648, 0, "pointer %-2d", pointer );
-         al_draw_bitmap(mBitmap.tile[pointer], 620, 642, 0);
+         al_draw_bitmap(mBitmap.btile[pointer], 620, 642, 0);
          al_draw_rectangle(518, 640.5, 640.5, 662.5, mColor.pc[13], 1);
          if (mInput.mouse_b[1][3]) return pointer;
       }
@@ -1353,7 +1353,7 @@ void mwBitmapTools::copy_tiles()
    int b2_y2{};
    int b2_tw{};
 
-   int b2_pad = 0;
+   int b2_pad = 1;
    int b2_ts = 20 + b2_pad*2;
 
 

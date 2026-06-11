@@ -30,20 +30,24 @@ actually the wrong durations are only in timeline, they look fine in gm table
 
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 
-single door creator prompts for both...
 
 in level editor, when loading new level and cancelling, new level is loaded anyway
 don't know if I will be able to fix, I think the visual preview loads the level...
+
 
 
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
 hurry up and fix it!!!
 I think I will just deploy the test version
 
+bump version 7.24.6161_beta
+make release...
+put same version on server
 
-tile editor -> tile select, pointer in lower right shows tile from wrong tileset
+I think I can kill all on server pmh...
 
-copy tiles -> second bitmap does not line up with grid
+all I really need to do is get the latest version on pmh...i think...
+
 
 
 
@@ -53,6 +57,10 @@ copy tiles -> second bitmap does not line up with grid
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+
+
+
 TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -70,8 +78,6 @@ figure out the 24 set tile group that I have a template for
 find a way to patch in tileset creator? now it is manually enabled and run from code
 this will be the way it stays...
 in release, just remove the keyboard shortcut 'S' from copy tiles
-
-
 
 
 Tile helper
@@ -126,10 +132,7 @@ maybe load, or busy
 
 make sure that server snapshot is fully disabled
 
-
-
 make some levels that have a ladder that appear after killing all the bad guys....
-
 
 
 ------------------------------------------------------------------------------
@@ -153,7 +156,6 @@ I am unsure of the benefits of this
 
 what if this gmInfo I am generating is saved in a database?
 that was where i was going with the stats thing anyway, was I not?
-
 
 
 ------------------------------------------------------------------------------

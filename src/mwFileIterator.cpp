@@ -14,8 +14,6 @@ mwFileIterator::mwFileIterator()
 void mwFileIterator::initialize(void)
 {
    mFileIterator.num_filenames = 0;
-//   for (int i=0; i<1000; i++) if (filenames[i]) al_destroy_fs_entry(filenames[i]);
-
 }
 
 int add_file(ALLEGRO_FS_ENTRY *fs, void * extra)
@@ -36,7 +34,6 @@ int mwFileIterator::iterate(const char* fname)
    al_for_each_fs_entry(FS_fname, add_file, NULL);
 
    return num_filenames;
-
 }
 
 int mwFileIterator::get_most_recent(const char* fname)
