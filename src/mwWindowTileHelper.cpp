@@ -257,6 +257,9 @@ void mwWindow::th_replace(int type)
             if (type == 4)  fb = th_replace_helper_extended(448, ot, l, r, t, b, tl, tr, bl, br); // blue pipe set
 
 
+            if (type == 5)  fb = th_replace_helper(736, l, r, t, b, tl, tr, bl, br); // template
+
+
             if (type == 8)   fb = th_replace_helper(832, l, r, t, b, tl, tr, bl, br); // wires
             if (type == 9)   fb = th_replace_helper(928, l, r, t, b, tl, tr, bl, br); // grey bricks
             if (type == 10)  fb = th_replace_helper(960, l, r, t, b, tl, tr, bl, br); // brown bricks
@@ -264,10 +267,14 @@ void mwWindow::th_replace(int type)
             if (type == 12)  fb = th_replace_helper(896, l, r, t, b, tl, tr, bl, br); // white brain
 
             if (type == 13)  fb = th_replace_helper(800, l, r, t, b, tl, tr, bl, br); // industrial 1
+            if (type == 14)  fb = th_replace_helper(768, l, r, t, b, tl, tr, bl, br); // industrial 2
 
-            if (type == 15)  fb = th_replace_helper(992, l, r, t, b, tl, tr, bl, br); // blue solid
+
+
+
 
             if (type == 16)  fb = th_replace_helper(544, l, r, t, b, tl, tr, bl, br); // new bricks
+
 
 
 
@@ -409,25 +416,32 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 832,14,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) choice = 8;
    yfb+=bsp;
+
+   if (mWidget.buttontt(x3, yfb, x4, bts, 544,14,0,0, 0,c,15,0, 1,1,1,d, "     New Bricks")) choice = 16;
+   yfb+=bsp;
+
    if (mWidget.buttontt(x3, yfb, x4, bts, 928,14,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 9;
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 960,14,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) choice = 10;
    yfb+=bsp;
+
+
    if (mWidget.buttontt(x3, yfb, x4, bts, 864,14,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) choice = 11;
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 896,14,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 12;
    yfb+=bsp;
 
-
-   if (mWidget.buttontt(x3, yfb, x4, bts, 800,14,0,0, 0,c,15,0, 1,1,1,d, "     Industrial 1")) choice = 13;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 737,14,0,0, 0,c,15,0, 1,1,1,d, "     Template")) choice = 5;
    yfb+=bsp;
 
 
-   if (mWidget.buttontt(x3, yfb, x4, bts, 992,14,0,0, 0,c,15,0, 1,1,1,d, "     Blue")) choice = 15;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 808,14,0,0, 0,c,15,0, 1,1,1,d, "     Industrial 1")) choice = 13;
    yfb+=bsp;
 
-   if (mWidget.buttontt(x3, yfb, x4, bts, 544,14,0,0, 0,c,15,0, 1,1,1,d, "     New Bricks")) choice = 16;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 776,14,0,0, 0,c,15,0, 1,1,1,d, "     Industrial 2")) choice = 14;
    yfb+=bsp;
+
+
 
 
 

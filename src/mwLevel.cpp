@@ -258,17 +258,39 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 
 void mwLevel::save_level(int level_num)
 {
+
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", lf);
+
+   bool save_old_versions = 1;
+
+   if (save_old_versions)
+   {
+      // rename existing file as backup
+
+      char of[255];
+
+      // get timestamp
+      char timestamp[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+
+      sprintf(of, "levels/level%03d_%s.pml", level_num, timestamp);
+
+      // std::rename returns 0 on success
+      if (std::rename(lf, of) == 0) printf("File renamed successfully!\n");
+      else                          printf("Error renaming file\n");
+   }
+
+
    last_level_loaded = level_num;
    level_check();
 
    mItem.sort_item(1);
    mEnemy.sort_enemy();
    mLift.lift_setup();
-
-   char lf[255];
-   sprintf(lf, "levels/level%03d.pml", level_num);
-   //printf("saving: %s\n", lf);
-
 
    // put variables in pml
    char pml[PML_SIZE];

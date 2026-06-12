@@ -36,6 +36,7 @@ don't know if I will be able to fix, I think the visual preview loads the level.
 
 
 
+
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
 hurry up and fix it!!!
 I think I will just deploy the test version
@@ -93,18 +94,62 @@ hlines or vlines for rect selection
 
 copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
 
-get a nice bitmap for replace single tile in tile helper
 
-remove blue from tile helper list
+add template to tilehelper
 
 
-Tile editor
------------
 
-I want to add something to tile editor
-shift colors
+I want to make a way of easily reverting change I make to levels when changing blocks
+- I could save old with different filename
 
-add or subtract from all colors 
+- rename existing level with timestamp
+- overwrite new level
+
+
+I don't think I can use allegro functions, I will need to do it from the command line
+
+I could open and save...
+
+
+#include <iostream>
+#include <cstdio> // Required for std::rename and perror
+
+
+int main() {
+    // If using std::string, pass them with the .c_str() method
+    const char* old_name = "old_file.txt";
+    const char* new_name = "new_file.txt";
+
+    // std::rename returns 0 on success
+    if (std::rename(old_name, new_name) == 0) {
+        std::cout << "File renamed successfully!\n";
+    } else {
+        std::perror("Error renaming file"); // Prints the OS system error
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -178,31 +223,6 @@ Big things:
 - level stats to use database
 - rearrange levels again (too many crappy ones polluting the good/great ones)
 - sessions timeline
-
-
-OMG!!!! add level name to header!!!!
-and number??
-wait, do I have a level header?? I was thinking of gm...
-
-
-------------------------------------------------------------------------------
-in game tools  
-
-while in a netgame I would like to be able to do things without leaving the game
-kind of like a pause menu
-
-when you press escape, instead of imediatelty exiting the game,
-pop up a simple dialog
-and make the player paused (frozen in place, still visible but invulnerable)
-the level will still play in the background
-from this pop-up menu allow a very limited set of things...
--resume
--quit
-- change controls
-- change sound settings
-- change bottom message options
-- change overlay options
-- change viewport
 
 
 
@@ -956,5 +976,33 @@ I want a timer independant of the game frame timer
 or maybe another method...
 my input is tied to the frame rate, I find it hard to change things with a slow frame rate
 hmmm...just a thought...think about it...
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+in game tools  
+
+while in a netgame I would like to be able to do things without leaving the game
+kind of like a pause menu
+
+when you press escape, instead of imediatelty exiting the game,
+pop up a simple dialog
+and make the player paused (frozen in place, still visible but invulnerable)
+the level will still play in the background
+from this pop-up menu allow a very limited set of things...
+-resume
+-quit
+- change controls
+- change sound settings
+- change bottom message options
+- change overlay options
+- change viewport
+
+
+
 
 
