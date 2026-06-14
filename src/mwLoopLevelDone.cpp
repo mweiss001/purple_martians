@@ -98,7 +98,7 @@ void mwLoop::proc_level_done_mode(void)
          al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
 
          // erase the rocket area
-         al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
+         al_draw_filled_rectangle(20, 0, 360, 1980, mColor.Black);
          al_convert_mask_to_alpha(cutscene_background, mColor.Black);
       }
 

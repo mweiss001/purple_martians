@@ -120,6 +120,22 @@ void mwLevel::change_block(int x, int y, int block)
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
          al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+
+         // check for overlays
+         if (block & PM_BTILE_SHOW_OVERLAY)
+         {
+            int draw_overlay = 0;
+            int kb = (block & 0b00000000000000001110000000000000) >> 13;
+            if (kb > 3) draw_overlay = 1;
+            if (block & PM_BTILE_BOMBABLE) draw_overlay = 2;
+            if ((block & PM_BTILE_BREAKABLE_PSHOT) || (block & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
+
+            // only draw one overlay
+            if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
+            if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
+            if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
+         }
+
       }
    }
 }

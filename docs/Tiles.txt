@@ -113,9 +113,25 @@ mTileSets.create_tileset_extended(256, 266.00, 270.00, 0.88, 0.95, 0.10, 0.35, 1
 
 
 
+2026-06-13 09:46:12
+
+how to change the generated extended pipe tilesets
+
+the code is in 'void mwTileSets::modify_tile_set()'
+
+it is called by pressing 'S' while in copy tile
+
+un-comment this section at the start
+
+   // green pipes extended
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 384;
+   solid_source_tile_index = 0;
 
 
+then adjust and tiles are automatically saved
 
+put the new values in the code as starting point for next edit...
 
 
 

@@ -1819,29 +1819,28 @@ void mwTileSets::modify_tile_set()
    // base_tile_index = 864;
    // solid_source_tile_index = 192;
 
-   // purple pipes extended
-   type = 2; // 0-frame 1-solid 2-extended
-   base_tile_index = 256;
-   solid_source_tile_index = 0;
-
-
-
-   // red pipes extended
-   type = 2; // 0-frame 1-solid 2-extended
-   base_tile_index = 320;
-   solid_source_tile_index = 0;
-
-
+   // // purple pipes extended
+   // type = 2; // 0-frame 1-solid 2-extended
+   // base_tile_index = 256;
+   // solid_source_tile_index = 0;
+   //
+   // // red pipes extended
+   // type = 2; // 0-frame 1-solid 2-extended
+   // base_tile_index = 320;
+   // solid_source_tile_index = 0;
 
    // green pipes extended
    type = 2; // 0-frame 1-solid 2-extended
    base_tile_index = 384;
    solid_source_tile_index = 0;
 
-   // blue pipes extended
-   type = 2; // 0-frame 1-solid 2-extended
-   base_tile_index = 448;
-   solid_source_tile_index = 0;
+   // // blue pipes extended
+   // type = 2; // 0-frame 1-solid 2-extended
+   // base_tile_index = 448;
+   // solid_source_tile_index = 0;
+
+
+
 
 
 
@@ -1895,8 +1894,14 @@ void mwTileSets::modify_tile_set()
    // 3rd extended green pipe set
    if (base_tile_index == 384)
    {
-      h1=86;
-      h2=100;
+//      h1=86;
+//      h2=100;
+
+      h1=144;
+      h2=158;
+
+
+
       s1=0.88;
       s2=0.95;
       l1=0.10;
@@ -1905,6 +1910,7 @@ void mwTileSets::modify_tile_set()
       round=0.0;
       create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
    }
+
 
    // 4th extended blue pipe set
    if (base_tile_index == 448)

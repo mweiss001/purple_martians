@@ -36,6 +36,10 @@ don't know if I will be able to fix, I think the visual preview loads the level.
 
 
 
+when first starting level editor if you run pop-up menu with mouse not on level, first three items are random remnant from previous menu's
+
+
+
 
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
 hurry up and fix it!!!
@@ -81,6 +85,11 @@ this will be the way it stays...
 in release, just remove the keyboard shortcut 'S' from copy tiles
 
 
+
+
+
+
+
 Tile helper
 -----------
 When I have a selection in tile helper, I want to be able to set flags for it as well.
@@ -96,55 +105,6 @@ copy to new tileset of the same type, exact translation, no figuring out what ti
 
 
 add template to tilehelper
-
-
-
-I want to make a way of easily reverting change I make to levels when changing blocks
-- I could save old with different filename
-
-- rename existing level with timestamp
-- overwrite new level
-
-
-I don't think I can use allegro functions, I will need to do it from the command line
-
-I could open and save...
-
-
-#include <iostream>
-#include <cstdio> // Required for std::rename and perror
-
-
-int main() {
-    // If using std::string, pass them with the .c_str() method
-    const char* old_name = "old_file.txt";
-    const char* new_name = "new_file.txt";
-
-    // std::rename returns 0 on success
-    if (std::rename(old_name, new_name) == 0) {
-        std::cout << "File renamed successfully!\n";
-    } else {
-        std::perror("Error renaming file"); // Prints the OS system error
-    }
-
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

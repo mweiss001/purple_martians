@@ -27018,6 +27018,163 @@ Purple Martians Source Code Line Counts [2026-06-11  06:24:25]
 
 
 
+I want to make a way of easily reverting change I make to levels when changing blocks
+- I could save old with different filename
+
+- rename existing level with timestamp
+- overwrite new level
+
+I don't think I can use allegro functions, I will need to do it from the command line
+
+I could open and save...
+
+#include <iostream>
+#include <cstdio> // Required for std::rename and perror
+
+
+int main() {
+    // If using std::string, pass them with the .c_str() method
+    const char* old_name = "old_file.txt";
+    const char* new_name = "new_file.txt";
+
+    // std::rename returns 0 on success
+    if (std::rename(old_name, new_name) == 0) {
+        std::cout << "File renamed successfully!\n";
+    } else {
+        std::perror("Error renaming file"); // Prints the OS system error
+    }
+
+    return 0;
+}
+
+done
+
+
+
+
+
+2026-06-13 07:38:46
+
+I have spent a few hours and I think I am happy with the blocks on level 64
+
+
+2026-06-13 09:29:34
+
+level 17 - little rocket redid blocks - also redid TAS now ends with 2 enemies instead of 3
+
+
+redid 18 
+was very easy, lots of single block line and converted to pipes
+
+
+2026-06-13 09:37:08
+
+I want to change the green to something more pleasing, closer to forest
+
+hue 120 to 150 
+how do I change tileset color? did it and made notes in tiles.txt
+
+
+
+2026-06-13 11:01:05
+
+can I make block manip also draw the overlays?
+
+they all call  'mLevel.change_block'
+
+void mwLevel::change_block(int x, int y, int block)
+{
+   if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
+   {
+      l[x][y] = block;
+      //if (!mDisplay.no_display)
+      {
+         al_set_target_bitmap(mBitmap.level_background);
+         al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+         al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+         
+         // check for overlays
+         if (block & PM_BTILE_SHOW_OVERLAY)
+         {
+            int draw_overlay = 0;
+            int kb = (block & 0b00000000000000001110000000000000) >> 13;
+            if (kb > 3) draw_overlay = 1;
+            if (block & PM_BTILE_BOMBABLE) draw_overlay = 2;
+            if ((block & PM_BTILE_BREAKABLE_PSHOT) || (block & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
+
+            // only draw one overlay
+            if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
+            if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
+            if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
+         }
+         
+      }
+   }
+}
+
+fixed!!
+
+2026-06-13 11:15:35
+
+I now have this cool idea to show a bomb where the trigger is to create one
+
+if I make a blank (0) block and set it to bombable and overlay on, that will work, but then a bomb can destroy it....
+
+
+so my solution is:
+trigger that detects enemy cloner and continually sends events to 
+2 bm that draw either block, on with overlay and one purely blank
+I had to manually find 2 empty events....
+
+I could also do this with a dedicated blank shape without overlay
+
+
+2026-06-13 11:38:39
+I have level 16 tiles done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
