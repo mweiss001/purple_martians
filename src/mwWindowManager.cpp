@@ -132,9 +132,17 @@ void mwWindowManager::initialize(int edit_level)
    tileSetGroups[i].visible= 1;
 
    i++;
+   tileSetGroups[i].name = "Purple Bricks";
+   tileSetGroups[i].display_tile = 640;
+   tileSetGroups[i].visible= 1;
+
+
+   i++;
    tileSetGroups[i].name = "Rainbow";
    tileSetGroups[i].display_tile = 672;
    tileSetGroups[i].visible= 1;
+
+
 
    mSelectionWindow.fill_block_array();
 

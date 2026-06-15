@@ -11,7 +11,7 @@ in sessions they all still show as open
 2026-01-25 19:19:14	9 10:43:01	816181	192.168.1.113	4230h	open
 2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
 
-I have been having so problems playing back server games....
+I have been having some problems playing back server games....
 My thoughts:
 they seem to occur when playing with a bunch of fakekey players...
 things to check...
@@ -28,16 +28,12 @@ all gms in timeline show as 2H long, or 1H longer than they should
 DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 
+
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 
 
 in level editor, when loading new level and cancelling, new level is loaded anyway
-don't know if I will be able to fix, I think the visual preview loads the level...
-
-
-
-when first starting level editor if you run pop-up menu with mouse not on level, first three items are random remnant from previous menu's
-
+don't know if it is possible to fix, I think the visual preview loads the level...
 
 
 
@@ -52,9 +48,6 @@ put same version on server
 I think I can kill all on server pmh...
 
 all I really need to do is get the latest version on pmh...i think...
-
-
-
 
 
 
@@ -80,9 +73,12 @@ give credit to where I got some tilesets
 
 figure out the 24 set tile group that I have a template for
 
-find a way to patch in tileset creator? now it is manually enabled and run from code
-this will be the way it stays...
-in release, just remove the keyboard shortcut 'S' from copy tiles
+
+
+
+
+
+
 
 
 
@@ -185,8 +181,6 @@ Big things:
 - sessions timeline
 
 
-
-
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -212,6 +206,9 @@ I mean, I have a way, but is it a good way?
 what if I get the settings.pm file from the server
 edit it and send it back
 how big is it? settings.pm is 8K
+why am i scared of 8K? I do server client file transfer all the time
+
+
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -260,6 +257,16 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+find a way to patch in tileset creator? now it is manually enabled and run from code
+this will be the way it stays...
+in release, just remove the keyboard shortcut 'S' from copy tiles
+done and added to tiles.txt
+
+
+
+
+bug - when first starting level editor if you run pop-up menu with mouse not on level, first three items are random remnant from previous menu's ...fixed
 
 I want to be able to have multiple pages of tiles, its getting rather busy
 again, another control on title bar

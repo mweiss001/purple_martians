@@ -1,0 +1,80 @@
+Eric Love <ericlove5014@gmail.com>
+	
+Sat, Jun 6, 12:31 AM (8 days ago)
+	
+	
+to me
+Hi Michael
+
+I just reached the end of Purple Martians. Well making a game like that
+over so many years.
+
+With levels that big it takes a lot of time to run through them over &
+over to make sure it all works and feels balanced.
+
+I did a lot of development with C++ & Allegro back in 1999-2006. I only
+made one big game, which took far too long, and several small ones for
+contests lasting 3-8 days.
+https://eric.mappage.net.au/?page_id=94
+
+Last year I looked at allegro.cc and saw your announcement of Purple
+Martians, so decided I'd play it some time.
+
+I haven't done much game dev in recent years, except for finishing two
+implementations of a card game my friend created where the original
+developers didn't complete it, and writing music & testing for games my
+cousin has made.
+
+I still spend a lot of time on hobby software development, but the main
+project is a data viz web app rather than a game. And I do part-time
+paid software work too, so I'm never very far from code.
+
+Good luck with what ever you're working on now!
+
+Eric
+Michael Weiss <mweiss001@gmail.com>
+	
+Sun, Jun 7, 6:34 AM (7 days ago)
+	
+	
+to Eric
+Thank you! Your feedback is very much appreciated.
+All the time and effort, the countless hours I put into the game...
+It's nice to hear when someone actually plays it.
+
+Were you able to find the solutions to all the levels?
+Many of them have more than one way to complete.
+
+Did you need to look at the demo levels to find solutions?
+
+What version did you play?
+
+I am still currently developing the game. I keep coming back with just a few more changes I want to make!
+
+Did you see my website http://purplemartians.org
+
+I have a nice write-up about developing the game and my programming journey...
+
+http://purplemartians.org/history.html
+
+Thank you for the feedback!
+Eric Love
+	
+Tue, Jun 9, 6:33 PM (5 days ago)
+	
+	
+to me
+Hi Michael
+
+I completed all the levels up to the 'end' level. There was only one
+(maybe in Area 3 or so?) where I watched the solution to see how to get
+past one point, but even that one I would have worked out eventually.
+
+My version was purple_martians_7.24.0701.2_linux
+
+I read your story. I have a similar history, going through the
+generations of technology. starting with BASIC on an old computer with
+24kB RAM, no disk, just a cassette player.
+
+Eric
+	

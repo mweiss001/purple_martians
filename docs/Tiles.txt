@@ -136,6 +136,62 @@ put the new values in the code as starting point for next edit...
 
 
 
+Where and when did I get tilesets from?
+
+
+20260330 purchased 'Mega 8-bit Pixel Pack' for $12.00.
+from this tileset I used:
+red and grey beams
+grey bricks set (one of my favorite)
+
+
+20260330 purchased 'Industrial Tileset' for $8.99.
+from this tileset I used:
+Industrial Tileset 1
+Industrial Tileset 18
+
+Castle Dungeon Tileset but did not use anything
+
+
+how do I get a tileset into my game?
+
+
+I think I need to resize nicely in gimp first
+
+for example I have 32x32 tileset that is 192x128 or 6x4
+I want to resize to 20x20 or 120x80
+
+open in gimp
+image->scale image
+export
+
+in code:
+
+void mwBitmapTools::copy_tiles()
+{
+   int b2_pad = 0; // when importing tilesets, most have padding of 0
+   // int b2_pad = 1; // my tilesets have a padding of 1
+
+then run copy tiles
+
+then change default flags
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 
 
 

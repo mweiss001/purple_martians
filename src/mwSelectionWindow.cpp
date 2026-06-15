@@ -18,11 +18,34 @@ void mwSelectionWindow::block_set_set(int t, int x, int y)
    block_array[y][x] = t | mBitmap.tileFlags[t];    // add to list with default flags+
 }
 
+
+
+
 void mwSelectionWindow::block_set_add(int t, int &x, int &y)
 {
    block_set_set(t, x, y);
    if (++x > 15) { x = 0; y++; }
 }
+
+void mwSelectionWindow::set_block_set_24(int t, int x, int y)
+{
+
+   set_block_set(t, x, y); // template
+
+   block_set_set(t+16, x+8, y);
+   block_set_set(t+17, x+9, y);
+   block_set_set(t+18, x+8, y+1);
+   block_set_set(t+19, x+9, y+1);
+
+   block_set_set(t+20, x+10, y);
+   block_set_set(t+21, x+11, y);
+   block_set_set(t+22, x+10, y+1);
+   block_set_set(t+23, x+11, y+1);
+
+
+}
+
+
 
 void mwSelectionWindow::set_block_set_rainbow(int t, int x, int y)
 {
@@ -162,7 +185,8 @@ void mwSelectionWindow::fill_block_array(void)
    int x = 0;
    int y = 0;
 
-   // row 0 -----------------------------------------
+
+   // these blocks are always os
 
    // empty block and blocks with grass
    for (int c=0; c<7; c++) block_set_add(c, x, y);
@@ -174,9 +198,8 @@ void mwSelectionWindow::fill_block_array(void)
    // empty switch blocks
    for (int c=72; c<76; c++) block_set_add(c, x, y);
 
+   // new row
 
-
-   x=0; y=1; // row 1 -----------------------------------------
    // solid color blocks
    for (int c=135; c<146; c++) block_set_add(c, x, y);
 
@@ -185,8 +208,8 @@ void mwSelectionWindow::fill_block_array(void)
    for (int c=76; c<80; c++) block_set_add(c, x, y);
 
 
+   // new row
 
-   x=0; y=2; // row 2 -----------------------------------------
    // other solid blocks
    for (int c=129; c<135; c++) block_set_add(c, x, y);
 
@@ -200,7 +223,8 @@ void mwSelectionWindow::fill_block_array(void)
    for (int c=80; c<84; c++) block_set_add(c, x, y);
 
 
-   x=0; y=3; // row 3 -----------------------------------------
+   // new row
+
 
    // semi-solid screen
    for (int c=33; c<41; c++) block_set_add(c, x, y);
@@ -210,10 +234,21 @@ void mwSelectionWindow::fill_block_array(void)
    for (int c=50; c<57; c++) block_set_add(c, x, y);
 
 
+   /*
+   // test new blocks
+   block_set_add(640, x, y);
+   for (int c=648; c<660; c++) block_set_add(c, x, y);
+   x=0; y++; // new row
+
+*/
+
+
+
+
 
    if (isTileSetGroupVisible("Platforms"  ))
    {
-      x=0; y=4; // row 4 -----------------------------------------
+      //x=0; y++; // new row
 
       // brown bricks and column
       for (int c=176; c<180; c++) block_set_add(c, x, y);
@@ -233,28 +268,22 @@ void mwSelectionWindow::fill_block_array(void)
 
 
 
-      x=0; y=5; // row 5 -----------------------------------------
-
       // red cross beam
       for (int c=614; c<620; c++) block_set_add(c, x, y);
-
       // grey hole beam
       for (int c=608; c<614; c++) block_set_add(c, x, y);
-
-      x=0; y=6; // row 6 -----------------------------------------
+      x=0; y++; // new row
 
       // grey cross beam
       for (int c=620; c<626; c++) block_set_add(c, x, y);
-
       // grey rivet beam
       for (int c=626; c<632; c++) block_set_add(c, x, y);
+      x = 0; y++; // new row
 
-      y++;
+
+
 
    }
-
-   // new row
-   x = 0;
 
 
    if (isTileSetGroupVisible("Purple Pipes")) { set_block_extended(256, y);  y+=4; }
@@ -280,39 +309,12 @@ void mwSelectionWindow::fill_block_array(void)
       y+=2;
    }
 
-   if (isTileSetGroupVisible("Template"  ))
-   {
-      int t = 736;
-      set_block_set(t, x, y); // template
 
-      block_set_set(t+16, x+8, y);
-      block_set_set(t+17, x+9, y);
-      block_set_set(t+18, x+8, y+1);
-      block_set_set(t+19, x+9, y+1);
+   if (isTileSetGroupVisible("Template"  ))     { set_block_set_24(736, x, y); y+=2;  }
+   if (isTileSetGroupVisible("Industrial 1" ))  { set_block_set_24(768, x, y); y+=2;  }
+   if (isTileSetGroupVisible("Industrial 2" ))  { set_block_set_24(800, x, y); y+=2;  }
+   if (isTileSetGroupVisible("Purple Bricks" )) { set_block_set_24(640, x, y); y+=2;  }
 
-      block_set_set(t+20, x+10, y);
-      block_set_set(t+21, x+11, y);
-      block_set_set(t+22, x+10, y+1);
-      block_set_set(t+23, x+11, y+1);
-
-      y+=2;
-   }
-
-   if (isTileSetGroupVisible("Industrial 1" ))
-   {
-      int t = 768;
-      set_block_set(t, x, y); // industrial
-      for (int i=0; i<8; i++) block_set_set(t+16+i, x+8+i, y);
-      y+=2;
-   }
-
-   if (isTileSetGroupVisible("Industrial 2" ))
-   {
-      int t = 800;
-      set_block_set(t, x, y); // industrial
-      for (int i=0; i<8; i++) block_set_set(t+16+i, x+8+i, y);
-      y+=2;
-   }
 
 
    if (isTileSetGroupVisible("Yellow Thatch" ))

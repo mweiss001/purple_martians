@@ -1353,7 +1353,11 @@ void mwBitmapTools::copy_tiles()
    int b2_y2{};
    int b2_tw{};
 
-   int b2_pad = 1;
+   int b2_pad = 0; // when importing tilesets, most have padding of 0
+
+   // int b2_pad = 1; // my tilesets have a padding of 1
+
+
    int b2_ts = 20 + b2_pad*2;
 
 

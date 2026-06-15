@@ -261,8 +261,6 @@ void mwTileSets::constructExtendedSet(std::string name, int i)
 }
 
 
-
-
 // atomic 24 shape set hline, vline, rect solid, and inner
 void mwTileSets::construct24tileSet(std::string name, int i)
 {
@@ -289,6 +287,26 @@ void mwTileSets::construct24tileSet(std::string name, int i)
 
    tileSets.push_back(ts);
 
+   /*
+
+   ts.name            = name;
+   ts.solidMode       = 1;
+   ts.startIndex      = i+16;
+   ts.endIndex        = i+23;
+//   ts.Single          = i+1;
+   ts.SolidFill       = i;
+   ts.OuterCornerTL   = i + 8;
+   ts.OuterCornerTR   = i + 9;
+   ts.OuterCornerBL   = i + 10;
+   ts.OuterCornerBR   = i + 11;
+   ts.OuterEdgeL      = i + 12;
+   ts.OuterEdgeR      = i + 13;
+   ts.OuterEdgeT      = i + 14;
+   ts.OuterEdgeB      = i + 15;
+
+   tileSets.push_back(ts);
+*/
+
 
    // then do inner
 
@@ -300,12 +318,6 @@ void mwTileSets::construct24tileSet(std::string name, int i)
    ts.startIndex        = i+16;
    ts.endIndex          = i+23;
 
-   ts.HLineL            = i + 1;
-   ts.HLineM            = i + 2;
-   ts.HLineR            = i + 3;
-   ts.VLineT            = i + 4;
-   ts.VLineM            = i + 5;
-   ts.VLineB            = i + 6;
 
    ts.FrameCornerTL     = i + 16;
    ts.FrameCornerTR     = i + 17;
@@ -315,7 +327,12 @@ void mwTileSets::construct24tileSet(std::string name, int i)
    ts.FrameEdgeT        = i + 15;
    ts.FrameEdgeR        = i + 12;
    ts.FrameEdgeB        = i + 14;
+
+   setHline(i, 2, 3, 4);
+   setVline(i, 5, 6, 7);
+
    tileSets.push_back(ts);
+
 }
 
 
@@ -483,19 +500,21 @@ void mwTileSets::init()
    tileSets.push_back(constructSolidRectangleSet("grey bricks", 928));
    tileSets.push_back(constructSolidRectangleSet("brown bricks", 960));
    tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
-
    tileSets.push_back(constructSolidRectangleSet("new bricks solid", 544));
 
-//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 800));
    construct24tileSet("industrial solid", 800);
    construct24tileSet("industrial solid", 768);
+   construct24tileSet("template test", 736);
+
+   construct24tileSet("purple bricks", 640);
 
 
+//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 800));
 //   tileSets.push_back(constructSolidRectangleSet("industrial solid", 768));
 
 
 
-   construct24tileSet("template test", 736);
+
 
 
 
@@ -1819,20 +1838,20 @@ void mwTileSets::modify_tile_set()
    // base_tile_index = 864;
    // solid_source_tile_index = 192;
 
-   // // purple pipes extended
-   // type = 2; // 0-frame 1-solid 2-extended
-   // base_tile_index = 256;
-   // solid_source_tile_index = 0;
-   //
+   // purple pipes extended
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 256;
+   solid_source_tile_index = 0;
+
    // // red pipes extended
    // type = 2; // 0-frame 1-solid 2-extended
    // base_tile_index = 320;
    // solid_source_tile_index = 0;
 
    // green pipes extended
-   type = 2; // 0-frame 1-solid 2-extended
-   base_tile_index = 384;
-   solid_source_tile_index = 0;
+   // type = 2; // 0-frame 1-solid 2-extended
+   // base_tile_index = 384;
+   // solid_source_tile_index = 0;
 
    // // blue pipes extended
    // type = 2; // 0-frame 1-solid 2-extended
@@ -1870,7 +1889,7 @@ void mwTileSets::modify_tile_set()
       s1=0.88;
       s2=0.95;
       l1=0.10;
-      l2=0.35;
+      l2=0.30;
       steps=10;
       round=0.0;
       create_tileset_extended(base_tile_index, h1, h2, s1, s2, l1, l2, steps, round);
@@ -1894,14 +1913,8 @@ void mwTileSets::modify_tile_set()
    // 3rd extended green pipe set
    if (base_tile_index == 384)
    {
-//      h1=86;
-//      h2=100;
-
       h1=144;
       h2=158;
-
-
-
       s1=0.88;
       s2=0.95;
       l1=0.10;

@@ -41,6 +41,12 @@ void mwWindow::em_show_draw_item_cursor(void)
 {
    int x = mWM.gx;
    int y = mWM.gy;
+
+
+//   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "point_item_type:%d  gx:%d  gy:%d", mWM.mW[1].point_item_type, mWM.gx, mWM.gy);
+
+
+
    if (mWM.mW[1].point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
       int type = mWM.mW[1].draw_item_type;
@@ -168,13 +174,19 @@ void mwWindow::em_find_point_item(void)
    // which one is the winner?
    if (ob)
    {
-      int mm = mInput.mouse_x % 20;         // mouse position relative to block boundary
-      int ss = 20/ob;                // step space
-      int of = mm / ss;              // convert to offset into ob array
+      int mm = mInput.mouse_x % 20;     // mouse position relative to block boundary
+      int ss = 20/ob;                   // step space
+      int of = mm / ss;                 // convert to offset into ob array
       mWM.mW[1].point_item_type = mo[of][0];
       mWM.mW[1].point_item_num  = mo[of][1];
       //al_draw_textf(mFont.pr8, mColor.pc[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
    }
+
+//   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "point_item_type:%d  gx:%d  gy:%d", mWM.mW[1].point_item_type, mWM.gx, mWM.gy);
+
+
+
+
 }
 
 void mwWindow::em_process_mouse(void)
@@ -314,12 +326,19 @@ void mwWindow::em_process_mouse(void)
             sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[mWM.mW[1].point_item_num].lift_name);
             sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[mWM.mW[1].point_item_num].lift_name);
          break;
+
+         default:
+            sprintf(mMenu.menu_string[2], "              ");
+            sprintf(mMenu.menu_string[3], "              ");
+            sprintf(mMenu.menu_string[4], "                ");
+         break;
+
       }
 
       switch (mMenu.pmenu(2, 0, -20, 2))
       {
          case 2:  // copy
-            if (mWM.mW[1].point_item_type < 4)
+            if (mWM.mW[1].point_item_type > 0 && mWM.mW[1].point_item_type < 4)
             {
                mWM.mW[1].draw_item_type = mWM.mW[1].point_item_type;
                mWM.mW[1].draw_item_num  = mWM.mW[1].point_item_num;

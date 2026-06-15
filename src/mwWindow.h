@@ -153,6 +153,8 @@ class mwWindow
    int th_replace_helper_extended(int tile, int ot, int l, int r, int t, int b, int tl, int tr, int bl, int br);
    int th_replace_helper3(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
    int th_replace_helper(int tile, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
+   int th_replace_helper24(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
+
 
    void th_replace(int type);
    int th_draw_buttons(int x3, int x4, int yfb, int draw_only);

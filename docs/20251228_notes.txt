@@ -27133,6 +27133,313 @@ I could also do this with a dedicated blank shape without overlay
 I have level 16 tiles done...
 
 
+2026-06-14 04:48:27
+
+   construct24tileSet("template test", 736);
+
+
+figure out the 24 set tile group that I have a template for
+
+what tileset is it now?
+
+   construct24tileSet("template test", 736);
+
+that consists of outer, inner, hline, vline
+
+seems to draw like I would expect
+
+but what about tile helper?
+
+
+right now it uses the same as regular solid block set
+
+did some tests and it seems to work well
+
+need to add single corner blocks
+
+when?
+bound on UDLR by blocks
+bound on 3 diagonals
+
+tr = 754 = 736 + 18;
+tl = 755 = 736 + 19;
+tr and tl = 757 = 736 + 21;
+
+I have this done....
+
+I want something to fill in large inner sections
+
+what is an inner section?
+
+something that is bound on all 8 sides
+
+how about a new way of drawing rectangles if I pick one of the last 8 shapes?
+
+that is just crazy enough to maybe work
+
+first, exclude those tiles from other tileset
+
+this will probably need to be a different type of tileset
+one that does not work with single blocks or single lines
+
+it has 4 corners
+
+
+2026-06-14 11:59:37
+re-did lev33 with lots of manual stuff...looks good!!
+
+working on level 31
+
+
+
+2026-06-15 05:00:46
+
+convert new purple grey to proper tileset
+
+its mostly like 24 only with the last 4
+
+make new 20 tileset
+starts at 640
+
+I added the missing 4 and made a 24 tileset
+
+wouldn't it be nice to add more missing tile to the 24 set
+
+I have 4 single corners and 4 double corners
+next would be:
+4 triple corners
+2 diagonal double corners
+1 full cross
+
+if I keep going I will eventually get to the extended tileset
+
+could I automate it?
+
+make a 3x3 1x3 3x1 and just automatically create the rest?
+
+that is 15 tiles
+
+How can I classify my tiles
+corner can be blank, solid, fade in, fade out
+this does not seem like it would work
+
+how about edges? solid pipe revers pipe etc
+
+clockwise
+top edge left
+top edge right
+
+values could be: blank, solid fill, in-out, out-in
+
+the clockwise roatation will complicate matching
+
+make the vlines and hlines follow x and y inc
+
+that way matching will be easier
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

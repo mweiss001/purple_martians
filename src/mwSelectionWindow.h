@@ -32,7 +32,6 @@ public:
 
    int block_array_num_lines;  // number of lines
 
-
    int special_array_num_lines = 4;  // number of lines
    int special_array_cur_lines = 3;  // number of lines currently shown
 
@@ -49,6 +48,9 @@ private:
    void block_set_set(int t, int x, int y);
    void block_set_add(int t, int &x, int &y);
    void set_block_set_rainbow(int t, int x, int y);
+
+   void set_block_set_24(int t, int x, int y);
+
    void set_block_set(int t, int x, int y);
 
    void set_block_extended(int t, int y);
