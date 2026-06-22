@@ -32,6 +32,7 @@ mwColor::mwColor()
       float r, g, b;
       al_unmap_rgb_f(pc[a], &r, &g, &b);
 
+
       for (int x=1; x<16; x++)
       {
          float nr = r * (1 - ((float)x/15));

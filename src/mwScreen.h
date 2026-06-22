@@ -116,6 +116,8 @@ class mwScreen
    void set_map_var();
    void mark_non_default_block(int x, int y, int tile);
 
+   void draw_tile_overlay(int tile, int x, int y);
+
    void init_level_background();
 
    void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);

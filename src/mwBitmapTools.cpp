@@ -45,6 +45,25 @@ ALLEGRO_BITMAP* mwBitmapTools::load_block_tiles_to_bitmap()
 
 void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1)
 {
+   bool save_old_versions = 1;
+   if (save_old_versions)
+   {
+      // rename existing file as backup
+
+      char of[255];
+
+      // get timestamp
+      char timestamp[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+
+      sprintf(of, "%s_%s.bak", block_tiles_fn, timestamp);
+
+      if (std::rename(block_tiles_fn, of) == 0) printf("File [%s] renamed successfully!\n", of);
+      else                                      printf("Error renaming file [%s] to [%s]\n", block_tiles_fn, of);
+   }
+
    al_save_bitmap(block_tiles_fn, b1);
 }
 
@@ -1353,9 +1372,9 @@ void mwBitmapTools::copy_tiles()
    int b2_y2{};
    int b2_tw{};
 
-   int b2_pad = 0; // when importing tilesets, most have padding of 0
+   //int b2_pad = 0; // when importing tilesets, most have padding of 0
 
-   // int b2_pad = 1; // my tilesets have a padding of 1
+   int b2_pad = 1; // my tilesets have a padding of 1
 
 
    int b2_ts = 20 + b2_pad*2;
@@ -1664,13 +1683,41 @@ void mwBitmapTools::copy_tiles()
       if (mInput.key[ALLEGRO_KEY_S][0])
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
-         mTileSets.modify_tile_set();
+
+
+
+
+//          for (int i=1; i<16; i++) mTileSets.create_tileset_single_faded_rect(96+i, mColor.pc[i]);
+
+
+//         mTileSets.create_tileset_single_faded_rect(28, mColor.Green);
+  //       mTileSets.create_tileset_single_faded_rect(60, mColor.Red);
+    //     mTileSets.create_tileset_single_faded_rect(92, mColor.Blue);
+
+
+         //mTileSets.create_tileset_from_16_mega(844, 16, 21); // original hand modify grey bricks (do not run this or they will be overwritten)
+
+//         mTileSets.create_tileset_from_16_mega(912, 16, 21); // grey bricks
+//         mTileSets.create_tileset_from_16_mega(944, 12, 17); // orange brown dirt
+//         mTileSets.create_tileset_from_16_mega(976, 28, 17); // grey
+//         mTileSets.create_tileset_from_16_mega(1008, 28, 21); // outlined grey
+
+
+//         mTileSets.modify_tile_set(); // for extended pipe tilesets
+
+         mTileSets.adjust_tile_set_color();
+
+
+
+
+
          //custom_modify();
 //         create_tileset_frame(352);
 //         create_tileset_solid(384);
 //         create_tileset_solid_just_frame(320);
-//         mBitmap.load_tiles();
-//         reload_b1 = 2;
+
+
+
       }
 
 
@@ -1847,4 +1894,32 @@ void mwBitmapTools::custom_modify()
    // save modified block tiles bitmap to file
    //save_bitmap_to_block_tiles_file(b1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

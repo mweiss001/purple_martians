@@ -117,9 +117,9 @@ void mwMain::set_and_get_versions(void)
 
 }
 
-int mwMain::initial_setup(void)
+int mwMain::initial_setup()
 {
-   //printf("initial_setup(void)\n");
+   // printf("initial_setup()\n");
 
 
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
@@ -167,6 +167,8 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
+
+
    mBitmap.create_bitmaps();
 
 
@@ -192,9 +194,14 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
+
+
    mLevel.setup_data();
    mFont.load_fonts();
    mBitmap.load_tiles();
+
+
+
 
    // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)

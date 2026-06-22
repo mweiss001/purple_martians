@@ -27239,6 +27239,478 @@ that way matching will be easier
 
 
 
+2026-06-16 05:28:02
+
+I have some 16 tilesets from mega, like slate
+
+I want to convert more of them to larger sets
+
+I also want to be able to tweak the colors of an entire set
+
+from that tileset I will take the 'Terrain.png', convert to 20x20, and make functions to create tilesets
+do it fool!
+actually I can grab them directly from the Tileset_Full_20scale.png
+do that...
+
+
+I am going to start building a new one at 192
+
+made a funtion: void mwTileSets::create_tileset_from_16_mega(int bs)
+
+where to call it from?
+copy tiles?
+MegaPixellPack8bit_20scale.png
+
+
+I have all 16 shapes imported...test drawing with them
+
+void mwTileSets::init()
+{
+   construct24tileSet("new 16 test", 192);
+
+
+void mwSelectionWindow::fill_block_array(void)
+{
+   
+   // test new blocks
+   set_block_set_24(192, x, y); y+=2;
+
+
+that seems to work nicely!!!
+
+now manipulate these tiles and make more
+
+even if I do not go anyfurther this tileset seem to be able to autofill complex shapes...test more...
+
+I think the issue will come when drawing inner reversed inside 
+
+
+2026-06-17 05:50:07
+
+You know, I've been thinking...the grey brick tileset is one of my favorites...and it only has 16 tiles...
+there are lots of things in the megapixel tileset I would like to use...
+
+the 16 tilesets...there are 10 of them...that would take 160 tiles
+
+
+the extended pipe tilesets each have 49 tiles x 4 == 196
+
+what are you thinking? take one more bit and make 2048 tiles?
+
+......
+
+I think I need to move some tiles around....
+do I not have a special tool for that?
+
+I think I do in glt...
+
+move my very popular grey tiles to the end..
+
+I want the last 5-6 rows to have only 16 tilesets
+
+now create the new one in that place
+
+
+2026-06-18 05:06:41
+
+now show all these tileset in a 4x4 
+
+where do I create tilesets?
+
+void mwTileSets::init()
+
+
+I need to come up with names:
+
+mega grey brick
+mega red dirt
+
+I now have a bunch of 16 tile things set up
+
+
+
+2026-06-18 06:15:00
+
+I want to see if I can make rainbows extended...nothing comes to mind
+
+
+also to get from mega (maybe)
+18 1x3 column sets
+12 3x1 platform sets
+9 2x3 column sets
+
+ 
+there are so many things....
+
+now try tilehelper for these
+
+tile helper for grey blocks does not look good, I need to add more tiles
+
+I can always draw with muliple bigger rectangles....
+
+
+2026-06-18 17:01:19
+
+
+I want to be able to colorize entire tilesets. how?
+
+
+2026-06-19 04:30:13
+
+what is my direction or goal for tilesets?
+
+I want to get a few more good ones
+specifically:
+
+- make code to colorize
+- finish purple frame with more tiles
+
+
+
+2026-06-21 08:24:06
+
+- make old blocks with for each color all in a row and together
+
+what do I have already?
+
+list colors:
+
+   strcpy (color_name[0],  "Zombie");
+   strcpy (color_name[1],  "Violet");
+   strcpy (color_name[2],  "Mauve");
+   strcpy (color_name[3],  "Bluey");
+   strcpy (color_name[4],  "Reddy");
+   strcpy (color_name[5],  "Pink");
+   strcpy (color_name[6],  "Taan");
+   strcpy (color_name[7],  "Orange");
+   strcpy (color_name[8],  "Purple");
+   strcpy (color_name[9],  "Forest");
+   strcpy (color_name[10], "Red");
+   strcpy (color_name[11], "Green");
+   strcpy (color_name[12], "Blue");
+   strcpy (color_name[13], "Aqua");
+   strcpy (color_name[14], "Yellow");
+   strcpy (color_name[15], "White");
+
+
+i  new old hue sat lit name
+0   96 --- 000 0.0 0.0 black
+1   97 145 280 .73 .67 violet
+2   98 --- 285 .69 .40 mauve
+3   99     219 1.0 .60 bluey
+4  100 137 347 .78 .49 reddy
+5  101 136 305 1.0 .75 pink   
+6  102 142  30 1.0 .75 taan
+7  103      30 1.0 .50 orange 
+8  104 138 270 1.0 .50 purple
+9  105 139 150 1.0 .50 forest
+10 106 140   0 1.0 .50 red
+11 107 135 120 1.0 .50 green
+12 108 141 240 1.0 .50 blue
+13 109 143 180 1.0 .50 aqua
+14 110 144  60 1.0 .50 yellow
+15 111       0 0.0 1.0 white
+
+
+make code to create these..done
+
+for (int i=1; i<16; i++) mTileSets.create_tileset_single_faded_rect(96+i, mColor.pc[i]);
+
+move references: done
+137-100 done
+135-107 done
+
+
+
+
+- make 4 tile column set by adding stand alone tile
+
+added 'S'
+
+   // single lines
+   int HLineL;
+   int HLineM;
+   int HLineR;
+   int HLineS;
+   
+   int VLineT;
+   int VLineM;
+   int VLineB;
+   int VLineS;
+
+
+if not otherwise specified S=M
+
+new gold pipes 4 set at 594 from old at 576
+change in selection window..done
+don't need to change anything in tilehelper...single tile always draws exactly that
+
+actually I can get rid of all S stuff also..done
+
+
+done for tilesets
+
+
+- make special set for overlays all in one line
+special blocks (overlays) and H block will all be in a line at the end of row 4
+done
+
+- move H block to special set...move H from 168 to 148...done....
+
+- move old brown brick and column to row with other one and make colum have nice top and bottom
+block 176 is the old brown column that I want to move and make nice ends
+
+move brown bricks
+176-585
+
+fix tilehelper for brown bricks done
+add tilehelper for rough brown column done
+fix selection window for brown bricks and new colored ones done
+
+- make old blocks with for each color all in a row and together... done
+
+- make 4 tile column set by adding stand alone tile..done
+
+- make double wide column tile set 2x3
+
+copied blocks to 160
+
+how will I create the tileset?
+
+just do a normal solid (it will only look nice when drawing 2 by something)
+
+now make something nice to add to selection
+
+
+allow adjusting of color selection
+allow hue shift of selected colors
+
+
+
+next do the colorize
+
+I need a way to view an arbitrary selection of tiles and a way to adjust their color...
+
+
+I think I can assume they will all be in a rectangle!
+
+goddamn padding gridlines though...
+
+- open tileset
+
+- create bitmap from section
+
+- modify bitmap
+
+- save bitmap
+
+
+can I use the tint in allegro? I sure can!!!
+
+implement save and reset tint buttons
+I can easily set tint from gray, but I cannot go back...be carefull
+
+
+this is one thing I can do to a tileset
+
+other things:
+show unique colors
+allow selecting of specific colors
+allow adjusting of color selection
+allow hue shift of selected colors
+
+first, how to show unique colors
+also unique hues
+
+how?
+
+make a container, maybe vector, of colors and another of hues
+iterate all pixels and fill the container
+
+   std::vector<ALLEGRO_COLOR> uniqueColors;
+   std::vector<float> uniqueHues;
+
+
+
+
+
+bool colors_equal(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2) {
+    float r1, g1, b1, a1;
+    float r2, g2, b2, a2;
+    
+    al_unmap_rgba_f(c1, &r1, &g1, &b1, &a1);
+    al_unmap_rgba_f(c2, &r2, &g2, &b2, &a2);
+    
+    const float EPSILON = 0.001f; // Tolerance for floating-point math
+    
+    return (fabs(r1 - r2) < EPSILON &&
+            fabs(g1 - g2) < EPSILON &&
+            fabs(b1 - b2) < EPSILON &&
+            fabs(a1 - a2) < EPSILON);
+}
+
+
+I want to make the vector bigger than just color
+
+int count
+bool selected
+ALLEGRO_COLOR c
+
+now make array of checkboxes...done
+
+now make a way to adjust selected
+
+- set new color (use color select widget) to set r, g, b, h, s, l
+this will set all selected to the new value
+
+
+I will probably need a mode thingy here...
+- tint mode
+- set color mode
+- adjust color mode
+
+do not detect hue for black (maybe also for white?)
+done
+
+
+
+now make an adustment control:
+
+add / subract from hue for selected colors only
+
+when I search for selected, I get 
+
+I want a button to manually search for unique
+
+I want another way of marking which pixels are selected
+like what?
+an array of ints, the size of the bitmap
+
+when do you mark? when clicking on any checkbox
+
+
+----------------------------------------
+
+I am getting a little bogged down...make sure I have a plan before continuing...
+
+I really think I need a value for each pixel to determine if it is selected or not.
+this could be an array the same size as the bitmap, or a list of points
+
+then it would also help if each unique color or hue also had a list
+
+this might seem complex at the start but will probably make things easier..
+
+- when looking for unique colors and hues, all vectors are erased.
+
+I have unique color and unique hue vectors in place
+
+I did the plan and it works and is much simpler than the mess I had before
+
+make a button to re detect unique shit
+
+make a way to also save versions for tilemaps, then figure out how to restore...
+
+- fix overwriting issues I just created...done
+- restore tilemap from last backup..done
+- make an overwrite rename function, like with levels..done
+
+sort uc vector by hue
+add hue to struct
+done
+
+
+2026-06-22 07:17:06
+
+do a push...
+first cleanup backup files for levels and tilemaps
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

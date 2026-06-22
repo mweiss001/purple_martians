@@ -27,8 +27,6 @@ lev 16, fakekey many clients
 all gms in timeline show as 2H long, or 1H longer than they should
 DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
-
-
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 
 
@@ -59,11 +57,31 @@ all I really need to do is get the latest version on pmh...i think...
 
 
 
+     
+Try this!!!!!
+Deferred drawing
+al_hold_bitmap_drawing
+
+void al_hold_bitmap_drawing(bool hold)
+
+Enables or disables deferred bitmap drawing.
+This allows for efficient drawing of many bitmaps that share a parent bitmap,
+such as sub-bitmaps from a tilesheet or simply identical bitmaps.
+Drawing bitmaps that do not share a parent is less efficient,
+so it is advisable to stagger bitmap drawing calls such that the parent bitmap
+is the same for large number of those calls.
+While deferred bitmap drawing is enabled, the only functions that can be used are
+the bitmap drawing functions and font drawing functions.
+
+
+
+
+
+
 TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
 
 
 Tilesets
@@ -73,9 +91,21 @@ give credit to where I got some tilesets
 
 figure out the 24 set tile group that I have a template for
 
+in the main tilemap, reserve 3x32 for columns
+
+already have 5
+
+pack the tiles better
+
+- move rainbows to blank space at end of extended pipe tileset
 
 
+other things to add to modify tileset:
 
+allow adjusting of color selection
+allow hue shift of selected colors
+change tile start and range
+make options for tint and other modes
 
 
 

@@ -320,11 +320,15 @@ void mwWindow::th_replace(int type)
 
             if (type == 9)   fb = th_replace_helper24(640, l, r, t, b, tl, tr, bl, br); // purple bricks
 
-            if (type == 10)  fb = th_replace_helper(544, l, r, t, b, tl, tr, bl, br); // new bricks
+            if (type == 10)  fb = th_replace_helper(880, l, r, t, b, tl, tr, bl, br); // slate bricks
             if (type == 11)  fb = th_replace_helper(928, l, r, t, b, tl, tr, bl, br); // grey bricks
             if (type == 12)  fb = th_replace_helper(960, l, r, t, b, tl, tr, bl, br); // brown bricks
             if (type == 13)  fb = th_replace_helper(864, l, r, t, b, tl, tr, bl, br); // brown and yellow thatch
             if (type == 14)  fb = th_replace_helper(896, l, r, t, b, tl, tr, bl, br); // white brain
+
+            if (type == 15)  fb = th_replace_helper(1008, l, r, t, b, tl, tr, bl, br); // grey blocks
+
+
 
 
 
@@ -485,7 +489,9 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
 
 
    yfb+=bsp;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 544,14,0,0, 0,c,15,0, 1,1,1,d, "     New Bricks")) choice = 10;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 544,14,0,0, 0,c,15,0, 1,1,1,d, "     Slate Bricks")) choice = 10;
+
+
 
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 928,14,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 11;
@@ -498,6 +504,11 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
 
    yfb+=bsp;
    if (mWidget.buttontt(x3, yfb, x4, bts, 896,14,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 14;
+
+   yfb+=bsp;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 1009,14,0,0, 0,c,15,0, 1,1,1,d, "     Grey Blocks")) choice = 15;
+
+
 
 
    yfb+=bsp;

@@ -164,8 +164,6 @@ void changeBlockNumbersFrame(int oldNum, int newNum)
 
 
 
-
-
 void mwGlobalLevelTool::execute(void)
 {
 //   int blt[NUM_SPRITES] = {0};
@@ -224,6 +222,12 @@ void mwGlobalLevelTool::execute(void)
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
+
+
+      // int oldNum = 544;
+      // int newNum = 880;
+      // for (int i=0; i<16; i++) changeBlockNumber(oldNum+i, newNum+i);
+
 
 //      changeBlockNumbersFrame(576, 800);
 //      changeBlockNumbersFrame(608, 832);
@@ -285,6 +289,55 @@ void mwGlobalLevelTool::execute(void)
 
 
 /*
+
+
+
+
+
+
+
+
+// change tile of block walker
+      for (int y=0; y<100; y++)
+      {
+         int type = mEnemy.Ei[y][0];
+
+         if (type == 4)
+         {
+            int block = mEnemy.Ei[y][13];
+            int tile = block & 1023;
+            int flags = block & PM_BTILE_ALL_FLAGS;
+
+            printf("Level:%3d - blkwlk - %d - %d - %d \n", le[x], tile, block, flags);
+
+            if (tile == 168)
+            {
+               tile = 148;
+               block = tile + flags;
+               mEnemy.Ei[y][13] = block;
+
+               block = mEnemy.Ei[y][13];
+               tile = block & 1023;
+               flags = block & PM_BTILE_ALL_FLAGS;
+
+               printf("Level:%3d - blkwlk - %d - %d - %d \n\n", le[x], tile, block, flags);
+            }
+
+
+         }
+
+      }
+
+
+
+
+
+
+
+
+
+
+
 
       // key flags
       for (int y=0; y<100; y++)

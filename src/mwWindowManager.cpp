@@ -107,6 +107,14 @@ void mwWindowManager::initialize(int edit_level)
    tileSetGroups[i].visible= 1;
 
    i++;
+   tileSetGroups[i].name = "Purple Bricks";
+   tileSetGroups[i].display_tile = 640;
+   tileSetGroups[i].visible= 1;
+
+
+
+
+   i++;
    tileSetGroups[i].name = "Yellow Thatch";
    tileSetGroups[i].display_tile = 864;
    tileSetGroups[i].visible= 1;
@@ -128,13 +136,26 @@ void mwWindowManager::initialize(int edit_level)
 
    i++;
    tileSetGroups[i].name = "Slate Bricks";
-   tileSetGroups[i].display_tile = 544;
+   tileSetGroups[i].display_tile = 880;
    tileSetGroups[i].visible= 1;
 
    i++;
-   tileSetGroups[i].name = "Purple Bricks";
-   tileSetGroups[i].display_tile = 640;
+   tileSetGroups[i].name = "Red Dirt";
+   tileSetGroups[i].display_tile = 944;
    tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Grey Rock";
+   tileSetGroups[i].display_tile = 977;
+   tileSetGroups[i].visible= 1;
+
+   i++;
+   tileSetGroups[i].name = "Grey Blocks";
+   tileSetGroups[i].display_tile = 1009;
+   tileSetGroups[i].visible= 1;
+
+
+
 
 
    i++;

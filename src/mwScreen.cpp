@@ -588,6 +588,22 @@ void mwScreen::mark_non_default_block(int x, int y, int tile)
 }
 
 
+void mwScreen::draw_tile_overlay(int tile, int x, int y)
+{
+   int draw_overlay = 0;
+   int kb = (tile & 0b00000000000000001110000000000000) >> 13;
+   if (kb > 3) draw_overlay = 1;
+   if (tile & PM_BTILE_BOMBABLE) draw_overlay = 2;
+   if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
+
+   // only draw one overlay
+   if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+154-4], x*20, y*20, 0);
+   if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159],      x*20, y*20, 0);
+   if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158],      x*20, y*20, 0);
+}
+
+
+
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
    // double t0 = al_get_time();
@@ -602,21 +618,8 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          // only draw tile if non-zero
          if (tile & 1023) al_draw_bitmap(mBitmap.btile[tile & 1023], x*20, y*20, 0);
 
-         // check for overlays
-         if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mWM.mW[1].show_tile_overlays)))
-         {
-            int draw_overlay = 0;
-            int kb = (tile & 0b00000000000000001110000000000000) >> 13;
-            if (kb > 3) draw_overlay = 1;
-            if (tile & PM_BTILE_BOMBABLE) draw_overlay = 2;
-            if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
-
-            // only draw one overlay
-            if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
-            if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
-            if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
-         }
-
+         // draw tile overlays
+         if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mWM.mW[1].show_tile_overlays))) draw_tile_overlay(tile, x, y);
 
          // mark tiles with non-default flags in level editor only
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y, tile);

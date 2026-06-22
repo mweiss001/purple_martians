@@ -615,7 +615,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts, 312,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 148 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
             ya+=4; // spacer
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");

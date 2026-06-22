@@ -290,21 +290,21 @@ void mwEnemy::move_blokwalk(int e)
    {
       int ex = EXint/20;
       int ey = EYint/20;
-//      int block = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
-
-
+      //      int block = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
       int block = Ei[e][13];
 
-      mLevel.l[ex][ey] = block;
+      if (!mDisplay.no_display) mLevel.change_block(ex, ey, block);
 
+
+      /*
+      mLevel.l[ex][ey] = block;
       if (!mDisplay.no_display)
       {
-
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
          al_draw_bitmap(mBitmap.btile[block & 1023], ex*20, ey*20, 0);
       }
-
+      */
 
       mGameEvent.add(42, 0, 0, Ei[e][26], e, 11, Ei[e][31]);
 

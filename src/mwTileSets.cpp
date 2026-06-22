@@ -336,8 +336,26 @@ void mwTileSets::construct24tileSet(std::string name, int i)
 }
 
 
+// solid rectangle set for 2x3 columns
+tileSet mwTileSets::constructSolidRectangleSet_2x3(std::string name, int i)
+{
+   constructEmptySet();
 
+   ts.name            = name;
+   ts.solidMode       = 1;
+   ts.startIndex      = i;
+   ts.endIndex        = i+5;
 
+   ts.OuterCornerTL   = i + 0;
+   ts.OuterCornerTR   = i + 1;
+   ts.OuterEdgeL      = i + 2;
+   ts.OuterEdgeR      = i + 3;
+   ts.OuterCornerBL   = i + 4;
+   ts.OuterCornerBR   = i + 5;
+
+   return ts;
+
+}
 
 
 
@@ -447,8 +465,6 @@ tileSet mwTileSets::constructHlineVlineSet(std::string name, int i)
 
 
 
-
-
 // basic vline
 tileSet mwTileSets::constructVlineSet(std::string name, int i)
 {
@@ -500,33 +516,43 @@ void mwTileSets::init()
    tileSets.push_back(constructSolidRectangleSet("grey bricks", 928));
    tileSets.push_back(constructSolidRectangleSet("brown bricks", 960));
    tileSets.push_back(constructSolidRectangleSet("blue solid", 992));
-   tileSets.push_back(constructSolidRectangleSet("new bricks solid", 544));
+   tileSets.push_back(constructSolidRectangleSet("new bricks solid_mod", 880));
+
+   tileSets.push_back(constructSolidRectangleSet("new bricks solid", 912));
+
+   tileSets.push_back(constructSolidRectangleSet("red dirt", 944));
+   tileSets.push_back(constructSolidRectangleSet("slate bubble", 976));
+   tileSets.push_back(constructSolidRectangleSet("slate frames", 1008));
+
+
 
    construct24tileSet("industrial solid", 800);
    construct24tileSet("industrial solid", 768);
    construct24tileSet("template test", 736);
-
    construct24tileSet("purple bricks", 640);
-
-
-//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 800));
-//   tileSets.push_back(constructSolidRectangleSet("industrial solid", 768));
-
-
-
-
+   construct24tileSet("new 16 test", 192);
 
 
 
 
    // single hline (platforms)
-   tileSets.push_back(constructHlineSetMulti("brown bricks", 177));
+   tileSets.push_back(constructHlineSetMulti("brown bricks", 585));
    tileSets.push_back(constructHlineSetMulti("curved floater", 579));
    tileSets.push_back(constructHlineSetMulti("grey floater", 582));
 
    // single vlines (columns)
    tileSets.push_back(constructVlineSet("white chain", 54));
-   tileSets.push_back(constructVlineSet("gold column", 576));
+   tileSets.push_back(constructVlineSet("gold column", 592));
+   tileSets.push_back(constructVlineSet("brown rough", 588));
+
+   tileSets.push_back(constructVlineSet("new 1", 632));
+   tileSets.push_back(constructVlineSet("new 2", 635));
+
+
+   tileSets.push_back(constructSolidRectangleSet_2x3("gold brick", 160));
+   tileSets.push_back(constructSolidRectangleSet_2x3("stuff", 166));
+
+
 
    // combo hline vline frames
    tileSets.push_back(constructHlineVlineSet("grey hole beam", 608));
@@ -1289,6 +1315,12 @@ void mwTileSets::fill_step_color_array(float h1, float h2, float s1, float s2, f
       step_color_array[i] = al_color_hsl(h1+i*hinc, s1+i*sinc, l1+i*linc);
 
    step_color_array_size = steps;
+
+
+
+
+
+
 }
 
 void mwTileSets::draw_and_frame_3x3_bitmap(int type, float round, ALLEGRO_BITMAP *bmp, int tile)
@@ -1395,6 +1427,76 @@ void mwTileSets::create_tileset_frame(int bs, float h1, float h2, float s1, floa
    al_destroy_bitmap(hf);
 }
 
+
+
+void mwTileSets::create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc)
+{
+   printf("mwTileSets::create_tileset_single_faded_rect(%d);\n", bs);
+
+   // start by finding what lch wants for color
+
+   // extract rgb
+   float r, g, b;
+   al_unmap_rgb_f(bc, &r, &g, &b);
+
+   // convert rgb to lch
+   float l, c, h;
+   al_color_rgb_to_lch(r, g, b, &l, &c, &h);
+   printf("l:%f  c:%f  h:%f \n", l, c, h);
+
+   // fill color array
+   float l1 = l;
+   float l2 = 0;
+
+   float c1 = c;
+   float c2 = 0;
+
+   int steps = 10;
+   int div = steps - 1;
+   if (div < 1) div = 1;
+   float linc = (l2 - l1) / div;
+   float cinc = (c2 - c1) / div;
+
+   for (int i=0; i<steps; i++)
+      step_color_array[i] = al_color_lch(l1+i*linc, c1+i*cinc, h);
+   step_color_array_size = steps;
+
+
+   // create and clear bitmap to draw on
+   ALLEGRO_BITMAP *tmp1 = al_create_bitmap(20, 20);
+   al_set_target_bitmap(tmp1);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   float x1 = 0.5;
+   float y1 = 0.5;
+   float x2 = 19.5;
+   float y2 = 19.5;
+
+   // draw rectangles
+   for (float i=0; i<step_color_array_size; i+=1)
+      al_draw_rectangle(x1+i, y1+i, x2-i, y2-i, step_color_array[(int)i], 1);
+
+
+   // load tileset
+   ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
+   al_set_target_bitmap(b1);
+
+   // draw tile
+   al_draw_bitmap_region(tmp1, 0,   0, 20, 20, (bs % 32)*22+1, (bs / 32)*22+1, 0);
+
+   // save tileset
+   mBitmapTools.save_bitmap_to_block_tiles_file(b1);
+
+
+
+   al_destroy_bitmap(b1);
+   al_destroy_bitmap(tmp1);
+
+}
+
+
+
+
 void mwTileSets::create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round)
 {
    printf("mTileSets.create_tileset_solid(%d, %d, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %d, %3.2f);\n", bs, tile, h1, h2, s1, s2, l1, l2, steps, round);
@@ -1430,9 +1532,85 @@ void mwTileSets::create_tileset_solid(int bs, int tile, float h1, float h2, floa
 
 
 
+void mwTileSets::create_tileset_from_16_mega(int bs, int b2_x, int b2_y)
+{
+
+
+   // load mega 8 bit tileset to copy from
+   char b2_fn[100];
+   char b2_fn2[100];
+   sprintf(b2_fn2, "bitmaps/MegaPixellPack8bit_20scale.png");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(b2_fn2);
+   sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname2));
+   ALLEGRO_BITMAP *b2 = nullptr;
+
+   b2 = al_load_bitmap(b2_fn);
+
+   if (!b2)
+   {
+      mInput.m_err("Load Error");
+      return;
+   }
+
+   // load block tiles from file to bitmap, so we can modify it
+   ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
+   al_set_target_bitmap(b1);
+   int s=bs;
+
+   // orange brown dirt
+   //int b2_x = 12;
+   //int b2_y = 17;
+
+   // grey bricks
+//   int b2_x = 16;
+  // int b2_y = 21;
+
+   // outlined grey
+//   int b2_x = 28;
+//   int b2_y = 21;
 
 
 
+
+   s = bs +  0;  al_draw_bitmap_region(b2, (b2_x+2)*20, (b2_y+2)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // middle
+   s = bs +  1;  al_draw_bitmap_region(b2, (b2_x+0)*20, (b2_y+0)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // single
+
+   s = bs +  2;  al_draw_bitmap_region(b2, (b2_x+1)*20, (b2_y+0)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline l
+   s = bs +  3;  al_draw_bitmap_region(b2, (b2_x+2)*20, (b2_y+0)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline m
+   s = bs +  4;  al_draw_bitmap_region(b2, (b2_x+3)*20, (b2_y+0)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline r
+
+   s = bs +  5;  al_draw_bitmap_region(b2, (b2_x+0)*20, (b2_y+1)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline t
+   s = bs +  6;  al_draw_bitmap_region(b2, (b2_x+0)*20, (b2_y+2)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline m
+   s = bs +  7;  al_draw_bitmap_region(b2, (b2_x+0)*20, (b2_y+3)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline b
+
+   s = bs +  8;  al_draw_bitmap_region(b2, (b2_x+1)*20, (b2_y+1)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tl
+   s = bs +  9;  al_draw_bitmap_region(b2, (b2_x+3)*20, (b2_y+1)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tr
+
+   s = bs + 10;  al_draw_bitmap_region(b2, (b2_x+1)*20, (b2_y+3)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // bl
+   s = bs + 11;  al_draw_bitmap_region(b2, (b2_x+3)*20, (b2_y+3)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // br
+
+   s = bs + 12;  al_draw_bitmap_region(b2, (b2_x+1)*20, (b2_y+2)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // l
+   s = bs + 13;  al_draw_bitmap_region(b2, (b2_x+3)*20, (b2_y+2)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // r
+
+   s = bs + 14;  al_draw_bitmap_region(b2, (b2_x+2)*20, (b2_y+1)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // t
+   s = bs + 15;  al_draw_bitmap_region(b2, (b2_x+2)*20, (b2_y+3)*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // b
+
+
+   // save modified block tiles bitmap to file
+   mBitmapTools.save_bitmap_to_block_tiles_file(b1);
+
+   al_destroy_bitmap(b1);
+   al_destroy_bitmap(b2);
+
+
+
+
+
+
+
+}
 
 
 
@@ -1839,9 +2017,9 @@ void mwTileSets::modify_tile_set()
    // solid_source_tile_index = 192;
 
    // purple pipes extended
-   type = 2; // 0-frame 1-solid 2-extended
-   base_tile_index = 256;
-   solid_source_tile_index = 0;
+   // type = 2; // 0-frame 1-solid 2-extended
+   // base_tile_index = 256;
+   // solid_source_tile_index = 0;
 
    // // red pipes extended
    // type = 2; // 0-frame 1-solid 2-extended
@@ -1854,9 +2032,9 @@ void mwTileSets::modify_tile_set()
    // solid_source_tile_index = 0;
 
    // // blue pipes extended
-   // type = 2; // 0-frame 1-solid 2-extended
-   // base_tile_index = 448;
-   // solid_source_tile_index = 0;
+   type = 2; // 0-frame 1-solid 2-extended
+   base_tile_index = 448;
+   solid_source_tile_index = 0;
 
 
 
@@ -2048,7 +2226,6 @@ void mwTileSets::modify_tile_set()
       ALLEGRO_COLOR c1 = al_color_hsl(h1, s1, l1);
       ALLEGRO_COLOR c2 = al_color_hsl(h2, s2, l2);
 
-
       // hue
       int old_hlock = h_lock;
       mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, h_lock, "lock", 15, 15);
@@ -2119,6 +2296,571 @@ void mwTileSets::modify_tile_set()
    }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool colors_equal(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+{
+   float r1, g1, b1, a1;
+   float r2, g2, b2, a2;
+   al_unmap_rgba_f(c1, &r1, &g1, &b1, &a1);
+   al_unmap_rgba_f(c2, &r2, &g2, &b2, &a2);
+   const float EPSILON = 0.001f; // Tolerance for floating-point math
+   return (fabs(r1 - r2) < EPSILON && fabs(g1 - g2) < EPSILON && fabs(b1 - b2) < EPSILON && fabs(a1 - a2) < EPSILON);
+}
+
+void mwTileSets::is_pixel_unique(ALLEGRO_BITMAP *bmp, int x, int y)
+{
+   // get pixel color
+   ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
+
+   // extract r, b, g from color
+   float r, g, b;
+   al_unmap_rgb_f(c, &r, &g, &b);
+
+   // get h s l from r g b
+   float h, s, l;
+   al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+   bool isBlack = ((r==0 && g==0 && b==0));
+
+
+
+   // check unique colors vector for existing match
+   bool match_color=0;
+   for (auto& uc : uniqueColors)
+   {
+      if (colors_equal(c, uc.color)) // found existing match
+      {
+         match_color = 1;
+         uc.points.push_back(point(x, y)); // add point to vector of points for this unique color
+      }
+   }
+   if (match_color == 0) // no match found
+   {
+      // create a new unique color
+      uniqueColor uc;
+      uc.color = c;
+      uc.hue = h;
+      uc.points.push_back(point(x, y));
+      uc.selected = 0;
+      uniqueColors.push_back(uc);
+   }
+
+   // check for unique hue
+   if (!isBlack) // only continue if not black
+   {
+      // check unique hues vector for existing match
+      bool match_hue=0;
+      for (auto& uh : uniqueHues)
+      {
+         if (fabs(uh.hue - h) < 4) // found existing match (or close enough)
+         {
+            match_hue = 1;
+            uh.points.push_back(point(x, y)); // add point to vector of points for this unique hue
+         }
+      }
+      if (match_hue == 0) // no match found
+      {
+         // create a new unique hue
+         uniqueHue uh;
+         uh.hue = h;
+         uh.points.push_back(point(x, y));
+         uh.selected = 0;
+         uniqueHues.push_back(uh);
+      }
+   }
+}
+
+void mwTileSets::find_unique_colors_and_hues(ALLEGRO_BITMAP *b)
+{
+   uniqueColors.clear();
+   uniqueHues.clear();
+   selectedPixels.clear();
+
+   // iterate all pixels
+   int w = al_get_bitmap_width(b);
+   int h = al_get_bitmap_height(b);
+
+   for (int x=0; x<w; x++)
+      for (int y=0; y<h; y++)
+         is_pixel_unique(b, x, y);
+
+   // sort unique color array by hue
+
+   std::sort(uniqueColors.begin(), uniqueColors.end(), [](const uniqueColor& a, const uniqueColor& b) { return a.hue < b.hue; });
+
+   std::sort(uniqueHues.begin(), uniqueHues.end(), [](const uniqueHue& a, const uniqueHue& b) { return a.hue < b.hue; });
+
+
+
+   /*
+   If you are sorting custom structures, objects, or want a unique condition, pass a lambda function as the third parameter. The lambda must return true if the first element should appear before the second.cpp
+
+
+   struct Person {
+      std::string name;
+      int age;
+   };
+
+   int main() {
+      std::vector<Person> people = {{"Alice", 30}, {"Bob", 25}, {"Charlie", 35}};
+
+      // Sort by age in ascending order
+      std::sort(people.begin(), people.end(), [](const Person& a, const Person& b) {
+          return a.age < b.age;
+      });
+
+      return 0;
+   }
+   */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj)
+{
+   // extract r, b, g, h, s, l from color
+   float r, g, b;
+   al_unmap_rgb_f(al_get_pixel(bmp, x, y), &r, &g, &b);
+   if (!(r==0 && g==0 && b==0)) // only if not black
+   {
+      float h, s, l;
+      al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+      h += h_adj;
+      if (h<0) h+=360;
+      if (h>360) h-=360;
+
+      s += s_adj;
+
+        // clamp
+//      if (s<0) s = 0;
+//      if (s>1) s = 1;
+      // wrap
+      if (s<0) s+=1;
+      if (s>1) s-=1;
+
+
+      l += l_adj;
+        // clamp
+//      if (l<0) l = 0;
+//      if (l>1) l = 1;
+      // wrap
+      if (l<0) l+=1;
+      if (l>1) l-=1;
+
+
+      al_set_target_bitmap(bmp);
+      al_put_pixel(x, y, al_color_hsl(h, s, l));
+   }
+}
+
+void mwTileSets::modify_selected(ALLEGRO_BITMAP *b, int mod, float val)
+{
+   for (auto& p : selectedPixels)
+   {
+      if (mod == 1) modify_hsl(b, p.x, p.y, val, 0, 0);
+      if (mod == 2) modify_hsl(b, p.x, p.y, 0, val, 0);
+      if (mod == 3) modify_hsl(b, p.x, p.y, 0, 0, val);
+   }
+}
+
+void mwTileSets::set_pixel_selection()
+{
+   selectedPixels.clear();
+   for (auto& uc : uniqueColors)
+      if (uc.selected)
+      {
+         for (auto& p : uc.points) selectedPixels.push_back(p);
+      }
+   for (auto& uh : uniqueHues)
+      if (uh.selected)
+      {
+         for (auto& p : uh.points) selectedPixels.push_back(p);
+      }
+}
+
+
+void mwTileSets::load_region_for_edit(ALLEGRO_BITMAP *bmp, int x, int y, int w, int h)
+{
+   // load tilemap
+   ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
+
+   // draw region
+   al_set_target_bitmap(bmp);
+   al_draw_bitmap_region(b1, x, y, w, h, 0, 0, 0);
+
+   al_destroy_bitmap(b1);
+
+   al_set_target_backbuffer(mDisplay.display);
+}
+
+void mwTileSets::save_region_from_edit(ALLEGRO_BITMAP *bmp, int x, int y)
+{
+   // load tilemap
+   ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
+
+   // draw edited bitmap back to tilemap and save to disk
+   al_set_target_bitmap(b1);
+   al_draw_bitmap(bmp, x, y, 0);
+
+   // save to disk
+   mBitmapTools.save_bitmap_to_block_tiles_file(b1);
+
+   al_destroy_bitmap(b1);
+   al_set_target_backbuffer(mDisplay.display);
+}
+
+
+
+
+void mwTileSets::adjust_tile_set_color()
+{
+
+   // the tileset to be modified will always be consecutive blocks on the tilemap
+   int bs = 1008; // start block
+   int bl = 16; // length (in blocks)
+
+   // position of source region in tilemap
+   int b2s_x = (bs % 32)*22;
+   int b2s_y = (bs / 32)*22;
+   int b2s_w = bl*22;
+   int b2s_h = 22;
+
+   // create and clear a bitmap to hold a copy of the region to modify
+   ALLEGRO_BITMAP *b2 = al_create_bitmap(b2s_w, b2s_h);
+   al_set_target_bitmap(b2);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   load_region_for_edit(b2, b2s_x, b2s_y, b2s_w, b2s_h);
+
+   // find unique colors and hues
+   find_unique_colors_and_hues(b2);
+
+   ALLEGRO_COLOR tint = al_map_rgba_f(0.5, 0.5, 0.5, 0.5);
+   tint = al_map_rgba_f(1, 1, 1, 1);
+
+   int quit = 0;
+   al_show_mouse_cursor(mDisplay.display);
+   while (!quit)
+   {
+      mEventQueue.proc(1);
+      al_flip_display();
+      al_set_target_backbuffer(mDisplay.display);
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      int x=10;
+      int y=10;
+      int w = bl*22;
+      int h = 22;
+
+      if (mWidget.buttontcb(x,    y, 0, 14, 0,0,0,0, 0,11,15,14, 1,0,0,0, "Load")) load_region_for_edit(b2, b2s_x, b2s_y, b2s_w, b2s_h);
+      if (mWidget.buttontcb(x+60, y, 0, 14, 0,0,0,0, 0,10,15,14, 1,0,0,0, "Save")) save_region_from_edit(b2, b2s_x, b2s_y);
+
+      y+=24;
+
+      int d = 1; // draw 1x
+      al_draw_rectangle(x-1, y-1, x+w*d+1, y+h*d+1, mColor.White, 1);
+      al_draw_scaled_bitmap(b2, 0, 0, w, h, x, y, w*d, h*d, 0);
+
+      y+=32;
+
+      d=2; // draw 2x
+      al_draw_rectangle(x-1, y-1, x+w*d+1, y+h*d+1, mColor.White, 1);
+      al_draw_scaled_bitmap(b2, 0, 0, w, h, x, y, w*d, h*d, 0);
+
+      y+=64;
+
+      if (mWidget.buttontcb(x+200, y, 0, 14, 0,0,0,0, 0,12,15,14, 1,0,0,0, "Detect Unique")) find_unique_colors_and_hues(b2);
+
+      y+=32;
+
+      show_unique_colors(x+200, y);
+
+
+/*
+      if (mInput.key[ALLEGRO_KEY_0][0]) tint = al_map_rgba_f(1, 1, 1, 1);
+      if (mInput.key[ALLEGRO_KEY_1][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_1][0]) mEventQueue.proc(1);
+      }
+
+      color_controls("tint", tint, x, y+200, 600, 16);
+
+      al_set_target_bitmap(b2);
+      al_draw_tinted_bitmap_region(b1, tint, (bs % 32)*22, (bs / 32)*22, bl*22, 22, 0, 0, 0);
+
+      */
+
+
+      int ya = y+120;
+
+      ya+=20;
+      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "HUE+")) modify_selected(b2, 1, 10);
+      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "HUE-")) modify_selected(b2, 1, -10);
+
+      ya+=16;
+      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "SAT+")) modify_selected(b2, 2, .1);
+      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "SAT-")) modify_selected(b2, 2, -.1);
+
+      ya+=16;
+      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "LIG+")) modify_selected(b2, 3, .1);
+      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "LIG-")) modify_selected(b2, 3, -.1);
+
+      ya+=20;
+
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+   }
+
+   al_destroy_bitmap(b2);
+}
+
+
+
+void mwTileSets::show_unique_colors(int x, int y)
+{
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, y, 0, "%d unique colors", (int)uniqueColors.size());
+   y+=14;
+
+   int cc = 0;
+
+   for (auto& uc : uniqueColors)
+   {
+      float r, g, b, a;
+      al_unmap_rgba_f(uc.color, &r, &g, &b, &a);
+
+      float h, s, l;
+      al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+      al_draw_textf(mFont.pr8, mColor.pc[15], x+24, y, 0, "r:%1.2f g:%1.2f b:%1.2f h:%6.2f s:%1.2f l:%1.2f count:%d", r, g, b, h, s, l, (int)uc.points.size());
+      al_draw_filled_rectangle(x, y, x+20, y+8, uc.color);
+
+      // check box
+      int ya = y;
+      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uc.selected, "", 15, 15)) set_pixel_selection();
+
+      y+=10;
+      cc+=(int)uc.points.size();
+   }
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+24, y, 0, "total count:%d", cc);
+
+
+   y+=20;
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, y, 0, "%d unique hues", (int)uniqueHues.size());
+   y+=14;
+
+   cc = 0;
+
+   for (auto& uh : uniqueHues)
+   {
+      al_draw_filled_rectangle(x, y, x+20, y+8, al_color_hsl(uh.hue, 1, 0.5));
+      al_draw_textf(mFont.pr8, mColor.pc[15], x+24, y, 0, "h:%6.2f count:%d", uh.hue, (int) uh.points.size());
+
+      // check box
+      int ya = y;
+      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uh.selected, "", 15, 15)) set_pixel_selection();
+
+      y+=10;
+      cc+=(int)uh.points.size();
+   }
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+24, y, 0, "total count:%d", cc);
+}
+
+
+void mwTileSets::color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width, int bts)
+{
+   float o = 0.5;
+
+   ALLEGRO_COLOR show_color = c;
+
+   float fpw = 44; // first panel width
+
+   float xa = x+o+fpw+2;
+   float xb = x+o+width-2;
+
+   int height = 4 + bts*6;
+
+   float r, g, b;
+   al_unmap_rgb_f(c, &r, &g, &b);
+
+   float h, s, l;
+   mColor.map_rgb_to_hsl(c, h, s, l);
+
+   bool r_hover = false;
+   bool g_hover = false;
+   bool b_hover = false;
+   bool h_hover = false;
+   bool s_hover = false;
+   bool l_hover = false;
+
+   bool na = false;
+
+   float r_hover_val = 0;
+   float g_hover_val = 0;
+   float b_hover_val = 0;
+   float h_hover_val = 0;
+   float s_hover_val = 0;
+   float l_hover_val = 0;
+
+   float ya = y+2;
+
+   if (mWidget.colorClickSlider(1, xa, ya, xb, bts, r, r_hover, r_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
+   if (mWidget.colorClickSlider(2, xa, ya, xb, bts, g, g_hover, g_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
+   if (mWidget.colorClickSlider(3, xa, ya, xb, bts, b, b_hover, b_hover_val, c, na)) c = al_map_rgb_f(r,g,b);
+   if (r_hover) show_color = al_map_rgb_f(r_hover_val, g,           b );
+   if (g_hover) show_color = al_map_rgb_f(r,           g_hover_val, b );
+   if (b_hover) show_color = al_map_rgb_f(r,           g,           b_hover_val );
+
+   ya +=2;
+   al_draw_line(x+o+fpw, ya+o-2, x+o+width, ya+o+-2, mColor.White, 1); // line between rgb and hsl
+
+   if (mWidget.colorClickSlider(4, xa, ya, xb, bts, h, h_hover, h_hover_val, c, na)) c = al_color_hsl(h, s, l);
+   if (mWidget.colorClickSlider(5, xa, ya, xb, bts, s, s_hover, s_hover_val, c, na)) c = al_color_hsl(h, s, l);
+   if (mWidget.colorClickSlider(6, xa, ya, xb, bts, l, l_hover, l_hover_val, c, na)) c = al_color_hsl(h, s, l);
+   if (h_hover) show_color = al_color_hsl(h_hover_val, s,           l );
+   if (s_hover) show_color = al_color_hsl(h,           s_hover_val, l );
+   if (l_hover) show_color = al_color_hsl(h,           s,           l_hover_val );
+
+   // show color rect
+   al_draw_filled_rectangle(x, y+20, x+o+fpw, y+o+height, show_color);
+
+   // show text
+   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+2,  ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, text);
+   al_draw_text(mFont.pr8, mColor.White, x+o+fpw/2, y+o+10, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "color");
+
+   // frame all
+   al_draw_rectangle(x+o, y+o, x+o+width, y+o+height, mColor.White, 1);
+   al_draw_line(x+o, y+o+20, x+o+fpw, y+o+20, mColor.White, 1);
+   al_draw_line(x+o+fpw, y+o, x+o+fpw, y+o+height, mColor.White, 1);
+
+}
 
 
 

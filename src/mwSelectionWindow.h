@@ -50,6 +50,12 @@ private:
    void set_block_set_rainbow(int t, int x, int y);
 
    void set_block_set_24(int t, int x, int y);
+   void set_block_set_16(int t, int &x, int &y);
+
+   void set_block_set_2x3(int t, int &x, int &y);
+   void set_block_set_1x3(int t, int &x, int &y);
+
+
 
    void set_block_set(int t, int x, int y);
 

@@ -1,0 +1,56 @@
+I have a special tile for block walker.
+
+It is a basic faded purple frame with a big green 'H' superimposed
+
+This is a special tile that is not allowed to manually place on levels in level editor.
+
+The only place it is referenced is in the enemy structure for block walker.
+
+int block = Ei[e][13];
+
+there is a control in object viewer that explicitly uses a fixed tile number 
+
+if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
+
+
+To change this tile to a new tile:
+
+- get the tile number of the existing tile and the new tile number
+
+- change the number in object viewer
+
+- run glt to change all existing instances
+
+
+      // change tile of block walker
+      for (int y=0; y<100; y++)
+      {
+         int type = mEnemy.Ei[y][0];
+
+         if (type == 4)
+         {
+            int block = mEnemy.Ei[y][13];
+            int tile = block & 1023;
+            int flags = block & PM_BTILE_ALL_FLAGS;
+
+            printf("Level:%3d - blkwlk - %d - %d - %d \n", le[x], tile, block, flags);
+
+            if (tile == 168)
+            {
+               tile = 148;
+               block = tile + flags;
+               mEnemy.Ei[y][13] = block;
+
+               block = mEnemy.Ei[y][13];
+               tile = block & 1023;
+               flags = block & PM_BTILE_ALL_FLAGS;
+
+               printf("Level:%3d - blkwlk - %d - %d - %d \n\n", le[x], tile, block, flags);
+            }
+
+
+         }
+
+      }
+
+

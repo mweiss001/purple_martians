@@ -107,40 +107,22 @@ int mwLevel::get_prev_level(int lev, int max_lev, int wrap)
 
 
 
-
-
-
 void mwLevel::change_block(int x, int y, int block)
 {
    if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
    {
       l[x][y] = block;
-      //if (!mDisplay.no_display)
+      if (!mDisplay.no_display)
       {
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
          al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
 
          // check for overlays
-         if (block & PM_BTILE_SHOW_OVERLAY)
-         {
-            int draw_overlay = 0;
-            int kb = (block & 0b00000000000000001110000000000000) >> 13;
-            if (kb > 3) draw_overlay = 1;
-            if (block & PM_BTILE_BOMBABLE) draw_overlay = 2;
-            if ((block & PM_BTILE_BREAKABLE_PSHOT) || (block & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
-
-            // only draw one overlay
-            if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+188-4], x*20, y*20, 0);
-            if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159], x*20, y*20, 0);
-            if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158], x*20, y*20, 0);
-         }
-
+         if (block & PM_BTILE_SHOW_OVERLAY) mScreen.draw_tile_overlay(block, x, y);
       }
    }
 }
-
-
 
 int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
@@ -280,7 +262,6 @@ void mwLevel::save_level(int level_num)
    //printf("saving: %s\n", lf);
 
    bool save_old_versions = 1;
-
    if (save_old_versions)
    {
       // rename existing file as backup
@@ -296,8 +277,8 @@ void mwLevel::save_level(int level_num)
       sprintf(of, "levels/level%03d_%s.pml", level_num, timestamp);
 
       // std::rename returns 0 on success
-      if (std::rename(lf, of) == 0) printf("File renamed successfully!\n");
-      else                          printf("Error renaming file\n");
+      if (std::rename(lf, of) == 0) printf("File [%s] renamed successfully!\n", of);
+      else                          printf("Error renaming file [%s]\n", of);
    }
 
 

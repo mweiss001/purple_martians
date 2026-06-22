@@ -5,6 +5,27 @@
 #include <vector>
 
 
+struct point
+{
+   int x;
+   int y;
+};
+
+
+struct uniqueColor
+{
+   ALLEGRO_COLOR color;
+   float hue;
+   int selected;
+   std::vector<point> points;
+};
+
+struct uniqueHue
+{
+   float hue;
+   int selected;
+   std::vector<point> points;
+};
 
 
 struct tileSet
@@ -125,6 +146,9 @@ class mwTileSets
 
    tileSet constructVlineSet(std::string name, int i);
 
+   tileSet constructSolidRectangleSet_2x3(std::string name, int i);
+
+
 
 
    void constructEmptySet();
@@ -138,9 +162,21 @@ class mwTileSets
    void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
 
+
+   public:
+
+   void create_tileset_from_16_mega(int bs, int mbx, int mby);
+   void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);
+
+
+   private:
+
+
    void fill_step_color_array(float h1, float h2, float s1, float s2, float l1, float l2, int steps);
    ALLEGRO_COLOR step_color_array[20];
    int step_color_array_size;
+
+
 
    void draw_and_frame_3x3_bitmap(int type, float round, ALLEGRO_BITMAP *bmp, int tile = 0);
    void draw_lock_overlay_bitmap(ALLEGRO_BITMAP *b, ALLEGRO_COLOR lc);
@@ -175,6 +211,37 @@ class mwTileSets
    bool compareTile(int rb, int cb, int set);
 
    void modify_tile_set();
+
+   void adjust_tile_set_color();
+
+
+   void load_region_for_edit(ALLEGRO_BITMAP *bmp, int x, int y, int w, int h);
+   void save_region_from_edit(ALLEGRO_BITMAP *bmp, int x, int y);
+
+
+
+   void color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width, int bts);
+
+
+   std::vector<uniqueColor> uniqueColors;
+   std::vector<uniqueHue> uniqueHues;
+   std::vector<point> selectedPixels;
+
+   void find_unique_colors_and_hues(ALLEGRO_BITMAP *b);
+
+   void is_pixel_unique(ALLEGRO_BITMAP *b, int x, int y);
+
+   void set_pixel_selection();
+
+   void show_unique_colors(int x, int y);
+
+   void modify_selected(ALLEGRO_BITMAP *b, int mod, float val);
+
+
+
+
+
+
 };
 
 extern mwTileSets mTileSets;
