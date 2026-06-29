@@ -556,6 +556,33 @@ void mwWindow::ge_init_data(void)
    ge_data[i].max_allowed = 800;
    cot[i][3][7]  = 1; // vinepod
 
+
+   i++;
+   sprintf(ge_data[i].name, "Timer 1");
+   sprintf(ge_data[i].snam, "tmr1");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 1;
+   ge_data[i].adj_max = 1000;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 1000;
+   cot[i][2][13] = 1; // timer
+
+   i++;
+   sprintf(ge_data[i].name, "Timer 2");
+   sprintf(ge_data[i].snam, "tmr2");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 11;
+   ge_data[i].adj_min = 1;
+   ge_data[i].adj_max = 1000;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 1000;
+   cot[i][2][13] = 1; // timer
+
+
+
+
+
    i++;
    sprintf(ge_data[i].name, "Control Point Multiplier");
    sprintf(ge_data[i].snam, "ctpm");
@@ -566,6 +593,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 8;
    cot[i][3][7]  = 1; // vinepod
+
 
 
 

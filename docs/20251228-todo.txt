@@ -49,7 +49,6 @@ all I really need to do is get the latest version on pmh...i think...
 
 
 
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -106,6 +105,486 @@ allow adjusting of color selection
 allow hue shift of selected colors
 change tile start and range
 make options for tint and other modes
+
+
+purple bricks is now a 24 tileset, but I want to extend it
+tried to add 4 more blocks, triple corners, but with mixed results
+I think this may be too complex
+
+
+
+what if I try to shoehorn it into the extended set...
+
+How can I classify each corner of a tile?
+specifically for purple bricks
+
+- outer corner (need 4 versions) tl, tr, br, bl
+- outer edge (need 4 versions) l, r, u, d
+
+- inner corner (need 4 versions) tl, tr, br, bl
+- inner edge (need 4 versions) tl, tr, br, bl
+
+I need 3 types of solid (outer edge, inner edge, inner
+
+I am not sure if this will all work, but I want to start creating the tileset with getting these
+
+deep dungeon is 6x4 tiles 192x128 (32x32)
+
+
+2026-06-27 05:31:00
+
+
+I am working on converting deep dungeon to extended tileset
+
+I think I need to make a nice single line frame as a start
+
+I already have the 4 edges, but I think I want to back up and draw a 3x3 then get everything from there
+
+
+It will be very similar to the other 3x3 the outer, frame will be indentical
+
+
+I think I might want to manually edit these to make them look nice
+
+Now I need a place to save these
+
+
+modify the deep dungeon tileset
+
+currently 6x4 or 120x80
+
+new 6x8 or 120x160
+
+
+done with frame...
+
+now generate h and vlines from that...
+
+then save them as well
+
+OK I think I have that done...
+
+make a back up the tileset..
+
+now just load from that..in progress
+
+some stuff to remove
+
+/*
+   // modify deep dungeon tileset
+
+   ALLEGRO_BITMAP *tmp4 = al_create_bitmap(120, 160);
+   al_set_target_bitmap(tmp4);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   // draw original
+   al_draw_bitmap(b2, 0, 0, 0);
+
+   al_draw_bitmap(mBitmap.btile[27],   0, 80, 0);
+   al_draw_bitmap(mBitmap.btile[28],  20, 80, 0);
+   al_draw_bitmap(mBitmap.btile[29],  40, 80, 0);
+
+   al_draw_bitmap(mBitmap.btile[59],   0, 100, 0);
+   al_draw_bitmap(mBitmap.btile[60],  20, 100, 0);
+   al_draw_bitmap(mBitmap.btile[61],  40, 100, 0);
+
+   al_draw_bitmap(mBitmap.btile[91],   0, 120, 0);
+   al_draw_bitmap(mBitmap.btile[92],  20, 120, 0);
+   al_draw_bitmap(mBitmap.btile[93],  40, 120, 0);
+
+
+   char b2_fn3[100];
+   sprintf(b2_fn3, "bitmaps/DeepDungeonsTileset2_20scale.png");
+   al_save_bitmap(b2_fn3, tmp4);
+
+*/
+
+/*
+
+   // draw single line 3x3
+   ALLEGRO_BITMAP *tmp2 = al_create_bitmap(60, 60);
+   al_set_target_bitmap(tmp2);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap_region(b2, 0, 20, 60, 60, 0, 0, 0);
+
+   // modify
+
+   // do the sides
+   al_set_target_bitmap(tmp2);
+   for (int i=0; i<10; i++)
+   {
+      al_draw_bitmap_region(tmp1, i,     20-i,   1, 20+(i*2),    40+i, 20-i, 0); // l edge to r
+      al_draw_bitmap_region(tmp1, 59-i,  20-i,   1, 20+(i*2),    19-i, 20-i, 0); // r edge to l
+   }
+
+   // show
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tmp1, 20, 20, 0);
+   al_draw_bitmap(tmp2, 100, 20, 0);
+   al_flip_display();
+   mInput.tsw();
+   al_set_target_bitmap(tmp2);
+
+
+   // do top
+   for (int i=0; i<9; i++) al_draw_bitmap_region(tmp1, 20-i,    i,    20+(i*2), 1,    20-i, 40+i, 0); // t edge to b
+
+   // show
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tmp1, 20, 20, 0);
+   al_draw_bitmap(tmp2, 100, 20, 0);
+   al_flip_display();
+   mInput.tsw();
+   al_set_target_bitmap(tmp2);
+
+   // do bottom
+   for (int i=0; i<11; i++) al_draw_bitmap_region(tmp1, 20-i, 59-i,    20+(i*2), 1,    20-i, 19-i, 0); // b edge to t
+
+
+   // show
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tmp1, 20, 20, 0);
+   al_draw_bitmap(tmp2, 100, 20, 0);
+   al_flip_display();
+   mInput.tsw();
+
+
+   // put them in tilemap for manual editing
+
+
+/*
+   // temp for editing
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 0, 0, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 27);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 20, 0, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 28);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 40, 0, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 29);
+
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 0, 20, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 59);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 20, 20, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 60);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 40, 20, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 61);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 0, 40, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 91);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 20, 40, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 92);
+
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap_region(tmp2, 40, 40, 20, 20, 0, 0, 0);
+   draw_tile_on_tilemap(sb, b1, 93);
+
+*/
+
+
+  */
+
+   /*
+
+
+   // single stand-alone block
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_corner_tl,  0,  0,  0);
+   al_draw_bitmap(outer_corner_tr, 10,  0,  0);
+   al_draw_bitmap(outer_corner_br, 10,  10, 0);
+   al_draw_bitmap(outer_corner_bl,  0,  10, 0);
+   draw_tile_on_tilemap(sb, b1, bs + 0);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   60, 140, 0);
+
+   // hline l
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_corner_tl,  0,   0,  0);
+   al_draw_bitmap(outer_corner_bl,  0,  10,  0);
+   al_draw_bitmap(outer_edge_t,    10,   0,  0);
+   al_draw_bitmap(outer_edge_b,    10,  10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 1);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   0, 140, 0);
+
+
+   // hline m
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_edge_t,     0,   0,  0);
+   al_draw_bitmap(outer_edge_b,     0,  10,  0);
+   al_draw_bitmap(outer_edge_t,    10,   0,  0);
+   al_draw_bitmap(outer_edge_b,    10,  10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 2);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   20, 140, 0);
+
+
+   // hline r
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_edge_t,     0,   0,  0);
+   al_draw_bitmap(outer_edge_b,     0,  10,  0);
+   al_draw_bitmap(outer_corner_tr, 10,   0,  0);
+   al_draw_bitmap(outer_corner_br, 10,  10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 3);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   40, 140, 0);
+
+
+
+
+
+
+
+   // vline t
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_corner_tl,   0,  0,  0);
+   al_draw_bitmap(outer_corner_tr,  10,  0,  0);
+   al_draw_bitmap(outer_edge_l,     0,  10,  0);
+   al_draw_bitmap(outer_edge_r,    10,  10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 4);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   60, 80, 0);
+
+
+   // vline m
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_edge_l,     0,   0,  0);
+   al_draw_bitmap(outer_edge_r,    10,   0,  0);
+   al_draw_bitmap(outer_edge_l,     0,  10,  0);
+   al_draw_bitmap(outer_edge_r,    10,  10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 5);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   60, 100, 0);
+
+
+   // vline b
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(outer_edge_l,     0,  0,  0);
+   al_draw_bitmap(outer_edge_r,    10,  0,  0);
+   al_draw_bitmap(outer_corner_bl,   0, 10,  0);
+   al_draw_bitmap(outer_corner_br,  10, 10,  0);
+   draw_tile_on_tilemap(sb, b1, bs + 6);
+
+   al_set_target_bitmap(dd_ts_bmp);
+   al_draw_bitmap(sb,   60, 120, 0);
+
+
+   // modify deep dungeon tileset
+
+   //al_save_bitmap(dd_ts_fn, dd_ts_bmp);
+
+
+
+2026-06-27 08:50:40
+
+
+next work on the single width pieces
+I need 4 tees and cross
+that was easy...
+
+next
+
+inner fill tiles from dd tileset (only 4 corners)..done
+
+next 4 tiles that have inner on one side and single on opposite side..done
+
+next
+
+faded l notch tr solid tl
+
+I really wish I had better terms for solid, inner, fill, single, etc
+
+these are for 10x10's
+frame_outer (4 corners and 4 edges) same for line and block
+frame_inner_block ( 4 corners and 4 edges)
+frame_inner_line (4 corners and 4 edges)
+fill_outer
+fill_inner
+
+what about 20x20?
+
+frame_block (4 corners and 4 edges) same for line and block
+frame_line ( 4 corners and 4 edges)
+frame_inner (4 corners)
+
+
+I have made this to simplify things
+
+   // notch bl
+   prepare_tile_for_drawing(sb);
+   al_draw_bitmap(inner_corner_br,  0,   0,   0);  // tl
+   al_draw_bitmap(inner_corner_bl, 10,   0,   0);  // tr
+   al_draw_bitmap(inner_corner_tl, 10,  10,   0);  // br
+   //al_draw_bitmap(inner_corner_tr,  0,  10,   0);  // bl
+
+   //al_draw_bitmap(solid_outer_corner_tl,   0,   0,   0); // tl
+   //al_draw_bitmap(solid_outer_corner_tr,  10,   0,   0); // tr
+   //al_draw_bitmap(solid_outer_corner_br,  10,  10,   0); // br
+   al_draw_bitmap(solid_outer_corner_bl,   0,  10,   0); // bl
+
+could I use it a lot more?
+
+do this mean that each corner could have one of 2 things?
+
+draw_tile_helper(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -439,6 +439,30 @@ item[][13] = copy x
 item[][14] = copy y
 
 
+I an thinking about adding a few more block
+
+I could have a mode where I cycle though a list of block
+
+mode 3 toggle
+mode 4 copy
+
+mode 5 cycle 3
+mode 6 cycle 4
+
+mode 7 cycle and don't loop, one way only
+I could reuse the variables 13 and 14
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 */
@@ -454,6 +478,10 @@ void mwItem::proc_block_manip(int i)
       int mode = item[i][3];
       int block1 = item[i][10];
       int block2 = item[i][11];
+
+      int block3 = item[i][13]; // shared with copy source
+      int block4 = item[i][14]; // shared with copy source
+
 
       int x1 = item[i][6]/20;
       int y1 = item[i][7]/20;
@@ -485,6 +513,27 @@ void mwItem::proc_block_manip(int i)
                   int sy = y+y4;
                   if ((sx >= 0) && (sy >= 0) && (sx<100) && (sy<100)) mLevel.change_block(x, y, mLevel.l[sx][sy]); // valid level block position
                }
+
+               if (mode == 5) // 3 way cycle
+               {
+                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
+                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
+                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block1);
+               }
+
+               if (mode == 6) // 4 way cycle
+               {
+                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
+                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
+                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block4);
+                  else if (mLevel.l[x][y] == block4) mLevel.change_block(x, y, block1);
+               }
+
+
+
+
+
+
          }
    }
 }
@@ -719,6 +768,58 @@ int mwItem::draw_block_damage(int i, int x, int y, int custom)
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
          mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
+      if (draw_mode == 3) // lava
+      {
+         if (FLAGS & PM_ITEM_DAMAGE_CURR) // only show if active
+         {
+            // alternate animation sequences in the x direction
+            int altx = 0;
+            for (int hx=x1; hx<x2; hx+=20)
+            {
+               int tn = 0;
+               if (altx == 0) tn = mBitmap.zz[0][91];
+               if (altx == 1) tn = mBitmap.zz[0][93];
+               if (altx == 2) tn = mBitmap.zz[0][92];
+               if (altx == 3) tn = mBitmap.zz[0][95];
+               if (altx == 4) tn = mBitmap.zz[0][94];
+               if (++altx > 4) altx = 0;
+
+               // if stacking animation sequences in the y direction, they need to be offset to match
+               int alty = 0;
+               for (int hy=y1; hy<y2; hy+=20)
+               {
+                  int tny = tn;
+                  if (alty)
+                  {
+                     tny+=5;
+                     if (tny > 18) tny -= 10;
+                  }
+                  alty =!alty;
+                  al_draw_bitmap(mBitmap.tile[tny], hx, hy, 0);
+               }
+            }
+         }
+      }
+
+      if ((draw_mode > 3) && (draw_mode < 11) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // single tile
+      {
+         int tn = 41 + draw_mode - 4;
+         for (int hx=x1; hx<x2; hx+=20)
+            al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0); // draw only on bottom row
+      }
+
+      if ((draw_mode > 10) && (draw_mode < 16) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // 3 tile columns
+      {
+         int tn = 19 + draw_mode - 11;
+         for (int hx=x1; hx<x2; hx+=20)
+            for (int hy=y1; hy<y2; hy+=20)
+            {
+               if       (hy == y1)     al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+               else if  (hy == y1+20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+               else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+            }
+      }
+
 
       if (draw_mode == 2) // spikey floor
       {
@@ -904,6 +1005,7 @@ void mwItem::proc_timer(int i)
             else cnt--;
          break;
       }
+      if (cnt > item[i][10]) cnt = item[i][10]; // in case the current value of the timer is greater than the set point
       if (cnt <= 0)
       {
          state = 2;                            // set state 2
@@ -936,6 +1038,7 @@ void mwItem::proc_timer(int i)
             else cnt--;
          break;
       }
+      if (cnt > item[i][11]) cnt = item[i][11]; // in case the current value of the timer is greater than the set point
       if (cnt <= 0)
       {
          state = 1;                            // set state 1

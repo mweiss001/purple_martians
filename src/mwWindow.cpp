@@ -787,7 +787,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
 
    if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mWM.mW[2].active = 0;
    if (mWidget.buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
-   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mSelectionWindow.block_on = !mSelectionWindow.block_on;
+   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Tiles"))   mSelectionWindow.block_on = !mSelectionWindow.block_on;
    if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mSelectionWindow.special_on = !mSelectionWindow.special_on;
 
    int c = 11;  // first y line of sub-windows;
@@ -862,11 +862,11 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
    {
       by1 = syb+2;
       al_draw_rectangle(x1, syb, x2, syb+12, mColor.pc[9], 1);
-      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Blocks");
+      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Tiles");
 
       if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
 
-      int x3 = x1 + 80;
+      int x3 = x1 + 60;
 
       for (int i=0; i<32; i++)
          if (mWM.tileSetGroups[i].display_tile)

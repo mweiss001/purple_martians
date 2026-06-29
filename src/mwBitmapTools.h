@@ -20,7 +20,6 @@ class mwBitmapTools
 
    void edit_tile_flags();
 
-
    private:
 
    void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight);
@@ -40,19 +39,10 @@ class mwBitmapTools
    void colorize_tile();
    void combine_tile();
    int select_bitmap_ans(int zzindx, int& bmp_index);
-
-
+   int select_bitmap_ans();
    void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
-
    void draw_tilecount_overlays(int x1, int y1);
    void draw_tilecount_overlay(int x1, int y1, int tile, int extended);
-
-   /*
-
-   void draw_flags_overlay(int x1, int y1, int tile, int flags);
-   void draw_flags_overlays(int x1, int y1, int flags);
-*/
-
 
 };
 extern mwBitmapTools mBitmapTools;

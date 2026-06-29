@@ -613,7 +613,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mWidget.button(     xa, ya, xb, bts, 312,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
+            mWidget.button(     xa, ya, xb, bts, 318,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 148 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
             ya+=4; // spacer
@@ -1069,6 +1069,18 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                   if (mItem.item[n][3] > 1)
                   {
                      mWidget.button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d); // block 2
+                     ya+=22; // spacer
+                  }
+
+                  if (mItem.item[n][3] > 4)
+                  {
+                     mWidget.button(     xa, ya, xb, bts, 313,n,0,0,  0, 8,15,0,   1,0,0,d); // block 3
+                     ya+=22; // spacer
+                  }
+
+                  if (mItem.item[n][3] > 5)
+                  {
+                     mWidget.button(     xa, ya, xb, bts, 314,n,0,0,  0, 8,15,0,   1,0,0,d); // block 4
                      ya+=22; // spacer
                   }
                }

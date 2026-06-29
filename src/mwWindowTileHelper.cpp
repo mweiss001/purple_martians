@@ -184,7 +184,37 @@ int mwWindow::th_replace_helper24(int tile, int l, int r, int t, int b, int tl, 
       if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = tile + 22; // tr and br open
       if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = tile + 23; // br and bl open
 
+
+      if (tile == 640)  // purple bricks
+      {
+
+         // 3 corners open
+
+         if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 1)) fb = tile + 24; // only br closed
+         if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 0)) fb = tile + 25; // only bl closed
+         if ((tr == 0) && (tl == 1) && (bl == 0) && (br == 0)) fb = tile + 26; // only tl closed
+         if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 0)) fb = tile + 27; // only tr closed
+
+
+      }
+
+
+
+
+
+
+
+
    }
+
+
+
+
+
+
+
+
+
 
    if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) // no diagonals
       if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
@@ -318,7 +348,12 @@ void mwWindow::th_replace(int type)
 
             if (type == 7)   fb = th_replace_helper(832, l, r, t, b, tl, tr, bl, br); // wires
 
-            if (type == 9)   fb = th_replace_helper24(640, l, r, t, b, tl, tr, bl, br); // purple bricks
+//            if (type == 9)   fb = th_replace_helper24(640, l, r, t, b, tl, tr, bl, br); // purple bricks
+
+            if (type == 9)   fb = th_replace_helper_extended(192, ot, l, r, t, b, tl, tr, bl, br); // purple bricks
+
+
+
 
             if (type == 10)  fb = th_replace_helper(880, l, r, t, b, tl, tr, bl, br); // slate bricks
             if (type == 11)  fb = th_replace_helper(928, l, r, t, b, tl, tr, bl, br); // grey bricks
@@ -327,8 +362,6 @@ void mwWindow::th_replace(int type)
             if (type == 14)  fb = th_replace_helper(896, l, r, t, b, tl, tr, bl, br); // white brain
 
             if (type == 15)  fb = th_replace_helper(1008, l, r, t, b, tl, tr, bl, br); // grey blocks
-
-
 
 
 

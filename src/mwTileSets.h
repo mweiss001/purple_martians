@@ -140,6 +140,10 @@ class mwTileSets
 
    tileSet constructSolidRectangleSet(std::string name, int i);
    tileSet constructFrameRectangleSet(std::string name, int i);
+
+   void constructSolidFrameRectangleSet(std::string name, int i);
+
+
    tileSet constructHlineSetMulti(std::string name, int i);
 
    tileSet constructHlineVlineSet(std::string name, int i);
@@ -147,6 +151,7 @@ class mwTileSets
    tileSet constructVlineSet(std::string name, int i);
 
    tileSet constructSolidRectangleSet_2x3(std::string name, int i);
+
 
 
 
@@ -163,7 +168,15 @@ class mwTileSets
    void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
 
 
+
+
+
+
+
    public:
+
+   void create_tileset_extended2(int bs);
+
 
    void create_tileset_from_16_mega(int bs, int mbx, int mby);
    void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);

@@ -996,6 +996,9 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
          }
       }
    }
+
+
+
    if (bn == 310) // block 1 select...
    {
       int tn = mItem.item[num][10]&1023; // block 1
@@ -1033,7 +1036,55 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       }
    }
 
-   if (bn == 312) // blokwalk block select...
+   if (bn == 313) // block 3 select...
+   {
+      int tn = mItem.item[num][13]&1023; // block 3
+      sprintf(msg, "Block 3: %d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][13]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][13], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][13], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+   if (bn == 314) // block 4 select...
+   {
+      int tn = mItem.item[num][14]&1023; // block 4
+      sprintf(msg, "Block 4: %d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][14]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][14], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][14], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+
+
+
+
+
+
+
+
+
+
+   if (bn == 318) // blokwalk block select...
    {
       int tn = mEnemy.Ei[num][13]&1023;
       sprintf(msg, "Block:%d", tn);
@@ -1051,6 +1102,10 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
          }
       }
    }
+
+
+
+
 
 
 
@@ -1260,7 +1315,32 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
       al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
    }
-   if (bn == 312)
+
+   if (bn == 313)
+   {
+      int tn = mItem.item[num][13];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+   }
+
+   if (bn == 314)
+   {
+      int tn = mItem.item[num][14];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+   }
+
+
+
+
+
+   if (bn == 318)
    {
       int tn = mEnemy.Ei[num][13];
       int x = (x2+x1)/2+60;
@@ -1815,12 +1895,15 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 301) // block manip mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 4)) var = 0;
+      if ((var < 0) || (var > 6)) var = 0;
       if (var == 0) sprintf(msg, "MODE:OFF");
       if (var == 1) sprintf(msg, "MODE:Set All To Block 1");
       if (var == 2) sprintf(msg, "MODE:Set All Block 2 To Block 1");
       if (var == 3) sprintf(msg, "MODE:Toggle Block 2 To Block 1");
       if (var == 4) sprintf(msg, "MODE:Copy Area");
+      if (var == 5) sprintf(msg, "MODE:Cycle 3 Blocks");
+      if (var == 6) sprintf(msg, "MODE:Cycle 4 Blocks");
+
    }
 
 
@@ -1948,10 +2031,25 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 404) // Block Damage draw mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(msg, "Draw Type:none         ");
-      if (var == 1) sprintf(msg, "Draw Type:Red Rectangle");
-      if (var == 2) sprintf(msg, "Draw Type:Spikey Floor ");
+      if ((var < 0) || (var > 15)) var = 0;
+      if (var == 0) sprintf(msg,  "Draw Type:none         ");
+      if (var == 1) sprintf(msg,  "Draw Type:Red Rectangle");
+      if (var == 2) sprintf(msg,  "Draw Type:Spikey Floor");
+      if (var == 3) sprintf(msg,  "Draw Type:Lava");
+      if (var == 4) sprintf(msg,  "Draw Type:Triangle Spikes");
+      if (var == 5) sprintf(msg,  "Draw Type:Gold Spikes");
+      if (var == 6) sprintf(msg,  "Draw Type:Silver White Spikes");
+      if (var == 7) sprintf(msg,  "Draw Type:Silver Two Height Spikes");
+      if (var == 8) sprintf(msg,  "Draw Type:Silver Bluish Spikes");
+      if (var == 9) sprintf(msg,  "Draw Type:Silver Greenish Spikes");
+      if (var == 10) sprintf(msg, "Draw Type:Mine");
+      if (var == 11) sprintf(msg, "Draw Type:Wood Pole");
+      if (var == 12) sprintf(msg, "Draw Type:Silver Cone");
+      if (var == 13) sprintf(msg, "Draw Type:White Spear");
+      if (var == 14) sprintf(msg, "Draw Type:Grey Cones");
+      if (var == 15) sprintf(msg, "Draw Type:Wood Spear");
+
+
    }
    if (bn == 500) // lift mode
    {

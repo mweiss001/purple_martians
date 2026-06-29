@@ -15,8 +15,6 @@ void mwSelectionWindow::init()
 
 
 
-
-
 void mwSelectionWindow::fill_block_array(void)
 {
    // erase all
@@ -28,7 +26,6 @@ void mwSelectionWindow::fill_block_array(void)
    // running position
    int x = 0;
    int y = 0;
-
 
    // these blocks are always os
 
@@ -42,8 +39,12 @@ void mwSelectionWindow::fill_block_array(void)
    // empty switch blocks
    for (int c=72; c<76; c++) block_set_add(c, x, y);
 
-
    // new row
+
+   // empty blocks to mark bomb and rocket cloner trigger
+   for (int c=42; c<44; c++) block_set_add(c, x, y);
+   for (int c=17; c<26; c++) block_set_add(c, x, y);
+
 
    x=12;
    // solid switch blocks
@@ -67,7 +68,6 @@ void mwSelectionWindow::fill_block_array(void)
 
    // new row
 
-
    // semi-solid screen
    for (int c=33; c<41; c++) block_set_add(c, x, y);
 
@@ -82,190 +82,127 @@ void mwSelectionWindow::fill_block_array(void)
    y++; x=0; // force new row
 
 
-
-
-
-   /*
-// test new blocks
-block_set_add(640, x, y);
-for (int c=648; c<660; c++) block_set_add(c, x, y);
-x=0; y++; // new row
-
-*/
-
-
-
-   /*
-   // test new blocks
-   block_set_add(640, x, y);
-   for (int c=648; c<660; c++) block_set_add(c, x, y);
-   x=0; y++; // new row
-
-*/
-
-//   set_block_set_24(192, x, y); y+=2;
-
-
-
    if (isTileSetGroupVisible("Platforms"  ))
    {
-      // brown bricks
-//      for (int c=585; c<588; c++) block_set_add(c, x, y);
-
-
-      // brown rough column
-      for (int c=588; c<592; c++) block_set_add(c, x, y);
-
-
-      // gold column
-      for (int c=592; c<596; c++) block_set_add(c, x, y);
-
-
-
-
-
-      // curved floater
-      for (int c=579; c<582; c++) block_set_add(c, x, y);
-
-      // second floater
-      for (int c=582; c<585; c++) block_set_add(c, x, y);
-
-      x=0; y++; // new row
-
-
-      // red cross beam
-      for (int c=614; c<620; c++) block_set_add(c, x, y);
-      // grey hole beam
-      for (int c=608; c<614; c++) block_set_add(c, x, y);
-      x=0; y++; // new row
-
-      // grey cross beam
-      for (int c=620; c<626; c++) block_set_add(c, x, y);
-      // grey rivet beam
-      for (int c=626; c<632; c++) block_set_add(c, x, y);
-      x = 0; y++; // new row
-
-
 
 
    }
-
 /*
+
+   set_block_extended(192,  y); y+=4;
+   set_block_extended(256,  y); y+=4;
+   set_block_set_24(640, x, y); y+=2;
+*/
+
+
+   set_block_extended(192, y);  y+=4;
+
+
    if (isTileSetGroupVisible("Purple Pipes")) { set_block_extended(256, y);  y+=4; }
    if (isTileSetGroupVisible("Red Pipes"   )) { set_block_extended(320, y);  y+=4; }
    if (isTileSetGroupVisible("Green Pipes" )) { set_block_extended(384, y);  y+=4; }
    if (isTileSetGroupVisible("Blue Pipes"  )) { set_block_extended(448, y);  y+=4; }
 
-
    if (isTileSetGroupVisible("Wires"  ))
    {
       int t = 832;
 
-      set_block_set(t, x, y);   // wires
+      set_block_set_16_2x8(t, x, y);   // wires
 
       block_set_set(t+17, x+8, y);   // B H
       block_set_set(t+18, x+8, y+1);  // B V
 
-      block_set_set(t+19, x+9, y);    // I H
-      block_set_set(t+20, x+9, y+1);   // I V
-
+      block_set_set(t+19, x+9,  y);    // I H
+      block_set_set(t+20, x+9,  y+1);   // I V
       block_set_set(t+16, x+10, y);    // V H
 
       y+=2;
    }
 
-
-   if (isTileSetGroupVisible("Template"  ))     { set_block_set_24(736, x, y); y+=2;  }
+   if (isTileSetGroupVisible("Template"     ))  { set_block_set_24(736, x, y); y+=2;  }
    if (isTileSetGroupVisible("Industrial 1" ))  { set_block_set_24(768, x, y); y+=2;  }
    if (isTileSetGroupVisible("Industrial 2" ))  { set_block_set_24(800, x, y); y+=2;  }
-   if (isTileSetGroupVisible("Purple Bricks" )) { set_block_set_24(640, x, y); y+=2;  }
 
 
 
+//   if (isTileSetGroupVisible("Purple Bricks" )) { set_block_set_24(640, x, y); y+=2;  }
 
-   if (isTileSetGroupVisible("Yellow Thatch" )) set_block_set_16(864, x, y);
-   if (isTileSetGroupVisible("Brain" ))         set_block_set_16(896, x, y);
-   if (isTileSetGroupVisible("Grey Bricks" ))   set_block_set_16(928, x, y);
-   if (isTileSetGroupVisible("Brown Bricks" ))  set_block_set_16(960, x, y);
-   if (isTileSetGroupVisible("Slate Bricks" ))  set_block_set_16(880, x, y);
+   if (isTileSetGroupVisible("Yellow Thatch" )) set_block_set_16_4x4(864,  x, y);
+   if (isTileSetGroupVisible("Brain" ))         set_block_set_16_4x4(896,  x, y);
+   if (isTileSetGroupVisible("Grey Bricks" ))   set_block_set_16_4x4(928,  x, y);
+   if (isTileSetGroupVisible("Brown Bricks" ))  set_block_set_16_4x4(960,  x, y);
+   if (isTileSetGroupVisible("Slate Bricks" ))  set_block_set_16_4x4(880,  x, y);
+   if (isTileSetGroupVisible("Red Dirt" ))      set_block_set_16_4x4(944,  x, y);
+   if (isTileSetGroupVisible("Grey Rock" ))     set_block_set_16_4x4(976,  x, y);
+   if (isTileSetGroupVisible("Grey Blocks" ))   set_block_set_16_4x4(1008, x, y);
+                                                   set_block_set_16_4x4(720,  x, y); // wrought iron grate
+   if (isTileSetGroupVisible("Rainbow" ))       set_block_set_rainbow(704, x, y);
 
-
-   if (isTileSetGroupVisible("Red Dirt" ))      set_block_set_16(944, x, y);
-
-   if (isTileSetGroupVisible("Grey Rock" ))    set_block_set_16(976, x, y);
-
-*/
-
-   if (isTileSetGroupVisible("Grey Blocks" ))   set_block_set_16(1008, x, y);
-
-
-
-   // new line
-   if (x > 0) { x=0; y+=4; }
+   if (isTileSetGroupVisible("Wires" ))         set_block_set_16_4x4(832, x, y);
 
 
 
-
-   if (isTileSetGroupVisible("Rainbow" ))
-   {
-      set_block_set_rainbow(672, x, y);
-      set_block_set_rainbow(704, x+4, y);
-      if (x == 0) x = 8;
-      else { x=0; y+=2; }
-   }
+   set_block_set_16_4x4(992,  x, y); // fat pipes
+   set_block_set_1x4(588, x, y); // rough brown column
+   set_block_set_1x4(592, x, y); // gold pipe column
 
 
+   // after the end of the 4x4's do a new line
+   x=0; y+=4;
 
-   x=0; y+=2;
+   // 2x3 columns
+   set_block_set_2x3(512, x, y);
+   set_block_set_2x3(518, x, y);
+   set_block_set_2x3(524, x, y);
+   set_block_set_2x3(530, x, y);
+   set_block_set_2x3(536, x, y);
 
-   set_block_set_2x3(160, x, y);
-   set_block_set_2x3(166, x, y);
+   // 1x3 columns
+   set_block_set_1x3(544, x, y); // gold rough column
+   set_block_set_1x3(547, x, y); // grey pipe
+   set_block_set_1x3(550, x, y); // orange
+   set_block_set_1x3(553, x, y); // blue
+   set_block_set_1x3(556, x, y); // grey round with holes
+   set_block_set_1x3(559, x, y); // gold orange pipe
+
+   set_block_set_1x3(611, x, y); // grey hole girder
+   set_block_set_1x3(617, x, y); // red cross girder
+   set_block_set_1x3(623, x, y); // grey cross girder
+   set_block_set_1x3(629, x, y); // grey rivet girder
+
+   set_block_set_1x3(632, x, y); // grey/red dogbone
+   set_block_set_1x3(635, x, y); // grey hex pipe
+
+   // after the end of the x3's do a new line
+   x=0; y+=3;
+
+   // 3x1 platforms
+   set_block_set_3x1(562, x, y); // gold pipe
+   set_block_set_3x1(565, x, y); // gold beam
+   set_block_set_3x1(568, x, y); // gool wood grain
+   set_block_set_3x1(571, x, y); // green platform
+
+   set_block_set_3x1(576, x, y); // grey segments
+   set_block_set_3x1(579, x, y); // gold curved
+   set_block_set_3x1(582, x, y); // second grey floater
+   set_block_set_3x1(585, x, y); // brown bricks
+
+   set_block_set_3x1(608, x, y); // grey hole girder
+   set_block_set_3x1(614, x, y); // red cross girder
+   set_block_set_3x1(620, x, y); // grey cross girder
+   set_block_set_3x1(626, x, y); // grey rivet girder
 
 
-   set_block_set_1x3(632, x, y);
-   set_block_set_1x3(635, x, y);
-
-
-   y+=3;
-
-
-
-
-
-
-
-   // if in the middle of a row, set new one
-   if (x == 8) { x=0; y+=2; }
+   // new row to end
+   y++;
 
    block_array_num_lines = y;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void mwSelectionWindow::block_set_set(int t, int x, int y)
 {
    block_array[y][x] = t | mBitmap.tileFlags[t];    // add to list with default flags+
 }
-
-
-
 
 void mwSelectionWindow::block_set_add(int t, int &x, int &y)
 {
@@ -273,27 +210,23 @@ void mwSelectionWindow::block_set_add(int t, int &x, int &y)
    if (++x > 15) { x = 0; y++; }
 }
 
-void mwSelectionWindow::set_block_set_24(int t, int x, int y)
+
+void mwSelectionWindow::set_block_set_3x1(int t, int &x, int &y)
 {
+   // check at the start
+   if (x>13) { x=0; y++; }
 
-   set_block_set(t, x, y); // template
+   block_set_set(t+0, x+0, y);
+   block_set_set(t+1, x+1, y);
+   block_set_set(t+2, x+2, y);
 
-   block_set_set(t+16, x+8, y);
-   block_set_set(t+17, x+9, y);
-   block_set_set(t+18, x+8, y+1);
-   block_set_set(t+19, x+9, y+1);
-
-   block_set_set(t+20, x+10, y);
-   block_set_set(t+21, x+11, y);
-   block_set_set(t+22, x+10, y+1);
-   block_set_set(t+23, x+11, y+1);
-
-
+   x+=3;
 }
-
 
 void mwSelectionWindow::set_block_set_2x3(int t, int &x, int &y)
 {
+   // check at the start
+   if (x>14) { x=0; y+=3; }
 
    block_set_set(t+0, x+0, y+0);
    block_set_set(t+1, x+1, y+0);
@@ -301,35 +234,64 @@ void mwSelectionWindow::set_block_set_2x3(int t, int &x, int &y)
    block_set_set(t+3, x+1, y+1);
    block_set_set(t+4, x+0, y+2);
    block_set_set(t+5, x+1, y+2);
-
-   if (x < 14) x += 2;
-   else { x=0; y+=3; }
-
-
-
-
+   x+=2;
 }
 
 void mwSelectionWindow::set_block_set_1x3(int t, int &x, int &y)
 {
+   // check at the start
+   if (x>15) { x=0; y+=3; }
 
    block_set_set(t+0, x+0, y+0);
    block_set_set(t+1, x+0, y+1);
    block_set_set(t+2, x+0, y+2);
+   x+=1;
+}
 
-   if (x < 15) x += 1;
-   else { x=0; y+=3; }
+void mwSelectionWindow::set_block_set_1x4(int t, int &x, int &y)
+{
+   // check at the start
+   if (x>15) { x=0; y+=4; }
 
+   block_set_set(t+0, x+0, y+0);
+   block_set_set(t+1, x+0, y+1);
+   block_set_set(t+2, x+0, y+2);
+   block_set_set(t+3, x+0, y+3);
 
+   x+=1;
+}
+
+// used for wires and 24 block tilesets starting point
+// sets up 16 tiles on 2 lines 2x8
+void mwSelectionWindow::set_block_set_16_2x8(int t, int x, int y)
+{
+   block_set_set(t+8,  x++, y); // tl corner
+   block_set_set(t+9,  x++, y); // tr corner
+   block_set_set(t+0,  x++, y); // middle cross
+   block_set_set(t+2,  x++, y); // hline l
+   block_set_set(t+3,  x++, y); // hline m
+   block_set_set(t+4,  x++, y); // hline r
+   block_set_set(t+12, x++, y); // tee tl
+   block_set_set(t+14, x++, y); // tee tr
+
+   x-=8; y++;
+
+   block_set_set(t+10, x++, y); // ll corner
+   block_set_set(t+11, x++, y); // lr corner
+   block_set_set(t+1,  x++, y); // standalone single
+   block_set_set(t+5,  x++, y); // vline t
+   block_set_set(t+6,  x++, y); // vline m
+   block_set_set(t+7,  x++, y); // vline b
+   block_set_set(t+15, x++, y); // tee ll
+   block_set_set(t+13, x++, y); // tee lr
 }
 
 
 
 
-
-
-
-void mwSelectionWindow::set_block_set_16(int t, int &x, int &y)
+// sets up 16 tiles on 4 lines 4x4
+// used for most 16 block tileset
+void mwSelectionWindow::set_block_set_16_4x4(int t, int &x, int &y)
 {
    for (const auto& s : mTileSets.tileSets)
       if (s.startIndex == t)
@@ -344,7 +306,7 @@ void mwSelectionWindow::set_block_set_16(int t, int &x, int &y)
          block_set_set(s.OuterEdgeL,          x+0, y+1);
          block_set_set(s.OuterEdgeR,          x+2, y+1);
 
-         block_set_set(s.SolidFill,          x+1, y+1);
+         block_set_set(s.SolidFill,           x+1, y+1);
 
          block_set_set(s.VLineT,              x+3, y+0);
          block_set_set(s.VLineM,              x+3, y+1);
@@ -357,40 +319,57 @@ void mwSelectionWindow::set_block_set_16(int t, int &x, int &y)
          block_set_set(s.Single,              x+3, y+3);
       }
 
-
    if (x < 12) x += 4;
    else { x=0; y+=4; }
-
-
-
-
-
 }
 
+void mwSelectionWindow::set_block_set_24(int t, int x, int y)
+{
+   set_block_set_16_2x8(t, x, y); // template
 
+   block_set_set(t+16, x+8, y);
+   block_set_set(t+17, x+9, y);
+   block_set_set(t+18, x+8, y+1);
+   block_set_set(t+19, x+9, y+1);
 
+   block_set_set(t+20, x+10, y);
+   block_set_set(t+21, x+11, y);
+   block_set_set(t+22, x+10, y+1);
+   block_set_set(t+23, x+11, y+1);
+}
 
 
 void mwSelectionWindow::set_block_set_rainbow(int t, int x, int y)
 {
-   block_set_set(t+0,  x++, y); // tl corner
-   block_set_set(t+1,  x++, y); // tr corner
-   block_set_set(t+4,  x++, y);
-   block_set_set(t+5,  x++, y);
+   t+=8;
+   block_set_set(t+0,  x+0, y+0);
+   block_set_set(t+1,  x+1, y+0);
+   block_set_set(t+4,  x+2, y+0);
+   block_set_set(t+5,  x+3, y+0);
 
-   x -= 4;
-   y++;
+   block_set_set(t+2,  x+0, y+1);
+   block_set_set(t+3,  x+1, y+1);
+   block_set_set(t+6,  x+2, y+1);
+   block_set_set(t+7,  x+3, y+1);
 
-   block_set_set(t+2, x++, y); // ll corner
-   block_set_set(t+3, x++, y); // lr corner
-   block_set_set(t+6, x++, y);
-   block_set_set(t+7, x++, y);
+   t-=8;
+   block_set_set(t+0,  x+0, y+2);
+   block_set_set(t+1,  x+1, y+2);
+   block_set_set(t+4,  x+2, y+2);
+   block_set_set(t+5,  x+3, y+2);
+
+   block_set_set(t+2,  x+0, y+3);
+   block_set_set(t+3,  x+1, y+3);
+   block_set_set(t+6,  x+2, y+3);
+   block_set_set(t+7,  x+3, y+3);
+
+   if (x < 12) x += 4;
+   else { x=0; y+=4; }
 }
 
 void mwSelectionWindow::set_block_extended(int t, int y)
 {
    int x = 0;
-
    for (const auto& s : mTileSets.tileSets)
       if (s.startIndex == t && s.extendedMode)
       {
@@ -459,32 +438,6 @@ void mwSelectionWindow::set_block_extended(int t, int y)
       }
 }
 
-void mwSelectionWindow::set_block_set(int t, int x, int y)
-{
-
-   block_set_set(t+8,  x++, y); // tl corner
-   block_set_set(t+9,  x++, y); // tr corner
-   block_set_set(t+0,  x++, y); // middle cross
-   block_set_set(t+2,  x++, y); // hline l
-   block_set_set(t+3,  x++, y); // hline m
-   block_set_set(t+4,  x++, y); // hline r
-   block_set_set(t+12, x++, y); // tee tl
-   block_set_set(t+14, x++, y); // tee tr
-
-   x -= 8;
-   y++;
-
-   block_set_set(t+10, x++, y); // ll corner
-   block_set_set(t+11, x++, y); // lr corner
-   block_set_set(t+1,  x++, y); // standalone single
-   block_set_set(t+5,  x++, y); // vline t
-   block_set_set(t+6,  x++, y); // vline m
-   block_set_set(t+7,  x++, y); // vline b
-   block_set_set(t+15, x++, y); // tee ll
-   block_set_set(t+13, x++, y); // tee lr
-
-}
-
 
 bool mwSelectionWindow::isTileSetGroupVisible(std::string name)
 {
@@ -492,10 +445,6 @@ bool mwSelectionWindow::isTileSetGroupVisible(std::string name)
       if (mWM.tileSetGroups[i].name == name && mWM.tileSetGroups[i].visible) return true;
    return false;
 }
-
-
-
-
 
 
 void mwSelectionWindow::pushCreator(std::string text, int type, int tile, int creator_id, std::string desc)

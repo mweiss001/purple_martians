@@ -488,7 +488,6 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
    }
 }
 
-
 // used by tile editor to choose new tile
 int mwBitmapTools::select_bitmap()
 {
@@ -527,6 +526,42 @@ int mwBitmapTools::select_bitmap()
 
 
 
+// used by animation_sequence_editor() only to choose a single bitmaps
+int mwBitmapTools::select_bitmap_ans()
+{
+   int quit = 0;
+   while (!quit)
+   {
+      mEventQueue.proc(1);
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(mFont.pr8, mColor.pc[15], 10, 644, 0, "Select a Tile with b1");
+      al_draw_text(mFont.pr8, mColor.pc[15], 10, 654, 0, "b2 or ESC to exit      ");
+
+      // draw 32x32 bitmaps
+      for (int y = 0; y < 32; y++)
+         for (int x = 0; x < 32; x++)
+            al_draw_bitmap(mBitmap.tile[x+(y*32)],x*20, y*20, 0);
+      al_draw_rectangle(0.5, 0.5, 640.5, 640.5, mColor.pc[13], 1);
+
+      for (int x=0; x<=32; x++) al_draw_line(x*20, 0, x*20, 640, mColor.pc[15+128], 0);
+      for (int y=0; y<=32; y++) al_draw_line(0, y*20, 640, y*20, mColor.pc[15+128], 0);
+
+      if ((mInput.mouse_y < 640) && (mInput.mouse_x < 640))
+      {
+         int pointer = (mInput.mouse_x/20) + (mInput.mouse_y/20) * 32 ;
+         al_draw_textf(mFont.pr8, mColor.pc[13], 522, 648, 0, "pointer %-2d", pointer );
+         al_draw_bitmap(mBitmap.tile[pointer], 620, 642, 0);
+         al_draw_rectangle(518, 640.5, 640.5, 662.5, mColor.pc[13], 1);
+         if (mInput.mouse_b[1][3]) return pointer;
+      }
+      if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) quit = 1;
+   }
+   return 0;
+}
+
+
 
 
 
@@ -550,6 +585,10 @@ int mwBitmapTools::select_bitmap_ans(int zzindx, int &bmp_index)
          for (int x = 0; x < 32; x++)
             al_draw_bitmap(mBitmap.tile[x+(y*32)],x*20, y*20, 0);
       al_draw_rectangle(0.5, 0.5, 640.5, 640.5, mColor.pc[13], 1);
+
+      // gridlines
+      for (int x=0; x<=32; x++) al_draw_line(x*20, 0, x*20, 640, mColor.pc[15+128], 0);
+      for (int y=0; y<=32; y++) al_draw_line(0, y*20, 640, y*20, mColor.pc[15+128], 0);
 
       int xc = 180;
       int yc = 648;
@@ -593,8 +632,8 @@ void mwBitmapTools::animation_sequence_editor(void)
    int zzindx = 3;
    int pointer = zzindx;
    int quit = 0;
-   int xa = 330;
-   int xb = 530;
+   int xa = 20;
+   int xb = 220;
 
    al_set_target_backbuffer(mDisplay.display);
    al_show_mouse_cursor(mDisplay.display);
@@ -626,15 +665,42 @@ void mwBitmapTools::animation_sequence_editor(void)
          al_draw_rectangle(643.5-l-2, 191, 642.5, 201, mColor.pc[9], 1);
       }
 
+
+      int csx1 = 20;
+      int ts = 40; // tile spacing
+      int csw = ts*15; // width
+      int csm = csx1 + csw/2; // middle
+
+
       sprintf(msg, "Current Sequence %d",zzindx);
       l = 2+strlen(msg)*4;
-      al_draw_text(mFont.pr8, mColor.pc[13], 150, 202, ALLEGRO_ALIGN_CENTER, msg);
-      al_draw_rectangle(150-l, 201, 150+l, 211, mColor.pc[13], 1);
+      al_draw_text(mFont.pr8, mColor.pc[13], csm, 202, ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_rectangle(csm-l, 201, csm+l, 211, mColor.pc[13], 1);
+
+      for (int c=0; c<15; c++)   // frame
+         al_draw_rectangle(csx1+c*ts, 211.5, csx1+c*ts+ts, 232.5, mColor.pc[13], 1);
 
       for (int c = 0; c < mBitmap.zz[4][zzindx] + 1; c++)   // show current seq shapes
          if (( mBitmap.zz[5+c][zzindx] < NUM_SPRITES) && (mBitmap.zz[5+c][zzindx] > 0))
-            al_draw_bitmap(mBitmap.tile[ mBitmap.zz[5+c][zzindx] ], 1+c*20, 212, 0);
-      al_draw_rectangle(0.5, 211.5, 302.5, 232.5, mColor.pc[13], 1);
+         {
+            int tn = mBitmap.zz[5+c][zzindx];
+            int fx1 = csx1+c*ts; // frame x1
+            int tilex = fx1 + (ts-20)/2;
+            int textx = fx1 + ts/2;
+            al_draw_bitmap(mBitmap.tile[tn], tilex, 212, 0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], textx, 236, ALLEGRO_ALIGN_CENTER, "%d", tn);
+         }
+
+      // if mouse on current sequence
+      if ((mInput.mouse_y > 210) && (mInput.mouse_y < 232))
+      {
+         int c = (mInput.mouse_x - csx1) / ts;
+         if ((c > -1) && (c<15))
+         {
+            al_draw_rectangle(csx1+c*ts, 211.5, csx1+c*ts+ts, 232.5, mColor.pc[10], 1);
+            if (mInput.mouse_b[1][3]) mBitmap.zz[5+c][zzindx] = select_bitmap_ans();
+         }
+      }
 
       for (int c=0; c < 32; c++)   // draw 32x8 grid of animation sequences
          for (int x=0; x < 8; x++)
@@ -654,9 +720,8 @@ void mwBitmapTools::animation_sequence_editor(void)
 
       if ((pointer != -1) && (mInput.mouse_b[1][0])) zzindx = pointer;
 
-
-      int y5 = 200;
-      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Get New Shapes"))
+      int y5 = 260;
+      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Clear and Get New Shapes"))
       {
          for (int c=0; c<20; c++) mBitmap.zz[c][zzindx] = 0;
          int as_quit = 0;
@@ -681,7 +746,9 @@ void mwBitmapTools::animation_sequence_editor(void)
             }
          }
       }
+      y5+=4;
       mWidget.slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  0,0,1,0, mBitmap.zz[3][zzindx], 100, 0, 1, "Animation Delay:");
+      y5+=4;
       if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) mBitmap.save_sprit();
 
       if (mInput.key[ALLEGRO_KEY_DELETE][0]) // erase current sequence
@@ -1372,9 +1439,9 @@ void mwBitmapTools::copy_tiles()
    int b2_y2{};
    int b2_tw{};
 
-   //int b2_pad = 0; // when importing tilesets, most have padding of 0
-
    int b2_pad = 1; // my tilesets have a padding of 1
+
+   b2_pad = 0; // when importing tilesets, most have padding of 0
 
 
    int b2_ts = 20 + b2_pad*2;
@@ -1685,14 +1752,13 @@ void mwBitmapTools::copy_tiles()
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
 
 
-
-
 //          for (int i=1; i<16; i++) mTileSets.create_tileset_single_faded_rect(96+i, mColor.pc[i]);
 
 
 //         mTileSets.create_tileset_single_faded_rect(28, mColor.Green);
   //       mTileSets.create_tileset_single_faded_rect(60, mColor.Red);
     //     mTileSets.create_tileset_single_faded_rect(92, mColor.Blue);
+
 
 
          //mTileSets.create_tileset_from_16_mega(844, 16, 21); // original hand modify grey bricks (do not run this or they will be overwritten)
@@ -1705,8 +1771,10 @@ void mwBitmapTools::copy_tiles()
 
 //         mTileSets.modify_tile_set(); // for extended pipe tilesets
 
-         mTileSets.adjust_tile_set_color();
+//         mTileSets.adjust_tile_set_color();
 
+
+//         mTileSets.create_tileset_extended2(192); this is the very custom purple brick
 
 
 

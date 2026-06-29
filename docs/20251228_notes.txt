@@ -27625,6 +27625,193 @@ do a push...
 first cleanup backup files for levels and tilemaps
 
 
+add timer values to group edit
+item[][10] = t1 reset val
+item[][11] = t2 reset val
+
+fixed a bug where if timer was adjust lower with group edit and cnt was greater than set point, timer would not trigger
+
+I want to change block manip to add 3way and 4way..done...
+anything left to clean up?
+
+I want a static blank shape to show the trigger for creating bomb and rockets..done
+
+also added more empty grass shapes from dd tileset
+now make lava an option for block damage..done
+
+made some changes to animation_sequence_editor
+- gridlines on bitmap select
+- show tile numbers for current sequence
+- allow changing of single tile
+
+back to lava, why does it not stack nicely vertically?
+the first 2 do, but after that I get weird jumps
+fixed...
+
+is there anything else I could add for block damage display?
+
+there are a few different types of spikes...
+single added 7 single block spikes
+3 tile column added 5 sets
+
+
+what about added the nice wrought iron grate tiles?
+
+I made a nice 3x3  can I automatically get hline vline and single?
+
+did it manually
+16 tileset at 720 wrought iron grate
+
+I want to do some more tiles from mega
+
+3 more 2x3 columns
+
+move them into place manually...
+
+172 
+178
+184
+
+   tileSets.push_back(constructSolidRectangleSet_2x3("gold brick", 160));
+   tileSets.push_back(constructSolidRectangleSet_2x3("orange vent", 166));
+   tileSets.push_back(constructSolidRectangleSet_2x3("grey orange rivet", 172));
+   tileSets.push_back(constructSolidRectangleSet_2x3("grey blue pipe", 178));
+   tileSets.push_back(constructSolidRectangleSet_2x3("green pipe", 184));
+
+6 more 1x3 columns
+544
+547
+550
+553
+556
+559
+
+4 more 3x1 platforms
+562
+565
+568
+571
+
+I want to move the rainbows...they take 16 tiles..they are now all in a row
+
+rename blocks to tiles in selection window
+
+2026-06-28 21:06:41
+
+I have been through all tilesets
+wires has the choice to be solid or frame
+I want to be able to do either
+what if I draw frame with single standalone to do frame
+I made a multi creator...solid and frame from 16 tileset
+I adjusted the ranges so that only cross middle draws solid, everything else draws frame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+yesterday I spent a lot of time on purple brick extended tileset...but I think it is done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
