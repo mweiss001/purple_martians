@@ -203,12 +203,20 @@ void mwWindow::em_process_mouse(void)
          {
             mWM.bx1 = mWM.gx;
             mWM.by1 = mWM.gy;
-            mWM.get_new_box();
 
-            mTileSets.draw(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
+            int altDrawMode = 0;
+
+            //mWM.get_new_box();
+            mWM.get_new_box_with_preview(din, altDrawMode);
+
+
+            mTileSets.drawRect(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode, altDrawMode, 0);
 
             mScreen.init_level_background();
             al_set_target_backbuffer(mDisplay.display);
+
+
+
          }
          break;
          case 2: // item

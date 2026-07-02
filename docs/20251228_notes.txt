@@ -27707,6 +27707,577 @@ I adjusted the ranges so that only cross middle draws solid, everything else dra
 
 
 
+2026-06-29 06:19:00
+
+Another full day to get shit done...can I be done with tilesets today?
+
+What do I still need to do?
+- make the hiding group icons thing work
+- does tilehelper still work with new frame/solid stuff
+- fill with pattern
+- can I lose the old 24 grey bricks? I have some alt blocks for columns
+
+
+
+change 16 costruct tileset function to single function that can do solid, frame or both..done
+change all creator to nice common format...done
+
+do something with screen, convert to nice 16 block set
+688 start
+does not draw properly as frame but works with solid...
+moved all blocks to new...
+I think screen tiles are done...
+
+
+I have cleaned up tileSet init a lot and it looks great...now on to selection window
+
+I want to make columns have 4 tiles...one stand alone single
+550 - 596
+553 - 600
+556 - 604
+
+done...
+
+I want to make a custom frame type for girders...why???
+maybe just special draw in selection window 3x3
+
+I would like to make those 4 sets into a 16 block
+no...
+
+just add 2 singles and cross, for manual placing
+
+9 tiles starting at 674
+
+draw with 4x3... works but wastes 3 repeated block
+
+made more compact 3x3
+
+now redraw all 4 tilesets with extra blocks..done
+
+I want to draw wires as 4x4 with extra blocks..done
+
+move chains to column sections...make stand alone middle..done
+
+kill the 24 block purple pipes...use only extended...done
+
+make the grey brick use the derived set, but add the custom blocks like with wires
+then only have one grey brick set...
+the set in use is 880, it is modified
+- convert references to modified to new extra blocks
+- replace old modified with original
+done
+
+replace some of my derived block things with mega
+
+lose yellow thatch for sure
+
+grass and dirt at 912 how?
+
+   mTileSets.create_tileset_from_16_mega(912, 12, 21); // brown dirt with grass
+   construct16Set(912,  1, "brown dirt and grass");
+   set_block_set_16_4x4(912,  x, y); // brown dirt and grass
+
+yellow thatch 864 to red dirt with grass
+
+   mTileSets.create_tileset_from_16_mega(864, 20, 17); // brown dirt with grass
+
+2026-06-29 14:43:10
+
+work on tile groups
+- 1 for all extended
+bring in the vine
+
+all is looking well, what do I have left?
+remove the last shape in extended...done
+make sure auto creators do not put it back...done
+
+what about tile helper?
+
+test it an see what's what......
+
+first of all:
+
+now that I have split wires into solid and frame, when I select block in that tileset, 
+I get only cross set, or everything else...the work around is to simply click both...
+maybe I could do all tiles in set with matching name...
+
+- extended sets seem to work properly 4 pipes and purple bricks
+make them the top on the list all 5 extended
+
+the 16 block shapes seem to work also, but many of them have been moved
+
+how many of those? 13?
+
+I think I have the gui for tile helper much better...
+
+now what?
+
+look into how 24 tileset draws...right now it uses
+
+            if (type == 20)  fb = th_replace_helper24(736, l, r, t, b, tl, tr, bl, br); // template
+            if (type == 21)  fb = th_replace_helper(800, l, r, t, b, tl, tr, bl, br); // industrial 1
+            if (type == 22)  fb = th_replace_helper(768, l, r, t, b, tl, tr, bl, br); // industrial 2
+
+make code to copy 24 to tileset
+
+there are a few of these and they look cool, would be nice to have an automated way of importing them... 
+
+
+Now I want to experiment with drawing with 24 tileset
+
+
+I think I want to draw a pattern with the innner tiles
+
+not in tile helper but in the other place
+
+void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode)
+
+I need a new tileset type? 
+
+
+I think I want to have a preview when drawing rectangle.
+as long as the mouse button remains pressed, show preview of what will be draw
+also allow for changing...
+
+
+this is the exiting code:
+
+   if (mInput.mouse_b[1][0])
+   {
+      // don't allow drag draw selection unless draw type is block
+      if (mWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+
+      int din = mWM.mW[1].draw_item_num; // shorter variable name
+      switch (mWM.mW[1].draw_item_type)
+      {
+         case 1: // block
+         {
+            mWM.bx1 = mWM.gx;
+            mWM.by1 = mWM.gy;
+            mWM.get_new_box();
+
+            mTileSets.drawRect(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
+
+            mScreen.init_level_background();
+            al_set_target_backbuffer(mDisplay.display);
+         }
+
+
+
+I will need to modify this:
+
+mWM.get_new_box();
+mTileSets.drawRect(mWM.bx1, mWM.bx2, mWM.by1, mWM.by2, mWM.mW[1].draw_item_num, em_draw_tile_mode);
+
+i assume this blocks... mWM.get_new_box(); ... probably need a new custom version
+
+
+I need something to draw on temporarily
+then I need the draw rect function to do either
+
+
+where am I going to do this?
+make a custom bitmap the size of the selection?
+make a complete 2000x2000 replacement?
+
+
+or I could have a complete new level editor mode than deals with rectangular selections...wait, you mean like edit selection?
+I could jeust add some more things to that....very similar to paste
+
+
+
+imagine this:
+- define selection 
+- fill temp paste selection with pattern from tileSet Draw Rect
+
+
+or...after selecting rect in main editor mode...before you let go of the button press a key...
+- esc to cancel
+- m to enter mode where you can preview before committing
+
+how will I do the preview?
+
+draw on level_buffer
+
+
+now that I know that is all I have to do...draw on level_buffer at full scale...
+
+
+make a new version of this to also display drawRect
+
+void mwWindowManager::get_new_box(void)
+
+
+change drawRect to also have a preview mode
+
+void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode)
+
+add preview mode as arg
+
+
+
+start by adding bool preview to this:
+
+   void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview);
+
+
+start by adding bool preview to this:
+
+void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode)
+
+I now have a nice preview!!!!
+
+
+Now I want to be able to do something about it...
+
+
+that means I will need some alt drawing modes
+
+right now they are dynamically picked from nothing but tile
+
+pass one more int to drawRect int alt
+
+some tilesets will make use of it
+
+a combination of tileset and alt can do something different
+
+where do I set it, or change it?
+
+I have it looking nice
+
+I am starting with the 16 tilesets...
+I did this hack before where I made them frame or solid and created 2 different tilesets for that.
+I think I want to back that up and do it with the new system
+
+make a new 16 create
+make a way of marking that it is a 16 tileset
+
+
+2026-07-01 22:24:04
+
+I think I did that...
+
+now all 16 block sets are the new type and all can be drawn with frame or solid
+
+
+2026-07-02 07:08:35
+
+It has been too long without a push...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+what if I remove the last semisolid tile from extended? its just a copy of the first tile...
+then I would have an open block of 16 tiles after the set....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

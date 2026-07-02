@@ -31,6 +31,10 @@ struct uniqueHue
 struct tileSet
 {
    std::string name;
+
+   int tileSetType;
+
+
    int startIndex;
    int endIndex;
 
@@ -122,7 +126,7 @@ struct tileSet
    int OuterCornerTRDiag;
    int OuterCornerTLDiag;
 
-   int SemiSolid;
+
 
 
 };
@@ -134,27 +138,20 @@ class mwTileSets
 
    void init();
 
-   void constructExtendedSet(std::string name, int i);
-
-   void construct24tileSet(std::string name, int i);
-
-   tileSet constructSolidRectangleSet(std::string name, int i);
-   tileSet constructFrameRectangleSet(std::string name, int i);
-
-   void constructSolidFrameRectangleSet(std::string name, int i);
 
 
-   tileSet constructHlineSetMulti(std::string name, int i);
-
-   tileSet constructHlineVlineSet(std::string name, int i);
-
-   tileSet constructVlineSet(std::string name, int i);
-
-   tileSet constructSolidRectangleSet_2x3(std::string name, int i);
+   void construct16(int i, std::string name);
 
 
 
-
+   void constructExtendedSet(int i, std::string name);
+   void construct24Set(int i, std::string name);
+   void construct16Set(int i, int type, std::string name);
+   void construct8Set(int i, std::string name);
+   void construct1x3Set(int i, std::string name);
+   void construct2x3Set(int i, std::string name);
+   void construct3x1Set(int i, std::string name);
+   void constructHlineVlineSet(int i, std::string name);
 
    void constructEmptySet();
    void setBasicRect(int i);
@@ -163,33 +160,32 @@ class mwTileSets
    void setVline(int i, int top, int middle, int bottom);
 
 
+
+
+
+
+
+
+
+
    void create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
 
-
-
-
-
-
-
    public:
 
    void create_tileset_extended2(int bs);
-
-
    void create_tileset_from_16_mega(int bs, int mbx, int mby);
+   void create_tileset_from_24_atomic(int bs);
+
+
    void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);
 
-
    private:
-
 
    void fill_step_color_array(float h1, float h2, float s1, float s2, float l1, float l2, int steps);
    ALLEGRO_COLOR step_color_array[20];
    int step_color_array_size;
-
-
 
    void draw_and_frame_3x3_bitmap(int type, float round, ALLEGRO_BITMAP *bmp, int tile = 0);
    void draw_lock_overlay_bitmap(ALLEGRO_BITMAP *b, ALLEGRO_COLOR lc);
@@ -200,11 +196,8 @@ class mwTileSets
    void draw_bomb_overlay();
    void draw_B_overlay();
 
-
-
    void showTileSet(int x, int y, int type, int bs);
    void showLiveTile(int x, int y, int type, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
-
 
    public:
    mwTileSets();
@@ -216,9 +209,9 @@ class mwTileSets
    bool isTileKeyedBlock(int tileIndex, int keyIndex);
 
 
-   void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode);
+   void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview);
 
-   void draw(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode);
+   void drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode, int altDrawMode,  bool preview);
 
 
    bool compareTile(int rb, int cb, int set);
@@ -227,11 +220,8 @@ class mwTileSets
 
    void adjust_tile_set_color();
 
-
    void load_region_for_edit(ALLEGRO_BITMAP *bmp, int x, int y, int w, int h);
    void save_region_from_edit(ALLEGRO_BITMAP *bmp, int x, int y);
-
-
 
    void color_controls(const char* text, ALLEGRO_COLOR &c, int x, int y, int width, int bts);
 
@@ -249,11 +239,6 @@ class mwTileSets
    void show_unique_colors(int x, int y);
 
    void modify_selected(ALLEGRO_BITMAP *b, int mod, float val);
-
-
-
-
-
 
 };
 

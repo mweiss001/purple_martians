@@ -1763,7 +1763,13 @@ void mwBitmapTools::copy_tiles()
 
          //mTileSets.create_tileset_from_16_mega(844, 16, 21); // original hand modify grey bricks (do not run this or they will be overwritten)
 
-//         mTileSets.create_tileset_from_16_mega(912, 16, 21); // grey bricks
+//         mTileSets.create_tileset_from_16_mega(864, 20, 17); // red dirt with grass
+
+
+         mTileSets.create_tileset_from_24_atomic(160);
+
+
+//         mTileSets.create_tileset_from_16_mega(912, 12, 21); // brown dirt with grass
 //         mTileSets.create_tileset_from_16_mega(944, 12, 17); // orange brown dirt
 //         mTileSets.create_tileset_from_16_mega(976, 28, 17); // grey
 //         mTileSets.create_tileset_from_16_mega(1008, 28, 21); // outlined grey
@@ -1842,6 +1848,8 @@ void mwBitmapTools::copy_tiles()
                   while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
                   mGlobalLevelTool.changeTileNumber(b1_mouse_tile_pointer, pointer);
+
+                  quit2 = 1;
 
                }
             }

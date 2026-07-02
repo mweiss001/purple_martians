@@ -440,7 +440,7 @@ void mwTileEditor::selection_controls(int x, int y)
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
 
-   mWidget.mToolTip(5, xc, -1, 1, tty+bts+5, bts,    0,   1, 1, 3,    0, 15, 15,   "CTRL + mouse drag sets new selection", xa, tty-2, xb, tty+20);
+   mWidget.mToolTip(5, xc, -1, 1, tty+bts+5, bts,    0,   1, 1, 0,    0, 15, 15,   "CTRL + mouse drag sets new selection", xa, tty-2, xb, tty+20);
 
 
    if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Up"))    scroll_selection(edit_tile_bitmap,  0, -1);

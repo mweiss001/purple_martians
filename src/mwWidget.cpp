@@ -2606,9 +2606,6 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 
 
 
-
-
-
 void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
 {
    //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.White, 1); // debug show trigger area
@@ -2625,9 +2622,12 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 
       if (frameType) al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[fcol], 1);
 
-      draw_widget_text(x1, y1+1, x2, y2, tcol, 0, txt);
+      draw_widget_text(x1, y1+1, x2, y2, tcol, textType, txt);
    }
 }
+
+
+
 
 
 
@@ -2816,10 +2816,7 @@ void mwWidget::mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, 
 
 
 
-
-
-
-// displays a framed, scaled tile and toggled int if pressed
+// displays a framed, scaled tile and toggle int if pressed
 bool mwWidget::mButtonTile(int x1, int y1, int size, int tn, bool &var, bool disable_input)
 {
    int x2 = x1 + size;
@@ -2847,6 +2844,71 @@ bool mwWidget::mButtonTile(int x1, int y1, int size, int tn, bool &var, bool dis
    }
    return false;
 }
+
+// displays a scaled tile and returns true if clicked, displays tooltip if mouse over and not disabled
+bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, bool disable_input)
+{
+   int x2 = x1 + size;
+   int y2 = y1 + size;
+
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.Black); // erase tile and frame
+
+
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
+
+   bool mouse_on_tile = false;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouse_on_tile = true;
+
+   if (mouse_on_tile)
+   {
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         return true;
+      }
+
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1); // draw frame
+
+//             xType, int xa, int xb,
+//                           int yType, int ya, int yb,
+//                                               int r, int backgroundType, int frameType, int textType,
+//                                                                  int bcol, int fcol, int tcol,
+//                                                                                 const char* txt, int tx1, int ty1, int tx2, int ty2)
+
+      mToolTip(5, x1+10, 80,     1, y1-14, 12,       1,     1, 1, 1,    0,  15, 15,    t, x1, y1, x2, y2);
+
+   }
+   return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

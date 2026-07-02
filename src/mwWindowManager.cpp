@@ -18,6 +18,7 @@
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
+#include "mwTileSets.h"
 
 mwWindowManager mWM;
 
@@ -63,8 +64,60 @@ void mwWindowManager::initialize(int edit_level)
 
    i=0;
    tileSetGroups[i].name = "Platforms";
-   tileSetGroups[i].display_tile = 178;
+   tileSetGroups[i].display_tile = 609;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Columns";
+   tileSetGroups[i].display_tile = 612;
+   tileSetGroups[i].visible = 1;
+
+
+   i++;
+   tileSetGroups[i].name = "Extended";
+   tileSetGroups[i].display_tile = 256;
+   tileSetGroups[i].visible = 0;
+
+
+   i++;
+   tileSetGroups[i].name = "Industrial";
+   tileSetGroups[i].display_tile = 776;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Wires"; // and 24
+   tileSetGroups[i].display_tile = 832;
+   tileSetGroups[i].visible = 1;
+
+
+   i++;
+   tileSetGroups[i].name = "Screen";
+   tileSetGroups[i].display_tile = 720;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Dirt";
+   tileSetGroups[i].display_tile = 920;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Blocks";
+   tileSetGroups[i].display_tile = 1009;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Rare";
+   tileSetGroups[i].display_tile = 712;
+   tileSetGroups[i].visible = 0;
+
+
+/*
+
+   i++;
+   tileSetGroups[i].name = "Purple Bricks";
+   tileSetGroups[i].display_tile = 192;
    tileSetGroups[i].visible= 1;
+
 
    i++;
    tileSetGroups[i].name = "Purple Pipes";
@@ -86,10 +139,15 @@ void mwWindowManager::initialize(int edit_level)
    tileSetGroups[i].display_tile = 448;
    tileSetGroups[i].visible= 0;
 
+
+
+
    i++;
    tileSetGroups[i].name = "Wires";
    tileSetGroups[i].display_tile = 832;
    tileSetGroups[i].visible= 1;
+
+
 
    i++;
    tileSetGroups[i].name = "Template";
@@ -106,8 +164,9 @@ void mwWindowManager::initialize(int edit_level)
    tileSetGroups[i].display_tile = 808;
    tileSetGroups[i].visible= 0;
 
+
    i++;
-   tileSetGroups[i].name = "Purple Bricks";
+   tileSetGroups[i].name = "Purple Bricks2";
    tileSetGroups[i].display_tile = 640;
    tileSetGroups[i].visible= 1;
 
@@ -152,13 +211,12 @@ void mwWindowManager::initialize(int edit_level)
    tileSetGroups[i].display_tile = 1009;
    tileSetGroups[i].visible= 1;
 
-
    i++;
    tileSetGroups[i].name = "Rainbow";
    tileSetGroups[i].display_tile = 712;
    tileSetGroups[i].visible= 1;
 
-
+*/
 
    mSelectionWindow.fill_block_array();
 
@@ -288,7 +346,7 @@ void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y
 }
 
 // used by se, ge and em
-// blocks while mouse b1 is pressed
+// when called, mouse b1 is pressed, blocks until released
 void mwWindowManager::get_new_box(void)
 {
    bx2 = bx1 = gx; // set both corners to initial position
@@ -304,6 +362,30 @@ void mwWindowManager::get_new_box(void)
    if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2); // swap if wrong order
    if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
 }
+
+// used by em for preview of drawing blocks
+// when called, mouse b1 is pressed, blocks until released
+void mwWindowManager::get_new_box_with_preview(int tn, int &altDrawMode)
+{
+   bx2 = bx1 = gx; // set both corners to initial position
+   by2 = by1 = gy;
+   while (mInput.mouse_b[1][0])
+   {
+      redraw_level_editor_background(0);
+
+      bx2 = gx;
+      by2 = gy;
+
+      if (mInput.key[ALLEGRO_KEY_A][3]) if (++altDrawMode>4) altDrawMode = 0;
+      char msg[80];
+      sprintf(msg, "selection with preview a:%d", altDrawMode);
+      show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
+
+      mTileSets.drawRect(bx1, bx2, by1, by2, tn, 1, altDrawMode, 1);
+      mScreen.draw_scaled_level_region_to_display();
+   }
+}
+
 
 void mwWindowManager::process_mouse(void)
 {

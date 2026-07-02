@@ -146,8 +146,11 @@ grey bricks set (one of my favorite)
 
 20260330 purchased 'Industrial Tileset' for $8.99.
 from this tileset I used:
-Industrial Tileset 1
-Industrial Tileset 18
+Industrial Tileset 1 
+Industrial Tileset 1B
+
+
+
 
 Castle Dungeon Tileset but did not use anything
 

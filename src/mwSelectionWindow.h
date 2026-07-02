@@ -37,7 +37,25 @@ public:
 
    void fill_block_array(void);
 
+
+
+
 private:
+
+   int lasty; // last y position inserted
+
+   /*
+
+   // position of next insert
+   int insert_x;
+   int insert_y;
+
+   // max x and y position inserted
+   int max_x;
+   int max_y;
+  */
+
+
 
    void load_pde(void);
 
@@ -47,22 +65,29 @@ private:
 
    void block_set_set(int t, int x, int y);
    void block_set_add(int t, int &x, int &y);
-   void set_block_set_rainbow(int t, int x, int y);
+   void set_block_set_rainbow(int t, int &x, int &y);
 
-   void set_block_set_24(int t, int x, int y);
+   void set_block_set_24(int t, int &x, int &y);
    void set_block_set_16_4x4(int t, int &x, int &y);
-
    void set_block_set_16_2x8(int t, int x, int y);
+
 
    void set_block_set_2x3(int t, int &x, int &y);
    void set_block_set_3x1(int t, int &x, int &y);
    void set_block_set_1x3(int t, int &x, int &y);
    void set_block_set_1x4(int t, int &x, int &y);
 
+   void set_block_set_3x3(int t, int &x, int &y);
 
-   void set_block_extended(int t, int y);
+   void set_block_extended(int t, int &x, int &y);
+
+   void set_block_set_main_blocks(int &x, int &y);
+
+
+
 
    bool isTileSetGroupVisible(std::string name);
+
 
 };
 

@@ -584,10 +584,6 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
 
 
 
-
-
-
-
    // lifts
    if (mWM.obj_filter[4][1])
    {
@@ -819,13 +815,14 @@ void mwWindow::es_do_clear(void)
    mScreen.init_level_background();
 }
 
+
+
 void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
 {
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
       if ((mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
-
 
       // this is wrong!!!!
       // blocks only (same as block and flags?) mLevel.l[x][y] = tn;
@@ -1090,6 +1087,8 @@ void mwWindow::es_draw_fsel(void)
          for (int y=0; y<mWM.mW[4].sh; y++)
             if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
+
+
    // draw items
    for (int i=0; i<500; i++)
       if ((ft_item[i][0]) && (mWM.obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);

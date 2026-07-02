@@ -158,6 +158,13 @@ void mwLevelIcons::load(int rebuild_all)
    int num_lev_files = mFileIterator.iterate("levels");
    //printf("num_lev_files:%d\n", num_lev_files);
 
+   if (num_lev_files > 500)
+   {
+      printf("Error loading level icons. Number of level files (%d) is more than 500\n", num_lev_files);
+      return;
+   }
+
+
    // get size of tilemaps
    int w = size * 10;
    int h = size * ((num_lev_files/10) + 1);
@@ -165,11 +172,11 @@ void mwLevelIcons::load(int rebuild_all)
    // create tilemaps
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    M_tilemap = al_create_bitmap(w, h);
-   if (M_tilemap == nullptr) printf("failed creating memory bitmap %d x %d\n", w, h);
+   if (M_tilemap == nullptr) printf("Error loading level icons - failed creating memory bitmap %d x %d\n", w, h);
 
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    tilemap = al_create_bitmap(w, h);
-   if (tilemap == nullptr) printf("failed creating video bitmap %d x %d\n", w, h);
+   if (tilemap == nullptr) printf("Error loading level icons - failed creating video bitmap %d x %d\n", w, h);
 
    // count number of icon files
    int num_files = mFileIterator.iterate("bitmaps/level_icons");
