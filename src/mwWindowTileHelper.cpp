@@ -1,6 +1,8 @@
 // mwWindowTileHelper.cpp
 
+
 #include "pm.h"
+#include "mwBitmap.h"
 #include "mwBitmapTools.h"
 #include "mwTileSets.h"
 #include "mwWindow.h"
@@ -23,7 +25,7 @@ int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, 
    int fb = -1;
 
    struct tileSet s;
-   if (mTileSets.findTileSetContainingIndex(s, tile, 48))
+   if (mTileSets.findTileSetContainingIndex(s, tile))
    {
       fb = s.SolidFill;
 
@@ -197,6 +199,36 @@ int mwWindow::th_replace_helper_24(int tile, int l, int r, int t, int b, int tl,
 
 
 
+int mwWindow::th_replace_helper_pattern(int x, int y)
+{
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+
+   int xs = (bx2 - bx1) + 1;
+   int ys = (by2 - by1) + 1;
+
+
+   int xo = th_pattern_offset_x;
+   int yo = th_pattern_offset_y;
+
+
+   // offset into pattern
+   int xi = (x+xo) % xs;
+   int yi = (y+yo) % ys;
+
+   return mLevel.l[bx1+xi][by1+yi];
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -336,8 +368,8 @@ void mwWindow::th_replace(int type)
 
 
             if (type == 20)  fb = th_replace_helper_24(736, l, r, t, b, tl, tr, bl, br); // template
-            if (type == 21)  fb = th_replace_helper_16(800, l, r, t, b, tl, tr, bl, br); // industrial 1
-            if (type == 22)  fb = th_replace_helper_16(768, l, r, t, b, tl, tr, bl, br); // industrial 2
+//            if (type == 21)  fb = th_replace_helper_16(800, l, r, t, b, tl, tr, bl, br); // industrial 1
+//            if (type == 22)  fb = th_replace_helper_16(768, l, r, t, b, tl, tr, bl, br); // industrial 2
 
             if (type == 23)  fb = th_replace_helper_24(800, l, r, t, b, tl, tr, bl, br); // industrial 1
             if (type == 24)  fb = th_replace_helper_24(768, l, r, t, b, tl, tr, bl, br); // industrial 2
@@ -351,9 +383,15 @@ void mwWindow::th_replace(int type)
             if (type == 31) fb = th_replace_helper_8(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
 
 
+            if (type == 50) fb = th_replace_helper_pattern(x, y); // pattern
+
 
 
             if (type == 40) fb = tile; // single block
+
+
+
+
 
 
             if (fb == -1)
@@ -379,9 +417,10 @@ void mwWindow::th_replace(int type)
 int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
 {
    int bts = 18;
+
+   // margins
    x3+=4;
    x4-=4;
-
 
    // background, title and frame for this group of buttons
    int c1 = 12; // frame color
@@ -414,10 +453,18 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    sprintf(msg, "Action: ");
    al_draw_text(mFont.pr8, mColor.pc[color], tx1, yfb+5, 0, msg);
    int tx2 = tx1 + strlen(msg)*8; // x pos past text
+
    sprintf(msg, "Remove Marks");
    if (mWM.mW[9].th_add_del) sprintf(msg, "Add Marks");
    int bf = (strlen(msg)+2)*8; // size button based on text length
-   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, msg)) mWM.mW[9].th_add_del = !mWM.mW[9].th_add_del;
+   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,9,15,0, 1,0,0,d, msg)) mWM.mW[9].th_add_del = !mWM.mW[9].th_add_del;
+
+   sprintf(msg, "Hide Marks");
+   if (mWM.mW[9].th_hide_marks) sprintf(msg, "Show Marks");
+   bf = (strlen(msg)+2)*8; // size button based on text length
+   if (mWidget.buttont(x4-bf-2, yfb, x4-2, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, msg)) mWM.mW[9].th_hide_marks = !mWM.mW[9].th_hide_marks;
+
+
 
    yfb+=4;
 
@@ -466,8 +513,11 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    al_draw_rectangle(x3-1, yfb, x4+1, y2f-1, mColor.pc[c1], 1); // frame
 
    yfb+=16;
-   x3+=8;
-   x4-=2;
+
+   // next margin
+   int x5 = x3+8;
+
+
 
    int c = 10 + 64;
    int choice = 0;
@@ -479,21 +529,20 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    int xts=23;
 
 
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 256,  "Purple Pipes"         , d))  choice = 1;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 320,  "Red Pipes"            , d))  choice = 2;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 384,  "Green Pipes"          , d))  choice = 3;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 448,  "Blue Pipes"           , d))  choice = 4;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 192,  "Purple Bricks"        , d))  choice = 5;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 256,  "Purple Pipes"         , d))  choice = 1;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 320,  "Red Pipes"            , d))  choice = 2;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 384,  "Green Pipes"          , d))  choice = 3;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 448,  "Blue Pipes"           , d))  choice = 4;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 192,  "Purple Bricks"        , d))  choice = 5;
 
    xt++;
 
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 808,  "Industrial 1 16"         , d))  choice = 21;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 775,  "Industrial 2 16"         , d))  choice = 22;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 737,  "24 Tile Template"     , d))  choice = 20;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 808,  "Industrial 1 16"      , d))  choice = 21;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 775,  "Industrial 2 16"      , d))  choice = 22;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 737,  "24 Tile Template"     , d))  choice = 20;
 
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 808,  "Industrial 1 24"         , d))  choice = 23;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 775,  "Industrial 2 24"         , d))  choice = 24;
-
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 808,  "Industrial 1 24"      , d))  choice = 23;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 775,  "Industrial 2 24"      , d))  choice = 24;
 
 
 //   xt++;
@@ -503,27 +552,90 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    yfb+=30;
 
    xt = 0;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 694,  "Semi Solid Screen"    , d))  choice = 7;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 720,  "Wrought Iron"         , d))  choice = 8;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 832,  "Wires"                , d))  choice = 9;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 881,  "Slate Bricks"         , d))  choice = 10;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 694,  "Semi Solid Screen"    , d))  choice = 7;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 720,  "Wrought Iron"         , d))  choice = 8;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 832,  "Wires"                , d))  choice = 9;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 881,  "Slate Bricks"         , d))  choice = 10;
 
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 897,  "Brain"                , d))  choice = 11;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 929,  "Grey Cracked Bricks"  , d))  choice = 12;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 961,  "Brown Bricks"         , d))  choice = 13;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 993,  "Fat Fuzzy Pipes"      , d))  choice = 14;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 897,  "Brain"                , d))  choice = 11;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 929,  "Grey Cracked Bricks"  , d))  choice = 12;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 961,  "Brown Bricks"         , d))  choice = 13;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 993,  "Fat Fuzzy Pipes"      , d))  choice = 14;
 
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 913,  "Brown Dirt and Grass" , d))  choice = 15;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 865,  "Red Dirt and Grass"   , d))  choice = 16;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 945,  "Red Dirt"             , d))  choice = 17;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 977,  "White Rock"           , d))  choice = 18;
-   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 1009, "Rivet Blocks"         , d))  choice = 19;
-
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 913,  "Brown Dirt and Grass" , d))  choice = 15;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 865,  "Red Dirt and Grass"   , d))  choice = 16;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 945,  "Red Dirt"             , d))  choice = 17;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 977,  "White Rock"           , d))  choice = 18;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 1009, "Rivet Blocks"         , d))  choice = 19;
    yfb+=30;
 
-   yfb+=bsp;
-   if (mWidget.buttont(x3-6, yfb, x4, bts,   0,14,0,0, 0,c,15,0, 1,0,1,d, "Change Marked Tiles To Single Tile")) choice = 40;
+   bts = 18;
 
+   yfb+=bsp;
+   if (mWidget.buttont(x3, yfb, x4, bts,   0,14,0,0, 0,c,15,0, 1,0,1,d, "Change Marked Tiles To Single Tile")) choice = 40;
+
+   yfb+=bsp;
+   //yfb += mLoop.pct_y;
+   y2f = yfb + 58;
+   //y2f += mLoop.pct_y;
+
+
+   c1 = 13; // color
+   al_draw_filled_rectangle(x3-1, yfb-2, x4+1, y2f-1, mColor.pc[c1+224]); // background color
+   mMiscFnx.titlex("Apply Tile Pattern To Marked Tiles", 15, c1, x3-1, x4+1, yfb); // title
+   al_draw_rectangle(x3-1, yfb, x4+1, y2f-1, mColor.pc[c1], 1); // frame
+
+   yfb+=12;
+   //yfb += mLoop.pct_y;
+
+   int x6 = x3+6;
+   int x7 = x4-6;
+   int x6a = (x6+x7)/2;
+
+
+   c = c1 + 64;
+   yfb+=bsp;
+   if (mWidget.buttont(x6, yfb, x6a-6, bts,   0,14,0,0, 0,c,15,0, 1,0,0,d, "Select Pattern"))
+   {
+      int j1, j2, j3, j4;
+      mMiscFnx.get_block_range("Select Pattern", &j1, &j2, &j3, &j4, 1);
+   }
+   if (mWidget.buttont(x6a+6, yfb, x7, bts,   0,14,0,0, 0,c,15,0, 1,0,1,d, "Apply Pattern")) choice = 50;
+
+   yfb+=bsp;
+   mWidget.slideri( x6, yfb, x6a-6, bts, 0,0,0,0,   0,c,15,15, 1,0,0,d, th_pattern_offset_x, 8, 0, 1, "Offset X:" );
+   mWidget.slideri( x6a+6, yfb, x7, bts, 0,0,0,0,   0,c,15,15, 1,0,1,d, th_pattern_offset_y, 8, 0, 1, "Offset Y:" );
+
+
+
+   // show pattern
+
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int bw = bx2 - bx1;
+   int bh = by2 - by1;
+
+   int sx1 = x3;
+   int sy1 = yfb+5;
+   //sy1 += mLoop.pct_y;
+
+   int sw = bw*20+20;
+   int sh = bh*20+20;
+
+   int sx2 = sx1 + sw;
+   int sy2 = sy1 + sh;
+
+   al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mColor.Black);
+   al_draw_rectangle(sx1-1, sy1-1, sx2+1, sy2+1, mColor.White, 1);
+   al_draw_bitmap_region(mBitmap.level_background, bx1*20, by1*20, bw*20+20, bh*20+20, sx1, sy1, 0);
+
+
+   yfb+=sh;
+   yfb+=5;
+   //yfb += mLoop.pct_y;
 
    if (choice) th_replace(choice);
    return yfb;

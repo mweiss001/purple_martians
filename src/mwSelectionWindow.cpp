@@ -136,7 +136,6 @@ void mwSelectionWindow::fill_block_array(void)
 
    }
 
-
    if (isTileSetGroupVisible("Screen"))
    {
       set_block_set_16_4x4(720,  x, y); // wrought iron grate

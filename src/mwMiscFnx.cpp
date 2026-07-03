@@ -409,33 +409,37 @@ int mwMiscFnx::check_limit(int val, int ll, int ul)
 
 
 
-
-
-void mwMiscFnx::swap_int(int *i1, int* i2)
+void mwMiscFnx::enforce_limits(int &val, int ll, int ul)
 {
-   int it = *i1;
-   *i1 = *i2;
-   *i2 = it;
+   if (val < ll) val = ll;
+   if (val > ul) val = ul;
 }
+
+
+void mwMiscFnx::enforce_limits_with_rollover(int &val, int ll, int ul)
+{
+   if (val < ll) val = ul;
+   if (val > ul) val = ll;
+}
+
+
+
+
+
+
+void mwMiscFnx::swap_int(int &i1, int &i2)
+{
+   int it = i1;
+   i1 = i2;
+   i2 = it;
+}
+
 
 void mwMiscFnx::ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2)
 {
-   if (x1 > x2)
-   {
-      int temp = x1;
-      x1 = x2;
-      x2 = temp;
-   }
-
-   if (y1 > y2)
-   {
-      int temp = y1;
-      y1 = y2;
-      y2 = temp;
-   }
+   if (x1 > x2) swap_int(x1, x2);
+   if (y1 > y2) swap_int(y1, y2);
 }
-
-
 
 
 

@@ -417,8 +417,7 @@ void mwInput::function_key_check(void)
       time_t now = time(NULL);
       timenow = localtime(&now);
 
-      //strftime(filename, sizeof(filename), "screenshots\\%Y%m%d%H%M%S.bmp", timenow); // bug - does not work on linux
-      strftime(filename, sizeof(filename), "screenshots/%Y%m%d%H%M%S.bmp", timenow);
+      strftime(filename, sizeof(filename), "screenshots/%Y%m%d%H%M%S.png", timenow);
 
       printf("saved: %s\n", filename);
       al_save_bitmap(filename, ss_bmp);

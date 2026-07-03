@@ -28,7 +28,7 @@ ALLEGRO_BITMAP* mwBitmapTools::load_block_tiles_to_bitmap()
 {
    // load block_tiles to bitmap
    char b1_fn2[100];
-   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+   sprintf(b1_fn2, "bitmaps/block_tiles.png");
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
    sprintf(block_tiles_fn, "%s", al_get_fs_entry_name(FS_fname1));
@@ -59,6 +59,8 @@ void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1)
       strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
       sprintf(of, "%s_%s.bak", block_tiles_fn, timestamp);
+
+      printf("renaming file [%s] to [%s]\n", block_tiles_fn, of);
 
       if (std::rename(block_tiles_fn, of) == 0) printf("File [%s] renamed successfully!\n", of);
       else                                      printf("Error renaming file [%s] to [%s]\n", block_tiles_fn, of);
@@ -101,8 +103,8 @@ void mwBitmapTools::fill_player_tile(void)
 
    if (0) // load from disk
    {
-      mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!mBitmap.ptilemap) mInput.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.png");
+      if (!mBitmap.ptilemap) mInput.m_err((char*)"Can't load tiles from bitmaps/player_tiles.png");
       else
       {
          //printf("load good\n");
@@ -221,7 +223,7 @@ void mwBitmapTools::fill_player_tile(void)
 
        al_flip_display();
 
-       al_save_bitmap("bitmaps/player_tiles.bmp", mBitmap.ptilemap);
+       al_save_bitmap("bitmaps/player_tiles.png", mBitmap.ptilemap);
 
        mInput.tsw();
    }
@@ -393,7 +395,7 @@ void mwBitmapTools::colorize_tile(void)
 
    al_convert_mask_to_alpha(mBitmap.tilemap, al_map_rgb(0, 0, 0)) ;
 
-   al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
+   al_save_bitmap("bitmaps/tiles.png", mBitmap.tilemap);
 
    for (int d=0; d<32; d++) al_destroy_bitmap(switch_tiles[d]);
 
@@ -425,7 +427,7 @@ void mwBitmapTools::combine_tile(void)
    al_draw_bitmap(mBitmap.tilemap, 0, 0, 0);
    al_flip_display(); mInput.tsw(); // wait for keypress
 
-  //   al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
+  //   al_save_bitmap("bitmaps/tiles.png", mBitmap.tilemap);
 
 }
 
@@ -1405,7 +1407,7 @@ void mwBitmapTools::copy_tiles()
    // main bitmap ------------------
    char b1_fn[100];
    char b1_fn2[100];
-   sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+   sprintf(b1_fn2, "bitmaps/block_tiles.png");
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
    sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
@@ -1425,7 +1427,7 @@ void mwBitmapTools::copy_tiles()
    // second bitmap ------------------
    char b2_fn[100];
    char b2_fn2[100];
-   sprintf(b2_fn2, "bitmaps/tiles.bmp");
+   sprintf(b2_fn2, "bitmaps/tiles.png");
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
    ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(b2_fn2);
    sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname2));
@@ -1440,13 +1442,8 @@ void mwBitmapTools::copy_tiles()
    int b2_tw{};
 
    int b2_pad = 1; // my tilesets have a padding of 1
-
-   b2_pad = 0; // when importing tilesets, most have padding of 0
-
-
+   // b2_pad = 0; // when importing tilesets, most have padding of 0
    int b2_ts = 20 + b2_pad*2;
-
-
 
    int quit = 0;
    while (!quit)
@@ -1461,14 +1458,14 @@ void mwBitmapTools::copy_tiles()
          else
          {
             sprintf(b1_fn, "bitmaps/");
-            if (mMiscFnx.mw_file_select("Load Bitmap File", b1_fn, ".bmp", 0))
+            if (mMiscFnx.mw_file_select("Load Bitmap File", b1_fn, ".png", 0))
             {
                al_destroy_bitmap(b1);
                b1 = al_load_bitmap(b1_fn);
             }
             else
             {
-               sprintf(b1_fn2, "bitmaps/block_tiles.bmp");
+               sprintf(b1_fn2, "bitmaps/block_tiles.png");
                // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
                ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
                sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
@@ -1498,7 +1495,7 @@ void mwBitmapTools::copy_tiles()
          else
          {
             sprintf(b2_fn, "bitmaps/");
-            if (mMiscFnx.mw_file_select("Load Bitmap File", b2_fn, ".bmp", 0))
+            if (mMiscFnx.mw_file_select("Load Bitmap File", b2_fn, ".png", 0))
             {
                al_destroy_bitmap(b2);
                b2 = al_load_bitmap(b2_fn);
@@ -1515,7 +1512,6 @@ void mwBitmapTools::copy_tiles()
          }
          reload_b2 = 0;
       }
-
 
 
 //      if (reload_b2 == 3) // load and scale to 1/2
@@ -1569,18 +1565,27 @@ void mwBitmapTools::copy_tiles()
 
       // title with filename only, no path
       ALLEGRO_PATH *ap = al_create_path(b2_fn);
-      al_draw_textf(mFont.pr8, mColor.pc[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap));
+      al_draw_textf(mFont.pr8, mColor.pc[15], b2_x+104,  b2_y-10, 0, "%s", al_get_path_filename(ap));
       al_destroy_path(ap);
 
       ya = b2_y-12;
       if (mWidget.buttontcb(b2_x,    ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load") )     reload_b2 = 1;
-      //if (mWidget.buttontcb(b2_x+42, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load 1/2") ) reload_b2 = 3;
 
+
+      char msg[80];
+      sprintf(msg, "Pad:%d", b2_pad);
+      if (mWidget.buttontcb(b2_x+48, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, msg) )
+      {
+         b2_pad = !b2_pad;
+         b2_ts = 20 + b2_pad*2;
+      }
+
+
+
+      //if (mWidget.buttontcb(b2_x+42, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load 1/2") ) reload_b2 = 3;
 
       // draw a dim rectangle around the entire grid
       draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15+64, 1, gridlines, 15+128, 0, b2_ts );
-
-
 
 
       // is mouse on grid2
@@ -1637,12 +1642,22 @@ void mwBitmapTools::copy_tiles()
 
       // title with filename only, no path
       ALLEGRO_PATH *ap1 = al_create_path(b1_fn);
-      al_draw_textf(mFont.pr8, mColor.pc[15], b1_x+(b1_w/2),  b1_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap1));
+      al_draw_textf(mFont.pr8, mColor.pc[15], b1_x+116, b1_y-10, 0, "%s", al_get_path_filename(ap1));
       al_destroy_path(ap1);
 
       if (mWidget.buttontcb(b1_x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load")) reload_b1 = 1;
       if (mWidget.buttontcb(b1_x+50,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload")) reload_b1 = 2;
-      if (mWidget.buttontcb(b1_x2-40, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save")) al_save_bitmap(b1_fn, b1);
+      if (mWidget.buttontcb(b1_x2-40, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save"))
+      {
+
+         al_save_bitmap(b1_fn, b1);
+//         void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1) // might not be this file
+      }
+
+
+
+
+
 
       draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0, 22 );
 

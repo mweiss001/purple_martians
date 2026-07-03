@@ -64,15 +64,14 @@ int mwBitmap::load_tiles()
    //printf("load tiles\n");
 
    // get main tiles
-   tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   tilemap = al_load_bitmap("bitmaps/tiles.png");
    if (!tilemap)
    {
-      mInput.m_err("Can't load tiles from bitmaps/tiles.bmp");
+      mInput.m_err("Can't load tiles from bitmaps/tiles.png");
       return 0;
    }
    else
    {
-      al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_tilemap);
       al_draw_bitmap(tilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
@@ -81,15 +80,14 @@ int mwBitmap::load_tiles()
    }
 
    // get block tiles
-   btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
+   btilemap = al_load_bitmap("bitmaps/block_tiles.png");
    if (!btilemap)
    {
-      mInput.m_err("Can't load tiles from bitmaps/block_tiles.bmp");
+      mInput.m_err("Can't load tiles from bitmaps/block_tiles.png");
       return 0;
    }
    else
    {
-      al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_btilemap);
       al_draw_bitmap(btilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
@@ -98,15 +96,14 @@ int mwBitmap::load_tiles()
    }
 
    // get player tiles
-   ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+   ptilemap = al_load_bitmap("bitmaps/player_tiles.png");
    if (!ptilemap)
    {
-      mInput.m_err("Can't load tiles from bitmaps/player_tiles.bmp");
+      mInput.m_err("Can't load tiles from bitmaps/player_tiles.png");
       return 0;
    }
    else
    {
-      al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_ptilemap);
       al_draw_bitmap(ptilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
@@ -127,15 +124,14 @@ int mwBitmap::load_tiles()
 
 
    // get door tiles
-   dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
+   dtilemap = al_load_bitmap("bitmaps/door_tiles.png");
    if (!dtilemap)
    {
-      mInput.m_err("Can't load tiles from bitmaps/door_tiles.bmp");
+      mInput.m_err("Can't load tiles from bitmaps/door_tiles.png");
       return 0;
    }
    else
    {
-      al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_dtilemap);
       al_draw_bitmap(dtilemap, 0, 0, 0);
       for (int a=0; a<16; a++)

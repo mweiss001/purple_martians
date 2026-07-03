@@ -31,18 +31,9 @@ struct uniqueHue
 struct tileSet
 {
    std::string name;
-
    int tileSetType;
-
-
    int startIndex;
    int endIndex;
-
-   int hlineMode;
-   int vlineMode;
-   int solidMode;
-   int frameMode;
-   int extendedMode;
 
    // single tiles
    int FrameCross;  // 4 way Tee
@@ -127,8 +118,6 @@ struct tileSet
    int OuterCornerTLDiag;
 
 
-
-
 };
 
 
@@ -138,6 +127,11 @@ class mwTileSets
 
    void init();
 
+   void constructEmptySet();
+
+   void construct1x3(int i, std::string name);
+   void construct3x1(int i, std::string name);
+
    void construct6(int i, std::string name);
    void construct8(int i, std::string name);
    void construct9(int i, std::string name);
@@ -145,19 +139,6 @@ class mwTileSets
    void construct16(int i, std::string name);
    void construct24(int i, std::string name);
    void construct48(int i, std::string name);
-
-   void construct1x3Set(int i, std::string name);
-   void construct3x1Set(int i, std::string name);
-
-
-   void constructEmptySet();
-   void setBasicRect(int i);
-
-   void setHline(int i, int left, int middle, int right);
-   void setVline(int i, int top, int middle, int bottom);
-
-
-
 
 
 
@@ -170,16 +151,12 @@ class mwTileSets
 
    public:
 
-   std::string altTextLine1;
-   std::string altTextLine2;
-   std::string altTextLine3;
 
 
 
    void create_tileset_extended2(int bs);
    void create_tileset_from_16_mega(int bs, int mbx, int mby);
    void create_tileset_from_24_atomic(int bs);
-
 
    void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);
 
@@ -204,35 +181,29 @@ class mwTileSets
    public:
    mwTileSets();
 
+   char type_name[50][40];
+
+
    struct tileSet ts;
    std::vector<tileSet> tileSets;
 
-   int altDrawRectMode1 = 0;
-   int altDrawRectMode2 = 0;
-   int altDrawRectMode3 = 0;
-   int altDrawRectMode4 = 0;
 
+   int altDrawRectMode = 0;
    int altDrawRectModePatternWidth = 2;
    int altDrawRectModePatternHeight = 2;
+   int altDrawRectModePatternFill = 0;
 
+   std::string altTextLine1;
+   std::string altTextLine2;
+   std::string altTextLine3;
 
-
-
-   bool findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type = 0);
-   bool isTileKeyedBlock(int tileIndex, int keyIndex);
-
-
-
+   bool findTileSetContainingName(struct tileSet &t, std::string n);
+   bool findTileSetContainingIndex(struct tileSet &t, int tileIndex);
    void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview);
-
    void drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview);
-
-   void drawRectHelper2(struct tileSet ts, bool preview);
-   void drawRectHelper3(struct tileSet ts, bool preview);
-
-
-
-
+   void drawRectHelperPattern(struct tileSet ts, bool preview);
+   void drawRectHelperHline(struct tileSet ts, bool preview);
+   void drawRectHelperVline(struct tileSet ts, bool preview);
    void drawRect(bool preview);
 
 

@@ -74,10 +74,6 @@ void mwMain::pm_copy_misc(const char* filepath)
    sprintf(sys_cmd, "mkdir %s\\bitmaps ", filepath);                              printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy bitmaps\\* %s\\bitmaps ", filepath);                    printf("%s\n",sys_cmd);   system(sys_cmd);
 
-   sprintf(sys_cmd, "mkdir %s\\data ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
-   sprintf(sys_cmd, "copy data\\level_icons_100.bmp %s\\data ", filepath);        printf("%s\n",sys_cmd);   system(sys_cmd);
-   sprintf(sys_cmd, "copy data\\level_icons_200.bmp %s\\data ", filepath);        printf("%s\n",sys_cmd);   system(sys_cmd);
-
    sprintf(sys_cmd, "mkdir %s\\help ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy help\\* %s\\help ", filepath);                          printf("%s\n",sys_cmd);   system(sys_cmd);
 

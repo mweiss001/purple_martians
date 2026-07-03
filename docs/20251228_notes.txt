@@ -28083,6 +28083,312 @@ where? beside selction window
 
 I got a lot done yesterday...do a commit...
 
+can I convert my tilemaps from  bmp to png?
+
+   // get main tiles
+   //tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   tilemap = al_load_bitmap("bitmaps/tiles.png");
+   if (!tilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/tiles.bmp");
+      return 0;
+   }
+   else
+   {
+      //al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
+
+      //if (1) al_save_bitmap("bitmaps/tiles.png", tilemap);
+
+tiles went from 1453KB to 64KB
+and now I do not have to convert mask to alpha...
+
+keep going
+block_tiles went from 1453KB to 125KB
+
+ctrl-F to change ref to .bmp
+the only ones left are the ones used in help and I plan to redo them...
+
+do not center filename display in copy tiles..done
+add pad button to b2...done
+
+2026-07-03 05:27:21
+
+back to selection text window
+
+make sure all drawRect shows tileset
+
+I really want to get rid of HlineMode and Vline Mode
+
+can't I just do it all with rect...
+
+
+how about this?
+make sure no tileset ranges overlap
+
+in drawRect:
+first determine if draw tile is part of a tileset
+then do specific things for that tileset, including single, lines and rects
+
+no more tilesets containing others, that is confusing
+
+I will need to make stand alone tilesets for orphan hline and vlines
+
+I want to make tileset type number
+3 hline
+4 vline
+6 2x3 column
+8 rainbow
+9 hline vline combo
+16
+24
+48
+
+2026-07-03 09:43:36
+
+working out the bugs in drawRect
+
+what should I do for controls for pattern?
+I like the arrows, but what about center tile? 
+make its own variable and key 
+
+   int altDrawRectModePatternFill = 0;
+
+
+make lines only show if they have something
+
+what uses alt4
+24 tileset frame mode (4)
+
+
+
+what to do to straighten out the keys?
+they need to be pressed while the mouse button is held
+1-2 for up down (and lose alt4)
+done
+now make the lines drawn optional
+there always seems to be three lines
+make the 4th line describe how to change modes
+press [1] and [2] to change modes
+that is all done...
+now what?
+
+I really want to be able to apply pattern in tile helper...with preview?
+I could use selection to define pattern...
+
+
+   /*
+   // set up 3x3 pattern array
+   int p[3][3];
+   p[0][0] = 784;
+   p[1][0] = 791;
+   p[2][0] = 785;
+   p[0][1] = 790;
+   p[1][1] = 771;
+   p[2][1] = 788;
+   p[0][2] = 786;
+   p[1][2] = 789;
+   p[2][2] = 787;
+
+   int xs = 3;
+   int ys = 3;
+
+
+
+
+
+   int drawTileNum = 0; // middle
+
+   // offset into pattern
+   int xi = (x) % xs;
+   int yi = (y) % ys;
+
+   if (xi == 0) // first column
+   {
+      drawTileNum = p[0][1]; // middle
+      if (yi == 0)    drawTileNum = p[0][0]; // top
+      if (yi == ys-1) drawTileNum = p[0][2]; // bottom
+   }
+
+   if (xi == xs-1) // last column
+   {
+      drawTileNum = p[2][1]; // middle
+      if (yi == 0)    drawTileNum = p[2][0]; // top
+      if (yi == ys-1) drawTileNum = p[2][2]; // bottom
+   }
+
+   if (xi > 0 && xi < xs-1) // middle columns
+   {
+      drawTileNum = p[1][1]; // middle
+      if (yi == 0)    drawTileNum = p[1][0]; // top
+      if (yi == ys-1) drawTileNum = p[1][2]; // bottom
+   }
+   return drawTileNum;
+
+
+
+
+
+I dont even have to save a temp copy...!!!!
+
+int mwWindow::th_replace_helper_pattern(int x, int y)
+{
+
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+
+   int xs = (bx2 - bx1) + 1;
+   int ys = (by2 - by1) + 1;
+
+   // offset into pattern
+   int xi = (x) % xs;
+   int yi = (y) % ys;
+
+   return mLevel.l[bx1+xi][by1+yi];
+}
+
+now make something to let me make a selection
+make a separate button to get new selection done
+show the selection..done
+make a button to hide the marks on selected tiles...done
+
+make offset x and y 
+
+variables?
+
+I need to figure out industrial 24 with tile helper
+am I using the 16 or the 24?
+
+the new purple bricks is mostly a 48 tileset but I was experimenting with it as a 24...
+I think I will remove that...
+it starts at 640
+not listed in th or ts, bye!!!
+after I erased it I discovered that is is referenced in levels...restore and fix...
+
+also got rid of 4 extra tiles in 24 set template
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

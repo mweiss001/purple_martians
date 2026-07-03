@@ -145,6 +145,11 @@ class mwWindow
    int th_match;
    int th_group;
    int th_sel;
+   int th_hide_marks;
+   int th_pattern_offset_x;
+   int th_pattern_offset_y;
+
+
 
    void th_remove_bound();
 
@@ -154,6 +159,10 @@ class mwWindow
    int th_replace_helper_8(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
    int th_replace_helper_16(int tile, int l, int r, int u, int d, int ul, int ur, int dl, int dr);
    int th_replace_helper_24(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
+
+
+   int th_replace_helper_pattern(int x, int y);
+
 
 
    void th_replace(int type);

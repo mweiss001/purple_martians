@@ -18,28 +18,26 @@ void mwFont::load_fonts(void)
    }
 
    // now we get pristine font from bitmap in the interest of drawing faster
-   ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
-   if (!tmp) mInput.m_err("Can't load bitmaps//Pristine_8.bmp");
+   ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.png");
+   if (!tmp) mInput.m_err("Can't load bitmaps//Pristine_8.png");
    else
    {
-      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
       al_destroy_font(pr8);
       int ranges[] = {32, 127};
       pr8 = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!pr8) mInput.m_err("Failed to load font from bitmaps/Pristine_8.bmp");
+      if (!pr8) mInput.m_err("Failed to load font from bitmaps/Pristine_8.png");
       al_destroy_bitmap(tmp);
    }
 
    // pristine 16x16 version
-   tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
-   if (!tmp) mInput.m_err("Can't load bitmaps//Pristine_16.bmp");
+   tmp = al_load_bitmap("bitmaps/Pristine_16.png");
+   if (!tmp) mInput.m_err("Can't load bitmaps//Pristine_16.png");
    else
    {
-      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
       al_destroy_font(pr16);
       int ranges[] = {32, 127};
       pr16 = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!pr16) mInput.m_err("Failed to load font from bitmaps/Pristine_16.bmp");
+      if (!pr16) mInput.m_err("Failed to load font from bitmaps/Pristine_16.png");
       al_destroy_bitmap(tmp);
    }
 

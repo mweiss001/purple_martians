@@ -330,7 +330,7 @@ void mwWindowManager::process_scrolledge(void)
 
 }
 
-// this function draws a box at full scale on level buffer
+// this function draws a rectangle frame at full scale on level buffer
 // even if the top left and bottom right corners are switched
 // used by se, ge and em
 void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
@@ -352,14 +352,16 @@ void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y
    al_draw_text(mFont.pr8, mColor.pc[color], x1*20+2, y1*20-11,  0, text);
 }
 
-
+// this function draws a frame text box at full scale on level buffer, directly under the selection
+// even if the top left and bottom right corners are switched
+// used by em tileset drawRect
 void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, int y2)
 {
    mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
 
    int qx1 = x1 * 20;
-   int qy1 = y1 * 20;
-   int qx2 = x2 * 20 + 20;
+   //int qy1 = y1 * 20;
+   //int qx2 = x2 * 20 + 20;
    int qy2 = y2 * 20 + 20;
 
    // draw the box underneath for now
@@ -367,32 +369,34 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
    int tx = qx1;
    int ty = qy2 + 4;
 
-   int tw = 200;
-   int th = 40;
+   int tw = 280;
+   int th = 46;
+
+   if (mTileSets.altTextLine2.size()) th+=20;
 
    al_draw_filled_rectangle(tx, ty, tx+tw, ty+th, mColor.Black);
    al_draw_rectangle(tx, ty, tx+tw, ty+th, mColor.White, 1);
    ty+=4;
 
-
-   // al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "x1:%d y1:%d x2:%d y1:%d", x1, y1, x2, y2);
-   // ty+=10;
-
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "tileset:%s", mTileSets.ts.name.c_str());
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "Tileset Type: %s ", mTileSets.type_name[mTileSets.ts.tileSetType]);
    ty+=10;
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.altTextLine1.c_str());
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "TileSet Name: %s", mTileSets.ts.name.c_str());
    ty+=10;
 
-   // al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.ts.name.c_str());
-   // ty+=10;
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "Mode: %s", mTileSets.altTextLine1.c_str());
+   ty+=10;
 
+   al_draw_textf(mFont.pr8, mColor.pc[13], tx+4, ty,  0, "press [1] and [2] to change mode");
+   ty+=10;
 
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.altTextLine2.c_str());
+   ty+=10;
 
+   al_draw_textf(mFont.pr8, mColor.pc[13], tx+4, ty,  0, "%s", mTileSets.altTextLine3.c_str());
+   ty+=10;
 
 }
-
-
 
 
 // used by se, ge and em
@@ -409,8 +413,7 @@ void mwWindowManager::get_new_box(void)
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
       mScreen.draw_scaled_level_region_to_display();
    }
-   if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2); // swap if wrong order
-   if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
 }
 
 // used by em for preview of drawing blocks
@@ -427,24 +430,25 @@ bool mwWindowManager::get_new_box_with_preview()
 
       redraw_level_editor_background(0);
 
-      if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode1++;
-      if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode2++;
-      if (mInput.key[ALLEGRO_KEY_3][3]) mTileSets.altDrawRectMode3++;
-      if (mInput.key[ALLEGRO_KEY_4][3]) mTileSets.altDrawRectMode4++;
+      if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode++;
+      if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode--;
 
       if (mInput.key[ALLEGRO_KEY_UP   ][3]) mTileSets.altDrawRectModePatternHeight--;
       if (mInput.key[ALLEGRO_KEY_DOWN ][3]) mTileSets.altDrawRectModePatternHeight++;
       if (mInput.key[ALLEGRO_KEY_RIGHT][3]) mTileSets.altDrawRectModePatternWidth++;
       if (mInput.key[ALLEGRO_KEY_LEFT ][3]) mTileSets.altDrawRectModePatternWidth--;
 
+      if (mInput.key[ALLEGRO_KEY_PGUP ][3]) mTileSets.altDrawRectModePatternFill++;
+      if (mInput.key[ALLEGRO_KEY_PGDN ][3]) mTileSets.altDrawRectModePatternFill--;
+
 
       char msg[80];
-      sprintf(msg, "preview alt:%d %d %d %d)", mTileSets.altDrawRectMode1, mTileSets.altDrawRectMode2, mTileSets.altDrawRectMode3, mTileSets.altDrawRectMode4 );
+      sprintf(msg, "preview");
 
+      //      sprintf(msg, "preview alt:%d %d %d %d)", mTileSets.altDrawRectMode1, mTileSets.altDrawRectMode2, mTileSets.altDrawRectMode3, mTileSets.altDrawRectMode4 );
 
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
       show_level_buffer_block_rect_text(bx1, by1, bx2, by2);
-
 
 
       mTileSets.drawRect(1);
@@ -494,11 +498,17 @@ void mwWindowManager::process_keypress(void)
          mwTileEditor te;
          te.edit_tile(0);
       }
-
-
-
    }
 
+
+
+   if (mInput.key[ALLEGRO_KEY_H][0])
+   {
+      while (mInput.key[ALLEGRO_KEY_H][0]) mEventQueue.proc(1);
+      {
+         mWM.set_windows(9);
+      }
+   }
 
 
 
@@ -675,23 +685,25 @@ int mwWindowManager::redraw_level_editor_background(void)
 
       if (level_editor_mode == 9) // th
       {
-
          if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
 
-         // show marked blocks
-         for (int x=0; x<100; x++)
-            for (int y=0; y<100; y++)
-            {
-               if (thl[x][y])
+         if (!mWM.mW[9].th_hide_marks)
+         {
+            // show marked blocks
+            for (int x=0; x<100; x++)
+               for (int y=0; y<100; y++)
                {
-                  //int col = 10;
-                  int c = mColor.flash_color+64;
-                  int c2 = mColor.flash_color2+64;
-                  al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
-                  al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
-                  al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
+                  if (thl[x][y])
+                  {
+                     //int col = 10;
+                     int c = mColor.flash_color+64;
+                     int c2 = mColor.flash_color2+64;
+                     al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
+                     al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
+                     al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
+                  }
                }
-            }
+         }
       }
       if (level_editor_mode) mScreen.draw_scaled_level_region_to_display();
    }
@@ -778,6 +790,9 @@ void mwWindowManager::set_windows(int mode)
       mW[9].th_match = 1;
       mW[9].th_group = 1;
       mW[9].th_sel = 0;
+      mW[9].th_hide_marks = 0;
+      mW[9].th_pattern_offset_x = 0;
+      mW[9].th_pattern_offset_y = 0;
    }
 
    if (level_editor_mode == 1) // edit menu

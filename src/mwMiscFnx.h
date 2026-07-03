@@ -43,9 +43,13 @@ class mwMiscFnx
 
 
 
+   void enforce_limits_with_rollover(int &val, int ll, int ul);
+   void enforce_limits(int &val, int ll, int ul);
+
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);
-   void swap_int(int *i1, int* i2);
+
+   void swap_int(int &i1, int &i2);
 
    void ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2);
 
