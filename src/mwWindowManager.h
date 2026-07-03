@@ -54,9 +54,13 @@ class mwWindowManager
    void get_block_position_on_map();
    void process_scrolledge();
    void show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+   void show_level_buffer_block_rect_text(int x1, int y1, int x2, int y2);
+
+
+
    void get_new_box();
 
-   void get_new_box_with_preview(int tn, int &altDrawMode);
+   bool get_new_box_with_preview();
 
    void process_mouse();
    void process_keypress();

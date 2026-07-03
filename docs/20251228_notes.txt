@@ -27964,6 +27964,357 @@ now all 16 block sets are the new type and all can be drawn with frame or solid
 
 It has been too long without a push...
 
+make drawTile erase background first...done
+make selection rectangle size proper...done
+
+
+can I do to 24, what I did to 16? make it all one tileset?...done
+
+now make some more alt modes for that
+
+do I have all 24 set tiles with names? all but the last 4...fixed with existing names
+
+
+when drawing rect with 24 sets, I think I always want to do outer frame, followed by inner frame...
+
+then if there is anything left do pattern
+
+
+how can I make the toggle alt only do the amount of available alts?
+make it a member of tileset class?
+int altDrawRectMode = 0;
+have only drawRect clamp it? done and looks better...
+
+
+2026-07-02 11:12:22
+
+now I am drawing with tiled patterns
+2x2 uses corners
+3x3 and higher has options for middle tile
+
+I think I might want more alt options....
+
+4 of them?
+
+1 for main grouping
+2 for tile pattern size
+3 for center fill tile
+4 for future
+done
+pattern fill make x and y size independant
+done...
+
+now what?
+
+can I do nested patterns
+
+
+can I apply patterns to areas in tile helper?
+
+
+modes:
+
+single frame
+double frame
+full pattern
+
+mode: frame or rect
+
+
+I think I can do most or what I want with 24 tilesets simply:
+frame mode: draws single line frames, only alt is inner and outer
+pattern mode, or fill mode does patterns down to single lines
+what about single tile? can I make pattern work down to single? sure..
+
+the only thing I have not tried is nested 
+
+wait!!!
+there is another type of frame...
+not made with outer pieces
+there are actually 2 more
+now I have 4 frames
+I could make different base patterns for tile also...maybe not
+
+OK so am I happy with 24 tileset? yes
+
+what about 16
+make a 3rd option ...done
+
+now for the huge one...extended
+
+I think I have 48 set done
+2 solid (cross and solid color)
+3 frame (pipes, solid outer, solid inner)
+
+The only other things are the custom dumb rainbows..done
+
+I have done so much here, have I broken any thing in tile helper...pretty sure I have not
+
+
+I think I might have broken the platforms and columns...need to look into that....
+
+intercept in rect to draw h and vlines like you would expect...done
+
+now what about the 2x3
+
+should I call it 6 tileset?
+
+would it fit into 8? yes
+
+now what am I going to do with the multiple girder sets?
+call them 9...done
+
+this is really comming along...now what?
+
+
+can I display some text about what the alt modes are?
+
+
+where and how? and what?
+
+bx values
+tileset name
+applicable alt options
+
+where? beside selction window
+
+
+2026-07-03 04:22:48
+
+I got a lot done yesterday...do a commit...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

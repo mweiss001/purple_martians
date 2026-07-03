@@ -76,7 +76,7 @@ void mwWindowManager::initialize(int edit_level)
    i++;
    tileSetGroups[i].name = "Extended";
    tileSetGroups[i].display_tile = 256;
-   tileSetGroups[i].visible = 0;
+   tileSetGroups[i].visible = 1;
 
 
    i++;
@@ -335,15 +335,65 @@ void mwWindowManager::process_scrolledge(void)
 // used by se, ge and em
 void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 {
-   if (x1 > x2) mMiscFnx.swap_int(&x1, &x2);
-   if (y1 > y2) mMiscFnx.swap_int(&y1, &y2);
-   int dstx = x1*20;
-   if (dstx == 0) dstx = 1;
-   int dsty = y1*20;
-   if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, mColor.pc[14], 1);
+   mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
+
+   int dstx1 = x1*20;
+   if (dstx1 == 0) dstx1 = 1;
+   int dsty1 = y1*20;
+   if (dsty1 == 0) dsty1 = 1;
+
+   int dstx2 = x2*20+21;
+   if (dstx2 > 1999) dstx2 = 1999;
+   int dsty2 = y2*20+21;
+   if (dsty2 > 1999) dsty2 = 1999;
+
+
+   al_draw_rectangle(dstx1, dsty1, dstx2, dsty2, mColor.pc[14], 1);
    al_draw_text(mFont.pr8, mColor.pc[color], x1*20+2, y1*20-11,  0, text);
 }
+
+
+void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, int y2)
+{
+   mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
+
+   int qx1 = x1 * 20;
+   int qy1 = y1 * 20;
+   int qx2 = x2 * 20 + 20;
+   int qy2 = y2 * 20 + 20;
+
+   // draw the box underneath for now
+
+   int tx = qx1;
+   int ty = qy2 + 4;
+
+   int tw = 200;
+   int th = 40;
+
+   al_draw_filled_rectangle(tx, ty, tx+tw, ty+th, mColor.Black);
+   al_draw_rectangle(tx, ty, tx+tw, ty+th, mColor.White, 1);
+   ty+=4;
+
+
+   // al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "x1:%d y1:%d x2:%d y1:%d", x1, y1, x2, y2);
+   // ty+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "tileset:%s", mTileSets.ts.name.c_str());
+   ty+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.altTextLine1.c_str());
+   ty+=10;
+
+   // al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.ts.name.c_str());
+   // ty+=10;
+
+
+
+
+}
+
+
+
 
 // used by se, ge and em
 // when called, mouse b1 is pressed, blocks until released
@@ -365,25 +415,49 @@ void mwWindowManager::get_new_box(void)
 
 // used by em for preview of drawing blocks
 // when called, mouse b1 is pressed, blocks until released
-void mwWindowManager::get_new_box_with_preview(int tn, int &altDrawMode)
+bool mwWindowManager::get_new_box_with_preview()
 {
    bx2 = bx1 = gx; // set both corners to initial position
    by2 = by1 = gy;
    while (mInput.mouse_b[1][0])
    {
-      redraw_level_editor_background(0);
-
+      // update positon
       bx2 = gx;
       by2 = gy;
 
-      if (mInput.key[ALLEGRO_KEY_A][3]) if (++altDrawMode>4) altDrawMode = 0;
-      char msg[80];
-      sprintf(msg, "selection with preview a:%d", altDrawMode);
-      show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
+      redraw_level_editor_background(0);
 
-      mTileSets.drawRect(bx1, bx2, by1, by2, tn, 1, altDrawMode, 1);
+      if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode1++;
+      if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode2++;
+      if (mInput.key[ALLEGRO_KEY_3][3]) mTileSets.altDrawRectMode3++;
+      if (mInput.key[ALLEGRO_KEY_4][3]) mTileSets.altDrawRectMode4++;
+
+      if (mInput.key[ALLEGRO_KEY_UP   ][3]) mTileSets.altDrawRectModePatternHeight--;
+      if (mInput.key[ALLEGRO_KEY_DOWN ][3]) mTileSets.altDrawRectModePatternHeight++;
+      if (mInput.key[ALLEGRO_KEY_RIGHT][3]) mTileSets.altDrawRectModePatternWidth++;
+      if (mInput.key[ALLEGRO_KEY_LEFT ][3]) mTileSets.altDrawRectModePatternWidth--;
+
+
+      char msg[80];
+      sprintf(msg, "preview alt:%d %d %d %d)", mTileSets.altDrawRectMode1, mTileSets.altDrawRectMode2, mTileSets.altDrawRectMode3, mTileSets.altDrawRectMode4 );
+
+
+      show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
+      show_level_buffer_block_rect_text(bx1, by1, bx2, by2);
+
+
+
+      mTileSets.drawRect(1);
+
       mScreen.draw_scaled_level_region_to_display();
    }
+
+   if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+   {
+      while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+      return false;
+   }
+   return true;
 }
 
 

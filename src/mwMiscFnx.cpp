@@ -418,6 +418,27 @@ void mwMiscFnx::swap_int(int *i1, int* i2)
    *i2 = it;
 }
 
+void mwMiscFnx::ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2)
+{
+   if (x1 > x2)
+   {
+      int temp = x1;
+      x1 = x2;
+      x2 = temp;
+   }
+
+   if (y1 > y2)
+   {
+      int temp = y1;
+      y1 = y2;
+      y2 = temp;
+   }
+}
+
+
+
+
+
 
 float mwMiscFnx::mdw_rnd(float rmin, float rmax)
 {

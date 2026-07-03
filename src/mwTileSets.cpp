@@ -10,6 +10,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwWidget.h"
+#include "mwWindowManager.h"
 
 mwTileSets mTileSets;
 
@@ -17,12 +18,16 @@ mwTileSets::mwTileSets() { init(); }
 
 void mwTileSets::init()
 {
-   constructExtendedSet(192, "purple brick");
-   constructExtendedSet(256, "purple pipes");
-   constructExtendedSet(320, "red pipes");
-   constructExtendedSet(384, "green pipes");
-   constructExtendedSet(448, "blue pipes");
+   construct48(192, "purple brick");
+   construct48(256, "purple pipes");
+   construct48(320, "red pipes");
+   construct48(384, "green pipes");
+   construct48(448, "blue pipes");
 
+   construct24(160, "new test");
+   construct24(736, "24 tile template");
+   construct24(768, "alien machine");
+   construct24(800, "alien dark");
 
    construct16(688,"semi solid screen");
    construct16(720,"wrought iron");
@@ -40,32 +45,8 @@ void mwTileSets::init()
    construct16(976,  "white rock");
    construct16(1008, "purple rivet blocks");
 
-
-   // construct16Set(688,  1, "semi solid screen");
-   // construct16Set(720,  1, "wrought iron");
-   // construct16Set(832,  3, "wires");
-   // construct16Set(880,  3, "grey bricks");
-   // // auto generated
-   // construct16Set(896,  1, "brain");
-   // construct16Set(928,  1, "grey cracked bricks");
-   // construct16Set(960,  1, "brown bricks");
-   // construct16Set(992,  3, "fat fuzzy pipes");
-   //
-   //
-   // construct16Set(912,  1, "brown dirt and grass");
-   // construct16Set(864,  1, "red dirt and grass");
-   // construct16Set(944,  1, "red dirt");
-   // construct16Set(976,  1, "white rock");
-   // construct16Set(1008, 1, "purple rivet blocks");
-
-
-   construct24Set(160, "new test");
-
-   construct24Set(736, "24 tile template");
-   construct24Set(768, "alien machine");
-   construct24Set(800, "alien dark");
-
-
+   construct8(704, "rainbows");
+   construct8(712, "rainbows2");
 
    // 3x1 single hline (platforms)
    construct3x1Set(585, "brown bricks");
@@ -91,30 +72,24 @@ void mwTileSets::init()
    construct1x3Set(635, "white chain");
 
    // 2x3 double vlines (columns)
-   construct2x3Set(512, "gold brick");
-   construct2x3Set(518, "orange vent");
-   construct2x3Set(524, "grey orange rivet");
-   construct2x3Set(530, "grey blue pipe");
-   construct2x3Set(536, "green pipe");
-
+   construct6(512, "gold brick");
+   construct6(518, "orange vent");
+   construct6(524, "grey orange rivet");
+   construct6(530, "grey blue pipe");
+   construct6(536, "green pipe");
 
    // combo hline vline frames
-   constructHlineVlineSet(608, "grey hole girder");
-   constructHlineVlineSet(617, "grey cross girder");
-   constructHlineVlineSet(626, "grey rivet girder");
-   constructHlineVlineSet(672, "red cross girder");
-
-   construct8Set(704, "rainbows");
-   construct8Set(712, "rainbows2");
+   construct9(608, "grey hole girder");
+   construct9(617, "grey cross girder");
+   construct9(626, "grey rivet girder");
+   construct9(672, "red cross girder");
 
 
-//   printf("num of tilesets:%d\n", (int) tileSets.size());
-//   for (auto ts : tileSets) printf("%s\n", ts.name.c_str());
+
+   printf("num of tilesets:%d\n", (int) tileSets.size());
+   for (auto ts : tileSets) printf("%s %d - %d\n", ts.name.c_str(), ts.startIndex, ts.endIndex);
 
 }
-
-
-
 
 
 void mwTileSets::constructEmptySet()
@@ -196,25 +171,20 @@ void mwTileSets::constructEmptySet()
 
 
 
-
-// extended set
-void mwTileSets::constructExtendedSet(int i, std::string name)
+// new 48
+void mwTileSets::construct48(int i, std::string name)
 {
    constructEmptySet();
 
    ts.name              = name;
-   ts.extendedMode      = 1;
    ts.startIndex        = i;
-   ts.endIndex          = i + 63;
+   ts.endIndex          = i + 47;
+   ts.tileSetType       = 48;
 
    ts.Single            = i;
 
-   ts.HLineL            = i + 1;
-   ts.HLineM            = i + 2;
-   ts.HLineR            = i + 3;
-   ts.VLineT            = i + 4;
-   ts.VLineM            = i + 5;
-   ts.VLineB            = i + 6;
+   setHline(i, 1, 2, 3);
+   setVline(i, 4, 5, 6);
 
    ts.FrameCornerTL     = i + 7;
    ts.FrameCornerTR     = i + 8;
@@ -284,96 +254,30 @@ void mwTileSets::constructExtendedSet(int i, std::string name)
 
 
    tileSets.push_back(ts);
-
-
-   // frame
-   constructEmptySet();
-   ts.name              = name;
-   ts.frameMode         = 1;
-   ts.hlineMode         = 1;
-   ts.vlineMode         = 1;
-   ts.startIndex        = i;
-   ts.endIndex          = i+15;
-   ts.HLineL            = i + 1;
-   ts.HLineM            = i + 2;
-   ts.HLineR            = i + 3;
-   ts.VLineT            = i + 4;
-   ts.VLineM            = i + 5;
-   ts.VLineB            = i + 6;
-   ts.FrameCornerTL     = i + 7;
-   ts.FrameCornerTR     = i + 8;
-   ts.FrameCornerBR     = i + 9;
-   ts.FrameCornerBL     = i + 10;
-   ts.FrameEdgeL        = i + 5;
-   ts.FrameEdgeR        = i + 5;
-   ts.FrameEdgeT        = i + 2;
-   ts.FrameEdgeB        = i + 2;
-   tileSets.push_back(ts);
-
-
-   // inner
-   constructEmptySet();
-   ts.name              = name;
-   ts.frameMode         = 1;
-   ts.hlineMode         = 1;
-   ts.vlineMode         = 1;
-   ts.startIndex        = i+16;
-   ts.endIndex          = i+19;
-   ts.HLineL            = i + 1;
-   ts.HLineM            = i + 2;
-   ts.HLineR            = i + 3;
-   ts.VLineT            = i + 4;
-   ts.VLineM            = i + 5;
-   ts.VLineB            = i + 6;
-   ts.FrameCornerTL     = i + 16;
-   ts.FrameCornerTR     = i + 17;
-   ts.FrameCornerBR     = i + 18;
-   ts.FrameCornerBL     = i + 19;
-   ts.FrameEdgeL        = i + 26;
-   ts.FrameEdgeT        = i + 27;
-   ts.FrameEdgeR        = i + 24;
-   ts.FrameEdgeB        = i + 25;
-   tileSets.push_back(ts);
-
-   // solid
-   constructEmptySet();
-   ts.name              = name;
-   ts.solidMode         = 1;
-   ts.hlineMode         = 1;
-   ts.vlineMode         = 1;
-   ts.startIndex        = i+20;
-   ts.endIndex          = i+63;
-   ts.HLineL            = i + 1;
-   ts.HLineM            = i + 2;
-   ts.HLineR            = i + 3;
-   ts.VLineT            = i + 4;
-   ts.VLineM            = i + 5;
-   ts.VLineB            = i + 6;
-   ts.OuterCornerTL     = i + 20;
-   ts.OuterCornerTR     = i + 21;
-   ts.OuterCornerBR     = i + 22;
-   ts.OuterCornerBL     = i + 23;
-   ts.OuterEdgeL        = i + 24;
-   ts.OuterEdgeT        = i + 25;
-   ts.OuterEdgeR        = i + 26;
-   ts.OuterEdgeB        = i + 27;
-   ts.SolidFill         = i + 46;
-   tileSets.push_back(ts);
-
 }
 
 
-// 24 tileset to solid, inner, hline, vline
-void mwTileSets::construct24Set(int i, std::string name)
+
+
+
+
+
+
+// new 24 tileset
+void mwTileSets::construct24(int i, std::string name)
 {
    constructEmptySet();
-   // first do solid set
+
    ts.name            = name;
-   ts.solidMode       = 1;
    ts.startIndex      = i;
-   ts.endIndex        = i+15;
+   ts.endIndex        = i+23;
+   ts.tileSetType     = 24;
    ts.Single          = i+1;
    ts.SolidFill       = i;
+
+   setHline(i, 2, 3, 4);
+   setVline(i, 5, 6, 7);
+
    ts.OuterCornerTL   = i + 8;
    ts.OuterCornerTR   = i + 9;
    ts.OuterCornerBL   = i + 10;
@@ -382,51 +286,33 @@ void mwTileSets::construct24Set(int i, std::string name)
    ts.OuterEdgeR      = i + 13;
    ts.OuterEdgeT      = i + 14;
    ts.OuterEdgeB      = i + 15;
-   setHline(i, 2, 3, 4);
-   setVline(i, 5, 6, 7);
-   tileSets.push_back(ts);
 
-   // then do inner
-   constructEmptySet();
-   ts.name              = name;
-   ts.frameMode         = 1;
-   ts.hlineMode         = 1;
-   ts.vlineMode         = 1;
-   ts.startIndex        = i+16;
-   ts.endIndex          = i+23;
-   ts.FrameCornerTL     = i + 16;
-   ts.FrameCornerTR     = i + 17;
-   ts.FrameCornerBR     = i + 19;
-   ts.FrameCornerBL     = i + 18;
-   ts.FrameEdgeL        = i + 13;
-   ts.FrameEdgeT        = i + 15;
-   ts.FrameEdgeR        = i + 12;
-   ts.FrameEdgeB        = i + 14;
-   setHline(i, 2, 3, 4);
-   setVline(i, 5, 6, 7);
-   tileSets.push_back(ts);
-}
+   ts.FrameCornerTL   = i + 16;
+   ts.FrameCornerTR   = i + 17;
+   ts.FrameCornerBL   = i + 18;
+   ts.FrameCornerBR   = i + 19;
 
+   ts.FrameEdgeL      = i + 13;
+   ts.FrameEdgeT      = i + 15;
+   ts.FrameEdgeR      = i + 12;
+   ts.FrameEdgeB      = i + 14;
 
-// solid rectangle set for 2x3 columns
-void mwTileSets::construct2x3Set(int i, std::string name)
-{
-   constructEmptySet();
-   ts.name            = name;
-   ts.solidMode       = 1;
-   ts.startIndex      = i;
-   ts.endIndex        = i+5;
-   ts.OuterCornerTL   = i + 0;
-   ts.OuterCornerTR   = i + 1;
-   ts.OuterEdgeL      = i + 2;
-   ts.OuterEdgeR      = i + 3;
-   ts.OuterCornerBL   = i + 4;
-   ts.OuterCornerBR   = i + 5;
+   ts.InnerCornerTL   = i + 16;
+   ts.InnerCornerTR   = i + 17;
+   ts.InnerCornerBL   = i + 18;
+   ts.InnerCornerBR   = i + 19;
+
+   ts.InnerEdgeR      = i + 20;
+   ts.InnerEdgeB      = i + 21;
+   ts.InnerEdgeL      = i + 22;
+   ts.InnerEdgeT      = i + 23;
+
    tileSets.push_back(ts);
 }
 
 
-// new 16 tileset with both frame and solid
+
+// new 16 tileset
 void mwTileSets::construct16(int i, std::string name)
 {
    constructEmptySet();
@@ -466,114 +352,65 @@ void mwTileSets::construct16(int i, std::string name)
 }
 
 
-/*
-
-// 16 tileset to solid and frame rectangle sets
-void mwTileSets::construct16Set(int i, int type, std::string name)
-{
-   if (type == 1) // solid only
-   {
-      constructEmptySet();
-      ts.name            = name;
-      ts.solidMode       = 1;
-      ts.startIndex      = i;
-      ts.endIndex        = i+15;
-      ts.Single          = i+1;
-      ts.SolidFill       = i;
-      ts.OuterCornerTL   = i + 8;
-      ts.OuterCornerTR   = i + 9;
-      ts.OuterCornerBL   = i + 10;
-      ts.OuterCornerBR   = i + 11;
-      ts.OuterEdgeL      = i + 12;
-      ts.OuterEdgeR      = i + 13;
-      ts.OuterEdgeT      = i + 14;
-      ts.OuterEdgeB      = i + 15;
-      setHline(i, 2, 3, 4);
-      setVline(i, 5, 6, 7);
-      tileSets.push_back(ts);
-   }
-
-   if (type == 2) // frame only
-   {
-      constructEmptySet();
-      ts.name            = name;
-      ts.frameMode       = 1;
-      ts.startIndex      = i;
-      ts.endIndex        = i+15;
-      ts.Single     = i;
-      ts.FrameCornerTL   = i + 8;
-      ts.FrameCornerTR   = i + 9;
-      ts.FrameCornerBL   = i + 10;
-      ts.FrameCornerBR   = i + 11;
-      ts.FrameEdgeL      = i + 6;
-      ts.FrameEdgeR      = i + 6;
-      ts.FrameEdgeT      = i + 3;
-      ts.FrameEdgeB      = i + 3;
-      setHline(i, 2, 3, 4);
-      setVline(i, 5, 6, 7);
-      tileSets.push_back(ts);
-   }
-
-   if (type == 3) // both
-   {
-      // solid part
-      constructEmptySet();
-      ts.name            = name;
-      ts.solidMode       = 1;
-      // this range means that only the first block (cross middle) will draw solid
-      ts.startIndex      = i;
-      ts.endIndex        = i;
-      ts.Single          = i+1;
-      ts.SolidFill       = i;
-      ts.OuterCornerTL   = i + 8;
-      ts.OuterCornerTR   = i + 9;
-      ts.OuterCornerBL   = i + 10;
-      ts.OuterCornerBR   = i + 11;
-      ts.OuterEdgeL      = i + 12;
-      ts.OuterEdgeR      = i + 13;
-      ts.OuterEdgeT      = i + 14;
-      ts.OuterEdgeB      = i + 15;
-      setHline(i, 2, 3, 4);
-      setVline(i, 5, 6, 7);
-      tileSets.push_back(ts);
-
-      // frame part
-      constructEmptySet();
-      ts.name            = name;
-      ts.frameMode       = 1;
-      // this range means that all blocks other than the first block (cross middle) will draw frame
-      ts.startIndex      = i+1;
-      ts.endIndex        = i+15;
-      ts.Single          = i;
-      ts.FrameCornerTL   = i + 8;
-      ts.FrameCornerTR   = i + 9;
-      ts.FrameCornerBL   = i + 10;
-      ts.FrameCornerBR   = i + 11;
-      ts.FrameEdgeL      = i + 6;
-      ts.FrameEdgeR      = i + 6;
-      ts.FrameEdgeT      = i + 3;
-      ts.FrameEdgeB      = i + 3;
-      setHline(i, 2, 3, 4);
-      setVline(i, 5, 6, 7);
-      tileSets.push_back(ts);
-   }
-}
-
-*/
-
-
 
 // 8 tileset for rainbows only
-void mwTileSets::construct8Set(int i, std::string name)
+void mwTileSets::construct8(int i, std::string name)
 {
    constructEmptySet();
    ts.name        = name;
-   ts.frameMode   = 1;
+
    ts.startIndex  = i;
    ts.endIndex    = i + 7;
+   ts.tileSetType = 8;
+
    setBasicRect(i);
    tileSets.push_back(ts);
 }
+
+// 6 tileset for 2x3 columns
+void mwTileSets::construct6(int i, std::string name)
+{
+   constructEmptySet();
+   ts.name        = name;
+   ts.startIndex  = i;
+   ts.endIndex    = i + 5;
+   ts.tileSetType = 6;
+   ts.OuterCornerTL   = i + 0;
+   ts.OuterCornerTR   = i + 1;
+   ts.OuterEdgeL      = i + 2;
+   ts.OuterEdgeR      = i + 3;
+   ts.OuterCornerBL   = i + 4;
+   ts.OuterCornerBR   = i + 5;
+   tileSets.push_back(ts);
+}
+
+
+
+// combo hline and vline set to draw frame
+void mwTileSets::construct9(int i, std::string name)
+{
+   constructEmptySet();
+   ts.name        = name;
+   ts.startIndex  = i;
+   ts.endIndex    = i + 8;
+   ts.tileSetType = 9;
+
+   setHline(i, 0, 1, 2);
+   setVline(i, 3, 4, 5);
+
+   ts.FrameCornerTL   = i + 0;
+   ts.FrameCornerTR   = i + 2;
+   ts.FrameCornerBL   = i + 0;
+   ts.FrameCornerBR   = i + 2;
+   ts.FrameEdgeL      = i + 4;
+   ts.FrameEdgeR      = i + 4;
+   ts.FrameEdgeT      = i + 1;
+   ts.FrameEdgeB      = i + 1;
+
+   tileSets.push_back(ts);
+}
+
+
 
 void mwTileSets::setBasicRect(int i)
 {
@@ -603,26 +440,6 @@ void mwTileSets::setVline(int i, int top, int middle, int bottom)
    ts.VLineB    = i + bottom;
 }
 
-// combo hline and vline set to draw frame
-void mwTileSets::constructHlineVlineSet(int i, std::string name)
-{
-   constructEmptySet();
-   setHline(i, 0, 1, 2);
-   setVline(i, 3, 4, 5);
-   ts.name            = name;
-   ts.startIndex      = i;
-   ts.endIndex        = i + 5;
-   ts.frameMode       = 1;
-   ts.FrameCornerTL   = i + 0;
-   ts.FrameCornerTR   = i + 2;
-   ts.FrameCornerBL   = i + 0;
-   ts.FrameCornerBR   = i + 2;
-   ts.FrameEdgeL      = i + 4;
-   ts.FrameEdgeR      = i + 4;
-   ts.FrameEdgeT      = i + 1;
-   ts.FrameEdgeB      = i + 1;
-   tileSets.push_back(ts);
-}
 
 // basic vline
 void mwTileSets::construct1x3Set(int i, std::string name)
@@ -635,7 +452,6 @@ void mwTileSets::construct1x3Set(int i, std::string name)
    tileSets.push_back(ts);
 }
 
-// hline with multiple hlines when drawing rect
 void mwTileSets::construct3x1Set(int i, std::string name)
 {
    constructEmptySet();
@@ -643,70 +459,8 @@ void mwTileSets::construct3x1Set(int i, std::string name)
    ts.name            = name;
    ts.startIndex      = i;
    ts.endIndex        = i + 2;
-   ts.solidMode       = 1;
-   ts.SolidFill       = i + 1;
-   ts.OuterCornerTL   = i + 0;
-   ts.OuterCornerTR   = i + 2;
-   ts.OuterCornerBL   = i + 0;
-   ts.OuterCornerBR   = i + 2;
-   ts.OuterEdgeL      = i + 0;
-   ts.OuterEdgeR      = i + 2;
-   ts.OuterEdgeT      = i + 1;
-   ts.OuterEdgeB      = i + 1;
    tileSets.push_back(ts);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -728,13 +482,17 @@ bool mwTileSets::findTileSetContainingIndex(struct tileSet &t, int tileIndex, in
       if (tileIndex >= ts.startIndex && tileIndex <= ts.endIndex)
       {
          if (type == 0)                          { t = ts; return true; }
-         if (type == 1  && ts.frameMode)         { t = ts; return true; }
-         if (type == 2  && ts.solidMode)         { t = ts; return true; }
+
          if (type == 3  && ts.hlineMode)         { t = ts; return true; }
          if (type == 4  && ts.vlineMode)         { t = ts; return true; }
-         if (type == 5  && ts.extendedMode)      { t = ts; return true; }
-         if (type == 16 && ts.tileSetType == 16) { t = ts; return true; }
 
+         if (type == 6  && ts.tileSetType == 6)  { t = ts; return true; }
+         if (type == 8  && ts.tileSetType == 8)  { t = ts; return true; }
+         if (type == 9  && ts.tileSetType == 9)  { t = ts; return true; }
+
+         if (type == 16 && ts.tileSetType == 16) { t = ts; return true; }
+         if (type == 24 && ts.tileSetType == 24) { t = ts; return true; }
+         if (type == 48 && ts.tileSetType == 48) { t = ts; return true; }
 
 
       }
@@ -744,18 +502,11 @@ bool mwTileSets::findTileSetContainingIndex(struct tileSet &t, int tileIndex, in
 
 
 
-
-
-
-
-
-
-
-
 void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview)
 {
    if (preview) // draw tile on level_buffer
    {
+      al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.Black);
       al_draw_bitmap(mBitmap.btile[tileNum], x*20, y*20, 0);
    }
    else // change tile in level array
@@ -781,16 +532,190 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
 
 
 
-// passed a rect to draw from level editor main edit
-// bx1, by1, bx2, bx2 are tile positions in the level array
+
+void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview)
+{
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int drawItem = mWM.mW[1].draw_item_num;
+   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
+
+
+   for (int x=bx1; x<=bx2; x++)
+      for (int y=by1; y<=by2; y++)
+      {
+         int drawTileNum = s;
+         if (y == by1)         drawTileNum = t;
+         if (y == by2)         drawTileNum = b;
+         if (x == bx1)
+         {
+            if      (y == by1) drawTileNum = tl;
+            else if (y == by2) drawTileNum = bl;
+            else               drawTileNum = l;
+         }
+         if (x == bx2)
+         {
+            if      (y == by1) drawTileNum = tr;
+            else if (y == by2) drawTileNum = br;
+            else               drawTileNum = r;
+         }
+         if (drawTileNum != -1) drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+      }
+}
+
+
+
+// draws hlines or vlines
+void mwTileSets::drawRectHelper2(struct tileSet ts, bool preview)
+{
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int drawItem = mWM.mW[1].draw_item_num;
+   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
+
+
+   if (altDrawRectMode4 > 1) altDrawRectMode4 = 0;
+   if (altDrawRectMode4 == 0) // hline
+   {
+      for (int y=by1; y<=by2; y++)
+         for (int x=bx1; x<=bx2; x++)
+         {
+            int drawTileNum = ts.HLineM;
+            if (x == bx1) drawTileNum = ts.HLineL;
+            if (x == bx2) drawTileNum = ts.HLineR;
+            drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+         }
+   }
+   if (altDrawRectMode4 == 1) // vline
+   {
+      for (int x=bx1; x<=bx2; x++)
+         for (int y=by1; y<=by2; y++)
+         {
+            int drawTileNum = ts.VLineM;
+            if (y == by1) drawTileNum = ts.VLineT;
+            if (y == by2) drawTileNum = ts.VLineB;
+            drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+         }
+   }
+}
+
+void mwTileSets::drawRectHelper3(struct tileSet ts, bool preview)
+{
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   int drawItem = mWM.mW[1].draw_item_num;
+   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
+
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+
+
+   // set up 3x3 pattern array
+   int p[3][3];
+   p[0][0] = ts.InnerCornerTL;
+   p[1][0] = ts.InnerEdgeT;
+   p[2][0] = ts.InnerCornerTR;
+   p[0][1] = ts.InnerEdgeL;
+   p[1][1] = 0; // middle tile
+   p[2][1] = ts.InnerEdgeR;
+   p[0][2] = ts.InnerCornerBL;
+   p[1][2] = ts.InnerEdgeB;
+   p[2][2] = ts.InnerCornerBR;
+
+   // set middle tile
+   if (altDrawRectMode4 > 7) altDrawRectMode4 = 0;
+   if (altDrawRectMode4 == 0) p[1][1] = 0;
+   if (altDrawRectMode4 == 1) p[1][1] = ts.SolidFill;
+   if (altDrawRectMode4 == 2) p[1][1] = ts.InnerEdgeT;
+   if (altDrawRectMode4 == 3) p[1][1] = ts.InnerEdgeB;
+   if (altDrawRectMode4 == 4) p[1][1] = ts.HLineM;
+   if (altDrawRectMode4 == 5) p[1][1] = ts.InnerEdgeL;
+   if (altDrawRectMode4 == 6) p[1][1] = ts.InnerEdgeR;
+   if (altDrawRectMode4 == 7) p[1][1] = ts.VLineM;
+
+   // set pattern size
+   if (altDrawRectModePatternWidth  < 1) altDrawRectModePatternWidth  = 1;
+   if (altDrawRectModePatternWidth  > 6) altDrawRectModePatternWidth  = 6;
+   if (altDrawRectModePatternHeight < 1) altDrawRectModePatternHeight = 1;
+   if (altDrawRectModePatternHeight > 6) altDrawRectModePatternHeight = 6;
+
+   int xs = altDrawRectModePatternWidth;
+   int ys = altDrawRectModePatternHeight;
+
+
+   // iterate the draw area
+   for (int x=bx1; x<=bx2; x++)
+      for (int y=by1; y<=by2; y++)
+      {
+         int drawTileNum = 0; // middle
+
+         // offset into pattern
+         int xi = ((x-bx1) % xs);
+         int yi = ((y-by1) % ys);
+
+         if (xi == 0) // first column
+         {
+                            drawTileNum = p[0][1]; // middle
+            if (yi == 0)    drawTileNum = p[0][0]; // top
+            if (yi == ys-1) drawTileNum = p[0][2]; // bottom
+         }
+
+         if (xi == xs-1) // last column
+         {
+                            drawTileNum = p[2][1]; // middle
+            if (yi == 0)    drawTileNum = p[2][0]; // top
+            if (yi == ys-1) drawTileNum = p[2][2]; // bottom
+         }
+
+         if (xi > 0 && xi < xs-1) // middle columns
+         {
+                            drawTileNum = p[1][1]; // middle
+            if (yi == 0)    drawTileNum = p[1][0]; // top
+            if (yi == ys-1) drawTileNum = p[1][2]; // bottom
+         }
+
+         drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+      }
+}
+
+
+
+
+
+
+
+// uses bx1, by1, bx2, bx2 from level editor
+// replaces blocks in level, or for preview draws on level buffer
 // if drawItem is part of a tile set, use appropriate tiles from that set
 // calls drawTile to actually do the draw (or preview)
 
-void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode, int altDrawMode, bool preview)
+void mwTileSets::drawRect(bool preview)
 {
-   // swap if wrong order
-   if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2);
-   if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
+   // get local copies
+   int bx1 = mWM.bx1;
+   int by1 = mWM.by1;
+   int bx2 = mWM.bx2;
+   int by2 = mWM.by2;
+   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int drawItem = mWM.mW[1].draw_item_num;
+   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+
+
+   altTextLine1 = "";
+   altTextLine2 = "";
+   altTextLine3 = "";
+
+
 
 
    int drawItemNum  = drawItem & 1023;
@@ -802,6 +727,7 @@ void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int 
 
    // single tile 1 x 1
    if (bw==0 && bh==0) drawTile(bx1, by1, drawTileNum, drawItemFlags, drawTileMode, preview);
+
 
    // vertical line
    if (bw==0 && bh>0)
@@ -842,66 +768,160 @@ void mwTileSets::drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int 
    // rectangle (where w and h are both > 0)
    if (bw>0 && bh>0)
    {
-      struct tileSet ts;
-      // get draw mode
-      int drawMode = 0; // default
-      if (findTileSetContainingIndex(ts, drawItemNum, 1)) drawMode = 1; // frame
-      if (findTileSetContainingIndex(ts, drawItemNum, 2)) drawMode = 2; // solid
 
-      if (findTileSetContainingIndex(ts, drawItemNum, 16)) // 16 tileset
+      // 2x3
+      if (findTileSetContainingIndex(ts, drawItemNum, 6))
       {
-         /*if (altDrawMode == 0) */drawMode = 1; // 16 frame
-         if (altDrawMode == 1) drawMode = 2; // 16 solid
+         //printf ("found 6\n");
+         drawRectHelper(-1, 0, 0, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+         return;
       }
-      for (int x=bx1; x<bx2+1; x++)
-         for (int y=by1; y<by2+1; y++)
+
+      // 3x3 hline and vline girder box set
+      if (findTileSetContainingIndex(ts, drawItemNum, 9))
+      {
+        // printf ("found 9\n");
+         if (altDrawRectMode1 >  1) altDrawRectMode1 = 0;
+         if (altDrawRectMode1 == 0)
          {
-
-
-            if (drawMode == 1)
-            {
-                                     drawTileNum = -1;
-               if (y == by1)         drawTileNum = ts.FrameEdgeT;
-               if (y == by2)         drawTileNum = ts.FrameEdgeB;
-               if (x == bx1)
-               {
-                  if      (y == by1) drawTileNum = ts.FrameCornerTL;
-                  else if (y == by2) drawTileNum = ts.FrameCornerBL;
-                  else               drawTileNum = ts.FrameEdgeL;
-               }
-               if (x == bx2)
-               {
-                  if      (y == by1) drawTileNum = ts.FrameCornerTR;
-                  else if (y == by2) drawTileNum = ts.FrameCornerBR;
-                  else               drawTileNum = ts.FrameEdgeR;
-               }
-            }
-            if (drawMode == 2)
-            {
-                                     drawTileNum = ts.SolidFill;
-               if (y == by1)         drawTileNum = ts.OuterEdgeT;
-               if (y == by2)         drawTileNum = ts.OuterEdgeB;
-               if (x == bx1)
-               {
-                  if      (y == by1) drawTileNum = ts.OuterCornerTL;
-                  else if (y == by2) drawTileNum = ts.OuterCornerBL;
-                  else               drawTileNum = ts.OuterEdgeL;
-               }
-               if (x == bx2)
-               {
-                  if      (y == by1) drawTileNum = ts.OuterCornerTR;
-                  else if (y == by2) drawTileNum = ts.OuterCornerBR;
-                  else               drawTileNum = ts.OuterEdgeR;
-               }
-            }
-
-
-
-            if (drawTileNum != -1) drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
-
-
-
+            drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.HLineL, ts.HLineR, ts.HLineL, ts.HLineR, preview);
+            drawTile(bx1, by1+1, ts.VLineT, drawItemFlags, drawTileMode, preview);
+            drawTile(bx1, by2-1, ts.VLineB, drawItemFlags, drawTileMode, preview);
+            drawTile(bx2, by1+1, ts.VLineT, drawItemFlags, drawTileMode, preview);
+            drawTile(bx2, by2-1, ts.VLineB, drawItemFlags, drawTileMode, preview);
          }
+
+         if (altDrawRectMode1 == 1)
+         {
+            drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.VLineT, ts.VLineT, ts.VLineB, ts.VLineB, preview);
+            drawTile(bx1+1, by1, ts.HLineL, drawItemFlags, drawTileMode, preview);
+            drawTile(bx2-1, by1, ts.HLineR, drawItemFlags, drawTileMode, preview);
+            drawTile(bx1+1, by2, ts.HLineL, drawItemFlags, drawTileMode, preview);
+            drawTile(bx2-1, by2, ts.HLineR, drawItemFlags, drawTileMode, preview);
+         }
+         return;
+      }
+
+
+
+      // 8 tilesets
+      if (findTileSetContainingIndex(ts, drawItemNum, 8))
+      {
+         drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+         return;
+      }
+
+
+
+      // 16 tilesets
+      if (findTileSetContainingIndex(ts, drawItemNum, 16))
+      {
+         if (altDrawRectMode1 >  3) altDrawRectMode1 = 0; // clamp
+
+
+
+         if (altDrawRectMode1 == 0)
+         {
+            altTextLine1 = "Solid";
+            drawRectHelper(ts.SolidFill, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview); // 16 solid
+         }
+         if (altDrawRectMode1 == 1)
+         {
+            altTextLine1 = "Frame";
+            drawRectHelper(-1,           ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview); // 16 frame
+         }
+         if (altDrawRectMode1 == 2)
+         {
+            altTextLine1 = "Alt Frame";
+            drawRectHelper(-1,           ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview); // 16 frame alt
+         }
+         if (altDrawRectMode1 == 3)
+         {
+            altTextLine1 = "Lines";
+            drawRectHelper2(          ts, preview); // lines
+         }
+         return;
+
+      }
+
+      // 24 tilesets
+      if (findTileSetContainingIndex(ts, drawItemNum, 24))
+      {
+         if (altDrawRectMode1 >  2) altDrawRectMode1 = 0;
+         if (altDrawRectMode1 == 0) // frames
+         {
+            if (altDrawRectMode4 >  3) altDrawRectMode4 = 0;
+            if (altDrawRectMode4 == 0) drawRectHelper(-1, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+            if (altDrawRectMode4 == 1) drawRectHelper(-1, ts.InnerEdgeB, ts.InnerEdgeT, ts.InnerEdgeR, ts.InnerEdgeL, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+            if (altDrawRectMode4 == 2) drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+            if (altDrawRectMode4 == 3) drawRectHelper(-1, ts.InnerEdgeT, ts.InnerEdgeB, ts.InnerEdgeL, ts.InnerEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+         }
+         if (altDrawRectMode1 == 1) drawRectHelper2(ts, preview); // lines
+         if (altDrawRectMode1 == 2) drawRectHelper3(ts, preview); // pattern
+
+         return;
+      }
+
+
+      // 48 tilesets
+      if (findTileSetContainingIndex(ts, drawItemNum, 48)) // 48 tilesets
+      {
+         if (altDrawRectMode1 >  4) altDrawRectMode1 = 0;
+
+         if (altDrawRectMode1 == 0) drawRectHelper(-1, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+         if (altDrawRectMode1 == 1) drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+         if (altDrawRectMode1 == 2) drawRectHelper(-1, ts.InnerEdgeT, ts.InnerEdgeB, ts.InnerEdgeL, ts.InnerEdgeR, ts.InnerCornerTL, ts.InnerCornerTR, ts.InnerCornerBL, ts.InnerCornerBR, preview);
+
+         if (altDrawRectMode1 == 3) drawRectHelper(ts.SolidFill, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+         if (altDrawRectMode1 == 4) drawRectHelper(ts.FrameCross, ts.FrameEdgeBTee, ts.FrameEdgeTTee, ts.FrameEdgeLTee,  ts.FrameEdgeRTee, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+         return;
+      }
+
+
+
+
+      // hlines
+      if (findTileSetContainingIndex(ts, drawItemNum, 3))
+      {
+         printf ("found 3\n");
+
+         for (int y=by1; y<=by2; y++)
+            for (int x=bx1; x<=bx2; x++)
+            {
+               drawTileNum = ts.HLineM;
+               if (x == bx1) drawTileNum = ts.HLineL;
+               if (x == bx2) drawTileNum = ts.HLineR;
+               drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+            }
+         return;
+      }
+
+      // vlines
+      if (findTileSetContainingIndex(ts, drawItemNum, 4))
+      {
+         printf ("found 4\n");
+         for (int x=bx1; x<=bx2; x++)
+            for (int y=by1; y<=by2; y++)
+            {
+               drawTileNum = ts.VLineM;
+               if (y == by1) drawTileNum = ts.VLineT;
+               if (y == by2) drawTileNum = ts.VLineB;
+               drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
+            }
+         return;
+      }
+
+
+
+
+
+
+      // if nothing else matched up to this point, fill with single tile
+      for (int x=bx1; x<=bx2; x++)
+         for (int y=by1; y<=by2; y++)
+            drawTile(x, y, drawItemNum, drawItemFlags, drawTileMode, preview);
+
+
    }
 }
 
@@ -2298,7 +2318,7 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
    if (type == 2)
    {
       struct tileSet s;
-      if (mTileSets.findTileSetContainingIndex(s, bs, 5))
+      if (mTileSets.findTileSetContainingIndex(s, bs, 48))
       {
          ALLEGRO_BITMAP *tmp1 = al_create_bitmap(320, 80); // 16 x 4
          al_set_target_bitmap(tmp1);

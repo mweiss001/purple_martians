@@ -138,20 +138,17 @@ class mwTileSets
 
    void init();
 
-
+   void construct6(int i, std::string name);
+   void construct8(int i, std::string name);
+   void construct9(int i, std::string name);
 
    void construct16(int i, std::string name);
+   void construct24(int i, std::string name);
+   void construct48(int i, std::string name);
 
-
-
-   void constructExtendedSet(int i, std::string name);
-   void construct24Set(int i, std::string name);
-   void construct16Set(int i, int type, std::string name);
-   void construct8Set(int i, std::string name);
    void construct1x3Set(int i, std::string name);
-   void construct2x3Set(int i, std::string name);
    void construct3x1Set(int i, std::string name);
-   void constructHlineVlineSet(int i, std::string name);
+
 
    void constructEmptySet();
    void setBasicRect(int i);
@@ -167,12 +164,17 @@ class mwTileSets
 
 
 
-
    void create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_extended(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
 
    public:
+
+   std::string altTextLine1;
+   std::string altTextLine2;
+   std::string altTextLine3;
+
+
 
    void create_tileset_extended2(int bs);
    void create_tileset_from_16_mega(int bs, int mbx, int mby);
@@ -205,13 +207,33 @@ class mwTileSets
    struct tileSet ts;
    std::vector<tileSet> tileSets;
 
+   int altDrawRectMode1 = 0;
+   int altDrawRectMode2 = 0;
+   int altDrawRectMode3 = 0;
+   int altDrawRectMode4 = 0;
+
+   int altDrawRectModePatternWidth = 2;
+   int altDrawRectModePatternHeight = 2;
+
+
+
+
    bool findTileSetContainingIndex(struct tileSet &t, int tileIndex, int type = 0);
    bool isTileKeyedBlock(int tileIndex, int keyIndex);
 
 
+
    void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview);
 
-   void drawRect(int bx1, int bx2, int by1, int by2, int drawItem, int drawTileMode, int altDrawMode,  bool preview);
+   void drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview);
+
+   void drawRectHelper2(struct tileSet ts, bool preview);
+   void drawRectHelper3(struct tileSet ts, bool preview);
+
+
+
+
+   void drawRect(bool preview);
 
 
    bool compareTile(int rb, int cb, int set);

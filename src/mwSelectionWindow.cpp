@@ -30,9 +30,9 @@ void mwSelectionWindow::fill_block_array(void)
    // to keep track of the last inserted position
    lasty = 0;
 
-/*
 
    set_block_set_main_blocks(x, y);
+
 
    if (isTileSetGroupVisible("Platforms"))
    {
@@ -90,10 +90,6 @@ void mwSelectionWindow::fill_block_array(void)
 
    }
 
-
-
-
-
    if (isTileSetGroupVisible("Extended"))
    {
       set_block_extended(192,x, y);  // Purple Bricks
@@ -103,18 +99,13 @@ void mwSelectionWindow::fill_block_array(void)
       set_block_extended(448,x, y);  // Blue Pipes
    }
 
-
    if (isTileSetGroupVisible("Industrial"))
    {
       set_block_set_24(160, x, y);  // New test
-
       set_block_set_24(736, x, y);  // Template
       set_block_set_24(768, x, y);  // Industrial 1
       set_block_set_24(800, x, y);  // Industrial 1
    }
-
-*/
-
 
    if (isTileSetGroupVisible("Wires")) // and 24 industrial
    {
@@ -128,7 +119,6 @@ void mwSelectionWindow::fill_block_array(void)
       block_set_set(t+19, x, y+3); // cloner connection
       x+=1;
    }
-
 
    if (isTileSetGroupVisible("Blocks"))
    {
@@ -152,6 +142,7 @@ void mwSelectionWindow::fill_block_array(void)
       set_block_set_16_4x4(720,  x, y); // wrought iron grate
       set_block_set_16_4x4(688,  x, y); // semi-solid screens
    }
+
 
    if (isTileSetGroupVisible("Dirt"))
    {
@@ -459,7 +450,8 @@ void mwSelectionWindow::set_block_extended(int t, int &x, int &y)
    if (x>0) { x=0; y+=4; }
 
    for (const auto& s : mTileSets.tileSets)
-      if (s.startIndex == t && s.extendedMode)
+//      if (s.startIndex == t && s.extendedMode)
+      if (s.startIndex == t && s.tileSetType == 48)
       {
          block_set_set(s.FrameCornerTL,       x+0, y+0);
          block_set_set(s.FrameEdgeBTee,       x+1, y+0);

@@ -47,6 +47,9 @@ class mwMiscFnx
    int check_limit(int val, int ll, int ul);
    void swap_int(int *i1, int* i2);
 
+   void ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2);
+
+
    float mdw_rnd(float rmin, float rmax);
 
    std::string generate_muid();
