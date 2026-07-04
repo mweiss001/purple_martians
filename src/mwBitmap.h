@@ -51,6 +51,13 @@ class mwBitmap
 
    int tileFlags[NUM_SPRITES];
 
+
+
+
+
+
+
+
    ALLEGRO_BITMAP * create_and_clear_bitmap(int x, int y);
 };
 

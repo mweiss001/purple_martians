@@ -42,18 +42,18 @@ void mwTileSets::init()
    construct48( 384, "green pipes");
    construct48( 448, "blue pipes");
 
-   construct24( 160, "new test");
-   construct24( 736, "template");
+   construct24( 672, "template");
+   construct24( 704, "ice machine");
+   construct24( 736, "tan violet platform");
    construct24( 768, "alien machine");
    construct24( 800, "alien dark");
 
-   construct16( 688 ,"screen");
-   construct16( 720 ,"wrought iron");
+
    construct16( 832 ,"wires");
    construct16( 880, "white bricks");
 
-   construct16( 896, "brain");
-   construct16( 928, "grey bricks");
+   construct16( 896 ,"screen");
+   construct16( 928 ,"wrought iron");
    construct16( 960, "brown bricks");
    construct16( 992, "fat fuzzy pipe");
 
@@ -63,8 +63,8 @@ void mwTileSets::init()
    construct16( 976, "white rock");
    construct16( 1008,"purple blocks");
 
-   construct8(  704, "rainbows");
-   construct8(  712, "rainbows2");
+   construct8(  496, "rainbows");
+   construct8(  504, "rainbows2");
 
    // 3x1 single hline (platforms)
    construct3x1(585, "brown bricks");
@@ -100,8 +100,7 @@ void mwTileSets::init()
    construct9(  608, "grey hole");
    construct9(  617, "grey cross");
    construct9(  626, "grey rivet");
-   construct9(  672, "red cross");
-
+   construct9(  640, "red cross");
 
 
    // printf("num of tilesets:%d\n", (int) tileSets.size());
@@ -1676,9 +1675,9 @@ void mwTileSets::create_tileset_from_24_atomic(int bs)
    //sprintf(b2_fn2, "bitmaps/Template_Tileset.png");      // pink
    //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1A.png"); // dark grey
    //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1B.png"); // blue orange
-   sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1C.png"); // brown and purple
+//   sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1C.png"); // brown and purple
    //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1D.png"); // light blue and green
-   //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1E.png"); // light blue and orange
+   sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1E.png"); // light blue and orange
    //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1F.png"); // green blue pink
 
 

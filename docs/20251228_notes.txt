@@ -28269,6 +28269,168 @@ after I erased it I discovered that is is referenced in levels...restore and fix
 
 also got rid of 4 extra tiles in 24 set template
 
+I want to make my own version of al_save_bitmap that makes a backup...done...
+
+now back to 24 set tilehelper
+
+I set up a comparison and I dont see much difference??
+
+the tileset are identical for the first 16 tiles
+
+the th_replace is identical for the first 16 tiles
+
+there are a few rare cases when it gets a few more blocks
+
+rainbows are as good as can get, not great...maybe could convert to extened sometime...
+
+I think I also want to fix the flag drawing...do it just like em main...done
+
+I want to get rid of some dumb tiles that I never use, like brain, grey bricks...etc
+
+
+make a function to move a group of blocks to a new location
+just the references...
+
+make this do a range
+mGlobalLevelTool.changeTileNumber(b1_mouse_tile_pointer, pointer);
+
+
+mGlobalLevelTool.changeTileNumberRange(928, 976, 16); // grey bricks to white rock
+mGlobalLevelTool.changeTileNumberRange(896, 976, 16); // brain to white rock
+
+done...
+
+am I planning on replacing it with something?
+why don't I put the 2 screens there?
+
+mGlobalLevelTool.changeTileNumberRange(688, 896, 16); // screen
+mGlobalLevelTool.changeTileNumberRange(720, 928, 16); // grate
+
+
+test copying 658 to 690
+
+copy_tile_range(658, 690, 4);
+
+void mwBitmapTools::copy_tile_range(int s, int d, int r)
+{
+   ALLEGRO_BITMAP *b1 = load_block_tiles_to_bitmap();
+   if (!b1) return;
+   for (int i=0; i<r; i++) copy_tile(b1, s+i, d+i);
+   save_bitmap_to_block_tiles_file(b1);   
+}
+
+
+now combine the 2
+
+rainbows from 704 to 496
+
+copy_tile_range(704, 496, 16);
+mGlobalLevelTool.changeTileNumberRange(704, 496, 16);
+
+worked!
+levels all play back perfect...
+now change tileset references
+
+tileset
+tileset groups
+selection window
+tile helper buttons
+tile helper th
+
+
+next:
+
+move red girders up
+672 - 640
+done...
+
+move 24 platform up 736 - 672
+move_tiles_and_refs(736, 672, 24);
+
+
+move new industrial into place
+move_tiles_and_refs(160, 736 24);
+
+add 1 more industrial 1E
+
+now the 24's
+672 template
+704 ice machine
+736 tan purple platform
+768 blue orange pipes
+800 dark grey green
+
+test if everything is still working
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

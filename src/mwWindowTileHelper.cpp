@@ -20,7 +20,7 @@
 #include "mwLoop.h"
 
 
-int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, int b, int tl, int tr, int bl, int br)
+int mwWindow::th_replace_helper_48(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
 {
    int fb = -1;
 
@@ -113,12 +113,11 @@ int mwWindow::th_replace_helper_extended(int tile, int ot, int l, int r, int t, 
       if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = s.HLineL; // left end line
       if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = s.VLineT; // top end line
    }
-
    return fb;
 }
 
-// for all solid rect types and wires cross center
-int mwWindow::th_replace_helper_16(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
+
+int mwWindow::th_replace_helper_16(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br, bool inner)
 {
    int fb = tile; //  default
    if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 8;  // upper left corner
@@ -138,61 +137,29 @@ int mwWindow::th_replace_helper_16(int tile, int l, int r, int t, int b, int tl,
    if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 7;  // lower end line
    if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 2;  // left end line
    if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 5;  // upper end line
-
 
    if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) // no diagonals
       if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
          fb = tile+1;  // orphan single block
 
-   return fb;
-}
-
-
-
-// right now used only for template
-int mwWindow::th_replace_helper_24(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br)
-{
-   int fb = tile; //  default
-   if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 8;  // upper left corner
-   if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 9;  // upper right corner
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 10; // lower left corner
-   if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 11; // lower right corner
-
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = tile + 12; // left vertical tee
-   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 13; // right vertical tee
-   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = tile + 14; // upper horizontal tee
-   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = tile + 15; // lower horizontal tee
-
-   if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 6;  // vertical through line
-   if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 3;  // horizontal through line
-
-   if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = tile + 4;  // right end line
-   if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 7;  // lower end line
-   if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 2;  // left end line
-   if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 5;  // upper end line
-
-
-   // inner blocks
-   if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all u d l r
+   if (inner) // for 24 sets only (not much difference, gets a few blocks)
    {
-      // single corner open
-      if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = tile + 16; // only br open
-      if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = tile + 17; // only bl open
-      if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = tile + 18; // only tr open
-      if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = tile + 19; // only tl open
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all u d l r
+      {
+         // single corner open
+         if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = tile + 16; // only br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = tile + 17; // only bl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = tile + 18; // only tr open
+         if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = tile + 19; // only tl open
 
-      // 2 adjacent corners open
-      if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = tile + 20; // tl and bl open
-      if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = tile + 21; // tr and tl open
-      if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = tile + 22; // tr and br open
-      if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = tile + 23; // br and bl open
+         // 2 adjacent corners open
+         if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = tile + 20; // tl and bl open
+         if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = tile + 21; // tr and tl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = tile + 22; // tr and br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = tile + 23; // br and bl open
 
+      }
    }
-
-
-   if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) // no diagonals
-      if ((l == 0) && (r == 0) && (t == 0) && (b == 0)) // no blocks on all u d l r
-         fb = tile+1;  // orphan single block
 
    return fb;
 }
@@ -207,13 +174,13 @@ int mwWindow::th_replace_helper_pattern(int x, int y)
    int by2 = mWM.by2;
    mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
 
+   // pattern sizes
    int xs = (bx2 - bx1) + 1;
    int ys = (by2 - by1) + 1;
 
-
+   // pattern offsets
    int xo = th_pattern_offset_x;
    int yo = th_pattern_offset_y;
-
 
    // offset into pattern
    int xi = (x+xo) % xs;
@@ -221,12 +188,6 @@ int mwWindow::th_replace_helper_pattern(int x, int y)
 
    return mLevel.l[bx1+xi][by1+yi];
 }
-
-
-
-
-
-
 
 
 
@@ -251,10 +212,12 @@ int mwWindow::th_replace_helper_8(int tile, int l, int r, int t, int b, int tl, 
    if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = tile + 4;  // vertical through line
    if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 6;  // horizontal through line
 
+
    if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = tile + 6;  // right end line
    if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = tile + 4;  // lower end line
    if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = tile + 6;  // left end line
    if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = tile + 4;  // upper end line
+
 
    return fb;
 }
@@ -329,6 +292,7 @@ void mwWindow::th_find_adj(int x, int y, int &l, int &r, int &t, int &b, int &tl
 
 
 
+
 void mwWindow::th_replace(int type)
 {
    int l, r, t, b, tl, tr, bl, br;
@@ -340,79 +304,67 @@ void mwWindow::th_replace(int type)
       for (int y=0; y<100; y++)
          if (mWM.thl[x][y])
          {
-            int ot = mLevel.l[x][y]; // original tile
+//            int ot = mLevel.l[x][y]; // original tile
 
             th_find_adj(x, y, l, r, t, b, tl, tr, bl, br);
             int fb = -1; // default shape
-            if (type == 1)  fb = th_replace_helper_extended(256, ot, l, r, t, b, tl, tr, bl, br); // purple pipe set
-            if (type == 2)  fb = th_replace_helper_extended(320, ot, l, r, t, b, tl, tr, bl, br); // red pipe set
-            if (type == 3)  fb = th_replace_helper_extended(384, ot, l, r, t, b, tl, tr, bl, br); // green pipe set
-            if (type == 4)  fb = th_replace_helper_extended(448, ot, l, r, t, b, tl, tr, bl, br); // blue pipe set
-            if (type == 5)  fb = th_replace_helper_extended(192, ot, l, r, t, b, tl, tr, bl, br); // purple bricks
+            if (type == 1)  fb = th_replace_helper_48(256, l, r, t, b, tl, tr, bl, br); // purple pipe set
+            if (type == 2)  fb = th_replace_helper_48(320, l, r, t, b, tl, tr, bl, br); // red pipe set
+            if (type == 3)  fb = th_replace_helper_48(384, l, r, t, b, tl, tr, bl, br); // green pipe set
+            if (type == 4)  fb = th_replace_helper_48(448, l, r, t, b, tl, tr, bl, br); // blue pipe set
+            if (type == 5)  fb = th_replace_helper_48(192, l, r, t, b, tl, tr, bl, br); // purple bricks
 
-            if (type == 7)   fb = th_replace_helper_16(688, l, r, t, b, tl, tr, bl, br); // semi solid screen
-            if (type == 8)   fb = th_replace_helper_16(720, l, r, t, b, tl, tr, bl, br); // wrought iron
-            if (type == 9)   fb = th_replace_helper_16(832, l, r, t, b, tl, tr, bl, br); // wires
-            if (type == 10)  fb = th_replace_helper_16(880, l, r, t, b, tl, tr, bl, br); // grey bricks
+            if (type == 7)   fb = th_replace_helper_16(896, l, r, t, b, tl, tr, bl, br, 0); // semi solid screen
+            if (type == 8)   fb = th_replace_helper_16(928, l, r, t, b, tl, tr, bl, br, 0); // wrought iron
+            if (type == 9)   fb = th_replace_helper_16(832, l, r, t, b, tl, tr, bl, br, 0); // wires
+            if (type == 10)  fb = th_replace_helper_16(880, l, r, t, b, tl, tr, bl, br, 0); // white bricks
 
-            if (type == 11)  fb = th_replace_helper_16(896, l, r, t, b, tl, tr, bl, br); // white brain
-            if (type == 12)  fb = th_replace_helper_16(928, l, r, t, b, tl, tr, bl, br); // grey cracked bricks
-            if (type == 13)  fb = th_replace_helper_16(960, l, r, t, b, tl, tr, bl, br); // brown bricks
-            if (type == 14)  fb = th_replace_helper_16(992, l, r, t, b, tl, tr, bl, br); // fat fuzzy pipe
+            if (type == 13)  fb = th_replace_helper_16(960, l, r, t, b, tl, tr, bl, br, 0); // brown bricks
+            if (type == 14)  fb = th_replace_helper_16(992, l, r, t, b, tl, tr, bl, br, 0); // fat fuzzy pipe
 
-            if (type == 15)  fb = th_replace_helper_16(912, l, r, t, b, tl, tr, bl, br); // brown dirt and grass
-            if (type == 16)  fb = th_replace_helper_16(864, l, r, t, b, tl, tr, bl, br); // red dirt and grass
-            if (type == 17)  fb = th_replace_helper_16(944, l, r, t, b, tl, tr, bl, br); // red dirt
-            if (type == 18)  fb = th_replace_helper_16(976, l, r, t, b, tl, tr, bl, br); // white rock
-            if (type == 19)  fb = th_replace_helper_16(1008, l, r, t, b, tl, tr, bl, br); // purple rivet blocks
+            if (type == 15)  fb = th_replace_helper_16(912, l, r, t, b, tl, tr, bl, br, 0); // brown dirt and grass
+            if (type == 16)  fb = th_replace_helper_16(864, l, r, t, b, tl, tr, bl, br, 0); // red dirt and grass
+            if (type == 17)  fb = th_replace_helper_16(944, l, r, t, b, tl, tr, bl, br, 0); // red dirt
+            if (type == 18)  fb = th_replace_helper_16(976, l, r, t, b, tl, tr, bl, br, 0); // white rock
+            if (type == 19)  fb = th_replace_helper_16(1008, l, r, t, b, tl, tr, bl, br, 0); // purple rivet blocks
 
 
-            if (type == 20)  fb = th_replace_helper_24(736, l, r, t, b, tl, tr, bl, br); // template
-//            if (type == 21)  fb = th_replace_helper_16(800, l, r, t, b, tl, tr, bl, br); // industrial 1
-//            if (type == 22)  fb = th_replace_helper_16(768, l, r, t, b, tl, tr, bl, br); // industrial 2
-
-            if (type == 23)  fb = th_replace_helper_24(800, l, r, t, b, tl, tr, bl, br); // industrial 1
-            if (type == 24)  fb = th_replace_helper_24(768, l, r, t, b, tl, tr, bl, br); // industrial 2
-
+            if (type == 22)  fb = th_replace_helper_16(672, l, r, t, b, tl, tr, bl, br, 1); // Template
+            if (type == 23)  fb = th_replace_helper_16(704, l, r, t, b, tl, tr, bl, br, 1); // Ice Machine
+            if (type == 24)  fb = th_replace_helper_16(736, l, r, t, b, tl, tr, bl, br, 1); // Tan Platform
+            if (type == 25)  fb = th_replace_helper_16(768, l, r, t, b, tl, tr, bl, br, 1); // Alien Machine
+            if (type == 26)  fb = th_replace_helper_16(800, l, r, t, b, tl, tr, bl, br, 1); // Alien Dark
 
 
-
-
-
-            if (type == 30) fb = th_replace_helper_8(712, l, r, t, b, tl, tr, bl, br); // rainbow 1
-            if (type == 31) fb = th_replace_helper_8(704, l, r, t, b, tl, tr, bl, br); // rainbow 2
+            if (type == 30) fb = th_replace_helper_8(504, l, r, t, b, tl, tr, bl, br); // rainbow 1
+            if (type == 31) fb = th_replace_helper_8(496, l, r, t, b, tl, tr, bl, br); // rainbow 2
 
 
             if (type == 50) fb = th_replace_helper_pattern(x, y); // pattern
 
-
-
             if (type == 40) fb = tile; // single block
 
 
-
-
-
-
-            if (fb == -1)
+            // finally, replace the tile in the level array
+            if (tile != -1) // if -1 do nothing
             {
-               // do nothing
-            }
-            if (fb == 0)
-            {
-               mLevel.l[x][y] = 0;
-            }
+               // draw both tile and all solid flags
+               if (mWM.mW[1].em_draw_tile_mode == 1) mLevel.l[x][y] = fb | PM_BTILE_ALL_SOLID;
 
-            if (fb > 0)
-            {
-               // change only tile portion (lower 10 bits)
-               mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
-               mLevel.l[x][y] |= fb; // merge tile number
+               // draw tile only, preserve existing flags
+               if (mWM.mW[1].em_draw_tile_mode == 2)
+               {
+                  int tileNum = fb & 1023; // just make sure the flags are cleared
+                  mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower 10 bits
+                  mLevel.l[x][y] |= tileNum; // merge tileNum
+               }
             }
          }
    mScreen.init_level_background();
    al_set_target_backbuffer(mDisplay.display);
 }
+
+
 
 int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
 {
@@ -534,31 +486,28 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 384,  "Green Pipes"          , d))  choice = 3;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 448,  "Blue Pipes"           , d))  choice = 4;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 192,  "Purple Bricks"        , d))  choice = 5;
-
    xt++;
 
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 808,  "Industrial 1 16"      , d))  choice = 21;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 775,  "Industrial 2 16"      , d))  choice = 22;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 737,  "24 Tile Template"     , d))  choice = 20;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 673,  "Template"             , d))  choice = 22;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 713,  "Ice Machine"          , d))  choice = 23;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 737,  "Tan Platform"         , d))  choice = 24;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 776,  "Alien Machine"        , d))  choice = 25;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 809,  "Alien Dark"           , d))  choice = 26;
 
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 808,  "Industrial 1 24"      , d))  choice = 23;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 775,  "Industrial 2 24"      , d))  choice = 24;
+
+   xt++;
+   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 504,  "Rainbow 1"            , d))  choice = 30;
 
 
-//   xt++;
-//   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 712,  "Rainbow 1"            , d))  choice = 30;
-//   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 704,  "Rainbow 2"            , d))  choice = 31;
 
    yfb+=30;
 
    xt = 0;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 694,  "Semi Solid Screen"    , d))  choice = 7;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 720,  "Wrought Iron"         , d))  choice = 8;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 897,  "Semi Solid Screen"    , d))  choice = 7;
+   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 928,  "Wrought Iron"         , d))  choice = 8;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 832,  "Wires"                , d))  choice = 9;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 881,  "Slate Bricks"         , d))  choice = 10;
 
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 897,  "Brain"                , d))  choice = 11;
-   if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 929,  "Grey Cracked Bricks"  , d))  choice = 12;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 961,  "Brown Bricks"         , d))  choice = 13;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 993,  "Fat Fuzzy Pipes"      , d))  choice = 14;
 
@@ -567,6 +516,11 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 945,  "Red Dirt"             , d))  choice = 17;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 977,  "White Rock"           , d))  choice = 18;
    if (mWidget.mButtonTile2(x5+xt++*xts, yfb, 22, 1009, "Rivet Blocks"         , d))  choice = 19;
+
+   xt++;
+   if (mWidget.mButtonTile2(x3+xt++*xts, yfb, 22, 496,  "Rainbow 2"            , d))  choice = 31;
+
+
    yfb+=30;
 
    bts = 18;

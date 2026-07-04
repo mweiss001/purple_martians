@@ -43,30 +43,38 @@ ALLEGRO_BITMAP* mwBitmapTools::load_block_tiles_to_bitmap()
    return b1;
 }
 
-void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1)
+
+
+// this function has the same signature as al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
+// this adds an optional saving of backup, by renaming the original file first
+void mwBitmapTools::mw_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
    bool save_old_versions = 1;
+   int log = 1;
    if (save_old_versions)
    {
-      // rename existing file as backup
-
-      char of[255];
-
       // get timestamp
       char timestamp[256];
       time_t now = time(NULL);
       struct tm *timenow = localtime(&now);
       strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      sprintf(of, "%s_%s.bak", block_tiles_fn, timestamp);
+      char backup_filename[255];
+      sprintf(backup_filename, "%s_%s.bak", filename, timestamp);
 
-      printf("renaming file [%s] to [%s]\n", block_tiles_fn, of);
-
-      if (std::rename(block_tiles_fn, of) == 0) printf("File [%s] renamed successfully!\n", of);
-      else                                      printf("Error renaming file [%s] to [%s]\n", block_tiles_fn, of);
+      if (std::rename(filename, backup_filename) == 0)
+      {
+         if (log > 1) printf("Success renaming '%s' to '%s'\n", filename, backup_filename);
+      }
+      else if (log)   printf("Error!! renaming '%s' to '%s'\n", filename, backup_filename);
    }
+   al_save_bitmap(filename, bitmap);
+}
 
-   al_save_bitmap(block_tiles_fn, b1);
+
+void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1)
+{
+   mw_save_bitmap(block_tiles_fn, b1);
 }
 
 void mwBitmapTools::put_tile_to_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, int tile)
@@ -1647,17 +1655,7 @@ void mwBitmapTools::copy_tiles()
 
       if (mWidget.buttontcb(b1_x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load")) reload_b1 = 1;
       if (mWidget.buttontcb(b1_x+50,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload")) reload_b1 = 2;
-      if (mWidget.buttontcb(b1_x2-40, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save"))
-      {
-
-         al_save_bitmap(b1_fn, b1);
-//         void mwBitmapTools::save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1) // might not be this file
-      }
-
-
-
-
-
+      if (mWidget.buttontcb(b1_x2-40, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save")) mw_save_bitmap(b1_fn, b1);
 
       draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0, 22 );
 
@@ -1766,47 +1764,36 @@ void mwBitmapTools::copy_tiles()
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
 
-
+//         mGlobalLevelTool.changeTileNumberRange(672, 640, 3);
+//         mGlobalLevelTool.changeTileNumberRange(640, 672, 3);
+//         mGlobalLevelTool.changeTileNumberRange(928, 976, 16); // grey bricks to white rock...worked
+//         mGlobalLevelTool.changeTileNumberRange(708, 976, 16); // brain to white rock    WTF!!!
+//         copy_tile_range(704, 496, 16);
+//         mGlobalLevelTool.changeTileNumberRange(704, 496, 16);
+         // copy_tile_range(736, 672, 24);
+         // mGlobalLevelTool.changeTileNumberRange(736, 672, 24);
+//         move_tiles_and_refs(160, 736, 24);
 //          for (int i=1; i<16; i++) mTileSets.create_tileset_single_faded_rect(96+i, mColor.pc[i]);
-
 
 //         mTileSets.create_tileset_single_faded_rect(28, mColor.Green);
   //       mTileSets.create_tileset_single_faded_rect(60, mColor.Red);
     //     mTileSets.create_tileset_single_faded_rect(92, mColor.Blue);
 
-
-
          //mTileSets.create_tileset_from_16_mega(844, 16, 21); // original hand modify grey bricks (do not run this or they will be overwritten)
-
 //         mTileSets.create_tileset_from_16_mega(864, 20, 17); // red dirt with grass
-
-
-         mTileSets.create_tileset_from_24_atomic(160);
-
+         //mTileSets.create_tileset_from_24_atomic(704);
 
 //         mTileSets.create_tileset_from_16_mega(912, 12, 21); // brown dirt with grass
 //         mTileSets.create_tileset_from_16_mega(944, 12, 17); // orange brown dirt
 //         mTileSets.create_tileset_from_16_mega(976, 28, 17); // grey
 //         mTileSets.create_tileset_from_16_mega(1008, 28, 21); // outlined grey
-
-
 //         mTileSets.modify_tile_set(); // for extended pipe tilesets
-
 //         mTileSets.adjust_tile_set_color();
-
-
 //         mTileSets.create_tileset_extended2(192); this is the very custom purple brick
-
-
-
-
-         //custom_modify();
+  //       custom_modify();
 //         create_tileset_frame(352);
 //         create_tileset_solid(384);
 //         create_tileset_solid_just_frame(320);
-
-
-
       }
 
 
@@ -1973,17 +1960,58 @@ void copy_rectgroup(ALLEGRO_BITMAP *b, int s, int d)
    copy_tile(b, s+7,  d+15);
 }
 
+
+void copy_16(ALLEGRO_BITMAP *b, int s, int d)
+{
+   for (int i=0; i<16; i++)
+      copy_tile(b, s+i, d+i);
+}
+
+
+
+
+void mwBitmapTools::move_tiles_and_refs(int s, int d, int r)
+{
+   copy_tile_range(s, d, r);
+   mGlobalLevelTool.changeTileNumberRange(s, d, r);
+}
+
+
+
+
+
+
+
+void mwBitmapTools::copy_tile_range(int s, int d, int r)
+{
+
+   ALLEGRO_BITMAP *b1 = load_block_tiles_to_bitmap();
+   if (!b1) return;
+
+   for (int i=0; i<r; i++)
+      copy_tile(b1, s+i, d+i);
+
+   save_bitmap_to_block_tiles_file(b1);
+
+
+}
+
+
 void mwBitmapTools::custom_modify()
 {
    printf("Custom Modify\n");
    ALLEGRO_BITMAP *b1 = load_block_tiles_to_bitmap();
    if (!b1) return;
+
+//   copy_16(b1, 720, 928);
+
+
    //   copy_rectgroup(b1, 384, 896);
    //   copy_rectgroup(b1, 416, 864);
    //   copy_framegroup(b1, 608, 832);
    //   copy_framegroup(b1, 576, 800);
    // save modified block tiles bitmap to file
-   //save_bitmap_to_block_tiles_file(b1);
+   save_bitmap_to_block_tiles_file(b1);
 }
 
 

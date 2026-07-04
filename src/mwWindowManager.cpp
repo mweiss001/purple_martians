@@ -92,7 +92,7 @@ void mwWindowManager::initialize(int edit_level)
 
    i++;
    tileSetGroups[i].name = "Screen";
-   tileSetGroups[i].display_tile = 720;
+   tileSetGroups[i].display_tile = 928;
    tileSetGroups[i].visible = 1;
 
    i++;

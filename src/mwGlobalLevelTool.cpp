@@ -1960,7 +1960,6 @@ void mwGlobalLevelTool::countTiles()
 
 
 
-
 void mwGlobalLevelTool::changeTileNumber(int oldNumber, int newNumber, int level)
 {
    int old_start_level = mLevel.start_level;
@@ -1993,6 +1992,43 @@ void mwGlobalLevelTool::changeTileNumber(int oldNumber, int newNumber, int level
    mLevel.set_start_level(old_start_level);
 }
 
+
+void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int range)
+{
+   int old_start_level = mLevel.start_level;
+   int le[400] = {0}; // level exists array
+   int num_levs = 0;
+   char fn[20] = "levels/level000.PML";
+
+
+   // level range to look for
+   for (int x=0; x<400; x++)
+   {
+      int h, d, rem = x;
+      h = rem/100;
+      fn[12] = 48+h;
+      rem -=h*100;
+      d = rem/10;
+      fn[13] = 48 + d;
+      rem -=d*10;
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   // iterate array of found levels
+   for (int i=0; i<num_levs; i++)
+   {
+      mLevel.load_level(le[i], 1, 1);
+
+      for (int r=0; r<range; r++)
+         changeBlockNumber(oldNumber+r, newNumber+r);
+
+
+      mLevel.save_level(le[i]);
+   }
+
+   mLevel.set_start_level(old_start_level);
+}
 
 
 

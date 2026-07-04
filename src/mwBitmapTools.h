@@ -16,9 +16,19 @@ class mwBitmapTools
 
    ALLEGRO_BITMAP* load_block_tiles_to_bitmap();
    void save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1);
+
+
+   void mw_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap);
+
+
    char block_tiles_fn[100];
 
    void edit_tile_flags();
+
+
+
+
+
 
    private:
 
@@ -27,6 +37,14 @@ class mwBitmapTools
    int draw_flag_rects(int tn, int x, int y, int w, int h, int ys);
    void draw_and_proc_flag_rects(int tn, int x, int y, int w, int h, int ys);
    void redraw_grid(int x, int y, int current_selection);
+
+
+
+   void copy_tile_range(int s, int d, int r);
+
+   void move_tiles_and_refs(int s, int d, int r);
+
+
 
    void custom_modify();
    void fill_player_tile();

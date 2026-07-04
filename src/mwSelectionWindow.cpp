@@ -83,7 +83,7 @@ void mwSelectionWindow::fill_block_array(void)
       set_block_set_3x3(608, x, y); // grey hole girder
       set_block_set_3x3(617, x, y); // grey cross girder
       set_block_set_3x3(626, x, y); // grey rivet girder
-      set_block_set_3x3(672, x, y); // red cross girder
+      set_block_set_3x3(640, x, y); // red cross girder
 
       // after the end of the x3's do a new line
       x=0; y+=3;
@@ -101,10 +101,12 @@ void mwSelectionWindow::fill_block_array(void)
 
    if (isTileSetGroupVisible("Industrial"))
    {
-      set_block_set_24(160, x, y);  // New test
-      set_block_set_24(736, x, y);  // Template
-      set_block_set_24(768, x, y);  // Industrial 1
-      set_block_set_24(800, x, y);  // Industrial 1
+      set_block_set_24(672, x, y);  // Template
+      set_block_set_24(704, x, y);  // Ice
+      set_block_set_24(736, x, y);  // Tan
+      set_block_set_24(768, x, y);  // alien machine
+      set_block_set_24(800, x, y);  // alien dark
+
    }
 
    if (isTileSetGroupVisible("Wires")) // and 24 industrial
@@ -138,8 +140,8 @@ void mwSelectionWindow::fill_block_array(void)
 
    if (isTileSetGroupVisible("Screen"))
    {
-      set_block_set_16_4x4(720,  x, y); // wrought iron grate
-      set_block_set_16_4x4(688,  x, y); // semi-solid screens
+      set_block_set_16_4x4(928,  x, y); // wrought iron grate
+      set_block_set_16_4x4(896,  x, y); // semi-solid screens
    }
 
 
@@ -154,10 +156,8 @@ void mwSelectionWindow::fill_block_array(void)
 
    if (isTileSetGroupVisible("Rare"))
    {
-      set_block_set_16_4x4(896,  x, y); // Brain
-      set_block_set_16_4x4(928,  x, y); // Grey Bricks
       set_block_set_16_4x4(960,  x, y); // Brown Bricks
-      set_block_set_rainbow(704, x, y); // Rainbow
+      set_block_set_rainbow(496, x, y); // Rainbow
    }
 
 
