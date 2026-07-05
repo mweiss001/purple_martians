@@ -31,10 +31,9 @@ class mwWindowManager
    int obj_list[NUM_OBJ][3];
    int obj_filter[5][20];
 
-   int thl[100][100]; // tile helper
-
 
    tileSetGroup tileSetGroups[32];
+
 
 
    int gx; // mouse position relative to scaled level background

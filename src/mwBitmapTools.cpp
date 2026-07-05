@@ -17,6 +17,7 @@
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
+#include "mwTileHelper.h"
 #include "mwTileSets.h"
 
 
@@ -442,7 +443,10 @@ void mwBitmapTools::combine_tile(void)
 
 
 
+
+
 // used by widget button to get new tile for block manip and blockwalker
+// now used in tile helper also
 // gets block with flags from level
 void mwBitmapTools::select_bitmap_from_level(int &tn)
 {
@@ -463,7 +467,9 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
       int swy2 = swy1 + 32;  // above flags
 
       // erase background and frame
-      int swy3 = swy2 + 145; // below flags
+      int swy3 = swy2 + 174; // below flags
+      // swy3 += mLoop.pct_y;
+
       al_draw_filled_rectangle(              swx1-2, swy1-2,  swx2+2, swy3, mColor.pc[0]);
       al_draw_rectangle(                     swx1-2, swy1-2,  swx2+2, swy3, mColor.pc[13], 1);
 
@@ -870,11 +876,9 @@ void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_onl
 {
    int x2 = x1+141;
 
-   int num_flags = 17;
-
    int ys = 10; // y spacing
 
-   int y2 = y1 + ys * num_flags;
+   int y2 = y1 + ys * PM_BTILE_NUM_FLAGS;
 
    int frw = 6; // flag rectangle width
    int frh = 6; // flag rectangle height
@@ -960,11 +964,138 @@ void mwBitmapTools::draw_and_proc_flag_rects(int tn, int x, int y, int w, int h,
 
 
 
+
+// new version to work with tile helper selection of tiles
+void mwBitmapTools::draw_flag_rects_multiple_th(int x, int y)
+{
+   int w = 7;
+   int h = 7;
+   int ys = 10;
+   int tx = x+ys;
+   int ty = y;
+//   ty += mLoop.pct_y;
+//   tx += mLoop.pct_x;
+   draw_flag_text(tx, ty, ys, 15);
+
+   // make an array of flags to store the tallies
+   int fa[PM_BTILE_NUM_FLAGS][2] {};
+
+   for (int i=0; i<PM_BTILE_NUM_FLAGS; i++)
+   {
+      fa[i][0] = 0;
+      fa[i][1] = 0;
+   }
+
+   // cycle the selection
+   for (int cx=0; cx<100; cx++)
+      for (int cy=0; cy<100; cy++)
+         if (mTileHelper.thl[cx][cy])
+         {
+            int tn = mLevel.l[cx][cy];
+
+            tn & PM_BTILE_SOLID_PLAYER        ? fa[0][1]++  : fa[0][0]++;
+            tn & PM_BTILE_SOLID_ENEMY         ? fa[1][1]++  : fa[1][0]++;
+            tn & PM_BTILE_SOLID_ITEM          ? fa[2][1]++  : fa[2][0]++;
+            tn & PM_BTILE_SOLID_PBUL          ? fa[3][1]++  : fa[3][0]++;
+            tn & PM_BTILE_SOLID_EBUL          ? fa[4][1]++  : fa[4][0]++;
+            tn & PM_BTILE_SEMISOLID_PLAYER    ? fa[5][1]++  : fa[5][0]++;
+            tn & PM_BTILE_SEMISOLID_ENEMY     ? fa[6][1]++  : fa[6][0]++;
+            tn & PM_BTILE_SEMISOLID_ITEM      ? fa[7][1]++  : fa[7][0]++;
+            tn & PM_BTILE_BOMBABLE            ? fa[8][1]++  : fa[8][0]++;
+            tn & PM_BTILE_BREAKABLE_PSHOT     ? fa[9][1]++  : fa[9][0]++;
+            tn & PM_BTILE_BREAKABLE_ESHOT     ? fa[10][1]++ : fa[10][0]++;
+            tn & PM_BTILE_LADDER_MOVE         ? fa[11][1]++ : fa[11][0]++;
+            tn & PM_BTILE_ROPE_MOVE           ? fa[12][1]++ : fa[12][0]++;
+            tn & PM_BTILE_KEY_ACTIVE          ? fa[13][1]++ : fa[13][0]++;
+            tn & PM_BTILE_KEY_COLOR1          ? fa[14][1]++ : fa[14][0]++;
+            tn & PM_BTILE_KEY_COLOR0          ? fa[15][1]++ : fa[15][0]++;
+            tn & PM_BTILE_SHOW_OVERLAY        ? fa[16][1]++ : fa[16][0]++;
+         }
+
+   for (int i=0; i<PM_BTILE_NUM_FLAGS; i++)
+   {
+      int type = 0;                           // default: empty
+      if (fa[i][1]) type = 1;                 // if any set: filled
+      if ((fa[i][1]) && (fa[i][0])) type = 2; // if both set and clear: mixed
+
+      if (type == 0) al_draw_rectangle       (x, y + (ys*i), x+w, y+h+(ys*i),               mColor.pc[15], 1);
+      if (type == 1) al_draw_filled_rectangle(x, y + (ys*i), x+w, y+h+(ys*i),               mColor.pc[15]);
+      if (type == 2) al_draw_filled_triangle (x, y+h+(ys*i), x+w, y+h+(ys*i), x, y+(ys* i), mColor.pc[15]);
+
+   }
+
+
+   if ((mInput.mouse_x > x) && (mInput.mouse_x < x+w) && (mInput.mouse_y > y) && (mInput.mouse_y < y+(PM_BTILE_NUM_FLAGS*ys) ))
+   {
+      int point = (mInput.mouse_y-y)/ys;
+      al_draw_rectangle(x-1, y+(ys*point)-1, x+w+1, y+h+(ys*point)+1, mColor.pc[15], 1);
+
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+
+         int action = 0;                    // default action is 'clear'
+         if (fa[point][1] == 0) action = 1; // if no clears tallied, action is 'set'
+
+         int flag = 0;
+         if (point ==  0) flag = PM_BTILE_SOLID_PLAYER;
+         if (point ==  1) flag = PM_BTILE_SOLID_ENEMY;
+         if (point ==  2) flag = PM_BTILE_SOLID_ITEM;
+         if (point ==  3) flag = PM_BTILE_SOLID_PBUL;
+         if (point ==  4) flag = PM_BTILE_SOLID_EBUL;
+         if (point ==  5) flag = PM_BTILE_SEMISOLID_PLAYER;
+         if (point ==  6) flag = PM_BTILE_SEMISOLID_ENEMY;
+         if (point ==  7) flag = PM_BTILE_SEMISOLID_ITEM;
+         if (point ==  8) flag = PM_BTILE_BOMBABLE;
+         if (point ==  9) flag = PM_BTILE_BREAKABLE_PSHOT;
+         if (point == 10) flag = PM_BTILE_BREAKABLE_ESHOT;
+         if (point == 11) flag = PM_BTILE_LADDER_MOVE;
+         if (point == 12) flag = PM_BTILE_ROPE_MOVE;
+         if (point == 13) flag = PM_BTILE_KEY_ACTIVE;
+         if (point == 14) flag = PM_BTILE_KEY_COLOR1;
+         if (point == 15) flag = PM_BTILE_KEY_COLOR0;
+         if (point == 16) flag = PM_BTILE_SHOW_OVERLAY;
+
+         // cycle the selection
+         for (int cx=0; cx<100; cx++)
+            for (int cy=0; cy<100; cy++)
+               if (mTileHelper.thl[cx][cy])
+               {
+                  if (action == 0) mLevel.l[cx][cy] &= ~flag;
+                  if (action == 1) mLevel.l[cx][cy] |= flag;
+               }
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // called 2x from edit_tile_flags()
 void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
 {
     // make an array of flags to store the tallies
-   int fa[17][2] {};
+   int fa[PM_BTILE_NUM_FLAGS][2] {};
 
    // cycle the selection
    for (int cx = bx1; cx < bx2; cx++)
@@ -990,7 +1121,7 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
          mBitmap.tileFlags[tn] & PM_BTILE_SHOW_OVERLAY        ? fa[16][1]++ : fa[16][0]++;
       }
 
-   for (int i=0; i<17; i++)
+   for (int i=0; i<PM_BTILE_NUM_FLAGS; i++)
    {
                                     al_draw_rectangle       (x, y + (ys*i), x+w, y+h+(ys*i), mColor.pc[15], 1);            // empty box by default
       if (fa[i][0] == 0)            al_draw_filled_rectangle(x, y + (ys*i), x+w, y+h+(ys*i), mColor.pc[15]);               // no clears tallied, filled
@@ -1055,10 +1186,6 @@ void mwBitmapTools::redraw_grid(int x, int y, int current_selection) // draw 32x
 // called from cm_process_menu_bar()
 void mwBitmapTools::edit_tile_flags()
 {
-   int num_flags = 17;
-
-
-
    char msg[1024];
    int x, y;
    int mode = 0;
@@ -1135,13 +1262,13 @@ void mwBitmapTools::edit_tile_flags()
 
          draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, -1);
          al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, mColor.pc[10], 1);
-         al_draw_rectangle(csx-4, csy+15, csx+frw+2, csy+15+(num_flags*ys), mColor.pc[10], 1); // frame for buttons
+         al_draw_rectangle(csx-4, csy+15, csx+frw+2, csy+15+(PM_BTILE_NUM_FLAGS*ys), mColor.pc[10], 1); // frame for buttons
          int num_tiles = (bx2-bx1) * (by2-by1);
          al_draw_textf(mFont.pr8, mColor.pc[4],    csx+frw,     csy, 0, " %d Tile(s) Selected", num_tiles);
       }
 
       // mouse on flag rectangles -- this is to show highlight what flag is selected
-      if ((mInput.mouse_x > frx) && (mInput.mouse_x < frx+frw) && (mInput.mouse_y > fry) && (mInput.mouse_y < fry+(num_flags*ys) ))
+      if ((mInput.mouse_x > frx) && (mInput.mouse_x < frx+frw) && (mInput.mouse_y > fry) && (mInput.mouse_y < fry+(PM_BTILE_NUM_FLAGS*ys) ))
       {
          int indx = (mInput.mouse_y-fry)/ys;
          if (mode == 0) draw_and_proc_flag_rects(current_selection, frx, fry, frw, frh, ys);
@@ -1160,7 +1287,7 @@ void mwBitmapTools::edit_tile_flags()
          csx -= 24;
          csy -= 25;
          al_draw_rectangle(csx-4, csy-7, csx+195,   csy+15, mColor.pc[13], 1);
-         al_draw_rectangle(csx-4, csy+15, csx+frw+2, csy+40+(num_flags*ys), mColor.pc[13], 1); // frame for buttons
+         al_draw_rectangle(csx-4, csy+15, csx+frw+2, csy+40+(PM_BTILE_NUM_FLAGS*ys), mColor.pc[13], 1); // frame for buttons
 
          al_draw_bitmap(mBitmap.btile[pointer],         csx-3,  csy-6, 0);
          al_draw_textf(mFont.pr8, mColor.pc[15], csx+24, csy,   0, "Mouse Pointer %d", pointer);

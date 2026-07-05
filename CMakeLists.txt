@@ -134,6 +134,8 @@ add_executable(pm
         src/mwStateHistory.h
         src/mwTally.cpp
         src/mwTally.h
+        src/mwTileHelper.cpp
+        src/mwTileHelper.h
         src/mwTriggerEvent.cpp
         src/mwTriggerEvent.h
         src/mwVisualLevel.cpp
@@ -148,7 +150,6 @@ add_executable(pm
         src/mwWindowManager.cpp
         src/mwWindowManager.h
         src/mwWindowObjectViewer.cpp
-        src/mwWindowTileHelper.cpp
 
         src/sqlite3.c
         src/sqlite3.h
@@ -164,6 +165,7 @@ add_executable(pm
         src/mwTileEditor.h
         src/mwLevelIcons.cpp
         src/mwLevelIcons.h
+        src/mwTileHelper.h
 )
 
 

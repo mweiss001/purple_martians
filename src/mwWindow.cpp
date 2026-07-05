@@ -26,6 +26,7 @@
 #include "mwLevelIcons.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
+#include "mwTileHelper.h"
 #include "mwTileSets.h"
 
 
@@ -380,7 +381,7 @@ void mwWindow::draw(int draw_only)
       if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
       int fc = 13+64;
       if (have_focus) fc = 13;
-      int ys = th_draw_buttons(x1+1, x2-1, y1+20, d);
+      int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+20, d);
       set_size(w, ys-y1+4);
 
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window

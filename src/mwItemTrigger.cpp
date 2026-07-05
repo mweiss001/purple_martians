@@ -803,23 +803,80 @@ int mwItem::draw_block_damage(int i, int x, int y, int custom)
 
       if ((draw_mode > 3) && (draw_mode < 11) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // single tile
       {
+         int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+
          int tn = 41 + draw_mode - 4;
-         for (int hx=x1; hx<x2; hx+=20)
-            al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0); // draw only on bottom row
+
+         if (rb == 0) // draw only on bottom row
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0);
+         }
+         if (rb == 2) // draw only on top row
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               al_draw_bitmap(mBitmap.tile[tn], hx, y1, ALLEGRO_FLIP_VERTICAL);
+         }
+
+         if (rb == 1) // draw only on left side
+         {
+            for (int hy=y1; hy<y2; hy+=20)
+               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, x1+20, hy,  ALLEGRO_PI / 2, 0);
+         }
+
+         if (rb == 3) // draw only on right side
+         {
+            for (int hy=y1; hy<y2; hy+=20)
+               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, x2-20, hy+20,  ALLEGRO_PI * 3 / 2, 0);
+         }
+
       }
 
       if ((draw_mode > 10) && (draw_mode < 16) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // 3 tile columns
       {
+         int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
          int tn = 19 + draw_mode - 11;
-         for (int hx=x1; hx<x2; hx+=20)
-            for (int hy=y1; hy<y2; hy+=20)
-            {
-               if       (hy == y1)     al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
-               else if  (hy == y1+20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
-               else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
-            }
+         if (rb == 0) // draw up from bottom row
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               for (int hy=y1; hy<y2; hy+=20)
+               {
+                  if       (hy == y1)     al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (hy == y1+20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+               }
+         }
+         if (rb == 2) // draw down from bottom row
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               for (int hy=y1; hy<y2; hy+=20)
+               {
+                  if       (hy == y2-20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
+                  else if  (hy == y2-40)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
+                  else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
+               }
+         }
+         if (rb == 1) // draw right from left side
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               for (int hy=y1; hy<y2; hy+=20)
+               {
+                  if       (hx == x2-20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
+                  else if  (hx == x2-40)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
+                  else                    al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
+               }
+         }
+         if (rb == 3) // draw left from right side
+         {
+            for (int hx=x1; hx<x2; hx+=20)
+               for (int hy=y1; hy<y2; hy+=20)
+               {
+                  if       (hx == x1)     al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // left
+                  else if  (hx == x1+20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // 2nd left
+                  else                    al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // everything else
+               }
+         }
       }
-
 
       if (draw_mode == 2) // spikey floor
       {

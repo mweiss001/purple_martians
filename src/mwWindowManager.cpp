@@ -18,6 +18,7 @@
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
+#include "mwTileHelper.h"
 #include "mwTileSets.h"
 
 mwWindowManager mWM;
@@ -31,13 +32,11 @@ void mwWindowManager::initialize(int edit_level)
    mW[1].draw_item_type = 1;
    mW[1].draw_item_num  = 0;
 
-   bx1=10;  // global selection window
-   by1=10;
-   bx2=40;
-   by2=30;
+   bx1=0;  // global selection window
+   by1=0;
+   bx2=0;
+   by2=0;
 
-   for (int x=0; x<100; x++)
-      for (int y=0; y<100; y++) thl[x][y] = 0; // tile helper
 
    // set all filters on
    for (int i=0; i<5; i++)
@@ -403,32 +402,63 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
 // when called, mouse b1 is pressed, blocks until released
 void mwWindowManager::get_new_box(void)
 {
-   bx2 = bx1 = gx; // set both corners to initial position
-   by2 = by1 = gy;
+   // use temp values internally for drag
+   int temp_bx1 = gx;
+   int temp_by1 = gy;
+
+   // set both corners to initial position
+   int temp_bx2 = temp_bx1;
+   int temp_by2 = temp_by1;
+
    while (mInput.mouse_b[1][0])
    {
-      bx2 = gx;
-      by2 = gy;
+      // update position
+      temp_bx2 = gx;
+      temp_by2 = gy;
+
+      // set the real values and correct
+      bx1 = temp_bx1;
+      by1 = temp_by1;
+      bx2 = temp_bx2;
+      by2 = temp_by2;
+      mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+
       redraw_level_editor_background(0);
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
       mScreen.draw_scaled_level_region_to_display();
    }
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+
 }
 
 // used by em for preview of drawing blocks
 // when called, mouse b1 is pressed, blocks until released
 bool mwWindowManager::get_new_box_with_preview()
 {
-   bx2 = bx1 = gx; // set both corners to initial position
-   by2 = by1 = gy;
+   // use temp values internally for drag
+   int temp_bx1 = gx;
+   int temp_by1 = gy;
+
+   // set both corners to initial position
+   int temp_bx2 = temp_bx1;
+   int temp_by2 = temp_by1;
+
    while (mInput.mouse_b[1][0])
    {
-      // update positon
-      bx2 = gx;
-      by2 = gy;
+      // update position
+      temp_bx2 = gx;
+      temp_by2 = gy;
+
+      // set the real values and correct
+      bx1 = temp_bx1;
+      by1 = temp_by1;
+      bx2 = temp_bx2;
+      by2 = temp_by2;
+      mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
 
       redraw_level_editor_background(0);
+
+      mTileSets.altDrawRectModeForceSingle = 0;
+      if (mInput.key[ALLEGRO_KEY_S][0]) mTileSets.altDrawRectModeForceSingle = 1;
 
       if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode++;
       if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode--;
@@ -450,7 +480,6 @@ bool mwWindowManager::get_new_box_with_preview()
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
       show_level_buffer_block_rect_text(bx1, by1, bx2, by2);
 
-
       mTileSets.drawRect(1);
 
       mScreen.draw_scaled_level_region_to_display();
@@ -471,7 +500,7 @@ void mwWindowManager::process_mouse(void)
    if (level_editor_mode == 2) mW[4].es_process_mouse();
    if (level_editor_mode == 3) mW[5].ge_process_mouse();
    if (level_editor_mode == 4) mW[7].ov_process_mouse();
-   if (level_editor_mode == 9) mW[9].th_process_mouse();
+   if (level_editor_mode == 9) mTileHelper.process_mouse();
 }
 
 void mwWindowManager::process_keypress(void)
@@ -687,20 +716,41 @@ int mwWindowManager::redraw_level_editor_background(void)
       {
          if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
 
-         if (!mWM.mW[9].th_hide_marks)
+
+         if (mTileHelper.frame_mode_preview) mTileHelper.draw_frame_fills(1);
+
+         if (mTileHelper.replace_preview) mTileHelper.draw_replace(1);
+
+         if (mTileHelper.pattern_preview) mTileHelper.draw_pattern(1);
+
+
+
+
+         if (mTileHelper.mark_overlay)
          {
             // show marked blocks
             for (int x=0; x<100; x++)
                for (int y=0; y<100; y++)
                {
-                  if (thl[x][y])
+                  if (mTileHelper.thl[x][y])
                   {
-                     //int col = 10;
-                     int c = mColor.flash_color+64;
-                     int c2 = mColor.flash_color2+64;
-                     al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
-                     al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
-                     al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
+                     if (mTileHelper.mark_overlay == 1)
+                     {
+                        //int col = 10;
+                        int c = mColor.flash_color+64;
+                        int c2 = mColor.flash_color2+64;
+                        al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
+                        al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
+                        al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
+                     }
+
+
+                     if (mTileHelper.mark_overlay == 2)
+                     {
+                        int c = mColor.flash_color+64;
+                        al_draw_textf(mFont.pr8, mColor.pc[c], x*20+6, y*20+6, 0, "%d", mTileHelper.thl[x][y]);
+                     }
+
                   }
                }
          }
@@ -786,13 +836,8 @@ void mwWindowManager::set_windows(int mode)
       mW[9].set_pos(100, 300);
       mW[9].set_size(320, 328);
       mW[9].set_title("Tile Helper");
-      mW[9].th_add_del = 1;
-      mW[9].th_match = 1;
-      mW[9].th_group = 1;
-      mW[9].th_sel = 0;
-      mW[9].th_hide_marks = 0;
-      mW[9].th_pattern_offset_x = 0;
-      mW[9].th_pattern_offset_y = 0;
+
+
    }
 
    if (level_editor_mode == 1) // edit menu

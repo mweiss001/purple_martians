@@ -1095,6 +1095,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             ya+=4; // spacer
+            mWidget.button(        xa, ya, xb, bts, 96,n,0,0,  0, 7,15, 0,  1,0,1,d);                     // damage draw rotation
+            ya+=4; // spacer
             int p=7; // mode color
             mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // mode
             int MODE = mItem.item[n][11];

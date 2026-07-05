@@ -839,6 +839,7 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
       }
 
 
+
       // flags only
       if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2]))
       {
@@ -847,9 +848,6 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
          int flags = tn & PM_BTILE_ALL_FLAGS;     // get only flags from draw item
          mLevel.l[x][y] |= flags;                 // merge
       }
-
-
-
 
 /*
 

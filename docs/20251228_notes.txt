@@ -28363,6 +28363,801 @@ now the 24's
 test if everything is still working
 
 
+2026-07-03 22:59:01
+
+working on a cool level 110...
+
+
+do I have any spare varaiable for block damage?
+I really want to make the display directional
+
+I can put it in flags...
+
+I need 2 bits for 4 directions
+
+#define PM_ITEM_ORB_ROTB        0b1100000000000000
+
+   // rotation
+   int rb = (item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+
+
+
+
+this will be simple
+#define PM_ITEM_DAMAGE_ROTB     0b001100000000000000
+mWidget.button(     xa, ya, xb, bts, 96,n,0,0,  0, 7,15, 0,  1,0,1,d);             // rotation
+int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+done....
+
+today:
+
+add a few more simple things like:
+cactus
+railing
+maybe some windows
+
+railing can be a 3x1 simple platform 35, 36, 37 ..done
+cactus 1x3
+
+should I make some custom draw things for these?
+1x3 extends bottom shape only
+1x2 ??
+
+2x2
+
+how about some tilesets that are not resizable? like cactus, double flowers, windows...
+something like the saved things in edit selection
+if I could browse the save things, I could do wonders
+how about each saved thing also has a text description?
+or will just filename work?
+I think what I want is a browser for saved sel...
+what would that look like?
+a list of files and scroll through the list and see previews
+I could also clean up the save and load of sel...
+that code is very crufty...
+
+put this on the back burner...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+make a key to force single block draw....
+if you hold 'S'
+int altDrawRectModeForceSingle = 0;
+done
+
+
+
+
+make a tile helper that does the outline tiles only
+
+
+
+do I need preview in tile helper? how hard could it be?
+
+try something like frames in tile helper ...
+find the outermost frame and work inwards
+
+I can do this manually:
+
+select a big area
+delete bound blocks
+clear marks
+add marks to new inner area
+fill with single tile
+delete bound blocks
+...
+continue to get a series of collapsing frames
+
+then what?
+
+make some new th routines
+
+outer frame, inner frame, single...etc
+
+how can I define what is inner and outer?
+
+1 - mark selection
+2 - run delete bound, but only check for blocks that are already set and inc 
+
+make a way to show lev...done
+
+I think I have it figured out...
+
+now what am I going to do with this info?
+
+when I want to draw an outer frame I will use lev to determine if it really is outer (lev == 1)
+
+now how will I patch all this in?
+
+do I make more icons for these new th modes?
+I am going to have to do some thinking...
+
+I could have a frame mode and for each frame I could apply to different things
+
+
+I think I am limited by the single th_replace function that iterates then call each replace separately
+
+modify find_adj to also get c...done
+reuse draw from tilesets...done
+
+
+
+   if (type == 23)
+   {
+      int c, l, r, t, b, tl, tr, bl, br;
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+            if (mWM.thl[x][y])
+            {
+               th_find_adj(x, y, c, l, r, t, b, tl, tr, bl, br);
+
+               int fb = th_replace_helper_24_outer(768, c, l, r, t, b, tl, tr, bl, br, 1); // Template
+               if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
+
+               fb = th_replace_helper_24_inner(768, c, l, r, t, b, tl, tr, bl, br, 2); // Template
+               if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
+            }
+
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+      return;
+   }
+
+
+what if I want to pad with solid
+
+
+I now have 3 frame modes for 24
+outer
+inner
+solid
+
+there are 2 more I could easily apply:
+inner alt and outer alt
+
+basically just replace the sides with alt shape
+
+there is one frame type I missed...single line frame
+that does not really exist for 24 set...
+I could do it with hlines and vlines, but I have not corners
+skip for now...
+
+now what am I going to do to out this all together?
+
+make a new section of controls?
+with preview?
+
+button to set nested frames
+controls to set draw types for each frame
+
+preview button
+
+what will it look like?
+
+start with the selection and the frames already generated
+
+list of frames and what is set for each one
+-----------------
+or I could have some presets
+make a function the just does
+---------------------------
+
+make a new section....
+have a variable called preview
+
+I am adding a lot of variables to the window class
+
+what if I made TileHelper its own class
+
+I think you should do it...
+
+I have moved everything into a new class mwTileHelper 
+
+
+removed all the times I passed 8 or 9 parameters to functions
+
+-----------------------------------------------------------
+the bx1 bx2 in the wrong order has always bugged me
+I can't fix them while the box is being adjusted, that messes up the drag...
+the only place thay are ever changed is in the drag...
+
+why don't I use temp internal values for the drag, and always update the real ones, even while in drag
+
+
+
+2026-07-04 15:49:44
+
+back to the tiles
+
+
+make some controls to show:
+
+frame 1
+start frame
+end frame
+tileSet
+mode
+
+frame 2 etc...
+
+right now I have tileset 24 with 5 modes
+
+this looks like a job for a vector of structs
+
+struct frameFill
+{
+   int startFrame;
+   int numFrames;
+   tileSet ts;
+   int drawMode;
+};
+
+std::vector<frameFill> frameFills;
+
+now clear and create one
+
+now make something to display and edit them
+
+
+start from the top:
+number of frames found
+number of frameFill sections
+
+now I want a widget to let me choose a tileset
+
+kind of like the custom one I already made...
+
+I kind of want to leave it the way it is...
+
+I will just make it select a tileset
+
+I want to make better use of the name in the tileset, and also maybe add display tile.....
+will need to do it in the constructor, manually for each
+
+
+void mwTileSets::construct48(int i, std::string name)
+
+so when I make these buttons, I want to make use of the name...
+
+use current tile set for frames
+
+make controls for regaular replace, similar to frames, with preview and apply
+done, but need to make it pretty
+
+
+in the replace section:
+
+replace selected with current tileset
+replace selected with single tile
+these should be checkboxes? or a toggle button
+
+
+
+edit flags for for selected? this could be handled by specific tile? and flags only..not really...maybe????
+it is a custom funtions
+how about a third mode: flags...?
+when I hover over the tile, show flags??
+
+what about the delete bound tiles button?  that might be better moved to frames
+
+
+2026-07-05 12:14:12
+
+I have made all tile helper control section separate function and added commit and preview to all...
+
+move delete bound from marks...do something like that in frames...done
+
+to do:
+- flags for replace
+- finish sizing replace
+
+frames:
+- select tileset for all or for each frame
+- implement the drawing for other tileset types (16 and 48)
+
+flags for replace
+- new mode ..done
+
+show flags from draw item and allow changing...done
+
+could I also show what flags are active in the selection?
+
+I made a custom version of
+void mwBitmapTools::draw_flag_rects_multiple_th(int x, int y, int w, int h, int ys, int con, int cof, int highlight)
+that does it all!!!!
+
+remove commit and preview flags when in flag mode, they are immediate..done
+
+now resize and make this loook good..done
+
+
+
+2026-07-05 14:19:11
+
+add controls for draw mode, hide ndf, show overlay to th (or maybe on frame?) they are important everywhere
+
+now onto frames:
+
+frames:
+- select tileset for all or for each frame
+- implement the drawing for other tileset types (16 and 48)
+
+
+do 16 first...are there actually 2 different types of 16?
+not really...???
+
+mode 0 could be the inner or it could be blank
+mode 1 is the full frame with pipe or inner sides
+mode 2 is the full frame with through sides
+
+
+is that all?
+
+mode 3
+inner pipe, with reversed corners and throughs the opposite direction
+
+the reversed corners look funny with wires, through looks better
+
+if this does not look good, like with purple bricks, single stand alone might also look nice...
+
+it misses tiles bound on trbl and one open corner..fixed but not sure what to do about it
+
+I don't think I will ever get a nice solution with 16s
+
+add options to each fill section to ignore, or erase
+
+lets do 48's !!!
+
+the 4 big ones:
+0 solid fill
+1 outer frame
+2 inner frame
+3 pipe
+
+I really dont think there are any others worth doing...
+maybe cross fill?
+
+4 cross fill
+5 outer frame cross inner
+6 inner frame cross outer
+
+I have all this done!!!!
+
+what now?
+
+2026-07-05 17:27:27
+commit, take a break...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I want them to be similar to 24
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

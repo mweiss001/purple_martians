@@ -30,41 +30,40 @@ void mwTileSets::init()
    strcpy(type_name[48], "48 Tileset");
 
 
-
    constructEmptySet();
    ts.name              = "none";
    tileSets.push_back(ts);
 
 
-   construct48( 192, "purple bricks");
-   construct48( 256, "purple pipes");
-   construct48( 320, "red pipes");
-   construct48( 384, "green pipes");
-   construct48( 448, "blue pipes");
+   construct48( 192, 192, "Purple Bricks");
+   construct48( 256, 256, "Purple Pipes");
+   construct48( 320, 320, "Red Pipes");
+   construct48( 384, 384, "Green Pipes");
+   construct48( 448, 448, "Blue Pipes");
 
-   construct24( 672, "template");
-   construct24( 704, "ice machine");
-   construct24( 736, "tan violet platform");
-   construct24( 768, "alien machine");
-   construct24( 800, "alien dark");
+   construct24( 672, 673, "Template");
+   construct24( 704, 713, "Ice Machine");
+   construct24( 736, 737, "Tan Platform");
+   construct24( 768, 776, "Alien Machine");
+   construct24( 800, 809, "Alien Dark");
 
+   construct16( 832, 832, "Wires");
+   construct16( 880, 881, "White Bricks");
 
-   construct16( 832 ,"wires");
-   construct16( 880, "white bricks");
+   construct16( 896, 897, "Screen");
+   construct16( 928, 928, "Wrought Iron");
+   construct16( 960, 961, "Brown Bricks");
+   construct16( 992, 993, "Fat Fuzzy Pipe");
 
-   construct16( 896 ,"screen");
-   construct16( 928 ,"wrought iron");
-   construct16( 960, "brown bricks");
-   construct16( 992, "fat fuzzy pipe");
+   construct16( 912, 913, "Dirt Grass");
+   construct16( 864, 865, "Red Dirt Grass");
+   construct16( 944, 945, "Red Dirt");
+   construct16( 976, 977, "White Rock");
+   construct16(1008, 1009, "Purple Blocks");
 
-   construct16( 912, "dirt grass");
-   construct16( 864, "red dirt grass");
-   construct16( 944, "red dirt");
-   construct16( 976, "white rock");
-   construct16( 1008,"purple blocks");
+   construct8(  496, "Rainbows 1");
+   construct8(  504, "Rainbows 2");
 
-   construct8(  496, "rainbows");
-   construct8(  504, "rainbows2");
 
    // 3x1 single hline (platforms)
    construct3x1(585, "brown bricks");
@@ -74,6 +73,9 @@ void mwTileSets::init()
    construct3x1(567, "gold beam");
    construct3x1(570, "gold wood");
    construct3x1(573, "green platform");
+   construct3x1(35, "railing");
+
+
 
    // 1x3 single vlines (columns)
    construct1x3(544, "gold column");
@@ -88,6 +90,11 @@ void mwTileSets::init()
    construct1x3(600, "blue");
    construct1x3(604, "grey holes");
    construct1x3(635, "white chain");
+
+   construct1x3(32, "big cactus");
+
+
+
 
    // 2x3 double vlines (columns)
    construct6(  512, "gold brick");
@@ -106,6 +113,12 @@ void mwTileSets::init()
    // printf("num of tilesets:%d\n", (int) tileSets.size());
    // for (auto ts : tileSets) printf("%s %d - %d\n", ts.name.c_str(), ts.startIndex, ts.endIndex);
 
+
+//   findTileSetContainingIndex(currentTileSet, 832); // wires
+   findTileSetContainingIndex(currentTileSet, 256); // purple pipes
+
+
+
 }
 
 
@@ -114,6 +127,7 @@ void mwTileSets::constructEmptySet()
    ts.name = "";
    ts.startIndex        = 0;
    ts.endIndex          = 0;
+   ts.displayIndex      = 0;
    ts.tileSetType       = 0;
 
    ts.FrameCross        = 0;
@@ -182,13 +196,14 @@ void mwTileSets::constructEmptySet()
 
 
 // new 48
-void mwTileSets::construct48(int i, std::string name)
+void mwTileSets::construct48(int i, int d, std::string name)
 {
    constructEmptySet();
 
    ts.name              = name;
    ts.startIndex        = i;
    ts.endIndex          = i + 47;
+   ts.displayIndex      = d;
    ts.tileSetType       = 48;
 
    ts.Single            = i;
@@ -274,13 +289,14 @@ void mwTileSets::construct48(int i, std::string name)
 
 
 // new 24 tileset
-void mwTileSets::construct24(int i, std::string name)
+void mwTileSets::construct24(int i, int d, std::string name)
 {
    constructEmptySet();
 
    ts.name            = name;
    ts.startIndex      = i;
    ts.endIndex        = i+23;
+   ts.displayIndex    = d;
    ts.tileSetType     = 24;
    ts.Single          = i+1;
    ts.SolidFill       = i;
@@ -327,13 +343,13 @@ void mwTileSets::construct24(int i, std::string name)
 
 
 // new 16 tileset
-void mwTileSets::construct16(int i, std::string name)
+void mwTileSets::construct16(int i, int d, std::string name)
 {
    constructEmptySet();
    ts.name            = name;
    ts.startIndex      = i;
    ts.endIndex        = i+15;
-
+   ts.displayIndex    = d;
    ts.tileSetType     = 16;
 
    ts.Single          = i+1;
@@ -375,10 +391,11 @@ void mwTileSets::construct16(int i, std::string name)
 void mwTileSets::construct8(int i, std::string name)
 {
    constructEmptySet();
-   ts.name        = name;
-   ts.startIndex  = i;
-   ts.endIndex    = i + 7;
-   ts.tileSetType = 8;
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i + 7;
+   ts.displayIndex    = i;
+   ts.tileSetType     = 8;
 
    ts.FrameCornerTL   = i + 0;
    ts.FrameCornerTR   = i + 1;
@@ -396,10 +413,11 @@ void mwTileSets::construct8(int i, std::string name)
 void mwTileSets::construct6(int i, std::string name)
 {
    constructEmptySet();
-   ts.name        = name;
-   ts.startIndex  = i;
-   ts.endIndex    = i + 5;
-   ts.tileSetType = 6;
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i + 5;
+   ts.displayIndex    = i;
+   ts.tileSetType     = 6;
    ts.OuterCornerTL   = i + 0;
    ts.OuterCornerTR   = i + 1;
    ts.OuterEdgeL      = i + 2;
@@ -413,10 +431,11 @@ void mwTileSets::construct6(int i, std::string name)
 void mwTileSets::construct9(int i, std::string name)
 {
    constructEmptySet();
-   ts.name        = name;
-   ts.startIndex  = i;
-   ts.endIndex    = i + 8;
-   ts.tileSetType = 9;
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i + 8;
+   ts.displayIndex    = i;
+   ts.tileSetType     = 9;
 
    ts.HLineL          = i + 0;
    ts.HLineM          = i + 1;
@@ -437,6 +456,11 @@ void mwTileSets::construct9(int i, std::string name)
    tileSets.push_back(ts);
 }
 
+
+
+
+
+
 // 1x3 vline
 void mwTileSets::construct1x3(int i, std::string name)
 {
@@ -444,6 +468,7 @@ void mwTileSets::construct1x3(int i, std::string name)
    ts.name            = name;
    ts.startIndex      = i;
    ts.endIndex        = i + 2;
+   ts.displayIndex    = i;
    ts.tileSetType     = 4;
    ts.VLineT          = i + 0;
    ts.VLineM          = i + 1;
@@ -458,6 +483,7 @@ void mwTileSets::construct3x1(int i, std::string name)
    ts.name            = name;
    ts.startIndex      = i;
    ts.endIndex        = i + 2;
+   ts.displayIndex    = i;
    ts.tileSetType     = 3;
    ts.HLineL          = i + 0;
    ts.HLineM          = i + 1;
@@ -495,7 +521,6 @@ bool mwTileSets::findTileSetContainingIndex(struct tileSet &t, int tileIndex)
 
 
 
-
 void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview)
 {
    if (preview) // draw tile on level_buffer
@@ -529,31 +554,30 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
 
 void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview)
 {
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int x1 = mWM.bx1;
+   int y1 = mWM.by1;
+   int x2 = mWM.bx2;
+   int y2 = mWM.by2;
    int drawItem = mWM.mW[1].draw_item_num;
    int drawTileMode = mWM.mW[1].em_draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
-   for (int x=bx1; x<=bx2; x++)
-      for (int y=by1; y<=by2; y++)
+   for (int x=x1; x<=x2; x++)
+      for (int y=y1; y<=y2; y++)
       {
          int drawTileNum = s;
-         if (y == by1)         drawTileNum = t;
-         if (y == by2)         drawTileNum = b;
-         if (x == bx1)
+         if (y == y1)         drawTileNum = t;
+         if (y == y2)         drawTileNum = b;
+         if (x == x1)
          {
-            if      (y == by1) drawTileNum = tl;
-            else if (y == by2) drawTileNum = bl;
-            else               drawTileNum = l;
+            if      (y == y1) drawTileNum = tl;
+            else if (y == y2) drawTileNum = bl;
+            else              drawTileNum = l;
          }
-         if (x == bx2)
+         if (x == x2)
          {
-            if      (y == by1) drawTileNum = tr;
-            else if (y == by2) drawTileNum = br;
+            if      (y == y1) drawTileNum = tr;
+            else if (y == y2) drawTileNum = br;
             else               drawTileNum = r;
          }
          if (drawTileNum != -1) drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
@@ -562,21 +586,20 @@ void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int t
 
 void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 {
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int x1 = mWM.bx1;
+   int y1 = mWM.by1;
+   int x2 = mWM.bx2;
+   int y2 = mWM.by2;
    int drawItem = mWM.mW[1].draw_item_num;
    int drawTileMode = mWM.mW[1].em_draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
-   for (int y=by1; y<=by2; y++)
-      for (int x=bx1; x<=bx2; x++)
+   for (int y=y1; y<=y2; y++)
+      for (int x=x1; x<=x2; x++)
       {
          int drawTileNum = ts.HLineM;
-         if (x == bx1) drawTileNum = ts.HLineL;
-         if (x == bx2) drawTileNum = ts.HLineR;
+         if (x == x1) drawTileNum = ts.HLineL;
+         if (x == x2) drawTileNum = ts.HLineR;
          drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
       }
 
@@ -584,21 +607,20 @@ void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 {
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+   int x1 = mWM.bx1;
+   int y1 = mWM.by1;
+   int x2 = mWM.bx2;
+   int y2 = mWM.by2;
    int drawItem = mWM.mW[1].draw_item_num;
    int drawTileMode = mWM.mW[1].em_draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
-   for (int x=bx1; x<=bx2; x++)
-      for (int y=by1; y<=by2; y++)
+   for (int x=x1; x<=x2; x++)
+      for (int y=y1; y<=y2; y++)
       {
          int drawTileNum = ts.VLineM;
-         if (y == by1) drawTileNum = ts.VLineT;
-         if (y == by2) drawTileNum = ts.VLineB;
+         if (y == y1) drawTileNum = ts.VLineT;
+         if (y == y2) drawTileNum = ts.VLineB;
          drawTile(x, y, drawTileNum, drawItemFlags, drawTileMode, preview);
       }
 }
@@ -606,15 +628,13 @@ void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 {
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
+   int x1 = mWM.bx1;
+   int y1 = mWM.by1;
+   int x2 = mWM.bx2;
+   int y2 = mWM.by2;
    int drawItem = mWM.mW[1].draw_item_num;
    int drawTileMode = mWM.mW[1].em_draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
-
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
 
 
    // set up 3x3 pattern array
@@ -649,14 +669,14 @@ void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 
 
    // iterate the draw area
-   for (int x=bx1; x<=bx2; x++)
-      for (int y=by1; y<=by2; y++)
+   for (int x=x1; x<=x2; x++)
+      for (int y=y1; y<=y2; y++)
       {
          int drawTileNum = 0; // middle
 
          // offset into pattern
-         int xi = ((x-bx1) % xs);
-         int yi = ((y-by1) % ys);
+         int xi = ((x-x1) % xs);
+         int yi = ((y-y1) % ys);
 
          if (xi == 0) // first column
          {
@@ -699,11 +719,8 @@ void mwTileSets::drawRect(bool preview)
    int by1 = mWM.by1;
    int bx2 = mWM.bx2;
    int by2 = mWM.by2;
-   mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
-
    int bw = bx2 - bx1;
    int bh = by2 - by1;
-
 
 
    int drawItem      = mWM.mW[1].draw_item_num;
@@ -718,6 +735,18 @@ void mwTileSets::drawRect(bool preview)
    altTextLine1 = "";
    altTextLine2 = "";
    altTextLine3 = "";
+
+   if (altDrawRectModeForceSingle)
+   {
+      altTextLine1 = "Rectangle - Single Tile Fill";
+
+      for (int x=bx1; x<=bx2; x++)
+         for (int y=by1; y<=by2; y++)
+            drawTile(x, y, drawItemNum, drawItemFlags, drawTileMode, preview);
+
+      return;
+
+   }
 
 
 

@@ -140,30 +140,6 @@ class mwWindow
    // mW[8] - top menu only
    void cm_process_menu_bar(int draw_only);
 
-   // mW[9] - tile helper only
-   int th_add_del;
-   int th_match;
-   int th_group;
-   int th_sel;
-   int th_hide_marks;
-   int th_pattern_offset_x;
-   int th_pattern_offset_y;
-
-
-   void th_remove_bound();
-   void th_find_adj(int x, int y, int &l, int &r, int &t, int &b, int &tl, int &tr, int &bl, int &br);
-   int th_replace_helper_48(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
-   int th_replace_helper_16(int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br, bool inner);
-   int th_replace_helper_8( int tile, int l, int r, int t, int b, int tl, int tr, int bl, int br);
-   int th_replace_helper_pattern(int x, int y);
-
-   void th_replace_tile(int tile, int x, int y);
-
-   void th_replace(int type);
-   int th_draw_buttons(int x3, int x4, int yfb, int draw_only);
-   void th_find_connected(int x, int y, int group);
-   void th_process_mouse();
-
 
    mwWindow(); // default constructor
    void set_pos(int, int);

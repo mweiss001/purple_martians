@@ -275,14 +275,14 @@ void mwSelectionWindow::set_block_set_main_blocks(int &x, int &y)
    // mega grass flowers, trees, cactus
 
    // 1x3 cactus
-   lx = x+0; ly = y+4; block_set_add(32, lx, ly);
+   lx = x+0; ly = y+4; block_set_add(34, lx, ly);
    lx = x+0; ly = y+3; block_set_add(33, lx, ly);
-   lx = x+0; ly = y+2; block_set_add(34, lx, ly);
+   lx = x+0; ly = y+2; block_set_add(32, lx, ly);
 
 
    // 1x2 cactus
-   lx = x+1; ly = y+4; block_set_add(24, lx, ly);
-   lx = x+1; ly = y+3; block_set_add(25, lx, ly);
+   lx = x+1; ly = y+4; block_set_add(25, lx, ly);
+   lx = x+1; ly = y+3; block_set_add(24, lx, ly);
 
    // 1x2 flower
    lx = x+2; ly = y+4; block_set_add(38, lx, ly);

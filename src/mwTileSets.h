@@ -31,9 +31,14 @@ struct uniqueHue
 struct tileSet
 {
    std::string name;
+
    int tileSetType;
+
    int startIndex;
    int endIndex;
+   int displayIndex;
+
+
 
    // single tiles
    int FrameCross;  // 4 way Tee
@@ -121,8 +126,14 @@ struct tileSet
 };
 
 
+
+
+
 class mwTileSets
 {
+   public:
+   mwTileSets();
+
    private:
 
    void init();
@@ -136,9 +147,9 @@ class mwTileSets
    void construct8(int i, std::string name);
    void construct9(int i, std::string name);
 
-   void construct16(int i, std::string name);
-   void construct24(int i, std::string name);
-   void construct48(int i, std::string name);
+   void construct16(int i, int d, std::string name);
+   void construct24(int i, int d, std::string name);
+   void construct48(int i, int d, std::string name);
 
 
 
@@ -178,11 +189,13 @@ class mwTileSets
    void showTileSet(int x, int y, int type, int bs);
    void showLiveTile(int x, int y, int type, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
 
-   public:
-   mwTileSets();
+public:
+
 
    char type_name[50][40];
 
+
+   struct tileSet currentTileSet;
 
    struct tileSet ts;
    std::vector<tileSet> tileSets;
@@ -192,6 +205,9 @@ class mwTileSets
    int altDrawRectModePatternWidth = 2;
    int altDrawRectModePatternHeight = 2;
    int altDrawRectModePatternFill = 0;
+   int altDrawRectModeForceSingle = 0;
+
+
 
    std::string altTextLine1;
    std::string altTextLine2;

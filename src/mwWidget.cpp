@@ -898,6 +898,26 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    }
 
+   if (bn == 96) // block damage draw rotation
+   {
+      // get rb
+      int rb = (mItem.item[num][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(msg, "Display Rotation:%d", rb);
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      mItem.item[num][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
+      mItem.item[num][3] |= rb; // merge
+
+
+   }
+
+
+
 
    if (bn == 211) // Trigger Field X Lift Alignment
    {
@@ -2853,7 +2873,6 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
 
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.Black); // erase tile and frame
 
-
    // draw tile
    al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
 
@@ -2870,13 +2889,7 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
 
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1); // draw frame
 
-//             xType, int xa, int xb,
-//                           int yType, int ya, int yb,
-//                                               int r, int backgroundType, int frameType, int textType,
-//                                                                  int bcol, int fcol, int tcol,
-//                                                                                 const char* txt, int tx1, int ty1, int tx2, int ty2)
-
-      mToolTip(5, x1+10, 80,     1, y1-14, 12,       1,     1, 1, 1,    0,  15, 15,    t, x1, y1, x2, y2);
+      if (strlen(t)) mToolTip(5, x1+10, 80,     1, y1-14, 12,       1,     1, 1, 1,    0,  15, 15,    t, x1, y1, x2, y2);
 
    }
    return false;
