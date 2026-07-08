@@ -86,6 +86,9 @@ colsel 6
 
 
 
+
+
+
 // ------------------------------------------------------------------------------------
 // ---------------------- widget common -----------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -2897,12 +2900,168 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
 
 
 
+// displays a dropdown box and returns true if clicked
+// changes int
+bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<std::string> list, int & index)
+{
+
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
+
+   int yh = y2-y1; // y height
+
+   int tyo = (yh-8)/2; // text y offset
+
+   int txo = 4; // text x offset
+
+
+   // check if mouse is on widget
+   bool mouseOnWidget = false;
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnWidget = true;
+
+   // erase background
+//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+
+   // draw frame
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
+
+   // draw text
+   al_draw_text(mFont.pr8, mColor.pc[15], x1+txo, y1+tyo, 0, list[index].c_str());
+
+
+   if (mouseOnWidget)
+   {
+      // change frame color to show highlight
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
+
+
+      if (mInput.mouse_b[1][0])
+      {
+
+         int ls = (int)list.size(); // list size
+         int lis = yh; // list item size
+
+         int sel = 0;
+
+         while (mInput.mouse_b[1][0])  // wait for release
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+
+            // erase area
+            al_draw_filled_rectangle(x1-1, y1-1, x2+1, y1+(ls*lis)+1, mColor.pc[0]);
+
+            for (int i=0; i<ls; i++)
+            {
+               int yp = y1+(i*lis);
+
+               al_draw_text(mFont.pr8, mColor.pc[15], x1 + txo, y1 + (i*lis) + tyo, 0, list[i].c_str());
+
+               if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yp) && (mInput.mouse_y < yp+lis))
+               {
+                  // show highlight of item in list and set as selected
+                  al_draw_rectangle(x1, yp, x2, yp+lis, mColor.pc[10], 1);
+                  sel = i;
+               }
+            }
+
+            index = sel;
+
+         }
+         return true;
+      }
+
+   }
+   return false;
+}
 
 
 
 
 
 
+
+
+
+// displays a dropdown box and returns true if clicked
+// changes int
+bool mwWidget::mDropDown2(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<listItem> listItems, int & var)
+{
+
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
+
+   int yh = y2-y1; // y height
+
+   int tyo = (yh-8)/2; // text y offset
+
+   int txo = 4; // text x offset
+
+
+   // check if mouse is on widget
+   bool mouseOnWidget = false;
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnWidget = true;
+
+   // erase background
+//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+
+   // draw frame
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
+
+   // find the listItem that matches var
+   std::string txt =  "invalid";
+   for (const auto& li : listItems)
+      if (li.value == var) txt = li.text.c_str();
+   mMiscFnx.mw_draw_text(15, x1+txo, y1+tyo, 0, txt);
+
+
+
+
+   if (mouseOnWidget)
+   {
+      // change frame color to show highlight
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
+
+      if (mInput.mouse_b[1][0])
+      {
+
+         int ls = (int)listItems.size(); // list size
+         int lih = yh; // list item height
+
+         int sel = 0;
+
+         while (mInput.mouse_b[1][0])  // wait for release
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+
+            // erase area
+            al_draw_filled_rectangle(x1-1, y1-1, x2+1, y1+(ls*lih)+1, mColor.pc[0]);
+
+            for (int i=0; i<ls; i++)
+            {
+               int yp = y1+(i*lih);
+
+               mMiscFnx.mw_draw_text(15, x1 + txo, y1 + (i*lih) + tyo, 0, listItems[i].text);
+
+
+               if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yp) && (mInput.mouse_y < yp+lih))
+               {
+                  // show highlight of item in list and set as selected
+                  al_draw_rectangle(x1, yp, x2, yp+lih, mColor.pc[10], 1);
+                  sel = listItems[i].value;
+               }
+            }
+
+            var = sel;
+
+         }
+         return true;
+      }
+
+   }
+   return false;
+}
 
 
 
@@ -3022,6 +3181,55 @@ float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int background
    }
    return dsx;
 }
+
+
+
+void mwWidget::mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int tcol, int hcol, int highlight,
+                          int text_just, int &var, int ul, int ll, int inc, const char *txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   int bw = y2-y1; // make buttons square
+
+
+   // get positions
+   int b1x1 = x1;
+   int b1x2 = x1+bw;
+
+   int b2x1 = x2-bw;
+   int b2x2 = x2;
+
+   int tx1 = b1x2;
+   int tx2 = b2x1;
+
+
+   if (backgroundType == 2) draw_widget_area(tx1, y1, tx2, y2, bcol); // draw frame
+
+   char msg[80];
+   sprintf(msg, "%s%d", txt, var);
+   draw_widget_text(tx1, y1, tx2, y2, tcol, text_just, msg);
+
+   // add buttons
+
+   if (mButton(0, b1x1, b1x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "-")) var--;
+   if (mButton(0, b2x1, b2x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "+")) var++;
+
+   if (var < ll) var = ll;
+   if (var > ul) var = ul;
+
+
+
+
+}
+
+
+
+
+
+
 
 
 

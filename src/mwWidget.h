@@ -1,5 +1,14 @@
 // mwWidget.h
 
+struct listItem
+{
+   int value;
+   std::string text;
+};
+
+
+
+
 class mwWidget
 {
    private:
@@ -109,7 +118,18 @@ class mwWidget
                    int text_just, int &var, float sul, float sll, float sinc, const char *txt);
 
 
-//   float drawSlider(int x1, int y1, int x2, int y2, int q0, int tcol, int slider_bar_col, int text_just, float sdx, float sul, float sll, int order, const char *msg);
+
+   bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<std::string> list, int & index);
+
+   bool mDropDown2(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<listItem> listItems, int & var);
+
+
+   void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int inc, const char *txt);
+
+
 
    float drawSlider(int x1, int y1, int x2, int y2,
                     int r, int backgroundType, int frameType, int textType,
@@ -119,6 +139,8 @@ class mwWidget
 
    bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
                          changed_flag, bool display_only = false);
+
+
 
 
 

@@ -27,6 +27,12 @@ class mwMiscFnx
 
    void mw_strncpy(char* d, const char* s, int n);
 
+   void mw_draw_text(int color, int x, int y, int flags, std::string text);
+   void mw_draw_text(int color, int x, int y, int flags, const char * text);
+
+
+
+
 
    char* chrms(int time, char* ft);
 //   char* chrsi(int num, char* ft);

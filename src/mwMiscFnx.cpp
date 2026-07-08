@@ -706,6 +706,16 @@ int mwMiscFnx::get_sp(float jh)
 
 
 
+void mwMiscFnx::mw_draw_text(int color, int x, int y, int flags, std::string text)
+{
+   al_draw_text(mFont.pr8, mColor.pc[color], x, y, flags, text.c_str());
+}
+
+
+void mwMiscFnx::mw_draw_text(int color, int x, int y, int flags, const char * text)
+{
+   al_draw_text(mFont.pr8, mColor.pc[color], x, y, flags, text);
+}
 
 
 
