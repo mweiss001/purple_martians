@@ -59,8 +59,7 @@ class mwWidget
    int buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 
 
-
-
+   bool buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
 
 
    int buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
@@ -119,34 +118,27 @@ class mwWidget
 
 
 
-   bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<std::string> list, int & index);
+   float drawSlider(int x1, int y1, int x2, int y2,
+                    int r, int backgroundType, int frameType, int textType,
+                    int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
+                    float sdx, float sul, float sll, int order, const char *msg);
 
-   bool mDropDown2(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<listItem> listItems, int & var);
+   bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
+                         changed_flag, bool display_only = false);
+
+   void mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2);
+
+
+   void mDropDownSetNextItem(std::vector<listItem> listItems, int & var, bool rollOver);
+   void mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, bool rollOver);
+   void mDropDownDrawMain(int x1, int y1, int x2, int y2, int r, std::string text, int textJust, int btype, int bcol, int fcol, bool crop);
+   bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
 
 
    void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int inc, const char *txt);
-
-
-
-   float drawSlider(int x1, int y1, int x2, int y2,
-                    int r, int backgroundType, int frameType, int textType,
-                    int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
-                    float sdx, float sul, float sll, int order, const char *msg);
-
-
-   bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
-                         changed_flag, bool display_only = false);
-
-
-
-
-
-   void mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2);
-
-
 
 
 

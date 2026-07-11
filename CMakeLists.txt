@@ -166,6 +166,7 @@ add_executable(pm
         src/mwLevelIcons.cpp
         src/mwLevelIcons.h
         src/mwTileHelper.h
+        src/mwWidgetDropDown.cpp
 )
 
 

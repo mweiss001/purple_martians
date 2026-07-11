@@ -9,6 +9,8 @@ class mwTileHelper
 
    void init();
 
+   void clearFrameFills(int preset = 0);
+
 
    int replace_helper_48_frame(struct tileSet ts, int lv, int type);
    int replace_helper_24_frame(struct tileSet ts, int lv, int type);
@@ -91,6 +93,8 @@ class mwTileHelper
    int replace_preview;
    int replace_mode;
 
+
+   int test_junk;
 
 
 

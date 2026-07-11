@@ -20,6 +20,7 @@
 #include "mwBottomMessage.h"
 #include "mwConfig.h"
 #include "mwDemoMode.h"
+#include "mwLoop.h"
 #include "mwScreen.h"
 
 
@@ -1637,24 +1638,6 @@ int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // increment passed pointer (int &var) and display different text for each value
 int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
@@ -1715,7 +1698,6 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg,  "Player Display: Long Text");
    }
 
-
    if (bn == 17)
    {
       if (press) var++;
@@ -1724,8 +1706,6 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg,  "Remote Players Only");
       if (var == 2) sprintf(msg,  "Always");
    }
-
-
 
 
    if (bn == 18)
@@ -1883,14 +1863,10 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 3) sprintf(msg, "Action:Set all from 1st obj");
 
    }
-   if (bn == 101)
-   {
-      if (press) var++;
-      if ((var < 1) || (var > 3)) var = 1;
-      if (var == 2) var = 3; // no free man anymore, skip to the next
-      if (var == 1) sprintf(msg, "Type: Health Bonus");
-      if (var == 3) sprintf(msg, "Type: Purple Coin");
-   }
+
+
+/*
+
    if (bn == 102)
    {
       if (press) var++;
@@ -1915,6 +1891,8 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    }
 
 
+
+
    if (bn == 301) // block manip mode
    {
       if (press) var++;
@@ -1929,55 +1907,58 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
    }
 
-
-
-   if (bn == 414) // Game Move Type
-   {
-
-      /*
-      if (var == PM_GAMEMOVE_TYPE_LEVEL_START)
-      {
-         sprintf(msg, "Level Start");
-         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
-      }
 */
 
-      if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-      {
-         sprintf(msg, "Player Active");
-         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE;
-      }
-      else if (var == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
-      {
-         sprintf(msg, "Player Inactive");
-         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN;
-      }
-      else if (var == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)
-      {
-         sprintf(msg, "Player Hidden");
-         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_MOVE;
-      }
-      else if (var == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
-      {
-         sprintf(msg, "Player Move");
-         if (press) var = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK;
-      }
-      else if (var == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
-      {
-         sprintf(msg, "Level Done Ack");
-         if (press) var = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
-      }
-      else if (var == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
-      {
-         sprintf(msg, "Shot Config");
-         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
-      }
-      else sprintf(msg, "Invalid Type:%d", var);
-   }
 
 
 
+  // this does not seem to be used???
+//    if (bn == 414) // Game Move Type
+//    {
+//
+//       /*
+//       if (var == PM_GAMEMOVE_TYPE_LEVEL_START)
+//       {
+//          sprintf(msg, "Level Start");
+//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
+//       }
+// */
+//
+//       if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+//       {
+//          sprintf(msg, "Player Active");
+//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE;
+//       }
+//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+//       {
+//          sprintf(msg, "Player Inactive");
+//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN;
+//       }
+//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)
+//       {
+//          sprintf(msg, "Player Hidden");
+//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_MOVE;
+//       }
+//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
+//       {
+//          sprintf(msg, "Player Move");
+//          if (press) var = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK;
+//       }
+//       else if (var == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
+//       {
+//          sprintf(msg, "Level Done Ack");
+//          if (press) var = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
+//       }
+//       else if (var == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+//       {
+//          sprintf(msg, "Shot Config");
+//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
+//       }
+//       else sprintf(msg, "Invalid Type:%d", var);
+//    }
+//
 
+   /*
 
    if (bn == 402) // damage mode
    {
@@ -2047,7 +2028,6 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
          sprintf(msg, "MODE:Show Only When Triggered");
       }
 
-
    }
 
 
@@ -2074,6 +2054,11 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
    }
+
+
+
+
+
    if (bn == 500) // lift mode
    {
       if (press) var++;
@@ -2083,7 +2068,17 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 2) sprintf(msg, "Mode 2 - Prox Reset");
    }
 
+*/
 
+
+   if (bn == 101)
+   {
+      if (press) var++;
+      if ((var < 1) || (var > 3)) var = 1;
+      if (var == 2) var = 3; // no free man anymore, skip to the next
+      if (var == 1) sprintf(msg, "Type: Health Bonus");
+      if (var == 3) sprintf(msg, "Type: Purple Coin");
+   }
 
    if (bn == 600)
    {
@@ -2098,6 +2093,7 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
+
    draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
    draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6) y1+=bts;
@@ -2109,9 +2105,182 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
+// same as buttonp but calls mDropDown internally
+// returns true if changed
+bool mwWidget::buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
+{
+   // to make the size consistent with original
+   int ibts = bts - 2;
+
+   bool press = false;
+
+   int r = 1;
+   int btype = 2;
+
+   int bcol = q1;
+   int fcol = q1;
+
+   int tjust = !q5;
+
+   int hcol = 15;
+
+
+   // does not fit in the tiny space I need it to
+   // if (bn == 600)
+   // {
+   //    std::vector<struct listItem> listItems =
+   //    {
+   //       {  1,  "Both"  },
+   //       {  2,  "Tile" },
+   //       {  3,  "Flag" }
+   //    };
+   //    press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   // }
+
+   // not much point for only 2 items...
+   // if (bn == 101)
+   // {
+   //    std::vector<struct listItem> listItems =
+   //    {
+   //       {  1,  "Type: Health Bonus"  },
+   //       {  3,  "Type: Purple Coin" }
+   //    };
+   //    press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   // }
 
 
 
+   if (bn == 500) // lift mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "Mode:Normal"  },
+         {  1,  "Mode:Prox Run and Reset" },
+         {  2,  "MODE:Prox Reset" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   }
+
+
+
+
+   if (bn == 404)
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "Draw Type:none"  },
+         {  1,  "Draw Type:Red Rectangle" },
+         {  2,  "Draw Type:Spikey Floor" },
+         {  3,  "Draw Type:Lava" },
+         {  4,  "Draw Type:Triangle Spikes" },
+         {  5,  "Draw Type:Gold Spikes" },
+         {  6,  "Draw Type:Silver White Spikes" },
+         {  7,  "Draw Type:Silver Two Height Spikes" },
+         {  8,  "Draw Type:Silver Bluish Spikes" },
+         {  9,  "Draw Type:Silver Greenish Spikes" },
+         {  10, "Draw Type:Mine" },
+         {  11, "Draw Type:Wood Pole" },
+         {  12, "Draw Type:Silver Cone" },
+         {  13, "Draw Type:White Spear" },
+         {  14, "Draw Type:Grey Cones" },
+         {  15, "Draw Type:Wood Spear" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   }
+
+
+
+   if (bn == 402) // damage mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "MODE:Always ON"  },
+         {  1,  "MODE:Toggle" },
+         {  2,  "MODE:ON Until Triggered" },
+         {  3,  "MODE:OFF Until Triggered" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+      if (var == 0) mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      if (var == 2) mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      if (var == 3) mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
+   }
+
+
+   if (bn == 301) // block manip mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "MODE:OFF"  },
+         {  1,  "MODE:Set All To Block 1" },
+         {  2,  "MODE:Set All Block 2 To Block 1" },
+         {  3,  "MODE:Toggle Block 2 To Block 1" },
+         {  5,  "MODE:Cycle 3 Blocks" },
+         {  6,  "MODE:Cycle 4 Blocks" },
+         {  4,  "MODE:Copy Area" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   }
+
+
+   if (bn == 160) // timer mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "MODE:Free Run"  },
+         {  1,  "MODE:Free Run After Trigger" },
+         {  2,  "MODE:Run Only When Triggered" },
+         {  3,  "MODE:Reset When Not Triggered" },
+         {  4,  "MODE:Reset When Triggered" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   }
+
+
+
+
+   if (bn == 102)
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  1039,  "Color:Red"    },
+         {  1040,  "Color:Green"  },
+         {  1041,  "Color:Blue"   },
+         {  1042,  "Color:Purple" }
+      };
+
+      int col = 0;
+
+      if (var == 1039) col = 10;
+      if (var == 1040) col = 11;
+      if (var == 1041) col = 13;
+      if (var == 1042) col = 8;
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, col, col, hcol, listItems, var, q7);
+   }
+
+
+
+   if (bn == 403) // hider mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,  "MODE:Always Show"              },
+         {  1,  "MODE:Always Hide"              },
+         {  2,  "MODE:Show Until Triggered"     },
+         {  3,  "MODE:Hide Until Triggered"     },
+         {  4,  "MODE:Toggle When Triggered"    },
+         {  5,  "MODE:Show Only When Triggered" }
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+      if (var == 0) mItem.item[num][2] = 0;
+      if (var == 1) mItem.item[num][2] = 1;
+      if (var == 2) mItem.item[num][2] = 0;
+      if (var == 3) mItem.item[num][2] = 1;
+   }
+
+   if (q6) y1+=bts;
+
+   return press;
+}
 
 
 
@@ -2654,23 +2823,6 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
 {
    int x1, y1, x2, y2;
@@ -2897,185 +3049,6 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
    }
    return false;
 }
-
-
-
-// displays a dropdown box and returns true if clicked
-// changes int
-bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<std::string> list, int & index)
-{
-
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
-
-   int yh = y2-y1; // y height
-
-   int tyo = (yh-8)/2; // text y offset
-
-   int txo = 4; // text x offset
-
-
-   // check if mouse is on widget
-   bool mouseOnWidget = false;
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnWidget = true;
-
-   // erase background
-//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
-
-   // draw frame
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-
-   // draw text
-   al_draw_text(mFont.pr8, mColor.pc[15], x1+txo, y1+tyo, 0, list[index].c_str());
-
-
-   if (mouseOnWidget)
-   {
-      // change frame color to show highlight
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
-
-
-      if (mInput.mouse_b[1][0])
-      {
-
-         int ls = (int)list.size(); // list size
-         int lis = yh; // list item size
-
-         int sel = 0;
-
-         while (mInput.mouse_b[1][0])  // wait for release
-         {
-            mEventQueue.proc(1);
-            al_flip_display();
-
-            // erase area
-            al_draw_filled_rectangle(x1-1, y1-1, x2+1, y1+(ls*lis)+1, mColor.pc[0]);
-
-            for (int i=0; i<ls; i++)
-            {
-               int yp = y1+(i*lis);
-
-               al_draw_text(mFont.pr8, mColor.pc[15], x1 + txo, y1 + (i*lis) + tyo, 0, list[i].c_str());
-
-               if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yp) && (mInput.mouse_y < yp+lis))
-               {
-                  // show highlight of item in list and set as selected
-                  al_draw_rectangle(x1, yp, x2, yp+lis, mColor.pc[10], 1);
-                  sel = i;
-               }
-            }
-
-            index = sel;
-
-         }
-         return true;
-      }
-
-   }
-   return false;
-}
-
-
-
-
-
-
-
-
-
-// displays a dropdown box and returns true if clicked
-// changes int
-bool mwWidget::mDropDown2(int xType, int xa, int xb, int yType, int ya, int yb, std::vector<listItem> listItems, int & var)
-{
-
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
-
-   int yh = y2-y1; // y height
-
-   int tyo = (yh-8)/2; // text y offset
-
-   int txo = 4; // text x offset
-
-
-   // check if mouse is on widget
-   bool mouseOnWidget = false;
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnWidget = true;
-
-   // erase background
-//   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
-
-   // draw frame
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-
-   // find the listItem that matches var
-   std::string txt =  "invalid";
-   for (const auto& li : listItems)
-      if (li.value == var) txt = li.text.c_str();
-   mMiscFnx.mw_draw_text(15, x1+txo, y1+tyo, 0, txt);
-
-
-
-
-   if (mouseOnWidget)
-   {
-      // change frame color to show highlight
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
-
-      if (mInput.mouse_b[1][0])
-      {
-
-         int ls = (int)listItems.size(); // list size
-         int lih = yh; // list item height
-
-         int sel = 0;
-
-         while (mInput.mouse_b[1][0])  // wait for release
-         {
-            mEventQueue.proc(1);
-            al_flip_display();
-
-            // erase area
-            al_draw_filled_rectangle(x1-1, y1-1, x2+1, y1+(ls*lih)+1, mColor.pc[0]);
-
-            for (int i=0; i<ls; i++)
-            {
-               int yp = y1+(i*lih);
-
-               mMiscFnx.mw_draw_text(15, x1 + txo, y1 + (i*lih) + tyo, 0, listItems[i].text);
-
-
-               if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yp) && (mInput.mouse_y < yp+lih))
-               {
-                  // show highlight of item in list and set as selected
-                  al_draw_rectangle(x1, yp, x2, yp+lih, mColor.pc[10], 1);
-                  sel = listItems[i].value;
-               }
-            }
-
-            var = sel;
-
-         }
-         return true;
-      }
-
-   }
-   return false;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

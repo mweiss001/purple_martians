@@ -17,27 +17,12 @@
 #include "mwWindowManager.h"
 
 
-/*
-struct frameFill
-{
-   int startFrame;
-   int numFrames;
-   tileSet ts;
-   int drawMode;
-};
-*/
-
-
 struct frameFill
 {
    int frameIndex;
    int mode;
-   int modeVar;
    tileSet ts;
-   int tileSetDrawMode;
 };
-
-
 
 
 mwTileHelper mTileHelper;
@@ -60,64 +45,112 @@ void mwTileHelper::init()
    frame_mode_preview = 1;
    frame_common_tileset = 1;
 
-
    replace_preview = 0;
    replace_mode = 0;
-
-
 
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++) thl[x][y] = 0; // tile helper
 
+   clearFrameFills();
+}
 
 
+
+
+std::vector<struct listItem> listItemPresets =
+{
+  {  0, "presets"  },
+  {  1, "24 2 Outer Inner" },
+  {  2, "24 3 Outer Fill Inner"  },
+  {  3, "Purple Bricks"  }
+};
+
+
+
+void mwTileHelper::clearFrameFills(int preset)
+{
+
+   // clear
    frameFills.clear();
-
-
-   struct frameFill f;
-
-   /*
-   f.startFrame = 1;
-   f.numFrames = 1;
-   f.drawMode = 1;
-   struct tileSet ts;
-   mTileSets.findTileSetContainingIndex(ts, 704);
-   f.ts = ts;
-   mTileSets.frameFills.push_back(f);
-
-
-   f.startFrame = 2;
-   f.numFrames = 1;
-   f.drawMode = 3;
-   mTileSets.findTileSetContainingIndex(ts, 704);
-   f.ts = ts;
-   mTileSets.frameFills.push_back(f);
-
-   fill_sections = 2;
-*/
 
    for (int i=0; i<32; i++)
    {
+      struct frameFill f;
       f.frameIndex = i+1;
       f.mode = 0;
-      f.modeVar = 0;
       mTileSets.findTileSetContainingIndex(f.ts, 0);
-      f.tileSetDrawMode = 0;
       frameFills.push_back(f);
    }
 
-   fill_sections = 3;
-   frameFills[0].mode = 1;
-   frameFills[0].tileSetDrawMode = 4;
 
-   frameFills[1].mode = 1;
-   frameFills[1].tileSetDrawMode = 3;
 
-   frameFills[2].mode = 1;
-   frameFills[2].tileSetDrawMode = 6;
+
+
+   if (preset == 0)
+   {
+      fill_sections = 3;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 20;
+      frameFills[2].mode = 40;
+
+   }
+
+   if (preset == 1)
+   {
+      fill_sections = 2;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 40;
+
+   }
+
+   if (preset == 2)
+   {
+      fill_sections = 3;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 20;
+      frameFills[2].mode = 40;
+   }
+
+
+   if (preset == 3)
+   {
+      frame_common_tileset = 1;
+      mTileSets.findTileSetContainingName(mTileSets.currentTileSet, "Purple Blocks");
+
+      fill_sections = 3;
+      frameFills[0].mode = 31;
+      frameFills[1].mode = 21;
+      frameFills[2].mode = 43;
+
+      // frameFills[0].mode = 31;
+      // mTileSets.findTileSetContainingName(frameFills[0].ts, "Purple Blocks");
+      // frameFills[1].mode = 21;
+      // mTileSets.findTileSetContainingName(frameFills[1].ts, "Purple Blocks");
+      // frameFills[2].mode = 43;
+      // mTileSets.findTileSetContainingName(frameFills[2].ts, "Purple Blocks");
+
+
+
+
+
+
+
+
+   }
+
+
+
+
+
+
+
 
 
 }
+
+
+
+
 
 
 int mwTileHelper::replace_helper_48(int tile)
@@ -295,66 +328,36 @@ bool mwTileHelper::test4(int v1, int v2, int v3, int v4, int lv, int t1, int t2,
 
 
 
-
-
-
-
-
-
-
-// finds tiles for frame level 'lv'
-// types
-// 0 - 'fill'     fill all with center
-// 1 - 'outer'    edges with tee facing inwards,   corners normal
-// 2 - 'frame'    edges are single through,        corners normal
-// 3 - 'inner'    edges with tee facing inwards,   corners fill (through)
-// 4 - 'inner 1'  edges with tee facing inwards,   corners reversed
-// 5 - 'inner 2'  edges with tee facing inwards,   corners single block
-
-
 std::vector<struct listItem> listItems16Frame =
 {
-   { 0, "Fill"  },
-   { 1, "Outer" },
-   { 2, "Frame" },
-   { 3, "Inner" },
-   { 4, "Inner Reversed Corners" },
-   { 5, "Inner Single Corners" }
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 10, "Single Width" },
+   { 31, "Outer" },
+   { 21, "Fill"  },
+   { 41, "Inner" },
+   { 42, "Inner Reversed Corners" },
+   { 43, "Inner Single Corners" }
 };
-
 
 
 int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
 {
-   int fb = -1; //  default
-   if (c != lv) return fb; // not the correct frame level
+   if (c != lv) return -1;               // not the correct frame level
+   if (type == 0) return -1;             // 'do nothing'
+   if (type == 1) return 0;              // 'erase'
+   if (type == 21) return ts.startIndex; // 'fill alt'
 
-   int tile = ts.startIndex;
-
-   // default - 'fill'
-   int oel =  0;
-   int oer =  0;
-   int oet =  0;
-   int oeb =  0;
-   int octl = 0;
-   int octr = 0;
-   int ocbl = 0;
-   int ocbr = 0;
+   int octl = 0, octr = 0, ocbl = 0, ocbr = 0;
+   int oel = 0, oer = 0, oet = 0, oeb = 0;
 
 
-   if (type == 1) // 'outer'    edges with tee facing inwards,   corners normal
+   bool type_match = false;
+
+
+   if (type == 10) // 'frame'    edges are single through,        corners normal
    {
-      oel =  12;
-      oer =  13;
-      oet =  14;
-      oeb =  15;
-      octl = 8;
-      octr = 9;
-      ocbl = 10;
-      ocbr = 11;
-   }
-   if (type == 2) // 'frame'    edges are single through,        corners normal
-   {
+      type_match = true;
       oel =  6;
       oer =  6;
       oet =  3;
@@ -364,8 +367,22 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
       ocbl = 10;
       ocbr = 11;
    }
-   if (type == 3) // 'inner'    edges with tee facing inwards,   corners fill (through)
+
+   if (type == 31) // 'outer'    edges with tee facing inwards,   corners normal
    {
+      type_match = true;
+      oel =  12;
+      oer =  13;
+      oet =  14;
+      oeb =  15;
+      octl = 8;
+      octr = 9;
+      ocbl = 10;
+      ocbr = 11;
+   }
+   if (type == 41) // 'inner'    edges with tee facing inwards,   corners fill (through)
+   {
+      type_match = true;
       oel =  13;
       oer =  12;
       oet =  15;
@@ -375,8 +392,9 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
       ocbl = 0;
       ocbr = 0;
    }
-   if (type == 4) // 'inner 1'  edges with tee facing inwards,   corners reversed
+   if (type == 42) // 'inner 1'  edges with tee facing inwards,   corners reversed
    {
+      type_match = true;
       oel =  13;
       oer =  12;
       oet =  15;
@@ -387,8 +405,9 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
       ocbr = 8;
    }
 
-   if (type == 5) // 'inner 2'  edges with tee facing inwards,   corners single block
+   if (type == 43) // 'inner 2'  edges with tee facing inwards,   corners single block
    {
+      type_match = true;
       oel =  13;
       oer =  12;
       oet =  15;
@@ -399,6 +418,12 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
       ocbr = 1;
    }
 
+   if (type_match == false) return -1;
+
+
+   int fb = -1; //  default
+   int tile = ts.startIndex;
+
    if (test4(l, r, t, b, lv, 0, 1, 0, 1)) fb = tile + octl;  // outer corner tl
    if (test4(l, r, t, b, lv, 1, 0, 0, 1)) fb = tile + octr;  // outer corner tr
    if (test4(l, r, t, b, lv, 0, 1, 1, 0)) fb = tile + ocbl;  // outer corner bl
@@ -407,7 +432,6 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
    if (test4(l, r, t, b, lv, 1, 0, 1, 1)) fb = tile + oer;  // outer edge r
    if (test4(l, r, t, b, lv, 1, 1, 0, 1)) fb = tile + oet;  // outer edge t
    if (test4(l, r, t, b, lv, 1, 1, 1, 0)) fb = tile + oeb;  // outer edge b
-
 
    // I don't think I will get a nice solution that looks good for 16s
    if (test4(l, r, t, b, lv, 1, 1, 1, 1)) // blocks on all t b l r
@@ -473,84 +497,79 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// finds tiles for frame level 'lv'
-// types
-// 0 - solid
-// 1 - outer frame
-// 2 - outer frame alt
-// 3 - inner frame
-// 4 - inner frame alt
-
-
 std::vector<struct listItem> listItems24Frame =
 {
-   { 0, "Fill"  },
-   { 1, "Outer" },
-   { 2, "Outer Alt" },
-   { 3, "Inner" },
-   { 4, "Inner Alt" },
-//   { 5, "Inner Single Corners" }
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 30, "Outer" },
+   { 31, "Outer Alt 1" },
+   { 32, "Outer Alt 2" },
+
+
+
+   { 20, "Fill"  },
+   { 40, "Inner" },
+   { 41, "Inner Alt" }
 };
-
-
 
 int mwTileHelper::replace_helper_24_frame(struct tileSet ts, int lv, int type)
 {
-   int fb = -1; //  default
-   if (c != lv) return fb; // not the correct frame level
-   if (type == 0) return ts.SolidFill;
-   int tile = ts.startIndex;
+   if (c != lv)    return -1;            // not the correct frame level
+   if (type == 0)  return -1;            // 'do nothing'
+   if (type == 1)  return 0;             // 'erase'
+   if (type == 20) return ts.SolidFill;  // 'fill alt'
 
-   // type 1 - default - outer edge tiles
-   int octl = 8;
-   int octr = 9;
-   int ocbl = 10;
-   int ocbr = 11;
-   int oel =  12;
-   int oer =  13;
-   int oet =  14;
-   int oeb =  15;
-   int icbr = 16;
-   int icbl = 17;
-   int ictr = 18;
-   int ictl = 19;
+   int octl = 0, octr = 0, ocbl = 0, ocbr = 0;
+   int ictl = 0, ictr = 0, icbl = 0, icbr = 0;
+   int oel = 0, oer = 0, oet = 0, oeb = 0;
 
-   if (type == 2) // outer edge alt tiles
+   bool type_match = false;
+
+   if ((type >= 30) || (type <= 39)) // outer edge
    {
-      oel =  20;
-      oer =  22;
-      oet =  21;
-      oeb =  23;
+      type_match = true;
+      octl = 8;
+      octr = 9;
+      ocbl = 10;
+      ocbr = 11;
+      oel =  12;
+      oer =  13;
+      oet =  14;
+      oeb =  15;
+      icbr = 16;
+      icbl = 17;
+      ictr = 18;
+      ictl = 19;
+      if (type > 30) // outer edge alt 1
+      {
+         oel =  20;
+         oer =  22;
+         oet =  21;
+         oeb =  23;
+
+         if (type == 32) // outer edge alt 2
+         {
+            octl = 18;
+            octr = 19;
+            ocbl = 16;
+            ocbr = 17;
+            icbr = 16;
+            icbl = 17;
+            ictr = 18;
+            ictl = 19;
+         }
+
+      }
+
+
+
+
+
    }
 
-
-   if ((type == 3) || (type == 4)) // inner edge tiles
+   if ((type == 40) || (type == 41)) // inner edge
    {
+      type_match = true;
       octl = 16;
       octr = 17;
       ocbl = 18;
@@ -563,15 +582,20 @@ int mwTileHelper::replace_helper_24_frame(struct tileSet ts, int lv, int type)
       icbl = 9;
       ictr = 10;
       ictl = 11;
+      if (type == 41) // inner edge alt tiles
+      {
+         oel =  22;
+         oer =  20;
+         oet =  23;
+         oeb =  21;
+      }
    }
 
-   if (type == 4) // inner edge alt tiles
-   {
-      oel =  22;
-      oer =  20;
-      oet =  23;
-      oeb =  21;
-   }
+
+   if (type_match == false) return -1;
+
+   int fb = -1; //  default
+   int tile = ts.startIndex;
 
 
    if (test4(l, r, t, b, lv, 0, 1, 0, 1)) fb = tile + octl;  // outer corner tl
@@ -596,139 +620,145 @@ int mwTileHelper::replace_helper_24_frame(struct tileSet ts, int lv, int type)
 }
 
 
-
-
-
-
-
-
-
-// finds tiles for frame level 'lv'
-// types
-// 0 - solid fill
-// 1 - outer frame
-// 2 - inner frame
-// 3 - single (pipe)
-// 4 - solid cross
-// 5 - outer frame, inner cross
-// 6 - inner frame, outer cross
-
-
 std::vector<struct listItem> listItems48Frame =
 {
-   { 0, "Fill"  },
-   { 1, "Outer" },
-   { 2, "Inner" },
-   { 3, "Single" },
-   { 4, "Solid Cross" },
-   { 5, "Outer Frame, Inner Cross" },
-   { 6, "Inner Frame, Outer Cross" },
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 10, "Single"  },
+   { 30, "Outer" },
+   { 20, "Fill"  },
+   { 40, "Inner" },
+   { 31, "Outer Alt" },
+   { 21, "Fill Alt"  },
+   { 41, "Inner Alt" }
 };
-
-
 
 
 
 int mwTileHelper::replace_helper_48_frame(struct tileSet ts, int lv, int type)
 {
-   int fb = -1; //  default
-
-   if (c != lv) return fb; // not the correct frame level
-
-   if (type == 0) return ts.SolidFill;
-   if (type == 4) return ts.FrameCross;
-
-
-   // type 1 - default - outer frame
-   int octl = ts.OuterCornerTL;
-   int octr = ts.OuterCornerTR;
-   int ocbl = ts.OuterCornerBL;
-   int ocbr = ts.OuterCornerBR;
-
-   int oel =  ts.OuterEdgeL;
-   int oer =  ts.OuterEdgeR;
-   int oet =  ts.OuterEdgeT;
-   int oeb =  ts.OuterEdgeB;
-
-   int ictl = ts.InnerCornerBR;
-   int ictr = ts.InnerCornerBL;
-   int icbr = ts.InnerCornerTL;
-   int icbl = ts.InnerCornerTR;
+   if (c != lv)    return -1;            // not the correct frame level
+   if (type == 0)  return -1;            // 'do nothing'
+   if (type == 1)  return 0;             // 'erase'
+   if (type == 20) return ts.SolidFill;
+   if (type == 21) return ts.FrameCross;
 
 
-   if (type == 2) // inner frame
+
+
+
+   int octl = 0, octr = 0, ocbl = 0, ocbr = 0;
+   int ictl = 0, ictr = 0, icbl = 0, icbr = 0;
+   int oel = 0, oer = 0, oet = 0, oeb = 0;
+
+
+
+   bool type_match = false;
+
+
+
+
+   if (type == 10) // single width (pipes)
    {
-      octl = ts.InnerCornerTL;
-      octr = ts.InnerCornerTR;
-      ocbr = ts.InnerCornerBR;
-      ocbl = ts.InnerCornerBL;
-
-      oel =  ts.OuterEdgeR;
-      oer =  ts.OuterEdgeL;
-      oet =  ts.OuterEdgeB;
-      oeb =  ts.OuterEdgeT;
-
-      ictl = ts.OuterCornerBR;
-      ictr = ts.OuterCornerBL;
-      icbl = ts.OuterCornerTR;
-      icbr = ts.OuterCornerTL;
-   }
-
-   if (type == 3) // single width (pipes)
-   {
-
+      type_match = true;
       octl = ts.FrameCornerTL;
       octr = ts.FrameCornerTR;
       ocbr = ts.FrameCornerBR;
       ocbl = ts.FrameCornerBL;
+
+      ictl = ts.FrameCornerBR;
+      ictr = ts.FrameCornerBL;
+      icbr = ts.FrameCornerTL;
+      icbl = ts.FrameCornerTR;
 
       oel =  ts.FrameEdgeL;
       oer =  ts.FrameEdgeR;
       oet =  ts.FrameEdgeT;
       oeb =  ts.FrameEdgeB;
-
-      ictl = ts.FrameCornerBR;
-      ictr = ts.FrameCornerBL;
-      icbr = ts.FrameCornerTL;
-      icbl = ts.FrameCornerTR;
    }
 
-
-   if (type == 5) // outer frame, inner cross
+   if (type == 30) // outer frame, solid inner
    {
+      type_match = true;
+      octl = ts.OuterCornerTL;
+      octr = ts.OuterCornerTR;
+      ocbl = ts.OuterCornerBL;
+      ocbr = ts.OuterCornerBR;
+
+      ictl = ts.InnerCornerBR;
+      ictr = ts.InnerCornerBL;
+      icbr = ts.InnerCornerTL;
+      icbl = ts.InnerCornerTR;
+
+      oel =  ts.OuterEdgeL;
+      oer =  ts.OuterEdgeR;
+      oet =  ts.OuterEdgeT;
+      oeb =  ts.OuterEdgeB;
+   }
+
+   if (type == 31) // outer frame, inner cross
+   {
+      type_match = true;
       octl = ts.FrameCornerTL;
       octr = ts.FrameCornerTR;
       ocbr = ts.FrameCornerBR;
       ocbl = ts.FrameCornerBL;
 
+      ictl = ts.FrameCross;
+      ictr = ts.FrameCross;
+      icbr = ts.FrameCross;
+      icbl = ts.FrameCross;
+
       oel =  ts.FrameEdgeLTee;
       oer =  ts.FrameEdgeRTee;
       oet =  ts.FrameEdgeBTee;
       oeb =  ts.FrameEdgeTTee;
+   }
+
+
+   if (type == 40) // inner frame
+   {
+      type_match = true;
+      octl = ts.InnerCornerTL;
+      octr = ts.InnerCornerTR;
+      ocbr = ts.InnerCornerBR;
+      ocbl = ts.InnerCornerBL;
 
       ictl = ts.FrameCross;
       ictr = ts.FrameCross;
       icbr = ts.FrameCross;
       icbl = ts.FrameCross;
+
+      oel =  ts.OuterEdgeR;
+      oer =  ts.OuterEdgeL;
+      oet =  ts.OuterEdgeB;
+      oeb =  ts.OuterEdgeT;
    }
 
-   if (type == 6) // inner frame, outer cross
+
+
+
+   if (type == 41) // inner frame, outer cross
    {
+      type_match = true;
       octl = ts.FrameCross;
       octr = ts.FrameCross;
       ocbr = ts.FrameCross;
       ocbl = ts.FrameCross;
 
-      oel =  ts.FrameEdgeRTee;
-      oer =  ts.FrameEdgeLTee;
-      oet =  ts.FrameEdgeTTee;
-      oeb =  ts.FrameEdgeBTee;
-
       ictl = ts.FrameCornerBR;
       ictr = ts.FrameCornerBL;
       icbl = ts.FrameCornerTR;
       icbr = ts.FrameCornerTL;
+
+      oel =  ts.FrameEdgeRTee;
+      oer =  ts.FrameEdgeLTee;
+      oet =  ts.FrameEdgeTTee;
+      oeb =  ts.FrameEdgeBTee;
    }
+   if (type_match == false) return -1;
+
+   int fb = -1; //  default
 
    if (test4(l, r, t, b, lv, 0, 1, 0, 1)) fb = octl;  // outer corner tl
    if (test4(l, r, t, b, lv, 1, 0, 0, 1)) fb = octr;  // outer corner tr
@@ -740,7 +770,6 @@ int mwTileHelper::replace_helper_48_frame(struct tileSet ts, int lv, int type)
    if (test4(l, r, t, b, lv, 1, 1, 0, 1)) fb = oet;  // outer edge t
    if (test4(l, r, t, b, lv, 1, 1, 1, 0)) fb = oeb;  // outer edge b
 
-
    if (test4(l, r, t, b, lv, 1, 1, 1, 1)) // blocks on all t b l r
    {
       if (test4(tr, tl, bl, br, lv, 1, 1, 1, 0)) fb = icbr; // inner corner br
@@ -748,45 +777,8 @@ int mwTileHelper::replace_helper_48_frame(struct tileSet ts, int lv, int type)
       if (test4(tr, tl, bl, br, lv, 0, 1, 1, 1)) fb = ictr; // inner corner tr
       if (test4(tr, tl, bl, br, lv, 1, 0, 1, 1)) fb = ictl; // inner corner tl
    }
-
    return fb;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -807,20 +799,11 @@ void mwTileHelper::draw_frame_fill(struct frameFill f, bool preview)
          {
             mTileHelper.find_adjacent(x, y);
             int fb = -1;
-
-            if (f.mode == 1)
-            {
-               if (f.ts.tileSetType == 16) fb = mTileHelper.replace_helper_16_frame(f.ts, f.frameIndex, f.tileSetDrawMode);
-               if (f.ts.tileSetType == 24) fb = mTileHelper.replace_helper_24_frame(f.ts, f.frameIndex, f.tileSetDrawMode);
-               if (f.ts.tileSetType == 48) fb = mTileHelper.replace_helper_48_frame(f.ts, f.frameIndex, f.tileSetDrawMode);
-            }
-
-            if (f.mode == 2) fb = 0;
-
-
+            if (f.ts.tileSetType == 16) fb = mTileHelper.replace_helper_16_frame(f.ts, f.frameIndex, f.mode);
+            if (f.ts.tileSetType == 24) fb = mTileHelper.replace_helper_24_frame(f.ts, f.frameIndex, f.mode);
+            if (f.ts.tileSetType == 48) fb = mTileHelper.replace_helper_48_frame(f.ts, f.frameIndex, f.mode);
             if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
          }
-
 }
 
 
@@ -1120,10 +1103,7 @@ int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, in
    xt++;
    tileSetWidget(x1+xt++*xts, yfb, 496, target, clicked, d); // rainbow 2
 
-
    return height;
-
-
 }
 
 
@@ -1453,7 +1433,16 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    //   bts += mLoop.pct_y;
    //      bsp += mLoop.pct_x;
 
-   int height = 200;
+
+
+   // choose the lesser of the 2 sizes
+   int list_size = fill_sections;
+   if (list_size > (int)frameFills.size()) list_size = (int)frameFills.size();
+   int list_item_height = 16;
+   int list_item_y_spacing = 2;
+
+
+   int height = 77 + list_size * (list_item_height + list_item_y_spacing);
    //height += mLoop.pct_y;
 
    int y2 = y1 + height;
@@ -1491,7 +1480,6 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
 
 
 
-
    if (frame_common_tileset)
    {
       // set all to current tileset
@@ -1508,54 +1496,40 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
 
 
 
+
+
    yfb+=(bts+bsp);
 
 
-//   mWidget.mSliderInt(1, x3, 140,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0,      1, fill_sections, 8, 0, 1, "Sections:" );
-
-
-//   bts += mLoop.pct_y;
-
-   mWidget.mStepper(1, x3, 140,    1, yfb, bts, 2, 2,  1, 1, c1,  c1,  15,  15, 0,      0, fill_sections, 8, 0, 1, "Sections:");
-
-//   bts -= mLoop.pct_y;
-
-
-   /*int r, int backgroundType, int frameType, int textType,
-                          int bcol, int fcol, int tcol, int hcol, int highlight,
-                          int text_just, int &var, int ul, int ll, int inc, const char *txt)*/
 
 
 
+   // presets
+   int col = 9+64;
+   int preset = 0;
+   mWidget.mDropDown(1, x3, 84,   1, yfb, bts, 1, 0, 2, col, col, 14, listItemPresets, preset, d);
+   if (preset) clearFrameFills(preset);
 
+
+   //   bts += mLoop.pct_y;
+   mWidget.mStepper(2, 140, x4-4,    1, yfb, bts, 2, 2,  1, 1, c1,  c1,  15,  15, 0,      0, fill_sections, 8, 0, 1, "Sections:");
+   //   bts -= mLoop.pct_y;
 
 
    yfb+=bts;
-   yfb+=12;
+   yfb+=6;
 
 
-
-   int frame_y_size = 16;
-//   frame_y_size += mLoop.pct_y;
-
-   int frame_y_spacing = 2;
-//   frame_y_spacing += mLoop.pct_x;
-
-   // choose the lesser of the 2 sizes
-   int size = fill_sections;
-   if (size > (int)frameFills.size()) size = (int)frameFills.size();
 
    // iterate fill sections
-   for (int i = 0; i<size; i++)
+   for (int i = 0; i<list_size; i++)
    {
-      int y2 = yfb + frame_y_size;
-
+      int y2 = yfb + list_item_height;
       show_frame_control_line(x3, yfb, x4, y2, i, d);
-
-
-      yfb+= (frame_y_size + frame_y_spacing);
+      yfb+= (list_item_height + list_item_y_spacing);
 
    }
+
 
    return height;
 }
@@ -1567,7 +1541,6 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
    // text y offset
    int tyo = (height - 8) / 2;
 
-
    // mode size
    int msz = height -2;
 
@@ -1575,13 +1548,12 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
    int myo = (height - msz) / 2;
 
 
-   // tileset Icon size
+   // tileset icon size
    int isz = height -2;
    //isz+= mLoop.pct_y;
 
    // icon offsets
    int iyo = (height - isz) / 2;
-
 
    // erase background
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
@@ -1589,91 +1561,32 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
    // frame
    al_draw_rectangle       (x1, y1, x2, y2, mColor.pc[15], 1);
 
+
+
    // text
    al_draw_textf(mFont.pr8, mColor.pc[15], x1+4, y1+tyo, 0, "%d", frameFills[index].frameIndex);
-   x1 += 14;
-//   x1+= mLoop.pct_x;
 
+   int txs = 17;
+   //txs+= mLoop.pct_x;
 
-   std::vector<struct listItem> listItems =
+   al_draw_rectangle(x1, y1, x1+txs-1, y2, mColor.pc[15], 1);
+
+   x1 += txs;
+
+   // tileset icon
+   if (!frame_common_tileset)
    {
-      { 0, "none" },
-      { 1, "draw" },
-      { 2, "eras" },
-      { 3, "jump" }
-   };
-   mWidget.mDropDown2(1, x1, 40,     1, y1+myo,msz,   listItems,  frameFills[index].mode);
-   x1 += 42;
-
-   if (frameFills[index].mode == 1) // draw
-   {
-      if (!frame_common_tileset)
-      {
-         // tileset icon
-         tileSetWidget(x1, y1+iyo, isz, frameFills[index].ts, "", d);
-         x1 += (isz + 2);
-      }
-
-
-
-      // tileset dram mode controls
-      if (frameFills[index].ts.tileSetType == 16) mWidget.mDropDown2(0, x1, x2,    1, y1+myo,msz,   listItems16Frame,  frameFills[index].tileSetDrawMode);
-      if (frameFills[index].ts.tileSetType == 24) mWidget.mDropDown2(0, x1, x2,    1, y1+myo,msz,   listItems24Frame,  frameFills[index].tileSetDrawMode);
-      if (frameFills[index].ts.tileSetType == 48) mWidget.mDropDown2(0, x1, x2,    1, y1+myo,msz,   listItems48Frame,  frameFills[index].tileSetDrawMode);
-
-
-
-
-
+      tileSetWidget(x1, y1+iyo, isz, frameFills[index].ts, "", d);
+      x1 += (isz + 2);
    }
 
+   // draw mode dropDown widget
+   if (frameFills[index].ts.tileSetType == 16) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems16Frame,  frameFills[index].mode, d);
+   if (frameFills[index].ts.tileSetType == 24) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems24Frame,  frameFills[index].mode, d);
+   if (frameFills[index].ts.tileSetType == 48) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems48Frame,  frameFills[index].mode, d);
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1694,9 +1607,10 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
 
    y += ss + show_selection_controls(x1, x2, y, 12, d);
 //   y += ss + show_replace_controls(  x1, x2, y,  9, d);
-//   y += ss + show_tileset_controls(  x1, x2, y,  8, d);
+   y += ss + show_tileset_controls(  x1, x2, y,  8, d);
 //   y += ss + show_pattern_controls(  x1, x2, y,  6, d);
    y += ss + show_frame_controls(    x1, x2, y, 14, d);
+
    y -= ss; // remove last section spacing
 
    y += ms; // add margin spacing

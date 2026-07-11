@@ -729,6 +729,9 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
    mWidget.buttonp(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
 
+//   mWidget.buttonpd(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
+
+
    // draw vline at middle to separate draw and show controls
    int x3 = x1 + 160; // x middle
    al_draw_line(x3, y3-1, x3, y4-1, mColor.pc[c], 1);

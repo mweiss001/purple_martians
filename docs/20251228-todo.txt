@@ -101,14 +101,9 @@ frame stuff
 - make options to extend last tileset to the end...
 - what if I did something crazy and started the frames from the middle
 - how about a repeating pattern in frames
-- make some presets
-- can I make each frame line display smaller?
-- I think I should have the frame number fixed, not changeable
-
-
-
-
-
+- make some presets 
+- can I make each frame line display smaller..done
+- I think I should have the frame number fixed, not changeable..done
 
 
 

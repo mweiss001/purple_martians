@@ -29308,12 +29308,346 @@ next up:
 - make some defaults to load entire sets 
 
 
-I want a widget to increase or decrease a value with - or + buttons on the sides
+I want a widget to increase or decrease a value with - or + buttons on the sides...done
+2026-07-08 07:31:32 commit and push
+
+
 
 
 all my new widget need to have 'd' added as parameter
 it could mean 'disable input' or 'display_only'
 if I use these widgets in my windowing system, this is very important....
+
+
+When I am using frame and the frame fill list, having to set mode and drawmode separately seems clunky
+can I combine them?
+
+lets make some numbers:
+
+101+ means jump to 101-mode
+
+if I make them kind of line up, swapping might be easier...
+
+std::vector<struct listItem> listItems16Frame =
+   { 0, "Fill"  },
+   { 1, "Outer" },
+   { 2, "Frame" },
+   { 3, "Inner" },
+   { 4, "Inner Reversed Corners" },
+   { 5, "Inner Single Corners" }
+std::vector<struct listItem> listItems24Frame =
+   { 0, "Fill"  },
+   { 1, "Outer" },
+   { 2, "Outer Alt" },
+   { 3, "Inner" },
+   { 4, "Inner Alt" },
+std::vector<struct listItem> listItems48Frame =
+   { 0, "Fill"  },
+   { 1, "Outer" },
+   { 2, "Inner" },
+   { 3, "Single" },
+   { 4, "Solid Cross" },
+   { 5, "Outer Frame, Inner Cross" },
+   { 6, "Inner Frame, Outer Cross" },
+
+what can be common?
+
+
+single frame 16 and 48 (24 has single frame for lines but nothing for corners)
+
+fill (all) the center block with no corners
+alt fill - 48 only has cross or solid for middle
+
+outer (all)
+inner (all) 
+
+
+common:
+
+0 do nothing
+1 erase
+100+ reserved for jump
+
+10 single (pipes)
+
+
+20 - fill
+21 - fill alt (like cross)
+
+
+
+30 outer to solid
+31 outer to alt solid (pipe tees)
+
+
+
+40 inner to solid
+41 inner to solid alt
+42 inner reversed corners
+43 inner single block corners
+
+new arrangement
+
+std::vector<struct listItem> listItems16Frame =
+   { 11, "Fill Alt"  },
+   { 1, "Outer" },
+   { 2, "Frame" },
+   { 3, "Inner" },
+   { 4, "Inner Reversed Corners" },
+   { 5, "Inner Single Corners" }
+std::vector<struct listItem> listItems24Frame =
+   { 10, "Fill"  },
+   { 1, "Outer" },
+   { 2, "Outer Alt" },
+   { 3, "Inner" },
+   { 4, "Inner Alt" },
+std::vector<struct listItem> listItems48Frame =
+   { 10, "Fill"  },
+   { 11, "Inner Alt" },
+
+   { 1, "Outer" },
+   { 2, "Inner" },
+   { 3, "Single" },
+   { 5, "Outer Frame, Inner Cross" },
+   { 6, "Inner Frame, Outer Cross" },
+
+
+std::vector<struct listItem> listItems16Frame =
+{
+   { 0, "none"  },
+   { 1, "clear" },
+   { 10, "Frame" },
+   { 21, "Fill Alt"  },
+   { 31, "Outer Alt" },
+   { 41, "Inner Alt" },
+   { 42, "Inner Reversed Corners" },
+   { 43, "Inner Single Corners" }
+};
+
+
+
+
+I think I have those changes made...
+
+
+recap and cleanup...
+
+
+
+struct frameFill
+{
+   int frameIndex;
+   int mode;
+   tileSet ts;
+};
+
+
+std::vector<struct listItem> listItems16Frame =
+{
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 10, "Single Width" },
+   { 31, "Outer" },
+   { 21, "Fill"  },
+   { 41, "Inner" },
+   { 42, "Inner Reversed Corners" },
+   { 43, "Inner Single Corners" }
+};
+std::vector<struct listItem> listItems24Frame =
+{
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 30, "Outer" },
+   { 31, "Outer Alt" },
+   { 20, "Fill"  },
+   { 40, "Inner" },
+   { 41, "Inner Alt" }
+};
+std::vector<struct listItem> listItems48Frame =
+{
+   {  0, "Do Nothing"  },
+   {  1, "Erase (blank)" },
+   { 10, "Single"  },
+   { 30, "Outer" },
+   { 31, "Outer Alt" },
+   { 20, "Fill"  },
+   { 21, "Fill Alt"  },
+   { 40, "Inner" },
+   { 41, "Inner Alt" }
+};
+
+
+2026-07-08 21:59:22
+make a drink and do some presets
+2026-07-08 22:13:01 done
+make it erase everything first...
+
+do all tileset frame helpers ignore invalid?
+and more 24 alt outer - change the corners
+
+change the order of sections and presets
+
+reduce space b4 list
+
+make list size determine control size
+
+make I make drop down wait for second mouse button press? optionally?
+
+- if mouse click outside, cancel blocking...done
+- move list to just below top value..done
+- add nice frame to list..done
+- lines between list items..done
+- add downward triangle...done
+- crop text if longer than area..done
+- if text is cropped, hover will show all..done
+
+- arrow to cycle selection (no blocking)
+
+
+can I try to use this in ov?
+
+ov is famous for one liners...
+
+
+replace this:
+
+            mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
+
+
+
+make a function to replace this but call dropDown underneath
+
+- add d (by convention, last parameter) ..done
+- add press or change return...already there
+- add enable arrows and add rollover/clamp...later
+
+I seem to be missing text mode center or left just...
+
+q5 in old...0-center 1-left just
+
+2026-07-10 18:13:20
+
+having troubles resizing with triangle in centered mode...
+
+start from the basics
+
+I have x1, x2
+I want the triangle to always be the same distance from the right edge...
+figure out those sizes for a start
+x1, x2 xt
+
+make them resizable with bts
+draw a line to separate that section
+
+
+180 xm 4 10
+
+180 4 10
+182 6 12
+184 0 14
+186 2 8
+188 4 10
+
+pad = xm + 6
+if pad = 6, pad = 14;
+
+2026-07-11 10:22:33
+
+I think I have mDropDown fully done...it is perfect...
+replaced a bunch of buttonp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

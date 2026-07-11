@@ -472,7 +472,9 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int lift = n;
       int step = mLift.cur[n].current_step;
 
-      mWidget.buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+      //mWidget.buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+      mWidget.buttonpd(      xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+
       if (mLift.cur[lift].mode)
          mWidget.slideri    (xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
       if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mWM.mW[7].mb = 26; // lift name
@@ -856,6 +858,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mWidget.buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
                ya+=4; // spacer
                mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
+               //mWidget.buttonpd(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
                mWidget.slideri(xa, ya, xb, bts, 0,0,0,0,    0,11,15,15, 1,0,1,d, mItem.item[n][7], 100, 2, 1, "Health Bonus:");
                mItem.item[n][1] = 1035;
                mItem.item[n][2] = 1;
@@ -866,6 +869,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             {
                mWidget.buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall
                ya+=4; // spacer
+               //mWidget.buttonpd(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, mItem.item[n][6]); // bonus type
                mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, mItem.item[n][6]); // bonus type
                mItem.item[n][1] = 197;
                mItem.item[n][2] = 0;
@@ -879,7 +883,9 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 4: // key
             mWidget.buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
             ya+=4; // spacer
-            mWidget.buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
+            //mWidget.buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
+            mWidget.buttonpd(   xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
+
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
@@ -993,7 +999,9 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][10], 1000, 0, 1, "Timer 1:" , "OFF");
             if (mItem.item[n][10])
             {
-               mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
+               //mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
+               mWidget.buttonpd(   xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
+
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1, "Input Event:", "OFF");
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1, "Output Event:", "OFF");
@@ -1003,7 +1011,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][11], 1000, 0, 1, "Timer 2:", "OFF");
             if (mItem.item[n][11])
             {
-               mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
+               //mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
+               mWidget.buttonpd(   xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1, "Input Event:", "OFF");
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 2, t2_mode);
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][15], 99, 0, 1, "Output Event :", "OFF");
@@ -1050,7 +1059,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
                mWidget.colsel(  xa, ya, xb, bts, 7,n,0,0,    0,0,0,0,     0,0,1,d);               // color select
             ya+=4; // spacer
-            mWidget.buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,1,d, mItem.item[n][3]);   // mode
+            //mWidget.buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,1,d, mItem.item[n][3]);   // mode
+            mWidget.buttonpd(   xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,1,d, mItem.item[n][3]);   // mode
 
             if (mItem.item[n][3]) // all modes except 0
             {
@@ -1093,12 +1103,14 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
+            //mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
+            mWidget.buttonpd(      xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             ya+=4; // spacer
             mWidget.button(        xa, ya, xb, bts, 96,n,0,0,  0, 7,15, 0,  1,0,1,d);                     // damage draw rotation
             ya+=4; // spacer
             int p=7; // mode color
-            mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // mode
+            //mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // mode
+            mWidget.buttonpd(      xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // mode
             int MODE = mItem.item[n][11];
 
             ya+=4; // spacer
@@ -1142,7 +1154,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
             int p=7; // mode color
 
-            mWidget.buttonp(       xa, ya, xb, bts, 403,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][3]); // mode
+            //mWidget.buttonp(       xa, ya, xb, bts, 403,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][3]); // mode
+            mWidget.buttonpd(      xa, ya, xb, bts, 403,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][3]); // mode
             int MODE = mItem.item[n][3];
             if ((MODE == 4) || (MODE == 5))
             {
