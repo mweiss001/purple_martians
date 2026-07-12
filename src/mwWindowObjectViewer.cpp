@@ -1134,8 +1134,12 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ",          15+dim, 15, 6+dim, 6))
             {
                mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
-               mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
-               mWidget.button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
+
+               if (!mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ",          15+dim, 15, 6+dim, 6))
+               {
+                  mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
+                  mWidget.button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
+               }
             }
          }
          break;

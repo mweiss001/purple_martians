@@ -32,8 +32,6 @@ class mwMiscFnx
 
 
 
-
-
    char* chrms(int time, char* ft);
 //   char* chrsi(int num, char* ft);
 

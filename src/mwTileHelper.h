@@ -21,6 +21,8 @@ class mwTileHelper
    int replace_helper_8(int tile);
    int replace_helper_pattern(int x, int y);
 
+   void invert_marks();
+
    void remove_bound();
    void find_bound(int max_lev);
    void find_adjacent(int x, int y);

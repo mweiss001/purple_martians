@@ -87,8 +87,11 @@ class mwWidget
 
 
 
-
    void xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2);
+
+   mRect<int> xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt);
+
+
 
    bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
 
@@ -131,7 +134,7 @@ class mwWidget
 
    void mDropDownSetNextItem(std::vector<listItem> listItems, int & var, bool rollOver);
    void mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, bool rollOver);
-   void mDropDownDrawMain(int x1, int y1, int x2, int y2, int r, std::string text, int textJust, int btype, int bcol, int fcol, bool crop);
+   void mDropDownDrawMain(mRect<int> f, int r, std::string text, int textJust, int btype, int bcol, int fcol, bool crop);
    bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
 
 

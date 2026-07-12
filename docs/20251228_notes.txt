@@ -29539,7 +29539,6 @@ x1, x2 xt
 make them resizable with bts
 draw a line to separate that section
 
-
 180 xm 4 10
 
 180 4 10
@@ -29555,6 +29554,546 @@ if pad = 6, pad = 14;
 
 I think I have mDropDown fully done...it is perfect...
 replaced a bunch of buttonp
+
+more presets:
+start with 48
+
+then 24
+
+I'm going to jump right into using this and see what presets I might want...
+
+change pattern offsets to stepper...done
+
+
+bool mwWindowManager::get_new_box_with_preview()
+
+make this not draw off screen.. also leave space to see where you are drawing
+
+
+
+could I pack 4 ints from 0-2000 in one int 32? probably not
+
+how many bits does 0-2000 take? 11 bits (0-2047)
+so I would need 44 bits for all that
+
+8 bits 256
+9
+10 1024
+11 2048
+12
+
+
+how about a new name for block damage? "damage field" "dfield" "DF"
+block manip "block flip"? bflip "BF"
+
+
+
+how hard would it be to have block damage follow lift size?
+added this:
+#define PM_ITEM_DAMAGE_LIFT_MS  0b0000000010000000000000 // mirror size
+
+if this flag is active, none of the other alignments will matter
+
+
+this is all I had to do to make it work:
+create new flag:
+#define PM_ITEM_DAMAGE_LIFT_MS  0b0000000010000000000000 // mirror size
+
+create control to set it it object viewer:
+
+            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ",          15+dim, 15, 6+dim, 6))
+            {
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
+
+               if (!mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ",          15+dim, 15, 6+dim, 6))
+               {
+                  mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
+                  mWidget.button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
+               }
+
+patch in this code to set geometry from lift:
+
+void mwItem::set_item_damage_location_from_lift(int i, int a20)
+{
+   int d = item[i][10]; // lift number
+   if (mLift.cur[d].active) // only proceed if lift number is valid
+   {
+      if (item[i][3] & PM_ITEM_DAMAGE_LIFT_MS) // mirror geometry from lift
+      {
+         item[i][6] = mLift.cur[d].x;
+         item[i][7] = mLift.cur[d].y;
+         item[i][8] = mLift.cur[d].w;
+         item[i][9] = mLift.cur[d].h;
+      }
+      else
+      {
+         // x axis
+         int lx1 = mLift.cur[d].x;
+         int lx2 = mLift.cur[d].x + mLift.cur[d].w;
+         int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
+         int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
+         int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
+
+
+add clipping to draw for these modes:
+
+al_set_clipping_rectangle(x1, y1, x2-x1, y2-y1);
+al_reset_clipping_rectangle();
+
+      if (draw_mode == 3) // lava
+      if ((draw_mode > 10) && (draw_mode < 16) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // 3 tile columns
+
+..........
+it looks pretty sharp...
+
+except...
+- when lifts do not have any distance difference between steps, just size changes, the speeds are wide open...
+I have already fixed that. In code if distance = 0; then speed is simply the amount of frames, or time
+
+
+- lifts are jittery, I don't know why, this has been a problem for years
+am I moving things or drawing things out of order?
+am I using floats vs ints for position?
+
+what order do things get done?
+
+
+      mShot.move_eshots();      t[1] = al_get_time();
+      mShot.move_pshots();      t[2] = al_get_time();
+      mLift.move_lifts(0);      t[3] = al_get_time();
+      mPlayer.move_players();   t[4] = al_get_time();
+      mEnemy.move_enemies();    t[5] = al_get_time();
+      mItem.move_items();       t[6] = al_get_time();
+
+what does move lifts look like? uses floats
+draw lifts? uses ints??
+
+changed to floats
+
+void mwLift::draw_lift(int l, float x1, float y1, float x2, float y2)
+
+void mwLift::draw_lifts()
+
+getting no where...
+
+with lava specifically, start drawing from bottom and move top
+
+
+
+
+
+
+2026-07-12 01:00:22
+
+raw lift values:
+y1:1465.000000  y2:1520.000000  h:55.000000
+y1:1465.500000  y2:1520.000000  h:54.500000
+y1:1466.000000  y2:1520.000000  h:54.000000
+y1:1466.500000  y2:1520.000000  h:53.500000
+y1:1467.000000  y2:1520.000000  h:53.000000
+y1:1467.500000  y2:1520.000000  h:52.500000
+y1:1468.000000  y2:1520.000000  h:52.000000
+y1:1468.500000  y2:1520.000000  h:51.500000
+y1:1469.000000  y2:1520.000000  h:51.000000
+
+looks like y2 is constant and y1 changes with width...why?
+because that is how that particular lift is setup
+yinc and height both change at .5 when I slightly changed the speed it now works
+
+I have spent hours....
+why it is only lifts that I have this weird drawing issue?
+because I am drawing on another bitmap, the level buffer, not direct to the screen....
+in this case I need to be exact about the pixels...
+
+
+            // ALLEGRO_BITMAP *tmp = al_create_bitmap(20, 80);
+            // al_set_target_bitmap(tmp);
+            // al_clear_to_color(mColor.Black);
+            // al_draw_bitmap(mBitmap.tile[tn+  0], 0,  0, 0); // top
+            // al_draw_bitmap(mBitmap.tile[tn+ 32], 0, 20, 0); // 2nd top
+            // al_draw_bitmap(mBitmap.tile[tn+ 64], 0, 40, 0); // lower
+            // al_draw_bitmap(mBitmap.tile[tn+ 64], 0, 60, 0); // lower
+            // al_set_target_bitmap(mBitmap.level_buffer);
+            // printf("y1:%f  y2:%f  h:%f\n", y1, y2, y2-y1);
+            // for (float hx=x1; hx<x2; hx+=20)
+            //    al_draw_bitmap(tmp, hx, y1, 0);
+            // al_destroy_bitmap(tmp);
+
+
+
+//            int y2l = (int)y2 - ((int)y2 % 20);
+
+//            printf("y2:%f  y2l:%d\n", y2, y2l);
+
+
+
+  //          al_draw_line(x1, y2l, x2, y2l, mColor.Red, 0);
+
+
+
+/*
+            draw_and_frame_3x3_bitmap(type, round, tmp1, tile);
+            al_set_target_backbuffer(mDisplay.display);
+            al_draw_scaled_bitmap(tmp1, 0, 0, 60, 60, x, y, 180, 180, 0);
+
+            if (type == 2) // draw second one for extended
+            {
+               draw_and_frame_3x3_bitmap(1, round, tmp1, tile);
+               al_set_target_backbuffer(mDisplay.display);
+               al_draw_scaled_bitmap(tmp1, 0, 0, 60, 60, x+200, y, 180, 180, 0);
+            }
+
+            */
+
+//            al_destroy_bitmap(tmp);
+
+/*
+            for (float hx=x1; hx<x2; hx+=20)
+               for (float hy=y1; hy<y2; hy+=20)
+               {
+                  if       (abs(hy-y1)    < 2)   al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (abs(hy-y1+20) < 2)   al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                           al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+               }
+*/
+
+
+            /*
+            for (float hy=y1; hy<y2; hy+=20)
+               for (float hx=x1; hx<x2; hx+=20)
+               {
+                  if       (hy == y1)         al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-y1 <= 20)      al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                        al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+               }
+*/
+
+
+this did it!!!
+            y1 = (int) y1;
+
+
+         al_set_clipping_rectangle(x1, y1, x2-x1, y2-y1+1);
+         if (rb == 0) // draw up from bottom row
+         {
+            y1 = (int) y1;
+            for (int hy=y1; hy<y2; hy+=20)
+               for (int hx=x1; hx<x2; hx+=20)
+               {
+                  if       (hy == y1)         al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-y1 <= 20)      al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                        al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+               }
+
+
+
+Now I am having issues with the other 3 directions
+I was up until 1:30 AM last night working on it
+2026-07-12 06:44:19
+
+make a bitmap with the 3 tile shapes
+at least as long as the max dimesions
+
+
+
+
+
+
+added to lift struct (integer values)
+
+   int ix1;
+   int iy1; 
+   int ix2;
+   int iy3; 
+   int iw;
+   int ih;
+
+
+               case 1: // step type 1 - move and resize
+
+                  cur[l].x += cur[l].xinc;
+                  cur[l].y += cur[l].yinc;
+                  cur[l].w += cur[l].winc;
+                  cur[l].h += cur[l].hinc;
+
+                  // also get rounded integer values
+                  cur[l].ix1 = mMiscFnx.roundToDecimalPlaces(cur[l].x, 0);                  
+                  cur[l].iy1 = mMiscFnx.roundToDecimalPlaces(cur[l].y, 0);                  
+                  cur[l].ix2 = mMiscFnx.roundToDecimalPlaces(cur[l].x + cur[l].w, 0);                  
+                  cur[l].iy2 = mMiscFnx.roundToDecimalPlaces(cur[l].y + cur[l].h, 0);                  
+                  cur[l].iw = cur[l].ix2 - cur[l].ix1;
+                  cur[l].ih = cur[l].iy2 - cur[l].iy1;
+
+
+
+this does not work...adding things to lift struct is bad mkay??
+
+I need to do it manaully...
+
+
+I was think of making my own data structure (rect)
+
+maybe I could make it a class instead
+
+then I could have methods like:
+enforce x1 < x2...
+is point within rect
+
+struct mIntRect
+{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+
+    int w;
+    int h;
+
+    // Optional: add a quick helper method
+    int getArea() const { 
+        return width * height; 
+    }
+};
+
+
+
+#include <iostream>
+#include <algorithm>
+
+template <typename T>
+class Rect {
+public:
+    T x;      // Top-left X coordinate
+    T y;      // Top-left Y coordinate
+    T width;  // Horizontal size
+    T height; // Vertical size
+
+    // Default constructor: Initializes an empty rectangle at (0,0)
+    Rect() : x(0), y(0), width(0), height(0) {}
+
+    // Parameterized constructor
+    Rect(T posX, T posY, T rectWidth, T rectHeight)
+        : x(posX), y(posY), width(rectWidth), height(rectHeight) {}
+
+    // Calculate core geometric properties
+    T getArea() const { return width * height; }
+    T getPerimeter() const { return 2 * (width + height); }
+
+    // Edge boundary getters
+    T getLeft() const { return x; }
+    T getTop() const { return y; }
+    T getRight() const { return x + width; }
+    T getBottom() const { return y + height; }
+
+    // Check if a point is completely inside the rectangle
+    bool contains(T pointX, T pointY) const {
+        return (pointX >= x && pointX <= getRight() &&
+                pointY >= y && pointY <= getBottom());
+    }
+
+    // Check if this rectangle overlaps with another rectangle
+    bool intersects(const Rect<T>& other) const {
+        return (x < other.getRight() && getRight() > other.x &&
+                y < other.getBottom() && getBottom() > other.y);
+    }
+};
+
+
+
+
+
+int main() {
+    // Create an integer-based rectangle at (10, 20) with size 100x50
+    Rect<int> rect1(10, 20, 100, 50);
+
+    std::cout << "Area: " << rect1.getArea() << "\n";          // Outputs: 5000
+    std::cout << "Perimeter: " << rect1.getPerimeter() << "\n"; // Outputs: 300
+
+    // Test point collision detection
+    std::cout << "Contains (50, 40): " << (rect1.contains(50, 40) ? "Yes" : "No") << "\n";
+
+    // Test rectangle intersection checks
+    Rect<int> rect2(90, 40, 50, 50);
+    std::cout << "Intersects rect2: " << (rect1.intersects(rect2) ? "Yes" : "No") << "\n";
+
+    return 0;
+}
+
+
+
+this new class is amazing!!!
+simplifies so much when working with rectangles
+also makes the damage draw function work!
+
+
+when I draw the lift it does not stutter...
+when I draw a rect the same size in bd it does...why?
+220 1440 20 140 speed 5
+160 1440 80 140 speed 20
+
+
+the lift does stutter!
+
+
+//            f.resize(-4, -4);
+//            f.move(2, 2);
+
+//            al_set_clipping_rectangle(f.x1, f.y1, f.x2-f.x1, f.h);
+            /*
+            f.draw_filled_rectangle(mColor.White);
+            f.draw_rectangle(mColor.Red, 1);
+            if (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
+            {
+               int d = item[i][10]; // lift number
+               if (d == 8)
+               {
+                  mRect<float> l(mLift.cur[d].x, mLift.cur[d].y, mLift.cur[d].w, mLift.cur[d].h);
+                  printf("lift  - ");
+                  l.print();
+
+                  printf("field - ");
+                  f.print();
+
+                  printf("\n");
+
+               }
+
+            }
+*/
+
+
+
+
+
+2026-07-12 11:09:22
+I finally have it done!!!!!
+made a new Rect struct also...
+I want to use that in dropDown...why not??
+make xyHelper2 that returns rect...done!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

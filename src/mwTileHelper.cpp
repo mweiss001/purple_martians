@@ -10,6 +10,7 @@
 #include "mwInput.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
+#include "mwMenu.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwTileSets.h"
@@ -62,7 +63,22 @@ std::vector<struct listItem> listItemPresets =
   {  0, "presets"  },
   {  1, "24 2 Outer Inner" },
   {  2, "24 3 Outer Fill Inner"  },
-  {  3, "Purple Bricks"  }
+
+
+
+
+
+{  40, "48 2 Outer Inner"  },
+{  41, "48 3 Outer Fill Inner"  },
+{  42, "48 2 Outer Inner Alt"  },
+{  43, "48 3 Outer Fill Inner Alt"  },
+{  44, "48 3 Outer Fill Fill"  },
+
+
+{  3, "Purple Bricks"  }
+
+
+
 };
 
 
@@ -82,6 +98,44 @@ void mwTileHelper::clearFrameFills(int preset)
       frameFills.push_back(f);
    }
 
+   if (preset == 40)
+   {
+      fill_sections = 2;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 40;
+   }
+
+   if (preset == 41)
+   {
+      fill_sections = 3;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 20;
+      frameFills[2].mode = 40;
+   }
+
+   if (preset == 44)
+   {
+      fill_sections = 3;
+      frameFills[0].mode = 30;
+      frameFills[1].mode = 20;
+      frameFills[2].mode = 20;
+   }
+
+
+   if (preset == 42)
+   {
+      fill_sections = 2;
+      frameFills[0].mode = 31;
+      frameFills[1].mode = 41;
+   }
+
+   if (preset == 43)
+   {
+      fill_sections = 3;
+      frameFills[0].mode = 31;
+      frameFills[1].mode = 21;
+      frameFills[2].mode = 41;
+   }
 
 
 
@@ -964,6 +1018,96 @@ void mwTileHelper::remove_bound()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwTileHelper::invert_marks()
+{
+   // add 100 to all valid marks
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++) if (thl[a][b]) thl[a][b] += 100;
+
+   // find max mark index
+   int max = 0;
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++) if (thl[a][b]>max) max = thl[a][b];
+
+   int nv = 1; // new index start
+
+   // loop from max to 101
+   for (int i=max; i>100; i--)
+   {
+      for (int a=0; a<100; a++)
+         for (int b=0; b<100; b++) if (thl[a][b] == i) thl[a][b] = nv;
+
+      nv++;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // increments value if bound
 void mwTileHelper::find_bound(int max_lev)
 {
@@ -1327,8 +1471,18 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 
    mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, pattern_preview, "preview", 15, 15);
 
-   mWidget.mSliderInt(1, x3,     110,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0,  0, pattern_offset_x, 8, 0, 1, "Offset X:" );
-   mWidget.mSliderInt(1, x3+120, 110,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0,  0, pattern_offset_y, 8, 0, 1, "Offset Y:" );
+   //mWidget.mSliderInt(1, x3,     110,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0,  0, pattern_offset_x, 8, 0, 1, "Offset X:" );
+
+
+   mWidget.mStepper(  1, x3,     80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_x, 8, 0, 1, "+X:" );
+   mWidget.mStepper(  1, x3+90,  80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_y, 8, 0, 1, "+Y:" );
+
+
+//   mWidget.mStepper(2, 140, x4-4,      1, yfb, bts,   2, 2,  1, 1, c1,  c1,   15,  15, 0,      0, fill_sections, 8, 0, 1, "Sections:");
+
+
+
+
 
    yfb+=(bts+bsp);
 
@@ -1473,6 +1627,9 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    sprintf(msg, "Frames Detected:%d", frames_detected);
        mWidget.mButton(5, xc, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, msg);
    if (mWidget.mButton(3, x3, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "Detect")) find_bound(20);
+
+   if (mWidget.mButton(3, x3+61+mLoop.pct_x, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "I")) invert_marks();
+
    if (mWidget.mButton(4, -1, x4, 1, yfb, bts, 2, 2, 1,  1,   10, 10, 15, 0, 0, "Commit")) draw_frame_fills(0);
 
 
@@ -1580,10 +1737,121 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
       x1 += (isz + 2);
    }
 
+   // check for mouse on line and mouse b2 for context menu
+
+   if ((mInput.mouse_b[2][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      sprintf(mMenu.menu_string[0],"Fill Items Menu");
+      sprintf(mMenu.menu_string[1],"--------------");
+      sprintf(mMenu.menu_string[2],"Clone Current Item");
+      sprintf(mMenu.menu_string[3],"Remove Current Item");
+      sprintf(mMenu.menu_string[4],"Copy last 2 to next");
+      sprintf(mMenu.menu_string[5],"Copy last 3 to next");
+      sprintf(mMenu.menu_string[6],"end");
+      switch (mMenu.pmenu(5, 13, -20, 1))
+      {
+         case 2:
+            printf("Clone Current Item\n");
+
+            // insert copy of current index
+            frameFills.insert(frameFills.begin() + index, frameFills[index]);
+
+            // iterate fill sections to fix indexes
+            for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
+
+            // add one section
+            fill_sections++;
+         break;
+         case 3:
+            printf("Remove Current Item\n");
+
+            // insert copy of current index
+            frameFills.erase(frameFills.begin() + index);
+
+            // iterate fill sections to fix indexes
+            for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
+
+            // subtract one section
+            fill_sections--;
+         break;
+
+
+         case 4:
+            printf("Copy 2\n");
+
+//            struct frameFill pf = frameFills[index-1];
+  //          struct frameFill cf = frameFills[index];
+    //        frameFills.insert(frameFills.begin() + index+1, pf);
+      //      frameFills.insert(frameFills.begin() + index+2, cf);
+
+
+
+
+
+            // set next(+1) to current(0)
+            frameFills.insert(frameFills.begin() + index+1, frameFills[index]);
+
+            // set next(+1) to previous(-1)
+            frameFills.insert(frameFills.begin() + index+1, frameFills[index-1]);
+
+
+
+            // iterate fill sections to fix indexes
+            for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
+
+
+            // add two sections
+            fill_sections+=2;
+            break;
+
+         case 5:
+            printf("Copy 3\n");
+
+            //            struct frameFill pf = frameFills[index-1];
+            //          struct frameFill cf = frameFills[index];
+            //        frameFills.insert(frameFills.begin() + index+1, pf);
+            //      frameFills.insert(frameFills.begin() + index+2, cf);
+
+
+
+
+
+            // set next(+1) to current(0)
+            frameFills.insert(frameFills.begin() + index+1, frameFills[index]);
+
+            // set next(+1) to previous(-1)
+            frameFills.insert(frameFills.begin() + index+1, frameFills[index-1]);
+
+            // set next(+1) to previous(-2)
+            frameFills.insert(frameFills.begin() + index+1, frameFills[index-2]);
+
+
+            // iterate fill sections to fix indexes
+            for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
+
+
+            // add three sections
+            fill_sections+=3;
+            break;
+
+
+
+
+
+
+
+
+      }
+   }
+
+
    // draw mode dropDown widget
    if (frameFills[index].ts.tileSetType == 16) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems16Frame,  frameFills[index].mode, d);
    if (frameFills[index].ts.tileSetType == 24) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems24Frame,  frameFills[index].mode, d);
    if (frameFills[index].ts.tileSetType == 48) mWidget.mDropDown(0, x1, x2,    1, y1+myo,msz,  0, 0, 1, 0, 15, 14, listItems48Frame,  frameFills[index].mode, d);
+
+
+
 
 
 }
@@ -1606,9 +1874,9 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
    x2-= ms;
 
    y += ss + show_selection_controls(x1, x2, y, 12, d);
-//   y += ss + show_replace_controls(  x1, x2, y,  9, d);
+   y += ss + show_replace_controls(  x1, x2, y,  9, d);
    y += ss + show_tileset_controls(  x1, x2, y,  8, d);
-//   y += ss + show_pattern_controls(  x1, x2, y,  6, d);
+   y += ss + show_pattern_controls(  x1, x2, y,  6, d);
    y += ss + show_frame_controls(    x1, x2, y, 14, d);
 
    y -= ss; // remove last section spacing

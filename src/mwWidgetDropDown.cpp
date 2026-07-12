@@ -56,10 +56,8 @@ void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, 
 // if crop = 1, then text will be chopped, box will be exactly x2
 // if crop = 0, x2 will be adjusted to fit entire text
 // textJust 0 = left justify 1 = center
-void mwWidget::mDropDownDrawMain(int x1, int y1, int x2, int y2, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
+void mwWidget::mDropDownDrawMain(mRect<int> f, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
 {
-   // get height from y1, y2
-   float yh = y2 - y1;
 
    // triangle width, height
    float tr_w = 6;
@@ -79,35 +77,36 @@ void mwWidget::mDropDownDrawMain(int x1, int y1, int x2, int y2, int r, std::str
       int text_width = (int)text.size() * 8;
 
       // get custom pad value based on widget width mod 8
-      int xm = (x2 - x1) % 8;
+      int xm = (f.w) % 8;
       int pd = xm + 14;
       if (pd > 15) pd-=8;
 
       int pad = tr_fw + pd;
 
       // get current box width
-      int box_width = (x2-x1) - pad; // full width - pad
+      int box_width = (f.w) - pad; // full width - pad
 
       // check if box needs to be enlarged
       if (text_width > box_width)
       {
          box_width = text_width + pad; // text width + pad
-         x2 = x1 + box_width;
+//         x2 = x1 + box_width;
+         f.setWidth(box_width);
       }
    }
 
    // triangle absolute position
-   float tr_x1 = x2 - tr_w - tr_xsp2;
-   float tr_y1 = y1 + (yh-tr_h) / 2;
+   float tr_x1 = f.x2 - tr_w - tr_xsp2;
+   float tr_y1 = f.y1 + (f.h-tr_h) / 2;
 
    // end of the space remaining for the text area (start of the triangle area)
-   int x3 = x2 - tr_fw;
+   int x3 = f.x2 - tr_fw;
 
    // resize string to fit box
    if (crop == true)
    {
       // width of the text area (in char)
-      int xw3 = ((x3 - x1) / 8) - 1;
+      int xw3 = ((x3 - f.x1) / 8) - 1;
 
       // crop text
       if (((int)text.size()) > xw3) text.resize(xw3);
@@ -115,23 +114,26 @@ void mwWidget::mDropDownDrawMain(int x1, int y1, int x2, int y2, int r, std::str
    }
 
    // draw background
-   if (btype == 0) al_draw_filled_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[0]); // draw nothing
-   if (btype == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
-   if (btype == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+   if (btype == 0) al_draw_filled_rectangle(f.x1-1, f.y1-1, f.x2+1, f.y2+1, mColor.pc[0]); // draw nothing
+   if (btype == 1) al_draw_filled_rounded_rectangle(f.x1, f.y1, f.x2, f.y2, r, r, mColor.pc[bcol]); // solid color
+   if (btype == 2) draw_widget_area(f.x1, f.y1, f.x2, f.y2, bcol); // draw button frame
+
+
+
 
    // draw frame
-   al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[fcol], 1);
+   al_draw_rounded_rectangle(f.x1, f.y1, f.x2, f.y2, r, r, mColor.pc[fcol], 1);
 
    // draw triangle
    al_draw_filled_triangle(tr_x1, tr_y1,   tr_x1+tr_w, tr_y1,  tr_x1+tr_w/2, tr_y1+tr_h,    mColor.pc[15]);
 
    // draw line to mark edge of triangle area
-   //al_draw_line(x3, y1,    x3, y2,    mColor.pc[15], 1);
+   //al_draw_line(x3, f.y1,    x3, f.y2,    mColor.pc[15], 1);
 
    // draw text
-   int text_x1 = x1 + 4;
-   if (text_just == 1) text_x1 = (x1 + x3) / 2;
-   float text_y1 = y1 + (yh-8)/2;
+   int text_x1 = f.x1 + 4;
+   if (text_just == 1) text_x1 = (f.x1 + x3) / 2;
+   float text_y1 = f.y1 + (f.h-8)/2;
    mMiscFnx.mw_draw_text(15, text_x1, text_y1, text_just, text);
 
 }
@@ -178,26 +180,22 @@ tjust = 1 - text center
 
 bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d)
 {
-
-   // get box values from parameters
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
+   // get mRect from parameters
+   mRect<int> f = xyHelper(xType, xa, xb, yType, ya, yb, "");
 
    // find the listItem that matches var
    std::string text = "invalid";
    for (const auto& li : listItems)
       if (li.value == var) text = li.text.c_str();
 
-   mDropDownDrawMain(x1, y1, x2, y2, r, text, tjust, btype, bcol, fcol, 1);
+   mDropDownDrawMain(f, r, text, tjust, btype, bcol, fcol, 1);
 
    if (d) return false; // input disabled
 
-
    // check if mouse is on widget
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   if (f.contains(mInput.mouse_x, mInput.mouse_y))
    {
-
-      mDropDownDrawMain(x1, y1, x2, y2, r, text, tjust, btype, bcol, hcol, 0);
+      mDropDownDrawMain(f, r, text, tjust, btype, bcol, hcol, 0);
 
       if (mInput.key[ALLEGRO_KEY_UP][0])
       {
@@ -235,25 +233,25 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
          int lw = max_line_length + 8;
 
          // start of line is x1 by default
-         int lx1 = x1;
+         int lx1 = f.x1;
 
          // center the line if text is centered
-         if (tjust) lx1 = (x1+x2)/2 - lw / 2;
+         if (tjust) lx1 = f.x1 + f.w/2 - lw / 2;
 
          // end of line
          int lx2 = lx1 + lw;
 
 
          // line y positions
-         int lih = y2-y1; // list item height
-         int ly1 = y2 + 1;
+         int lih = f.h; // list item height
+         int ly1 = f.y2 + 1;
          int ly2 = ly1 + (ls * lih);
 
          // text y position
          int tyo = (lih-8)/2;
 
          // text x positions
-         int txo = x1+4;
+         int txo = f.x1+4;
          if (tjust) txo = (lx1+lx2)/2;
 
 

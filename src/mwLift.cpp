@@ -790,12 +790,12 @@ void mwLift::draw_lift_line(int l)
    if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
    {
       int col = 15;
-      int sx = stp[l][0].x + stp[l][0].w / 2;  // start pos
-      int sy = stp[l][0].y + stp[l][0].h / 2;
-      int px = sx; // previous
-      int py = sy;
-      int nx = 0;  // next
-      int ny = 0;
+      float sx = stp[l][0].x + stp[l][0].w / 2;  // start pos
+      float sy = stp[l][0].y + stp[l][0].h / 2;
+      float px = sx; // previous
+      float py = sy;
+      float nx = 0;  // next
+      float ny = 0;
       if (cur[l].num_steps > 1) // only draw lines if more than one step
       {
          for (int s=0; s<cur[l].num_steps; s++) // cycle steps
@@ -835,7 +835,7 @@ void mwLift::draw_lift_line(int l)
 }
 
 // this is it....the one base function that draws a lift
-void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
+void mwLift::draw_lift(int l, float x1, float y1, float x2, float y2)
 {
    int col = (cur[l].flags >> 28) & 15;
    int tc = col + 160;
@@ -852,9 +852,9 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
    }
    else
    {
-      int xs = x2-x1; // x size
-      int ys = y2-y1; // y size
-      int ms = xs;    // min size
+      float xs = x2-x1; // x size
+      float ys = y2-y1; // y size
+      float ms = xs;    // min size
       if (ys < xs) ms = ys;
       int fb = 10;    // fade amount
       if (ms < 20) fb = ms/2;
@@ -887,11 +887,12 @@ void mwLift::draw_lifts()
          if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
          {
             int color = (cur[l].flags >> 28) & 15;
-            int x1 = cur[l].x;
-            int x2 = cur[l].x + cur[l].w;
-            int y1 = cur[l].y;
-            int y2 = cur[l].y + cur[l].h;
+            float x1 = cur[l].x;
+            float x2 = cur[l].x + cur[l].w;
+            float y1 = cur[l].y;
+            float y2 = cur[l].y + cur[l].h;
             draw_lift(l, x1, y1, x2, y2);
+
 
 
             // show if player is riding this lift
@@ -909,8 +910,8 @@ void mwLift::draw_lifts()
                // if not in initial position
                if (!((cur[l].x == stp[l][0].x) && (cur[l].y == stp[l][0].y)))
                {
-                  int lw = cur[l].w-10;
-                  int lh = cur[l].h-10;
+                  float lw = cur[l].w-10;
+                  float  lh = cur[l].h-10;
                   if (cur[l].val2 == 0) cur[l].val2 = 1; // to prevent divide by zero
                   int percent = (100 * cur[l].val1) / cur[l].val2;
                   mScreen.draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
@@ -929,10 +930,10 @@ void mwLift::draw_lifts()
                   case 3: // prox wait
                   {
                      int pd = cur[l].limit_counter; // prox dist
-                     int bx1 = x1 - pd;
-                     int by1 = y1 - pd;
-                     int bx2 = x2 + pd;
-                     int by2 = y2 + pd;
+                     float bx1 = x1 - pd;
+                     float by1 = y1 - pd;
+                     float bx2 = x2 + pd;
+                     float by2 = y2 + pd;
                      al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, mColor.pc[color+128], 1);
                   }
                   break;
@@ -947,7 +948,7 @@ void mwLift::set_lift_xyinc(int l, int step)
 {
    //  used when switching to a new move step;
    //  sets xinc, yinc and num of frames for move
-   int val = stp[l][step].val;
+   float val = stp[l][step].val;
    float move_time = 0;
    float xlen = stp[l][step].x - cur[l].x;             // x length
    float ylen = stp[l][step].y - cur[l].y;             // y length
@@ -956,12 +957,12 @@ void mwLift::set_lift_xyinc(int l, int step)
    if (hy_dist < 1)      // no move
    {
       move_time = val;   // use val as straight timer
-      cur[l].xinc = 0;   // no xinc
+      cur[l].xinc = 0;   // no xincl
       cur[l].yinc = 0;   // no yinc
    }
    else // get time based on speed and distance
    {
-      float speed = (float) val / 10;      // stored speed scaled by 10
+      float speed = val / 10;              // stored speed scaled by 10
       move_time = hy_dist / speed;         // get time (time = distance / speed)
       cur[l].xinc = xlen / move_time;      // set xinc
       cur[l].yinc = ylen / move_time;      // set yinc

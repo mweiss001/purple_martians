@@ -96,7 +96,8 @@ copy to new tileset of the same type, exact translation, no figuring out what ti
 
 frame stuff
 
-- make button to appy tileset to all frame fill sections
+- make button to appy tileset to all frame fill sections..it does...
+
 - you know, I thought I would have different tilesets for different frames, but...I cant really see me using that...
 - make options to extend last tileset to the end...
 - what if I did something crazy and started the frames from the middle
@@ -104,6 +105,78 @@ frame stuff
 - make some presets 
 - can I make each frame line display smaller..done
 - I think I should have the frame number fixed, not changeable..done
+
+right click on listItem and copy insert in place or delete in place...done
+- clone
+- remove
+- copy insert 2 rows (prev and current) to next 2 rows...done
+- copy insert 3 rows (prev and current) to next 4 rows...done
+
+
+invert frame numbers!!!
+
+find max frame number
+
+loop max to 1
+set max to 1
+
+6
+
+set all 6 to 1
+set all 5 to 2
+set all 4 to 3
+
+this wont work, need temp storage
+how about:
+- add 100 to all
+- then find max
+- set max to 1 then continue
+
+make a button and a function..done
+the frame routine I spent all this time on do not look nice when frame indexes are backwards like this...
+disable for now??? no, I may find a use for it...its just a small I button
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

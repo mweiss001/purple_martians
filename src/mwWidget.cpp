@@ -1129,21 +1129,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    if (bn == 411) // DAMAGE Field X Lift Alignment
    {
       int C = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
@@ -2105,6 +2090,38 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // same as buttonp but calls mDropDown internally
 // returns true if changed
 bool mwWidget::buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
@@ -2792,6 +2809,35 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 }
 
 
+mRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   mRect<int> r(x1, y1, x2, y2, 0);
+
+   return r;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3154,6 +3200,8 @@ float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int background
    }
    return dsx;
 }
+
+
 
 
 

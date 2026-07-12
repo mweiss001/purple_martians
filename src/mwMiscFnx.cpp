@@ -443,7 +443,6 @@ void mwMiscFnx::ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2)
 
 
 
-
 float mwMiscFnx::mdw_rnd(float rmin, float rmax)
 {
    int imin = (int) (rmin * 100.0);

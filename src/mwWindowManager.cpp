@@ -75,7 +75,7 @@ void mwWindowManager::initialize(int edit_level)
    i++;
    tileSetGroups[i].name = "Extended";
    tileSetGroups[i].display_tile = 256;
-   tileSetGroups[i].visible = 1;
+   tileSetGroups[i].visible = 0;
 
 
    i++;
@@ -358,42 +358,82 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
 {
    mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
 
+   // translate level block positions (0-99) to x and y positions (0-1999)
    int qx1 = x1 * 20;
-   //int qy1 = y1 * 20;
-   //int qx2 = x2 * 20 + 20;
+   int qy1 = y1 * 20;
+   // int qx2 = x2 * 20 + 20;
    int qy2 = y2 * 20 + 20;
 
-   // draw the box underneath for now
-
-   int tx = qx1;
-   int ty = qy2 + 4;
 
    int tw = 280;
    int th = 46;
-
    if (mTileSets.altTextLine2.size()) th+=20;
 
-   al_draw_filled_rectangle(tx, ty, tx+tw, ty+th, mColor.Black);
-   al_draw_rectangle(tx, ty, tx+tw, ty+th, mColor.White, 1);
-   ty+=4;
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "Tileset Type: %s ", mTileSets.type_name[mTileSets.ts.tileSetType]);
-   ty+=10;
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "TileSet Name: %s", mTileSets.ts.name.c_str());
-   ty+=10;
+   // default is to draw the box underneath, left justified
+   int tx1 = qx1;
+   int tx2 = tx1 + tw;
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "Mode: %s", mTileSets.altTextLine1.c_str());
-   ty+=10;
+   int ty1 = qy2 + 10;
+   int ty2 = ty1 + th;
 
-   al_draw_textf(mFont.pr8, mColor.pc[13], tx+4, ty,  0, "press [1] and [2] to change mode");
-   ty+=10;
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+4, ty,  0, "%s", mTileSets.altTextLine2.c_str());
-   ty+=10;
+   // if below bottom of level buffer 2000, switch to draw above
+   if (ty2 > 1999)
+   {
+      ty1 = qy1 - th - 10;
+      ty2 = ty1 + th;
+   }
 
-   al_draw_textf(mFont.pr8, mColor.pc[13], tx+4, ty,  0, "%s", mTileSets.altTextLine3.c_str());
-   ty+=10;
+
+
+   // if to the right of level buffer 2000, switch to draw on the left
+   if (tx2 > 1999)
+   {
+      tx1 = qx1 - tw - 10;
+      tx2 = tx1 + tw;
+   }
+
+
+   // we could still be off the edge of the screen
+
+   // I would somehow like the position to be on the corner that the mouse is moving
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   al_draw_filled_rectangle(tx1, ty1, tx1+tw, ty2, mColor.Black);
+   al_draw_rectangle(tx1, ty1, tx1+tw, ty2, mColor.White, 1);
+   ty1+=4;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx1+4, ty1,  0, "Tileset Type: %s ", mTileSets.type_name[mTileSets.ts.tileSetType]);
+   ty1+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx1+4, ty1,  0, "TileSet Name: %s", mTileSets.ts.name.c_str());
+   ty1+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx1+4, ty1,  0, "Mode: %s", mTileSets.altTextLine1.c_str());
+   ty1+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[13], tx1+4, ty1,  0, "press [1] and [2] to change mode");
+   ty1+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx1+4, ty1,  0, "%s", mTileSets.altTextLine2.c_str());
+   ty1+=10;
+
+   al_draw_textf(mFont.pr8, mColor.pc[13], tx1+4, ty1,  0, "%s", mTileSets.altTextLine3.c_str());
+   ty1+=10;
 
 }
 
@@ -480,6 +520,7 @@ bool mwWindowManager::get_new_box_with_preview()
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
       show_level_buffer_block_rect_text(bx1, by1, bx2, by2);
 
+
       mTileSets.drawRect(1);
 
       mScreen.draw_scaled_level_region_to_display();
@@ -539,15 +580,13 @@ void mwWindowManager::process_keypress(void)
       }
    }
 
-
-
    if (active == 0)
    {
 
 
-      // int ret = mMiscFnx.exit_level_editor_dialog();
-      // if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
-      // if (ret == 2) active = 1; // cancel
+      int ret = mMiscFnx.exit_level_editor_dialog();
+      if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
+      if (ret == 2) active = 1; // cancel
 
 
 

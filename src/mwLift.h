@@ -56,7 +56,7 @@ class mwLift
 
    // these are used by both to draw
    void draw_lift_line(int l);
-   void draw_lift(int l, int x1, int y1, int x2, int y2);
+   void draw_lift(int l, float x1, float y1, float x2, float y2);
    void draw_lifts();
 
    // this is used when loading and saving level and after run lifts in level editor, sets all lifts to step 0

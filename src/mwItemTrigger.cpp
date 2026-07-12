@@ -586,7 +586,7 @@ item[][3]  = flags
 #define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
 #define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
 #define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
-
+l
 item[][4]  = x pos
 item[][5]  = y pos
 item[][6]  = field x
@@ -597,6 +597,13 @@ item[][10] = lift number
 item[][11] = mode
 item[][15] = damage
 
+-- unused? 12, 13, 14
+
+
+
+
+
+
 */
 
 void mwItem::set_item_damage_location_from_lift(int i, int a20)
@@ -604,47 +611,57 @@ void mwItem::set_item_damage_location_from_lift(int i, int a20)
    int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
    {
-      // x axis
-      int lx1 = mLift.cur[d].x;
-      int lx2 = mLift.cur[d].x + mLift.cur[d].w;
-      int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
-      int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
-      int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
-      if (C)
+      if (item[i][3] & PM_ITEM_DAMAGE_LIFT_MS) // mirror geometry from lift
       {
-         int lxc = lx1 + (lx2-lx1)/2; // get center of lift
-         item[i][6] = lxc - item[i][8]/2;
+         item[i][6] = mLift.cur[d].x;
+         item[i][7] = mLift.cur[d].y;
+         item[i][8] = mLift.cur[d].w;
+         item[i][9] = mLift.cur[d].h;
       }
       else
       {
-         if ((!F) && (!L)) item[i][6] = lx1;              // fx1 = lx1
-         if ((!F) && ( L)) item[i][6] = lx2;              // fx1 = lx2
-         if (( F) && (!L)) item[i][6] = lx1 - item[i][8]; // fx2 = lx1
-         if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
-      }
-      // y axis
-      int ly1 = mLift.cur[d].y;
-      int ly2 = mLift.cur[d].y + mLift.cur[d].h;
-      C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
-      F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
-      L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
+         // x axis
+         int lx1 = mLift.cur[d].x;
+         int lx2 = mLift.cur[d].x + mLift.cur[d].w;
+         int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
+         int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
+         int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
+         if (C)
+         {
+            int lxc = lx1 + (lx2-lx1)/2; // get center of lift
+            item[i][6] = lxc - item[i][8]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) item[i][6] = lx1;              // fx1 = lx1
+            if ((!F) && ( L)) item[i][6] = lx2;              // fx1 = lx2
+            if (( F) && (!L)) item[i][6] = lx1 - item[i][8]; // fx2 = lx1
+            if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
+         }
+         // y axis
+         int ly1 = mLift.cur[d].y;
+         int ly2 = mLift.cur[d].y + mLift.cur[d].h;
+         C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
+         F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
+         L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
-      if (C)
-      {
-         int lyc = ly1 + (ly2-ly1)/2; // get center of lift
-         item[i][7] = lyc - item[i][9]/2;
-      }
-      else
-      {
-         if ((!F) && (!L)) item[i][7] = ly1;              // fy1 = ly1
-         if ((!F) && ( L)) item[i][7] = ly2;              // fy1 = ly2
-         if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
-         if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
-      }
-      if (a20) // align to 20 grid
-      {
-         item[i][6] = mMiscFnx.round20(item[i][6]);
-         item[i][7] = mMiscFnx.round20(item[i][7]);
+         if (C)
+         {
+            int lyc = ly1 + (ly2-ly1)/2; // get center of lift
+            item[i][7] = lyc - item[i][9]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) item[i][7] = ly1;              // fy1 = ly1
+            if ((!F) && ( L)) item[i][7] = ly2;              // fy1 = ly2
+            if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
+            if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
+         }
+         if (a20) // align to 20 grid
+         {
+            item[i][6] = mMiscFnx.round20(item[i][6]);
+            item[i][7] = mMiscFnx.round20(item[i][7]);
+         }
       }
    }
 }
@@ -742,66 +759,74 @@ void mwItem::proc_item_damage_collisions(int i)
          }
 }
 
-int mwItem::draw_block_damage(int i, int x, int y, int custom)
+int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
 {
-   int draw_mode = item[i][2];
    int FLAGS = item[i][3];
-   float x0 = x;
-   float y0 = y;
-   float x1 = item[i][6];
-   float y1 = item[i][7];
-   float x2 = x1 + item[i][8];
-   float y2 = y1 + item[i][9];
-
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mBitmap.tile[988], x0, y0, 0);                                 // only draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.tile[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
    }
+
+   // get dimensions of damage field from item int variables
+   mRect<float> f(item[i][6], item[i][7], item[i][8], item[i][9]);
+
+   // if mirroring geometry from lift, get more accurate values (or maybe more current?), then round them
+   if ((FLAGS & PM_ITEM_DAMAGE_LIFT_ON) && (FLAGS & PM_ITEM_DAMAGE_LIFT_MS))
+   {
+      int d = item[i][10]; // lift number
+      f.setXYWH(mLift.cur[d].x, mLift.cur[d].y, mLift.cur[d].w, mLift.cur[d].h);
+      f.round();
+   }
+
+   f.set_clipping_rectangle();
+
+
+   int draw_mode = item[i][2];
 
    // damage field drawing
    if (!custom)
    {
-      if (draw_mode == 1) // basic
+      if (draw_mode == 1) // rect with diagonal lines
       {
          int col = 11;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-         mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+         mMiscFnx.rectangle_with_diagonal_lines(f.x1, f.y1, f.x2, f.y2, 10, col, col+96, 0);
       }
-      if (draw_mode == 3) // lava
+
+
+      if ((draw_mode == 3) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // lava
       {
-         if (FLAGS & PM_ITEM_DAMAGE_CURR) // only show if active
+         // alternate animation sequences in the x direction
+         int altx = 0;
+         for (int hx=f.x1; hx<f.x2; hx+=20)
          {
-            // alternate animation sequences in the x direction
-            int altx = 0;
-            for (int hx=x1; hx<x2; hx+=20)
-            {
-               int tn = 0;
-               if (altx == 0) tn = mBitmap.zz[0][91];
-               if (altx == 1) tn = mBitmap.zz[0][93];
-               if (altx == 2) tn = mBitmap.zz[0][92];
-               if (altx == 3) tn = mBitmap.zz[0][95];
-               if (altx == 4) tn = mBitmap.zz[0][94];
-               if (++altx > 4) altx = 0;
+            int tn = 0;
+            if (altx == 0) tn = mBitmap.zz[0][91];
+            if (altx == 1) tn = mBitmap.zz[0][93];
+            if (altx == 2) tn = mBitmap.zz[0][92];
+            if (altx == 3) tn = mBitmap.zz[0][95];
+            if (altx == 4) tn = mBitmap.zz[0][94];
+            if (++altx > 4) altx = 0;
 
-               // if stacking animation sequences in the y direction, they need to be offset to match
-               int alty = 0;
-               for (int hy=y1; hy<y2; hy+=20)
+            // when stacking animation sequences in the y direction, they need to be offset to match
+            int alty = 0;
+            for (int hy=f.y2; hy>f.y1-20; hy-=20)
+            {
+               int tny = tn;
+               if (alty)
                {
-                  int tny = tn;
-                  if (alty)
-                  {
-                     tny+=5;
-                     if (tny > 18) tny -= 10;
-                  }
-                  alty =!alty;
-                  al_draw_bitmap(mBitmap.tile[tny], hx, hy, 0);
+                  tny+=5;
+                  if (tny > 18) tny -= 10;
                }
+               alty =!alty;
+               al_draw_bitmap(mBitmap.tile[tny], hx, hy, 0);
             }
-         }
+        }
       }
 
-      if ((draw_mode > 3) && (draw_mode < 11) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // single tile
+
+      if ((draw_mode > 3) && (draw_mode < 11) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // single tile row or column
       {
          int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
 
@@ -809,71 +834,74 @@ int mwItem::draw_block_damage(int i, int x, int y, int custom)
 
          if (rb == 0) // draw only on bottom row
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0);
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               al_draw_bitmap(mBitmap.tile[tn], hx, f.y2-20, 0);
          }
          if (rb == 2) // draw only on top row
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               al_draw_bitmap(mBitmap.tile[tn], hx, y1, ALLEGRO_FLIP_VERTICAL);
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               al_draw_bitmap(mBitmap.tile[tn], hx, f.y1, ALLEGRO_FLIP_VERTICAL);
          }
 
          if (rb == 1) // draw only on left side
          {
-            for (int hy=y1; hy<y2; hy+=20)
-               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, x1+20, hy,  ALLEGRO_PI / 2, 0);
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, f.x1+20, hy,  ALLEGRO_PI / 2, 0);
          }
 
          if (rb == 3) // draw only on right side
          {
-            for (int hy=y1; hy<y2; hy+=20)
-               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, x2-20, hy+20,  ALLEGRO_PI * 3 / 2, 0);
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, f.x2-20, hy+20,  ALLEGRO_PI * 3 / 2, 0);
          }
-
       }
+
 
       if ((draw_mode > 10) && (draw_mode < 16) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // 3 tile columns
       {
          int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
          int tn = 19 + draw_mode - 11;
-         if (rb == 0) // draw up from bottom row
+
+         f.set_clipping_rectangle();
+
+         if (rb == 0) // extend up from bottom
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               for (int hy=y1; hy<y2; hy+=20)
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               for (int hy=f.y1; hy<f.y2; hy+=20)
                {
-                  if       (hy == y1)     al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
-                  else if  (hy == y1+20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
-                  else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+                  if       (hy-f.y1 == 0)   al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-f.y1 <= 20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                      al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
                }
          }
-         if (rb == 2) // draw down from bottom row
+         if (rb == 2) // extend down from top
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               for (int hy=y1; hy<y2; hy+=20)
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               for (int hy=f.y2-20; hy>f.y1-20; hy-=20)
                {
-                  if       (hy == y2-20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
-                  else if  (hy == y2-40)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
-                  else                    al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
+                  if       (f.y2-hy == 20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
+                  else if  (f.y2-hy < 40)   al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
+                  else                      al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
                }
          }
-         if (rb == 1) // draw right from left side
+         if (rb == 1) // extend right from left side
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               for (int hy=y1; hy<y2; hy+=20)
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               for (int hx=f.x2-20; hx>f.x1-20; hx-=20)
                {
-                  if       (hx == x2-20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
-                  else if  (hx == x2-40)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
-                  else                    al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
+                  if      (f.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
+                  else if (f.x2-hx < 40)   al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
+                  else                     al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
                }
          }
-         if (rb == 3) // draw left from right side
+         if (rb == 3) // extend left from right side
          {
-            for (int hx=x1; hx<x2; hx+=20)
-               for (int hy=y1; hy<y2; hy+=20)
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               for (int hx=f.x1; hx<f.x2; hx+=20)
                {
-                  if       (hx == x1)     al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // left
-                  else if  (hx == x1+20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // 2nd left
-                  else                    al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // everything else
+                  if       (hx-f.x1 == 0)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // left
+                  else if  (hx-f.x1 <=20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // 2nd left
+                  else                     al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // everything else
                }
          }
       }
@@ -908,10 +936,11 @@ int mwItem::draw_block_damage(int i, int x, int y, int custom)
 
          //printf("f:%d rtio:%f tn:%d\n", mLoop.frame_num, rtio, tn);
 
-         for (int hx=x1; hx<x2; hx+=20)
-            al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
+         for (int hx=f.x1; hx<f.x2; hx+=20)
+            al_draw_bitmap(mBitmap.tile[tn], hx, f.y2-20, 0); // draw spikes only on bottom row
       }
    }
+   al_reset_clipping_rectangle();
    return 1;
 }
 
@@ -922,6 +951,7 @@ void mwItem::proc_block_damage(int i)
    int et = item[i][1];                 // number of pm_event trigger we are looking for
    int trig = mTriggerEvent.event[et];  // is the trigger event set?
    if (et == 0) trig = 0;               // if event is zero, ignore
+
 
 
    if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
