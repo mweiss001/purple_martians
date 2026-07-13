@@ -2196,11 +2196,19 @@ bool mwWidget::buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int t
          {  8,  "Draw Type:Silver Bluish Spikes" },
          {  9,  "Draw Type:Silver Greenish Spikes" },
          {  10, "Draw Type:Mine" },
+
          {  11, "Draw Type:Wood Pole" },
          {  12, "Draw Type:Silver Cone" },
          {  13, "Draw Type:White Spear" },
          {  14, "Draw Type:Grey Cones" },
-         {  15, "Draw Type:Wood Spear" }
+         {  15, "Draw Type:Wood Spear" },
+
+         {  16, "Draw Type:Dual Wood Pole" },
+         {  17, "Draw Type:Dual Silver Cone" },
+         {  18, "Draw Type:Dual White Spear" },
+         {  19, "Draw Type:Dual Grey Cones" },
+         {  20, "Draw Type:Dual Wood Spear" }
+
       };
       press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
    }

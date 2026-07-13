@@ -9,21 +9,19 @@
 #include "mwLoop.h"
 
 
+
 void mwWidget::mDropDownSetNextItem(std::vector<listItem> listItems, int & var, bool rollOver)
 {
    int ls = (int)listItems.size(); // list size
-   // find and set next item in list
    for (int i=0; i<ls; i++)
       if (listItems[i].value == var)
       {
          int new_index = i+1;
-
          if (new_index > ls-1)
          {
             if (rollOver) new_index = 0;
             else new_index = ls-1;
          }
-
          var = listItems[new_index].value;
          break;
       }
@@ -32,18 +30,15 @@ void mwWidget::mDropDownSetNextItem(std::vector<listItem> listItems, int & var, 
 void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, bool rollOver)
 {
    int ls = (int)listItems.size(); // list size
-   // find and set next item in list
    for (int i=0; i<ls; i++)
       if (listItems[i].value == var)
       {
          int new_index = i-1;
-
-         if (new_index < 0)
+         if (--new_index < 0)
          {
             if (rollOver) new_index = ls-1;
             else new_index = 0;
          }
-
          var = listItems[new_index].value;
          break;
       }
@@ -51,14 +46,11 @@ void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, 
 
 
 
-
 // draws the main control
-// if crop = 1, then text will be chopped, box will be exactly x2
-// if crop = 0, x2 will be adjusted to fit entire text
-// textJust 0 = left justify 1 = center
+// if crop = 1, then text will be chopped, rect width will be exact
+// if crop = 0, rect width will be adjusted to fit entire text
 void mwWidget::mDropDownDrawMain(mRect<int> f, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
 {
-
    // triangle width, height
    float tr_w = 6;
    float tr_h = tr_w * 0.8660;
@@ -235,17 +227,20 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
          // start of line is x1 by default
          int lx1 = f.x1;
 
-         // center the line if text is centered
+         // offest lx1 if text is centered
          if (tjust) lx1 = f.x1 + f.w/2 - lw / 2;
 
          // end of line
          int lx2 = lx1 + lw;
 
-
          // line y positions
          int lih = f.h; // list item height
          int ly1 = f.y2 + 1;
          int ly2 = ly1 + (ls * lih);
+
+         // make a mRect for list area
+         mRect<int> listRect(lx1, ly1, lx2, ly2, -999);
+
 
          // text y position
          int tyo = (lih-8)/2;
@@ -260,32 +255,36 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
             mEventQueue.proc(1);
             al_flip_display();
 
-            // erase area
+            // get background color
             int col = bcol+256; // force color past end
             while (col>239) col-=16; // reduce until less than 240 (this should get second most faded color)
-
             if (bcol == 0) col = 0;
 
-            al_draw_filled_rectangle(lx1-1, ly1-1, lx2+1, ly2+1, mColor.pc[col]);
+            // erase area 1 pixel bigger
+            listRect.draw_filled_rectangle(mColor.pc[col], 1);
 
             // frame area
-            al_draw_rectangle(lx1, ly1, lx2, ly2, mColor.pc[15], 1);
+            listRect.draw_rectangle(mColor.pc[15], 1);
 
             // draw list and process mouse on list item
             bool mouse_on_list = false;
             for (int i=0; i<ls; i++)
             {
-               int yp = ly1 + (i*lih);
-               mMiscFnx.mw_draw_text(15, txo, yp + tyo, tjust, listItems[i].text);
-               al_draw_line(lx1, yp+lih, lx2, yp+lih, mColor.pc[15+128], 0);
+               // make a mRect for line area
+               mRect<int> lineRect(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih, -999);
 
-               // is mouse on list
-               if ((mInput.mouse_x > lx1) && (mInput.mouse_x < lx2) && (mInput.mouse_y > yp) && (mInput.mouse_y < yp+lih))
+               mMiscFnx.mw_draw_text(15, txo, lineRect.y1 + tyo, tjust, listItems[i].text);
+               al_draw_line(lineRect.x1, lineRect.y2, lineRect.x2, lineRect.y2, mColor.pc[15+128], 0);
+
+               // is mouse on line
+               if (lineRect.contains(mInput.mouse_x, mInput.mouse_y))
                {
                   mouse_on_list = true;
 
-                  // show highlight of item in list and set as selected
-                  al_draw_rectangle(lx1, yp, lx2, yp+lih, mColor.pc[10], 1);
+                  // show highlight of item in list
+                  lineRect.draw_rectangle(mColor.pc[10], 1);
+
+                  // set as selected
                   int sel = listItems[i].value;
                   if (mInput.mouse_b[1][0])
                   {
@@ -296,17 +295,10 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
                }
             }
 
-
             // mouse b1 click not on list cancels
             if ((mouse_on_list == false) && (mInput.mouse_b[1][0]))
             {
                while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-               return false;
-            }
-            // escape cancels
-            if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-            {
-               while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
                return false;
             }
             // mouse b2 click cancels
@@ -315,17 +307,15 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
                while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
                return false;
             }
+            // escape cancels
+            if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+            {
+               while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+               return false;
+            }
 
          } // end of blocking loop
       } // end of mouse click on widget
    } // end of mouse on widget
    return false;
 }
-
-
-
-
-
-
-
-

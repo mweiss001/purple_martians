@@ -1138,9 +1138,6 @@ void mwMiscFnx::mw_round(int& val, int rnd) // pass it an int and it will round 
    else val += (rnd - m); // round up
 
 
-
-
-
 }
 
 void mwMiscFnx::drawTextOnClearedBackground(int x, int y, const char* text, int text_color)

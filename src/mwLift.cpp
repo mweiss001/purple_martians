@@ -970,6 +970,8 @@ void mwLift::set_lift_xyinc(int l, int step)
 
    float wd = stp[l][step].w - cur[l].w;   // width dif
    float hd = stp[l][step].h - cur[l].h;   // height dif
+
+
    cur[l].winc = wd / move_time;           // set winc
    cur[l].hinc = hd / move_time;           // set hinc
 
@@ -978,6 +980,97 @@ void mwLift::set_lift_xyinc(int l, int step)
    cur[l].limit_counter = move_time;
    cur[l].limit_type = 1;
 }
+
+
+
+
+/*
+
+this is a much nicer approch, unfortunatley it breaks 1/3 of demo levels
+
+void mwLift::set_lift_xyinc(int l, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc, winc, hinc, and number of frames to complete
+
+
+   float xlen = stp[l][step].x - cur[l].x;             // x length
+   float ylen = stp[l][step].y - cur[l].y;             // y length
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+
+   float wd = stp[l][step].w - cur[l].w;               // width dif
+   float hd = stp[l][step].h - cur[l].h;               // height dif
+   float hy_dif = sqrt(pow(wd, 2) + pow(hd, 2));       // hypotenuse dif
+
+   float speed = stp[l][step].val / 10;                // stored speed scaled by 10
+   float move_time = 0;
+
+
+   // get time based on distance and speed
+   if (hy_dist > 1)
+   {
+      move_time = hy_dist / speed;         // get time (time = distance / speed)
+      cur[l].xinc = xlen / move_time;      // set xinc
+      cur[l].yinc = ylen / move_time;      // set yinc
+   }
+   else
+   {
+      cur[l].xinc = 0;
+      cur[l].yinc = 0;
+   }
+
+   // get time based on geometry change and speed
+   if (hy_dif > 1)
+   {
+      if (move_time == 0) // not set by hy_dist
+      {
+         move_time = hy_dif / speed;  // get time (time = dif / speed)
+      }
+      cur[l].winc = wd / move_time;
+      cur[l].hinc = hd / move_time;
+   }
+   else
+   {
+      cur[l].winc = 0;
+      cur[l].hinc = 0;
+   }
+
+   // not set by hy_dist or hy_dif
+   if (move_time == 0)
+   {
+      move_time = stp[l][step].val;   // use val as straight timer
+   }
+
+   cur[l].current_step = step;
+   cur[l].limit_counter = move_time;
+   cur[l].limit_type = 1;
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int mwLift::lift_check_prox(int l, int pd)
 {

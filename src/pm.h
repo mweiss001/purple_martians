@@ -136,8 +136,6 @@ public:
       al_set_clipping_rectangle(x1, y1, w, h);
    }
 
-
-
    void print()
    {
       //printf("x1:%f  y1:%f    x2:%f  y2:%f   w:%f h:%f\n", x1, y1, x2, y2, w, h);
@@ -145,27 +143,21 @@ public:
    }
 
 
-
    // Calculate core geometric properties
    T getArea()      const { return w * h; }
    T getPerimeter() const { return 2 * (w + h); }
 
-   // Edge boundary getters
-   T getLeft()   const { return x1; }
-   T getTop()    const { return y1; }
-   T getRight()  const { return x1 + w; }
-   T getBottom() const { return y1 + h; }
-
-
-   void draw_filled_rectangle(ALLEGRO_COLOR color)
+   void draw_filled_rectangle(ALLEGRO_COLOR color, int size_adj = 0)
    {
-      al_draw_filled_rectangle(x1, y1, x2, y2, color);
+      al_draw_filled_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, color);
    }
 
-   void draw_rectangle(ALLEGRO_COLOR color, float thickness)
+   void draw_rectangle(ALLEGRO_COLOR color, float thickness, int size_adj = 0)
    {
-      al_draw_rectangle(x1, y1, x2, y2, color, thickness);
+      al_draw_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, color, thickness);
    }
+
+
 
 
    // check if a point is inside the rectangle
@@ -175,11 +167,10 @@ public:
    }
 
 
-
    // Check if this rectangle overlaps with another rectangle
    bool intersects(const mRect<T>& other) const
    {
-      return (x1 < other.getRight() && getRight() > other.x1 && y1 < other.getBottom() && getBottom() > other.y1);
+      return (x1 < other.x2 && x2 > other.x1 && y1 < other.y2 && y2 > other.y1);
    }
 };
 

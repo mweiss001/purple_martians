@@ -86,7 +86,7 @@ class mwTileHelper
    int frame_mode_width;
    int frame_mode_preview;
    int frames_detected;
-   int fill_sections;
+   int frame_sections;
 
    int frame_common_tileset;
 

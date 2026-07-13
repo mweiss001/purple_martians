@@ -35,6 +35,10 @@ don't know if it is possible to fix, I think the visual preview loads the level.
 
 
 
+
+
+
+
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
 hurry up and fix it!!!
 I think I will just deploy the test version
@@ -46,6 +50,13 @@ put same version on server
 I think I can kill all on server pmh...
 
 all I really need to do is get the latest version on pmh...i think...
+
+do something about drag move windows, when the mouse escapes...force capture
+
+
+
+
+
 
 
 
@@ -83,79 +94,41 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+add to settings:
+- prompt to save when quitting level editor
+- make backup when saving level
+- make backup when saving tilemaps
+- show level numbers in stats
+- debug keyboard shortcuts
+
+
+Widgets
+---------------
+make setter and slider combo
+
+make setter with optional number of setter elements
+
+
+
+
+
+
+
+
+
+
+
+
+
 Tilesets
 ------------
-
 give credit to where I got some tilesets
 
 
 Tile helper
 -----------
 
-copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
-
-frame stuff
-
-- make button to appy tileset to all frame fill sections..it does...
-
-- you know, I thought I would have different tilesets for different frames, but...I cant really see me using that...
-- make options to extend last tileset to the end...
-- what if I did something crazy and started the frames from the middle
-- how about a repeating pattern in frames
-- make some presets 
-- can I make each frame line display smaller..done
-- I think I should have the frame number fixed, not changeable..done
-
-right click on listItem and copy insert in place or delete in place...done
-- clone
-- remove
-- copy insert 2 rows (prev and current) to next 2 rows...done
-- copy insert 3 rows (prev and current) to next 4 rows...done
-
-
-invert frame numbers!!!
-
-find max frame number
-
-loop max to 1
-set max to 1
-
-6
-
-set all 6 to 1
-set all 5 to 2
-set all 4 to 3
-
-this wont work, need temp storage
-how about:
-- add 100 to all
-- then find max
-- set max to 1 then continue
-
-make a button and a function..done
-the frame routine I spent all this time on do not look nice when frame indexes are backwards like this...
-disable for now??? no, I may find a use for it...its just a small I button
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+make more presets...
 
 
 
@@ -334,6 +307,21 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
+new mode in replace 'Change only
+uses current tileset, and current tileset type
+searches all marks for marks that have the same tileset type as current type
+then changes them to new tileset, should be just a simple addition to tile number
+done!!!
+
+
+
+
+BUG: why are tiles not all transparent?
+do this when loading: al_convert_mask_to_alpha(mBitmap.tilemap, al_map_rgb(0, 0, 0));
+
+
 
 
 find a way to patch in tileset creator? now it is manually enabled and run from code

@@ -906,6 +906,71 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
          }
       }
 
+      if ((draw_mode > 15) && (draw_mode < 21) && (FLAGS & PM_ITEM_DAMAGE_CURR)) // 3 tile columns - double ended
+      {
+         int rb = (item[i][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+         int tn = 19 + draw_mode - 16;
+
+         f.set_clipping_rectangle();
+
+         if ((rb == 0) || (rb == 2)) // vertical
+         {
+            mRect<float> uh(f.x1, f.y1,       f.w, f.h/2); // upper half
+            mRect<float> lh(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
+
+            uh.set_clipping_rectangle();
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               for (int hy=uh.y1; hy<uh.y2; hy+=20)
+               {
+                  if       (hy-uh.y1 == 0)   al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-uh.y1 <= 20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
+                  else                       al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+               }
+            lh.set_clipping_rectangle();
+            for (int hx=f.x1; hx<f.x2; hx+=20)
+               for (int hy=lh.y2-20; hy>lh.y1-20; hy-=20)
+               {
+                  if       (lh.y2-hy == 20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
+                  else if  (lh.y2-hy <= 40)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
+                  else                       al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
+               }
+         }
+
+
+         if ((rb == 1) || (rb == 3)) // horizontal
+         {
+            mRect<float> lh(f.x1,         f.y1, f.w/2, f.h); // left half
+            mRect<float> rh(f.x1 + f.w/2, f.y1, f.w/2, f.h); // right half
+
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               for (int hx=lh.x1; hx<lh.x2; hx+=20)
+               {
+                  if       (hx-lh.x1 ==  0)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // left
+                  else if  (hx-lh.x1 <= 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // 2nd left
+                  else                       al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // everything else
+               }
+
+            for (int hy=f.y1; hy<f.y2; hy+=20)
+               for (int hx=rh.x2-20; hx>rh.x1-20; hx-=20)
+               {
+                  if      (rh.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
+                  else if (rh.x2-hx <= 40)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
+                  else                      al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
+               }
+
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
       if (draw_mode == 2) // spikey floor
       {
          int tn = 804; // off by default

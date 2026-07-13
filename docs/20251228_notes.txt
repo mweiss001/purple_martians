@@ -29477,6 +29477,53 @@ std::vector<struct listItem> listItems48Frame =
 };
 
 
+frame stuff
+
+- make button to appy tileset to all frame fill sections..it does...
+
+- you know, I thought I would have different tilesets for different frames, but...I cant really see me using that...
+- make options to extend last tileset to the end...
+- what if I did something crazy and started the frames from the middle
+- how about a repeating pattern in frames
+- make some presets 
+- can I make each frame line display smaller..done
+- I think I should have the frame number fixed, not changeable..done
+
+
+right click on listItem and copy insert in place or delete in place...done
+- clone
+- remove
+- copy insert 2 rows (prev and current) to next 2 rows...done
+- copy insert 3 rows (prev and current) to next 4 rows...done
+
+invert frame numbers!!!
+
+find max frame number
+
+loop max to 1
+set max to 1
+
+set all 6 to 1
+set all 5 to 2
+set all 4 to 3
+
+this wont work, need temp storage
+how about:
+- add 100 to all
+- then find max
+- set max to 1 then continue
+
+make a button and a function..done
+the frame routine I spent all this time on do not look nice when frame indexes are backwards like this...
+disable for now??? no, I may find a use for it...its just a small I button
+
+
+
+
+
+
+
+
 2026-07-08 21:59:22
 make a drink and do some presets
 2026-07-08 22:13:01 done
@@ -29512,7 +29559,6 @@ ov is famous for one liners...
 replace this:
 
             mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
-
 
 
 make a function to replace this but call dropDown underneath
@@ -29825,11 +29871,9 @@ added to lift struct (integer values)
                   cur[l].ih = cur[l].iy2 - cur[l].iy1;
 
 
-
 this does not work...adding things to lift struct is bad mkay??
 
 I need to do it manaully...
-
 
 I was think of making my own data structure (rect)
 
@@ -29970,6 +30014,50 @@ I finally have it done!!!!!
 made a new Rect struct also...
 I want to use that in dropDown...why not??
 make xyHelper2 that returns rect...done!!!
+
+commit
+
+make some double ended spikes as a draw option
+
+here is where I think I should draw the bitmap first, then take peices of it...
+
+split the area to draw on down the middle and make 2 clipping rectangles
+then draw upper and lower
+
+why are they not all transparent?
+al_convert_mask_to_alpha(mBitmap.tilemap, al_map_rgb(0, 0, 0)) ;
+
+
+- copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
+new mode in replace 'Change only
+uses current tileset, and current tileset type
+searches all marks for marks that have the same tileset type as current type
+then changes them to new tileset, should be just a simple addition to tile number
+done!!!
+
+
+2026-07-13 07:28:06
+time for commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

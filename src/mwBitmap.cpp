@@ -65,6 +65,10 @@ int mwBitmap::load_tiles()
 
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.png");
+
+   al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
+
+
    if (!tilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/tiles.png");

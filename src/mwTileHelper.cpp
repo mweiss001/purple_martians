@@ -37,20 +37,21 @@ void mwTileHelper::init()
    group = 1;
    mark_overlay = 1;
 
+   replace_mode = 0;
+   replace_preview = 0;
+
    pattern_offset_x = 0;
    pattern_offset_y = 0;
    pattern_preview = 0;
 
    frames_detected = 0;
-   fill_sections = 0;
-   frame_mode_preview = 1;
+   frame_sections = 0;
    frame_common_tileset = 1;
+   frame_mode_preview = 0;
 
-   replace_preview = 0;
-   replace_mode = 0;
-
+   // clear all marks
    for (int x=0; x<100; x++)
-      for (int y=0; y<100; y++) thl[x][y] = 0; // tile helper
+      for (int y=0; y<100; y++) thl[x][y] = 0;
 
    clearFrameFills();
 }
@@ -60,35 +61,26 @@ void mwTileHelper::init()
 
 std::vector<struct listItem> listItemPresets =
 {
-  {  0, "presets"  },
-  {  1, "24 2 Outer Inner" },
-  {  2, "24 3 Outer Fill Inner"  },
+  {  0, "presets"                     },
+  {  1, "24 2 Outer Inner"            },
+  {  2, "24 3 Outer Fill Inner"       },
 
+  {  40, "48 2 Outer Inner"           },
+  {  41, "48 3 Outer Fill Inner"      },
+  {  42, "48 2 Outer Inner Alt"       },
+  {  43, "48 3 Outer Fill Inner Alt"  },
+  {  44, "48 3 Outer Fill Fill"       },
 
-
-
-
-{  40, "48 2 Outer Inner"  },
-{  41, "48 3 Outer Fill Inner"  },
-{  42, "48 2 Outer Inner Alt"  },
-{  43, "48 3 Outer Fill Inner Alt"  },
-{  44, "48 3 Outer Fill Fill"  },
-
-
-{  3, "Purple Bricks"  }
-
-
+  {  3, "Purple Bricks"               }
 
 };
 
-
-
 void mwTileHelper::clearFrameFills(int preset)
 {
-
-   // clear
    frameFills.clear();
 
+
+   // create 32
    for (int i=0; i<32; i++)
    {
       struct frameFill f;
@@ -98,16 +90,17 @@ void mwTileHelper::clearFrameFills(int preset)
       frameFills.push_back(f);
    }
 
+
    if (preset == 40)
    {
-      fill_sections = 2;
+      frame_sections = 2;
       frameFills[0].mode = 30;
       frameFills[1].mode = 40;
    }
 
    if (preset == 41)
    {
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 30;
       frameFills[1].mode = 20;
       frameFills[2].mode = 40;
@@ -115,7 +108,7 @@ void mwTileHelper::clearFrameFills(int preset)
 
    if (preset == 44)
    {
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 30;
       frameFills[1].mode = 20;
       frameFills[2].mode = 20;
@@ -124,42 +117,37 @@ void mwTileHelper::clearFrameFills(int preset)
 
    if (preset == 42)
    {
-      fill_sections = 2;
+      frame_sections = 2;
       frameFills[0].mode = 31;
       frameFills[1].mode = 41;
    }
 
    if (preset == 43)
    {
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 31;
       frameFills[1].mode = 21;
       frameFills[2].mode = 41;
    }
 
-
-
-
    if (preset == 0)
    {
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 30;
       frameFills[1].mode = 20;
       frameFills[2].mode = 40;
-
    }
 
    if (preset == 1)
    {
-      fill_sections = 2;
+      frame_sections = 2;
       frameFills[0].mode = 30;
       frameFills[1].mode = 40;
-
    }
 
    if (preset == 2)
    {
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 30;
       frameFills[1].mode = 20;
       frameFills[2].mode = 40;
@@ -171,33 +159,11 @@ void mwTileHelper::clearFrameFills(int preset)
       frame_common_tileset = 1;
       mTileSets.findTileSetContainingName(mTileSets.currentTileSet, "Purple Blocks");
 
-      fill_sections = 3;
+      frame_sections = 3;
       frameFills[0].mode = 31;
       frameFills[1].mode = 21;
       frameFills[2].mode = 43;
-
-      // frameFills[0].mode = 31;
-      // mTileSets.findTileSetContainingName(frameFills[0].ts, "Purple Blocks");
-      // frameFills[1].mode = 21;
-      // mTileSets.findTileSetContainingName(frameFills[1].ts, "Purple Blocks");
-      // frameFills[2].mode = 43;
-      // mTileSets.findTileSetContainingName(frameFills[2].ts, "Purple Blocks");
-
-
-
-
-
-
-
-
    }
-
-
-
-
-
-
-
 
 
 }
@@ -864,7 +830,7 @@ void mwTileHelper::draw_frame_fill(struct frameFill f, bool preview)
 void mwTileHelper::draw_frame_fills(bool preview)
 {
    // choose the lesser of the 2 sizes
-   int size = fill_sections;
+   int size = frame_sections;
    if (size > (int)frameFills.size()) size = (int)frameFills.size();
 
    for (int i=0; i<size; i++) draw_frame_fill(frameFills[i], preview);
@@ -901,7 +867,7 @@ void mwTileHelper::draw_pattern(bool preview)
 
 void mwTileHelper::draw_replace(bool preview)
 {
-   if (replace_mode) // single tile
+   if (replace_mode == 1) // single tile
    {
       for (int x=0; x<100; x++)
          for (int y=0; y<100; y++)
@@ -914,7 +880,7 @@ void mwTileHelper::draw_replace(bool preview)
                mTileSets.drawTile(x, y, tileNum, tileFlags, mWM.mW[1].em_draw_tile_mode, preview);
             }
    }
-   else // tile set
+   if (replace_mode == 0) // tile set
    {
       int index = mTileSets.currentTileSet.startIndex;
       int type = mTileSets.currentTileSet.tileSetType;
@@ -935,6 +901,33 @@ void mwTileHelper::draw_replace(bool preview)
 
             }
    }
+
+   if (replace_mode == 3) // exact tile set translate
+   {
+      if (mTileSets.currentTileSet.startIndex == 0) return;
+
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+            if (thl[x][y])
+            {
+               int tile = mLevel.l[x][y] & 1023;
+
+               // find tileset that tile belongs to
+               struct tileSet ts;
+               if (mTileSets.findTileSetContainingIndex(ts, tile))
+               {
+                  // does tileSetType match current tileSetType?
+                  if (ts.tileSetType == mTileSets.currentTileSet.tileSetType)
+                  {
+                     // get offset between tilesets
+                     int offset = mTileSets.currentTileSet.startIndex - ts.startIndex;
+
+                     mTileSets.drawTile(x, y, tile+offset, 0, 2, preview); // force draw tile only
+                  }
+               }
+            }
+   }
+
 
    if (!preview)
    {
@@ -1253,32 +1246,6 @@ int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, in
 
 
 
-int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d)
-{
-   int bts = 16;
-   int height = 88 + bts;
-   int pad_height = 39;
-   // pad_height += mLoop.pct_y;
-
-   bool clicked = false;
-   int yfb = y1 - pad_height + tileSetSelectWidget(x1, y1, x2, pad_height, color, mTileSets.currentTileSet, "Tile Sets", clicked, d);
-
-   char msg[256];
-   sprintf(msg, " Current Tile Set: %s ", mTileSets.currentTileSet.name.c_str());
-   mWidget.mButton(5, (x1+x2)/2-3, -1,    1, yfb, bts,    2,2,1,1,   color,color,15,0,  0,msg);
-
-   yfb+=(bts+2);
-
-   int nt = 14; // max num tiles
-   int t1 = mTileSets.currentTileSet.startIndex;
-   int t2 = mTileSets.currentTileSet.endIndex;
-   if ((t2-t1) < nt) nt = t2-t1; // if actual number of tiles is less, use that
-   for (int i=0; i<nt; i++) al_draw_bitmap(mBitmap.btile[t1+i], x1+i*21+2, yfb, 0);
-
-   return height;
-
-}
-
 
 
 int mwTileHelper::show_selection_controls(int x1, int x2, int y1, int color, int d)
@@ -1290,7 +1257,6 @@ int mwTileHelper::show_selection_controls(int x1, int x2, int y1, int color, int
 
    int num_lines = 3;
    if (match == 0) num_lines--;
-
 
    int height = 35 + (num_lines * bts) + (num_lines-1) * bsp;
 
@@ -1386,7 +1352,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    int y2 = y1 + height;
 
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[color+208]); // background color
-   mMiscFnx.titlex("Replace", 15, color, x1, x2, y1); // title
+   mMiscFnx.titlex("Replace Tools", 15, color, x1, x2, y1); // title
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[color], 1); // frame
    int yfb = y1 + 15;
 
@@ -1397,16 +1363,17 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    yfb+=bsp;
 
    char msg[80];
-   sprintf(msg, "Use Current Tileset");
+   sprintf(msg, "invalid");
+   if (replace_mode == 0) sprintf(msg, "Use Current Tileset");
    if (replace_mode == 1) sprintf(msg, "Use Specific Tile");
    if (replace_mode == 2) sprintf(msg, "Change Flags Only");
+   if (replace_mode == 3) sprintf(msg, "Translate Tileset");
    if (mWidget.mButton(1, x3, 170,    1, yfb+2, bts,  2,2,1,1,  color, color,  15,   0,0, msg)) replace_mode++;
-   if (replace_mode > 2) replace_mode = 0;
-
+   if (replace_mode > 3) replace_mode = 0;
 
    int tx = x3+176;
 
-   if (replace_mode == 0) mWidget.mButtonTile2(tx, yfb, 22, mTileSets.currentTileSet.displayIndex, mTileSets.currentTileSet.name.c_str(), d);
+   if ((replace_mode == 0) || (replace_mode == 3)) mWidget.mButtonTile2(tx, yfb, 22, mTileSets.currentTileSet.displayIndex, mTileSets.currentTileSet.name.c_str(), d);
    if (replace_mode == 1) // single tile
    {
       int tile = mWM.mW[1].draw_item_num;
@@ -1422,10 +1389,11 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
       yfb+=bsp;
       mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, replace_preview, "preview", 15, 15);
    }
-
    return height;
-
 }
+
+
+
 
 
 
@@ -1448,7 +1416,7 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    int y2 = y1 + height;
 
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[color+208]); // background color
-   mMiscFnx.titlex("Patterns", 15, color, x1, x2, y1); // title
+   mMiscFnx.titlex("Pattern Tools", 15, color, x1, x2, y1); // title
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[color], 1); // frame
    int yfb = y1 + 15;
 
@@ -1471,21 +1439,10 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 
    mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, pattern_preview, "preview", 15, 15);
 
-   //mWidget.mSliderInt(1, x3,     110,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0,  0, pattern_offset_x, 8, 0, 1, "Offset X:" );
-
-
    mWidget.mStepper(  1, x3,     80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_x, 8, 0, 1, "+X:" );
    mWidget.mStepper(  1, x3+90,  80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_y, 8, 0, 1, "+Y:" );
 
-
-//   mWidget.mStepper(2, 140, x4-4,      1, yfb, bts,   2, 2,  1, 1, c1,  c1,   15,  15, 0,      0, fill_sections, 8, 0, 1, "Sections:");
-
-
-
-
-
    yfb+=(bts+bsp);
-
 
    // show pattern
    int sx1 = x3+1;
@@ -1516,9 +1473,29 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 
 
 
+int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d)
+{
+   int bts = 16;
+   int height = 85 + bts;
+   int pad_height = 39;
 
+   bool clicked = false;
+   int yfb = y1 - pad_height + tileSetSelectWidget(x1, y1, x2, pad_height, color, mTileSets.currentTileSet, "Tile Sets", clicked, d);
 
+   char msg[256];
+   sprintf(msg, " Current Tile Set: %s ", mTileSets.currentTileSet.name.c_str());
+   mWidget.mButton(5, (x1+x2)/2-3, -1,    1, yfb, bts,    2,2,1,1,   color,color,15,0,  0,msg);
 
+   yfb+=(bts+2);
+
+   int nt = 14; // max num tiles
+   int t1 = mTileSets.currentTileSet.startIndex;
+   int t2 = mTileSets.currentTileSet.endIndex;
+   if ((t2-t1) < nt) nt = t2-t1; // if actual number of tiles is less, use that
+   for (int i=0; i<nt; i++) al_draw_bitmap(mBitmap.btile[t1+i], x1+i*21+2, yfb, 0);
+
+   return height;
+}
 
 
 
@@ -1527,7 +1504,6 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 bool mwTileHelper::get_tileset(int x1, int y1, struct tileSet &ts, const char *txt)
 {
    int x2 = x1 + 408;
-
    while (1)
    {
       mEventQueue.proc(1);
@@ -1538,13 +1514,8 @@ bool mwTileHelper::get_tileset(int x1, int y1, struct tileSet &ts, const char *t
       if (clicked) return true;
       if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) return false;
    }
-
+   return false;
 }
-
-
-
-
-
 
 
 // display tileset and allow changing if clicked
@@ -1557,20 +1528,19 @@ bool mwTileHelper::get_tileset(int x1, int y1, struct tileSet &ts, const char *t
 // - show and change tileset for each frame fill
 bool mwTileHelper::tileSetWidget(int x, int y, int size, struct tileSet &ts, const char *txt, int d)
 {
-   int txo = size + 4;
-   int tyo = (size-8) / 2;
-   if (strlen(txt)) al_draw_text(mFont.pr8, mColor.pc[15], x+txo, y+tyo, 0, txt);
+   if (strlen(txt))
+   {
+      int txo = size + 4;
+      int tyo = (size-8) / 2;
+      al_draw_text(mFont.pr8, mColor.pc[15], x+txo, y+tyo, 0, txt);
+   }
 
    if (mWidget.mButtonTile2(x, y, size, ts.displayIndex, ts.name.c_str(), d))
    {
       if (get_tileset(x, y, ts, "Choose a Tile Set")) return true;
    }
    return false;
-
 }
-
-
-
 
 
 
@@ -1587,10 +1557,8 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    //   bts += mLoop.pct_y;
    //      bsp += mLoop.pct_x;
 
-
-
    // choose the lesser of the 2 sizes
-   int list_size = fill_sections;
+   int list_size = frame_sections;
    if (list_size > (int)frameFills.size()) list_size = (int)frameFills.size();
    int list_item_height = 16;
    int list_item_y_spacing = 2;
@@ -1601,11 +1569,14 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
 
    int y2 = y1 + height;
 
+
+
+
+
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[color+208]); // background color
-   mMiscFnx.titlex("Framesy!", 15, color, x1, x2, y1); // title
+   mMiscFnx.titlex("Frame Tools", 15, color, x1, x2, y1); // title
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[color], 1); // frame
    int yfb = y1 + 15;
-
 
    // inner control margins
    int x3 = x1+3;
@@ -1613,14 +1584,6 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    int xc = (x1+x2)/2;
 
    int c1 = color + 64;
-
-
-   // int x6 = x3+6;
-   // int x7 = x4-6;
-   // int x6a = (x6+x7)/2;
-
-   // yfb+=bsp;
-   // c=11+64;
 
    char msg[80];
 
@@ -1634,7 +1597,6 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
 
 
    yfb+=(bts+bsp);
-
 
 
    if (frame_common_tileset)
@@ -1652,9 +1614,6 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, frame_mode_preview, "preview", 15, 15);
 
 
-
-
-
    yfb+=(bts+bsp);
 
 
@@ -1669,7 +1628,7 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
 
 
    //   bts += mLoop.pct_y;
-   mWidget.mStepper(2, 140, x4-4,    1, yfb, bts, 2, 2,  1, 1, c1,  c1,  15,  15, 0,      0, fill_sections, 8, 0, 1, "Sections:");
+   mWidget.mStepper(2, 140, x4-4,    1, yfb, bts, 2, 2,  1, 1, c1,  c1,  15,  15, 0,      0, frame_sections, 8, 0, 1, "Sections:");
    //   bts -= mLoop.pct_y;
 
 
@@ -1760,7 +1719,7 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
             for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
 
             // add one section
-            fill_sections++;
+            frame_sections++;
          break;
          case 3:
             printf("Remove Current Item\n");
@@ -1772,21 +1731,12 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
             for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
 
             // subtract one section
-            fill_sections--;
+            frame_sections--;
          break;
 
 
          case 4:
-            printf("Copy 2\n");
-
-//            struct frameFill pf = frameFills[index-1];
-  //          struct frameFill cf = frameFills[index];
-    //        frameFills.insert(frameFills.begin() + index+1, pf);
-      //      frameFills.insert(frameFills.begin() + index+2, cf);
-
-
-
-
+            //printf("Copy 2\n");
 
             // set next(+1) to current(0)
             frameFills.insert(frameFills.begin() + index+1, frameFills[index]);
@@ -1794,27 +1744,15 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
             // set next(+1) to previous(-1)
             frameFills.insert(frameFills.begin() + index+1, frameFills[index-1]);
 
-
-
             // iterate fill sections to fix indexes
             for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
 
-
             // add two sections
-            fill_sections+=2;
+            frame_sections+=2;
             break;
 
          case 5:
-            printf("Copy 3\n");
-
-            //            struct frameFill pf = frameFills[index-1];
-            //          struct frameFill cf = frameFills[index];
-            //        frameFills.insert(frameFills.begin() + index+1, pf);
-            //      frameFills.insert(frameFills.begin() + index+2, cf);
-
-
-
-
+            //printf("Copy 3\n");
 
             // set next(+1) to current(0)
             frameFills.insert(frameFills.begin() + index+1, frameFills[index]);
@@ -1825,21 +1763,12 @@ void mwTileHelper::show_frame_control_line(int x1, int y1, int x2, int y2, int i
             // set next(+1) to previous(-2)
             frameFills.insert(frameFills.begin() + index+1, frameFills[index-2]);
 
-
             // iterate fill sections to fix indexes
             for (int i = 0; i<(int)frameFills.size(); i++) frameFills[i].frameIndex = i+1;
 
-
             // add three sections
-            fill_sections+=3;
+            frame_sections+=3;
             break;
-
-
-
-
-
-
-
 
       }
    }
@@ -1877,7 +1806,7 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
    y += ss + show_replace_controls(  x1, x2, y,  9, d);
    y += ss + show_tileset_controls(  x1, x2, y,  8, d);
    y += ss + show_pattern_controls(  x1, x2, y,  6, d);
-   y += ss + show_frame_controls(    x1, x2, y, 14, d);
+   y += ss + show_frame_controls(    x1, x2, y,  9, d);
 
    y -= ss; // remove last section spacing
 
