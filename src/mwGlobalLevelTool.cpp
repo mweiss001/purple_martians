@@ -224,6 +224,44 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
+/*
+
+      // clear new lift struct
+      for (int l=0; l<NUM_LIFTS; l++)
+         mLift.clear_lift2(l);
+
+      // copy all active to new struct
+      for (int l=0; l<NUM_LIFTS; l++)
+         if (mLift.cur[l].active)
+         {
+            mLift.cur2[l].active               = mLift.cur[l].active;
+            mLift.cur2[l].x                    = mLift.cur[l].x;
+            mLift.cur2[l].y                    = mLift.cur[l].y;
+            mLift.cur2[l].xinc                 = mLift.cur[l].xinc;
+            mLift.cur2[l].yinc                 = mLift.cur[l].yinc;
+            mLift.cur2[l].w                    = mLift.cur[l].w;
+            mLift.cur2[l].h                    = mLift.cur[l].h;
+            mLift.cur2[l].winc                 = mLift.cur[l].winc;
+            mLift.cur2[l].hinc                 = mLift.cur[l].hinc;
+            mLift.cur2[l].flags                = mLift.cur[l].flags;
+            mLift.cur2[l].mode                 = mLift.cur[l].mode;
+            mLift.cur2[l].mode_countdown_timer = mLift.cur[l].mode_countdown_timer;
+            mLift.cur2[l].mode_reset_value     = mLift.cur[l].mode_reset_value;
+            mLift.cur2[l].color                = mLift.cur[l].color;
+            mLift.cur2[l].current_step         = mLift.cur[l].current_step;
+            mLift.cur2[l].num_steps            = mLift.cur[l].num_steps;
+            mLift.cur2[l].limit_type           = mLift.cur[l].limit_type;
+            mLift.cur2[l].limit_counter        = mLift.cur[l].limit_counter;
+            strcpy(mLift.cur2[l].lift_name,      mLift.cur[l].lift_name);
+
+            mLift.cur2[l].draw_mode = 1;
+
+         }
+
+*/
+
+
+
       // int oldNum = 544;
       // int newNum = 880;
       // for (int i=0; i<16; i++) changeBlockNumber(oldNum+i, newNum+i);
@@ -244,6 +282,8 @@ void mwGlobalLevelTool::execute(void)
          for (int z=0; z<100; z++)
             blt[mLevel.l[y][z] & 1023]++; // inc block counter
 */
+
+
 
       if (0)
       {

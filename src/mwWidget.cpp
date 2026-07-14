@@ -1099,15 +1099,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    }
 
 
-
-
-
-
-
-
-
-
-
    if (bn == 318) // blokwalk block select...
    {
       int tn = mEnemy.Ei[num][13]&1023;
@@ -1126,6 +1117,23 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
          }
       }
    }
+
+
+   if (bn == 320) // lift draw block select...
+   {
+      int tn = mLift.cur[num].draw_mode_val1&1023;
+      sprintf(msg, "Block:%d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+   }
+
+   if (bn == 321) // lift draw block select...
+   {
+      int tn = mLift.cur[num].draw_mode_val1&1023;
+      sprintf(msg, "Start Block:%d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+   }
+
+
 
 
 
@@ -1347,8 +1355,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-
-
    if (bn == 318)
    {
       int tn = mEnemy.Ei[num][13];
@@ -1358,6 +1364,31 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
       al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
    }
+
+
+
+   if (bn == 320)
+   {
+      int tn = mLift.cur[num].draw_mode_val1;
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+   }
+
+   if (bn == 321)
+   {
+      int tn = mLift.cur[num].draw_mode_val1&1023;
+      int x = (x2+x1)/2+80;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+61, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn], x, y, 0);
+      al_draw_bitmap(mBitmap.btile[tn+1], x+20, y, 0);
+      al_draw_bitmap(mBitmap.btile[tn+2], x+40, y, 0);
+   }
+
    if (q6) y1+=bts;
    return retval;
 }
@@ -1500,12 +1531,6 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
 
 
 
-
-
-
-
-
-
 // displays a text string, and returns 1 if pressed but doesn't block
 int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
@@ -1520,17 +1545,6 @@ int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int 
    if (q6) y1+=bts;
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1558,6 +1572,7 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    if (q6) y1+=bts;
    return ret;
 }
+
 
 // displays a text string and player tile, and returns 1 if pressed --- tile is tn
 int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
@@ -1602,20 +1617,6 @@ int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    if (q6) y1+=bts;
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1835,7 +1836,7 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (press) var++;
       if ((var < 0) || (var > 1)) var = 0;
       if (var == 0) sprintf(msg, "Output Mode:One Time");
-      if (var == 1) sprintf(msg, "Output Mode:Continous");
+      if (var == 1) sprintf(msg, "Output Mode:Continuous");
    }
 
    if (bn == 100)
@@ -1848,213 +1849,6 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 3) sprintf(msg, "Action:Set all from 1st obj");
 
    }
-
-
-/*
-
-   if (bn == 102)
-   {
-      if (press) var++;
-      if ((var < 1039) || (var > 1042)) var = 1039;
-      if (var == 1039) { sprintf(msg, "Color:Red");    q1 = 10; }
-      if (var == 1040) { sprintf(msg, "Color:Green");  q1 = 11; }
-      if (var == 1041) { sprintf(msg, "Color:Blue");   q1 = 13; }
-      if (var == 1042) { sprintf(msg, "Color:Purple"); q1 = 8;  }
-   }
-
-
-
-   if (bn == 160) // timer mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 4)) var = 0;
-      if (var == 0) sprintf(msg, "Mode:Free Run");
-      if (var == 1) sprintf(msg, "Mode:Free Run After Trigger");
-      if (var == 2) sprintf(msg, "Mode:Run Only When Triggered");
-      if (var == 3) sprintf(msg, "Mode:Reset When Not Triggered");
-      if (var == 4) sprintf(msg, "Mode:Reset When Triggered");
-   }
-
-
-
-
-   if (bn == 301) // block manip mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 6)) var = 0;
-      if (var == 0) sprintf(msg, "MODE:OFF");
-      if (var == 1) sprintf(msg, "MODE:Set All To Block 1");
-      if (var == 2) sprintf(msg, "MODE:Set All Block 2 To Block 1");
-      if (var == 3) sprintf(msg, "MODE:Toggle Block 2 To Block 1");
-      if (var == 4) sprintf(msg, "MODE:Copy Area");
-      if (var == 5) sprintf(msg, "MODE:Cycle 3 Blocks");
-      if (var == 6) sprintf(msg, "MODE:Cycle 4 Blocks");
-
-   }
-
-*/
-
-
-
-
-  // this does not seem to be used???
-//    if (bn == 414) // Game Move Type
-//    {
-//
-//       /*
-//       if (var == PM_GAMEMOVE_TYPE_LEVEL_START)
-//       {
-//          sprintf(msg, "Level Start");
-//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
-//       }
-// */
-//
-//       if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-//       {
-//          sprintf(msg, "Player Active");
-//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE;
-//       }
-//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
-//       {
-//          sprintf(msg, "Player Inactive");
-//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN;
-//       }
-//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)
-//       {
-//          sprintf(msg, "Player Hidden");
-//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_MOVE;
-//       }
-//       else if (var == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
-//       {
-//          sprintf(msg, "Player Move");
-//          if (press) var = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK;
-//       }
-//       else if (var == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
-//       {
-//          sprintf(msg, "Level Done Ack");
-//          if (press) var = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
-//       }
-//       else if (var == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
-//       {
-//          sprintf(msg, "Shot Config");
-//          if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
-//       }
-//       else sprintf(msg, "Invalid Type:%d", var);
-//    }
-//
-
-   /*
-
-   if (bn == 402) // damage mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 3)) var = 0;
-      if (var == 0)
-      {
-         sprintf(msg, "MODE:Always ON");
-         mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
-
-      }
-
-      if (var == 1) sprintf(msg, "MODE:Toggle");
-      if (var == 2)
-      {
-         sprintf(msg, "MODE:ON Until Triggered");
-         mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
-      }
-
-      if (var == 3)
-      {
-         sprintf(msg, "MODE:OFF Until Triggered");
-         mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
-      }
-
-//      if (var == 4) sprintf(msg, "MODE:Timed ON And OFF");
-//
-//      if (var == 5) sprintf(msg, "MODE:Damage when Triggered");
-
-
-
-   }
-
-
-
-   if (bn == 403) // hider mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 5)) var = 0;
-      if (var == 0)
-      {
-         sprintf(msg, "MODE:Always Show");
-         mItem.item[num][2] = 0;
-      }
-      if (var == 1)
-      {
-         sprintf(msg, "MODE:Always Hide");
-         mItem.item[num][2] = 1;
-      }
-      if (var == 2)
-      {
-         sprintf(msg, "MODE:Show Until Triggered");
-         mItem.item[num][2] = 0;
-      }
-      if (var == 3)
-      {
-         sprintf(msg, "MODE:Hide Until Triggered");
-         mItem.item[num][2] = 1;
-      }
-      if (var == 4)
-      {
-         sprintf(msg, "MODE:Toggle When Triggered");
-      }
-
-      if (var == 5)
-      {
-         sprintf(msg, "MODE:Show Only When Triggered");
-      }
-
-   }
-
-
-   if (bn == 404) // Block Damage draw mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 15)) var = 0;
-      if (var == 0) sprintf(msg,  "Draw Type:none         ");
-      if (var == 1) sprintf(msg,  "Draw Type:Red Rectangle");
-      if (var == 2) sprintf(msg,  "Draw Type:Spikey Floor");
-      if (var == 3) sprintf(msg,  "Draw Type:Lava");
-      if (var == 4) sprintf(msg,  "Draw Type:Triangle Spikes");
-      if (var == 5) sprintf(msg,  "Draw Type:Gold Spikes");
-      if (var == 6) sprintf(msg,  "Draw Type:Silver White Spikes");
-      if (var == 7) sprintf(msg,  "Draw Type:Silver Two Height Spikes");
-      if (var == 8) sprintf(msg,  "Draw Type:Silver Bluish Spikes");
-      if (var == 9) sprintf(msg,  "Draw Type:Silver Greenish Spikes");
-      if (var == 10) sprintf(msg, "Draw Type:Mine");
-      if (var == 11) sprintf(msg, "Draw Type:Wood Pole");
-      if (var == 12) sprintf(msg, "Draw Type:Silver Cone");
-      if (var == 13) sprintf(msg, "Draw Type:White Spear");
-      if (var == 14) sprintf(msg, "Draw Type:Grey Cones");
-      if (var == 15) sprintf(msg, "Draw Type:Wood Spear");
-
-
-   }
-
-
-
-
-
-   if (bn == 500) // lift mode
-   {
-      if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(msg, "Mode 0 - Normal");
-      if (var == 1) sprintf(msg, "Mode 1 - Prox Run and Reset");
-      if (var == 2) sprintf(msg, "Mode 2 - Prox Reset");
-   }
-
-*/
-
 
    if (bn == 101)
    {
@@ -2173,10 +1967,28 @@ bool mwWidget::buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int t
       {
          {  0,  "Mode:Normal"  },
          {  1,  "Mode:Prox Run and Reset" },
-         {  2,  "MODE:Prox Reset" }
+         {  2,  "Mode:Prox Reset" }
       };
       press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
    }
+
+
+   if (bn == 504) // lift draw mode
+   {
+      std::vector<struct listItem> listItems =
+      {
+         {  0,   "Draw Mode:Hidden"  },
+         {  1,   "Draw Mode:Legacy" },
+         {  2,   "Draw Mode:Plain Filled Rect" },
+         {  3,   "Draw Mode:Plain Rect" },
+         {  10,  "Draw Mode:Single Block" },
+         {  11,  "Draw Mode:3 Block Platform" },
+         {  12,  "Draw Mode:3 Block Column" }
+
+      };
+      press = mWidget.mDropDown(0, x1, x2,   1, y1, ibts, r, tjust, btype, bcol, fcol, hcol, listItems, var, q7);
+   }
+
 
 
 

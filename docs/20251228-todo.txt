@@ -93,6 +93,10 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+what if i had a mode where player could control movement of lift with direction key?
+
+
+
 
 add to settings:
 - prompt to save when quitting level editor

@@ -33,10 +33,6 @@ template <typename T> T map_range(T value, T fromLow, T fromHigh, T toLow, T toH
 }
 
 
-
-
-
-
 //#include <algorithm>
 template <typename T>
 class mRect
@@ -128,6 +124,11 @@ public:
       x2 = x1 + w;
    }
 
+   void setHeight(T newHeight)
+   {
+      h = newHeight;
+      y2 = y1 + h;
+   }
 
 
 
@@ -143,9 +144,16 @@ public:
    }
 
 
-   // Calculate core geometric properties
+
+
    T getArea()      const { return w * h; }
    T getPerimeter() const { return 2 * (w + h); }
+
+
+   T XCenter()   const { return x1 + w/2; }
+   T YCenter()   const { return y1 + h/2; }
+
+
 
    void draw_filled_rectangle(ALLEGRO_COLOR color, int size_adj = 0)
    {
@@ -156,6 +164,18 @@ public:
    {
       al_draw_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, color, thickness);
    }
+
+
+   void draw_rounded_rectangle(float rx, float ry, ALLEGRO_COLOR color, float thickness, int size_adj = 0)
+   {
+      al_draw_rounded_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, rx, ry, color, thickness);
+   }
+
+   void draw_filled_rounded_rectangle(float rx, float ry, ALLEGRO_COLOR color, int size_adj = 0)
+   {
+      al_draw_filled_rounded_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, rx, ry, color);
+   }
+
 
 
 
@@ -173,9 +193,6 @@ public:
       return (x1 < other.x2 && x2 > other.x1 && y1 < other.y2 && y2 > other.y1);
    }
 };
-
-
-
 
 
 
@@ -206,7 +223,7 @@ struct client_status_buffer_row
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
-#define STATE_SIZE 112704
+#define STATE_SIZE 113344
 
 #define PACKET_BUFFER_SIZE 1500
 #define PACKET_PAYLOAD_CHUNK_SIZE 1400
@@ -331,6 +348,9 @@ struct client_status_buffer_row
 #define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
 #define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
 #define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+//#define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+
+
 
 //                                   3       2       1       0
 //                                   76543210765432107654321076543210
@@ -398,13 +418,6 @@ struct client_status_buffer_row
 #define PM_ITEM_DAMAGE_INSTGIB  0b0000100000000000000000
 
 
-
-
-
-
-
-
-
 #define PM_ITEM_ORB_STATE       0b0000000000000001
 #define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
 #define PM_ITEM_ORB_TGON        0b0000000000000100
@@ -416,8 +429,6 @@ struct client_status_buffer_row
 #define PM_ITEM_ORB_TRIG_CURR   0b0000000100000000
 #define PM_ITEM_ORB_TRIG_PREV   0b0000001000000000
 #define PM_ITEM_ORB_ROTB        0b1100000000000000
-
-
 
 
 

@@ -34,7 +34,7 @@ void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, 
       if (listItems[i].value == var)
       {
          int new_index = i-1;
-         if (--new_index < 0)
+         if (new_index < 0)
          {
             if (rollOver) new_index = ls-1;
             else new_index = 0;

@@ -44,6 +44,8 @@ int mwLift::construct_lift(int lift, char* lift_name)
    clear_lift(lift);
    strcpy(cur[lift].lift_name, lift_name);
    cur[lift].active = 1;
+   cur[lift].draw_mode = 1;
+
    return 1;
 }
 
@@ -59,9 +61,15 @@ void mwLift::clear_lift(int l)
    cur[l].winc = 0;
    cur[l].hinc = 0;
    cur[l].flags = 0;
+
+   cur[l].draw_mode = 0;
+   cur[l].draw_mode_val1 = 0;
+   cur[l].draw_mode_val2 = 0;
+   cur[l].draw_mode_val3 = 0;
+
    cur[l].mode = 0;
-   cur[l].val1 = 0;
-   cur[l].val2 = 0;
+   cur[l].mode_countdown_timer = 0;
+   cur[l].mode_reset_value = 0;
    cur[l].color = 0;
    cur[l].current_step = 0;
    cur[l].num_steps = 0;
@@ -69,6 +77,8 @@ void mwLift::clear_lift(int l)
    cur[l].limit_counter = 0;
    strcpy(cur[l].lift_name, "");
 }
+
+
 
 int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
 {
@@ -146,7 +156,7 @@ int mwLift::get_prev_lift(int l)
 
 void mwLift::show_all_lifts(void)
 {
-   char msg[1024];
+   char msg[2000];
    int text_pos = 0;
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -163,11 +173,20 @@ void mwLift::show_all_lifts(void)
          int h  = cur[l].h;
          int mode = cur[l].mode;
 
-         int v1 = cur[l].val1;
-         int v2 = cur[l].val2;
+         int v1 = cur[l].mode_countdown_timer;
+         int v2 = cur[l].mode_reset_value;
 
          int col  = cur[l].color;
-         sprintf(msg,"lift:%-2d  x:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, cur[l].num_steps, cur[l].lift_name);
+
+         int ns = cur[l].num_steps;
+
+         int dm = cur[l].draw_mode;
+         int dm1 = cur[l].draw_mode_val1;
+         int dm2 = cur[l].draw_mode_val2;
+         int dm3 = cur[l].draw_mode_val3;
+
+         sprintf(msg,"lift:%-2d  x:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s dm:%d dm1:%d dm2:%d dm3:%d  ",
+                       l, x1, y1, w, h, x2, y2, mode, v1, v2, col, ns, cur[l].lift_name, dm, dm1, dm2, dm3 );
          al_draw_text(mFont.pr8, mColor.pc[10], 10, text_pos*8, 0, msg);
          text_pos++;
 
@@ -199,7 +218,7 @@ void mwLift::show_all_lifts(void)
                color = 14;
             }
             mMiscFnx.printBits(4, &stp[l][s].type);
-            al_draw_textf(mFont.pr8, mColor.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
+            al_draw_textf(mFont.pr8, mColor.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d ", s, x, y, w, h, val, type, typemsg, step_color);
             text_pos++;
          }
       }
@@ -301,6 +320,8 @@ int mwLift::create_lift(void)
       sprintf(msg, "lift %d", l);
 
       construct_lift(l, msg);
+      cur[l].draw_mode = 1;
+
       construct_lift_step(l, step, initial_type, 0, 0, initial_width, initial_height, initial_val);
       cur[l].num_steps++; // add one to steps
 
@@ -315,7 +336,6 @@ int mwLift::create_lift(void)
 
          mWM.redraw_level_editor_background();  // do this twice to get proper window height
          mWM.redraw_level_editor_background();
-
 
          insert_steps_until_quit(l, step);
 
@@ -582,9 +602,6 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    int ya = y+fs;
    int c1 = 9;
 
-
-
-
    // step details text header button
    int sd = 10; // color
    switch (stp[l][s].type & 31)
@@ -777,102 +794,159 @@ void mwLift::set_lift_to_step(int l, int s)
 }
 
 
-int mwLift::is_player_riding_lift(int l)
+
+//
+// int mwLift::is_player_riding_lift(int l)
+// {
+//    for (int p=0; p<NUM_PLAYERS; p++)
+//       if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+//          if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
+//    return 0;
+// }
+//
+//
+
+
+
+bool mwLift::is_player_riding_lift(int l, int &pr)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-         if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
-   return 0;
+         if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32))
+         {
+            pr = p; // player is riding this lift
+            return true;
+         }
+
+   return false;
 }
+
+
+
+
+
+
+
+
 
 void mwLift::draw_lift_line(int l)
 {
-   if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
+//   if ((!(cur[l].flags & PM_LIFT_HIDE_LINES)) || (mLoop.level_editor_running))
+
+   if (cur[l].num_steps > 1) // only draw lines if more than one step
    {
-      int col = 15;
-      float sx = stp[l][0].x + stp[l][0].w / 2;  // start pos
+      int col = 15; // default color, always overwritten from step
+
+      // get start position from center of step 0
+      float sx = stp[l][0].x + stp[l][0].w / 2;
       float sy = stp[l][0].y + stp[l][0].h / 2;
       float px = sx; // previous
       float py = sy;
       float nx = 0;  // next
       float ny = 0;
-      if (cur[l].num_steps > 1) // only draw lines if more than one step
+
+      for (int s=0; s<cur[l].num_steps; s++) // cycle steps
       {
-         for (int s=0; s<cur[l].num_steps; s++) // cycle steps
+         if ((stp[l][s].type & PM_LIFT_TYPE_BITS) == 1) // filter for move steps
          {
-            if ((stp[l][s].type & 31) == 1) // filter for move steps
+            // get center of step
+            nx = stp[l][s].x + stp[l][s].w / 2;
+            ny = stp[l][s].y + stp[l][s].h / 2;
+
+            if (!(stp[l][s].type & PM_LIFT_HIDE_LINES))
             {
-               nx = stp[l][s].x + stp[l][s].w / 2;
-               ny = stp[l][s].y + stp[l][s].h / 2;
-
-
-               if (!(stp[l][s].type & PM_LIFT_HIDE_LINES))
+               col = (stp[l][s].type >> 28) & 15;
+               al_draw_line( px, py, nx, ny, mColor.pc[col], 1);
+               if (mLoop.eco_draw)
                {
-                  col = (stp[l][s].type >> 28) & 15;
-                  al_draw_line( px, py, nx, ny, mColor.pc[col], 1);
-                  if (mLoop.eco_draw)
-                  {
-                     // al_draw_filled_circle(nx, ny, 2, mColor.pc[col]);
-                  }
-                  else
-                  {
-                     for (int c=3; c>=0; c--)
-                        al_draw_filled_circle(nx, ny, c, mColor.pc[(col - 96) + c*48]);
-                  }
+                  // al_draw_filled_circle(nx, ny, 2, mColor.pc[col]);
                }
-
-               px = nx;
-               py = ny;
+               else
+               {
+                  for (int c=3; c>=0; c--)
+                     al_draw_filled_circle(nx, ny, c, mColor.pc[(col - 96) + c*48]);
+               }
             }
-         }
-         if (!(stp[l][0].type & PM_LIFT_HIDE_LINES))
-         {
-            col = (stp[l][0].type >> 28) & 15;
-            al_draw_line(sx, sy, nx, ny, mColor.pc[col], 1); // draw line from last to first
+
+            px = nx;
+            py = ny;
          }
       }
+      if (!(stp[l][0].type & PM_LIFT_HIDE_LINES))
+      {
+         col = (stp[l][0].type >> 28) & 15;
+         al_draw_line(sx, sy, nx, ny, mColor.pc[col], 1); // draw line from last to first
+      }
+
    }
 }
 
 // this is it....the one base function that draws a lift
-void mwLift::draw_lift(int l, float x1, float y1, float x2, float y2)
+void mwLift::draw_lift(int l, mRect<float> lr)
 {
-   int col = (cur[l].flags >> 28) & 15;
-   int tc = col + 160;
-   //int tc = mColor.get_contrasting_color(col);
-   ALLEGRO_FONT * f = mFont.pr8;
+   int draw_mode = cur[l].draw_mode;
 
-   if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
-
-   if (mLoop.eco_draw)
+   if ((draw_mode) || (mLoop.level_editor_running))
    {
-      al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[col]);
-      //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, mColor.pc[col] );
-      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
-   }
-   else
-   {
-      float xs = x2-x1; // x size
-      float ys = y2-y1; // y size
-      float ms = xs;    // min size
-      if (ys < xs) ms = ys;
-      int fb = 10;    // fade amount
-      if (ms < 20) fb = ms/2;
-      al_draw_filled_rectangle(x1+fb, y1+fb, x2-fb, y2-fb, mColor.pc[col] );                              // solid core
-      for (int a=0; a<fb; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 );       // faded outer shell
+      // in eco draw mode, force mode to plain rect
+      if (mLoop.eco_draw) draw_mode = 2;
 
-      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
-   }
-   if (mLoop.level_editor_running)
-   {
-      al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);
-      al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-12, ALLEGRO_ALIGN_CENTRE, "w:%-4.0f h:%-4.0f", cur[l].w, cur[l].h);
-   }
+      // get colors
+      int col = (cur[l].flags >> 28) & 15;
+      int tc = col + 160;
+      //int tc = mColor.get_contrasting_color(col);
+      ALLEGRO_FONT * f = mFont.pr8;
+      if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
 
-   //printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
-   //al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
-   //al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
+
+      // legacy draw mode
+      if (draw_mode == 1)
+      {
+         float xs = lr.w; // x size
+         float ys = lr.h; // y size
+         float ms = xs;    // min size
+         if (ys < xs) ms = ys;
+         int fb = 10;    // fade amount
+         if (ms < 20) fb = ms/2;
+
+         lr.draw_filled_rectangle(mColor.pc[col], -fb);                                // solid core
+         for (int a=0; a<fb; a++)
+            lr.draw_rounded_rectangle(4, 4, mColor.pc[col + ((9 - a)*16)], 2, -a );    // faded outer shell
+          al_draw_text(f, mColor.pc[tc], lr.XCenter(), lr.YCenter() - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
+       }
+
+      // plain filled rect
+      if (draw_mode == 2)
+      {
+         lr.draw_filled_rounded_rectangle(4, 4, mColor.pc[col]);
+         al_draw_text(f, mColor.pc[tc], lr.XCenter(), lr.YCenter() - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
+      }
+
+      // plain rect
+      if (draw_mode == 3)
+      {
+         lr.draw_rounded_rectangle(4, 4, mColor.pc[col], 1);
+         al_draw_text(f, mColor.pc[tc], lr.XCenter(), lr.YCenter() - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
+      }
+
+      // single block
+      if (draw_mode == 10) mMiscFnx.fill_rect_with_1_tile(lr, cur[l].draw_mode_val1);
+
+      // 3 block platform
+      if (draw_mode == 11) mMiscFnx.fill_rect_with_3_tile_platform(lr, cur[l].draw_mode_val1);
+
+      // 3 block column
+      if (draw_mode == 12) mMiscFnx.fill_rect_with_3_tile_column(lr, cur[l].draw_mode_val1);
+
+
+
+
+      if (mLoop.level_editor_running)
+      {
+         al_draw_textf(mFont.pixl, mColor.pc[15], (lr.x1+lr.x2)/2, lr.y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);
+         al_draw_textf(mFont.pixl, mColor.pc[15], (lr.x1+lr.x2)/2, lr.y1-12, ALLEGRO_ALIGN_CENTRE, "w:%-4.0f h:%-4.0f", cur[l].w, cur[l].h);
+      }
+   }
 }
 
 void mwLift::draw_lifts()
@@ -887,36 +961,33 @@ void mwLift::draw_lifts()
          if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
          {
             int color = (cur[l].flags >> 28) & 15;
-            float x1 = cur[l].x;
-            float x2 = cur[l].x + cur[l].w;
-            float y1 = cur[l].y;
-            float y2 = cur[l].y + cur[l].h;
-            draw_lift(l, x1, y1, x2, y2);
 
+            // make a rect with current lift position and size
+            mRect<float> lr(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
 
+            draw_lift(l, lr);
 
-            // show if player is riding this lift
-            int p = is_player_riding_lift(l);
-            if (p)
-            {
-               p -=1; // player number
-               int pc = mPlayer.syn[p].color;
-               if (pc == color) pc = 127;
-               al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, mColor.pc[pc], 2);
-            }
+            // outline frame if player is riding this lift
+            int p = 0;
+            // if (is_player_riding_lift(l,p))
+            // {
+            //    int pc = mPlayer.syn[p].color;
+            //    if (pc == color) pc = 127;
+            //    lr.draw_rounded_rectangle(4, 4, mColor.pc[pc], 2);
+            // }
 
-            if ((cur[l].mode) && (!is_player_riding_lift(l)))
-            {
-               // if not in initial position
-               if (!((cur[l].x == stp[l][0].x) && (cur[l].y == stp[l][0].y)))
-               {
-                  float lw = cur[l].w-10;
-                  float  lh = cur[l].h-10;
-                  if (cur[l].val2 == 0) cur[l].val2 = 1; // to prevent divide by zero
-                  int percent = (100 * cur[l].val1) / cur[l].val2;
-                  mScreen.draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
-               }
-            }
+            // show countdown timer precent bar
+            if (cur[l].mode) // if in a reset mode
+               if (!is_player_riding_lift(l, p)) // player not riding lift
+                  if (!((cur[l].x == stp[l][0].x) && (cur[l].y == stp[l][0].y))) // if not in initial position
+                  {
+                     float lw = cur[l].w-10;
+                     float lh = cur[l].h-10;
+                     if (cur[l].mode_reset_value == 0) cur[l].mode_reset_value = 1; // to prevent divide by zero
+                     int percent = (100 * cur[l].mode_countdown_timer) / cur[l].mode_reset_value;
+                     mScreen.draw_percent_bar(lr.XCenter(), lr.y1+4, lw, lh, percent);
+                  }
+
 
             int cs = cur[l].current_step;
             if (!(stp[l][cs].type & PM_LIFT_HIDE_LINES))
@@ -925,16 +996,12 @@ void mwLift::draw_lifts()
                {
                   case 2: // timer wait
                      if (cur[l].limit_counter > 0)
-                        al_draw_textf(mFont.pr8, mColor.pc[color+64], (x1 + x2)/2, cur[l].y - 9, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
+                        al_draw_textf(mFont.pr8, mColor.pc[color+64], lr.XCenter(), lr.y1 - 9, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
                   break;
                   case 3: // prox wait
                   {
                      int pd = cur[l].limit_counter; // prox dist
-                     float bx1 = x1 - pd;
-                     float by1 = y1 - pd;
-                     float bx2 = x2 + pd;
-                     float by2 = y2 + pd;
-                     al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, mColor.pc[color+128], 1);
+                     lr.draw_rectangle(mColor.pc[color+128], 1, pd-10);
                   }
                   break;
                }
@@ -986,7 +1053,7 @@ void mwLift::set_lift_xyinc(int l, int step)
 
 /*
 
-this is a much nicer approch, unfortunatley it breaks 1/3 of demo levels
+this is a much nicer approach, unfortunately it breaks 1/3 of demo levels
 
 void mwLift::set_lift_xyinc(int l, int step)
 {
@@ -1138,6 +1205,7 @@ void mwLift::next_step(int l)
 
 void mwLift::move_lifts(int ignore_prox)
 {
+   int p = 0;
    for (int l=0; l<NUM_LIFTS; l++)
       if (cur[l].active)
       {
@@ -1149,25 +1217,25 @@ void mwLift::move_lifts(int ignore_prox)
          int frozen = 0;
          if (cur[l].mode == 1) // prox run and reset mode
          {
-            if (is_player_riding_lift(l)) cur[l].val1 = cur[l].val2; // reset timer
+            if (is_player_riding_lift(l,p)) cur[l].mode_countdown_timer = cur[l].mode_reset_value; // reset timer
             else
             {
                frozen = 1;
-               if (--cur[l].val1 < 0)
+               if (--cur[l].mode_countdown_timer < 0)
                {
-                  cur[l].val1 = cur[l].val2; // reset timer
+                  cur[l].mode_countdown_timer = cur[l].mode_reset_value; // reset timer
                   set_lift_to_step(l, 0);
                }
             }
          }
          if (cur[l].mode == 2) // prox reset mode
          {
-            if (is_player_riding_lift(l)) cur[l].val1 = cur[l].val2; // reset timer
+            if (is_player_riding_lift(l,p)) cur[l].mode_countdown_timer = cur[l].mode_reset_value; // reset timer
             else
             {
-               if (--cur[l].val1 < 0)
+               if (--cur[l].mode_countdown_timer < 0)
                {
-                  cur[l].val1 = cur[l].val2; // reset timer
+                  cur[l].mode_countdown_timer = cur[l].mode_reset_value; // reset timer
                   set_lift_to_step(l, 0);
                }
             }
@@ -1218,27 +1286,6 @@ void mwLift::move_lifts(int ignore_prox)
          }
       }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

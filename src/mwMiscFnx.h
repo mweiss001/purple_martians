@@ -97,6 +97,15 @@ class mwMiscFnx
    int get_item(int obj_type, int sub_type, int num);
 
 
+   void fill_rect_with_1_tile(mRect<float> r, int tile);
+
+   void fill_rect_with_3_tile_platform(mRect<float> r, int tile);
+   void fill_rect_with_3_tile_column(mRect<float> r, int tile);
+
+
+
+
+
    void draw_block_non_default_flags(int tn, int x, int y);
    void crosshairs_full(int x, int y, int color, int line_width);
    void titlex(const char *txt, int tc, int fc, int x1, int x2, int y);

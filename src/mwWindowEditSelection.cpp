@@ -415,8 +415,8 @@ void mwWindow::es_selection_to_ft(int save_to_disk)
             ft_lift[c][1] = mLift.cur[b].flags;
             ft_lift[c][2] = mLift.cur[b].color;
             ft_lift[c][3] = mLift.cur[b].num_steps;
-            ft_lift[c][4] = mLift.cur[b].val1;
-            ft_lift[c][5] = mLift.cur[b].val2;
+            ft_lift[c][4] = mLift.cur[b].mode_countdown_timer;
+            ft_lift[c][5] = mLift.cur[b].mode_reset_value;
 
 
             for (y = 0; y < mLift.cur[b].num_steps; y++) // copy steps
@@ -597,8 +597,8 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
             mLift.cur[l].mode      = ft_lift[b][0];
             mLift.cur[l].flags     = ft_lift[b][1];
             mLift.cur[l].num_steps = ft_lift[b][3];
-            mLift.cur[l].val1      = ft_lift[b][4];
-            mLift.cur[l].val2      = ft_lift[b][5];
+            mLift.cur[l].mode_countdown_timer      = ft_lift[b][4];
+            mLift.cur[l].mode_reset_value      = ft_lift[b][5];
 
 
             for (y=0; y<ft_lift[b][3]; y++) // copy steps

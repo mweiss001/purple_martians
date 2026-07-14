@@ -472,11 +472,28 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int lift = n;
       int step = mLift.cur[n].current_step;
 
-      //mWidget.buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
-      mWidget.buttonpd(      xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+      mWidget.buttonpd(      xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // lift mode
+
+      mWidget.buttonpd(      xa, ya, xb, bts, 504,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].draw_mode); // draw mode
+
+      if (mLift.cur[lift].draw_mode == 10) // single block
+      {
+         ya+=2;
+         mWidget.button(     xa, ya, xb, bts, 320,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
+         ya+=2;
+      }
+
+      if (( mLift.cur[lift].draw_mode == 11) || (mLift.cur[lift].draw_mode == 12)) // 3 block platform or column
+      {
+         ya+=2;
+         mWidget.button(     xa, ya, xb, bts, 321,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
+         ya+=2;
+      }
+
+
 
       if (mLift.cur[lift].mode)
-         mWidget.slideri    (xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
+         mWidget.slideri    (xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].mode_reset_value, 2000, 1, 1,  "Reset Timer:");
       if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mWM.mW[7].mb = 26; // lift name
       ya+=bts;
 
@@ -506,7 +523,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int ycs = ysb + mLift.draw_steps(xa, xb, ysb, lift, step, step_pointer, d);
       ycs +=bts;
 
-      // draw buttons for the current step button and get y postion for next item (lift)
+      // draw buttons for the current step button and get y position for next item (lift)
       int yld = ycs + mLift.draw_current_step_buttons(xa, xb, ycs, lift, step, d);
 
 
@@ -525,14 +542,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          // if step is not a move step, find prev that is
          if ((mLift.stp[lift][s].type & 31) != 1) s = mLift.find_previous_move_step(lift, s);
 
-         // get w h from step
-         int w  = mLift.stp[lift][s].w;
-         int h  = mLift.stp[lift][s].h;
-
-         // get x2 and y2 based on x1 y1 and w h
-         int x2 = x1 + w;
-         int y2 = y1 + h;
-         mLift.draw_lift(lift, x1, y1, x2, y2);
+         mRect<float> lr(x1, y1, mLift.stp[lift][s].w, mLift.stp[lift][s].h);
+         mLift.draw_lift(lift, lr);
       }
 
       if (mWM.mW[7].mb == 26)
@@ -1249,8 +1260,8 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       int w = mLift.stp[lift][step].w;
       int h = mLift.stp[lift][step].h;
 
-      int x2 = x1 + w + 2;
-      int y2 = y1 + h + 2;
+      int x2 = x1 + w + 3;
+      int y2 = y1 + h + 3;
       int xc = (x1 + x2) / 2;
       int yc = (y1 + y2) / 2;
 

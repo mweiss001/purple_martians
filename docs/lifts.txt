@@ -130,16 +130,22 @@ lift modes
 lifts[lift].mode = 0; // default...normal
 
 lifts[lift].mode = 1; // prox run and reset
-lifts[lift].val1 = countdown timer
-lifts[lift].val2 = reset value
+lifts[lift].mode_countdown_timer;
+lifts[lift].mode_reset_value;
+
+
 
 other info embedded in lift_steps[l][s].type
 
+#define PM_LIFT_TYPE_BITS        0b00000000000000000000000000011111
 #define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
+#define PM_LIFT_FLAG_BITS        0b00001111111111111111111111100000
 #define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
 #define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
 #define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
 #define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+#define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+
 
 
 how to change color embedded in lift_steps[][].type
@@ -151,6 +157,13 @@ lift_steps[num][type].type |= cf; // merge color with type
 how to get color:
 int col = (lifts[l].flags >> 28) & 15;
 int col = (lift_steps[l][s].type >> 28) & 15;
+
+
+--------------------------------------------------
+when changing lift steps (next_step)
+flags from next step are copied to flags in lift
+--------------------------------------------------
+
 
 
 

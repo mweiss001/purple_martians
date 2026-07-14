@@ -1,5 +1,6 @@
 // mwLift.h
 
+
 struct lift
 {
    float x;
@@ -13,15 +14,33 @@ struct lift
    int active;
    int flags;
    int mode;
-   int val1;
-   int val2;
+   int mode_countdown_timer;
+   int mode_reset_value;
    int color;
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
    int current_step;
    int num_steps;
    int limit_counter;
    int limit_type;
    char lift_name[40];
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct lift_step
 {
@@ -50,13 +69,17 @@ class mwLift
 
 
    void set_lift_to_step(int l, int s);
-   int is_player_riding_lift(int l);
+
+
+   bool is_player_riding_lift(int l, int &pr);
+
+
    int lift_check_prox(int l, int pd);
    void set_lift_xyinc(int l, int step);
 
    // these are used by both to draw
    void draw_lift_line(int l);
-   void draw_lift(int l, float x1, float y1, float x2, float y2);
+   void draw_lift(int l, mRect<float> lr);
    void draw_lifts();
 
    // this is used when loading and saving level and after run lifts in level editor, sets all lifts to step 0
@@ -68,6 +91,11 @@ class mwLift
    int get_empty_lift();
    int create_lift();
    void erase_lift(int lift);
+
+
+   void clear_lift2(int l);
+
+
 
    void clear_lift_step(int l, int s);
    void delete_lift_step(int l, int s);

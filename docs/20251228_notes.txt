@@ -30039,6 +30039,643 @@ done!!!
 2026-07-13 07:28:06
 time for commit
 
+level 15 smash needs demo fixed...
+
+
+in lifts, can I draw lift lines while hiding lift?...fixed that....
+
+
+
+add more lift draw options
+- hollow frame
+- blocks
+- square non-rounded frame
+- non saturated color
+
+
+I think I will need to add more ints to main lift struct
+
+- int draw_mode
+- int draw_mode val2
+
+draw_mode:           val2
+0 - do not draw      n/a
+1 - legacy color     color (8 bit palette)
+2 - solid color      color (32 bit rgba)
+
+
+one can be existing color, need to add one for draw mode...
+
+I think I might break things if I repurpose color...
+
+just add more ints, its not that bad...
+
+4 more:
+
+mode
+val1
+val2
+val3
+
+4 ints x 4 x 40 lifts = 640 more bytes for state...bfd...
+
+
+with 3 extra ints I can a three block hline or vline
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+
+old:
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  4480
+mLift.stp      : 38400
+mItem.pmsgtext :250000
+---------------:------
+total          :384080
+
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2624
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112704
+
+
+new:
+
+In member function 'void mwLevel::pml_to_var(char*)',
+    inlined from 'int mwLevel::load_level(int, int, int)' at C:\pm\src\mwLevel.cpp:210:17:
+C:\pm\src\mwLevel.cpp:159:39: warning: array subscript 'unsigned char [250000][134720]' is partly outside array bounds of 'char [384080]' [-Warray-bounds=]
+  159 |    sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
+      |                                 ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\pm\src\mwLevel.cpp: In member function 'int mwLevel::load_level(int, int, int)':
+C:\pm\src\mwLevel.cpp:205:12: note: at offset 134720 into object 'pml' of size 384080
+  205 |       char pml[PML_SIZE];
+      |            ^~~
+In member function 'void mwLevel::var_to_pml(char*)',
+    inlined from 'void mwLevel::save_level(int)' at C:\pm\src\mwLevel.cpp:294:14:
+C:\pm\src\mwLevel.cpp:171:53: warning: array subscript 'unsigned char [250000][134720]' is partly outside array bounds of 'char [384080]' [-Warray-bounds=]
+  171 |    offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
+      |                                               ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\pm\src\mwLevel.cpp: In member function 'void mwLevel::save_level(int)':
+C:\pm\src\mwLevel.cpp:293:9: note: at offset 134720 into object 'pml' of size 384080
+  293 |    char pml[PML_SIZE];
+      |         ^~~
+
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 38400
+mItem.pmsgtext :250000
+---------------:------
+total          :384720
+
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2624
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  5120
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :113344
+
+
+
+how am I going to convert all my levels?
+
+load 
+convert 
+save
+
+
+#define PML_SIZE 384080
+#define PML_SIZE_NEW 384720
+
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+   int active;
+   int flags;
+   int mode;
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color;
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+
+
+struct lift2
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+   int active;
+   int flags;
+   int mode;
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color;
+
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+class mwLift
+{
+   public:
+
+   mwLift(); // default constructor
+   void initialize();
+
+   struct lift       cur[NUM_LIFTS];
+
+   struct lift2       cur2[NUM_LIFTS];
+
+
+
+
+void mwLift::clear_lift2(int l)
+{
+   cur2[l].active = 0;
+   cur2[l].x = 0;
+   cur2[l].y = 0;
+   cur2[l].xinc = 0;
+   cur2[l].yinc = 0;
+   cur2[l].w = 0;
+   cur2[l].h = 0;
+   cur2[l].winc = 0;
+   cur2[l].hinc = 0;
+   cur2[l].flags = 0;
+
+   cur2[l].draw_mode = 0;
+   cur2[l].draw_mode_val1 = 0;
+   cur2[l].draw_mode_val2 = 0;
+   cur2[l].draw_mode_val3 = 0;
+   
+   cur2[l].mode = 0;
+   cur2[l].mode_countdown_timer = 0;
+   cur2[l].mode_reset_value = 0;
+   cur2[l].color = 0;
+   cur2[l].current_step = 0;
+   cur2[l].num_steps = 0;
+   cur2[l].limit_type = 0;
+   cur2[l].limit_counter = 0;
+   strcpy(cur2[l].lift_name, "");
+}
+
+
+
+   printf("\nRunning Global Level Test\n");
+
+      // clear new lift struct
+      for (int l=0; l<NUM_LIFTS; l++)
+         mLift.clear_lift2(l);
+
+      // copy all active to new struct
+      for (int l=0; l<NUM_LIFTS; l++)
+         if (mLift.cur[l].active)
+         {
+            mLift.cur2[l].active               = mLift.cur[l].active;
+            mLift.cur2[l].x                    = mLift.cur[l].x;
+            mLift.cur2[l].y                    = mLift.cur[l].y;
+            mLift.cur2[l].xinc                 = mLift.cur[l].xinc;
+            mLift.cur2[l].yinc                 = mLift.cur[l].yinc;
+            mLift.cur2[l].w                    = mLift.cur[l].w;
+            mLift.cur2[l].h                    = mLift.cur[l].h;
+            mLift.cur2[l].winc                 = mLift.cur[l].winc;
+            mLift.cur2[l].hinc                 = mLift.cur[l].hinc;
+            mLift.cur2[l].flags                = mLift.cur[l].flags;
+            mLift.cur2[l].mode                 = mLift.cur[l].mode;
+            mLift.cur2[l].mode_countdown_timer = mLift.cur[l].mode_countdown_timer;
+            mLift.cur2[l].mode_reset_value     = mLift.cur[l].mode_reset_value;
+            mLift.cur2[l].color                = mLift.cur[l].color;
+            mLift.cur2[l].current_step         = mLift.cur[l].current_step;
+            mLift.cur2[l].num_steps            = mLift.cur[l].num_steps;
+            mLift.cur2[l].limit_type           = mLift.cur[l].limit_type;
+            mLift.cur2[l].limit_counter        = mLift.cur[l].limit_counter;
+            strcpy(mLift.cur2[l].lift_name,      mLift.cur[l].lift_name);
+
+            mLift.cur2[l].draw_mode = 1;
+         
+         }
+
+
+void mwLevel::var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
+   offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
+
+
+//   offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
+
+   offset += sz; sz = sizeof(mLift.cur2);      memcpy(b+offset, mLift.cur2,      sz);
+
+
+
+   offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
+   offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
+
+
+
+
+
+}
+
+
+
+void mwLevel::save_level(int level_num)
+{
+
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", lf);
+
+   bool save_old_versions = 1;
+   if (save_old_versions)
+   {
+      // rename existing file as backup
+
+      char of[255];
+
+      // get timestamp
+      char timestamp[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+
+      sprintf(of, "levels/level%03d_%s.pml", level_num, timestamp);
+
+      // std::rename returns 0 on success
+      if (std::rename(lf, of) == 0) printf("File [%s] renamed successfully!\n", of);
+      else                          printf("Error renaming file [%s]\n", of);
+   }
+
+
+   last_level_loaded = level_num;
+   level_check();
+
+   mItem.sort_item(1);
+   mEnemy.sort_enemy();
+   mLift.lift_setup();
+
+   // put variables in pml
+   char pml[PML_SIZE2];
+   var_to_pml(pml);
+
+   // compress pml to cmp
+   char cmp[PML_SIZE2];
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), -1);
+   int cmp_size = destLen;
+
+   // write cmp to file
+   FILE *fp = fopen(lf,"wb");
+   fwrite(cmp, cmp_size, 1, fp);
+   fclose(fp);
+}
+
+
+this all compiles with no errors...
+
+
+make a backup copy of level dir
+
+
+do it fool!!
+
+now change load...
+
+
+#define PML_SIZE 384720
+#define PML_SIZE2 384720
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+   int active;
+   int flags;
+   int mode;
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color;
+
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+remove all in glt
+
+
+void mwLevel::var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
+   offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
+   offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
+
+//   offset += sz; sz = sizeof(mLift.cur2);      memcpy(b+offset, mLift.cur2,      sz);
+
+
+   offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
+   offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
+
+
+}
+
+
+
+void mwLift::clear_lift(int l)
+{
+   cur[l].active = 0;
+   cur[l].x = 0;
+   cur[l].y = 0;
+   cur[l].xinc = 0;
+   cur[l].yinc = 0;
+   cur[l].w = 0;
+   cur[l].h = 0;
+   cur[l].winc = 0;
+   cur[l].hinc = 0;
+   cur[l].flags = 0;
+
+   cur[l].draw_mode = 0;
+   cur[l].draw_mode_val1 = 0;
+   cur[l].draw_mode_val2 = 0;
+   cur[l].draw_mode_val3 = 0;
+   
+   cur[l].mode = 0;
+   cur[l].mode_countdown_timer = 0;
+   cur[l].mode_reset_value = 0;
+   cur[l].color = 0;
+   cur[l].current_step = 0;
+   cur[l].num_steps = 0;
+   cur[l].limit_type = 0;
+   cur[l].limit_counter = 0;
+   strcpy(cur[l].lift_name, "");
+}
+
+/*
+
+void mwLift::clear_lift2(int l)
+{
+   cur2[l].active = 0;
+   cur2[l].x = 0;
+   cur2[l].y = 0;
+   cur2[l].xinc = 0;
+   cur2[l].yinc = 0;
+   cur2[l].w = 0;
+   cur2[l].h = 0;
+   cur2[l].winc = 0;
+   cur2[l].hinc = 0;
+   cur2[l].flags = 0;
+
+   cur2[l].draw_mode = 0;
+   cur2[l].draw_mode_val1 = 0;
+   cur2[l].draw_mode_val2 = 0;
+   cur2[l].draw_mode_val3 = 0;
+
+   cur2[l].mode = 0;
+   cur2[l].mode_countdown_timer = 0;
+   cur2[l].mode_reset_value = 0;
+   cur2[l].color = 0;
+   cur2[l].current_step = 0;
+   cur2[l].num_steps = 0;
+   cur2[l].limit_type = 0;
+   cur2[l].limit_counter = 0;
+   strcpy(cur2[l].lift_name, "");
+}
+
+*/
+
+
+seems to run ...
+
+fully remove more:
+void mwLift::clear_lift2(int l)
+old struct lift
+
+all demos play back properly
+
+adjust the state size
+
+//efine STATE_SIZE 112704
+#define STATE_SIZE 113344
+
+went through all of lifts.cpp and fixed what was obvious
+
+
+now implement the draw modes:
+add a control
+
+I have implemented:
+0 hidden
+1 legacy draw
+2 bare filled rectangle with legacy color
+3 bare rectangle with legacy color
+next...
+
+blocks
+
+mode 10 - single block
+
+
+make generic functions to fill rect with tile(s)
+
+can also be used when drawing block damage rect with tiles
+
+how and where?
+
+void fill_rect_with_1tile(mRect<float> r, int tile )
+{
+
+}
+
+add flag to show hide/outline when player riding
+flag in steps??
+
+I don't really have flags in main structure
+
+for now, lets just hide it all the time...
+
+
+
+2026-07-14 06:33:17
+
+I think I have these draw modes for lifts working great
+
+0 hidden
+1 legacy draw
+2 bare filled rectangle with legacy color
+3 bare rectangle with legacy color
+10 fill with single tile
+11 fill with 3 tile platform
+
+I am so fucking happy with this!!!
+
+what about vertical lines..done
+
+
+I want to remove player damage from getting squished by lifts
+
+I should commit...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

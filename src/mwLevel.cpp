@@ -144,8 +144,7 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
 }
 
 
-
-#define PML_SIZE 384080
+#define PML_SIZE 384720
 
 void mwLevel::pml_to_var(char * b) // for load level
 {
@@ -170,7 +169,6 @@ void mwLevel::var_to_pml(char * b) // for save level
    offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
    offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
 }
-
 
 
 int mwLevel::load_level(int level_num, int load_only, int fail_silently)
@@ -211,8 +209,6 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 
       if (!load_only)
       {
-
-
 
          if (level_num == 1)
          {
@@ -280,7 +276,6 @@ void mwLevel::save_level(int level_num)
       if (std::rename(lf, of) == 0) printf("File [%s] renamed successfully!\n", of);
       else                          printf("Error renaming file [%s]\n", of);
    }
-
 
    last_level_loaded = level_num;
    level_check();

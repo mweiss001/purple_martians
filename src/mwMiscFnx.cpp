@@ -1250,6 +1250,93 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
 
 
+
+
+void mwMiscFnx::fill_rect_with_1_tile(mRect<float> r, int tile)
+{
+   r.round();
+   r.set_clipping_rectangle();
+   for (int hy=r.y1; hy<r.y2; hy+=20)
+      for (int hx=r.x1; hx<r.x2; hx+=20)
+         al_draw_bitmap(mBitmap.btile[tile & 1023], hx, hy, 0);
+   al_reset_clipping_rectangle();
+}
+
+void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
+{
+   int tile_l = tile_base & 1023;
+   int tile_m = tile_l+1;
+   int tile_r = tile_l+2;
+
+   r.round();
+
+   mRect<float> lh(r.x1,        r.y1, r.w/2, r.h); // left half
+   mRect<float> rh(r.XCenter(), r.y1, r.w/2, r.h); // right half
+
+   lh.set_clipping_rectangle();
+   for (int hy=r.y1; hy<r.y2; hy+=20)
+      for (int hx=lh.x1; hx<lh.x2; hx+=20)
+      {
+         int tile = tile_m;              // middle
+         if (hx == lh.x1) tile = tile_l; // left
+         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+      }
+
+   rh.set_clipping_rectangle();
+   for (int hy=r.y1; hy<r.y2; hy+=20)
+      for (int hx=rh.x2-20; hx>rh.x1-20; hx-=20)
+      {
+         int tile = tile_m;                 // middle
+         if (hx == rh.x2-20) tile = tile_r; // right
+         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+      }
+   al_reset_clipping_rectangle();
+}
+
+void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
+{
+   int tile_t = tile_base & 1023;
+   int tile_m = tile_t+1;
+   int tile_b = tile_t+2;
+
+   r.round();
+
+   mRect<float> th(r.x1, r.y1,        r.w, r.h/2); // top half
+   mRect<float> bh(r.x1, r.YCenter(), r.w, r.h/2); // bottom half
+
+   th.set_clipping_rectangle();
+   for (int hx=th.x1; hx<th.x2; hx+=20)
+      for (int hy=th.y1; hy<th.y2; hy+=20)
+      {
+         int tile = tile_m;              // middle
+         if (hy == th.y1) tile = tile_t; // top
+         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+      }
+
+   bh.set_clipping_rectangle();
+   for (int hx=bh.x1; hx<bh.x2; hx+=20)
+      for (int hy=bh.y2-20; hy>bh.y1-20; hy-=20)
+      {
+         int tile = tile_m;              // middle
+         if (hy == bh.y2-20) tile = tile_b; // bottom
+         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+      }
+   al_reset_clipping_rectangle();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwMiscFnx::rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode)
 {
    int d = mDisplay.display_transform_double;
