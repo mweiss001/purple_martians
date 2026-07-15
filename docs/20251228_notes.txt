@@ -30605,6 +30605,223 @@ I should commit...
 
 
 
+2026-07-15 02:19:19
+
+these are still global variables
+
+
+int ft_level_header[20];
+int ft_l[100][100];
+int ft_item[500][16];
+char ft_pmsgtext[500][500] = {0};
+
+int   ft_Ei[100][32];
+float ft_Ef[100][16];
+
+char ft_ln[NUM_LIFTS][80];
+int ft_lift[NUM_LIFTS][6];
+int ft_ls[NUM_LIFTS][40][6];
+
+ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
+
+this is not correct...this is what lifts look like now
+
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+   
+   int active;
+   int flags;
+   int mode;
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color;
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   
+   
+   
+   char lift_name[40];
+};
+
+
+
+I have a global instance of lifts: extern mwLift mLift;
+
+I should just make an instance for ft...
+not global, owned by edit selection
+
+I kind of want to break edit selection into its own class, not part of window class specific instance....
+I did this with tile helper...
+
+
+2026-07-15 02:26:20
+
+just fucking do it fool!
+
+1000 lines in mwWindowEditSelection
+
+2026-07-15 02:49:15
+done!!!
+
+now make this class have its own instance of lifts...done...
+
+I should also do enemies and items
+
+I want I nicer way to save to disk, like the other file stuff...
+
+
+I could just copy almost all of that
+use full size for all
+
+
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(mLevel.l);       memcpy(mLevel.l,       b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);     memcpy(mItem.item,     b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);      memcpy(mEnemy.Ei,      b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);      memcpy(mEnemy.Ef,      b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);      memcpy(mLift.cur,      b+offset, sz); offset += sz;
+   sz = sizeof(mLift.stp);      memcpy(mLift.stp,      b+offset, sz); offset += sz;
+   sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
+}
+
+void mwLevel::var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
+   offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
+   offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
+   offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
+   offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
+}
+
+
+
+
+
+
+Variables used to save selection
+
+level header   :    80
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 38400
+mItem.pmsgtext :250000
+---------------:------
+total          :384800
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 38400
+mItem.pmsgtext :250000
+---------------:------
+total          :384720
+
+
+patched all that in and goddamn it works!!
+
+do I need custom drawing for enemy and items?
+
+I got rid of it for lifts
+
+void mwItem::draw_item(int i, int custom, int cx, int cy)
+this is all done...what have I accomplished?
+
+removed editSelection from windows class
+
+got rid of the old weird custom saving and loading to file for selection
+
+
+can I use my lift class to copy variables to another instance?
+
+can I pass an instance of a class to another instance of the same class to copy internal structs...yes!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

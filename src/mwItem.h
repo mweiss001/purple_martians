@@ -1,11 +1,16 @@
 // mwItem.h
 
+#ifndef MWITEM_H
+#define MWITEM_H
+
+
 class mwItem
 {
    public:
 
    mwItem(); // default constructor
    void initialize();
+
 
    int item[500][16];    // item ints
    float itemf[500][4];  // item floats
@@ -155,7 +160,8 @@ class mwItem
    int get_empty_item(int type);
    void check_item(int i, int ct);
    void test_items();
-   void erase_item(int num);
+   void clear_item(int i);
+
    int create_trigger(int i);
    int create_timer(int i);
    int create_block_manip(int i);
@@ -172,6 +178,8 @@ class mwItem
 
 };
 extern mwItem mItem;
+
+#endif
 
 
 /*

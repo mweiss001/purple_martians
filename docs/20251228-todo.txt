@@ -33,6 +33,38 @@ WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 in level editor, when loading new level and cancelling, new level is loaded anyway
 don't know if it is possible to fix, I think the visual preview loads the level...
 
+could I make a way of loading the level without overwriting all the structures?
+
+could I double them all?
+
+could I load them into something like ft?
+
+all this time I have been assuming there is only one l100 item enemy list etc...
+there could be an array
+
+- I could use this for loading levels without overwriting the current one
+- I could use it for ft stuff
+
+I already have almost exactly that with states, do I not ??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -51,13 +83,18 @@ I think I can kill all on server pmh...
 
 all I really need to do is get the latest version on pmh...i think...
 
+
+
+
 do something about drag move windows, when the mouse escapes...force capture
 
 
 
+when copying selection with block damage that follows lift, link translation does not set bd link to lift
 
 
 
+I want to remove player damage from getting squished by lifts
 
 
 ------------------------------------------------------------------------------
@@ -88,14 +125,73 @@ the bitmap drawing functions and font drawing functions.
 
 
 
+
+
+
+
 TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+
+when choosing tiles for lift 3 tile draw, select from something other than level
+
+
+when lift is huge in level editor, can't see or edit anything below it...
+- have a disable draw lifts control??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I want to make my own custom file dialogs
+
+especially for load, I want to see what I am loading, visually
+
+I need some sub areas:
+
+- what folder to look in
+- what files to show
+- list of files found
+- display preview for files
+- button to load, save, etc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 what if i had a mode where player could control movement of lift with direction key?
-
-
 
 
 add to settings:
@@ -111,14 +207,6 @@ Widgets
 make setter and slider combo
 
 make setter with optional number of setter elements
-
-
-
-
-
-
-
-
 
 
 

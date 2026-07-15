@@ -10,6 +10,7 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "mwBitmapTools.h"
+#include "mwEditSelection.h"
 #include "mwLoop.h"
 #include "mwItem.h"
 #include "mwEnemy.h"
@@ -538,7 +539,7 @@ bool mwWindowManager::get_new_box_with_preview()
 void mwWindowManager::process_mouse(void)
 {
    if (level_editor_mode == 1) mW[1].em_process_mouse();
-   if (level_editor_mode == 2) mW[4].es_process_mouse();
+   if (level_editor_mode == 2) mEditSelection.process_mouse();
    if (level_editor_mode == 3) mW[5].ge_process_mouse();
    if (level_editor_mode == 4) mW[7].ov_process_mouse();
    if (level_editor_mode == 9) mTileHelper.process_mouse();
@@ -637,20 +638,20 @@ int mwWindowManager::redraw_level_editor_background(void)
       if (level_editor_mode == 2) // selection edit
       {
          // show selection
-         if (!mW[4].copy_mode) show_level_buffer_block_rect(mWM.bx1, by1, bx2, by2, 14, "selection");
+         if (!mEditSelection.copy_mode) show_level_buffer_block_rect(mWM.bx1, by1, bx2, by2, 14, "selection");
 
          // only show if mouse not on window
          if (!mouse_on_window)
          {
-            if (mW[4].brf_mode) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-            if (mW[4].copy_mode)
+            if (mEditSelection.brf_mode) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+            if (mEditSelection.copy_mode)
             {
-               if (ft_bmp)
+               if (mEditSelection.ft_bmp)
                {
-                  al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
-                  show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
+                  al_draw_bitmap(mEditSelection.ft_bmp, gx*20, gy*20, 0);
+                  show_level_buffer_block_rect(gx, gy, gx+mEditSelection.sw-1, gy+mEditSelection.sh-1, 10, "paste");
                }
-               else mW[4].copy_mode = 0;
+               else mEditSelection.copy_mode = 0;
             }
          }
       }
@@ -898,8 +899,6 @@ void mwWindowManager::set_windows(int mode)
       mW[3].active = 1; // filter
       mW[3].filter_mode = 3;
       mW[4].active = 1; // selection edit
-      mW[4].copy_mode = 0;
-      mW[4].brf_mode = 0;
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer

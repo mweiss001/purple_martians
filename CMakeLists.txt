@@ -145,7 +145,6 @@ add_executable(pm
         src/mwWindow.cpp
         src/mwWindow.h
         src/mwWindowEditorMain.cpp
-        src/mwWindowEditSelection.cpp
         src/mwWindowGroupEdit.cpp
         src/mwWindowManager.cpp
         src/mwWindowManager.h
@@ -167,6 +166,8 @@ add_executable(pm
         src/mwLevelIcons.h
         src/mwTileHelper.h
         src/mwWidgetDropDown.cpp
+        src/mwEditSelection.cpp
+        src/mwEditSelection.h
 )
 
 

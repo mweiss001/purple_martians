@@ -1,4 +1,8 @@
 // mwEnemy.h
+#ifndef MWENEMY_H
+#define MWENEMY_H
+
+
 
 class mwEnemy
 {
@@ -106,7 +110,7 @@ class mwEnemy
    int show_enemy_data(int x_pos, int y_pos);
    void show_all_enemies();
    void sort_enemy();
-   void erase_enemy(int e);
+   void clear_enemy(int e);
    int get_empty_enemy();
    int get_empty_enemy(int type);
    int create_cloner();
@@ -114,4 +118,6 @@ class mwEnemy
 
 };
 extern mwEnemy mEnemy;
+
+#endif
 

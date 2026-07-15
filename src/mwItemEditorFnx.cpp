@@ -238,7 +238,7 @@ int mwItem::get_empty_item(int type) // finds, sets type, sorts, refinds
    if (mt == -1) return 500;
    else
    {
-      erase_item(mt);
+      clear_item(mt);
       mItem.item[mt][0] = type; // set type
       mItem.item[mt][9] = 9999; // mark to find after sort !!
       sort_item(1);
@@ -311,10 +311,10 @@ void mwItem::test_items(void)
       }
 }
 
-void mwItem::erase_item(int num)
+void mwItem::clear_item(int num)
 {
-   if (mItem.item[num][0] == 10) pmsgtext[num][0] = 0;
-   for (int x=0; x<16; x++) mItem.item[num][x] = 0;
+   if (item[num][0] == 10) pmsgtext[num][0] = 0;
+   for (int x=0; x<16; x++) item[num][x] = 0;
 }
 
 int mwItem::create_trigger(int i)
@@ -323,16 +323,16 @@ int mwItem::create_trigger(int i)
    // set the item location
    if (mMiscFnx.getxy("Trigger", 2, 9, i) == 1)
    {
-      mItem.item[i][0] = 9;  // type 9 - trigger
-      mItem.item[i][2] = 14; // draw color
-      mItem.item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
-      mItem.item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
+      item[i][0] = 9;  // type 9 - trigger
+      item[i][2] = 14; // draw color
+      item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+      item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Trigger Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -347,15 +347,15 @@ int mwItem::create_block_manip(int i)
    // set the item location
    if (mMiscFnx.getxy("Block Manip Object", 2, 16, i) == 1)
    {
-      mItem.item[i][0] = 16; // type 16 - block manip
-      mItem.item[i][2] = 1; // draw mode on
-      mItem.item[i][12] = 12; // default color
+      item[i][0] = 16; // type 16 - block manip
+      item[i][2] = 1; // draw mode on
+      item[i][12] = 12; // default color
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Manip Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -369,18 +369,18 @@ int mwItem::create_block_damage(int i)
    // set the item location
    if (mMiscFnx.getxy("Block Damage Object", 2, 17, i) == 1)
    {
-      mItem.item[i][0] = 17; // type 16 - block damage
-      mItem.item[i][2] = 1;  // draw type
-      mItem.item[i][3] |= PM_ITEM_DAMAGE_CURR;
-      mItem.item[i][12] = 100;
-      mItem.item[i][13] = 0;
-      mItem.item[i][14] = 100;
+      item[i][0] = 17; // type 16 - block damage
+      item[i][2] = 1;  // draw type
+      item[i][3] |= PM_ITEM_DAMAGE_CURR;
+      item[i][12] = 100;
+      item[i][13] = 0;
+      item[i][14] = 100;
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Damage Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -619,9 +619,9 @@ int mwItem::create_door(int type)
 
 
                } // end of get destination without cancel
-               else erase_item(c);
+               else clear_item(c);
             } // end of get location without cancel
-            else erase_item(c);
+            else clear_item(c);
          } // end of found empty items
       }
       break;
@@ -637,14 +637,14 @@ int mwItem::create_item(int type)
    if (i > 499) return i; // no items
    switch (type)
    {
-      case 3:  if (!create_exit(i))         erase_item(i); break;
-      case 5:  if (!create_start_block(i))  erase_item(i); break;
-      case 9:  if (!create_trigger(i))      erase_item(i); break;
-      case 10: if (!create_pmsg(i))         erase_item(i); break;
-      case 13: if (!create_timer(i))        erase_item(i); break;
-      case 16: if (!create_block_manip(i))  erase_item(i); break;
-      case 17: if (!create_block_damage(i)) erase_item(i); break;
-      case 19: if (!create_hider(i))        erase_item(i); break;
+      case 3:  if (!create_exit(i))         clear_item(i); break;
+      case 5:  if (!create_start_block(i))  clear_item(i); break;
+      case 9:  if (!create_trigger(i))      clear_item(i); break;
+      case 10: if (!create_pmsg(i))         clear_item(i); break;
+      case 13: if (!create_timer(i))        clear_item(i); break;
+      case 16: if (!create_block_manip(i))  clear_item(i); break;
+      case 17: if (!create_block_damage(i)) clear_item(i); break;
+      case 19: if (!create_hider(i))        clear_item(i); break;
 
    }
    sort_item(1);

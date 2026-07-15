@@ -2138,7 +2138,7 @@ void mwWindow::ov_process_keypress(void)
       case 20: // delete
          if (mWM.mW[7].obt == 2)
          {
-            mItem.erase_item(mWM.mW[7].num);
+            mItem.clear_item(mWM.mW[7].num);
             mItem.sort_item(1);
             if (mWM.mW[7].num >= mItem.item_first_num[type]+ mItem.item_num_of_type[type]) mWM.mW[7].num--;
             ov_check_if_valid();

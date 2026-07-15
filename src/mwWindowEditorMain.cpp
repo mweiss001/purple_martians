@@ -357,7 +357,7 @@ void mwWindow::em_process_mouse(void)
                      mWM.mW[1].draw_item_type = 1;
                      mWM.mW[1].draw_item_num = 0;
                   }
-                  mItem.erase_item(mWM.mW[1].point_item_num);
+                  mItem.clear_item(mWM.mW[1].point_item_num);
                   mItem.sort_item(1);
                break;
                case 3: // delete enemy
@@ -366,7 +366,7 @@ void mwWindow::em_process_mouse(void)
                      mWM.mW[1].draw_item_type = 1;
                      mWM.mW[1].draw_item_num = 0;
                   }
-                  mEnemy.erase_enemy(mWM.mW[1].point_item_num);
+                  mEnemy.clear_enemy(mWM.mW[1].point_item_num);
                   mEnemy.sort_enemy();
                break;
                case 4: // delete lift

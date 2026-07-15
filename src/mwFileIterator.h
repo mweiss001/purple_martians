@@ -16,8 +16,6 @@ class mwFileIterator
    ALLEGRO_FS_ENTRY *filenames[1000] = { nullptr };
 
 
-
-
    int num_filenames;
 };
 extern mwFileIterator mFileIterator;

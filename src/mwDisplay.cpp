@@ -603,7 +603,11 @@ void mwDisplay::show_fullscreen_modes(void)
 
 void mwDisplay::show_var_sizes(void)
 {
-   printf("\nVariables used to save levels in pml format\n\n"   );
+   printf("\nVariables used to save selection\n\n"   );
+
+   int level_header[20];
+
+   printf("level header   :%6d\n",  (int)sizeof(level_header)   );
    printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
    printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
    printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mEnemy.Ef)      );
@@ -613,6 +617,32 @@ void mwDisplay::show_var_sizes(void)
    printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
 
    int sz = 0;
+   sz+= sizeof(level_header);
+   sz+= sizeof(mLevel.l);
+   sz+= sizeof(mItem.item);
+   sz+= sizeof(mEnemy.Ef);
+   sz+= sizeof(mEnemy.Ei);
+   sz+= sizeof(mLift.cur);
+   sz+= sizeof(mLift.stp);
+   sz+= sizeof(mItem.pmsgtext);
+   printf("---------------:------\n");
+   printf("total          :%6d\n",  sz );
+
+
+
+
+
+
+   printf("\nVariables used to save levels in pml format\n\n"   );
+   printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
+   printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
+   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mEnemy.Ef)      );
+   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
+   printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
+   printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
+   printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
+
+   sz = 0;
    sz+= sizeof(mLevel.l);
    sz+= sizeof(mItem.item);
    sz+= sizeof(mEnemy.Ef);

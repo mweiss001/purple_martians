@@ -1,4 +1,6 @@
 // mwLift.h
+#ifndef MWLIFT_H
+#define MWLIFT_H
 
 
 struct lift
@@ -11,6 +13,7 @@ struct lift
    float h;
    float winc;
    float hinc;
+
    int active;
    int flags;
    int mode;
@@ -27,20 +30,9 @@ struct lift
    int num_steps;
    int limit_counter;
    int limit_type;
+
    char lift_name[40];
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 struct lift_step
 {
@@ -62,6 +54,12 @@ class mwLift
    struct lift       cur[NUM_LIFTS];
    struct lift_step  stp[NUM_LIFTS][40];
    char lift_step_type_name[10][10];
+
+
+   void copy_lift_from_other_instance(int l, const mwLift &other, int other_l);
+
+
+
 
    // these are used in the game
    void move_lifts(int ignore_prox);
@@ -86,18 +84,19 @@ class mwLift
    void lift_setup();
 
    // used in level editor only
-   int construct_lift(int l, char* lift_name);
+
+   void clear_lifts();
    void clear_lift(int l);
+   void clear_lift_step(int l, int s);
+
+
+   int construct_lift(int l, char* lift_name);
+
    int get_empty_lift();
    int create_lift();
    void erase_lift(int lift);
 
 
-   void clear_lift2(int l);
-
-
-
-   void clear_lift_step(int l, int s);
    void delete_lift_step(int l, int s);
    int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val);
 
@@ -121,3 +120,4 @@ class mwLift
 };
 extern mwLift mLift;
 
+#endif //PM_MWLIFT_H

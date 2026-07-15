@@ -73,8 +73,8 @@ void mwTileSets::init()
    construct3x1(567, "gold beam");
    construct3x1(570, "gold wood");
    construct3x1(573, "green platform");
+   construct3x1(576, "white blocks");
    construct3x1(35, "railing");
-
 
 
    // 1x3 single vlines (columns)

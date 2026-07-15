@@ -1,6 +1,6 @@
 // mwWindow.h
-#ifndef mwWindow_H
-#define mwWindow_H
+#ifndef MWWINDOW_H
+#define MWWINDOW_H
 
 class mwWindow
 {
@@ -17,6 +17,10 @@ class mwWindow
    int color;
    char title[80];
 
+
+
+
+
    // mW[1] - status window only
    int draw_item_num;
    int draw_item_type;
@@ -27,13 +31,11 @@ class mwWindow
 
    int show_tile_overlays;
 
-
    void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
    int status_window_has_mouse;
 
    int em_draw_tile_mode = 1;
-
 
    // e_editor_main.h
    void em_set_block_range();
@@ -43,7 +45,10 @@ class mwWindow
    void em_find_point_item();
    void em_process_mouse();
 
-   // mW[2] - select window only
+
+
+
+   // mW[2] - selection  window only
    void cm_draw_selection_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
    // mW[3] - filter window only
@@ -51,33 +56,9 @@ class mwWindow
    int filter_mode;
    int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int draw_only);
 
-   // mW[4] - edit selection window only
-   int copy_mode;
-   int brf_mode;
-   int sw;
-   int sh;
-
-   // e_edit_selection.h
-   void es_pointer_text(int x1, int x2, int y, int mouse_on_window);
-   void es_do_brf(int x, int y, int flood_block);
-   void es_clear_ft();
-   int es_load_selection();
-   void es_selection_to_ft(int save_to_disk);
-   void es_do_fcopy(int qx1, int qy1);
-   void es_do_clear();
-   void set_block_with_flag_filters(int x, int y, int tn);
-   int es_draw_buttons(int x3, int x4, int yfb, int draw_only);
-   void es_draw_item_ft(int i);
-   void es_draw_enemy_ft(int e);
-   void es_draw_lifts_ft();
-   void es_draw_fsel();
-   void es_process_mouse();
-
-
    // mW[5] - group edit list only
    int show_sel_frame;
 
-   // e_group_edit.h
 
    void ge_init_data();
    void ge_set_valid_controls();
@@ -104,6 +85,8 @@ class mwWindow
    void ge_process_mouse();
 
    // mW[6] - group edit controls only
+
+
 
    // mW[7] - object viewer window only
    int obt;
@@ -137,6 +120,8 @@ class mwWindow
    void ov_process_keypress();
    void object_viewer(int obt, int num);
 
+
+
    // mW[8] - top menu only
    void cm_process_menu_bar(int draw_only);
 
@@ -150,4 +135,4 @@ class mwWindow
    void process_mouse();
    void check_offscreen();
 };
-#endif
+#endif // MWWINDOW_H

@@ -75,7 +75,7 @@ void mwEnemy::fill_strings(void)
 }
 
 
-void mwEnemy::erase_enemy(int e)
+void mwEnemy::clear_enemy(int e)
 {
    for (int a=0; a<32; a++) Ei[e][a] = 0;
    for (int a=0; a<16; a++) Ef[e][a] = 0;
@@ -110,7 +110,7 @@ int mwEnemy::get_empty_enemy(void)
          break;
       }
    if (en == -1) al_show_native_message_box(mDisplay.display, "Error", "Error creating enemy", "Enemy list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-   else erase_enemy(en);
+   else clear_enemy(en);
    return en;
 }
 

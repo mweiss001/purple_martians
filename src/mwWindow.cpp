@@ -11,6 +11,7 @@
 #include "mwScreen.h"
 #include "mwBitmapTools.h"
 #include "mwBitmap.h"
+#include "mwEditSelection.h"
 #include "mwLift.h"
 #include "mwWidget.h"
 #include "mwVisualLevel.h"
@@ -49,8 +50,11 @@ mwWindow::mwWindow()
    num = 0;
    viewer_lock = 0;
 
-   copy_mode = 0;
-   brf_mode = 0;
+//   copy_mode = 0;
+//   brf_mode = 0;
+
+
+
 
    collapsed = 0;
 
@@ -197,10 +201,10 @@ void mwWindow::process_mouse(void)
                 break;
             }
 
-            if ((mWM.mW[3].filter_mode == 3) && (mWM.mW[4].copy_mode))
+            if ((mWM.mW[3].filter_mode == 3) && (mEditSelection.copy_mode))
             {
-              es_selection_to_ft(0);
-              es_draw_fsel();
+              mEditSelection.fill_ft_variables_from_selection(0);
+              mEditSelection.draw_fsel();
             }
          }
 
@@ -313,9 +317,9 @@ void mwWindow::draw(int draw_only)
       if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
 
       int mow = mWM.is_mouse_on_any_window();
-      es_pointer_text(x1+1, x2-1, y1+20, mow);
+      mEditSelection.show_pointer_text(x1+1, x2-1, y1+20, mow);
 
-      int sy2 = es_draw_buttons(x1+1, x2-1, y1+80, d);
+      int sy2 = mEditSelection.draw_buttons(x1+1, x2-1, y1+80, d);
       set_size(w, sy2-y1-1);
 
       int fc = 13;
@@ -620,7 +624,7 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
 
    // detect mouse click before toggles, but don't do anything until after the toggles change
    int refresh_selection = 0;
-   if ((mode == 3) && (mWM.mW[4].copy_mode) && (mInput.mouse_b[1][0])) refresh_selection = 1;
+   if ((mode == 3) && (mEditSelection.copy_mode) && (mInput.mouse_b[1][0])) refresh_selection = 1;
 
    if (!mWM.mW[3].collapsed)
    {
@@ -665,7 +669,7 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][18], "Gate",   "Gate",   tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][19], "Hider",  "Hider",  tc1, tc2, fc1, fc2);
    }
-   if (refresh_selection) es_draw_fsel();
+   if (refresh_selection) mEditSelection.draw_fsel();
    return y2;
 }
 

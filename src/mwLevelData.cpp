@@ -296,7 +296,7 @@ void mwLevel::sob_create_msg(const char* txt, int col, int x, int y, int w, int 
    sprintf(msg, "%.7s", txt);
 
    int msg_id = find_msg(msg);
-   if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
+   if (msg_id != -1) mItem.clear_item(msg_id); // erase msg if it exists
 
    // create new message
    int i = mItem.get_empty_item(10);
@@ -418,7 +418,7 @@ void mwLevel::set_overworld_barriers(void)
          sprintf(mItem.pmsgtext[i], "Complete Basic Training");
       }
    }
-   else if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
+   else if (msg_id != -1) mItem.clear_item(msg_id); // erase msg if it exists
 
 
    sob_area_msg(13, 625,  40); // basic training levels

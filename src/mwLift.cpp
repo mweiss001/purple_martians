@@ -36,19 +36,17 @@ void mwLift::initialize(void)
    strcpy (lift_step_type_name[4], "End ");
    strcpy (lift_step_type_name[5], "REvt");
    strcpy (lift_step_type_name[6], "SEvt");
+
+   clear_lifts();
+
 }
 
 
-int mwLift::construct_lift(int lift, char* lift_name)
+
+void mwLift::clear_lifts()
 {
-   clear_lift(lift);
-   strcpy(cur[lift].lift_name, lift_name);
-   cur[lift].active = 1;
-   cur[lift].draw_mode = 1;
-
-   return 1;
+   for (int l=0; l<NUM_LIFTS; l++) clear_lift(l);
 }
-
 void mwLift::clear_lift(int l)
 {
    cur[l].active = 0;
@@ -76,6 +74,77 @@ void mwLift::clear_lift(int l)
    cur[l].limit_type = 0;
    cur[l].limit_counter = 0;
    strcpy(cur[l].lift_name, "");
+
+   // clear lift steps
+   for (int s=0; s<40; s++) clear_lift_step(l, s);
+}
+
+
+void mwLift::clear_lift_step(int l, int s)
+{
+   stp[l][s].type = 0;
+   stp[l][s].x    = 0;
+   stp[l][s].y    = 0;
+   stp[l][s].w    = 0;
+   stp[l][s].h    = 0;
+   stp[l][s].val  = 0;
+}
+
+
+void mwLift::copy_lift_from_other_instance(int l, const mwLift &other, int other_l)
+{
+   cur[l] = other.cur[other_l];
+
+   for (int s=0; s<40; s++) // copy steps
+      stp[l][s] = other.stp[other_l][s];
+
+
+/*
+   mLift.cur[l].active               = ftLift.cur[b].active;
+   mLift.cur[l].flags                = ftLift.cur[b].flags;
+   mLift.cur[l].mode                 = ftLift.cur[b].mode;
+   mLift.cur[l].mode_countdown_timer = ftLift.cur[b].mode_countdown_timer;
+   mLift.cur[l].mode_reset_value     = ftLift.cur[b].mode_reset_value;
+   mLift.cur[l].color                = ftLift.cur[b].color;
+   mLift.cur[l].draw_mode            = ftLift.cur[b].draw_mode;
+   mLift.cur[l].draw_mode_val1       = ftLift.cur[b].draw_mode_val1;
+   mLift.cur[l].draw_mode_val2       = ftLift.cur[b].draw_mode_val2;
+   mLift.cur[l].draw_mode_val3       = ftLift.cur[b].draw_mode_val3;
+   mLift.cur[l].num_steps            = ftLift.cur[b].num_steps;
+
+
+   for (y=0; y<ftLift.cur[b].num_steps; y++) // copy steps
+   {
+      int vx     = ftLift.stp[b][y].x;
+      int vy     = ftLift.stp[b][y].y;
+      int vw     = ftLift.stp[b][y].w;
+      int vh     = ftLift.stp[b][y].h;
+      int val    = ftLift.stp[b][y].val;
+      int type   = ftLift.stp[b][y].type;
+
+
+  */
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+int mwLift::construct_lift(int lift, char* lift_name)
+{
+   clear_lift(lift);
+   strcpy(cur[lift].lift_name, lift_name);
+   cur[lift].active = 1;
+   cur[lift].draw_mode = 1;
+   return 1;
 }
 
 
@@ -116,15 +185,6 @@ int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int
    return 1;
 }
 
-void mwLift::clear_lift_step(int l, int s)
-{
-   stp[l][s].type = 0;
-   stp[l][s].x    = 0;
-   stp[l][s].y    = 0;
-   stp[l][s].w    = 0;
-   stp[l][s].h    = 0;
-   stp[l][s].val  = 0;
-}
 
 int mwLift::get_num_lifts(void)
 {
@@ -948,6 +1008,7 @@ void mwLift::draw_lift(int l, mRect<float> lr)
       }
    }
 }
+
 
 void mwLift::draw_lifts()
 {
