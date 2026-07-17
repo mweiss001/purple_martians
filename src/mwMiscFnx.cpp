@@ -382,8 +382,8 @@ int mwMiscFnx::exit_level_editor_dialog(void)
 
 void mwMiscFnx::draw_block_non_default_flags(int tn, int x, int y)
 {
-   int c = tn & 1023;
-   al_draw_bitmap(mBitmap.btile[c], x, y, 0);
+   int c = tn & PM_BTILE_TILENUM_MASK;
+   al_draw_bitmap(mBitmap.tile[c], x, y, 0);
    if ((mBitmap.tileFlags[c] & PM_BTILE_ALL_FLAGS) != (tn & PM_BTILE_ALL_FLAGS))
    {
       al_draw_line(x, y, x+20, y+20, mColor.pc[10], 1);
@@ -717,9 +717,7 @@ void mwMiscFnx::mw_draw_text(int color, int x, int y, int flags, const char * te
 }
 
 
-
-
-int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
+int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &y2, int type)
 {
    mScreen.init_level_background();
    int tx = mDisplay.SCREEN_W/2;
@@ -746,15 +744,15 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
       if (mInput.mouse_b[1][0])
       {
          mWM.get_new_box();
-         *x1 = mWM.bx1*20;
-         *y1 = mWM.by1*20;
-         *x2 = (mWM.bx2-mWM.bx1)*20+20;
-         *y2 = (mWM.by2-mWM.by1)*20+20;
+         x1 = mWM.bx1*20;
+         y1 = mWM.by1*20;
+         x2 = (mWM.bx2-mWM.bx1)*20+20;
+         y2 = (mWM.by2-mWM.by1)*20+20;
 
          if (type == 2)
          {
-            *x2 = (mWM.bx2-mWM.bx1)*20;
-            *y2 = (mWM.by2-mWM.by1)*20;
+            x2 = (mWM.bx2-mWM.bx1)*20;
+            y2 = (mWM.by2-mWM.by1)*20;
          }
 
          quit = 1;
@@ -931,7 +929,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int dy = mWM.gy*20+10;
 
          float rot = (float)mItem.item[num][10] / 1000;
-         al_draw_rotated_bitmap(mBitmap.tile[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
+         al_draw_rotated_bitmap(mBitmap.sprite[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
 
          al_draw_line(ix, iy, dx, dy, mColor.pc[10], 1);     // connect with line
       }
@@ -942,7 +940,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int dx = mWM.gx*20+10;
          int dy = mWM.gy*20+10;
          float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
+         al_draw_scaled_rotated_bitmap(mBitmap.sprite[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
       }
 
@@ -1258,20 +1256,20 @@ void mwMiscFnx::fill_rect_with_1_tile(mRect<float> r, int tile)
    r.set_clipping_rectangle();
    for (int hy=r.y1; hy<r.y2; hy+=20)
       for (int hx=r.x1; hx<r.x2; hx+=20)
-         al_draw_bitmap(mBitmap.btile[tile & 1023], hx, hy, 0);
+         al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], hx, hy, 0);
    al_reset_clipping_rectangle();
 }
 
 void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
 {
-   int tile_l = tile_base & 1023;
+   int tile_l = tile_base & PM_BTILE_TILENUM_MASK;
    int tile_m = tile_l+1;
    int tile_r = tile_l+2;
 
    r.round();
 
-   mRect<float> lh(r.x1,        r.y1, r.w/2, r.h); // left half
-   mRect<float> rh(r.XCenter(), r.y1, r.w/2, r.h); // right half
+   mRect<float> lh = mRect<float>::fromX1Y1WH(r.x1,        r.y1, r.w/2, r.h); // left half
+   mRect<float> rh = mRect<float>::fromX1Y1WH(r.XCenter(), r.y1, r.w/2, r.h); // right half
 
    lh.set_clipping_rectangle();
    for (int hy=r.y1; hy<r.y2; hy+=20)
@@ -1279,7 +1277,7 @@ void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
       {
          int tile = tile_m;              // middle
          if (hx == lh.x1) tile = tile_l; // left
-         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
       }
 
    rh.set_clipping_rectangle();
@@ -1288,21 +1286,21 @@ void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
       {
          int tile = tile_m;                 // middle
          if (hx == rh.x2-20) tile = tile_r; // right
-         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
       }
    al_reset_clipping_rectangle();
 }
 
 void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
 {
-   int tile_t = tile_base & 1023;
+   int tile_t = tile_base & PM_BTILE_TILENUM_MASK;
    int tile_m = tile_t+1;
    int tile_b = tile_t+2;
 
    r.round();
 
-   mRect<float> th(r.x1, r.y1,        r.w, r.h/2); // top half
-   mRect<float> bh(r.x1, r.YCenter(), r.w, r.h/2); // bottom half
+   mRect<float> th = mRect<float>::fromX1Y1WH(r.x1, r.y1,        r.w, r.h/2); // top half
+   mRect<float> bh = mRect<float>::fromX1Y1WH(r.x1, r.YCenter(), r.w, r.h/2); // bottom half
 
    th.set_clipping_rectangle();
    for (int hx=th.x1; hx<th.x2; hx+=20)
@@ -1310,7 +1308,7 @@ void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
       {
          int tile = tile_m;              // middle
          if (hy == th.y1) tile = tile_t; // top
-         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
       }
 
    bh.set_clipping_rectangle();
@@ -1319,7 +1317,7 @@ void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
       {
          int tile = tile_m;              // middle
          if (hy == bh.y2-20) tile = tile_b; // bottom
-         al_draw_bitmap(mBitmap.btile[tile], hx, hy, 0);
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
       }
    al_reset_clipping_rectangle();
 }

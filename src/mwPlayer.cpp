@@ -1128,7 +1128,7 @@ void mwPlayer::draw_player(int p)
          if ((pp < st) && (pp > st-sp*8))
          {
             int seq = (st-syn[p].paused) / sp;
-            al_draw_bitmap(mBitmap.tile[952+seq], px, py, 0);
+            al_draw_bitmap(mBitmap.sprite[952+seq], px, py, 0);
          }
       }
 
@@ -1164,7 +1164,7 @@ void mwPlayer::draw_player(int p)
                al_draw_textf(mFont.pixl, mColor.pc[10], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
 
                // draw a tiny bomb picture
-               al_draw_scaled_rotated_bitmap(mBitmap.tile[464], 10, 10,  px+20, py-12, .5, .5, 0, 0);
+               al_draw_scaled_rotated_bitmap(mBitmap.sprite[464], 10, 10,  px+20, py-12, .5, .5, 0, 0);
             }
          }
       }

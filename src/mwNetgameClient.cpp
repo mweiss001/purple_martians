@@ -682,7 +682,7 @@ void mwNetgame::client_apply_dif()
          {
             // printf("dif at x:%d y:%d\n", x, y);
             al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+            al_draw_bitmap(mBitmap.tile[mLevel.l[x][y] & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
          }
    // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
 

@@ -35,8 +35,8 @@ void mwBitmap::create_bitmaps()
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
-   M_tilemap  = create_and_clear_bitmap(704, 704);
-   M_btilemap = create_and_clear_bitmap(704, 704);
+   M_stilemap  = create_and_clear_bitmap(704, 704);
+   M_btilemap = create_and_clear_bitmap(1408, 704);
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
 
@@ -44,8 +44,8 @@ void mwBitmap::create_bitmaps()
    if (!mDisplay.no_display) al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
-   tilemap  = create_and_clear_bitmap(704, 704);
-   btilemap = create_and_clear_bitmap(704, 704);
+   stilemap  = create_and_clear_bitmap(704, 704);
+   btilemap = create_and_clear_bitmap(1408, 704);
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
 
@@ -63,40 +63,42 @@ int mwBitmap::load_tiles()
 {
    //printf("load tiles\n");
 
-   // get main tiles
-   tilemap = al_load_bitmap("bitmaps/tiles.png");
+   // get sprites
+   stilemap = al_load_bitmap("bitmaps/sprites.png");
 
-   al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
+   al_convert_mask_to_alpha(stilemap, al_map_rgb(0, 0, 0)) ;
 
 
-   if (!tilemap)
+   if (!stilemap)
+   {
+      mInput.m_err("Can't load sprites from bitmaps/sprites.png");
+      return 0;
+   }
+   else
+   {
+      al_set_target_bitmap(M_stilemap);
+      al_draw_bitmap(stilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            sprite[y*32 + x] = al_create_sub_bitmap(stilemap, x*22+1, y*22+1, 20, 20);
+   }
+
+   // get block tiles
+   btilemap = al_load_bitmap("bitmaps/tiles.png");
+   al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
+
+   if (!btilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/tiles.png");
       return 0;
    }
    else
    {
-      al_set_target_bitmap(M_tilemap);
-      al_draw_bitmap(tilemap, 0, 0, 0);
-      for (int y=0; y<32; y++)
-         for (int x=0; x<32; x++)
-            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*22+1, y*22+1, 20, 20);
-   }
-
-   // get block tiles
-   btilemap = al_load_bitmap("bitmaps/block_tiles.png");
-   if (!btilemap)
-   {
-      mInput.m_err("Can't load tiles from bitmaps/block_tiles.png");
-      return 0;
-   }
-   else
-   {
       al_set_target_bitmap(M_btilemap);
       al_draw_bitmap(btilemap, 0, 0, 0);
-      for (int y=0; y<32; y++)
+      for (int y=0; y<64; y++)
          for (int x=0; x<32; x++)
-            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*22+1, y*22+1, 20, 20);
+            tile[y*32 + x] = al_create_sub_bitmap(btilemap, x*22+1, y*22+1, 20, 20);
    }
 
    // get player tiles
@@ -162,9 +164,9 @@ void mwBitmap::rebuild_bitmaps()
    t[0] = al_get_time();
 
    // rebuild main tiles
-   al_set_target_bitmap(tilemap);
+   al_set_target_bitmap(stilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_tilemap, 0, 0, 0);
+   al_draw_bitmap(M_stilemap, 0, 0, 0);
 
    // rebuild block tiles
    al_set_target_bitmap(btilemap);
@@ -371,8 +373,8 @@ void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int t
 
    ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 
-   if (flags == 0) al_draw_scaled_bitmap(       tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
-   else            al_draw_tinted_scaled_bitmap(tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   if (flags == 0) al_draw_scaled_bitmap(       sprite[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   else            al_draw_tinted_scaled_bitmap(sprite[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
 }
 
 
@@ -426,7 +428,7 @@ void mwBitmap::spin_shape2(int tn, float x, float y, float tile_scale, float dim
 
    ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 
-   if (flags == 0) al_draw_scaled_rotated_bitmap(       tile[tn],     10+fx, 9.5, x, y, xs, ys, 0, flags);
-   else            al_draw_tinted_scaled_rotated_bitmap(tile[tn], c2, 10+fx, 9.5, x, y, xs, ys, 0, flags);
+   if (flags == 0) al_draw_scaled_rotated_bitmap(       sprite[tn],     10+fx, 9.5, x, y, xs, ys, 0, flags);
+   else            al_draw_tinted_scaled_rotated_bitmap(sprite[tn], c2, 10+fx, 9.5, x, y, xs, ys, 0, flags);
 
 }

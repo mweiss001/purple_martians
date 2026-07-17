@@ -2984,7 +2984,7 @@ int oldselect_bitmap(int tn)
 
       for (int i=0; i<swbn; i++)
       {
-         al_draw_bitmap(btile[swbl[i][0] & 1023], x1+x+1, y1+y+1, 0);
+         al_draw_bitmap(btile[swbl[i][0] & PM_BTILE_TILENUM_MASK], x1+x+1, y1+y+1, 0);
          x+=20;
          if (x>=320)
          {
@@ -3003,7 +3003,7 @@ int oldselect_bitmap(int tn)
       if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
       {
          int pointer = ((mouse_x-x1)/20) + ((mouse_y-y1)/20) * 16 ;
-         int tn = swbl[pointer][0] & 1023;
+         int tn = swbl[pointer][0] & PM_BTILE_TILENUM_MASK;
 
          int ptx = x1;
          int pty = y2;

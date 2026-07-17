@@ -542,7 +542,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          // if step is not a move step, find prev that is
          if ((mLift.stp[lift][s].type & 31) != 1) s = mLift.find_previous_move_step(lift, s);
 
-         mRect<float> lr(x1, y1, mLift.stp[lift][s].w, mLift.stp[lift][s].h);
+         mRect<float> lr = mRect<float>::fromX1Y1WH(x1, y1, mLift.stp[lift][s].w, mLift.stp[lift][s].h);
          mLift.draw_lift(lift, lr);
       }
 
@@ -710,7 +710,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.togglf(     xa, ya, xb, bts,  0,0,0,0,  0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ", 15+dim, 15, 14+dim, 14);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
             {
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Internal Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Internal Trigger Box")) mMiscFnx.get_block_range("Trigger Box", mEnemy.Ei[n][11], mEnemy.Ei[n][12], mEnemy.Ei[n][13], mEnemy.Ei[n][14], 2);
             }
 
             ya+=4; // spacer
@@ -783,7 +783,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", &mEnemy.Ei[n][15], &mEnemy.Ei[n][16], &mEnemy.Ei[n][19], &mEnemy.Ei[n][20], 1);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", mEnemy.Ei[n][15], mEnemy.Ei[n][16], mEnemy.Ei[n][19], mEnemy.Ei[n][20], 1);
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
             ya+=4; // spacer
             mWidget.buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
@@ -898,7 +898,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.buttonpd(   xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
 
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
          break;
@@ -957,7 +957,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                ya+=4; // spacer
             }
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Message Area")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Message Area")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,3,15,0,   1,0,1,d); // Set Message Frame
             ya+=4; // spacer
@@ -985,7 +985,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 14: // switch
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,14, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
@@ -1004,7 +1004,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
 
             mWidget.buttonp(       xa, ya, xb, bts, 83,0,0,0,   0,11,15,0,  1,0,1,d, mItem.item[n][2]); // draw mode
-            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,    0,11,15,0,  1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,    0,11,15,0,  1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
 
             ya+=4; int p = 13; // spacer
             mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][10], 1000, 0, 1, "Timer 1:" , "OFF");
@@ -1036,7 +1036,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
          case 9: // trigger
          {
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
             if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
@@ -1065,7 +1065,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case 16: // block manip
          {
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
                mWidget.colsel(  xa, ya, xb, bts, 7,n,0,0,    0,0,0,0,     0,0,1,d);               // color select
@@ -1112,7 +1112,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
          case 17: // block damage
          {
-            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
             //mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             mWidget.buttonpd(      xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
@@ -1164,7 +1164,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case 19: // hider
          {
-            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
 
             int p=7; // mode color

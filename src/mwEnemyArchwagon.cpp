@@ -302,7 +302,7 @@ void mwEnemy::move_blokwalk(int e)
       {
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
-         al_draw_bitmap(mBitmap.btile[block & 1023], ex*20, ey*20, 0);
+         al_draw_bitmap(mBitmap.btile[block & PM_BTILE_TILENUM_MASK], ex*20, ey*20, 0);
       }
       */
 

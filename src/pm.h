@@ -45,16 +45,41 @@ public:
    T w;
    T h;
 
+
+
+private:
+
    // default constructor:
    mRect() : x1(0), y1(0), x2(0), y2(0), w(0), h(0) {}
-
-
    mRect(T posX1, T posY1, T rectWidth, T rectHeight) { setXYWH(posX1, posY1, rectWidth, rectHeight); }
 
-   // with 5 parameters to overload
-   mRect(T posX1, T posY1, T posX2, T posY2, T junk)  { setX2Y2(posX1, posY1, posX2, posY2); }
+
+public:
+
+   static mRect fromX1Y1WH(   T x1, T y1, T w,  T h )  { return mRect<T>(x1,    y1,      w,  h      );  }
+   static mRect fromX2Y2WH(   T x2, T y2, T w,  T h )  { return mRect<T>(x2-w,  y2-h,    w,  h      );  }
+   static mRect fromX1Y1X2Y2( T x1, T y1, T x2, T y2)  { return mRect<T>(x1,    y1,  x2-x1,  y2-y1  );  }
 
 
+   void setWH(T rectWidth, T rectHeight)
+   {
+      w = rectWidth;
+      h = rectHeight;
+      x2 = x1 + w;
+      y2 = y1 + h;
+   }
+
+
+
+   void setX2Y2WH(T posX2, T posY2, T rectWidth, T rectHeight)
+   {
+      x2 = posX2;
+      y2 = posY2;
+      w = rectWidth;
+      h = rectHeight;
+      x1 = x2 - w;
+      y1 = y2 - h;
+   }
    void setXYWH(T posX1, T posY1, T rectWidth, T rectHeight)
    {
       x1 = posX1;
@@ -64,7 +89,7 @@ public:
       x2 = x1 + w;
       y2 = y1 + h;
    }
-   void setX2Y2(T posX1, T posY1, T posX2, T posY2)
+   void setX1Y1X2Y2(T posX1, T posY1, T posX2, T posY2)
    {
       x1 = posX1;
       y1 = posY1;
@@ -73,6 +98,12 @@ public:
       w = posX2 - posX1;
       h = posY2 - posY1;
    }
+
+
+
+
+
+
 
    void round()
    {
@@ -128,6 +159,22 @@ public:
    {
       h = newHeight;
       y2 = y1 + h;
+   }
+
+   void enforceLimits(T xMin, T yMin, T xMax, T yMax)
+   {
+      if (x1<xMin) x1 = xMin;
+      if (x2<xMin) x2 = xMin;
+      if (x1>xMax) x1 = xMax;
+      if (x2>xMax) x2 = xMax;
+
+      if (y1<yMin) y1 = yMin;
+      if (y2<yMin) y2 = yMin;
+      if (y1>yMax) y1 = yMax;
+      if (y2>yMax) y2 = yMax;
+
+      w = x2 - x1;
+      h = y2 - y1;
    }
 
 
@@ -218,6 +265,9 @@ struct client_status_buffer_row
 
 
 #define NUM_SPRITES 1024
+#define NUM_TILES 2048
+
+
 #define NUM_ANS 256
 #define NUM_PLAYERS 8
 #define BORDER_WIDTH 14
@@ -348,13 +398,11 @@ struct client_status_buffer_row
 #define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
 #define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
 #define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
-//#define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
-
 
 
 //                                   3       2       1       0
-//                                   76543210765432107654321076543210
-#define PM_BTILE_TILENUM_FLAGS     0b00000000000000000000001111111111
+//                                 __76543210765432107654321076543210
+#define PM_BTILE_TILENUM_MASK      0b00000000000000000000011111111111
 #define PM_BTILE_KEY_ACTIVE        0b00000000000000001000000000000000
 #define PM_BTILE_KEY_COLOR1        0b00000000000000000100000000000000
 #define PM_BTILE_KEY_COLOR0        0b00000000000000000010000000000000

@@ -856,7 +856,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
          {
             int tn = mSelectionWindow.pdes[c].ia[1]; // default is the mBitmap.tile in PDEi[c][1]
             if (tn > 999) tn = mBitmap.zz[0][tn-1000]; // ans
-            al_draw_bitmap(mBitmap.tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
+            al_draw_bitmap(mBitmap.sprite[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
          }
    }
 
@@ -901,7 +901,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
       // draw blocks
       for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)
          for (int x=0; x<16; x++)
-            al_draw_bitmap(mBitmap.btile[mSelectionWindow.block_array[y][x] & 1023], x1+x*20+1, y1+select_window_block_y+1+14+(y*20), 0 );
+            al_draw_bitmap(mBitmap.tile[mSelectionWindow.block_array[y][x] & PM_BTILE_TILENUM_MASK], x1+x*20+1, y1+select_window_block_y+1+14+(y*20), 0 );
 
    }
    if (!d)

@@ -138,7 +138,7 @@ This is how the flags are setup:
 <mh3>    
 When drawing a tile, this is how I get just the tile number (the lowest 9 bits)
 </mh3>    
-<pre><code class="language-cpp">int tile_number = mLevel.l[x][y] & 1023;
+<pre><code class="language-cpp">int tile_number = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
 al_draw_bitmap(mBitmap.tile[tile_number], x*20, y*20, 0 );
 </code></pre>
 

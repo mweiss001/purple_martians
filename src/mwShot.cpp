@@ -249,7 +249,7 @@ void mwShot::draw_eshots()
       {
          int t = e[b].shape;
          if (t > 1000) t = mBitmap.zz[0][e[b].shape-1000];
-         al_draw_bitmap(mBitmap.tile[t], (int)e[b].x, (int)e[b].y, 0);
+         al_draw_bitmap(mBitmap.sprite[t], (int)e[b].x, (int)e[b].y, 0);
       }
 }
 

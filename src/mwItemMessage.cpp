@@ -77,7 +77,7 @@ int mwItem::draw_message(int i, int x, int y, int custom)
    if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) show_scroll = 1;
    if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) show_scroll = 0;
    if (mLoop.level_editor_running) show_scroll = 1;
-   if (show_scroll) al_draw_bitmap(mBitmap.tile[mBitmap.zz[0][36]], x, y, 0);
+   if (show_scroll) al_draw_bitmap(mBitmap.sprite[mBitmap.zz[0][36]], x, y, 0);
    return 1;
 }
 

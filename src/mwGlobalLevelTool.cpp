@@ -16,71 +16,99 @@
 #include "mwLift.h"
 
 
-
-
 mwGlobalLevelTool mGlobalLevelTool;
 
-void mwGlobalLevelTool::show_block_list(int blt[])
+
+
+void mwGlobalLevelTool::countTiles()
 {
-   int y = 0;
-   int count_unique = 0;
+   int old_start_level = mLevel.start_level;
+   int le[400] = {0}; // level exists array
+   int num_levs = 0;
+   char fn[20] = "levels/level000.PML";
 
-   al_draw_filled_rectangle(200, 0, mDisplay.SCREEN_W-1, mDisplay.SCREEN_H-1, mColor.pc[0]);
-   for (int z=0; z<NUM_SPRITES; z++)
-      if (blt[z])
-      {
-         count_unique++;
-         al_draw_bitmap(mBitmap.btile[z], 180, y, 0);
-         //al_draw_textf(mFont.pr8, mColor.pc[11], 200, y+6, 0, "sa%d   block# %d   count %d ",mBitmap.sa[z][0],  z, blt[z] );
-         al_draw_textf(mFont.pr8, mColor.pc[11], 200, y+6, 0, "block:%d count:%d ", z, blt[z] );
-         printf("block:%d count:%d\n", z, blt[z] );
-         y+=20;
-         if (y > mDisplay.SCREEN_H-20)
-         {
-            al_flip_display();
-            al_clear_to_color(al_map_rgb(0,0,0));
-            mInput.tsw();
-            y = 0;
-         }
-      }
-
-   printf("\nunique blocks:%d\n", count_unique);
-
-   al_flip_display();
-   mInput.tsw();
-
-}
-/*
-
-void mwGlobalLevelTool::remove_unused_tiles(int blt[])
-{
-   for (int z=0; z<NUM_SPRITES; z++)
+   // level range to look for
+   for (int x=0; x<400; x++)
    {
-      if (blt[z] == 0) // block is not used
-      {
-         al_set_target_bitmap(mBitmap.btile[z]);
-         al_clear_to_color(al_map_rgb(0,0,0));
-      }
+      int h, d, rem = x;
+      h = rem/100;
+      fn[12] = 48+h;
+      rem -=h*100;
+      d = rem/10;
+      fn[13] = 48 + d;
+      rem -=d*10;
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
    }
 
-   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
-   al_set_target_bitmap(temp);
-   for (int y = 0; y < 32; y++)
-      for (int x = 0; x < 32; x++)
-         al_draw_bitmap(mBitmap.btile[y*32 + x], (x*20), (y*20), 0);
 
-   al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
-   al_destroy_bitmap(temp);
+   // clear
+   for (int t=0; t<NUM_TILES; t++)
+      for (int l=0; l<400; l++) tileCount[t][l] = 0;
 
+
+   // iterate array of found levels
+   for (int i=0; i<num_levs; i++)
+   {
+      mLevel.load_level(le[i], 1, 1);
+
+      if (1)
+      {
+         // tile counter
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
+            {
+               int t = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+      if (0)
+      {
+         // block manip counter
+         for (int y=0; y<500; y++)
+            if (mItem.item[y][0] == 16)
+            {
+               int t = mItem.item[y][10] & PM_BTILE_TILENUM_MASK;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+
+               t = mItem.item[y][11] & PM_BTILE_TILENUM_MASK;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+      if (0)
+      {
+         // block walker counter
+         for (int y=0; y<100; y++)
+            if (mEnemy.Ei[y][0] == 4)
+            {
+               int t = mEnemy.Ei[y][13] & PM_BTILE_TILENUM_MASK;
+               tileCount[t][0]++;
+               tileCount[t][le[i]]++;
+            }
+      }
+   }
+   mLevel.set_start_level(old_start_level);
 }
 
-*/
-void replaceTileIfMatch(int &tile, int match, int replace)
+
+
+
+
+
+
+// modifies passed tile
+// if tileNum part matches match, replace only that part (leave flags untouched)
+void mwGlobalLevelTool::replaceTileIfMatch(int &tile, int match, int replace)
 {
-   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_ALL_FLAGS);
+   if ((tile & PM_BTILE_TILENUM_MASK) == match) tile = replace | (tile & PM_BTILE_ALL_FLAGS);
 }
 
-void changeBlockNumber(int oldNum, int newNum)
+// works on currently loaded level
+// changes all references of oldNum to newNum
+void mwGlobalLevelTool::changeBlockNumber(int oldNum, int newNum)
 {
    // block changer
    for (int x=0; x<100; x++)
@@ -95,63 +123,72 @@ void changeBlockNumber(int oldNum, int newNum)
          replaceTileIfMatch(mItem.item[y][11], oldNum, newNum);
       }
 
+
+// need to add block damage and lifts, which now reference tiles
+
+
+
+
+
+
+
 }
 
-/*
-
-void clearTileRange()
+// iterates all levels
+// loads level
+// changes block range
+// saves level
+void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int range)
 {
-   for (int x=0; x<100; x++)
-      for (int y=0; y<100; y++)
-      {
-         int tile = mLevel.l[x][y] & 1023;
-         if (tile > 302 && tile < 672) mLevel.l[x][y] = PM_BTILE_SHOW_SELECT_WIN;
-      }
+   int old_start_level = mLevel.start_level;
+   int le[400] = {0}; // level exists array
+   int num_levs = 0;
+   char fn[20] = "levels/level000.PML";
+
+
+   // level range to look for
+   for (int x=0; x<400; x++)
+   {
+      int h, d, rem = x;
+      h = rem/100;
+      fn[12] = 48+h;
+      rem -=h*100;
+      d = rem/10;
+      fn[13] = 48 + d;
+      rem -=d*10;
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   // iterate array of found levels
+   for (int i=0; i<num_levs; i++)
+   {
+      mLevel.load_level(le[i], 1, 1);
+
+      for (int r=0; r<range; r++)
+         changeBlockNumber(oldNumber+r, newNumber+r);
+
+
+      mLevel.save_level(le[i]);
+   }
+   mLevel.set_start_level(old_start_level);
 }
 
-*/
-
-void changeBlockNumbersRect(int oldNum, int newNum)
-{
-   changeBlockNumber(oldNum+16, newNum+0);
-   changeBlockNumber(oldNum+18, newNum+1);
-   changeBlockNumber(oldNum+14, newNum+2);
-   changeBlockNumber(oldNum+9,  newNum+3);
-   changeBlockNumber(oldNum+12, newNum+4);
-   changeBlockNumber(oldNum+15, newNum+5);
-   changeBlockNumber(oldNum+8,  newNum+6);
-   changeBlockNumber(oldNum+13, newNum+7);
-   changeBlockNumber(oldNum+0,  newNum+8);
-   changeBlockNumber(oldNum+1,  newNum+9);
-   changeBlockNumber(oldNum+2,  newNum+10);
-   changeBlockNumber(oldNum+3,  newNum+11);
-   changeBlockNumber(oldNum+4,  newNum+12);
-   changeBlockNumber(oldNum+5,  newNum+13);
-   changeBlockNumber(oldNum+6,  newNum+14);
-   changeBlockNumber(oldNum+7,  newNum+15);
-}
 
 
 
-void changeBlockNumbersFrame(int oldNum, int newNum)
-{
-   changeBlockNumber(oldNum+16, newNum+0);
-   changeBlockNumber(oldNum+18, newNum+1);
-   changeBlockNumber(oldNum+14, newNum+2);
-   changeBlockNumber(oldNum+6,  newNum+3);
-   changeBlockNumber(oldNum+12, newNum+4);
-   changeBlockNumber(oldNum+15, newNum+5);
-   changeBlockNumber(oldNum+4,  newNum+6);
-   changeBlockNumber(oldNum+13, newNum+7);
-   changeBlockNumber(oldNum+0,  newNum+8);
-   changeBlockNumber(oldNum+1,  newNum+9);
-   changeBlockNumber(oldNum+2,  newNum+10);
-   changeBlockNumber(oldNum+3,  newNum+11);
-   changeBlockNumber(oldNum+8,  newNum+12);
-   changeBlockNumber(oldNum+10, newNum+13);
-   changeBlockNumber(oldNum+9,  newNum+14);
-   changeBlockNumber(oldNum+11, newNum+15);
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -166,7 +203,6 @@ void changeBlockNumbersFrame(int oldNum, int newNum)
 
 void mwGlobalLevelTool::execute(void)
 {
-//   int blt[NUM_SPRITES] = {0};
 
    int old_start_level = mLevel.start_level;
 
@@ -280,7 +316,7 @@ void mwGlobalLevelTool::execute(void)
       // block counter
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
-            blt[mLevel.l[y][z] & 1023]++; // inc block counter
+            blt[mLevel.l[y][z] & PM_BTILE_TILENUM_MASK]++; // inc block counter
 */
 
 
@@ -345,7 +381,7 @@ void mwGlobalLevelTool::execute(void)
          if (type == 4)
          {
             int block = mEnemy.Ei[y][13];
-            int tile = block & 1023;
+            int tile = block & PM_BTILE_TILENUM_MASK;
             int flags = block & PM_BTILE_ALL_FLAGS;
 
             printf("Level:%3d - blkwlk - %d - %d - %d \n", le[x], tile, block, flags);
@@ -357,7 +393,7 @@ void mwGlobalLevelTool::execute(void)
                mEnemy.Ei[y][13] = block;
 
                block = mEnemy.Ei[y][13];
-               tile = block & 1023;
+               tile = block & PM_BTILE_TILENUM_MASK;
                flags = block & PM_BTILE_ALL_FLAGS;
 
                printf("Level:%3d - blkwlk - %d - %d - %d \n\n", le[x], tile, block, flags);
@@ -383,7 +419,7 @@ void mwGlobalLevelTool::execute(void)
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
          {
-            int t = mLevel.l[y][z] & 1023;
+            int t = mLevel.l[y][z] & PM_BTILE_TILENUM_MASK;
 
             if (t == 220 || t == 312 || t == 316) // red keyed block 100
             {
@@ -423,13 +459,13 @@ void mwGlobalLevelTool::execute(void)
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
          {
-            if ((mLevel.l[y][z] & 1023) == 21)
+            if ((mLevel.l[y][z] & PM_BTILE_TILENUM_MASK) == 21)
             {
                int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
                mLevel.l[y][z] = (55 | flags);
             }
 
-            if ((mLevel.l[y][z] & 1023) == 53)
+            if ((mLevel.l[y][z] & PM_BTILE_TILENUM_MASK) == 53)
             {
                int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
                mLevel.l[y][z] = (56 | flags);
@@ -633,7 +669,7 @@ void mwGlobalLevelTool::execute(void)
 //      // block counter
 //      for (int y=0; y<100; y++)
 //         for (int z=0; z<100; z++)
-//            blt[l[y][z] & 1023]++; // inc block counter
+//            blt[l[y][z] & PM_BTILE_TILENUM_MASK]++; // inc block counter
 
 //      for (int l=0; l<NUM_LIFTS; l++)
 //         if (lifts[l].active)
@@ -1433,7 +1469,7 @@ then semisolid...add to solid
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
          {
-            int t = l[y][z] & 1023; // get tile only
+            int t = l[y][z] & PM_BTILE_TILENUM_MASK; // get tile only
 
             blt[t]++; // inc block counter
 
@@ -1638,12 +1674,12 @@ then semisolid...add to solid
 
             if (le[x] == 314)
             {
-               int tn = mItem.item[y][10] & 1023; // get tile only
+               int tn = mItem.item[y][10] & PM_BTILE_TILENUM_MASK; // get tile only
                tn |= sa[tn][0]; // apply default flags
                tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
                mItem.item[y][10] = tn;
 
-               tn = mItem.item[y][11] & 1023; // get tile only
+               tn = mItem.item[y][11] & PM_BTILE_TILENUM_MASK; // get tile only
                tn |= sa[tn][0]; // apply default flags
                tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
                mItem.item[y][11] = tn;
@@ -1925,157 +1961,6 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             }
          }
 */
-
-
-
-void mwGlobalLevelTool::countTiles()
-{
-   int old_start_level = mLevel.start_level;
-   int le[400] = {0}; // level exists array
-   int num_levs = 0;
-   char fn[20] = "levels/level000.PML";
-   // level range to look for
-   for (int x=0; x<400; x++)
-   {
-      int h, d, rem = x;
-      h = rem/100;
-      fn[12] = 48+h;
-      rem -=h*100;
-      d = rem/10;
-      fn[13] = 48 + d;
-      rem -=d*10;
-      fn[14] = 48 + rem;
-      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
-   }
-
-   for (int t=0; t<1024;t++)
-      for (int l=0; l<400; l++)
-         tileCount[t][l] = 0;
-
-   // iterate array of found levels
-   for (int i=0; i<num_levs; i++)
-   {
-      mLevel.load_level(le[i], 1, 1);
-
-      if (1)
-      {
-         // tile counter
-         for (int x=0; x<100; x++)
-            for (int y=0; y<100; y++)
-            {
-               int t = mLevel.l[x][y] & 1023;
-               tileCount[t][0]++;
-               tileCount[t][le[i]]++;
-            }
-      }
-      if (0)
-      {
-         // block manip counter
-         for (int y=0; y<500; y++)
-            if (mItem.item[y][0] == 16)
-            {
-               int t = mItem.item[y][10] & 1023;
-               tileCount[t][0]++;
-               tileCount[t][le[i]]++;
-
-               t = mItem.item[y][11] & 1023;
-               tileCount[t][0]++;
-               tileCount[t][le[i]]++;
-            }
-      }
-      if (0)
-      {
-         // block walker counter
-         for (int y=0; y<100; y++)
-            if (mEnemy.Ei[y][0] == 4)
-            {
-               int t = mEnemy.Ei[y][13] & 1023;
-               tileCount[t][0]++;
-               tileCount[t][le[i]]++;
-            }
-      }
-   }
-   mLevel.set_start_level(old_start_level);
-}
-
-
-
-void mwGlobalLevelTool::changeTileNumber(int oldNumber, int newNumber, int level)
-{
-   int old_start_level = mLevel.start_level;
-   int le[400] = {0}; // level exists array
-   int num_levs = 0;
-   char fn[20] = "levels/level000.PML";
-
-   // level range to look for
-   for (int x=0; x<400; x++)
-   {
-      int h, d, rem = x;
-      h = rem/100;
-      fn[12] = 48+h;
-      rem -=h*100;
-      d = rem/10;
-      fn[13] = 48 + d;
-      rem -=d*10;
-      fn[14] = 48 + rem;
-      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
-   }
-
-   // iterate array of found levels
-   for (int i=0; i<num_levs; i++)
-   {
-      mLevel.load_level(le[i], 1, 1);
-      changeBlockNumber(oldNumber, newNumber);
-      if (level == 0 || level == le[i]) mLevel.save_level(le[i]);
-   }
-
-   mLevel.set_start_level(old_start_level);
-}
-
-
-void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int range)
-{
-   int old_start_level = mLevel.start_level;
-   int le[400] = {0}; // level exists array
-   int num_levs = 0;
-   char fn[20] = "levels/level000.PML";
-
-
-   // level range to look for
-   for (int x=0; x<400; x++)
-   {
-      int h, d, rem = x;
-      h = rem/100;
-      fn[12] = 48+h;
-      rem -=h*100;
-      d = rem/10;
-      fn[13] = 48 + d;
-      rem -=d*10;
-      fn[14] = 48 + rem;
-      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
-   }
-
-   // iterate array of found levels
-   for (int i=0; i<num_levs; i++)
-   {
-      mLevel.load_level(le[i], 1, 1);
-
-      for (int r=0; r<range; r++)
-         changeBlockNumber(oldNumber+r, newNumber+r);
-
-
-      mLevel.save_level(le[i]);
-   }
-
-   mLevel.set_start_level(old_start_level);
-}
-
-
-
-
-
-
-
 
 
 

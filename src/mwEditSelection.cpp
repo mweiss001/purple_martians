@@ -630,7 +630,7 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
       {
          mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
 
-         int mtn = tn & 1023; // strip flags from tile
+         int mtn = tn & PM_BTILE_TILENUM_MASK; // strip flags from tile
 
          mLevel.l[x][y] |= mtn; // merge tileNum
 
@@ -725,7 +725,7 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
    if (mWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
-      int tn = mWM.mW[1].draw_item_num & 1023;
+      int tn = mWM.mW[1].draw_item_num & PM_BTILE_TILENUM_MASK;
       bts = 24;
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
       {
@@ -783,7 +783,7 @@ void mwEditSelection::draw_fsel(void)
    // draw lifts
    if (mWM.obj_filter[4][1])
       for (int l=0; l<ft_level_header[5]; l++)
-         ftLift.draw_lift(l, mRect<float>(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
+         ftLift.draw_lift(l, mRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
 }
 
 void mwEditSelection::process_mouse(void)

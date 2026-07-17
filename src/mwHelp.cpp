@@ -245,7 +245,7 @@ void mwHelp::help(const char *topic)
                 buff2[2] = msg[5];
                 buff2[3] = 0;
                 int ans = mBitmap.zz[0][atoi(buff2)];
-                al_draw_bitmap(mBitmap.tile[ans], dx+sxc, sy, 0 );
+                al_draw_bitmap(mBitmap.sprite[ans], dx+sxc, sy, 0 );
                 msg[0]= 0;
             }
 
@@ -257,7 +257,7 @@ void mwHelp::help(const char *topic)
                 buff2[2] = 0;
                 //printf("s:'%s' i:%d\n", buff2, atoi(buff2));
                 int ans = mBitmap.zz[0][atoi(buff2)];
-                al_draw_bitmap(mBitmap.btile[ans], dx+sx, sy, 0 );
+                al_draw_bitmap(mBitmap.tile[ans], dx+sx, sy, 0 );
                 mMiscFnx.chop_first_x_char(msg, 6);
                 xindent +=24;
             }
@@ -268,7 +268,7 @@ void mwHelp::help(const char *topic)
                 buff2[1] = msg[3];
                 buff2[2] = 0;
                 int ans = mBitmap.zz[0][atoi(buff2)];
-                al_draw_bitmap(mBitmap.tile[ans], dx+sx, sy, 0 );
+                al_draw_bitmap(mBitmap.sprite[ans], dx+sx, sy, 0 );
 
                 mMiscFnx.chop_first_x_char(msg, 5);
                 xindent +=24;
@@ -315,7 +315,7 @@ void mwHelp::help(const char *topic)
                buff2[2] = msg[5];
                buff2[3] = 0;
                int ans = atoi(buff2);
-               al_draw_bitmap(mBitmap.btile[ans], dx+sx, sy, 0 );
+               al_draw_bitmap(mBitmap.tile[ans], dx+sx, sy, 0 );
                mMiscFnx.chop_first_x_char(msg, 7);
                xindent +=24;
             }
@@ -327,7 +327,7 @@ void mwHelp::help(const char *topic)
                buff2[2] = msg[4];
                buff2[3] = 0;
                int ans = atoi(buff2);
-               al_draw_bitmap(mBitmap.tile[ans], dx+sx, sy, 0 );
+               al_draw_bitmap(mBitmap.sprite[ans], dx+sx, sy, 0 );
                mMiscFnx.chop_first_x_char(msg, 6);
                xindent +=24;
             }
@@ -341,7 +341,7 @@ void mwHelp::help(const char *topic)
                   buff2[2] = msg[5+z*3];
                   buff2[3] = 0;
                   int ans = atoi(buff2);
-                  al_draw_bitmap(mBitmap.btile[ans], dx+sx+(z*20), sy, 0 );
+                  al_draw_bitmap(mBitmap.tile[ans], dx+sx+(z*20), sy, 0 );
                }
                msg[0]= 0;
             }

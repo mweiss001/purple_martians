@@ -68,29 +68,18 @@ void mwItem::show_all_items(void)
 
    for (int i=0; i<num_items; i++)
    {
-
-      /*
-      al_set_target_bitmap(tmp);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      draw_item(i, 1, 0, 0);
-      al_set_target_backbuffer(mDisplay.display);
-      al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
-     */
-
-      al_draw_scaled_bitmap(mBitmap.tile[item_tile[mItem.item[i][0]]], 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
-
+      al_draw_scaled_bitmap(mBitmap.sprite[item_tile[item[i][0]]], 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
 
       sprintf(msg,"item:[%2d] ",i );
       for (int j=0; j<16; j++)
       {
          char msg2[80];
-         //sprintf(msg2,"%d[%d] ", j, mItem.item[i][j]);
-         sprintf(msg2,"[%d] ", mItem.item[i][j]);
-         if (j == 0) sprintf(msg2,"[%-2d] ", mItem.item[i][j]);
-         if (j == 1) sprintf(msg2,"[%-4d] ", mItem.item[i][j]);
-         if (j == 3) sprintf(msg2,"[%-2d] ", mItem.item[i][j]);
-         if (j == 4) sprintf(msg2,"[%-4d] ", mItem.item[i][j]);
-         if (j == 5) sprintf(msg2,"[%-4d] ", mItem.item[i][j]);
+         sprintf(msg2,"[%d] ", item[i][j]);
+         if (j == 0) sprintf(msg2,"[%-2d] ", item[i][j]);
+         if (j == 1) sprintf(msg2,"[%-4d] ", item[i][j]);
+         if (j == 3) sprintf(msg2,"[%-2d] ", item[i][j]);
+         if (j == 4) sprintf(msg2,"[%-4d] ", item[i][j]);
+         if (j == 5) sprintf(msg2,"[%-4d] ", item[i][j]);
          strcat(msg, msg2);
       }
       al_draw_text(mFont.pr8, mColor.pc[13], rh+2, text_pos+(rh-8)/2, 0, msg);
@@ -113,8 +102,8 @@ int mwItem::sort_item(int set_pos)
    char msg[1024];
    // to not break linked items
    for (int c=0; c < 500; c++)
-      if (mItem.item[c][0] == 1) //door
-         mItem.item[c][15] = c; // tag this door with its original item number
+      if (item[c][0] == 1) //door
+         item[c][15] = c; // tag this door with its original item number
    int inum, c, d, quit, temp, iswap;
    quit=0;
    while (!quit) // sort item list
@@ -124,17 +113,17 @@ int mwItem::sort_item(int set_pos)
       {
          if (set_pos)
          {
-            itemf[c][0] = mItem.item[c][4];
-            itemf[c][1] = mItem.item[c][5];
+            itemf[c][0] = item[c][4];
+            itemf[c][1] = item[c][5];
          }
 
-         if (mItem.item[c][0] < mItem.item[c+1][0]) iswap = 1; // sort by first value 'type'
+         if (item[c][0] < item[c+1][0]) iswap = 1; // sort by first value 'type'
 
-         else if (mItem.item[c][0] == mItem.item[c+1][0]) // if type is the same, do secondary sort within same item type
+         else if (item[c][0] == item[c+1][0]) // if type is the same, do secondary sort within same item type
          {
-            if (mItem.item[c][0] == 5) // start
+            if (item[c][0] == 5) // start
             {
-               if (mItem.item[c][7] > mItem.item[c+1][7]) iswap = 1; // sort by 2nd value 'start_index'
+               if (item[c][7] > item[c+1][7]) iswap = 1; // sort by 2nd value 'start_index'
             }
          }
 
@@ -143,27 +132,27 @@ int mwItem::sort_item(int set_pos)
          {
             quit=0;      // as long as a iswap has been made
             iswap = 0;
-            if ((mItem.item[c][0] == 10) && (mItem.item[c+1][0] == 10)) // both messages
+            if ((item[c][0] == 10) && (item[c+1][0] == 10)) // both messages
             {
                strcpy(msg, pmsgtext[c]);
                strcpy(pmsgtext[c], pmsgtext[c+1]);
                strcpy(pmsgtext[c+1], msg);
             }
-            if ((mItem.item[c][0] == 10) && (mItem.item[c+1][0] != 10)) // first only
+            if ((item[c][0] == 10) && (item[c+1][0] != 10)) // first only
             {
                strcpy(pmsgtext[c+1], pmsgtext[c]);
                pmsgtext[c][0] = 0;
             }
-            if ((mItem.item[c][0] != 10) && (mItem.item[c+1][0] == 10)) // second only
+            if ((item[c][0] != 10) && (item[c+1][0] == 10)) // second only
             {
                strcpy(pmsgtext[c], pmsgtext[c+1]);
                pmsgtext[c+1][0] = 0;
             }
             for (d=0; d<16; d++)
             {
-               temp = mItem.item[c][d];
-               mItem.item[c][d] = mItem.item[c+1][d];
-               mItem.item[c+1][d] = temp;
+               temp = item[c][d];
+               item[c][d] = item[c+1][d];
+               item[c+1][d] = temp;
             }
             for (d=0; d<4; d++)
             {
@@ -186,31 +175,31 @@ int mwItem::sort_item(int set_pos)
 
    for (c=0; c<500; c++) // get the type counts
    {
-      item_num_of_type[mItem.item[c][0]]++; // inc number of this type
-      if (mItem.item[c][0]) inum++;
+      item_num_of_type[item[c][0]]++; // inc number of this type
+      if (item[c][0]) inum++;
    }
    for (c=0; c<30; c++)             // get first nums
       if (item_num_of_type[c] > 0)  // are there any of this type?
          for (d=0; d<500; d++)
-            if (mItem.item[d][0] == c)
+            if (item[d][0] == c)
             {
                item_first_num[c] = d;
                d=500;   // exit loop
             }
    // to not break linked items
    for (int c=0; c < 500; c++)
-      if ((mItem.item[c][0] == 1) && (mItem.item[c][8] == 1))           // if door && exit mode == link
+      if ((item[c][0] == 1) && (item[c][8] == 1))           // if door && exit mode == link
       {
-         int link = mItem.item[c][9];                                   // look for doors with that link in 15
+         int link = item[c][9];                                   // look for doors with that link in 15
          for (int d=0; d < 500; d++)
-            if ((mItem.item[d][0] == 1) && (mItem.item[d][15] == link)) // found a door with link in 15
-               mItem.item[c][9] = d;                                    // update to new link number
+            if ((item[d][0] == 1) && (item[d][15] == link)) // found a door with link in 15
+               item[c][9] = d;                                    // update to new link number
       }
 
    // erase what we put in 15
    for (int c=0; c < 500; c++)
-      if (mItem.item[c][0] == 1)     // door
-         mItem.item[c][15] = 0;
+      if (item[c][0] == 1)     // door
+         item[c][15] = 0;
 
    // set number of starts...
    mLevel.number_of_starts = item_num_of_type[5];
@@ -223,7 +212,7 @@ int mwItem::get_empty_item(void) // just find me an empty
 {
    int mt = -1;
    for (int i=0; i<500; i++)
-      if (mItem.item[i][0] == 0)
+      if (item[i][0] == 0)
       {
          mt = i;
          break;
@@ -239,58 +228,23 @@ int mwItem::get_empty_item(int type) // finds, sets type, sorts, refinds
    else
    {
       clear_item(mt);
-      mItem.item[mt][0] = type; // set type
-      mItem.item[mt][9] = 9999; // mark to find after sort !!
+      item[mt][0] = type; // set type
+      item[mt][9] = 9999; // mark to find after sort !!
       sort_item(1);
       mt = 0;
-      while ((mt < 500) && (mItem.item[mt][9] != 9999)) mt++;
-      mItem.item[mt][9] = 0; // remove mark
+      while ((mt < 500) && (item[mt][9] != 9999)) mt++;
+      item[mt][9] = 0; // remove mark
    }
    return mt;
 }
 
-// not used!!!!! too much hassle....
-void mwItem::check_item(int i, int ct)
-{
 
-   // range check for key, trig, manip, damage
-   // probably wont use for trig, manip, damage, because they can be slaved to a lift and go off screen
-   if (ct == 1)
-   {
-      if (mItem.item[i][6] > 1980)
-      {
-         mItem.item[i][6] = 1980;
-         mItem.item[i][8] = 2000;
-      }
-      if (mItem.item[i][7] > 1980)
-      {
-         mItem.item[i][7] = 1980;
-         mItem.item[i][9] = 2000;
-      }
-      if (mItem.item[i][6] < 0)
-      {
-         mItem.item[i][8] += mItem.item[i][6]+20; // first adjust width
-         mItem.item[i][6] = 0;              // then adjust x
-      }
-      if (mItem.item[i][7] < 0)
-      {
-         mItem.item[i][9] += mItem.item[i][7]+20; // first adjust height
-         mItem.item[i][7] = 0;              // then adjust y
-      }
-
-      // w and h
-      if (mItem.item[i][6] + mItem.item[i][8] > 2000) mItem.item[i][8] = 2000-mItem.item[i][6];
-      if (mItem.item[i][7] + mItem.item[i][9] > 2000) mItem.item[i][9] = 2000-mItem.item[i][7];
-   }
-}
-
-
-void mwItem::test_items(void)
+void mwItem::test_items()
 {
    for (int c=0; c<500; c++)
-      if (mItem.item[c][0])
+      if (item[c][0])
       {
-         int type = mItem.item[c][0];
+         int type = item[c][0];
          // first check for valid type
          int good = 1;
          if ((type < 1) || (type > 19)) good = 0; // out of range
@@ -299,14 +253,12 @@ void mwItem::test_items(void)
          if (!good)  printf("Item:%d - bad type:%d\n", c, type);
          else
          {
-            if ( ((mItem.item[c][1] < 95) || (mItem.item[c][1] > 1084)) && (type != 9) && (type != 16) && (type != 17) && (type != 18) )
-               printf("Item:%d - type:%d - bad shape:%d\n", c, type, mItem.item[c][1]);
-            int xpos = mItem.item[c][4];
-            if ((xpos < 20) || (xpos > 1960))
-                printf("Item:%d - bad xpos%d\n", c, xpos);
-            int ypos = mItem.item[c][5];
-            if ((ypos < 20) || (ypos > 1960))
-                printf("Item:%d - bad ypos%d\n", c, ypos);
+            if ( ((item[c][1] < 95) || (item[c][1] > 1084)) && (type != 9) && (type != 16) && (type != 17) && (type != 18) )
+               printf("Item:%d - type:%d - bad shape:%d\n", c, type, item[c][1]);
+            int xpos = item[c][4];
+            if ((xpos < 20) || (xpos > 1960)) printf("Item:%d - bad xpos%d\n", c, xpos);
+            int ypos = item[c][5];
+            if ((ypos < 20) || (ypos > 1960)) printf("Item:%d - bad ypos%d\n", c, ypos);
          }
       }
 }
@@ -332,7 +284,7 @@ int mwItem::create_trigger(int i)
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Trigger Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Trigger Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -355,7 +307,7 @@ int mwItem::create_block_manip(int i)
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Block Manip Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Manip Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -380,7 +332,7 @@ int mwItem::create_block_damage(int i)
    // then set the block range
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Block Damage Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Damage Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -390,18 +342,18 @@ int mwItem::create_block_damage(int i)
 
 int mwItem::create_start_block(int c)
 {
-   mItem.item[c][0] = 5 ;           // type 5 - start
-   mItem.item[c][1] = 1021;         // default animation seq
-   mItem.item[c][2] = 1;            // draw mode
-   mItem.item[c][3] = 0;            // stationary
-   mItem.item[c][6] = 2;            // mode = checkpoint common
+   item[c][0] = 5 ;           // type 5 - start
+   item[c][1] = 1021;         // default animation seq
+   item[c][2] = 1;            // draw mode
+   item[c][3] = 0;            // stationary
+   item[c][6] = 2;            // mode = checkpoint common
 
    // find highest existing start index
    int hesi = -1;
    for (int x=0; x<500; x++)
-      if ((mItem.item[x][0] == 5) && (x != c))
-         if (mItem.item[x][7] > hesi) hesi = mItem.item[x][7];
-   mItem.item[c][7] = hesi + 1;     // start index
+      if ((item[x][0] == 5) && (x != c))
+         if (item[x][7] > hesi) hesi = item[x][7];
+   item[c][7] = hesi + 1;     // start index
 
    if (mMiscFnx.getxy("Start", 2, 5, c) == 1) return 1;
    else return 0;
@@ -409,16 +361,16 @@ int mwItem::create_start_block(int c)
 
 int mwItem::create_exit(int c)
 {
-   mItem.item[c][0] = 3 ;           // type 3 - exit
-   mItem.item[c][1] = 1022;         // default animation seq
-   mItem.item[c][2] = 1;            // draw mode
-   mItem.item[c][3] = 0;            // stationary
+   item[c][0] = 3 ;           // type 3 - exit
+   item[c][1] = 1022;         // default animation seq
+   item[c][2] = 1;            // draw mode
+   item[c][3] = 0;            // stationary
 
 
-   mItem.item[c][8] = 100;          // num enemies left alive to activate this exit
+   item[c][8] = 100;          // num enemies left alive to activate this exit
    if (mMiscFnx.getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
-      mLevel.l[mItem.item[c][4]/20][mItem.item[c][5]/20] = 0; // make sure empty block in that pos
+      mLevel.l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       return 1;
    }
    else return 0;
@@ -480,22 +432,22 @@ void mwItem::show_all_pmsg(void)
 
 int mwItem::create_pmsg(int c)
 {
-   mItem.item[c][0] = 10 ;  // type 10 - msg
-   mItem.item[c][1] = 0;    // trigger event
-   mItem.item[c][3] = 0;    // stationary
-   mItem.item[c][2] = 0;    // flags
-   mItem.item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
-   mItem.item[c][2] |= PM_ITEM_PMSG_FRAME12;
+   item[c][0] = 10 ;  // type 10 - msg
+   item[c][1] = 0;    // trigger event
+   item[c][3] = 0;    // stationary
+   item[c][2] = 0;    // flags
+   item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+   item[c][2] |= PM_ITEM_PMSG_FRAME12;
 
-   mItem.item[c][12] = 120;  // default message time
+   item[c][12] = 120;  // default message time
 
-   mMiscFnx.set_int_3216(mItem.item[c][13], 15, 13); // default text color (white) and frame color (blue)
+   mMiscFnx.set_int_3216(item[c][13], 15, 13); // default text color (white) and frame color (blue)
 
    int bad=0;
 
    if (mMiscFnx.getxy("Message Object", 2, 10, c) != 1) bad = 1;
 
-   if (!bad) mMiscFnx.get_block_range("Message Area", &mItem.item[c][6], &mItem.item[c][7], &mItem.item[c][8], &mItem.item[c][9], 1);
+   if (!bad) mMiscFnx.get_block_range("Message Area", item[c][6], item[c][7], item[c][8], item[c][9], 1);
 
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 
@@ -517,14 +469,14 @@ int mwItem::create_door(int type)
          {
             if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
             {
-               mItem.item[c][0] = 1;    // type 1
-               mItem.item[c][1] = 2;    // draw type
-               mItem.item[c][3] = 0;    // stationary
-               mItem.item[c][6] = 13;   // default color = lt blue
-               mItem.item[c][7] = 2;    // move type: move
-               mItem.item[c][8] = 0;    // type: exit only
-               mItem.item[c][11] = 0;   // enter immed
-               mItem.item[c][12] = 1;   // always draw line
+               item[c][0] = 1;    // type 1
+               item[c][1] = 2;    // draw type
+               item[c][3] = 0;    // stationary
+               item[c][6] = 13;   // default color = lt blue
+               item[c][7] = 2;    // move type: move
+               item[c][8] = 0;    // type: exit only
+               item[c][11] = 0;   // enter immed
+               item[c][12] = 1;   // always draw line
             }
          }
       }
@@ -537,10 +489,10 @@ int mwItem::create_door(int type)
          c = get_empty_item(); // get 1st item
          if (c != -1)
          {
-            mItem.item[c][0] = 1; // mark it so we don't find it as empty again
+            item[c][0] = 1; // mark it so we don't find it as empty again
             d = get_empty_item(); // get 2nd item
             if (d != -1) found_empty_items = 1;
-            else mItem.item[c][0] = 0;
+            else item[c][0] = 0;
          }
 
          if (found_empty_items)
@@ -548,30 +500,30 @@ int mwItem::create_door(int type)
             if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
             {
 
-               mItem.item[c][0] = 1;    // type 1
-               mItem.item[c][1] = 2;    // draw type
-               mItem.item[c][3] = 0;    // stationary
-               mItem.item[c][6] = 13;   // default color = lt blue
-               mItem.item[c][7] = 2;    // move type: move
-               mItem.item[c][8] = 1;    // type: linked exit
-               mItem.item[c][11] = 0;   // enter immed
-               mItem.item[c][12] = 1;   // always draw line
+               item[c][0] = 1;    // type 1
+               item[c][1] = 2;    // draw type
+               item[c][3] = 0;    // stationary
+               item[c][6] = 13;   // default color = lt blue
+               item[c][7] = 2;    // move type: move
+               item[c][8] = 1;    // type: linked exit
+               item[c][11] = 0;   // enter immed
+               item[c][12] = 1;   // always draw line
 
                if (mMiscFnx.getxy("Destination Door", 2, 1, d) == 1)
                {
-                  mItem.item[c][9] = d;  // linked exit
-                  mItem.item[d][0] = 1;  // type 1
-                  mItem.item[d][1] = 2;  // draw type
-                  mItem.item[d][3] = 0;  // stationary
-                  mItem.item[d][6] = 13; // default color = lt blue
-                  mItem.item[d][7] = 2;  // move type: move
-                  mItem.item[d][8] = 0;  // type: exit only
+                  item[c][9] = d;  // linked exit
+                  item[d][0] = 1;  // type 1
+                  item[d][1] = 2;  // draw type
+                  item[d][3] = 0;  // stationary
+                  item[d][6] = 13; // default color = lt blue
+                  item[d][7] = 2;  // move type: move
+                  item[d][8] = 0;  // type: exit only
 
                } // end of get destination without cancel
-               else mItem.item[c][0] = 0;
+               else item[c][0] = 0;
 
              } // end of get location without cancel
-             else mItem.item[c][0] = 0;
+             else item[c][0] = 0;
           } // end of found empty items
       }
       break;
@@ -584,38 +536,38 @@ int mwItem::create_door(int type)
          c = get_empty_item(); // get 1st item
          if (c != -1)
          {
-            mItem.item[c][0] = 1; // mark it so we don't find it as empty again
+            item[c][0] = 1; // mark it so we don't find it as empty again
             d = get_empty_item(); // get 2nd item
             if (d != -1) found_empty_items = 1;
-            else mItem.item[c][0] = 0;
+            else item[c][0] = 0;
          }
 
          if (found_empty_items)
          {
             if (mMiscFnx.getxy("1st Door", 2, 1, c) == 1)
             {
-               mItem.item[c][0] = 1;    // type 1
-               mItem.item[c][1] = 2;    // draw type
-               mItem.item[c][3] = 0;    // stationary
-               mItem.item[c][6] = 13;   // default color = lt blue
-               mItem.item[c][7] = 2;    // move type: move
-               mItem.item[c][8] = 1;    // type: linked exit
-               mItem.item[c][11] = 1;   // trigger with up
-               mItem.item[c][12] = 1;   // always draw line
+               item[c][0] = 1;    // type 1
+               item[c][1] = 2;    // draw type
+               item[c][3] = 0;    // stationary
+               item[c][6] = 13;   // default color = lt blue
+               item[c][7] = 2;    // move type: move
+               item[c][8] = 1;    // type: linked exit
+               item[c][11] = 1;   // trigger with up
+               item[c][12] = 1;   // always draw line
 
                if (mMiscFnx.getxy("2nd Door", 2, 1, d) == 1)
                {
-                  mItem.item[c][9] = d;    // linked exit
-                  mItem.item[d][9] = c;    // linked exit
+                  item[c][9] = d;    // linked exit
+                  item[d][9] = c;    // linked exit
 
-                  mItem.item[d][0] = 1;    // type 1
-                  mItem.item[d][1] = 2;    // draw type
-                  mItem.item[d][3] = 0;    // stationary
-                  mItem.item[d][6] = 13;   // default color = lt blue
-                  mItem.item[d][7] = 2;    // move type: move
-                  mItem.item[d][8] = 1;    // type: linked exit
-                  mItem.item[d][11] = 1;   // trigger with up
-                  mItem.item[d][12] = 1;   // always draw line
+                  item[d][0] = 1;    // type 1
+                  item[d][1] = 2;    // draw type
+                  item[d][3] = 0;    // stationary
+                  item[d][6] = 13;   // default color = lt blue
+                  item[d][7] = 2;    // move type: move
+                  item[d][8] = 1;    // type: linked exit
+                  item[d][11] = 1;   // trigger with up
+                  item[d][12] = 1;   // always draw line
 
 
                } // end of get destination without cancel
@@ -662,13 +614,13 @@ int mwItem::create_timer(int i)
    // set the item location
    if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
    {
-      mItem.item[i][0] = 13;  // type 13 - timer
+      item[i][0] = 13;  // type 13 - timer
       //mItem.item[i][2] = 0; // draw color
    }
    else bad = 1;
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Display Area", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Display Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);
@@ -681,15 +633,15 @@ int mwItem::create_hider(int i)
    // set the item location
    if (mMiscFnx.getxy("Hider", 2, 19, i) == 1)
    {
-      mItem.item[i][0] = 19; // type 13 - timer
-      mItem.item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
-      mItem.item[i][2] = 1;  // initial action: hide
-      mItem.item[i][3] = 1;  // mode:1 (always hide)
+      item[i][0] = 19; // type 13 - timer
+      item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
+      item[i][2] = 1;  // initial action: hide
+      item[i][3] = 1;  // mode:1 (always hide)
    }
    else bad = 1;
    if (!bad)
    {
-      if (!mMiscFnx.get_block_range("Hidden Area", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Hidden Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else mWM.mW[7].object_viewer(2, i);

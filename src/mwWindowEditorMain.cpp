@@ -55,7 +55,7 @@ void mwWindow::em_show_draw_item_cursor(void)
       {
          case 1: // block
             if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x*20, y*20);
-            else al_draw_bitmap(mBitmap.btile[num&1023], x*20, y*20, 0);
+            else al_draw_bitmap(mBitmap.tile[num&1023], x*20, y*20, 0);
          break;
          case 2: // item
             mItem.draw_item(num, 1, x*20, y*20);
@@ -66,7 +66,7 @@ void mwWindow::em_show_draw_item_cursor(void)
          case 5: // PDE
             int a = mSelectionWindow.pdes[num].ia[1]; // bmp or ans
             if (a > 999) a = mBitmap.zz[5][a-1000]; // ans
-            al_draw_bitmap(mBitmap.tile[a], x*20, y*20, 0);
+            al_draw_bitmap(mBitmap.sprite[a], x*20, y*20, 0);
          break;
       }
       al_draw_rectangle(x*20, y*20, x*20+21, y*20+21, mColor.pc[15], 1);
@@ -81,7 +81,7 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
    {
       case 1:
          if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x, y);
-         else al_draw_bitmap(mBitmap.btile[num&1023], x, y, 0);
+         else al_draw_bitmap(mBitmap.tile[num&1023], x, y, 0);
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num, msg));
       break;
@@ -111,7 +111,7 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
          a = mSelectionWindow.pdes[num].ia[1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = mBitmap.zz[5][a-1000]; // ans
-         al_draw_bitmap(mBitmap.tile[b], x, y, 0);
+         al_draw_bitmap(mBitmap.sprite[b], x, y, 0);
          al_draw_text(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Special Item");
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", mSelectionWindow.pdes[num].name.c_str());
       break;
@@ -283,7 +283,7 @@ void mwWindow::em_process_mouse(void)
                {
                   mItem.itemf[d][0] = mItem.item[d][4];
                   mItem.itemf[d][1] = mItem.item[d][5];
-                  mMiscFnx.get_block_range("Block Range", &mItem.item[d][6], &mItem.item[d][7], &mItem.item[d][8], &mItem.item[d][9], 1);
+                  mMiscFnx.get_block_range("Block Range", mItem.item[d][6], mItem.item[d][7], mItem.item[d][8], mItem.item[d][9], 1);
                }
                mItem.sort_item(1);
             }

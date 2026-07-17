@@ -116,7 +116,7 @@ void mwLevel::change_block(int x, int y, int block)
       {
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-         al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+         al_draw_bitmap(mBitmap.tile[block & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
          // check for overlays
          if (block & PM_BTILE_SHOW_OVERLAY) mScreen.draw_tile_overlay(block, x, y);

@@ -30,7 +30,7 @@ To change this tile to a new tile:
          if (type == 4)
          {
             int block = mEnemy.Ei[y][13];
-            int tile = block & 1023;
+            int tile = block & PM_BTILE_TILENUM_MASK;
             int flags = block & PM_BTILE_ALL_FLAGS;
 
             printf("Level:%3d - blkwlk - %d - %d - %d \n", le[x], tile, block, flags);
@@ -42,7 +42,7 @@ To change this tile to a new tile:
                mEnemy.Ei[y][13] = block;
 
                block = mEnemy.Ei[y][13];
-               tile = block & 1023;
+               tile = block & PM_BTILE_TILENUM_MASK;
                flags = block & PM_BTILE_ALL_FLAGS;
 
                printf("Level:%3d - blkwlk - %d - %d - %d \n\n", le[x], tile, block, flags);

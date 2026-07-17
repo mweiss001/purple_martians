@@ -23,12 +23,22 @@ class mwBitmapTools
 
    char block_tiles_fn[100];
 
+
+
+   void redraw_grid(mRect<int> tile_grid_rect, mRect<int> selection_rect, int gridlines, int mode, int selected_index);
    void edit_tile_flags();
 
 
 
 
+
    void draw_flag_rects_multiple_th(int x, int y);
+
+
+
+
+
+
 
 
    private:
@@ -37,17 +47,13 @@ class mwBitmapTools
    void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight);
    int draw_flag_rects(int tn, int x, int y, int w, int h, int ys);
    void draw_and_proc_flag_rects(int tn, int x, int y, int w, int h, int ys);
-   void redraw_grid(int x, int y, int current_selection);
-
 
 
    void copy_tile_range(int s, int d, int r);
-
    void move_tiles_and_refs(int s, int d, int r);
 
 
 
-   void custom_modify();
    void fill_player_tile();
 
    void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y);
@@ -59,9 +65,24 @@ class mwBitmapTools
    void combine_tile();
    int select_bitmap_ans(int zzindx, int& bmp_index);
    int select_bitmap_ans();
-   void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
+
+
+   void draw_gridlines_and_frame(mRect<int>r, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
+
+   void draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b, int index);
+
+
+
    void draw_tilecount_overlays(int x1, int y1);
    void draw_tilecount_overlay(int x1, int y1, int tile, int extended);
+
+
+   void draw_flags_overlay(int x1, int y1, int tile, int flags);
+   void draw_flags_overlays(int x1, int y1, int flags);
+
+
+
+
 
 };
 extern mwBitmapTools mBitmapTools;

@@ -239,7 +239,9 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
          int ly2 = ly1 + (ls * lih);
 
          // make a mRect for list area
-         mRect<int> listRect(lx1, ly1, lx2, ly2, -999);
+//         mRect<int> listRect(lx1, ly1, lx2, ly2, -999);
+
+         mRect<int> listRect = mRect<int>::fromX1Y1X2Y2(lx1, ly1, lx2, ly2);
 
 
          // text y position
@@ -271,7 +273,11 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
             for (int i=0; i<ls; i++)
             {
                // make a mRect for line area
-               mRect<int> lineRect(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih, -999);
+//               mRect<int> lineRect(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih, -999);
+
+               mRect<int> lineRect = mRect<int>::fromX1Y1X2Y2(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih);
+
+
 
                mMiscFnx.mw_draw_text(15, txo, lineRect.y1 + tyo, tjust, listItems[i].text);
                al_draw_line(lineRect.x1, lineRect.y2, lineRect.x2, lineRect.y2, mColor.pc[15+128], 0);

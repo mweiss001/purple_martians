@@ -92,7 +92,7 @@ class mwMiscFnx
    float get_sproingy_jump_height(int num);
    int get_sp(float jh);
 
-   int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
+   int get_block_range(const char *txt, int &x1, int &y1, int &x2, int &y2, int type);
    int getxy(const char *txt, int obj_type, int sub_type, int num);
    int get_item(int obj_type, int sub_type, int num);
 

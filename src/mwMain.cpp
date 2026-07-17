@@ -260,7 +260,7 @@ int mwMain::initial_setup()
          al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
       }
 
-      al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
+      al_set_display_icon(mDisplay.display, mBitmap.sprite[401]);
 
       mSound.load_sound();
    }

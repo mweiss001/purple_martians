@@ -167,7 +167,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 
 
    // default draw if nothing else has drawn it up to now
-   if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+   if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
 
    // if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)

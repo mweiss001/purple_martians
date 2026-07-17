@@ -207,7 +207,7 @@ void mwBottomMessage::bm_draw_enemy(int e_type, int &xpos)
 {
    int de = disp_enemy;
 
-   ALLEGRO_BITMAP *tmp = mBitmap.tile[mEnemy.enemy_tile[e_type]];
+   ALLEGRO_BITMAP *tmp = mBitmap.sprite[mEnemy.enemy_tile[e_type]];
 
    if (de == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
    if (de == 1) draw_text(xpos, 15, mEnemy.enemy_name[e_type][2]); // text only
@@ -303,13 +303,13 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          if (k == 1) { c1 = 11; tn = 279; } // green
          if (k == 2) { c1 = 13; tn = 288; } // blue
          if (k == 3) { c1 = 8;  tn = 295; } // purple
-         draw_item(mBitmap.tile[tn], "key", c1, xpos, 0, 0);
+         draw_item(mBitmap.sprite[tn], "key", c1, xpos, 0, 0);
       }
       if (ev == 21) // switch
       {
          custom_drawn = 1;
          draw_text(xpos, 15, " flipped a ");
-         draw_item(mBitmap.tile[z2], "switch", 15, xpos, 0, 0);
+         draw_item(mBitmap.sprite[z2], "switch", 15, xpos, 0, 0);
       }
       if (ev == 22) // door
       {
@@ -326,8 +326,8 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          ALLEGRO_BITMAP *etmp = al_create_bitmap(20, 20);
          al_set_target_bitmap(etmp);
          al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-         al_draw_bitmap(mBitmap.tile[399], 0, 0, 0);  // base tile
-         al_draw_bitmap(mBitmap.tile[366], 0, 0, 0);  // lock
+         al_draw_bitmap(mBitmap.sprite[399], 0, 0, 0);  // base tile
+         al_draw_bitmap(mBitmap.sprite[366], 0, 0, 0);  // lock
          al_draw_text(mFont.pixl, mColor.pc[10], 11, -2, ALLEGRO_ALIGN_CENTER, "EXIT");
          al_draw_textf(mFont.pixl, mColor.pc[14], 11, -2, ALLEGRO_ALIGN_CENTER, "%d", z3);
 
@@ -341,14 +341,14 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          if (z4)
          {
             draw_text(xpos, 15, " got a ");
-            draw_item(mBitmap.tile[539], "detonator", 15, xpos, 0, 4);
+            draw_item(mBitmap.sprite[539], "detonator", 15, xpos, 0, 4);
             draw_text(xpos, 15, " for ");
-            draw_item(mBitmap.tile[538], "bomb", 15, xpos, 0, -4);
+            draw_item(mBitmap.sprite[538], "bomb", 15, xpos, 0, -4);
          }
          else
          {
             draw_text(xpos, 15, " lit a ");
-            draw_item(mBitmap.tile[465], "bomb", 15, xpos, 0, 0);
+            draw_item(mBitmap.sprite[465], "bomb", 15, xpos, 0, 0);
             sprintf(msg, " with %d sec fuse",  z3);
             draw_text(xpos, 15, msg);
          }
@@ -357,13 +357,13 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
       {
          custom_drawn = 1;
          draw_text(xpos, 15, " lit a ");
-         draw_item(mBitmap.tile[249], "rocket", 15, xpos, 0, 0);
+         draw_item(mBitmap.sprite[249], "rocket", 15, xpos, 0, 0);
       }
       if (ev == 27) // coin
       {
          custom_drawn = 1;
          draw_text(xpos, 15, " got a ");
-         draw_item(mBitmap.tile[197], "coin", 15, xpos, 0, 0);
+         draw_item(mBitmap.sprite[197], "coin", 15, xpos, 0, 0);
       }
       if (ev == 28) // bonus
       {
@@ -386,7 +386,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          if (z3 == 1023) bt = 304;
          if (z3 == 1027) bt = 240;
          if (z3 == 1035) bt = 320;
-         draw_item(mBitmap.tile[bt], tmsg, 15, xpos, 0, yo);
+         draw_item(mBitmap.sprite[bt], tmsg, 15, xpos, 0, yo);
          draw_health(z1, z4, xpos, 16, 0);
       }
       if (ev == 40) // player hurt player
@@ -438,7 +438,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          if (z2 == 5)
          {
             draw_text(xpos, 15, " was hurt by ");
-            draw_item(mBitmap.tile[456], "mine", 15, xpos, 0, 0);
+            draw_item(mBitmap.sprite[456], "mine", 15, xpos, 0, 0);
          }
          if (z2 == 7) draw_text(xpos, 15, " got stuck in blocks");
          if (z2 == 9) draw_text(xpos, 15, " got squished by lift");

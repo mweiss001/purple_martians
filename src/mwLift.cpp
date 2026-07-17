@@ -1024,7 +1024,7 @@ void mwLift::draw_lifts()
             int color = (cur[l].flags >> 28) & 15;
 
             // make a rect with current lift position and size
-            mRect<float> lr(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
+            mRect<float> lr = mRect<float>::fromX1Y1WH(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
 
             draw_lift(l, lr);
 

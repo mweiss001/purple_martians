@@ -371,7 +371,7 @@ void mwItem::proc_lit_bomb(int i)
 
 int mwItem::draw_bomb(int i, int x, int y, int shape)
 {
-   if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
+   if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0); // bomb sticky spikes
 
    // either draw here and mark as drawn
    // al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
@@ -395,8 +395,8 @@ int mwItem::draw_lit_bomb(int i)
    if (mItem.item[i][6] == 3) // remote detonator
    {
       // draw bomb
-      al_draw_bitmap(mBitmap.tile[538], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0);  // bomb sticky spikes
+      al_draw_bitmap(mBitmap.sprite[538], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
 
       // get detonator position relative to player
       int p = mItem.item[i][13];
@@ -405,7 +405,7 @@ int mwItem::draw_lit_bomb(int i)
       int py = mPlayer.syn[p].y + -1;
 
       // draw detonator
-      al_draw_bitmap(mBitmap.tile[539], px, py, 0);
+      al_draw_bitmap(mBitmap.sprite[539], px, py, 0);
 
       // draw a line connecting detonator and bomb
       al_draw_line(x+10, y+10, px+10, py+8, mColor.pc[207], 0);
@@ -425,8 +425,8 @@ int mwItem::draw_lit_bomb(int i)
       //printf("ratio:%f shape_index:%d\n", r, si);
 
       // draw bomb
-      al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0);  // bomb sticky spikes
+      al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
 
       // show countdown clock
       float cr = 6; // clock radius
@@ -452,7 +452,7 @@ int mwItem::draw_lit_bomb(int i)
       float max_scale = mItem.item[i][7] / 10;         // max scale = damage / 10
       float sc = .5 + (r) * max_scale;
       //printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
-      al_draw_scaled_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+      al_draw_scaled_rotated_bitmap(mBitmap.sprite[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
 
       // show damage range circle
       al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r-8, mColor.pc[10], 1);
@@ -474,7 +474,7 @@ int mwItem::draw_lit_bomb(int i)
 int mwItem::draw_rocket(int i, int x, int y, int shape)
 {
    float rot = (float) mItem.item[i][10] / 1000;
-   al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
+   al_draw_rotated_bitmap(mBitmap.sprite[shape], 10, 10, x+10, y+10, rot, 0);
    draw_rocket_lines(i);
    return 1;
 }

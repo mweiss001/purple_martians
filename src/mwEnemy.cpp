@@ -52,9 +52,9 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       if (type == 99) // use opacity for deathcount
       {
          float op = Ef[e][10];
-         al_draw_tinted_scaled_rotated_bitmap(mBitmap.tile[tn], al_map_rgba_f(op, op, op, op), 10, 10, x+10, y+10, sc, sc, rot, flags);
+         al_draw_tinted_scaled_rotated_bitmap(mBitmap.sprite[tn], al_map_rgba_f(op, op, op, op), 10, 10, x+10, y+10, sc, sc, rot, flags);
       }
-      else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
+      else al_draw_scaled_rotated_bitmap(mBitmap.sprite[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
       // if enemy is expiring show how many seconds it has left
       if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);

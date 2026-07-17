@@ -813,7 +813,7 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
             int tn = 0;
             if (type == 2) tn = mItem.item_tile[mItem.item[num][0]];
             if (type == 3) tn = mEnemy.enemy_tile[mEnemy.Ei[num][0]];
-            al_draw_scaled_bitmap(mBitmap.tile[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
+            al_draw_scaled_bitmap(mBitmap.sprite[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
 
             al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
 

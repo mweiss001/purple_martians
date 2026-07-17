@@ -19774,7 +19774,7 @@ void mwScreen::init_level_background(void) // fill level_background with block t
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         int tile = mLevel.l[x][y] & 1023;
+         int tile = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
          if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
 
 int mwLevel::load_level(int level_num, int load_only, int fail_silently)
@@ -22385,7 +22385,7 @@ make a function to change all block reference from one number to another
 
 can I simplify this?
 
-         if ((mLevel.l[y][z] & 1023) == oldNum)
+         if ((mLevel.l[y][z] & PM_BTILE_TILENUM_MASK) == oldNum)
          {
             int flags = mLevel.l[y][z] & PM_BTILE_MOST_FLAGS;
             mLevel.l[y][z] = (newNum | flags);
@@ -22394,7 +22394,7 @@ can I simplify this?
 
 int replaceTileIfMatch(int &tile, int match, int replace)
 {
-   if ((tile & 1023) == match)
+   if ((tile & PM_BTILE_TILENUM_MASK) == match)
    {
       int flags = tile & PM_BTILE_MOST_FLAGS;
       tile = replace | flags; 
@@ -22405,7 +22405,7 @@ int replaceTileIfMatch(int &tile, int match, int replace)
 
 maybe I could even simplify:
 
-   if ((tile & 1023) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
+   if ((tile & PM_BTILE_TILENUM_MASK) == match) tile = replace | (tile & PM_BTILE_MOST_FLAGS);
 
 
 
@@ -25234,7 +25234,7 @@ p: 223, 315, 319
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
          {
-            int t = mLevel.l[y][z] & 1023;
+            int t = mLevel.l[y][z] & PM_BTILE_TILENUM_MASK;
 
             if (t == 220 || t == 312 || t == 316) // red keyed block 100
             {
@@ -27091,7 +27091,7 @@ void mwLevel::change_block(int x, int y, int block)
       {
          al_set_target_bitmap(mBitmap.level_background);
          al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-         al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+         al_draw_bitmap(mBitmap.btile[block & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
          
          // check for overlays
          if (block & PM_BTILE_SHOW_OVERLAY)
@@ -28892,10 +28892,10 @@ reuse draw from tilesets...done
                th_find_adj(x, y, c, l, r, t, b, tl, tr, bl, br);
 
                int fb = th_replace_helper_24_outer(768, c, l, r, t, b, tl, tr, bl, br, 1); // Template
-               if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
+               if (fb != -1)  mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
 
                fb = th_replace_helper_24_inner(768, c, l, r, t, b, tl, tr, bl, br, 2); // Template
-               if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
+               if (fb != -1)  mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, 0);
             }
 
       mScreen.init_level_background();
@@ -30746,16 +30746,13 @@ total          :384720
 
 
 patched all that in and goddamn it works!!
-
 do I need custom drawing for enemy and items?
-
 I got rid of it for lifts
 
 void mwItem::draw_item(int i, int custom, int cx, int cy)
 this is all done...what have I accomplished?
 
 removed editSelection from windows class
-
 got rid of the old weird custom saving and loading to file for selection
 
 
@@ -30769,455 +30766,237 @@ can I pass an instance of a class to another instance of the same class to copy 
 
 
 
+2026-07-15 14:11:01
 
+there are other tiles that I can use for 'E' the one I call ice
 
+24 in 1E (main)
+24 in 2E
+24 in 3E
+8 alternate
 
+'D' is very similar to 'E' but greenish
 
+so there could potentially be 80 tiles in this tileset?
 
+I kind of want a contigous block of 80...
 
 
+if I run all the 48's together, I will gain 5 x 16 = 80...
 
+do it fool!
 
 
+- move rainbows (16) from  496 to 656
 
+- blue pipes 3rd section (16) from 480 to 496
+- blue pipes 2rd section (16) from 464 to 480
+- blue pipes 1st section (16) from 448 to 464
 
+then I will have a 32 space
 
+green pipes last 32 from 400 to 432
+green pipes 1st 16 from  to 400
 
+I am really thinking of adding one more bit to double tiles from 1024 to 2048
+I have 3 unused bits...
 
+Instead of always having 2048 tiles in memory, could I only load the ones needed for the level?
+I suppose, but that would end up being even more complicated...
 
+I have a few temp bitmaps for level background that are 2000x2000 pixels (4M)
 
+right now I the 1024 tileset is 32x32 or 640x640 or approx 4K (1/10 the size)
 
 
+If I do this, so many things will need to be rewritten...
 
+The biggest will be the bitmap copy tools...
 
+I could do it with minimal changes if:
+2nd set of 1024 is its own file
+block_tiles0.png
+block_tiles1.png
 
+then I could view them side by side and copy and paste between them
+unneccesarily complicated....
 
+just make the new tilemap have 2x height
 
+to start with:
+- move all controls in copy bitmap to top
+- make it capable of arbitray tilemap size (if it isn't already)
 
+then just make the tilemap bigger....
+currently 704x704 new 704x1408
 
 
 
 
 
 
+class Complex {
+private:
+    double x, y;
 
+    // Private constructor allows internal creation
+    Complex(double val1, double val2) : x(val1), y(val2) {}
 
+public:
+    // Named static methods differentiate the semantic meaning
+    static Complex FromCartesian(double real, double imaginary) {
+        return Complex(real, imaginary); 
+    }
 
+    static Complex FromPolar(double radius, double angle) {
+        return Complex(radius * std::cos(angle), radius * std::sin(angle));
+    }
 
+    void print() const { std::cout << "x: " << x << ", y: " << y << "\n"; }
+};
 
+int main() {
+    // Highly readable and eliminates signature conflicts
+    Complex c1 = Complex::FromCartesian(3.0, 4.0);
+    Complex c2 = Complex::FromPolar(5.0, 0.93);
 
 
 
 
+replace this:
 
+   mRect<int> r(x1, y1, x2, y2, 0);
 
+with this:
 
+mRect<int> r = mRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
 
 
 
+replace this:
+   mRect<int> b1r(4, 40, 704, 704);
+with this:
+mRect<int> r = mRect<int>::fromX1Y1WH(x1, y1, w, h);
 
 
+2026-07-16 02:01:58
 
+I now have the controls all nicely at the top of copy tiles
+all ready to try expanding the tilemap...
 
 
+         ALLEGRO_BITMAP *tb1 = load_block_tiles_to_bitmap();
+         if (!b1) return;
 
+         ALLEGRO_BITMAP *tb2 = al_create_bitmap(704, 1408);
 
+         al_set_target_bitmap(tb2);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         al_draw_bitmap(tb1, 0, 0, 0);
 
+         save_bitmap_to_block_tiles_file(tb2);
 
+         al_destroy_bitmap(tb1);
+         al_destroy_bitmap(tb2);
 
 
 
+2026-07-16 02:08:12
 
+works!!!
 
+2026-07-16 06:54:01
 
+next, make btile bigger
 
+ALLEGRO_BITMAP *tile[NUM_SPRITES];
+ALLEGRO_BITMAP *btile[NUM_SPRITES];
+   
+should I rename? yes...
 
+#define NUM_SPRITES 1024
+#define NUM_TILES 2048
 
+ALLEGRO_BITMAP *sprite[NUM_SPRITES];
+ALLEGRO_BITMAP *tile[NUM_TILES];
+int tileFlags[NUM_TILES];
 
+#define PM_BTILE_TILENUM_FLAGS     0b00000000000000000000011111111111
 
+rename tiles.png to sprites.png
+rename block_tiles.png to tiles.png
 
 
 
+   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   M_stilemap  = create_and_clear_bitmap(704, 704);
+   M_btilemap = create_and_clear_bitmap(1408, 704);
+   M_ptilemap = create_and_clear_bitmap(528, 352);
+   M_dtilemap = create_and_clear_bitmap(176, 704);
 
+   // this bitmap format is used for all other bitmaps
+   if (!mDisplay.no_display) al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
+   // create tilemap bitmaps
+   stilemap  = create_and_clear_bitmap(704, 704);
+   btilemap = create_and_clear_bitmap(1408, 704);
+   ptilemap = create_and_clear_bitmap(528, 352);
+   dtilemap = create_and_clear_bitmap(176, 704);
 
 
 
+change loading
 
+      al_set_target_bitmap(M_btilemap);
+      al_draw_bitmap(btilemap, 0, 0, 0);
+      for (int y=0; y<64; y++)
+         for (int x=0; x<32; x++)
+            tile[y*32 + x] = al_create_sub_bitmap(btilemap, x*22+1, y*22+1, 20, 20);
 
 
 
+now blocks with overlays don't look right
 
+   // get block tiles
+   btilemap = al_load_bitmap("bitmaps/tiles.png");
 
+--->>>   al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
 
+2026-07-16 07:27:03
 
+working through fixing things
 
 
+class mwGlobalLevelTool
+{
+//   int tileCount[1024][400] = {};
+   int tileCount[NUM_TILES][400] = {};
 
 
+i think glt is done...
 
 
+default flag editor
 
+void mwBitmapTools::edit_tile_flags()
 
- 
+tilemap is drawn at 0,0 and buttons underneath
 
+can I do something similar to what I did with copy tiles?
 
+first things is to make variables for tilegrid so I can change its position
 
 
+2026-07-16 20:21:17
 
+I want to make the display pointer thing generic enough that I can use it for this as well twice for copy_tiles..no
 
+move mode stuff to just above display pointer thing
 
 
+2026-07-16 22:50:29
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I think I have edit_tile_flags done perfectly....
 
 
 

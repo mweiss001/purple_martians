@@ -498,7 +498,7 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
                   lsa = !lsa;   // toggle leaf side
                   float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
                   if (lsa) ang+= ALLEGRO_PI;
-                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+                  al_draw_scaled_rotated_bitmap(mBitmap.sprite[311], 10, 20, x1, y1, ls, ls, ang, 0);
                }
             }
 
@@ -551,7 +551,7 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
                   lsa = !lsa;   // toggle leaf side
                   float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
                   if (lsa) ang+= ALLEGRO_PI;
-                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
+                  al_draw_scaled_rotated_bitmap(mBitmap.sprite[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
                }
                x1 = x2;
                y1 = y2;
@@ -634,7 +634,7 @@ void mwEnemy::draw_vinepod_controls(int e, int legend_highlight)
       float ext_rot = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
       // draw mBitmap.tile at extended pos
-      al_draw_scaled_rotated_bitmap(mBitmap.tile[Ei[e][1]], 10, 10, epx, epy, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
+      al_draw_scaled_rotated_bitmap(mBitmap.sprite[Ei[e][1]], 10, 10, epx, epy, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
 
       // control point 1
       color1 = 6;
@@ -669,7 +669,7 @@ void mwEnemy::draw_vinepod_controls(int e, int legend_highlight)
       int color1 = 10;
       if (legend_highlight == 2) color1 = mColor.flash_color;
       mMiscFnx.crosshairs_full(epx, epy, color1, 1);
-      al_draw_scaled_rotated_bitmap(mBitmap.tile[Ei[e][1]], 10, 10, epx, epy, 1, 1, Ef[e][14], ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+      al_draw_scaled_rotated_bitmap(mBitmap.sprite[Ei[e][1]], 10, 10, epx, epy, 1, 1, Ef[e][14], ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
    }
 
 

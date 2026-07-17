@@ -1282,7 +1282,7 @@ void mwSettings::page_level_bottom_msg(void)
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
-   mBottomMessage.draw_item(mBitmap.tile[99], "switch", 15, xd, 0, 0);
+   mBottomMessage.draw_item(mBitmap.sprite[99], "switch", 15, xd, 0, 0);
    al_set_target_backbuffer(mDisplay.display);
    al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
    ya+=bts;
@@ -1962,10 +1962,10 @@ void mwSettings::page_info(void)
 
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars"))                         mDisplay.show_var_sizes();
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mLoop.local_hostname);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))       mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.tilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'"))     mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_tilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.tilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.M_tilemap));
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))       mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.stilemap));
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'"))     mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_stilemap));
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.stilemap));
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.M_stilemap));
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))       mDisplay.show_pixel_format(al_get_display_format(mDisplay.display));
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))                mDisplay.show_display_flags(al_get_display_flags(mDisplay.display));
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))              mDisplay.show_display_options();

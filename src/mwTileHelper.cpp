@@ -822,7 +822,7 @@ void mwTileHelper::draw_frame_fill(struct frameFill f, bool preview)
             if (f.ts.tileSetType == 16) fb = mTileHelper.replace_helper_16_frame(f.ts, f.frameIndex, f.mode);
             if (f.ts.tileSetType == 24) fb = mTileHelper.replace_helper_24_frame(f.ts, f.frameIndex, f.mode);
             if (f.ts.tileSetType == 48) fb = mTileHelper.replace_helper_48_frame(f.ts, f.frameIndex, f.mode);
-            if (fb != -1)  mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+            if (fb != -1)  mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
          }
 }
 
@@ -851,7 +851,7 @@ void mwTileHelper::draw_pattern(bool preview)
          if (thl[x][y])
          {
             int fb = replace_helper_pattern(x, y);
-            if (fb != -1) mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+            if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
          }
 
    if (!preview)
@@ -874,7 +874,7 @@ void mwTileHelper::draw_replace(bool preview)
             if (thl[x][y])
             {
                int tile = mWM.mW[1].draw_item_num;
-               int tileNum = tile & 1023;
+               int tileNum = tile & PM_BTILE_TILENUM_MASK;
                int tileFlags = tile & PM_BTILE_ALL_FLAGS;
 
                mTileSets.drawTile(x, y, tileNum, tileFlags, mWM.mW[1].em_draw_tile_mode, preview);
@@ -897,7 +897,7 @@ void mwTileHelper::draw_replace(bool preview)
                if (type == 24) fb = replace_helper_16(index, 1);
                if (type == 16) fb = replace_helper_16(index, 0);
                if (type == 8 ) fb = replace_helper_8(index);
-               if (fb != -1) mTileSets.drawTile(x, y, fb & 1023, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+               if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
 
             }
    }
@@ -910,7 +910,7 @@ void mwTileHelper::draw_replace(bool preview)
          for (int y=0; y<100; y++)
             if (thl[x][y])
             {
-               int tile = mLevel.l[x][y] & 1023;
+               int tile = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
 
                // find tileset that tile belongs to
                struct tileSet ts;
@@ -1378,7 +1378,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    {
       int tile = mWM.mW[1].draw_item_num;
       mWM.mW[1].em_get_text_description_of_block_based_on_flags(tile, msg);
-      if (mWidget.mButtonTile2(tx, yfb, 22, tile & 1023, msg, d)) mBitmapTools.select_bitmap_from_level(mWM.mW[1].draw_item_num);
+      if (mWidget.mButtonTile2(tx, yfb, 22, tile & PM_BTILE_TILENUM_MASK, msg, d)) mBitmapTools.select_bitmap_from_level(mWM.mW[1].draw_item_num);
    }
    if (replace_mode == 2) mBitmapTools.draw_flag_rects_multiple_th(x3+2, yfb+(bts+bsp) + 6); // flags only
 
@@ -1431,7 +1431,7 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    if (mWidget.mButton(0, x3, xc+20,    1, yfb, bts,  2,2,1,1,  c1, c1,  15,   0,0, "Select Pattern"))
    {
       int j1, j2, j3, j4;
-      mMiscFnx.get_block_range("Select Pattern", &j1, &j2, &j3, &j4, 1);
+      mMiscFnx.get_block_range("Select Pattern", j1, j2, j3, j4, 1);
    }
 
    if (mWidget.mButton(4, -1, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit")) draw_pattern(0);
@@ -1492,7 +1492,7 @@ int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d
    int t1 = mTileSets.currentTileSet.startIndex;
    int t2 = mTileSets.currentTileSet.endIndex;
    if ((t2-t1) < nt) nt = t2-t1; // if actual number of tiles is less, use that
-   for (int i=0; i<nt; i++) al_draw_bitmap(mBitmap.btile[t1+i], x1+i*21+2, yfb, 0);
+   for (int i=0; i<nt; i++) al_draw_bitmap(mBitmap.tile[t1+i], x1+i*21+2, yfb, 0);
 
    return height;
 }

@@ -1305,12 +1305,12 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    if (bn == 13)
    {
       float rot = mEnemy.Ef[num][14];
-      al_draw_rotated_bitmap(mBitmap.tile[mBitmap.zz[0][mEnemy.Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mBitmap.sprite[mBitmap.zz[0][mEnemy.Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
       float rot = mEnemy.Ef[num][14];
-      al_draw_rotated_bitmap(mBitmap.tile[mBitmap.zz[0][mEnemy.Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mBitmap.sprite[mBitmap.zz[0][mEnemy.Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    if (bn == 310)
@@ -1320,7 +1320,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
    if (bn == 311)
@@ -1330,7 +1330,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
    if (bn == 313)
@@ -1340,7 +1340,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
    if (bn == 314)
@@ -1350,7 +1350,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
 
@@ -1362,7 +1362,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
 
@@ -1374,7 +1374,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
    }
 
    if (bn == 321)
@@ -1384,9 +1384,9 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+61, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[tn], x, y, 0);
-      al_draw_bitmap(mBitmap.btile[tn+1], x+20, y, 0);
-      al_draw_bitmap(mBitmap.btile[tn+2], x+40, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+1], x+20, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+2], x+40, y, 0);
    }
 
    if (q6) y1+=bts;
@@ -1563,7 +1563,7 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    int x = x1+num;
 
    al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mColor.pc[0]);
-   al_draw_bitmap(mBitmap.btile[tn], x, y1+1, 0);
+   al_draw_bitmap(mBitmap.tile[tn], x, y1+1, 0);
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
@@ -2634,7 +2634,10 @@ mRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int 
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
 
-   mRect<int> r(x1, y1, x2, y2, 0);
+//   mRect<int> r(x1, y1, x2, y2, 0);
+
+   mRect<int> r = mRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
+
 
    return r;
 }
@@ -2685,6 +2688,10 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 }
 
 
+
+
+
+//bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
 
 
 
@@ -2739,15 +2746,6 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
    }
    return false;
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2875,7 +2873,7 @@ bool mwWidget::mButtonTile(int x1, int y1, int size, int tn, bool &var, bool dis
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[c], 1);
 
    // draw tile
-   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
+   al_draw_scaled_bitmap(mBitmap.tile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
 
    if (mouse_on_tile && mInput.mouse_b[1][0])
    {
@@ -2895,7 +2893,7 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.Black); // erase tile and frame
 
    // draw tile
-   al_draw_scaled_bitmap(mBitmap.btile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
+   al_draw_scaled_bitmap(mBitmap.tile[tn], 0, 0, 20, 20, x1+1, y1+1, size-2, size-2, 0);
 
    bool mouse_on_tile = false;
    if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouse_on_tile = true;

@@ -18,18 +18,18 @@ class mwBitmap
    void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
 
-   ALLEGRO_BITMAP *tilemap;
+   ALLEGRO_BITMAP *stilemap;
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;
    ALLEGRO_BITMAP *dtilemap;
 
-   ALLEGRO_BITMAP *M_tilemap;
+   ALLEGRO_BITMAP *M_stilemap;
    ALLEGRO_BITMAP *M_btilemap;
    ALLEGRO_BITMAP *M_ptilemap;
    ALLEGRO_BITMAP *M_dtilemap;
 
-   ALLEGRO_BITMAP *tile[NUM_SPRITES];
-   ALLEGRO_BITMAP *btile[NUM_SPRITES];
+   ALLEGRO_BITMAP *sprite[NUM_SPRITES];
+   ALLEGRO_BITMAP *tile[NUM_TILES];
    ALLEGRO_BITMAP *player_tile[16][32];
    ALLEGRO_BITMAP *door_tile[2][16][8];
 
@@ -49,10 +49,7 @@ class mwBitmap
    void reset_animation_sequences();
    void update_animation();
 
-   int tileFlags[NUM_SPRITES];
-
-
-
+   int tileFlags[NUM_TILES];
 
 
 

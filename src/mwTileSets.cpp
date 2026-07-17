@@ -526,7 +526,7 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
    if (preview) // draw tile on level_buffer
    {
       al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.Black);
-      al_draw_bitmap(mBitmap.btile[tileNum], x*20, y*20, 0);
+      al_draw_bitmap(mBitmap.tile[tileNum], x*20, y*20, 0);
    }
    else // change tile in level array
    {
@@ -725,7 +725,7 @@ void mwTileSets::drawRect(bool preview)
 
    int drawItem      = mWM.mW[1].draw_item_num;
    int drawTileMode  = mWM.mW[1].em_draw_tile_mode;
-   int drawItemNum   = drawItem & 1023;
+   int drawItemNum   = drawItem & PM_BTILE_TILENUM_MASK;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
 
@@ -1026,8 +1026,8 @@ bool mwTileSets::compareTile(int rb, int cb, int set)
 {
 
    // remove flags for comparison
-   int r = rb & 1023;
-   int c = cb & 1023;
+   int r = rb & PM_BTILE_TILENUM_MASK;
+   int c = cb & PM_BTILE_TILENUM_MASK;
 
    // exact match
    if (r == c) return true;
@@ -1497,7 +1497,7 @@ void mwTileSets::draw_and_frame_3x3_bitmap(int type, float round, ALLEGRO_BITMAP
    {
       for (int i=0; i<3; i++)
          for (int j=0; j<3; j++)
-            al_draw_bitmap(mBitmap.btile[tile], j*20, i*20, 0);
+            al_draw_bitmap(mBitmap.tile[tile], j*20, i*20, 0);
    }
 
    float x1 = 0.5;
@@ -2417,67 +2417,67 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_set_target_bitmap(tmp1);
          al_clear_to_color(al_map_rgb(0,0,0));
 
-         al_draw_bitmap(mBitmap.btile[s.FrameCornerTL],      0*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameEdgeBTee],      1*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameCornerTR],      2*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineT],             3*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameCornerTL],      0*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameEdgeBTee],      1*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameCornerTR],      2*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.VLineT],             3*20,  0*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.FrameEdgeLTee],      0*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameCross],         1*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameEdgeRTee],      2*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineM],             3*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameEdgeLTee],      0*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameCross],         1*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameEdgeRTee],      2*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.VLineM],             3*20,  1*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.FrameCornerBL],      0*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameEdgeTTee],      1*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.FrameCornerBR],      2*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.VLineB],             3*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameCornerBL],      0*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameEdgeTTee],      1*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.FrameCornerBR],      2*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.VLineB],             3*20,  2*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.HLineL],             0*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineM],             1*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.HLineR],             2*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.Single],             3*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.HLineL],             0*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.HLineM],             1*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.HLineR],             2*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.Single],             3*20,  3*20, 0);
 
 
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTL],      4*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTR],      5*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBL],      4*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBR],      5*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTL],      4*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTR],      5*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBL],      4*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBR],      5*20,  1*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.InnerCornerTL],      4*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.InnerCornerTR],      5*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.InnerCornerBL],      4*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.InnerCornerBR],      5*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.InnerCornerTL],      4*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.InnerCornerTR],      5*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.InnerCornerBL],      4*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.InnerCornerBR],      5*20,  3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeL],         6*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeT],         7*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeB],         6*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeR],         7*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeL],         6*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeT],         7*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeB],         6*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeR],         7*20,  1*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeLTee],      6*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeTTee],      7*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeBTee],      6*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterEdgeRTee],      7*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeLTee],      6*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeTTee],      7*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeBTee],      6*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterEdgeRTee],      7*20,  3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTLTeeT],  8*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTRTeeR],  9*20,  0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBLTeeL],  8*20,  1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBRTeeB],  9*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTLTeeT],  8*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTRTeeR],  9*20,  0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBLTeeL],  8*20,  1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBRTeeB],  9*20,  1*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTLTeeL],  8*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTRTeeT],  9*20,  2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBLTeeB],  8*20,  3*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBRTeeR],  9*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTLTeeL],  8*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTRTeeT],  9*20,  2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBLTeeB],  8*20,  3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBRTeeR],  9*20,  3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTLTeeTL], 10*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTRTeeTR], 11*20, 0*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBLTeeBL], 10*20, 1*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerBRTeeBR], 11*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTLTeeTL], 10*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTRTeeTR], 11*20, 0*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBLTeeBL], 10*20, 1*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerBRTeeBR], 11*20, 1*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTRDiag],  10*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.OuterCornerTLDiag],  10*20, 3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTRDiag],  10*20, 2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.OuterCornerTLDiag],  10*20, 3*20, 0);
 
-         al_draw_bitmap(mBitmap.btile[s.SolidFill],          11*20, 2*20, 0);
-         al_draw_bitmap(mBitmap.btile[s.SingleReverse],      11*20, 3*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.SolidFill],          11*20, 2*20, 0);
+         al_draw_bitmap(mBitmap.tile[s.SingleReverse],      11*20, 3*20, 0);
 
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(tmp1, 0, 0, 320, 80, x, y, 640, 160, 0);
@@ -2499,45 +2499,45 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
 
 
       // corners
-      al_draw_bitmap(mBitmap.btile[bs+8],   0,  0, 0);
-      al_draw_bitmap(mBitmap.btile[bs+9],  40,  0, 0);
-      al_draw_bitmap(mBitmap.btile[bs+10],  0, 40, 0);
-      al_draw_bitmap(mBitmap.btile[bs+11], 40, 40, 0);
+      al_draw_bitmap(mBitmap.tile[bs+8],   0,  0, 0);
+      al_draw_bitmap(mBitmap.tile[bs+9],  40,  0, 0);
+      al_draw_bitmap(mBitmap.tile[bs+10],  0, 40, 0);
+      al_draw_bitmap(mBitmap.tile[bs+11], 40, 40, 0);
 
       // hline
-      al_draw_bitmap(mBitmap.btile[bs+2],  0, 70, 0); // left
-      al_draw_bitmap(mBitmap.btile[bs+3], 20, 70, 0); // center
-      al_draw_bitmap(mBitmap.btile[bs+4], 40, 70, 0); // right
+      al_draw_bitmap(mBitmap.tile[bs+2],  0, 70, 0); // left
+      al_draw_bitmap(mBitmap.tile[bs+3], 20, 70, 0); // center
+      al_draw_bitmap(mBitmap.tile[bs+4], 40, 70, 0); // right
 
       // vline
-      al_draw_bitmap(mBitmap.btile[bs+5], 70, 0,  0); // top
-      al_draw_bitmap(mBitmap.btile[bs+6], 70, 20, 0); // center
-      al_draw_bitmap(mBitmap.btile[bs+7], 70, 40, 0); // bottom
+      al_draw_bitmap(mBitmap.tile[bs+5], 70, 0,  0); // top
+      al_draw_bitmap(mBitmap.tile[bs+6], 70, 20, 0); // center
+      al_draw_bitmap(mBitmap.tile[bs+7], 70, 40, 0); // bottom
 
       // single
-      al_draw_bitmap(mBitmap.btile[bs+1], 70, 70, 0);
+      al_draw_bitmap(mBitmap.tile[bs+1], 70, 70, 0);
 
 
 
       if (type == 1)
       {
          // solid sides
-         al_draw_bitmap(mBitmap.btile[bs+14], 20,  0, 0); // top
-         al_draw_bitmap(mBitmap.btile[bs+15], 20, 40, 0); // bottom
-         al_draw_bitmap(mBitmap.btile[bs+12],  0, 20, 0); // left
-         al_draw_bitmap(mBitmap.btile[bs+13], 40, 20, 0); // right
+         al_draw_bitmap(mBitmap.tile[bs+14], 20,  0, 0); // top
+         al_draw_bitmap(mBitmap.tile[bs+15], 20, 40, 0); // bottom
+         al_draw_bitmap(mBitmap.tile[bs+12],  0, 20, 0); // left
+         al_draw_bitmap(mBitmap.tile[bs+13], 40, 20, 0); // right
 
          // solid center
-         al_draw_bitmap(mBitmap.btile[bs+0], 20, 20, 0); // center
+         al_draw_bitmap(mBitmap.tile[bs+0], 20, 20, 0); // center
       }
 
       // through pipes for frame
       if (type == 0)
       {
-         al_draw_bitmap(mBitmap.btile[bs+3],  20,  0, 0); // top    - hline through
-         al_draw_bitmap(mBitmap.btile[bs+3],  20, 40, 0); // bottom - hline through
-         al_draw_bitmap(mBitmap.btile[bs+6],   0, 20, 0); // left   - vline through
-         al_draw_bitmap(mBitmap.btile[bs+6],  40, 20, 0); // right  - vline through
+         al_draw_bitmap(mBitmap.tile[bs+3],  20,  0, 0); // top    - hline through
+         al_draw_bitmap(mBitmap.tile[bs+3],  20, 40, 0); // bottom - hline through
+         al_draw_bitmap(mBitmap.tile[bs+6],   0, 20, 0); // left   - vline through
+         al_draw_bitmap(mBitmap.tile[bs+6],  40, 20, 0); // right  - vline through
       }
 
       al_set_target_backbuffer(mDisplay.display);
@@ -2553,16 +2553,16 @@ void mwTileSets::showTileSet(int x, int y, int type, int bs)
          al_clear_to_color(al_map_rgb(0,0,0));
 
          // corners
-         al_draw_bitmap(mBitmap.btile[bs+12],  0,  0, 0);
-         al_draw_bitmap(mBitmap.btile[bs+14], 20,  0, 0);
-         al_draw_bitmap(mBitmap.btile[bs+15],  0, 20, 0);
-         al_draw_bitmap(mBitmap.btile[bs+13], 20, 20, 0);
+         al_draw_bitmap(mBitmap.tile[bs+12],  0,  0, 0);
+         al_draw_bitmap(mBitmap.tile[bs+14], 20,  0, 0);
+         al_draw_bitmap(mBitmap.tile[bs+15],  0, 20, 0);
+         al_draw_bitmap(mBitmap.tile[bs+13], 20, 20, 0);
 
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(tmp1, 0, 0, 40, 40, x+400, y, 160, 160, 0);
 
          // cross
-         al_draw_scaled_bitmap(mBitmap.btile[bs], 0, 0, 20, 20, x+400, y+280, 80, 80, 0);
+         al_draw_scaled_bitmap(mBitmap.tile[bs], 0, 0, 20, 20, x+400, y+280, 80, 80, 0);
       }
       al_destroy_bitmap(tmp1);
    }

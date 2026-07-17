@@ -158,7 +158,6 @@ class mwItem
    int sort_item(int set_pos);
    int get_empty_item();
    int get_empty_item(int type);
-   void check_item(int i, int ct);
    void test_items();
    void clear_item(int i);
 

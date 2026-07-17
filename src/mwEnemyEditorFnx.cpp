@@ -267,7 +267,7 @@ int mwEnemy::create_cloner(void)
 
    if (mMiscFnx.getxy("Cloner Location", 3, 9, e) == 1)
    {
-      if (mMiscFnx.get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
+      if (mMiscFnx.get_block_range("Cloner Source Area", Ei[e][15], Ei[e][16], Ei[e][19], Ei[e][20], 1))
       {
          if (!mMiscFnx.getxy("Cloner Destination Area", 98, 9, e)) aborted_create = 1;
       }
@@ -316,7 +316,7 @@ int mwEnemy::create_vinepod(void)
       if (mMiscFnx.getxy("VinePod Extended Position", 90, 17, e) == 1)
       {
          mEnemy.vinepod_set_cp_thirds(e);
-         if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+         if (!mMiscFnx.get_block_range("Trigger Box", Ei[e][11], Ei[e][12], Ei[e][13], Ei[e][14], 2)) aborted_create = 1;
       }
       else aborted_create = 1;
    }

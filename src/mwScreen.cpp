@@ -580,7 +580,7 @@ void mwScreen::set_map_var(void)
 
 void mwScreen::mark_non_default_block(int x, int y, int tile)
 {
-   if ((mBitmap.tileFlags[tile & 1023] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS))
+   if ((mBitmap.tileFlags[tile & PM_BTILE_TILENUM_MASK] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
@@ -597,9 +597,9 @@ void mwScreen::draw_tile_overlay(int tile, int x, int y)
    if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
 
    // only draw one overlay
-   if (draw_overlay == 1) al_draw_bitmap(mBitmap.btile[kb+154-4], x*20, y*20, 0);
-   if (draw_overlay == 2) al_draw_bitmap(mBitmap.btile[159],      x*20, y*20, 0);
-   if (draw_overlay == 3) al_draw_bitmap(mBitmap.btile[158],      x*20, y*20, 0);
+   if (draw_overlay == 1) al_draw_bitmap(mBitmap.tile[kb+154-4], x*20, y*20, 0);
+   if (draw_overlay == 2) al_draw_bitmap(mBitmap.tile[159],      x*20, y*20, 0);
+   if (draw_overlay == 3) al_draw_bitmap(mBitmap.tile[158],      x*20, y*20, 0);
 }
 
 
@@ -616,7 +616,7 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          int tile = mLevel.l[x][y];
 
          // only draw tile if non-zero
-         if (tile & 1023) al_draw_bitmap(mBitmap.btile[tile & 1023], x*20, y*20, 0);
+         if (tile & PM_BTILE_TILENUM_MASK) al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
          // draw tile overlays
          if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mWM.mW[1].show_tile_overlays))) draw_tile_overlay(tile, x, y);

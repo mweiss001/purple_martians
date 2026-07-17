@@ -29,7 +29,7 @@ int mwItem::draw_start(int i, int x, int y, int shape)
    // is this start the spawn point for the active local player?
    if (item[i][7] == mPlayer.syn[mPlayer.active_local_player].spawn_point_index) shape = mBitmap.zz[0][21]; // show spinning
    else                                                                          shape = mBitmap.zz[0][11]; // show static
-   al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+   al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
    if (mLoop.level_editor_running) al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]); // put start seq number but only in lev editor
    return 1;
 }
@@ -161,14 +161,14 @@ void mwItem::set_player_start_pos(int p)
 
 int mwItem::draw_exit(int i, int x, int y, int shape)
 {
-   al_draw_bitmap(mBitmap.tile[399], x, y, 0); // 'exit' text not shown
+   al_draw_bitmap(mBitmap.sprite[399], x, y, 0); // 'exit' text not shown
    if (mLoop.frame_num % 60 > 30)
       al_draw_text(mFont.pixl, mColor.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
    int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
    if (exit_enemys_left > 0) // locked
    {
-      al_draw_bitmap(mBitmap.tile[366], x, y, 0); // show lock
+      al_draw_bitmap(mBitmap.sprite[366], x, y, 0); // show lock
       if (mLoop.frame_num % 60 < 30)
          al_draw_textf(mFont.pixl, mColor.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
    }
@@ -287,7 +287,7 @@ void mwItem::proc_gate_collision(int p, int i)
 
 int mwItem::draw_gate(int i, int x, int y, int custom)
 {
-   if (custom) al_draw_bitmap(mBitmap.tile[139], x, y, 0 );
+   if (custom) al_draw_bitmap(mBitmap.sprite[139], x, y, 0 );
    else
    {
       int xc = x+10; // center of tile
@@ -310,7 +310,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          }
       }
 
-      al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
+      al_draw_scaled_bitmap(mBitmap.sprite[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 
 
 
@@ -321,15 +321,15 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
       mScreen.draw_framed_text(xc, y-19, 0, mFont.pixl, col, 15, stat_txt); // draw status text
 
-      if (status == 0) al_draw_scaled_bitmap(mBitmap.tile[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
+      if (status == 0) al_draw_scaled_bitmap(mBitmap.sprite[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
 
       // show icon for purple coin achievement
       if (mLevel.data[lev].max_purple_coins_collected == mLevel.data[lev].tot_purple_coins)
-         al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, x-5, y-10, 12, 12, 0); // show purple coin
+         al_draw_scaled_bitmap(mBitmap.sprite[197], 0, 0, 19, 19, x-5, y-10, 12, 12, 0); // show purple coin
 
       // show icon for par time achievement
       if ((mLevel.data[lev].time_best_all_coins > 0) && (mLevel.data[lev].time_best_all_coins < mLevel.data[lev].time_par))
-         al_draw_scaled_bitmap(mBitmap.tile[542], 3, 3, 14, 14, x+12, y-11, 14, 14, 0); // show clock
+         al_draw_scaled_bitmap(mBitmap.sprite[542], 3, 3, 14, 14, x+12, y-11, 14, 14, 0); // show clock
 
       //al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev); // draw the level number (optional, comment out for release)
 
@@ -522,7 +522,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       int yb = yp+(6*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.tile[127+col], bx+1, (int)yp+2, 0);
+      al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "General");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
@@ -539,7 +539,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       int yb = yp+(9*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.tile[542], bx+1, (int)yp+2, 0); // show clock
+      al_draw_bitmap(mBitmap.sprite[542], bx+1, (int)yp+2, 0); // show clock
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Time to Complete");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
@@ -559,7 +559,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       int yb = yp+(2*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.tile[197], bx+1, (int)yp+2, 0); // show purple coin
+      al_draw_bitmap(mBitmap.sprite[197], bx+1, (int)yp+2, 0); // show purple coin
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Purple Coins");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
@@ -572,7 +572,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       int yb = yp+(3*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.tile[127+col], bx+1, (int)yp+2, 0);
+      al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int) yp+8, 0, "General");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
@@ -589,7 +589,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          int yb = yp+(4*yi)+25;
          al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
          al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-         al_draw_bitmap(mBitmap.tile[401], bx+1, (int)yp+2, 0); // show player
+         al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
          al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int)yp+8, 0, "Run Demo");
          al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
          yp+=25;
@@ -608,7 +608,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          int yb = yp+(1*yi)+25;
          al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
          al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-         al_draw_bitmap(mBitmap.tile[401], bx+1, (int)yp+2, 0); // show player
+         al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
          al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int)yp+8, 0, "Run Demo");
          al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
          yp+=25;

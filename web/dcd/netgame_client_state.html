@@ -286,7 +286,7 @@ Saved things from earlier are restored.
          if (mLevel.l[x][y] != old_l[x][y])
          {
             al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
          }</code></pre>
 <mh3>
 Next, if the state we just applied was from the past, we will fast forward to the current frame.
@@ -501,7 +501,7 @@ You can view these variables on the debug overlay.
          {
             // printf("dif at x:%d y:%d\n", x, y);
             al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
          }
    // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
 

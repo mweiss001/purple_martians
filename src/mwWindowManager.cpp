@@ -562,6 +562,16 @@ void mwWindowManager::process_keypress(void)
    }
 
 
+   if (mInput.key[ALLEGRO_KEY_F][0])
+   {
+      while (mInput.key[ALLEGRO_KEY_F][0]) mEventQueue.proc(1);
+      mBitmapTools.edit_tile_flags();
+   }
+
+
+
+
+
    if (mInput.key[ALLEGRO_KEY_E][0])
    {
       while (mInput.key[ALLEGRO_KEY_E][0]) mEventQueue.proc(1);

@@ -182,11 +182,11 @@ int mwItem::draw_orb(int i, int x, int y)
       if (percent > 0)
       {
          mScreen.draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
-         al_draw_rotated_bitmap(mBitmap.tile[417], 10, 10, x+10, y+10, a, 0);
+         al_draw_rotated_bitmap(mBitmap.sprite[417], 10, 10, x+10, y+10, a, 0);
          drawn = 1;
       }
    }
-   if (!drawn) al_draw_rotated_bitmap(mBitmap.tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
+   if (!drawn) al_draw_rotated_bitmap(mBitmap.sprite[item[i][1]], 10, 10, x+10, y+10, a, 0);
    return 1;
 }
 void mwItem::proc_orb_collision(int p, int i)
@@ -404,7 +404,7 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
 {
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mBitmap.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.sprite[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
@@ -542,7 +542,7 @@ int mwItem::draw_block_manip(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mBitmap.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.sprite[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
    if (item[i][2]) // draw mode on
    {
@@ -764,12 +764,18 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    int FLAGS = item[i][3];
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mBitmap.tile[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.sprite[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
    }
 
    // get dimensions of damage field from item int variables
-   mRect<float> f(item[i][6], item[i][7], item[i][8], item[i][9]);
+//   mRect<float> f(item[i][6], item[i][7], item[i][8], item[i][9]);
+
+
+   mRect<float> f = mRect<float>::fromX1Y1WH(item[i][6], item[i][7], item[i][8], item[i][9]);
+
+
+
 
    // if mirroring geometry from lift, get more accurate values (or maybe more current?), then round them
    if ((FLAGS & PM_ITEM_DAMAGE_LIFT_ON) && (FLAGS & PM_ITEM_DAMAGE_LIFT_MS))
@@ -820,7 +826,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
                   if (tny > 18) tny -= 10;
                }
                alty =!alty;
-               al_draw_bitmap(mBitmap.tile[tny], hx, hy, 0);
+               al_draw_bitmap(mBitmap.sprite[tny], hx, hy, 0);
             }
         }
       }
@@ -835,24 +841,24 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
          if (rb == 0) // draw only on bottom row
          {
             for (int hx=f.x1; hx<f.x2; hx+=20)
-               al_draw_bitmap(mBitmap.tile[tn], hx, f.y2-20, 0);
+               al_draw_bitmap(mBitmap.sprite[tn], hx, f.y2-20, 0);
          }
          if (rb == 2) // draw only on top row
          {
             for (int hx=f.x1; hx<f.x2; hx+=20)
-               al_draw_bitmap(mBitmap.tile[tn], hx, f.y1, ALLEGRO_FLIP_VERTICAL);
+               al_draw_bitmap(mBitmap.sprite[tn], hx, f.y1, ALLEGRO_FLIP_VERTICAL);
          }
 
          if (rb == 1) // draw only on left side
          {
             for (int hy=f.y1; hy<f.y2; hy+=20)
-               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, f.x1+20, hy,  ALLEGRO_PI / 2, 0);
+               al_draw_rotated_bitmap(mBitmap.sprite[tn], 0, 0, f.x1+20, hy,  ALLEGRO_PI / 2, 0);
          }
 
          if (rb == 3) // draw only on right side
          {
             for (int hy=f.y1; hy<f.y2; hy+=20)
-               al_draw_rotated_bitmap(mBitmap.tile[tn], 0, 0, f.x2-20, hy+20,  ALLEGRO_PI * 3 / 2, 0);
+               al_draw_rotated_bitmap(mBitmap.sprite[tn], 0, 0, f.x2-20, hy+20,  ALLEGRO_PI * 3 / 2, 0);
          }
       }
 
@@ -869,9 +875,9 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
             for (int hx=f.x1; hx<f.x2; hx+=20)
                for (int hy=f.y1; hy<f.y2; hy+=20)
                {
-                  if       (hy-f.y1 == 0)   al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
-                  else if  (hy-f.y1 <= 20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
-                  else                      al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+                  if       (hy-f.y1 == 0)   al_draw_bitmap(mBitmap.sprite[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-f.y1 <= 20)  al_draw_bitmap(mBitmap.sprite[tn+32], hx, hy, 0); // 2nd top
+                  else                      al_draw_bitmap(mBitmap.sprite[tn+64], hx, hy, 0); // everything else
                }
          }
          if (rb == 2) // extend down from top
@@ -879,9 +885,9 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
             for (int hx=f.x1; hx<f.x2; hx+=20)
                for (int hy=f.y2-20; hy>f.y1-20; hy-=20)
                {
-                  if       (f.y2-hy == 20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
-                  else if  (f.y2-hy < 40)   al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
-                  else                      al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
+                  if       (f.y2-hy == 20)  al_draw_bitmap(mBitmap.sprite[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
+                  else if  (f.y2-hy < 40)   al_draw_bitmap(mBitmap.sprite[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
+                  else                      al_draw_bitmap(mBitmap.sprite[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
                }
          }
          if (rb == 1) // extend right from left side
@@ -889,9 +895,9 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
             for (int hy=f.y1; hy<f.y2; hy+=20)
                for (int hx=f.x2-20; hx>f.x1-20; hx-=20)
                {
-                  if      (f.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
-                  else if (f.x2-hx < 40)   al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
-                  else                     al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
+                  if      (f.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.sprite[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
+                  else if (f.x2-hx < 40)   al_draw_rotated_bitmap(mBitmap.sprite[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
+                  else                     al_draw_rotated_bitmap(mBitmap.sprite[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
                }
          }
          if (rb == 3) // extend left from right side
@@ -899,9 +905,9 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
             for (int hy=f.y1; hy<f.y2; hy+=20)
                for (int hx=f.x1; hx<f.x2; hx+=20)
                {
-                  if       (hx-f.x1 == 0)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // left
-                  else if  (hx-f.x1 <=20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // 2nd left
-                  else                     al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // everything else
+                  if       (hx-f.x1 == 0)  al_draw_rotated_bitmap(mBitmap.sprite[tn+ 0], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // left
+                  else if  (hx-f.x1 <=20)  al_draw_rotated_bitmap(mBitmap.sprite[tn+32], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // 2nd left
+                  else                     al_draw_rotated_bitmap(mBitmap.sprite[tn+64], 0, 0, hx, hy+20, ALLEGRO_PI * 3/2, 0); // everything else
                }
          }
       }
@@ -915,47 +921,50 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
 
          if ((rb == 0) || (rb == 2)) // vertical
          {
-            mRect<float> uh(f.x1, f.y1,       f.w, f.h/2); // upper half
-            mRect<float> lh(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
+            mRect<float> uh = mRect<float>::fromX1Y1WH(f.x1, f.y1,       f.w, f.h/2); // upper half
+            mRect<float> lh = mRect<float>::fromX1Y1WH(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
+
+
+
 
             uh.set_clipping_rectangle();
             for (int hx=f.x1; hx<f.x2; hx+=20)
                for (int hy=uh.y1; hy<uh.y2; hy+=20)
                {
-                  if       (hy-uh.y1 == 0)   al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, 0); // top
-                  else if  (hy-uh.y1 <= 20)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, 0); // 2nd top
-                  else                       al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, 0); // everything else
+                  if       (hy-uh.y1 == 0)   al_draw_bitmap(mBitmap.sprite[tn+ 0], hx, hy, 0); // top
+                  else if  (hy-uh.y1 <= 20)  al_draw_bitmap(mBitmap.sprite[tn+32], hx, hy, 0); // 2nd top
+                  else                       al_draw_bitmap(mBitmap.sprite[tn+64], hx, hy, 0); // everything else
                }
             lh.set_clipping_rectangle();
             for (int hx=f.x1; hx<f.x2; hx+=20)
                for (int hy=lh.y2-20; hy>lh.y1-20; hy-=20)
                {
-                  if       (lh.y2-hy == 20)  al_draw_bitmap(mBitmap.tile[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
-                  else if  (lh.y2-hy <= 40)  al_draw_bitmap(mBitmap.tile[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
-                  else                       al_draw_bitmap(mBitmap.tile[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
+                  if       (lh.y2-hy == 20)  al_draw_bitmap(mBitmap.sprite[tn+ 0], hx, hy, ALLEGRO_FLIP_VERTICAL); // bottom
+                  else if  (lh.y2-hy <= 40)  al_draw_bitmap(mBitmap.sprite[tn+32], hx, hy, ALLEGRO_FLIP_VERTICAL); // 2nd bottom
+                  else                       al_draw_bitmap(mBitmap.sprite[tn+64], hx, hy, ALLEGRO_FLIP_VERTICAL); // everything else
                }
          }
 
 
          if ((rb == 1) || (rb == 3)) // horizontal
          {
-            mRect<float> lh(f.x1,         f.y1, f.w/2, f.h); // left half
-            mRect<float> rh(f.x1 + f.w/2, f.y1, f.w/2, f.h); // right half
+            mRect<float> lh = mRect<float>::fromX1Y1WH(f.x1,         f.y1, f.w/2, f.h); // left half
+            mRect<float> rh = mRect<float>::fromX1Y1WH(f.x1 + f.w/2, f.y1, f.w/2, f.h); // right half
 
             for (int hy=f.y1; hy<f.y2; hy+=20)
                for (int hx=lh.x1; hx<lh.x2; hx+=20)
                {
-                  if       (hx-lh.x1 ==  0)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // left
-                  else if  (hx-lh.x1 <= 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // 2nd left
-                  else                       al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // everything else
+                  if       (hx-lh.x1 ==  0)  al_draw_rotated_bitmap(mBitmap.sprite[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // left
+                  else if  (hx-lh.x1 <= 20)  al_draw_rotated_bitmap(mBitmap.sprite[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // 2nd left
+                  else                       al_draw_rotated_bitmap(mBitmap.sprite[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, ALLEGRO_FLIP_VERTICAL); // everything else
                }
 
             for (int hy=f.y1; hy<f.y2; hy+=20)
                for (int hx=rh.x2-20; hx>rh.x1-20; hx-=20)
                {
-                  if      (rh.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.tile[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
-                  else if (rh.x2-hx <= 40)  al_draw_rotated_bitmap(mBitmap.tile[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
-                  else                      al_draw_rotated_bitmap(mBitmap.tile[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
+                  if      (rh.x2-hx == 20)  al_draw_rotated_bitmap(mBitmap.sprite[tn+ 0], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // right
+                  else if (rh.x2-hx <= 40)  al_draw_rotated_bitmap(mBitmap.sprite[tn+32], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // 2nd right
+                  else                      al_draw_rotated_bitmap(mBitmap.sprite[tn+64], 0, 0, hx+20, hy, ALLEGRO_PI / 2, 0); // everything else
                }
 
          }
@@ -1002,7 +1011,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
          //printf("f:%d rtio:%f tn:%d\n", mLoop.frame_num, rtio, tn);
 
          for (int hx=f.x1; hx<f.x2; hx+=20)
-            al_draw_bitmap(mBitmap.tile[tn], hx, f.y2-20, 0); // draw spikes only on bottom row
+            al_draw_bitmap(mBitmap.sprite[tn], hx, f.y2-20, 0); // draw spikes only on bottom row
       }
    }
    al_reset_clipping_rectangle();
@@ -1087,7 +1096,7 @@ int mwItem::draw_timer(int i, int x, int y, int custom)
 
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mBitmap.tile[987], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.sprite[987], x, y, 0); // draw item shape in level editor, invisible when game running
    }
    if ((!custom) && (item[i][2]))
    {

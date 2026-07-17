@@ -79,8 +79,8 @@ int mwItem::draw_door(int i, int x, int y, int custom)
                // bigger door when player touching it
                al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-               if (item[i][8] == 0) al_draw_scaled_bitmap(mBitmap.tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-               else                 al_draw_scaled_bitmap(mBitmap.tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+               if (item[i][8] == 0) al_draw_scaled_bitmap(mBitmap.sprite[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+               else                 al_draw_scaled_bitmap(mBitmap.sprite[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
                if (item[i][11] == 1) // enter with <up>
                   al_draw_text(mFont.pr8, mColor.pc[15],  x+3, y-14, 0, "up");
@@ -94,8 +94,8 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    if (!drawn)
    {
       al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
-      if (item[i][8] == 0) al_draw_bitmap(mBitmap.tile[1015], x, y, 0); // OUT
-      else                 al_draw_bitmap(mBitmap.tile[1014], x, y, 0); // IN
+      if (item[i][8] == 0) al_draw_bitmap(mBitmap.sprite[1015], x, y, 0); // OUT
+      else                 al_draw_bitmap(mBitmap.sprite[1014], x, y, 0); // IN
    }
    return 1;
 }

@@ -15,7 +15,7 @@
 
 int mwItem::draw_hider(int i, int x, int y, int tile)
 {
-   if (mLoop.level_editor_running) al_draw_bitmap(mBitmap.tile[476], x, y, 0); // draw item shape in level editor, invisible when game running
+   if (mLoop.level_editor_running) al_draw_bitmap(mBitmap.sprite[476], x, y, 0); // draw item shape in level editor, invisible when game running
    return 1;
 }
 
@@ -68,7 +68,7 @@ int mwItem::draw_key(int i, int x, int y, int tile)
          // stretch the key
          float sc = 1 + 5*((10 - (float)item[i][11]) / 10);
          float rot = (float) item[i][10] / 1000;
-         al_draw_scaled_rotated_bitmap(mBitmap.tile[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
+         al_draw_scaled_rotated_bitmap(mBitmap.sprite[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
 
          // draw a collapsing rectangle
          int x1 = item[i][6];
@@ -89,7 +89,7 @@ int mwItem::draw_key(int i, int x, int y, int tile)
       else
       {
          float rot = (float) item[i][10] / 1000;
-         al_draw_rotated_bitmap(mBitmap.tile[tile], 10, 10, x+10, y+10, rot, 0);
+         al_draw_rotated_bitmap(mBitmap.sprite[tile], 10, 10, x+10, y+10, rot, 0);
       }
       return 1;
    }

@@ -4,16 +4,15 @@ class mwGlobalLevelTool
 {
    public:
    void execute();
+
+   int tileCount[NUM_TILES][400] = {};
    void countTiles();
 
-   void changeTileNumber(int oldNumber, int newNumber, int level = 0);
-   void changeTileNumberRange(int oldNumber, int newNumber, int range);
 
-   int tileCount[1024][400] = {};
+   void replaceTileIfMatch(int &tile, int match, int replace);
+   void changeBlockNumber(int oldNum, int newNum);
+   void changeTileNumberRange(int oldNumber, int newNumber, int range = 1);
 
-   private:
-   void show_block_list(int blt[]);
-   void remove_unused_tiles(int blt[]);
 };
 extern mwGlobalLevelTool mGlobalLevelTool;
 

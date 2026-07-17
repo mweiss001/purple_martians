@@ -7818,7 +7818,7 @@ void client_apply_dif(void)
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
                            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-                           al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+                           al_draw_bitmap(btile[l[x][y] & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
                         }
 
                   // fix control methods
