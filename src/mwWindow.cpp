@@ -2,64 +2,25 @@
 #include "pm.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
+#include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "mwColor.h"
+#include "mwGroupEdit.h"
 #include "mwInput.h"
-#include "mwMenu.h"
-#include "mwMiscFnx.h"
-#include "mwScreen.h"
-#include "mwBitmapTools.h"
-#include "mwBitmap.h"
+#include "mwEditorMain.h"
 #include "mwEditSelection.h"
-#include "mwLift.h"
-#include "mwWidget.h"
-#include "mwVisualLevel.h"
-#include "mwTriggerEvent.h"
-#include "mwEventQueue.h"
-#include "mwLoop.h"
-#include "mwLevel.h"
-#include "mwEnemy.h"
-#include "mwItem.h"
-
-#include "mwGlobalLevelTool.h"
-#include "mwHelp.h"
-#include "mwLevelIcons.h"
+#include "mwObjectViewer.h"
+#include "mwScreen.h"
 #include "mwSelectionWindow.h"
-#include "mwTileEditor.h"
 #include "mwTileHelper.h"
-#include "mwTileSets.h"
-
 
 mwWindow::mwWindow()
 {
-   x1 = 0;
-   y1 = 0;
-   x2 = 0;
-   y2 = 0;
-   w = 0;
-   h = 0;
+   rect.setXYWH(0,0,0,0);
+
    color = 15;
    title[0] = 0;
    active = 0;
-
-   mSelectionWindow.block_on = 1;
-   mSelectionWindow.special_on = 1;
-
-   obt = 0;
-   num = 0;
-   viewer_lock = 0;
-
-//   copy_mode = 0;
-//   brf_mode = 0;
-
-
-
-
-   collapsed = 0;
-
-   snap = 20;
-
 
    have_focus = 0;
    layer = 0;
@@ -67,7 +28,6 @@ mwWindow::mwWindow()
    moveable = 1;
    moving = 0;
    resizable = 0;
-   filter_mode = 1;
 }
 
 void mwWindow::set_title(const char* st)
@@ -75,45 +35,32 @@ void mwWindow::set_title(const char* st)
    sprintf(title, "%s", st);
 }
 
-void mwWindow::set_pos(int sx, int sy)
+void mwWindow::set_pos(int x, int y)
 {
-   x1 = sx;
-   y1 = sy;
-   x2 = x1 + w;
-   y2 = y1 + h;
+   rect.setX1Y1(x, y);
 }
 
-void mwWindow::set_size(int sw, int sh)
+void mwWindow::set_size(int w, int h)
 {
-   w = sw;
-   h = sh;
-   x2 = x1 + w;
-   y2 = y1 + h;
+   rect.setWH(w, h);
 }
 
 int mwWindow::detect_mouse(void)
 {
-// check also if mouse on draw flags, if
-
-
-
-   if ((mInput.mouse_x >= x1) && (mInput.mouse_x <= x2) && (mInput.mouse_y >= y1) && (mInput.mouse_y <= y2) && (!hidden)) return 1;
-
-
-
-
-   else return 0;
+   return rect.contains(mInput.mouse_x, mInput.mouse_y);
 }
 
 void mwWindow::check_offscreen(void)
 {
    int change = 0;
-   if (x1<1) {x1=1; change=1;}
-   if (y1<1) {y1=1; change=1;}
-   if (x1>mDisplay.SCREEN_W-100) {x1=mDisplay.SCREEN_W-100; change=1;}
-   if (y1>mDisplay.SCREEN_H-100) {y1=mDisplay.SCREEN_H-100; change=1;}
-   if (change) set_pos(x1, y1);
+   if (rect.x1<1) {rect.x1=1; change=1;}
+   if (rect.y1<1) {rect.y1=1; change=1;}
+   if (rect.x1>mDisplay.SCREEN_W-100) {rect.x1=mDisplay.SCREEN_W-100; change=1;}
+   if (rect.y1>mDisplay.SCREEN_H-100) {rect.y1=mDisplay.SCREEN_H-100; change=1;}
+   if (change) set_pos(rect.x1, rect.y1);
 }
+
+
 
 void mwWindow::process_mouse(void)
 {
@@ -122,10 +69,10 @@ void mwWindow::process_mouse(void)
       if (mInput.mouse_b[1][0])
       {
          // moveable and mouse on title bar
-         if ((moveable) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y1+8))
+         if ((moveable) && (mInput.mouse_x > rect.x1) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y1) && (mInput.mouse_y < rect.y1+8))
          {
-            int mxo = mInput.mouse_x - x1; // get offset from mouse position to window x, y
-            int myo = mInput.mouse_y - y1;
+            int mxo = mInput.mouse_x - rect.x1; // get offset from mouse position to window x, y
+            int myo = mInput.mouse_y - rect.y1;
             moving = 1;
             while (mInput.mouse_b[1][0])
             {
@@ -137,17 +84,17 @@ void mwWindow::process_mouse(void)
             moving = 0;
          }
          // resizable and mouse on lower right corner
-         if ((resizable) && (mInput.mouse_x > x2-10) && (mInput.mouse_x < x2) && (mInput.mouse_y > y2-10) && (mInput.mouse_y < y2))
+         if ((resizable) && (mInput.mouse_x > rect.x2-10) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y2-10) && (mInput.mouse_y < rect.y2))
          {
-            int mxo = mInput.mouse_x - x2; // get offset from mouse position to window x, y
-            int myo = mInput.mouse_y - y2;
+            int mxo = mInput.mouse_x - rect.x2; // get offset from mouse position to window x, y
+            int myo = mInput.mouse_y - rect.y2;
             moving = 1;
             while (mInput.mouse_b[1][0])
             {
-               x2 = mInput.mouse_x-mxo;
-               y2 = mInput.mouse_y-myo;
-               w = x2 - x1;
-               h = y2 - y1;
+               rect.x2 = mInput.mouse_x-mxo;
+               rect.y2 = mInput.mouse_y-myo;
+               rect.w = rect.x2 - rect.x1;
+               rect.h = rect.y2 - rect.y1;
                mWM.redraw_level_editor_background(0);
                mScreen.draw_scaled_level_region_to_display();
                mWM.cycle_windows(1); // draw only
@@ -155,141 +102,54 @@ void mwWindow::process_mouse(void)
          }
          moving = 0;
       }
-
-      // mouse b2 anywhere on window
-      if ((mInput.mouse_b[2][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-      {
-
-         if (index == 3) // filter window
-         {
-            sprintf(mMenu.menu_string[0],"Filters");
-            sprintf(mMenu.menu_string[1],"---------------");
-            sprintf(mMenu.menu_string[2],"All On");
-            sprintf(mMenu.menu_string[3],"All Items On");
-            sprintf(mMenu.menu_string[4],"All Enemies On");
-            sprintf(mMenu.menu_string[5],"All Off");
-            sprintf(mMenu.menu_string[6],"All Items Off");
-            sprintf(mMenu.menu_string[7],"All Enemies Off");
-            sprintf(mMenu.menu_string[8],"end");
-            switch (mMenu.pmenu(6, 13, -20, 2))
-            {
-                case 2:
-                   for (int i=0; i<5; i++)
-                      for (int j=0; j<20; j++)
-                         mWM.obj_filter[i][j] = 1;
-                break;
-                case 3:
-                   for (int j=0; j<20; j++)
-                      mWM.obj_filter[2][j] = 1;
-                break;
-                case 4:
-                   for (int j=0; j<20; j++)
-                      mWM.obj_filter[3][j] = 1;
-                break;
-                case 5:
-                for (int i=0; i<5; i++)
-                   for (int j=0; j<20; j++)
-                      mWM.obj_filter[i][j] = 0;
-                break;
-                case 6:
-                   for (int j=0; j<20; j++)
-                      mWM.obj_filter[2][j] = 0;
-                break;
-                case 7:
-                   for (int j=0; j<20; j++)
-                      mWM.obj_filter[3][j] = 0;
-                break;
-            }
-
-            if ((mWM.mW[3].filter_mode == 3) && (mEditSelection.copy_mode))
-            {
-              mEditSelection.fill_ft_variables_from_selection(0);
-              mEditSelection.draw_fsel();
-            }
-         }
-
-         if (index == 5) // ge list
-         {
-            sprintf(mMenu.menu_string[0],"Group Edit Object List");
-            sprintf(mMenu.menu_string[1],"----------------------");
-
-            if (mWM.mW[5].show_sel_frame)
-            {
-               sprintf(mMenu.menu_string[2],"Clear Object List");
-               sprintf(mMenu.menu_string[3],"Hide Selection");
-               sprintf(mMenu.menu_string[4],"Add Filtered Selection To List");
-               sprintf(mMenu.menu_string[5],"Add Selection To List And Set Filters");
-               sprintf(mMenu.menu_string[6],"end");
-
-               switch (mMenu.pmenu(6, 13, -20, 2))
-               {
-                  case 2: ge_clear_obj_list(); break;
-                  case 3: mWM.mW[5].show_sel_frame = 0; break;
-                  case 4: ge_add_selection_to_list(0); break;
-                  case 5: ge_add_selection_to_list(1); break;
-               }
-            }
-            else
-            {
-               sprintf(mMenu.menu_string[2],"Clear Object List");
-               sprintf(mMenu.menu_string[3],"Show Selection");
-               sprintf(mMenu.menu_string[4],"end");
-               switch (mMenu.pmenu(6, 13, -20, 2))
-               {
-                  case 2: ge_clear_obj_list(); break;
-                  case 3: mWM.mW[5].show_sel_frame = 1; break;
-               }
-            }
-         }
-      }
    }
 }
 
 void mwWindow::draw(int draw_only)
 {
    // erase background
-   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[0]);
 
    // default window
 //   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7) && (index != 8) && (index != 9))
    if ((index < 1) || (index > 9))
    {
       // frame window
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[color], 1);
+      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[color], 1);
 
       // frame title bar
-      al_draw_rectangle(x1, y1, x2, y1+11, mColor.pc[color], 1);
+      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y1+11, mColor.pc[color], 1);
 
       // title
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+2, 0, "title:%s", title);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+2, 0, "title:%s", title);
 
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+12, 0, "index:%d", index);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+12, 0, "index:%d", index);
 
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+22, 0, "layer:%d", layer);
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+30, 0, "focus:%d", have_focus);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+22, 0, "layer:%d", layer);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+30, 0, "focus:%d", have_focus);
 
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
-      al_draw_textf(mFont.pr8, mColor.pc[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+38, 0, "x1:%d x2:%d w:%d", rect.x1, rect.x2, rect.w);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+46, 0, "y1:%d y2:%d h:%d", rect.y1, rect.y2, rect.h);
 
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[10], 1);
 
       if (have_focus)
       {
          // frame entire window
-         al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+         al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[10], 1);
 
          // frame title bar
          if (moveable)
          {
-            if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y1+8))
-               al_draw_rectangle(x1, y1, x2, y1+11, mColor.pc[10], 1);
+            if ((mInput.mouse_x > rect.x1) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y1) && (mInput.mouse_y < rect.y1+8))
+               al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y1+11, mColor.pc[10], 1);
          }
 
          // lower right corner
          if (resizable)
          {
-            if ((mInput.mouse_x > x2-10) && (mInput.mouse_x < x2) && (mInput.mouse_y > y2-10) && (mInput.mouse_y < y2)) // lower right corner for resize
-               al_draw_rectangle(x2-10, y2-10, x2, y2, mColor.pc[10], 1);
+            if ((mInput.mouse_x > rect.x2-10) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y2-10) && (mInput.mouse_y < rect.y2)) // lower right corner for resize
+               al_draw_rectangle(rect.x2-10, rect.y2-10, rect.x2, rect.y2, mColor.pc[10], 1);
          }
       }
    }
@@ -299,700 +159,13 @@ void mwWindow::draw(int draw_only)
    if (moving) d = 1;
    if (draw_only) d = 1;
 
-   if (index == 1) cm_draw_status_window(x1, x2, y1, y2, d, have_focus);
-   if (index == 2) cm_draw_selection_window(x1, x2, y1, y2, d, have_focus);
-   if (index == 3) // filter window
-   {
-      int fc = 15;
-      if (have_focus) fc = 10;
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-      y2 = 1 + cm_draw_filter_buttons(x1+1, x2-1, y1+1, filter_mode, d);
-      h = y2 - y1;
-   }
-   if (index == 4) // edit selection
-   {
-      mMiscFnx.titlex("Edit Selection", 15, 13, x1, x2, y1+1);
-
-      int by1 = y1+3;
-      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
-
-      int mow = mWM.is_mouse_on_any_window();
-      mEditSelection.show_pointer_text(x1+1, x2-1, y1+20, mow);
-
-      int sy2 = mEditSelection.draw_buttons(x1+1, x2-1, y1+80, d);
-      set_size(w, sy2-y1-1);
-
-      int fc = 13;
-      if (have_focus) fc = 10;
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-
-   }
-   if (index == 5) // ge list
-   {
-      ge_remove_obj_list_filtered_items();
-      int ew, eh;
-      ge_show_obj_list(x1, y1, &ew, &eh, d);
-      set_size(ew, eh);
-   }
-   if (index == 6) // ge controls
-   {
-      //int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, hidden, d);
-      //set_size(ew, eh+20);
-      //if (!nc) hidden = 1;
-      //else hidden = 0;
-
-      hidden = 0; // always show
-      int ew, eh;
-      ge_show_controls(x1, y1+20, &ew, &eh, hidden, d);
-      set_size(ew, eh+20);
-      if (!hidden)
-      {
-         mMiscFnx.titlex("Group Edit Controls", 15, 13, x1, x2, y1+1);
-         int by1 = y1+3;
-
-         int bxp = x2-12;
-
-         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Group Edit");
-         int fc = 13;
-         //if (have_focus) fc = 10;
-         al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-
-         bxp -= 16;
-         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"+"))  ge_expand_all_controls();
-
-         bxp -= 16;
-         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"-")) ge_collapse_all_controls();
-
-      }
-   }
-   if (index == 7) // object viewer
-   {
-      ov_check_if_valid();
-      ov_get_size();
-      ov_title(x1, x2, y1, y2, legend_line);
-      int by1 = y1+2;
-      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Viewer Basics");
-      ov_draw_buttons(x1, y1, x2, y2, d);
-   }
-   if (index == 8) // top menu
-   {
-      cm_process_menu_bar(d);
-   }
-   if (index == 9) // tile helper
-   {
-      mMiscFnx.titlex("Tile Helper", 15, 13, x1, x2, y1+1);
-      int by1 = y1+3;
-      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
-      int fc = 13+64;
-      if (have_focus) fc = 13;
-      int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+20, d);
-      set_size(w, ys-y1+4);
-
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-   }
+   if (index == 1) mEditorMain.draw_status_window(rect, d, have_focus);
+   if (index == 2) mSelectionWindow.draw(rect, d, have_focus);
+   if (index == 3) mEditorMain.draw_filter_window(rect, d);
+   if (index == 4) mEditSelection.draw(rect, d, have_focus);
+   if (index == 5) mGroupEdit.draw_list(rect, d);
+   if (index == 6) mGroupEdit.draw_controls(rect, d);
+   if (index == 7) mObjectViewer.draw(rect, d);
+   if (index == 8) mEditorMain.cm_process_menu_bar(d); // top menu
+   if (index == 9) mTileHelper.draw(rect, d, have_focus);
 }
-
-
-
-
-
-
-
-
-void mwWindow::cm_process_menu_bar(int d)
-{
-   char msg[1024];
-   al_set_target_backbuffer(mDisplay.display);
-
-   mWM.mW[8].set_pos(0, 0);
-   mWM.mW[8].set_size(mDisplay.SCREEN_W, BORDER_WIDTH);
-
-   int x1 = BORDER_WIDTH;
-   int y1 = 0;
-   int by1 = y1+4;
-   int bts = 10;
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
-   {
-      strcpy (mMenu.menu_string[0],"File"); // PD sub menu
-      strcpy (mMenu.menu_string[1],"New");
-      strcpy (mMenu.menu_string[2],"Load");
-      strcpy (mMenu.menu_string[3],"Reload");
-      strcpy (mMenu.menu_string[4],"Save");
-      strcpy (mMenu.menu_string[5],"Save As");
-      strcpy (mMenu.menu_string[6],"Exit");
-      strcpy (mMenu.menu_string[7],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1)
-      {
-         if (al_show_native_message_box(mDisplay.display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
-         {
-            mLevel.zero_level_data();
-            mLevel.save_level_prompt();
-         }
-         mLevel.load_level(mLevel.last_level_loaded, 0, 0);
-      }
-      if (ret == 2) mVisualLevel.visual_level_select(400);
-      if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
-      if (ret == 4) mLevel.save_level(mLevel.last_level_loaded);
-      if (ret == 5) mLevel.save_level_prompt();
-      if (ret == 6) mWM.active = 0;
-      al_set_target_backbuffer(mDisplay.display);
-   }
-   x1 += 44;
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "View"))
-   {
-      strcpy (mMenu.menu_string[0],"View");
-      strcpy (mMenu.menu_string[1],"Toggle Fullscreen       F12");
-      strcpy (mMenu.menu_string[2],"Zoom Out                 F5");
-      strcpy (mMenu.menu_string[3],"Zoom In                  F6");
-      strcpy (mMenu.menu_string[4],"Reset Zoom            F5+F6");
-      strcpy (mMenu.menu_string[5],"Zoom Fit Level Vertical   ");
-      sprintf(mMenu.menu_string[6],"Text Double:Auto");
-      sprintf(mMenu.menu_string[7],"Text Double:1");
-      sprintf(mMenu.menu_string[8],"Text Double:2");
-      sprintf(mMenu.menu_string[9],"Text Double:3");
-
-      if (mLoop.autosave_level_editor_state) sprintf(mMenu.menu_string[10],"Autosave State:ON ");
-      else                                  sprintf(mMenu.menu_string[10],"Autosave State:OFF");
-      sprintf(mMenu.menu_string[11],"Reset State");
-
-      strcpy (mMenu.menu_string[12],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) mDisplay.toggle_fullscreen();
-      if (ret == 2) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
-      if (ret == 3) mDisplay.set_scale_factor(mDisplay.scale_factor * 1.1, 0);
-      if (ret == 4) mDisplay.set_scale_factor(1.0, 1);
-      if (ret == 5) mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 1);
-      if (ret == 6) mDisplay.set_saved_display_transform(0);
-      if (ret == 7) mDisplay.set_saved_display_transform(1);
-      if (ret == 8) mDisplay.set_saved_display_transform(2);
-      if (ret == 9) mDisplay.set_saved_display_transform(3);
-      if (ret == 10) mLoop.autosave_level_editor_state = ! mLoop.autosave_level_editor_state;
-      if (ret == 11) { mWM.set_windows(0); mWM.save_mW(); }
-   }
-   x1 += 44;
-
-   if (mWidget.buttont(x1, by1, x1+40, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Lists"))
-   {
-      strcpy (mMenu.menu_string[0],"Lists");
-      strcpy (mMenu.menu_string[1],"List all Items");
-      strcpy (mMenu.menu_string[2],"List all Enemies");
-      strcpy (mMenu.menu_string[3],"List all Lifts");
-      strcpy (mMenu.menu_string[4],"List all pmsg");
-      strcpy (mMenu.menu_string[5],"List all Events");
-      strcpy (mMenu.menu_string[6],"Level Check");
-      strcpy (mMenu.menu_string[7],"Show Level Data");
-      strcpy (mMenu.menu_string[8],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) mItem.show_all_items();
-      if (ret == 2) mEnemy.show_all_enemies();
-      if (ret == 3) mLift.show_all_lifts();
-      if (ret == 4) mItem.show_all_pmsg();
-      if (ret == 5) mTriggerEvent.show_all_events();
-      if (ret == 6) mLevel.level_check();
-      if (ret == 7) mLevel.show_level_data(40, 40, 1);
-
-   }
-   x1 += 52;
-
-
-   if (mWidget.buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Advanced"))
-   {
-      strcpy (mMenu.menu_string[0],"Advanced");
-      strcpy (mMenu.menu_string[1],"Global Level Tool");
-      strcpy (mMenu.menu_string[2],"Level Viewer!");
-      strcpy (mMenu.menu_string[3],"Animation Sequence Editor");
-      strcpy (mMenu.menu_string[4],"Copy Tiles");
-      strcpy (mMenu.menu_string[5],"Tile Editor");
-      strcpy (mMenu.menu_string[6],"Default Flag Editor");
-      strcpy (mMenu.menu_string[7],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) mGlobalLevelTool.execute();
-      if (ret == 2) mVisualLevel.level_viewer();
-      if (ret == 3) mBitmapTools.animation_sequence_editor();
-      if (ret == 4) mBitmapTools.copy_tiles();
-      if (ret == 5)
-      {
-         mwTileEditor te;
-         te.edit_tile(0);
-      }
-      if (ret == 6) mBitmapTools.edit_tile_flags();
-
-
-   }
-   x1 += 76;
-
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Help"))
-   {
-      strcpy (mMenu.menu_string[0],"Help");
-      strcpy (mMenu.menu_string[1],"Level Editor Basics");
-      strcpy (mMenu.menu_string[2],"Credits");
-      strcpy (mMenu.menu_string[3],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) mHelp.help("Level Editor Basics");
-      if (ret == 2) mHelp.help("Credits");
-   }
-   x1 += 44;
-
-   x1+= 12;
-
-   if (mWM.level_editor_mode == 1) sprintf(msg, "Mode:Main Edit");
-   if (mWM.level_editor_mode == 2) sprintf(msg, "Mode:Edit Selection");
-   if (mWM.level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
-   if (mWM.level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
-   if (mWM.level_editor_mode == 9) sprintf(msg, "Mode:Tile Helper");
-
-   if (mWidget.buttont(x1, by1, x1+140, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
-   {
-      strcpy (mMenu.menu_string[0],msg);
-      strcpy (mMenu.menu_string[1],"Mode:Main Edit");
-      strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
-      strcpy (mMenu.menu_string[3],"Mode:Group Edit");
-      strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
-      strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
-      strcpy (mMenu.menu_string[6],"end");
-      int ret = mMenu.tmenu(1, x1+4, by1-1);
-      if (ret == 1) mWM.set_windows(1);
-      if (ret == 2) mWM.set_windows(2);
-      if (ret == 3) mWM.set_windows(3);
-      if (ret == 4) mWM.set_windows(4);
-      if (ret == 5) mWM.set_windows(9);
-   }
-
-   x1+=180;
-
-   bts = 12;
-   int yt = by1-2;
-   if (mWM.mW[7].active) mWidget.slideri(x1, yt, x1+80, bts, 0,0,0,0,   0,12,15,15,  1,0,0,d, mWM.mW[7].snap, 20, 1, 1,  "Snap:");
-
-
-   // status display in the lower right border
-   int y2 = mDisplay.SCREEN_H-BORDER_WIDTH+3;
-   x1 = mDisplay.SCREEN_W-172;
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2,  y2, 0, "Level:");
-   al_draw_textf(mFont.pr8, mColor.pc[15], x1+50, y2, 0, "%d ", mLevel.last_level_loaded);
-   x1 += 80;
-
-   al_draw_text( mFont.pr8, mColor.pc[9],  x1,    y2, 0, "x:");
-   al_draw_text( mFont.pr8, mColor.pc[9],  x1+40, y2, 0, "y:");
-   if (mWM.is_mouse_on_any_window()) al_draw_textf(mFont.pr8, mColor.pc[15], x1, y2, 0, "  --   -- ");
-   else                          al_draw_textf(mFont.pr8, mColor.pc[15], x1, y2, 0, "  %-2d   %-2d ", mWM.gx, mWM.gy);
-
-   x1 = mDisplay.SCREEN_W-400;
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1,    y2, 0, "Zoom:");
-   al_draw_textf(mFont.pr8, mColor.pc[15],  x1+40, y2, 0, "%3.1f", mDisplay.scale_factor);
-   x1 +=80;
-
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1,   y2, 0, "Text Double:");
-   if (mDisplay.saved_display_transform_double == 0) al_draw_textf(mFont.pr8, mColor.pc[15],  x1+96,   y2, 0, "Auto");
-   else                                         al_draw_textf(mFont.pr8, mColor.pc[15],  x1+96,   y2, 0, "%d", mDisplay.saved_display_transform_double);
-}
-
-int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
-{
-
-   int fs = 12;   // frame size
-   int y = y1+fs; // button y position
-
-   int bts = 12;    // button size
-
-   int tc1 = 15;    // text color 1
-   int tc2 = 15;    // text color 2
-   int fc1 = 15+64; // frame color 1
-   int fc2 = 4;     // frame color 2
-
-   int tl=0; // text_lines
-   if (mode == 1) tl = 28*bts-bts/2;
-   if (mode == 2) tl = 30*bts-bts;
-   if (mode == 3) tl = 32*bts-bts;
-
-   if (mWM.mW[3].collapsed) tl = -bts+2;
-
-   int y2 = y1+tl+fs*2-2; // pre calc
-
-   // erase background
-   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
-
-   // draw frame around filter buttons
-   int ci = 16; //color inc
-   for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, mColor.pc[12+32+(q*ci)], 1);
-   al_draw_text(mFont.pr8, mColor.pc[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
-
-   int by1 = y1+2;
-   mWidget.toggle(x2-10, by1, x2-2, 8, 0,0,0,0, 0,0,0,0, 1,0,0,d, mWM.mW[3].collapsed,  "-", "+", tc1, tc2, -1, -1);
-
-   // detect mouse click before toggles, but don't do anything until after the toggles change
-   int refresh_selection = 0;
-   if ((mode == 3) && (mEditSelection.copy_mode) && (mInput.mouse_b[1][0])) refresh_selection = 1;
-
-   if (!mWM.mW[3].collapsed)
-   {
-      if (mode > 2) // add blocks and flags
-      {
-         mWidget.toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[1][1],  "Blocks", "Blocks", tc1, tc2, fc1, fc2);
-         mWidget.toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[1][2],  "Flags",  "Flags",  tc1, tc2, fc1, fc2);
-      }
-      if (mode > 1) // add lifts
-      {
-         mWidget.toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2);
-         y+=bts/2;
-      }
-
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][1],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][2],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][4],  "BlkWlk", "BlkWlk", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][5],  "Jmpwrm", "Jmpwrm", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][6],  "Flappr", "Flappr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][7],  "VinPod", "VinPod", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2);
-
-      y+=bts/2;
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][6],  "Orb",    "Orb",    tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][13], "Timer",  "Timer",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][18], "Gate",   "Gate",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][19], "Hider",  "Hider",  tc1, tc2, fc1, fc2);
-   }
-   if (refresh_selection) mEditSelection.draw_fsel();
-   return y2;
-}
-
-void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus)
-{
-
-   int y3 = y1 + 12; // start of second line
-
-   int y4 = y3 + 12; // start of items
-
-
-
-   // frame entire window
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[9], 1);
-
-   // frame draw item
-   al_draw_rectangle(x1, y4-2, x1 + 160, y2, mColor.pc[9], 1);
-
-   // frame view item
-   al_draw_rectangle(x1 + 160, y4-2, x2, y2, mColor.pc[9], 1);
-
-   // title bar background color
-   al_draw_filled_rectangle(x1, y1, x2, y1 + 11, mColor.pc[9+192]);
-
-   // frame title bar
-   int c = 9;
-   if ((have_focus) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y1+8)) c = 14; // highlight to indicate move is possible
-   al_draw_rectangle(x1, y1, x2, y1+11, mColor.pc[c], 1);
-
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2,   y1+2, 0, "Status Window   level:%d ", mLevel.last_level_loaded);
-   al_draw_textf(mFont.pr8, mColor.pc[15], x1+178, y1+2, 0, "%d ", mLevel.last_level_loaded);
-
-   int mow = mWM.is_mouse_on_any_window();
-   if (mow)
-   {
-      al_draw_textf(mFont.pr8, mColor.pc[15], x1+222, y1+2, 0, "x:-- y:-- ");
-      mWM.mW[1].point_item_type = -1;
-   }
-   else
-   {
-      al_draw_textf(mFont.pr8, mColor.pc[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", mWM.gx, mWM.gy);
-      em_find_point_item();
-   }
-
-   al_draw_text( mFont.pr8, mColor.pc[9],  x1+222, y1+2, 0, "x:");
-   al_draw_text( mFont.pr8, mColor.pc[9],  x1+262, y1+2, 0, "y:");
-
-   int by1 = y1+2;
-   if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mWM.mW[1].active = 0;
-   if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
-
-   // this ugly hack is to prevent the draw item block flag toggles from capturing the mouse when moving selection windows over them
-   if (mWM.mW[2].moving) d = 1;
-   else d = 0;
-
-   // second line with controls
-   c = 9;
-   by1 = y3+1;
-
-   // tile draw mode (tile | flag | both
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
-   mWidget.buttonp(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
-
-//   mWidget.buttonpd(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, mWM.mW[1].em_draw_tile_mode);
-
-
-   // draw vline at middle to separate draw and show controls
-   int x3 = x1 + 160; // x middle
-   al_draw_line(x3, y3-1, x3, y4-1, mColor.pc[c], 1);
-   x3+=2;
-
-
-   // show flags toggle
-   mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_flag_details, "flags", c, 15, d);
-   x3+=64;
-
-   // show non default blocks toggle
-   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_non_default_blocks, "ndf", c, 15, d))
-   {
-      mScreen.init_level_background();
-      al_set_target_backbuffer(mDisplay.display);
-   }
-   x3+=48;
-
-   // force showing of tile overlay toggle
-   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, mWM.mW[1].show_tile_overlays, "ovr", c, 15, d))
-   {
-      mScreen.init_level_background();
-      al_set_target_backbuffer(mDisplay.display);
-   }
-
-
-   // draw item area
-   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y4, 0, "Draw Item   ");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y4, 0, "mouse");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y4, 0, "b1");
-   em_show_item_info(                     x1 + 2,   y4+7, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
-   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y4+34, mWM.mW[1].draw_item_num, status_window_has_mouse, d, 1, 0); // flags
-
-
-   // view item area
-   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y4, 0, "View Item ");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 261, y4, 0, "mouse");
-   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 303, y4, 0, "b2");
-   em_show_item_info(                     x1 + 162, y4+7, 9, mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
-   if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y4+34, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
-}
-
-
-
-
-
-void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_focus)
-{
-   char msg[1024];
-   // frame entire window
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[9], 1);
-
-   // title bar background color
-   al_draw_filled_rectangle(x1, y1, x2, y1 + 11, mColor.pc[9+192]);
-
-   int by1 = y1+2;
-
-   if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mWM.mW[2].active = 0;
-   if (mWidget.buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
-   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Tiles"))   mSelectionWindow.block_on = !mSelectionWindow.block_on;
-   if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mSelectionWindow.special_on = !mSelectionWindow.special_on;
-
-   int c = 11;  // first y line of sub-windows;
-
-   // set special start y
-   int select_window_special_y = 0;
-   if (mSelectionWindow.special_on)
-   {
-      select_window_special_y = c;
-      c += mSelectionWindow.special_array_cur_lines*20 + 16;
-   }
-
-   // set block start y
-   int select_window_block_y = 0;
-   if (mSelectionWindow.block_on)
-   {
-      select_window_block_y = c;
-      c += mSelectionWindow.block_array_num_lines*20 + 16;
-   }
-   // set text start y
-   int select_window_text_y = c;
-
-   // set entire window h
-   mWM.mW[2].h = select_window_text_y;
-
-   // set entire window y2
-   mWM.mW[2].y2 = y1+mWM.mW[2].h;
-
-   int sys = y1 + select_window_special_y;
-   int syb = y1 + select_window_block_y;
-   int syt = y1 + select_window_text_y;
-
-   int vx = (mInput.mouse_x-x1)/20; // column
-
-   if (vx < 0) vx = 0;
-   if (vx > 15) vx = 15;
-
-   if (mSelectionWindow.special_on)
-   {
-      by1 = sys+2;
-      al_draw_rectangle(x1, sys, x2, sys+12, mColor.pc[9], 1);
-      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, sys+2, 0, "Special Items");
-
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.special_on = 0;
-
-      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-         if (++mSelectionWindow.special_array_cur_lines > mSelectionWindow.special_array_num_lines) mSelectionWindow.special_array_cur_lines = mSelectionWindow.special_array_num_lines;
-
-      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-         if (--mSelectionWindow.special_array_cur_lines < 1 )
-         {
-            mSelectionWindow.special_array_cur_lines++;
-            mSelectionWindow.special_on = 0;
-         }
-      // draw special blocks
-      for (c=0; c<mSelectionWindow.special_array_cur_lines * 16; c++)
-         if (c < (int) mSelectionWindow.pdes.size() && mSelectionWindow.pdes[c].type != -1)
-         {
-            int tn = mSelectionWindow.pdes[c].ia[1]; // default is the mBitmap.tile in PDEi[c][1]
-            if (tn > 999) tn = mBitmap.zz[0][tn-1000]; // ans
-            al_draw_bitmap(mBitmap.sprite[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
-         }
-   }
-
-   // frame title bar
-   int col = 9;
-   if ((have_focus) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y1+8)) col = 14; // highlight to indicate move is possible
-   al_draw_rectangle(x1, y1, x2, y1+11, mColor.pc[col], 1);
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2,   y1+2, 0, "Selection Window");
-
-   if (mSelectionWindow.block_on)
-   {
-      by1 = syb+2;
-      al_draw_rectangle(x1, syb, x2, syb+12, mColor.pc[9], 1);
-      al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syb+2, 0, "Tiles");
-
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
-
-      int x3 = x1 + 60;
-
-      for (int i=0; i<32; i++)
-         if (mWM.tileSetGroups[i].display_tile)
-         {
-            if (mWidget.mButtonTile(x3, by1-1, 10, mWM.tileSetGroups[i].display_tile, mWM.tileSetGroups[i].visible, d)) mSelectionWindow.fill_block_array();
-            x3+=11;
-          }
-
-      // all on
-      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-      {
-         for (int i=0; i<32; i++) if (mWM.tileSetGroups[i].display_tile) mWM.tileSetGroups[i].visible = 1;
-         mSelectionWindow.fill_block_array();
-      }
-
-      // all off
-      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-      {
-         for (int i=0; i<32; i++) if (mWM.tileSetGroups[i].display_tile) mWM.tileSetGroups[i].visible = 0;
-         mSelectionWindow.fill_block_array();
-      }
-
-
-      // draw blocks
-      for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)
-         for (int x=0; x<16; x++)
-            al_draw_bitmap(mBitmap.tile[mSelectionWindow.block_array[y][x] & PM_BTILE_TILENUM_MASK], x1+x*20+1, y1+select_window_block_y+1+14+(y*20), 0 );
-
-   }
-   if (!d)
-   {
-      // check for mouse on special window
-      if ((mSelectionWindow.special_on) && (mInput.mouse_y > 15 + sys) && (mInput.mouse_y < 16 + sys + mSelectionWindow.special_array_cur_lines * 20))
-      {
-         int vy = (mInput.mouse_y-sys-15)/20; // row
-         int ret = vy*16+vx;
-         if (ret < (int) mSelectionWindow.pdes.size() && mSelectionWindow.pdes[ret].type != -1)
-         {
-            std::string desc = mSelectionWindow.pdes[ret].desc;
-            int tl = std::count(desc.begin(), desc.end(), '\n') + 1; // text lines
-
-            // erase and frame
-            al_draw_filled_rectangle(x1, syt, x2, 12+syt+3+(8*tl), mColor.pc[0]);
-            al_draw_rectangle(x1, syt, x2, 12+syt+3+(8*tl), mColor.pc[9], 1);
-
-            // title and frame
-            al_draw_rectangle(x1, syt, x2, syt+12, mColor.pc[9], 1);
-            al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syt+2, 0, "Description ");
-
-            al_draw_multiline_text(mFont.pr8, mColor.pc[15], x1+2, y1 + select_window_text_y+14, 800, 0, 0, desc.c_str());
-
-            if (mInput.mouse_b[1][0])
-            {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);     // wait for release
-               int pn = mSelectionWindow.pdes[ret].ia[0];
-               if (pn < 200)
-               {
-                  mWM.mW[1].draw_item_type = 5;
-                  mWM.mW[1].draw_item_num = ret;
-               }
-               if (pn > 199) // Creator
-               {
-                  switch (pn)
-                  {
-                     case 200: create_obj(2, 1, 0);  break; // door
-                     case 201: create_obj(2, 5, 0);  break; // start
-                     case 202: create_obj(2, 3, 0);  break; // exit
-                     case 204: create_obj(3, 7, 0);  break; // vinepod
-                     case 206: create_obj(2, 10,0);  break; // msg
-                     case 207: create_obj(3, 9, 0);  break; // cloner
-                     case 208: mLift.create_lift();  break; // lift
-
-                     case 209: mItem.create_door(1); break; // single door item
-                     case 210: mItem.create_door(2); break; // one way linked exit door
-                     case 211: mItem.create_door(3); break; // two way door set
-
-                     case 213: create_obj(2, 9, 0);  break; // trigger
-                     case 214: create_obj(2, 16, 0); break; // block manip
-                     case 215: create_obj(2, 17, 0); break; // block damage
-                     case 217: create_obj(2, 13, 0); break; // timer
-                     case 219: create_obj(2, 19, 0); break; // hider
-                  }
-               }
-            }
-         }
-      }
-
-      // check for mouse on block window
-      if ( (mSelectionWindow.block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mSelectionWindow.block_array_num_lines * 20))
-      {
-         int vy = (mInput.mouse_y-syb-14)/20; // row
-         int ret = mSelectionWindow.block_array[vy][vx];
-
-         int tl = 6; // text lines
-         int syt2 = syt+19+(8*tl);
-         if (mWM.mW[1].show_flag_details) syt2 += 140;
-
-         al_draw_filled_rectangle(x1, syt, x2, syt2, mColor.pc[0]); // erase
-         al_draw_rectangle(x1, syt, x2, syt2, mColor.pc[9], 1);     // frame
-         al_draw_rectangle(x1, syt, x2, syt+12, mColor.pc[9], 1); // title and frame
-         al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syt+2,  0, "Description");
-
-         // draw text for this block
-         em_get_text_description_of_block_based_on_flags(ret, msg);
-         al_draw_text (mFont.pr8, mColor.pc[15], x1+2, syt+14, 0, "---------------------");
-         al_draw_textf(mFont.pr8, mColor.pc[15], x1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
-         al_draw_text (mFont.pr8, mColor.pc[15], x1+2, syt+30, 0, "---------------------");
-
-         int junk;
-         if (mWM.mW[1].show_flag_details) mBitmapTools.draw_flags(x1+4, syt+38, ret, junk, 1, 0, 1);
-
-         if ((mInput.mouse_b[1][0]) || (mInput.mouse_b[2][0]))
-         {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-            mWM.mW[1].draw_item_type = 1;
-            mWM.mW[1].draw_item_num = ret;
-         }
-      }
-   }
-}
-

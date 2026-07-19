@@ -435,12 +435,6 @@ void mwMiscFnx::swap_int(int &i1, int &i2)
 }
 
 
-void mwMiscFnx::ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2)
-{
-   if (x1 > x2) swap_int(x1, x2);
-   if (y1 > y2) swap_int(y1, y2);
-}
-
 
 
 float mwMiscFnx::mdw_rnd(float rmin, float rmax)
@@ -743,16 +737,17 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
 
       if (mInput.mouse_b[1][0])
       {
-         mWM.get_new_box();
-         x1 = mWM.bx1*20;
-         y1 = mWM.by1*20;
-         x2 = (mWM.bx2-mWM.bx1)*20+20;
-         y2 = (mWM.by2-mWM.by1)*20+20;
+         mWM.get_new_box("selection");
+
+         x1 = mWM.selection_rect.x1*20;
+         y1 = mWM.selection_rect.y1*20;
+         x2 = (mWM.selection_rect.x2-mWM.selection_rect.x1)*20+20;
+         y2 = (mWM.selection_rect.y2-mWM.selection_rect.y1)*20+20;
 
          if (type == 2)
          {
-            x2 = (mWM.bx2-mWM.bx1)*20;
-            y2 = (mWM.by2-mWM.by1)*20;
+            x2 = (mWM.selection_rect.x2-mWM.selection_rect.x1)*20;
+            y2 = (mWM.selection_rect.y2-mWM.selection_rect.y1)*20;
          }
 
          quit = 1;
@@ -767,50 +762,6 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
    }
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1250,7 +1201,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
 
 
-void mwMiscFnx::fill_rect_with_1_tile(mRect<float> r, int tile)
+void mwMiscFnx::fill_rect_with_1_tile(mwRect<float> r, int tile)
 {
    r.round();
    r.set_clipping_rectangle();
@@ -1260,7 +1211,7 @@ void mwMiscFnx::fill_rect_with_1_tile(mRect<float> r, int tile)
    al_reset_clipping_rectangle();
 }
 
-void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
+void mwMiscFnx::fill_rect_with_3_tile_platform(mwRect<float> r, int tile_base)
 {
    int tile_l = tile_base & PM_BTILE_TILENUM_MASK;
    int tile_m = tile_l+1;
@@ -1268,8 +1219,8 @@ void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
 
    r.round();
 
-   mRect<float> lh = mRect<float>::fromX1Y1WH(r.x1,        r.y1, r.w/2, r.h); // left half
-   mRect<float> rh = mRect<float>::fromX1Y1WH(r.XCenter(), r.y1, r.w/2, r.h); // right half
+   mwRect<float> lh = mwRect<float>::fromX1Y1WH(r.x1,        r.y1, r.w/2, r.h); // left half
+   mwRect<float> rh = mwRect<float>::fromX1Y1WH(r.XCenter(), r.y1, r.w/2, r.h); // right half
 
    lh.set_clipping_rectangle();
    for (int hy=r.y1; hy<r.y2; hy+=20)
@@ -1291,7 +1242,7 @@ void mwMiscFnx::fill_rect_with_3_tile_platform(mRect<float> r, int tile_base)
    al_reset_clipping_rectangle();
 }
 
-void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
+void mwMiscFnx::fill_rect_with_3_tile_column(mwRect<float> r, int tile_base)
 {
    int tile_t = tile_base & PM_BTILE_TILENUM_MASK;
    int tile_m = tile_t+1;
@@ -1299,8 +1250,8 @@ void mwMiscFnx::fill_rect_with_3_tile_column(mRect<float> r, int tile_base)
 
    r.round();
 
-   mRect<float> th = mRect<float>::fromX1Y1WH(r.x1, r.y1,        r.w, r.h/2); // top half
-   mRect<float> bh = mRect<float>::fromX1Y1WH(r.x1, r.YCenter(), r.w, r.h/2); // bottom half
+   mwRect<float> th = mwRect<float>::fromX1Y1WH(r.x1, r.y1,        r.w, r.h/2); // top half
+   mwRect<float> bh = mwRect<float>::fromX1Y1WH(r.x1, r.YCenter(), r.w, r.h/2); // bottom half
 
    th.set_clipping_rectangle();
    for (int hx=th.x1; hx<th.x2; hx+=20)

@@ -164,9 +164,21 @@ class mwLevel
    void var_to_pml(char * b);
 
    ALLEGRO_BITMAP * level_stats_bitmap = NULL;
+
    int level_stats_bmp_msg_type = 0;
+
+
    int level_stats_bmp_w;
    int level_stats_bmp_h;
+
+   int level_stats_show_level_number = 0;
+
+   int make_backup_on_save_level = 0;
+
+
+
+
+
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

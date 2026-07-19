@@ -10,218 +10,185 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "mwBitmapTools.h"
+#include "mwEditorMain.h"
 #include "mwEditSelection.h"
 #include "mwLoop.h"
 #include "mwItem.h"
 #include "mwEnemy.h"
+#include "mwGroupEdit.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
+#include "mwObjectViewer.h"
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
 #include "mwTileHelper.h"
 #include "mwTileSets.h"
 
+
 mwWindowManager mWM;
 
-extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
 void mwWindowManager::initialize(int edit_level)
 {
-   set_windows(0);
-
-   mW[1].draw_item_type = 1;
-   mW[1].draw_item_num  = 0;
-
-   bx1=0;  // global selection window
-   by1=0;
-   bx2=0;
-   by2=0;
-
-
-   // set all filters on
-   for (int i=0; i<5; i++)
-      for (int j=0; j<20; j++) obj_filter[i][j] = 1;
+   selection_rect.setXYWH(0,0,0,0);
 
    if (edit_level) mLevel.load_level(edit_level, 0, 0); // load passed level
    else mLevel.load_level_prompt();                     // prompt for level
 
-   mSelectionWindow.init();
    mEnemy.sort_enemy();
    mItem.sort_item(1);
    mInput.initialize();
 
-      // set up tile set groups
-
-   int i;
-
-   for (i=0; i<32; i++)
-   {
-      tileSetGroups[i].name = "";
-      tileSetGroups[i].display_tile = 0;
-      tileSetGroups[i].visible= 0;
-   }
-
-   i=0;
-   tileSetGroups[i].name = "Platforms";
-   tileSetGroups[i].display_tile = 609;
-   tileSetGroups[i].visible = 1;
-
-   i++;
-   tileSetGroups[i].name = "Columns";
-   tileSetGroups[i].display_tile = 612;
-   tileSetGroups[i].visible = 1;
-
-
-   i++;
-   tileSetGroups[i].name = "Extended";
-   tileSetGroups[i].display_tile = 256;
-   tileSetGroups[i].visible = 0;
-
-
-   i++;
-   tileSetGroups[i].name = "Industrial";
-   tileSetGroups[i].display_tile = 776;
-   tileSetGroups[i].visible = 1;
-
-   i++;
-   tileSetGroups[i].name = "Wires"; // and 24
-   tileSetGroups[i].display_tile = 832;
-   tileSetGroups[i].visible = 1;
-
-
-   i++;
-   tileSetGroups[i].name = "Screen";
-   tileSetGroups[i].display_tile = 928;
-   tileSetGroups[i].visible = 1;
-
-   i++;
-   tileSetGroups[i].name = "Dirt";
-   tileSetGroups[i].display_tile = 920;
-   tileSetGroups[i].visible = 1;
-
-   i++;
-   tileSetGroups[i].name = "Blocks";
-   tileSetGroups[i].display_tile = 1009;
-   tileSetGroups[i].visible = 1;
-
-   i++;
-   tileSetGroups[i].name = "Rare";
-   tileSetGroups[i].display_tile = 712;
-   tileSetGroups[i].visible = 0;
-
-
-/*
-
-   i++;
-   tileSetGroups[i].name = "Purple Bricks";
-   tileSetGroups[i].display_tile = 192;
-   tileSetGroups[i].visible= 1;
-
-
-   i++;
-   tileSetGroups[i].name = "Purple Pipes";
-   tileSetGroups[i].display_tile = 256;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Red Pipes";
-   tileSetGroups[i].display_tile = 320;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Green Pipes";
-   tileSetGroups[i].display_tile = 384;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Blue Pipes";
-   tileSetGroups[i].display_tile = 448;
-   tileSetGroups[i].visible= 0;
-
-
-
-
-   i++;
-   tileSetGroups[i].name = "Wires";
-   tileSetGroups[i].display_tile = 832;
-   tileSetGroups[i].visible= 1;
-
-
-
-   i++;
-   tileSetGroups[i].name = "Template";
-   tileSetGroups[i].display_tile = 737;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Industrial 1";
-   tileSetGroups[i].display_tile = 776;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Industrial 2";
-   tileSetGroups[i].display_tile = 808;
-   tileSetGroups[i].visible= 0;
-
-
-   i++;
-   tileSetGroups[i].name = "Purple Bricks2";
-   tileSetGroups[i].display_tile = 640;
-   tileSetGroups[i].visible= 1;
-
-
-   i++;
-   tileSetGroups[i].name = "Yellow Thatch";
-   tileSetGroups[i].display_tile = 864;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Brain";
-   tileSetGroups[i].display_tile = 896;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Grey Bricks";
-   tileSetGroups[i].display_tile = 928;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Brown Bricks";
-   tileSetGroups[i].display_tile = 960;
-   tileSetGroups[i].visible= 0;
-
-   i++;
-   tileSetGroups[i].name = "Slate Bricks";
-   tileSetGroups[i].display_tile = 880;
-   tileSetGroups[i].visible= 1;
-
-   i++;
-   tileSetGroups[i].name = "Red Dirt";
-   tileSetGroups[i].display_tile = 944;
-   tileSetGroups[i].visible= 1;
-
-   i++;
-   tileSetGroups[i].name = "Grey Rock";
-   tileSetGroups[i].display_tile = 977;
-   tileSetGroups[i].visible= 1;
-
-   i++;
-   tileSetGroups[i].name = "Grey Blocks";
-   tileSetGroups[i].display_tile = 1009;
-   tileSetGroups[i].visible= 1;
-
-   i++;
-   tileSetGroups[i].name = "Rainbow";
-   tileSetGroups[i].display_tile = 712;
-   tileSetGroups[i].visible= 1;
-
-*/
-
-   mSelectionWindow.fill_block_array();
-
+   initialize_windows();
 
 }
+
+void mwWindowManager::initialize_windows()
+{
+
+   mW[1].index = 1;
+   mW[1].layer = 0;
+   mW[1].active = 1;
+   mW[1].set_pos(100, 100);
+   mW[1].set_size(320, 53);
+   mW[1].set_title("Status Window");
+
+
+   mW[2].index = 2;
+   mW[2].layer = 1;
+   mW[2].active = 1;
+   mW[2].set_pos(100, 300);
+   mW[2].set_size(322, 100);
+   mW[2].set_title("Selection Window");
+
+   mW[3].index = 3;
+   mW[3].layer = 2;
+   mW[3].active = 0;
+   mW[3].set_pos(500, 100);
+   mW[3].set_size(82, 100);
+   mW[3].set_title("Filters");
+
+   mW[4].index = 4;
+   mW[4].layer = 3;
+   mW[4].active = 0;
+   mW[4].set_pos(700, 100);
+   mW[4].set_size(160, 250);
+   mW[4].set_title("selection edit");
+
+   mW[5].index = 5;
+   mW[5].layer = 4;
+   mW[5].active = 0;
+   mW[5].set_pos(400, 400);
+   mW[5].set_size(160, 269);
+   mW[5].set_title("ge list");
+
+   mW[6].index = 6;
+   mW[6].layer = 5;
+   mW[6].active = 0;
+   mW[6].set_pos(600, 60);
+   mW[6].set_size(100, 100);
+   mW[6].set_title("ge controls");
+
+   mW[7].index = 7;
+   mW[7].layer = 6;
+   mW[7].active = 0;
+   mW[7].set_pos(200, 60);
+   mW[7].set_size(300, 300);
+   mW[7].set_title("viewer");
+
+   mW[8].index = 8;
+   mW[8].layer = 7;
+   mW[8].active = 1;
+   mW[8].set_pos(0, 0);
+   mW[8].set_size(mDisplay.SCREEN_W, BORDER_WIDTH);
+   mW[8].set_title("top menu");
+   mW[8].moveable = 0;
+
+   mW[9].index = 9;
+   mW[9].layer = 8;
+   mW[9].active = 0;
+   mW[9].set_pos(100, 300);
+   mW[9].set_size(320, 328);
+   mW[9].set_title("Tile Helper");
+
+   set_level_editor_mode(1);
+
+}
+
+
+
+void mwWindowManager::set_level_editor_mode(int mode)
+{
+
+   level_editor_mode = mode;
+   if (!level_editor_mode)
+   {
+      level_editor_mode = 1;
+   }
+
+   if (level_editor_mode == 1) // edit menu
+   {
+      mW[1].active = 1; // status
+      mW[2].active = 1; // select
+      mW[3].active = 0; // filter
+      mW[4].active = 0; // selection edit
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+      mW[9].active = 0; // tile helper
+   }
+
+   if (level_editor_mode == 2) // selection edit
+   {
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mEditorMain.filter_mode = 3;
+      mW[4].active = 1; // selection edit
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+      mW[9].active = 0; // tile helper
+   }
+   if (level_editor_mode == 3) // group edit
+   {
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mEditorMain.filter_mode = 1;
+      mW[4].active = 0; // selection edit
+      mW[5].active = 1; // ge list
+      mW[6].active = 1; // ge controls
+      mW[7].active = 0; // viewer
+      mW[9].active = 0; // tile helper
+   }
+   if (level_editor_mode == 4) // object viewer
+   {
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mEditorMain.filter_mode = 2;
+      mW[4].active = 0; // selection edit
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 1; // viewer
+      mW[9].active = 0; // tile helper
+   }
+   if (level_editor_mode == 9) // tile helper
+   {
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 0; // filter
+      mW[4].active = 0; // selection edit
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+      mW[9].active = 1; // tile helper
+   }
+}
+
+
 
 int mwWindowManager::loop(int edit_level)
 {
@@ -230,12 +197,9 @@ int mwWindowManager::loop(int edit_level)
 
    mEventQueue.reset_fps_timer();
 
-
    initialize(edit_level);
    if (mLoop.autosave_level_editor_state) load_mW();
    active = 1;
-
-   mW[5].ge_init_data();
 
    while (active)
    {
@@ -269,13 +233,10 @@ void mwWindowManager::get_block_position_on_map(void)
    float mx4 = mx3 + mx2;
    float my4 = my3 + my2;
 
-   gx = (int) mx4;
-   gy = (int) my4;
+   // put in final variables with limit check
+   gx = mMiscFnx.enforce_limit(mx4, 0, 99);
+   gy = mMiscFnx.enforce_limit(my4, 0, 99);
 
-   if (gx < 0)  gx = 0;
-   if (gy < 0)  gy = 0;
-   if (gx > 99) gx = 99;
-   if (gy > 99) gy = 99;
 
    // hx, hy in 0-1999 scale
    // the mouse position past the border width is how far we are into the scaled map
@@ -294,13 +255,9 @@ void mwWindowManager::get_block_position_on_map(void)
    mx4 = mx3 + mx2;
    my4 = my3 + my2;
 
-   hx = (int) mx4;
-   hy = (int) my4;
-
-   if (hx < 0)    hx = 0;
-   if (hy < 0)    hy = 0;
-   if (hx > 1999) hx = 1999;
-   if (hy > 1999) hy = 1999;
+   // put in final variables with limit check
+   hx = mMiscFnx.enforce_limit(mx4, 0, 1999);
+   hy = mMiscFnx.enforce_limit(my4, 0, 1999);
 }
 
 void mwWindowManager::process_scrolledge(void)
@@ -330,47 +287,38 @@ void mwWindowManager::process_scrolledge(void)
 
 }
 
+
+
 // this function draws a rectangle frame at full scale on level buffer
-// even if the top left and bottom right corners are switched
 // used by se, ge and em
-void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
+void mwWindowManager::show_level_buffer_block_rect(mwRect<int> rect, int color, const char * text)
 {
-   mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
-
-   int dstx1 = x1*20;
-   if (dstx1 == 0) dstx1 = 1;
-   int dsty1 = y1*20;
-   if (dsty1 == 0) dsty1 = 1;
-
-   int dstx2 = x2*20+21;
-   if (dstx2 > 1999) dstx2 = 1999;
-   int dsty2 = y2*20+21;
-   if (dsty2 > 1999) dsty2 = 1999;
-
-
-   al_draw_rectangle(dstx1, dsty1, dstx2, dsty2, mColor.pc[14], 1);
-   al_draw_text(mFont.pr8, mColor.pc[color], x1*20+2, y1*20-11,  0, text);
+   rect.ensure_x1y1_less_than_x2y2();
+   rect.multiply(20);
+   rect.resize(21, 21);
+   rect.enforceLimits(1, 1, 1998, 1998);
+   rect.draw_rectangle(mColor.pc[14], 1);
+   al_draw_text(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1-11,  0, text);
 }
 
-// this function draws a frame text box at full scale on level buffer, directly under the selection
-// even if the top left and bottom right corners are switched
+// this function draws a frame text box at full scale on level buffer, beside the selection
+// if offscreen it will reposition to be seen
 // used by em tileset drawRect
-void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, int y2)
+void mwWindowManager::show_level_buffer_block_rect_text(mwRect<int> rect)
 {
-   mMiscFnx.ensure_xy1_less_than_xy2(x1, y1, x2, y2); // swap if wrong order
+   rect.ensure_x1y1_less_than_x2y2();
+   rect.multiply(20);
+   rect.resize(20, 20);
 
    // translate level block positions (0-99) to x and y positions (0-1999)
-   int qx1 = x1 * 20;
-   int qy1 = y1 * 20;
-   // int qx2 = x2 * 20 + 20;
-   int qy2 = y2 * 20 + 20;
-
+   int qx1 = rect.x1;
+   int qy1 = rect.y1;
+   // int qx2 = rect.x2;
+   int qy2 = rect.y2;
 
    int tw = 280;
    int th = 46;
    if (mTileSets.altTextLine2.size()) th+=20;
-
-
 
    // default is to draw the box underneath, left justified
    int tx1 = qx1;
@@ -378,7 +326,6 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
 
    int ty1 = qy2 + 10;
    int ty2 = ty1 + th;
-
 
    // if below bottom of level buffer 2000, switch to draw above
    if (ty2 > 1999)
@@ -388,7 +335,6 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
    }
 
 
-
    // if to the right of level buffer 2000, switch to draw on the left
    if (tx2 > 1999)
    {
@@ -396,22 +342,9 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
       tx2 = tx1 + tw;
    }
 
-
    // we could still be off the edge of the screen
 
    // I would somehow like the position to be on the corner that the mouse is moving
-
-
-
-
-
-
-
-
-
-
-
-
 
 
    al_draw_filled_rectangle(tx1, ty1, tx1+tw, ty2, mColor.Black);
@@ -441,7 +374,7 @@ void mwWindowManager::show_level_buffer_block_rect_text(int x1, int y1, int x2, 
 
 // used by se, ge and em
 // when called, mouse b1 is pressed, blocks until released
-void mwWindowManager::get_new_box(void)
+bool mwWindowManager::get_new_box(const char* text, bool preview)
 {
    // use temp values internally for drag
    int temp_bx1 = gx;
@@ -458,72 +391,32 @@ void mwWindowManager::get_new_box(void)
       temp_by2 = gy;
 
       // set the real values and correct
-      bx1 = temp_bx1;
-      by1 = temp_by1;
-      bx2 = temp_bx2;
-      by2 = temp_by2;
-      mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+      selection_rect.setX1Y1X2Y2(temp_bx1, temp_by1, temp_bx2, temp_by2);
+      selection_rect.ensure_x1y1_less_than_x2y2();
 
       redraw_level_editor_background(0);
-      show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      mScreen.draw_scaled_level_region_to_display();
-   }
+      show_level_buffer_block_rect(selection_rect, 14, text);
 
-}
+      if (preview)
+      {
+         show_level_buffer_block_rect_text(selection_rect);
 
-// used by em for preview of drawing blocks
-// when called, mouse b1 is pressed, blocks until released
-bool mwWindowManager::get_new_box_with_preview()
-{
-   // use temp values internally for drag
-   int temp_bx1 = gx;
-   int temp_by1 = gy;
+         mTileSets.altDrawRectModeForceSingle = 0;
+         if (mInput.key[ALLEGRO_KEY_S][0]) mTileSets.altDrawRectModeForceSingle = 1;
 
-   // set both corners to initial position
-   int temp_bx2 = temp_bx1;
-   int temp_by2 = temp_by1;
+         if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode++;
+         if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode--;
 
-   while (mInput.mouse_b[1][0])
-   {
-      // update position
-      temp_bx2 = gx;
-      temp_by2 = gy;
+         if (mInput.key[ALLEGRO_KEY_UP   ][3]) mTileSets.altDrawRectModePatternHeight--;
+         if (mInput.key[ALLEGRO_KEY_DOWN ][3]) mTileSets.altDrawRectModePatternHeight++;
+         if (mInput.key[ALLEGRO_KEY_RIGHT][3]) mTileSets.altDrawRectModePatternWidth++;
+         if (mInput.key[ALLEGRO_KEY_LEFT ][3]) mTileSets.altDrawRectModePatternWidth--;
 
-      // set the real values and correct
-      bx1 = temp_bx1;
-      by1 = temp_by1;
-      bx2 = temp_bx2;
-      by2 = temp_by2;
-      mMiscFnx.ensure_xy1_less_than_xy2(bx1, by1, bx2, by2); // swap if wrong order
+         if (mInput.key[ALLEGRO_KEY_PGUP ][3]) mTileSets.altDrawRectModePatternFill++;
+         if (mInput.key[ALLEGRO_KEY_PGDN ][3]) mTileSets.altDrawRectModePatternFill--;
 
-      redraw_level_editor_background(0);
-
-      mTileSets.altDrawRectModeForceSingle = 0;
-      if (mInput.key[ALLEGRO_KEY_S][0]) mTileSets.altDrawRectModeForceSingle = 1;
-
-      if (mInput.key[ALLEGRO_KEY_1][3]) mTileSets.altDrawRectMode++;
-      if (mInput.key[ALLEGRO_KEY_2][3]) mTileSets.altDrawRectMode--;
-
-      if (mInput.key[ALLEGRO_KEY_UP   ][3]) mTileSets.altDrawRectModePatternHeight--;
-      if (mInput.key[ALLEGRO_KEY_DOWN ][3]) mTileSets.altDrawRectModePatternHeight++;
-      if (mInput.key[ALLEGRO_KEY_RIGHT][3]) mTileSets.altDrawRectModePatternWidth++;
-      if (mInput.key[ALLEGRO_KEY_LEFT ][3]) mTileSets.altDrawRectModePatternWidth--;
-
-      if (mInput.key[ALLEGRO_KEY_PGUP ][3]) mTileSets.altDrawRectModePatternFill++;
-      if (mInput.key[ALLEGRO_KEY_PGDN ][3]) mTileSets.altDrawRectModePatternFill--;
-
-
-      char msg[80];
-      sprintf(msg, "preview");
-
-      //      sprintf(msg, "preview alt:%d %d %d %d)", mTileSets.altDrawRectMode1, mTileSets.altDrawRectMode2, mTileSets.altDrawRectMode3, mTileSets.altDrawRectMode4 );
-
-      show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
-      show_level_buffer_block_rect_text(bx1, by1, bx2, by2);
-
-
-      mTileSets.drawRect(1);
-
+         mTileSets.drawRect(1);
+      }
       mScreen.draw_scaled_level_region_to_display();
    }
 
@@ -536,18 +429,19 @@ bool mwWindowManager::get_new_box_with_preview()
 }
 
 
-void mwWindowManager::process_mouse(void)
+
+void mwWindowManager::process_mouse()
 {
-   if (level_editor_mode == 1) mW[1].em_process_mouse();
+   if (level_editor_mode == 1) mEditorMain.process_mouse();
    if (level_editor_mode == 2) mEditSelection.process_mouse();
-   if (level_editor_mode == 3) mW[5].ge_process_mouse();
-   if (level_editor_mode == 4) mW[7].ov_process_mouse();
+   if (level_editor_mode == 3) mGroupEdit.process_mouse();
+   if (level_editor_mode == 4) mObjectViewer.ov_process_mouse();
    if (level_editor_mode == 9) mTileHelper.process_mouse();
 }
 
-void mwWindowManager::process_keypress(void)
+void mwWindowManager::process_keypress()
 {
-   if (level_editor_mode == 4) mW[7].ov_process_keypress();
+   if (level_editor_mode == 4) mObjectViewer.ov_process_keypress();
 
    while (mInput.key[ALLEGRO_KEY_ESCAPE][0])
    {
@@ -568,10 +462,6 @@ void mwWindowManager::process_keypress(void)
       mBitmapTools.edit_tile_flags();
    }
 
-
-
-
-
    if (mInput.key[ALLEGRO_KEY_E][0])
    {
       while (mInput.key[ALLEGRO_KEY_E][0]) mEventQueue.proc(1);
@@ -581,26 +471,20 @@ void mwWindowManager::process_keypress(void)
       }
    }
 
-
-
    if (mInput.key[ALLEGRO_KEY_H][0])
    {
       while (mInput.key[ALLEGRO_KEY_H][0]) mEventQueue.proc(1);
       {
-         mWM.set_windows(9);
+         mWM.set_level_editor_mode(9);
       }
    }
 
-   if (active == 0)
+
+   if (mEditorMain.level_editor_quit_confirmation_dialog && active == 0)
    {
-
-
       int ret = mMiscFnx.exit_level_editor_dialog();
       if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
       if (ret == 2) active = 1; // cancel
-
-
-
    }
 }
 
@@ -612,9 +496,8 @@ void mwWindowManager::redraw_level_editor_background(int mode)
    level_editor_mode = old_lem;
 }
 
-int mwWindowManager::redraw_level_editor_background(void)
+int mwWindowManager::redraw_level_editor_background()
 {
-   char msg[1024];
    int drawn = 0;
 
    mEventQueue.proc(1);
@@ -639,325 +522,17 @@ int mwWindowManager::redraw_level_editor_background(void)
       mItem.draw_items();
       mEnemy.draw_enemies();
 
-
-      if (level_editor_mode == 1) // edit menu
-      {
-         if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
-      }
-
-      if (level_editor_mode == 2) // selection edit
-      {
-         // show selection
-         if (!mEditSelection.copy_mode) show_level_buffer_block_rect(mWM.bx1, by1, bx2, by2, 14, "selection");
-
-         // only show if mouse not on window
-         if (!mouse_on_window)
-         {
-            if (mEditSelection.brf_mode) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-            if (mEditSelection.copy_mode)
-            {
-               if (mEditSelection.ft_bmp)
-               {
-                  al_draw_bitmap(mEditSelection.ft_bmp, gx*20, gy*20, 0);
-                  show_level_buffer_block_rect(gx, gy, gx+mEditSelection.sw-1, gy+mEditSelection.sh-1, 10, "paste");
-               }
-               else mEditSelection.copy_mode = 0;
-            }
-         }
-      }
-      if (level_editor_mode == 3) // ge
-      {
-         int x=0, y=0;
-
-         // show selection frame
-         if (mW[5].show_sel_frame) show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-         else if (!mouse_on_window) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-
-         // mark objects on map that are capable of being added to list
-         for (int i=0; i<500; i++)
-         {
-            int type = (mItem.item[i][0]);
-            if ((type) && (obj_filter[2][type]))
-            {
-               x = mItem.item[i][4];
-               y = mItem.item[i][5];
-               al_draw_rectangle(x, y, x+20, y+20, mColor.pc[13], 1);
-            }
-         }
-         for (int e=0; e<100; e++)
-         {
-            int type = (mEnemy.Ei[e][0]);
-            if ((type) && (obj_filter[3][type]))
-            {
-               x = mEnemy.Ef[e][0];
-               y = mEnemy.Ef[e][1];
-               al_draw_rectangle(x, y, x+20, y+20, mColor.pc[13], 1);
-            }
-         }
-
-         // is mouse on obj already in list?
-         if (!mouse_on_window)
-            for (int i=0; i<NUM_OBJ; i++)
-            {
-               obj_list[i][2] = 0; // turn off highlight by default
-               if (obj_list[i][0])
-               {
-                  int typ = obj_list[i][0];
-                  int num = obj_list[i][1];
-                  if (typ == 2) // item
-                  {
-                     x = mItem.item[num][4]/20;
-                     y = mItem.item[num][5]/20;
-                  }
-                  if (typ == 3) // enemy
-                  {
-                     x = mEnemy.Ef[num][0]/20;
-                     y = mEnemy.Ef[num][1]/20;
-                  }
-                  if ((gx == x) && (gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
-               }
-            }
-
-         // mark objects on map that have already been added to list
-         for (int i=0; i<NUM_OBJ; i++)
-         {
-            if (obj_list[i][0])
-            {
-               int typ = obj_list[i][0];
-               int num = obj_list[i][1];
-               if (typ == 2)
-               {
-                  x = mItem.item[num][4];
-                  y = mItem.item[num][5];
-               }
-               if (typ == 3)
-               {
-                  x = mEnemy.Ef[num][0];
-                  y = mEnemy.Ef[num][1];
-               }
-               if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.Flash1, 1); // highlight
-               else                al_draw_rectangle(x,   y,   x+20,   y+20,   mColor.pc[10], 1);
-            }
-         }
-      }
-
-      if (level_editor_mode == 4) // ov
-      {
-         // if current object is message, show all messages
-         if ((mW[7].obt == 2) && (mItem.item[mW[7].num][0] == 10))
-         {
-            for (int i=0; i<500; i++)
-               if (mItem.item[i][0] == 10) mItem.draw_pop_message(i, 0, 0, 0, 0, 0, msg);
-         }
-
-         // if mouse on legend line, show highlight
-         mW[7].legend_line = 0;
-         int y1_legend = mW[7].y2 - 34 + (5-mW[7].num_legend_lines)*8; // legend pos
-         int y2_legend = y1_legend + (mW[7].num_legend_lines-1)*8;
-         if ((mInput.mouse_x > mW[7].x1) && (mInput.mouse_x < mW[7].x2) && (mInput.mouse_y > y1_legend) && (mInput.mouse_y < y2_legend)) // is mouse on legend
-            mW[7].legend_line = ((mInput.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
-
-         mW[7].ov_draw_overlays(mW[7].legend_line);
-
-      }
-
-
-      if (level_editor_mode == 9) // th
-      {
-         if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
-
-
-         if (mTileHelper.frame_mode_preview) mTileHelper.draw_frame_fills(1);
-
-         if (mTileHelper.replace_preview) mTileHelper.draw_replace(1);
-
-         if (mTileHelper.pattern_preview) mTileHelper.draw_pattern(1);
-
-
-
-
-         if (mTileHelper.mark_overlay)
-         {
-            // show marked blocks
-            for (int x=0; x<100; x++)
-               for (int y=0; y<100; y++)
-               {
-                  if (mTileHelper.thl[x][y])
-                  {
-                     if (mTileHelper.mark_overlay == 1)
-                     {
-                        //int col = 10;
-                        int c = mColor.flash_color+64;
-                        int c2 = mColor.flash_color2+64;
-                        al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
-                        al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
-                        al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
-                     }
-
-
-                     if (mTileHelper.mark_overlay == 2)
-                     {
-                        int c = mColor.flash_color+64;
-                        al_draw_textf(mFont.pr8, mColor.pc[c], x*20+6, y*20+6, 0, "%d", mTileHelper.thl[x][y]);
-                     }
-
-                  }
-               }
-         }
-      }
+      if (level_editor_mode == 1) mEditorMain.draw_level_editor_background_overlays(mouse_on_window);    // Editor Main
+      if (level_editor_mode == 2) mEditSelection.draw_level_editor_background_overlays(mouse_on_window); // Edit Selection
+      if (level_editor_mode == 3) mGroupEdit.draw_level_editor_background_overlays(mouse_on_window);     // Group Edit
+      if (level_editor_mode == 4) mObjectViewer.draw_level_editor_background_overlays(mouse_on_window);  // Object Viewer
+      if (level_editor_mode == 9) mTileHelper.draw_level_editor_background_overlays(mouse_on_window);    // Tile Helper
       if (level_editor_mode) mScreen.draw_scaled_level_region_to_display();
    }
    return drawn;
 }
 
-void mwWindowManager::set_windows(int mode)
-{
-   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-   level_editor_mode = mode;
-   if (!level_editor_mode)
-   {
-      level_editor_mode = 1;
-
-      mW[1].index = 1;
-      mW[1].layer = 0;
-      mW[1].active = 1;
-      mW[1].set_pos(100, 100);
-      mW[1].set_size(320, 53);
-      mW[1].set_title("Status Window");
-      mW[1].show_flag_details = 1;
-      mW[1].show_non_default_blocks = 1;
-      mW[1].show_tile_overlays = 1;
-
-
-      mW[2].index = 2;
-      mW[2].layer = 1;
-      mW[2].active = 1;
-      mW[2].set_pos(100, 300);
-      mW[2].set_size(322, 100);
-      mW[2].set_title("Selection Window");
-
-      mW[3].index = 3;
-      mW[3].layer = 2;
-      mW[3].active = 0;
-      mW[3].set_pos(500, 100);
-      mW[3].set_size(82, 100);
-      mW[3].set_title("Filters");
-
-      mW[4].index = 4;
-      mW[4].layer = 3;
-      mW[4].active = 0;
-      mW[4].set_pos(700, 100);
-      mW[4].set_size(160, 250);
-      mW[4].set_title("selection edit");
-
-      mW[5].index = 5;
-      mW[5].layer = 4;
-      mW[5].active = 0;
-      mW[5].set_pos(400, 400);
-      mW[5].set_size(160, 269);
-      mW[5].set_title("ge list");
-
-      mW[6].index = 6;
-      mW[6].layer = 5;
-      mW[6].active = 0;
-      mW[6].set_pos(600, 60);
-      mW[6].set_size(100, 100);
-      mW[6].set_title("ge controls");
-
-      mW[7].index = 7;
-      mW[7].layer = 6;
-      mW[7].active = 0;
-      mW[7].set_pos(200, 60);
-      mW[7].set_size(300, 300);
-      mW[7].set_title("viewer");
-
-      mW[8].index = 8;
-      mW[8].layer = 7;
-      mW[8].active = 1;
-      mW[8].set_pos(0, 0);
-      mW[8].set_size(mDisplay.SCREEN_W, BORDER_WIDTH);
-      mW[8].set_title("top menu");
-      mW[8].moveable = 0;
-
-      mW[9].index = 9;
-      mW[9].layer = 8;
-      mW[9].active = 0;
-      mW[9].set_pos(100, 300);
-      mW[9].set_size(320, 328);
-      mW[9].set_title("Tile Helper");
-
-
-   }
-
-   if (level_editor_mode == 1) // edit menu
-   {
-      mW[1].active = 1; // status
-      mW[2].active = 1; // select
-      mW[3].active = 0; // filter
-      mW[4].active = 0; // selection edit
-      mW[5].active = 0; // ge list
-      mW[6].active = 0; // ge controls
-      mW[7].active = 0; // viewer
-      mW[9].active = 0; // tile helper
-   }
-
-   if (level_editor_mode == 2) // selection edit
-   {
-      mW[1].active = 0; // status
-      mW[2].active = 0; // select
-      mW[3].active = 1; // filter
-      mW[3].filter_mode = 3;
-      mW[4].active = 1; // selection edit
-      mW[5].active = 0; // ge list
-      mW[6].active = 0; // ge controls
-      mW[7].active = 0; // viewer
-      mW[9].active = 0; // tile helper
-   }
-   if (level_editor_mode == 3) // group edit
-   {
-      mW[1].active = 0; // status
-      mW[2].active = 0; // select
-      mW[3].active = 1; // filter
-      mW[3].filter_mode = 1;
-      mW[4].active = 0; // selection edit
-      mW[5].active = 1; // ge list
-      mW[5].show_sel_frame = 1;
-      mW[5].ge_init_data();
-      mW[6].active = 1; // ge controls
-      mW[7].active = 0; // viewer
-      mW[9].active = 0; // tile helper
-   }
-   if (level_editor_mode == 4) // object viewer
-   {
-      mW[1].active = 0; // status
-      mW[2].active = 0; // select
-      mW[3].active = 1; // filter
-      mW[3].filter_mode = 2;
-      mW[4].active = 0; // selection edit
-      mW[5].active = 0; // ge list
-      mW[6].active = 0; // ge controls
-      mW[7].active = 1; // viewer
-      mW[9].active = 0; // tile helper
-   }
-
-   if (level_editor_mode == 9) // tile helper
-   {
-      mW[1].active = 0; // status
-      mW[2].active = 0; // select
-      mW[3].active = 0; // filter
-      mW[4].active = 0; // selection edit
-      mW[5].active = 0; // ge list
-      mW[6].active = 0; // ge controls
-      mW[7].active = 0; // viewer
-      mW[9].active = 1;
-   }
-
-
-
-
-
-}
 
 int mwWindowManager::is_mouse_on_any_window(void)
 {
@@ -965,8 +540,9 @@ int mwWindowManager::is_mouse_on_any_window(void)
    for (int a=0; a<NUM_MW; a++)
       if ((mW[a].active) && (mW[a].detect_mouse())) return 1;
 
+
    // check if on draw flags area
-   if (mW[1].status_window_has_mouse) return 1;
+   if (mEditorMain.status_window_has_mouse) return 1;
 
    // check if mouse position gx, gy is valid
    // x, y in 0-99 scale
@@ -989,6 +565,7 @@ int mwWindowManager::is_mouse_on_any_window(void)
 
    return 0;
 }
+
 
 void mwWindowManager::set_focus(int n)
 {
@@ -1014,18 +591,13 @@ void mwWindowManager::set_focus(int n)
    }
 }
 
-
-
-
-int mwWindowManager::get_max_layer(void)
+int mwWindowManager::get_max_layer()
 {
    int max_layer = 0;
    for (int a=0; a<NUM_MW; a++)
       if ((mW[a].active) && (mW[a].layer > max_layer)) max_layer = mW[a].layer;
    return max_layer;
 }
-
-
 
 
 
@@ -1067,7 +639,7 @@ int mwWindowManager::cycle_windows(int draw_only)
 }
 
 
-void mwWindowManager::save_mW(void)
+void mwWindowManager::save_mW()
 {
    FILE *fp = fopen("data/mW.pm", "wb");
    if (fp)
@@ -1078,7 +650,7 @@ void mwWindowManager::save_mW(void)
    else printf("error saving mW.pm\n");
 }
 
-void mwWindowManager::load_mW(void)
+void mwWindowManager::load_mW()
 {
    FILE *fp = fopen("data/mW.pm", "rb");
    if (fp)
@@ -1091,14 +663,11 @@ void mwWindowManager::load_mW(void)
       printf("error loading mW.pm -- using defaults\n");
    }
    // why do I delete it after I load it?
+   // so that if it crashes after loading, the next time it runs will be a clean slate
    al_remove_filename("data/mW.pm");
 
 
-
    mSelectionWindow.fill_block_array();
-
-
-
 }
 
 

@@ -11,6 +11,7 @@
 #include "mwBitmap.h"
 #include "mwLift.h"
 #include "mwColor.h"
+#include "mwEditorMain.h"
 #include "mwLoop.h"
 #include "mwItem.h"
 #include "mwMiscFnx.h"
@@ -619,10 +620,10 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          if (tile & PM_BTILE_TILENUM_MASK) al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
          // draw tile overlays
-         if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mWM.mW[1].show_tile_overlays))) draw_tile_overlay(tile, x, y);
+         if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mEditorMain.show_tile_overlays))) draw_tile_overlay(tile, x, y);
 
          // mark tiles with non-default flags in level editor only
-         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y, tile);
+         if ((mLoop.level_editor_running) && (mEditorMain.show_non_default_blocks)) mark_non_default_block(x, y, tile);
       }
 
    // draw gates for overworld level

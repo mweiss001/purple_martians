@@ -9,17 +9,17 @@
 #include "mwWidget.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
 #include "mwEventQueue.h"
 #include "mwGlobalLevelTool.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
-#include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
 #include "mwTileHelper.h"
 #include "mwTileSets.h"
-
+#include "mwRect.h"
 
 
 mwBitmapTools mBitmapTools;
@@ -50,9 +50,8 @@ ALLEGRO_BITMAP* mwBitmapTools::load_block_tiles_to_bitmap()
 // this adds an optional saving of backup, by renaming the original file first
 void mwBitmapTools::mw_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
-   bool save_old_versions = 1;
    int log = 1;
-   if (save_old_versions)
+   if (make_backup_on_save_bitmap)
    {
       // get timestamp
       char timestamp[256];
@@ -476,7 +475,7 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
       // view item area
       al_draw_rectangle(                     swx1,    swy1,   swx2,   swy2, mColor.pc[9], 1);
       al_draw_text(mFont.pr8, mColor.pc[15], swx1+24, swy1+2, 0, "Choose Block");
-      mWM.mW[1].em_show_item_info(           swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
+      mEditorMain.show_item_info(           swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
 
       // flags section
       int ftx = swx1+11;
@@ -504,6 +503,8 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
    }
 }
 
+
+
 // used by tile editor to choose new tile
 int mwBitmapTools::select_bitmap()
 {
@@ -514,30 +515,40 @@ int mwBitmapTools::select_bitmap()
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(mFont.pr8, mColor.pc[15], 10, 644, 0, "Select a Tile with b1");
-      al_draw_text(mFont.pr8, mColor.pc[15], 10, 654, 0, "b2 or ESC to exit      ");
+      al_draw_text(mFont.pr8, mColor.pc[15], 644, 28, 0, "Select a Tile with b1");
+      al_draw_text(mFont.pr8, mColor.pc[15], 644, 38, 0, "b2 or ESC to exit      ");
 
-      // draw 32x32 bitmaps
-      for (int y = 0; y < 32; y++)
+      // draw 32x64 bitmaps
+      for (int y = 0; y < 64; y++)
          for (int x = 0; x < 32; x++)
             al_draw_bitmap(mBitmap.tile[x+(y*32)],x*20, y*20, 0);
-      al_draw_rectangle(0.5, 0.5, 640.5, 640.5, mColor.pc[13], 1);
+      al_draw_rectangle(0.5, 0.5, 640.5, 1280.5, mColor.pc[13], 1);
 
-      for (int x=0; x<=32; x++) al_draw_line(x*20, 0, x*20, 640, mColor.pc[15+128], 0);
-      for (int y=0; y<=32; y++) al_draw_line(0, y*20, 640, y*20, mColor.pc[15+128], 0);
+      for (int x=0; x<=32; x++) al_draw_line(x*20,     0, x*20,  1280, mColor.pc[15+128], 0);
+      for (int y=0; y<=64; y++) al_draw_line(0,     y*20,  640,  y*20, mColor.pc[15+128], 0);
 
-      if ((mInput.mouse_y < 640) && (mInput.mouse_x < 640))
+      if ((mInput.mouse_x < 640) && (mInput.mouse_y < 1280))
       {
          int pointer = (mInput.mouse_x/20) + (mInput.mouse_y/20) * 32 ;
-         al_draw_textf(mFont.pr8, mColor.pc[13], 522, 648, 0, "pointer %-2d", pointer );
-         al_draw_bitmap(mBitmap.tile[pointer], 620, 642, 0);
-         al_draw_rectangle(518, 640.5, 640.5, 662.5, mColor.pc[13], 1);
+
+         int x = 642;
+         int y = 1;
+
+         al_draw_rectangle(                      x,     y,     x+128, y+24, mColor.pc[13], 1);
+         al_draw_bitmap(mBitmap.tile[pointer],   x+2,   y+2,   0);
+         al_draw_textf(mFont.pr8, mColor.pc[13], x+26,  y+8,   0, "pointer %-2d", pointer );
+
+
          if (mInput.mouse_b[1][3]) return pointer;
       }
       if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) quit = 1;
    }
    return 0;
 }
+
+
+
+
 
 
 
@@ -641,7 +652,7 @@ int mwBitmapTools::select_bitmap_ans(int zzindx, int &bmp_index)
    return -1;
 }
 
-void mwBitmapTools::animation_sequence_editor(void)
+void mwBitmapTools::animation_sequence_editor()
 {
    char msg[1024];
    int zzindx = 3;
@@ -726,12 +737,12 @@ void mwBitmapTools::animation_sequence_editor(void)
       al_draw_rectangle(0.5, 29.5, 642.5, 190.5, mColor.pc[9], 1);
 
       // if mouse on grid, get current animation sequence pointer
+      pointer = -1;
       if ((mInput.mouse_y > 30) && (mInput.mouse_y < 190) && (mInput.mouse_x < 642))
       {
          pointer = (mInput.mouse_x-2) / 20 + (mInput.mouse_y-30) / 20 * 32;
          if ((pointer < 0) || (pointer > NUM_ANS-1)) pointer = -1;
       }
-      else pointer = -1;
 
       if ((pointer != -1) && (mInput.mouse_b[1][0])) zzindx = pointer;
 
@@ -852,7 +863,7 @@ int mwBitmapTools::draw_flag_rects(int tn, int x, int y, int w, int h, int ys)
    if (tn & PM_BTILE_KEY_COLOR0)       fa[15]++;
    if (tn & PM_BTILE_SHOW_OVERLAY)     fa[16]++;
 
-   for (int i=0; i<17; i++)
+   for (int i=0; i<PM_BTILE_NUM_FLAGS; i++)
    {
       int ya = y + (i * ys);
       if (fa[i] == 0) al_draw_rectangle       (x, ya, x+w, ya+h, mColor.pc[15], 1); // clear
@@ -972,8 +983,6 @@ void mwBitmapTools::draw_flag_rects_multiple_th(int x, int y)
    int ys = 10;
    int tx = x+ys;
    int ty = y;
-//   ty += mLoop.pct_y;
-//   tx += mLoop.pct_x;
    draw_flag_text(tx, ty, ys, 15);
 
    // make an array of flags to store the tallies
@@ -1080,16 +1089,6 @@ void mwBitmapTools::draw_flag_rects_multiple_th(int x, int y)
 
 
 
-
-
-
-
-
-
-
-
-
-
 // called 2x from edit_tile_flags()
 void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
 {
@@ -1167,8 +1166,11 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
    }
 }
 
-// called 3x from edit_tile_flags()
-void mwBitmapTools::redraw_grid(mRect<int> tile_grid_rect, mRect<int> selection_rect, int gridlines, int mode, int selected_index) // draw 32x64 tiles, selection and gridlines
+
+
+
+// called 2x from edit_tile_flags()
+void mwBitmapTools::redraw_grid(mwRect<int> tile_grid_rect, mwRect<int> selection_rect, int gridlines, int mode, int selected_index) // draw 32x64 tiles, selection and gridlines
 {
    for (int dx=0; dx<32; dx++)
       for (int dy=0; dy<64; dy++)
@@ -1216,7 +1218,7 @@ void mwBitmapTools::edit_tile_flags()
 {
 
    // rect for position of main tile grid
-   mRect<int> tile_grid_rect = mRect<int>::fromX1Y1WH(4, 4, 640, 1280);
+   mwRect<int> tile_grid_rect = mwRect<int>::fromX1Y1WH(4, 4, 640, 1280);
 
    char msg[1024];
    int mode = 0;
@@ -1227,7 +1229,7 @@ void mwBitmapTools::edit_tile_flags()
 
 
    // rect for selection (blocks of 20)
-   mRect<int> selection_rect = mRect<int>::fromX1Y1WH(0, 0, 1, 1);
+   mwRect<int> selection_rect = mwRect<int>::fromX1Y1WH(0, 0, 1, 1);
 
 
    al_set_target_backbuffer(mDisplay.display);
@@ -1466,7 +1468,7 @@ void mwBitmapTools::edit_tile_flags()
 
 
 
-void mwBitmapTools::draw_gridlines_and_frame(mRect<int>r, int fd, int fc, int fw, int gd, int gc, int gw, int ts)
+void mwBitmapTools::draw_gridlines_and_frame(mwRect<int>r, int fd, int fc, int fw, int gd, int gc, int gw, int ts)
 {
    if (gd) // gridline draw
    {
@@ -1554,7 +1556,7 @@ void mwBitmapTools::draw_flags_overlays(int x1, int y1, int flags)
 
 void mwBitmapTools::draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b, int index)
 {
-   mRect<int> r = mRect<int>::fromX2Y2WH(x2, y2, 108, 22);
+   mwRect<int> r = mwRect<int>::fromX2Y2WH(x2, y2, 108, 22);
    r.draw_rounded_rectangle(2, 2, mColor.pc[15], 1);
    al_draw_bitmap(b, r.x1+2, r.y1+1, 0);
    al_draw_textf(mFont.pr8, mColor.pc[15], r.x1+26, r.y1+3,  0, "index:%d", index);
@@ -1588,7 +1590,7 @@ void mwBitmapTools::copy_tiles()
    int reload_b1 = 2;
 
 
-   mRect<int> b1r = mRect<int>::fromX1Y1WH(4, 26, 704, 704);
+   mwRect<int> b1r = mwRect<int>::fromX1Y1WH(4, 26, 704, 704);
    int b1_tw{};
 
    int b1_mouse_tile_pointer = -1;
@@ -1605,7 +1607,7 @@ void mwBitmapTools::copy_tiles()
    int reload_b2 = 2;
 
 
-   mRect<int> b2r = mRect<int>::fromX1Y1WH(740, 26, 704, 704);
+   mwRect<int> b2r = mwRect<int>::fromX1Y1WH(740, 26, 704, 704);
    int b2_tw{};
 
    int b2_pad = 1; // my tilesets have a padding of 1
@@ -1735,7 +1737,7 @@ void mwBitmapTools::copy_tiles()
 
 //      mRect<int> dir = mRect<int>::fromX2Y2WH(b1r.x2-114, b1r.y1-2, 116, 22);
 
-      mRect<int> dir = mRect<int>::fromX2Y2WH(b1r.x1+704-114, b1r.y1-2, 116, 22);
+      mwRect<int> dir = mwRect<int>::fromX2Y2WH(b1r.x1+704-114, b1r.y1-2, 116, 22);
 
       al_set_target_backbuffer(mDisplay.display);
       dir.draw_rounded_rectangle(2, 2, mColor.pc[13], 1);
@@ -1974,19 +1976,11 @@ void mwBitmapTools::copy_tiles()
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+         //move_tiles_and_refs(256, 1024, 48);
+         //move_tiles_and_refs(320, 1072, 48); // red pipes
+         //move_tiles_and_refs(384, 1120, 48); // green pipes
+         //move_tiles_and_refs(448, 1168, 48); // blue pipes
+         //move_tiles_and_refs(192, 1216, 48); // purple blocks
 
 
 //         mGlobalLevelTool.changeTileNumberRange(672, 640, 3);

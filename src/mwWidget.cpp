@@ -21,6 +21,7 @@
 #include "mwConfig.h"
 #include "mwDemoMode.h"
 #include "mwLoop.h"
+#include "mwObjectViewer.h"
 #include "mwScreen.h"
 
 
@@ -746,8 +747,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 57)
    {
-      int o = mWM.mW[7].obt;
-      int n = mWM.mW[7].num;
+      int o = mObjectViewer.obt;
+      int n = mObjectViewer.num;
       int t = 0;
       sprintf(msg,"?? Help");
 
@@ -1025,7 +1026,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 310) // block 1 select...
    {
-      int tn = mItem.item[num][10]&1023; // block 1
+      int tn = mItem.item[num][10] & PM_BTILE_TILENUM_MASK; // block 1
       sprintf(msg, "Block 1: %d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][10]);
 
@@ -1043,7 +1044,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    }
    if (bn == 311) // block 2 select...
    {
-      int tn = mItem.item[num][11]&1023; // block 2
+      int tn = mItem.item[num][11] & PM_BTILE_TILENUM_MASK; // block 2
       sprintf(msg, "Block 2: %d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][11]);
 
@@ -1062,7 +1063,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 313) // block 3 select...
    {
-      int tn = mItem.item[num][13]&1023; // block 3
+      int tn = mItem.item[num][13] & PM_BTILE_TILENUM_MASK; // block 3
       sprintf(msg, "Block 3: %d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][13]);
 
@@ -1081,7 +1082,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 314) // block 4 select...
    {
-      int tn = mItem.item[num][14]&1023; // block 4
+      int tn = mItem.item[num][14] & PM_BTILE_TILENUM_MASK; // block 4
       sprintf(msg, "Block 4: %d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][14]);
 
@@ -1101,7 +1102,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 318) // blokwalk block select...
    {
-      int tn = mEnemy.Ei[num][13]&1023;
+      int tn = mEnemy.Ei[num][13] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[num][13]);
 
@@ -1121,14 +1122,14 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
    if (bn == 320) // lift draw block select...
    {
-      int tn = mLift.cur[num].draw_mode_val1&1023;
+      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
    }
 
    if (bn == 321) // lift draw block select...
    {
-      int tn = mLift.cur[num].draw_mode_val1&1023;
+      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Start Block:%d", tn);
       if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
    }
@@ -1320,7 +1321,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
    if (bn == 311)
@@ -1330,7 +1331,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
    if (bn == 313)
@@ -1340,7 +1341,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
    if (bn == 314)
@@ -1350,7 +1351,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
 
@@ -1362,7 +1363,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
 
@@ -1374,12 +1375,12 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn&1023], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
 
    if (bn == 321)
    {
-      int tn = mLift.cur[num].draw_mode_val1&1023;
+      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       int x = (x2+x1)/2+80;
       int y = (y2+y1)/2-10;
 
@@ -2608,11 +2609,24 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 
    if (xType == 3) x2 = xa + tl; // abs xa, xb is auto text width
    if (xType == 4) x1 = xb - tl; // abs xb, xa is auto text width
-   if (xType == 5) // abs center xa,  x1, x2 is auto text width
+
+   if (xType == 5) // abs center xa,  auto text width
    {
       x1 = xa - tl/2;
       x2 = xa + tl/2;
    }
+
+   if (xType == 6) // abs center xa,  auto text width with xb padding added to text length
+   {
+      tl += xb; // text length
+
+      x1 = xa - tl/2;
+      x2 = xa + tl/2;
+   }
+
+
+
+
 
    // process y
    // default when yType == 0
@@ -2629,16 +2643,11 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
 }
 
 
-mRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt)
+mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt)
 {
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
-
-//   mRect<int> r(x1, y1, x2, y2, 0);
-
-   mRect<int> r = mRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
-
-
+   mwRect<int> r = mwRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
    return r;
 }
 
@@ -2749,11 +2758,6 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
 
 
 
-
-
-
-
-
 // toggles the int and displays text, text color, and frame color based on value  -- check box style
 bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input)
 {
@@ -2766,7 +2770,7 @@ bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       // debug show mouse detection area
-      // al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
       // is mouse pressed on this button?
       if (mInput.mouse_b[1][0])

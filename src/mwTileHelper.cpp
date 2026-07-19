@@ -5,8 +5,10 @@
 #include "mwBitmapTools.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
+#include "mwHelp.h"
 #include "mwInput.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
@@ -822,7 +824,7 @@ void mwTileHelper::draw_frame_fill(struct frameFill f, bool preview)
             if (f.ts.tileSetType == 16) fb = mTileHelper.replace_helper_16_frame(f.ts, f.frameIndex, f.mode);
             if (f.ts.tileSetType == 24) fb = mTileHelper.replace_helper_24_frame(f.ts, f.frameIndex, f.mode);
             if (f.ts.tileSetType == 48) fb = mTileHelper.replace_helper_48_frame(f.ts, f.frameIndex, f.mode);
-            if (fb != -1)  mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+            if (fb != -1)  mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mEditorMain.draw_tile_mode, preview);
          }
 }
 
@@ -851,7 +853,7 @@ void mwTileHelper::draw_pattern(bool preview)
          if (thl[x][y])
          {
             int fb = replace_helper_pattern(x, y);
-            if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+            if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mEditorMain.draw_tile_mode, preview);
          }
 
    if (!preview)
@@ -873,11 +875,11 @@ void mwTileHelper::draw_replace(bool preview)
          for (int y=0; y<100; y++)
             if (thl[x][y])
             {
-               int tile = mWM.mW[1].draw_item_num;
+               int tile = mEditorMain.draw_item_num;
                int tileNum = tile & PM_BTILE_TILENUM_MASK;
                int tileFlags = tile & PM_BTILE_ALL_FLAGS;
 
-               mTileSets.drawTile(x, y, tileNum, tileFlags, mWM.mW[1].em_draw_tile_mode, preview);
+               mTileSets.drawTile(x, y, tileNum, tileFlags, mEditorMain.draw_tile_mode, preview);
             }
    }
    if (replace_mode == 0) // tile set
@@ -897,7 +899,7 @@ void mwTileHelper::draw_replace(bool preview)
                if (type == 24) fb = replace_helper_16(index, 1);
                if (type == 16) fb = replace_helper_16(index, 0);
                if (type == 8 ) fb = replace_helper_8(index);
-               if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mWM.mW[1].em_draw_tile_mode, preview);
+               if (fb != -1) mTileSets.drawTile(x, y, fb & PM_BTILE_TILENUM_MASK, PM_BTILE_ALL_SOLID, mEditorMain.draw_tile_mode, preview);
 
             }
    }
@@ -942,8 +944,8 @@ void mwTileHelper::draw_replace(bool preview)
 int mwTileHelper::replace_helper_pattern(int x, int y)
 {
    // pattern sizes
-   int xs = (mWM.bx2 - mWM.bx1) + 1;
-   int ys = (mWM.by2 - mWM.by1) + 1;
+   int xs = (mWM.selection_rect.x2 - mWM.selection_rect.x1) + 1;
+   int ys = (mWM.selection_rect.y2 - mWM.selection_rect.y1) + 1;
 
    // pattern offsets
    int xo = pattern_offset_x;
@@ -953,7 +955,7 @@ int mwTileHelper::replace_helper_pattern(int x, int y)
    int xi = (x+xo) % xs;
    int yi = (y+yo) % ys;
 
-   return mLevel.l[mWM.bx1+xi][mWM.by1+yi];
+   return mLevel.l[mWM.selection_rect.x1+xi][mWM.selection_rect.y1+yi];
 }
 
 
@@ -1376,9 +1378,9 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    if ((replace_mode == 0) || (replace_mode == 3)) mWidget.mButtonTile2(tx, yfb, 22, mTileSets.currentTileSet.displayIndex, mTileSets.currentTileSet.name.c_str(), d);
    if (replace_mode == 1) // single tile
    {
-      int tile = mWM.mW[1].draw_item_num;
-      mWM.mW[1].em_get_text_description_of_block_based_on_flags(tile, msg);
-      if (mWidget.mButtonTile2(tx, yfb, 22, tile & PM_BTILE_TILENUM_MASK, msg, d)) mBitmapTools.select_bitmap_from_level(mWM.mW[1].draw_item_num);
+      int tile = mEditorMain.draw_item_num;
+      mEditorMain.get_text_description_of_block_based_on_flags(tile, msg);
+      if (mWidget.mButtonTile2(tx, yfb, 22, tile & PM_BTILE_TILENUM_MASK, msg, d)) mBitmapTools.select_bitmap_from_level(mEditorMain.draw_item_num);
    }
    if (replace_mode == 2) mBitmapTools.draw_flag_rects_multiple_th(x3+2, yfb+(bts+bsp) + 6); // flags only
 
@@ -1403,10 +1405,10 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    int bsp = 3; // button spacing
 
    // pattern vars
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
+   int bx1 = mWM.selection_rect.x1;
+   int by1 = mWM.selection_rect.y1;
+   int bx2 = mWM.selection_rect.x2;
+   int by2 = mWM.selection_rect.y2;
    int bw = bx2 - bx1;
    int bh = by2 - by1;
 
@@ -1815,6 +1817,47 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
    return y;
 }
 
+
+void mwTileHelper::draw(mwRect<int> &rect, int d, int have_focus)
+{
+   mMiscFnx.titlex("Tile Helper", 15, 13, rect.x1, rect.x2, rect.y1+1);
+   int by1 = rect.y1+3;
+   if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
+
+   int ys = mTileHelper.draw_buttons(rect.x1+1, rect.x2-1, rect.y1+20, d);
+
+   rect.setHeight(ys-rect.y1+4);
+
+   int fc = 13+64;
+   if (have_focus) fc = 13;
+
+   al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[fc], 1); // frame entire window
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwTileHelper::find_connected(int x, int y, int group)
 {
    int rb = mLevel.l[x][y];  // block num to match
@@ -1883,9 +1926,44 @@ void mwTileHelper::process_mouse(void)
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_windows(1);
+      mWM.set_level_editor_mode(1);
    }
 }
+
+void mwTileHelper::draw_level_editor_background_overlays(int mouse_on_window)
+{
+   if (!mouse_on_window) mEditorMain.show_draw_item_cursor();
+   if (frame_mode_preview) draw_frame_fills(1);
+   if (replace_preview) draw_replace(1);
+   if (pattern_preview) draw_pattern(1);
+   if (mark_overlay)
+   {
+      // show marked blocks
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            if (thl[x][y])
+            {
+               if (mark_overlay == 1)
+               {
+                  //int col = 10;
+                  int c = mColor.flash_color+64;
+                  int c2 = mColor.flash_color2+64;
+                  al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mColor.pc[c2], 0);
+                  al_draw_line(x*20, y*20, x*20+20, y*20+20,   mColor.pc[c], 0);
+                  al_draw_line(x*20+20, y*20, x*20, y*20+20,   mColor.pc[c], 0);
+               }
+               if (mark_overlay == 2)
+               {
+                  int c = mColor.flash_color+64;
+                  al_draw_textf(mFont.pr8, mColor.pc[c], x*20+6, y*20+6, 0, "%d", thl[x][y]);
+               }
+            }
+         }
+   }
+}
+
+
 
 
 

@@ -1,5 +1,7 @@
 // mwBitmapTools.h
 
+#include "mwRect.h"
+
 class mwBitmapTools
 {
    public:
@@ -14,6 +16,9 @@ class mwBitmapTools
    void get_tile_from_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, int tile);
    void put_tile_to_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, int tile);
 
+   int make_backup_on_save_bitmap = 1;
+
+
    ALLEGRO_BITMAP* load_block_tiles_to_bitmap();
    void save_bitmap_to_block_tiles_file(ALLEGRO_BITMAP* b1);
 
@@ -25,7 +30,7 @@ class mwBitmapTools
 
 
 
-   void redraw_grid(mRect<int> tile_grid_rect, mRect<int> selection_rect, int gridlines, int mode, int selected_index);
+   void redraw_grid(mwRect<int> tile_grid_rect, mwRect<int> selection_rect, int gridlines, int mode, int selected_index);
    void edit_tile_flags();
 
 
@@ -67,7 +72,7 @@ class mwBitmapTools
    int select_bitmap_ans();
 
 
-   void draw_gridlines_and_frame(mRect<int>r, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
+   void draw_gridlines_and_frame(mwRect<int>r, int fd, int fc, int fw, int gd, int gc, int gw, int ts);
 
    void draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b, int index);
 

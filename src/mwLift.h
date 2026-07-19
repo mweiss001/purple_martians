@@ -1,6 +1,7 @@
 // mwLift.h
 #ifndef MWLIFT_H
 #define MWLIFT_H
+#include "mwRect.h"
 
 
 struct lift
@@ -77,7 +78,7 @@ class mwLift
 
    // these are used by both to draw
    void draw_lift_line(int l);
-   void draw_lift(int l, mRect<float> lr);
+   void draw_lift(int l, mwRect<float> lr);
    void draw_lifts();
 
    // this is used when loading and saving level and after run lifts in level editor, sets all lifts to step 0

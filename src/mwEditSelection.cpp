@@ -3,12 +3,15 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
 #include "mwEnemy.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
+#include "mwHelp.h"
 #include "mwInput.h"
 #include "mwItem.h"
 #include "mwLevel.h"
+#include "mwLoop.h"
 
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -24,30 +27,36 @@ void mwEditSelection::init()
 {
    copy_mode = 0;
    brf_mode = 0;
+
+
+
+
+
+
 }
 
 
 void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
-   int rx1 = mWM.bx1*20;    // source x
-   int ry1 = mWM.by1*20;    // source y
-   int rx2 = mWM.bx2*20+20;
-   int ry2 = mWM.by2*20+20;
+   int rx1 = mWM.selection_rect.x1*20;    // source x
+   int ry1 = mWM.selection_rect.y1*20;    // source y
+   int rx2 = mWM.selection_rect.x2*20+20;
+   int ry2 = mWM.selection_rect.y2*20+20;
    int eib=0;
    int iib=0;
    int lib=0;
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
+      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
+      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
 
    // count lifts in box
    for (int d=0; d<NUM_LIFTS; d++)
-      if ((mLift.cur[d].active) && (mWM.obj_filter[4][1]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
+      if ((mLift.cur[d].active) && (mEditorMain.obj_filter[4][1]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
    int xc = (x1+x2)/2;
    int fc = 13;
@@ -56,8 +65,8 @@ void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_wind
    al_draw_text( mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
    al_draw_rectangle(x1, y, x2, y+10, mColor.pc[fc], 1);
    y+=10;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mWM.bx1, mWM.by1);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mWM.bx2-mWM.bx1+1, mWM.by2-mWM.by1+1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mWM.selection_rect.x1, mWM.selection_rect.y1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mWM.selection_rect.x2-mWM.selection_rect.x1+1, mWM.selection_rect.y2-mWM.selection_rect.y1+1);
    al_draw_rectangle(x1, y, x2, y+18, mColor.pc[fc], 1);
 
    y+=18;
@@ -195,26 +204,26 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    int eib=0;
    int iib=0;
    int lib=0;
-   int x1 = mWM.bx1*20;
-   int y1 = mWM.by1*20;
-   int x2 = mWM.bx2*20+20;
-   int y2 = mWM.by2*20+20;
+   int x1 = mWM.selection_rect.x1*20;
+   int y1 = mWM.selection_rect.y1*20;
+   int x2 = mWM.selection_rect.x2*20+20;
+   int y2 = mWM.selection_rect.y2*20+20;
 
    clear_ft_variables();
 
    // blocks
-   for (x=0; x<(mWM.bx2-mWM.bx1+1); x++)
-      for (y=0; y<(mWM.by2-mWM.by1+1); y++)
-         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mWM.bx1+x >= 0) && (mWM.bx1+x < 100) && (mWM.by1+y >= 0) && (mWM.by1+y < 100) )
+   for (x=0; x<(mWM.selection_rect.x2-mWM.selection_rect.x1+1); x++)
+      for (y=0; y<(mWM.selection_rect.y2-mWM.selection_rect.y1+1); y++)
+         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mWM.selection_rect.x1+x >= 0) && (mWM.selection_rect.x1+x < 100) && (mWM.selection_rect.y1+y >= 0) && (mWM.selection_rect.y1+y < 100) )
          {
-            if (mWM.obj_filter[1][1])                              ftLevel.l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y];                      // get block and flags
-            if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y] & PM_BTILE_ALL_FLAGS; // get flags only
+            if (mEditorMain.obj_filter[1][1])                              ftLevel.l[x][y] = mLevel.l[mWM.selection_rect.x1+x][mWM.selection_rect.y1+y];                      // get block and flags
+            if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mWM.selection_rect.x1+x][mWM.selection_rect.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
 
    // items
    for (b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
+      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
          c = iib++;
 
@@ -238,7 +247,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // enemies
    for (b=0; b<100; b++) // check for enemies in box
-      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
+      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          c = eib++;
@@ -266,7 +275,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
       }
 
    // lifts
-   if (mWM.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1])
       for (b=0; b<NUM_LIFTS; b++) // source, if in selection
          if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
@@ -287,8 +296,8 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   sw = ft_level_header[8] =  mWM.bx2-mWM.bx1+1; // width
-   sh = ft_level_header[9] =  mWM.by2-mWM.by1+1; // height
+   sw = ft_level_header[8] =  mWM.selection_rect.x2-mWM.selection_rect.x1+1; // width
+   sh = ft_level_header[9] =  mWM.selection_rect.y2-mWM.selection_rect.y1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -404,7 +413,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
 
    // lifts
-   if (mWM.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1])
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
@@ -446,7 +455,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
    // enemies
    for (b=0; b<100; b++) // iterate enemies in ft
-      if ((ftEnemy.Ei[b][0]) && (mWM.obj_filter[3][ftEnemy.Ei[b][0]])) // if active attempt to copy this enemy
+      if ((ftEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[b][0]])) // if active attempt to copy this enemy
       {
          //int copied = 0;
          for (c=0; c<100; c++)
@@ -508,7 +517,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
    // items
    for (b=0; b<500; b++)
-      if ((ftItem.item[b][0]) && (mWM.obj_filter[2][ftItem.item[b][0]]))
+      if ((ftItem.item[b][0]) && (mEditorMain.obj_filter[2][ftItem.item[b][0]]))
       {
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
@@ -582,28 +591,28 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
 void mwEditSelection::do_clear(void)
 {
-   int x1 = mWM.bx1*20;
-   int y1 = mWM.by1*20;
-   int x2 = mWM.bx2*20+20;
-   int y2 = mWM.by2*20+20;
+   int x1 = mWM.selection_rect.x1*20;
+   int y1 = mWM.selection_rect.y1*20;
+   int x2 = mWM.selection_rect.x2*20+20;
+   int y2 = mWM.selection_rect.y2*20+20;
 
    // blocks
-   if (mWM.obj_filter[1][1])
-      for (int x=mWM.bx1; x<mWM.bx2+1; x++)
-         for (int y=mWM.by1; y<mWM.by2+1; y++) mLevel.l[x][y]=0;
+   if (mEditorMain.obj_filter[1][1])
+      for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
+         for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++) mLevel.l[x][y]=0;
 
    // items
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0]) && (mWM.obj_filter[2][mItem.item[i][0]]))
+      if ((mItem.item[i][0]) && (mEditorMain.obj_filter[2][mItem.item[i][0]]))
          if ((mItem.item[i][4] >= x1) && (mItem.item[i][4] < x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] < y2)) mItem.clear_item(i);
 
    // enemies
    for (int e=0; e<100; e++)
-      if ((mEnemy.Ei[e][0]) && (mWM.obj_filter[3][mEnemy.Ei[e][0]]))
+      if ((mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[e][0]]))
          if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2)) mEnemy.clear_enemy(e);
 
    // lifts
-   if (mWM.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward because erase_lift changes list order
          if (mLift.cur[l].active)
             if ((mLift.cur[l].x >= x1) && (mLift.cur[l].x < x2) && (mLift.cur[l].y >= y1) && (mLift.cur[l].y < y2)) mLift.erase_lift(l);
@@ -620,13 +629,13 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
-      if ((mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
+      if ((mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) mLevel.l[x][y] = tn;
 
       // this is wrong!!!!
       // blocks only (same as block and flags?) mLevel.l[x][y] = tn;
 
 
-      if ((mWM.obj_filter[1][1]) && (!mWM.obj_filter[1][2]))
+      if ((mEditorMain.obj_filter[1][1]) && (!mEditorMain.obj_filter[1][2]))
       {
          mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
 
@@ -637,9 +646,9 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
       }
 
       // flags only
-      if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2]))
+      if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2]))
       {
-         mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
+         mLevel.l[x][y] &= PM_BTILE_TILENUM_MASK; // clear upper bits
          mLevel.l[x][y] &= ~PM_BTILE_ALL_FLAGS;   // clear flags in destination
          int flags = tn & PM_BTILE_ALL_FLAGS;     // get only flags from draw item
          mLevel.l[x][y] |= flags;                 // merge
@@ -675,6 +684,9 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
 int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
 {
    int bts = 16;
+
+   bts += mLoop.pct_y;
+
    int col = 9;
    char msg[20] = "Copy Selection";
 
@@ -722,30 +734,30 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
          draw_fsel();
       }
    }
-   if (mWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   if (mEditorMain.draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
-      int tn = mWM.mW[1].draw_item_num & PM_BTILE_TILENUM_MASK;
+      int tn = mEditorMain.draw_item_num & PM_BTILE_TILENUM_MASK;
       bts = 24;
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
       {
-         for (int x=mWM.bx1; x<mWM.bx2+1; x++)
-            for (int y=mWM.by1; y<mWM.by2+1; y++)
-               set_block_with_flag_filters(x, y, mWM.mW[1].draw_item_num);
+         for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
+            for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++)
+               set_block_with_flag_filters(x, y, mEditorMain.draw_item_num);
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
       {
-         for (int x=mWM.bx1; x<mWM.bx2+1; x++)
+         for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
          {
-            set_block_with_flag_filters(x, mWM.by1, mWM.mW[1].draw_item_num);
-            set_block_with_flag_filters(x, mWM.by2, mWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(x, mWM.selection_rect.y1, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(x, mWM.selection_rect.y2, mEditorMain.draw_item_num);
          }
-         for (int y=mWM.by1; y<mWM.by2+1; y++)
+         for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++)
          {
-            set_block_with_flag_filters(mWM.bx1, y, mWM.mW[1].draw_item_num);
-            set_block_with_flag_filters(mWM.bx2, y, mWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(mWM.selection_rect.x1, y, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(mWM.selection_rect.x2, y, mEditorMain.draw_item_num);
          }
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
@@ -765,25 +777,25 @@ void mwEditSelection::draw_fsel(void)
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
    // draw blocks
-   if (mWM.obj_filter[1][1])
+   if (mEditorMain.obj_filter[1][1])
    {
       for (int x=0; x<sw; x++)
          for (int y=0; y<sh; y++)
-            if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ftLevel.l[x][y], x*20, y*20);
+            if (mEditorMain.show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ftLevel.l[x][y], x*20, y*20);
    }
 
    // draw items
    for (int i=0; i<500; i++)
-      if ((ftItem.item[i][0]) && (mWM.obj_filter[2][ftItem.item[i][0]])) ftItem.draw_item(i, 1, ftItem.item[i][4], ftItem.item[i][5]);
+      if ((ftItem.item[i][0]) && (mEditorMain.obj_filter[2][ftItem.item[i][0]])) ftItem.draw_item(i, 1, ftItem.item[i][4], ftItem.item[i][5]);
 
    // draw enemies
    for (int e=0; e<100; e++)
-      if ((ftEnemy.Ei[e][0]) && (mWM.obj_filter[3][ftEnemy.Ei[e][0]])) ftEnemy.draw_enemy(e, 0, 0, 0);
+      if ((ftEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[e][0]])) ftEnemy.draw_enemy(e, 0, 0, 0);
 
    // draw lifts
-   if (mWM.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1])
       for (int l=0; l<ft_level_header[5]; l++)
-         ftLift.draw_lift(l, mRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
+         ftLift.draw_lift(l, mwRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
 }
 
 void mwEditSelection::process_mouse(void)
@@ -798,14 +810,14 @@ void mwEditSelection::process_mouse(void)
       if (brf_mode)
       {
          while (mInput.mouse_b[1][0])mEventQueue.proc(1);
-         do_floodfill(mWM.gx, mWM.gy, mWM.mW[1].draw_item_num);
+         do_floodfill(mWM.gx, mWM.gy, mEditorMain.draw_item_num);
       }
-      if ((!copy_mode) && (!brf_mode)) mWM.get_new_box(); // get new selection
+      if ((!copy_mode) && (!brf_mode)) mWM.get_new_box("selection"); // get new selection
    }
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_windows(1);
+      mWM.set_level_editor_mode(1);
    }
 }
 
@@ -834,3 +846,103 @@ void mwEditSelection::ft_to_sel(char * b) // for save level
    offset += sz; sz = sizeof(ftLift.stp);      memcpy(b+offset, ftLift.stp,      sz);
    offset += sz; sz = sizeof(ftItem.pmsgtext); memcpy(b+offset, ftItem.pmsgtext, sz);
 }
+
+
+/*
+int mwEditSelection::draw(int x1, int x2, int y1, int y2, int d, int have_focus)
+{
+   mMiscFnx.titlex("Edit Selection", 15, 13, x1, x2, y1+1);
+
+   int by1 = y1+3;
+   if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
+
+   int mow = mWM.is_mouse_on_any_window();
+   mEditSelection.show_pointer_text(x1+1, x2-1, y1+20, mow);
+
+   int sy2 = mEditSelection.draw_buttons(x1+1, x2-1, y1+80, d);
+
+   int fc = 13;
+   if (have_focus) fc = 10;
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
+
+   return sy2;
+
+   //set_size(w, sy2-y1-1);
+
+
+}
+
+*/
+
+void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
+{
+   mMiscFnx.titlex("Edit Selection", 15, 13, rect.x1, rect.x2, rect.y1+1);
+
+   int by1 = rect.y1+3;
+   if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
+
+   int mow = mWM.is_mouse_on_any_window();
+   mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mow);
+
+
+   // draw buttons and get y2
+   int y2 = mEditSelection.draw_buttons(rect.x1+1, rect.x2-1, rect.y1+80, d);
+
+   // adjust height
+   rect.setX1Y1X2Y2(rect.x1, rect.y1, rect.x2, y2-1);
+
+   // frame entire window
+   int fc = 13;
+   if (have_focus) fc = 10;
+   rect.draw_rectangle(mColor.pc[fc], 1);
+
+}
+
+
+
+void mwEditSelection::draw_level_editor_background_overlays(int mouse_on_window)
+{
+   // show selection
+   if (!copy_mode) mWM.show_level_buffer_block_rect(mWM.selection_rect, 14, "selection");
+
+   // only show if mouse not on window
+   if (!mouse_on_window)
+   {
+      if (brf_mode) mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      if (copy_mode)
+      {
+         if (ft_bmp)
+         {
+            al_draw_bitmap(ft_bmp, mWM.gx*20, mWM.gy*20, 0);
+            mWM.show_level_buffer_block_rect(mwRect<int>::fromX1Y1WH(mWM.gx, mWM.gy, sw-1, sh-1), 10, "paste");
+         }
+         else copy_mode = 0;
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

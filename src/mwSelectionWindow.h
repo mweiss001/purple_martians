@@ -4,6 +4,8 @@
 #include <vector>
 #include <array>
 
+#include "mwRect.h"
+
 
 struct pde
 {
@@ -15,13 +17,28 @@ struct pde
 };
 
 
+struct tileSetGroup
+{
+   std::string name;
+   int display_tile;
+   bool visible;
+};
+
+
+
+
+
 class mwSelectionWindow
 {
 
-
 public:
 
+   mwSelectionWindow() { init(); }
+
+
    void init();
+   tileSetGroup tileSetGroups[32];
+
 
    std::vector<pde> pdes;
 
@@ -37,24 +54,13 @@ public:
 
    void fill_block_array(void);
 
+   void draw(mwRect<int> &rect, int draw_only, int have_focus);
 
 
 
 private:
 
    int lasty; // last y position inserted
-
-   /*
-
-   // position of next insert
-   int insert_x;
-   int insert_y;
-
-   // max x and y position inserted
-   int max_x;
-   int max_y;
-  */
-
 
 
    void load_pde(void);
@@ -87,6 +93,12 @@ private:
 
 
    bool isTileSetGroupVisible(std::string name);
+
+
+
+
+
+
 
 
 };

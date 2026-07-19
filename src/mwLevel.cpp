@@ -107,6 +107,7 @@ int mwLevel::get_prev_level(int lev, int max_lev, int wrap)
 
 
 
+
 void mwLevel::change_block(int x, int y, int block)
 {
    if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
@@ -257,8 +258,8 @@ void mwLevel::save_level(int level_num)
    sprintf(lf, "levels/level%03d.pml", level_num);
    //printf("saving: %s\n", lf);
 
-   bool save_old_versions = 1;
-   if (save_old_versions)
+
+   if (make_backup_on_save_level)
    {
       // rename existing file as backup
 

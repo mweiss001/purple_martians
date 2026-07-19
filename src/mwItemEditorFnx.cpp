@@ -12,6 +12,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwInput.h"
+#include "mwObjectViewer.h"
 
 int mwItem::item_data(int x, int y)
 {
@@ -287,7 +288,7 @@ int mwItem::create_trigger(int i)
       if (!mMiscFnx.get_block_range("Trigger Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, i);
+   else mObjectViewer.object_viewer(2, i);
    return 1;
 }
 
@@ -310,7 +311,7 @@ int mwItem::create_block_manip(int i)
       if (!mMiscFnx.get_block_range("Block Manip Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, i);
+   else mObjectViewer.object_viewer(2, i);
    return 1;
 }
 
@@ -335,7 +336,7 @@ int mwItem::create_block_damage(int i)
       if (!mMiscFnx.get_block_range("Block Damage Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, i);
+   else mObjectViewer.object_viewer(2, i);
    return 1;
 }
 
@@ -452,7 +453,7 @@ int mwItem::create_pmsg(int c)
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, c);
+   else mObjectViewer.object_viewer(2, c);
    return 1;
 }
 
@@ -623,7 +624,7 @@ int mwItem::create_timer(int i)
       if (!mMiscFnx.get_block_range("Display Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, i);
+   else mObjectViewer.object_viewer(2, i);
    return 1;
 }
 
@@ -644,7 +645,7 @@ int mwItem::create_hider(int i)
       if (!mMiscFnx.get_block_range("Hidden Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mWM.mW[7].object_viewer(2, i);
+   else mObjectViewer.object_viewer(2, i);
    return 1;
 }
 

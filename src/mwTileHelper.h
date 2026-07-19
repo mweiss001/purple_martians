@@ -1,5 +1,6 @@
 #ifndef PM_MWTILEHELPER_H
 #define PM_MWTILEHELPER_H
+#include "mwRect.h"
 
 
 class mwTileHelper
@@ -61,6 +62,12 @@ class mwTileHelper
 
 
    int draw_buttons(int x3, int x4, int yfb, int d);
+
+   void draw(mwRect<int> &rect, int d, int have_focus);
+
+   void draw_level_editor_background_overlays(int mouse_on_window);
+
+
 
    void process_mouse();
 

@@ -94,6 +94,13 @@ when copying selection with block damage that follows lift, link translation doe
 
 
 
+
+glt copy tiles needs to be extended to also copy refs in lifts
+
+
+
+
+
 I want to remove player damage from getting squished by lifts
 
 
@@ -200,6 +207,11 @@ add to settings:
 - make backup when saving tilemaps
 - show level numbers in stats
 - debug keyboard shortcuts
+
+
+
+
+
 
 
 Widgets

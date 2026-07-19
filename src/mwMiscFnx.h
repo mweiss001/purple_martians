@@ -1,5 +1,7 @@
 // mwMiscFnx.h
 
+#include "mwRect.h"
+
 class mwMiscFnx
 {
    public:
@@ -45,8 +47,6 @@ class mwMiscFnx
 
    float roundToDecimalPlaces(float value, int decimalPlaces);
 
-
-
    void enforce_limits_with_rollover(int &val, int ll, int ul);
    void enforce_limits(int &val, int ll, int ul);
 
@@ -54,9 +54,6 @@ class mwMiscFnx
    int check_limit(int val, int ll, int ul);
 
    void swap_int(int &i1, int &i2);
-
-   void ensure_xy1_less_than_xy2(int &x1, int &y1, int &x2, int &y2);
-
 
    float mdw_rnd(float rmin, float rmax);
 
@@ -70,23 +67,10 @@ class mwMiscFnx
 
    void drawTextOnClearedBackground(int x, int y, const char* text, int text_color);
 
-
-
-
-
-
    void printBits2(size_t const size, void const * const ptr);
-
 
    void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name);
    void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name);
-
-
-
-
-
-
-
 
 
    float get_sproingy_jump_height(int num);
@@ -97,10 +81,10 @@ class mwMiscFnx
    int get_item(int obj_type, int sub_type, int num);
 
 
-   void fill_rect_with_1_tile(mRect<float> r, int tile);
+   void fill_rect_with_1_tile(mwRect<float> r, int tile);
 
-   void fill_rect_with_3_tile_platform(mRect<float> r, int tile);
-   void fill_rect_with_3_tile_column(mRect<float> r, int tile);
+   void fill_rect_with_3_tile_platform(mwRect<float> r, int tile);
+   void fill_rect_with_3_tile_column(mwRect<float> r, int tile);
 
 
 

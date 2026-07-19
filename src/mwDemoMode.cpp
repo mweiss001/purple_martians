@@ -84,8 +84,7 @@ void mwDemoMode::play_demo_for_stats()
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
-   double t0 = al_get_time(); // for the entire function
-
+//   double t0 = al_get_time(); // for the entire function
 
    mLoop.frame_num = 0;
    int done = 0;
@@ -96,17 +95,15 @@ void mwDemoMode::play_demo_for_stats()
          done = 1;
          // this is so that I can track if demo level play back did not complete
          mLevel.add_play_data_record(mLevel.play_level, 0); // count this as quitting
+         // printf(" - lev:%d quit!", mLevel.play_level);
       }
-
       if (mPlayer.syn[0].level_done_mode) done = 1;
       mLoop.frame_num++;
       mGameMoves.proc();
       mLoop.move_frame();
    }
 
-   printf("t1: %f\n", (al_get_time() - t0)*1000);
-
-
+//   printf("t1: %f\n", (al_get_time() - t0)*1000);
 
 }
 
@@ -126,6 +123,7 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
    for (int i=0; i<num_demo_filenames; i++)
    {
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]), false);
+      //printf("i:%d - filename:%s - lev:%d ", i, al_get_fs_entry_name(demo_FS_filenames[i]), mLevel.play_level);
       play_demo_for_stats();
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
       al_flip_display();

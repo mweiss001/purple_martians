@@ -35,7 +35,7 @@ void mwBitmap::create_bitmaps()
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
-   M_stilemap  = create_and_clear_bitmap(704, 704);
+   M_stilemap = create_and_clear_bitmap(704, 704);
    M_btilemap = create_and_clear_bitmap(1408, 704);
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
@@ -44,7 +44,7 @@ void mwBitmap::create_bitmaps()
    if (!mDisplay.no_display) al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
-   stilemap  = create_and_clear_bitmap(704, 704);
+   stilemap = create_and_clear_bitmap(704, 704);
    btilemap = create_and_clear_bitmap(1408, 704);
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
@@ -65,10 +65,7 @@ int mwBitmap::load_tiles()
 
    // get sprites
    stilemap = al_load_bitmap("bitmaps/sprites.png");
-
    al_convert_mask_to_alpha(stilemap, al_map_rgb(0, 0, 0)) ;
-
-
    if (!stilemap)
    {
       mInput.m_err("Can't load sprites from bitmaps/sprites.png");
@@ -86,7 +83,6 @@ int mwBitmap::load_tiles()
    // get block tiles
    btilemap = al_load_bitmap("bitmaps/tiles.png");
    al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
-
    if (!btilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/tiles.png");
@@ -149,10 +145,6 @@ int mwBitmap::load_tiles()
    }
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
 
-
-
-
-
    return 1;
 }
 
@@ -200,11 +192,9 @@ void mwBitmap::rebuild_bitmaps()
    if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
    t[3] = al_get_time();
 
-
    // rebuild level_background
    mScreen.init_level_background();
    t[4] = al_get_time();
-
 
    // misc setup
    mDisplay.set_display_transform();
@@ -235,7 +225,7 @@ void mwBitmap::save_sprit()
       }
 
    // ensure tileFlags does not have any bits set other than the ones we want
-   for (int c=0; c<NUM_SPRITES; c++)
+   for (int c=0; c<NUM_TILES; c++)
       tileFlags[c] &= PM_BTILE_ALL_FLAGS;
 
 
@@ -424,7 +414,6 @@ void mwBitmap::spin_shape2(int tn, float x, float y, float tile_scale, float dim
    // scale the entire thing
    xs *= mDisplay.scale_factor_current;
    ys *= mDisplay.scale_factor_current;
-
 
    ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 

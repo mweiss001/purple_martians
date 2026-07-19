@@ -12,6 +12,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "mwBitmapTools.h"
 #include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
@@ -23,9 +24,11 @@
 #include "mwScreen.h"
 #include "mwGameMoves.h"
 #include "mwCodeStats.h"
+#include "mwEditorMain.h"
 #include "mwHelp.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
+#include "mwWindowManager.h"
 
 mwSettings mSettings;
 
@@ -1462,11 +1465,13 @@ void mwSettings::page_level_stats(void)
    //line_spacing +=  mLoop.pct_y;
    int xa = cfp_x1 + 10;
    int xb = cfp_x2 - 10;
+
+   int xc = (cfp_x1 + cfp_x2)/2;
+
    int ya = cfp_y1 + 10;
    int bts = 16;
 
    mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Stats");
-
    if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
    {
       ya+=line_spacing+8;
@@ -1474,12 +1479,13 @@ void mwSettings::page_level_stats(void)
    }
    else
    {
+      ya+=bts+4;
+      if (mWidget.mCheckBox(6, xc, 10, 1, ya, bts, 0, mLevel.level_stats_show_level_number, "Show level numbers with names", 15, 15, 0)) mLevel.level_stats_bmp_msg_type = 0;
       ya +=8;
       ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num);
       ya +=8;
       ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
 
       if (show_advanced)
       {
@@ -2189,10 +2195,26 @@ void mwSettings::page_misc(void)
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15);
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15);
 
-
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
    if (mWidget.buttont(xa+200, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Dump Level Data")) mLevel.dump_level_data();
+
+
+   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+//   ya+=bts+4;
+   mWidget.mCheckBox(1, xa, xb, 1, ya, bts, 0, mLevel.make_backup_on_save_level, "Make backup when saving level", 15, 15, 0);
+   ya+=bts+4;
+   mWidget.mCheckBox(1, xa, xb, 1, ya, bts, 0, mBitmapTools.make_backup_on_save_bitmap, "Make backup when saving bitmap", 15, 15, 0);
+   ya+=bts+4;
+   mWidget.mCheckBox(1, xa, xb, 1, ya, bts, 0, mEditorMain.level_editor_quit_confirmation_dialog, "Level editor quit confirmation dialog", 15, 15, 0);
+
+
+
+
+
+
+
 
 }
 

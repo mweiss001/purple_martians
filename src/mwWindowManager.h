@@ -2,70 +2,55 @@
 #ifndef mwWindowManager_H
 #define mwWindowManager_H
 #include "mwWindow.h"
+#include "mwRect.h"
 
 #define NUM_MW 10
-
-#define NUM_OBJ 600
-
-
-struct tileSetGroup
-{
-   std::string name;
-   int display_tile;
-   bool visible;
-};
-
-
 
 
 class mwWindowManager
 {
    public:
 
-   mwWindow mW[NUM_MW];
+   void init();
 
-   int level_editor_mode;
+   mwWindow mW[NUM_MW];
 
    int active;
 
-   int obj_list[NUM_OBJ][3];
-   int obj_filter[5][20];
+   int level_editor_mode;
 
 
-   tileSetGroup tileSetGroups[32];
-
-
-
-   int gx; // mouse position relative to scaled level background
+   int gx; // mouse position relative to scaled level background (0-99)
    int gy;
-   int hx;
+
+   int hx; // mouse position relative to scaled level background (0-1999)
    int hy;
 
-   int bx1;  // selection window
-   int by1;
-   int bx2;
-   int by2;
+   mwRect<int> selection_rect =  mwRect<int>::fromX1Y1WH(0,0,0,0);
+
 
    void initialize(int edit_level);
-   void set_windows(int mode);
+   void initialize_windows();
+
+   void set_level_editor_mode(int mode);
+
    int loop(int edit_level);
 
    void get_block_position_on_map();
    void process_scrolledge();
-   void show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-   void show_level_buffer_block_rect_text(int x1, int y1, int x2, int y2);
 
 
+   void show_level_buffer_block_rect(mwRect<int> rect, int color, const char * text);
+   void show_level_buffer_block_rect_text(mwRect<int> rect);
+   bool get_new_box(const char* text, bool preview = false);
 
-   void get_new_box();
-
-   bool get_new_box_with_preview();
 
    void process_mouse();
    void process_keypress();
 
    void redraw_level_editor_background(int mode);
    int redraw_level_editor_background();
+
 
    void set_focus(int n);
    int is_mouse_on_any_window();
@@ -76,6 +61,7 @@ class mwWindowManager
    void load_mW();
 
 };
+
 extern mwWindowManager mWM;
 #endif
 

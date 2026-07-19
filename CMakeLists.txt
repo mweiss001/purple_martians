@@ -144,11 +144,8 @@ add_executable(pm
         src/mwWidget.h
         src/mwWindow.cpp
         src/mwWindow.h
-        src/mwWindowEditorMain.cpp
-        src/mwWindowGroupEdit.cpp
         src/mwWindowManager.cpp
         src/mwWindowManager.h
-        src/mwWindowObjectViewer.cpp
 
         src/sqlite3.c
         src/sqlite3.h
@@ -168,6 +165,13 @@ add_executable(pm
         src/mwWidgetDropDown.cpp
         src/mwEditSelection.cpp
         src/mwEditSelection.h
+        src/mwRect.h
+        src/mwEditorMain.cpp
+        src/mwEditorMain.h
+        src/mwGroupEdit.cpp
+        src/mwGroupEdit.h
+        src/mwObjectViewer.cpp
+        src/mwObjectViewer.h
 )
 
 

@@ -81,8 +81,11 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    {
       if (header)     al_draw_text( mFont.pr8, mColor.pc[15], x, y+4, 0, "Level");
       else if (total) al_draw_text( mFont.pr8, mColor.pc[15], x, y,   0, "Totals");
-      else if (lev>0) al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%s", data[lev].level_name);
-      //else if (lev>0) al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%2d %s", lev, data[lev].level_name); // prepend level number
+      else if (lev>0)
+      {
+         if (level_stats_show_level_number) al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%2d %s", lev, data[lev].level_name); // prepend level number
+         else                               al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%s",          data[lev].level_name); // just level name
+      }
    }
    x += width + 8;
    vline[vli++] = x-4;

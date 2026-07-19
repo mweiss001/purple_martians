@@ -5,6 +5,7 @@
 #include "mwBitmapTools.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
 #include "mwFont.h"
 #include "mwEventQueue.h"
 #include "mwLevel.h"
@@ -35,11 +36,13 @@ void mwTileSets::init()
    tileSets.push_back(ts);
 
 
-   construct48( 192, 192, "Purple Bricks");
-   construct48( 256, 256, "Purple Pipes");
-   construct48( 320, 320, "Red Pipes");
-   construct48( 384, 384, "Green Pipes");
-   construct48( 448, 448, "Blue Pipes");
+   construct48( 1024, 256, "Purple Pipes");
+   construct48( 1072, 320, "Red Pipes");
+   construct48( 1120, 384, "Green Pipes");
+   construct48( 1168, 448, "Blue Pipes");
+   construct48( 1216, 192, "Purple Bricks");
+
+
 
    construct24( 672, 673, "Template");
    construct24( 704, 713, "Ice Machine");
@@ -554,12 +557,12 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
 
 void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview)
 {
-   int x1 = mWM.bx1;
-   int y1 = mWM.by1;
-   int x2 = mWM.bx2;
-   int y2 = mWM.by2;
-   int drawItem = mWM.mW[1].draw_item_num;
-   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int x1 = mWM.selection_rect.x1;
+   int y1 = mWM.selection_rect.y1;
+   int x2 = mWM.selection_rect.x2;
+   int y2 = mWM.selection_rect.y2;
+   int drawItem = mEditorMain.draw_item_num;
+   int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
    for (int x=x1; x<=x2; x++)
@@ -586,12 +589,12 @@ void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int t
 
 void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.bx1;
-   int y1 = mWM.by1;
-   int x2 = mWM.bx2;
-   int y2 = mWM.by2;
-   int drawItem = mWM.mW[1].draw_item_num;
-   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int x1 = mWM.selection_rect.x1;
+   int y1 = mWM.selection_rect.y1;
+   int x2 = mWM.selection_rect.x2;
+   int y2 = mWM.selection_rect.y2;
+   int drawItem = mEditorMain.draw_item_num;
+   int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
    for (int y=y1; y<=y2; y++)
@@ -607,12 +610,12 @@ void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.bx1;
-   int y1 = mWM.by1;
-   int x2 = mWM.bx2;
-   int y2 = mWM.by2;
-   int drawItem = mWM.mW[1].draw_item_num;
-   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int x1 = mWM.selection_rect.x1;
+   int y1 = mWM.selection_rect.y1;
+   int x2 = mWM.selection_rect.x2;
+   int y2 = mWM.selection_rect.y2;
+   int drawItem = mEditorMain.draw_item_num;
+   int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
    for (int x=x1; x<=x2; x++)
@@ -628,12 +631,12 @@ void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.bx1;
-   int y1 = mWM.by1;
-   int x2 = mWM.bx2;
-   int y2 = mWM.by2;
-   int drawItem = mWM.mW[1].draw_item_num;
-   int drawTileMode = mWM.mW[1].em_draw_tile_mode;
+   int x1 = mWM.selection_rect.x1;
+   int y1 = mWM.selection_rect.y1;
+   int x2 = mWM.selection_rect.x2;
+   int y2 = mWM.selection_rect.y2;
+   int drawItem = mEditorMain.draw_item_num;
+   int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 
 
@@ -715,16 +718,16 @@ void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 void mwTileSets::drawRect(bool preview)
 {
    // get local copies
-   int bx1 = mWM.bx1;
-   int by1 = mWM.by1;
-   int bx2 = mWM.bx2;
-   int by2 = mWM.by2;
+   int bx1 = mWM.selection_rect.x1;
+   int by1 = mWM.selection_rect.y1;
+   int bx2 = mWM.selection_rect.x2;
+   int by2 = mWM.selection_rect.y2;
    int bw = bx2 - bx1;
    int bh = by2 - by1;
 
 
-   int drawItem      = mWM.mW[1].draw_item_num;
-   int drawTileMode  = mWM.mW[1].em_draw_tile_mode;
+   int drawItem      = mEditorMain.draw_item_num;
+   int drawTileMode  = mEditorMain.draw_tile_mode;
    int drawItemNum   = drawItem & PM_BTILE_TILENUM_MASK;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
 

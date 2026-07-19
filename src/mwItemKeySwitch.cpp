@@ -208,7 +208,7 @@ void mwItem::proc_switch_block_range(int i, int action)
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {
-            int tn = mLevel.l[x][y]&1023;
+            int tn = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
             if ((item[i][10] & 0b0010) && (tn == 76)) mLevel.change_block(x, y,  72); // red    solid to empty
             if ((item[i][10] & 0b0001) && (tn == 77)) mLevel.change_block(x, y,  73); // green  solid to empty
             if ((item[i][10] & 0b0100) && (tn == 78)) mLevel.change_block(x, y,  74); // blue   solid to empty
@@ -225,7 +225,7 @@ void mwItem::proc_switch_block_range(int i, int action)
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {
-            int tn = mLevel.l[x][y]&1023;
+            int tn = mLevel.l[x][y] & PM_BTILE_TILENUM_MASK;
             if ((item[i][10] & 0b0010) && ( (tn == 72) || (tn == 76)) ) bomb_block_crosshairs(x, y);
             if ((item[i][10] & 0b0001) && ( (tn == 73) || (tn == 77)) ) bomb_block_crosshairs(x, y);
             if ((item[i][10] & 0b0100) && ( (tn == 74) || (tn == 78)) ) bomb_block_crosshairs(x, y);

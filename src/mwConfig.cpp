@@ -2,6 +2,8 @@
 
 #include "pm.h"
 #include "mwConfig.h"
+
+#include "mwBitmapTools.h"
 #include "mwLog.h"
 #include "mwSound.h"
 #include "mwSettings.h"
@@ -11,6 +13,7 @@
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwShot.h"
@@ -19,6 +22,7 @@
 #include "mwMain.h"
 #include "mwScreen.h"
 #include "mwGameMoves.h"
+#include "mwWindowManager.h"
 
 
 mwConfig mConfig;
@@ -173,6 +177,19 @@ void mwConfig::save_config(int type)
       asci(DEMO, mScreen.demo_controls_overlay_x)
       asci(DEMO, mScreen.demo_controls_overlay_y)
 
+
+
+      asci(LEVEL_STATS, mLevel.level_stats_show_level_number)
+      asci(LEVEL_EDITOR, mLevel.make_backup_on_save_level);
+      asci(LEVEL_EDITOR, mBitmapTools.make_backup_on_save_bitmap);
+      asci(LEVEL_EDITOR, mEditorMain.level_editor_quit_confirmation_dialog);
+
+
+
+
+
+
+
       asci(BMSG, mBottomMessage.bottom_msg_on)
       asci(BMSG, mBottomMessage.num_lines)
       ascf(BMSG, mBottomMessage.io)
@@ -194,10 +211,14 @@ void mwConfig::save_config(int type)
       asci(SETTINGS, mSettings.log_group)
 
 
-
       asci(OVERLAY, mSettings.number_of_debug_overlay_modes);
 
       asci(LEVEL_EDITOR, mLoop.autosave_level_editor_state);
+
+
+
+
+
 
       al_save_config_file("pm.cfg", cfg);
       al_destroy_config(cfg);
@@ -264,7 +285,6 @@ void mwConfig::load_config(int type)
    if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
 
    agci(GAME, mPlayer.loc[0].name_display, 1)
-
 
 
    agci(GAME, mLevel.start_level, 1)
@@ -352,6 +372,9 @@ void mwConfig::load_config(int type)
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)
 
+   agci(LEVEL_STATS, mLevel.level_stats_show_level_number, 0)
+
+
 
 
 
@@ -385,6 +408,11 @@ void mwConfig::load_config(int type)
    agci(OVERLAY, mSettings.number_of_debug_overlay_modes, 2);
 
    agci(LEVEL_EDITOR, mLoop.autosave_level_editor_state, 0);
+   agci(LEVEL_EDITOR, mLevel.make_backup_on_save_level, 0);
+   agci(LEVEL_EDITOR, mBitmapTools.make_backup_on_save_bitmap, 0);
+
+   agci(LEVEL_EDITOR, mEditorMain.level_editor_quit_confirmation_dialog, 1);
+
 
 
    al_destroy_config(cfg);

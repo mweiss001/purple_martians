@@ -772,7 +772,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
 //   mRect<float> f(item[i][6], item[i][7], item[i][8], item[i][9]);
 
 
-   mRect<float> f = mRect<float>::fromX1Y1WH(item[i][6], item[i][7], item[i][8], item[i][9]);
+   mwRect<float> f = mwRect<float>::fromX1Y1WH(item[i][6], item[i][7], item[i][8], item[i][9]);
 
 
 
@@ -921,8 +921,8 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
 
          if ((rb == 0) || (rb == 2)) // vertical
          {
-            mRect<float> uh = mRect<float>::fromX1Y1WH(f.x1, f.y1,       f.w, f.h/2); // upper half
-            mRect<float> lh = mRect<float>::fromX1Y1WH(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
+            mwRect<float> uh = mwRect<float>::fromX1Y1WH(f.x1, f.y1,       f.w, f.h/2); // upper half
+            mwRect<float> lh = mwRect<float>::fromX1Y1WH(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
 
 
 
@@ -948,8 +948,8 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
 
          if ((rb == 1) || (rb == 3)) // horizontal
          {
-            mRect<float> lh = mRect<float>::fromX1Y1WH(f.x1,         f.y1, f.w/2, f.h); // left half
-            mRect<float> rh = mRect<float>::fromX1Y1WH(f.x1 + f.w/2, f.y1, f.w/2, f.h); // right half
+            mwRect<float> lh = mwRect<float>::fromX1Y1WH(f.x1,         f.y1, f.w/2, f.h); // left half
+            mwRect<float> rh = mwRect<float>::fromX1Y1WH(f.x1 + f.w/2, f.y1, f.w/2, f.h); // right half
 
             for (int hy=f.y1; hy<f.y2; hy+=20)
                for (int hx=lh.x1; hx<lh.x2; hx+=20)

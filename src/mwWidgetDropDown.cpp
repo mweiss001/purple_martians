@@ -49,7 +49,7 @@ void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, 
 // draws the main control
 // if crop = 1, then text will be chopped, rect width will be exact
 // if crop = 0, rect width will be adjusted to fit entire text
-void mwWidget::mDropDownDrawMain(mRect<int> f, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
+void mwWidget::mDropDownDrawMain(mwRect<int> f, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
 {
    // triangle width, height
    float tr_w = 6;
@@ -173,7 +173,7 @@ tjust = 1 - text center
 bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d)
 {
    // get mRect from parameters
-   mRect<int> f = xyHelper(xType, xa, xb, yType, ya, yb, "");
+   mwRect<int> f = xyHelper(xType, xa, xb, yType, ya, yb, "");
 
    // find the listItem that matches var
    std::string text = "invalid";
@@ -241,7 +241,7 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
          // make a mRect for list area
 //         mRect<int> listRect(lx1, ly1, lx2, ly2, -999);
 
-         mRect<int> listRect = mRect<int>::fromX1Y1X2Y2(lx1, ly1, lx2, ly2);
+         mwRect<int> listRect = mwRect<int>::fromX1Y1X2Y2(lx1, ly1, lx2, ly2);
 
 
          // text y position
@@ -275,7 +275,7 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
                // make a mRect for line area
 //               mRect<int> lineRect(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih, -999);
 
-               mRect<int> lineRect = mRect<int>::fromX1Y1X2Y2(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih);
+               mwRect<int> lineRect = mwRect<int>::fromX1Y1X2Y2(lx1, ly1 + (i*lih), lx2, ly1 + (i*lih) + lih);
 
 
 
