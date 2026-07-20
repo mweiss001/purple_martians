@@ -7,8 +7,23 @@ class mwMiscFnx
    public:
 
 
+
+
+
+
    // use this so I do not have to send a char when I want to return one
    char tmp_return_40[40];
+
+
+   template <typename T> T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh)
+   {
+      return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+   }
+
+
+
+
+
 
 
    int exit_level_editor_dialog();

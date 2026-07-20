@@ -9,6 +9,7 @@
 #include "mwFont.h"
 #include "mwEventQueue.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
 #include "mwWidget.h"
 #include "mwWindowManager.h"
@@ -539,14 +540,14 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
       // change only tile portion (lower 10 bits)
       if (drawTileMode == 2)
       {
-         mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
+         mLevel.l[x][y] &= ~PM_BTILE_TILENUM_MASK; // clear lower bits
          mLevel.l[x][y] |= tileNum; // merge tileNum
       }
 
       // change only flags portion (upper 22 bits)
       if (drawTileMode == 3)
       {
-         mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
+         mLevel.l[x][y] &= PM_BTILE_TILENUM_MASK; // clear upper bits
          mLevel.l[x][y] |= drawItemFlags; // merge drawItemFlags
       }
    }
@@ -555,12 +556,13 @@ void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int draw
 
 
 
+
 void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview)
 {
-   int x1 = mWM.selection_rect.x1;
-   int y1 = mWM.selection_rect.y1;
-   int x2 = mWM.selection_rect.x2;
-   int y2 = mWM.selection_rect.y2;
+   int x1 = mLevelEditor.selection.x1;
+   int y1 = mLevelEditor.selection.y1;
+   int x2 = mLevelEditor.selection.x2;
+   int y2 = mLevelEditor.selection.y2;
    int drawItem = mEditorMain.draw_item_num;
    int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
@@ -589,10 +591,10 @@ void mwTileSets::drawRectHelper(int s, int t, int b, int l, int r, int tl, int t
 
 void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.selection_rect.x1;
-   int y1 = mWM.selection_rect.y1;
-   int x2 = mWM.selection_rect.x2;
-   int y2 = mWM.selection_rect.y2;
+   int x1 = mLevelEditor.selection.x1;
+   int y1 = mLevelEditor.selection.y1;
+   int x2 = mLevelEditor.selection.x2;
+   int y2 = mLevelEditor.selection.y2;
    int drawItem = mEditorMain.draw_item_num;
    int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
@@ -610,10 +612,10 @@ void mwTileSets::drawRectHelperHline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.selection_rect.x1;
-   int y1 = mWM.selection_rect.y1;
-   int x2 = mWM.selection_rect.x2;
-   int y2 = mWM.selection_rect.y2;
+   int x1 = mLevelEditor.selection.x1;
+   int y1 = mLevelEditor.selection.y1;
+   int x2 = mLevelEditor.selection.x2;
+   int y2 = mLevelEditor.selection.y2;
    int drawItem = mEditorMain.draw_item_num;
    int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
@@ -631,10 +633,10 @@ void mwTileSets::drawRectHelperVline(struct tileSet ts, bool preview)
 
 void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 {
-   int x1 = mWM.selection_rect.x1;
-   int y1 = mWM.selection_rect.y1;
-   int x2 = mWM.selection_rect.x2;
-   int y2 = mWM.selection_rect.y2;
+   int x1 = mLevelEditor.selection.x1;
+   int y1 = mLevelEditor.selection.y1;
+   int x2 = mLevelEditor.selection.x2;
+   int y2 = mLevelEditor.selection.y2;
    int drawItem = mEditorMain.draw_item_num;
    int drawTileMode = mEditorMain.draw_tile_mode;
    int drawItemFlags = drawItem & PM_BTILE_ALL_FLAGS;
@@ -718,10 +720,10 @@ void mwTileSets::drawRectHelperPattern(struct tileSet ts, bool preview)
 void mwTileSets::drawRect(bool preview)
 {
    // get local copies
-   int bx1 = mWM.selection_rect.x1;
-   int by1 = mWM.selection_rect.y1;
-   int bx2 = mWM.selection_rect.x2;
-   int by2 = mWM.selection_rect.y2;
+   int bx1 = mLevelEditor.selection.x1;
+   int by1 = mLevelEditor.selection.y1;
+   int bx2 = mLevelEditor.selection.x2;
+   int by2 = mLevelEditor.selection.y2;
    int bw = bx2 - bx1;
    int bh = by2 - by1;
 

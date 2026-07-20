@@ -31569,6 +31569,359 @@ the only other thing might be custom overlays on the level editor background
 
 there seem to be quite a few of them in redraw level editor background
 
+done...now window classes are so much cleaner
+
+2026-07-19 02:56:56
+
+made a breaking change to player move and I have 39 demo levels to fix...
+
+
+
+level 2 - switch nest
+normal demo 1:35 1 enemy archwagon left
+good till around 1:00, try punching in and completing from there
+2026-07-19 03:15:38 done 1:31 no enemy
+
+level 3 - blue key fall 27.9s no enemy now 26.3
+2026-07-19 03:40:06
+
+
+level 4 - switch puzzle
+normal 2:20
+TAS 55.7
+
+normal good till about 1:00...done 2:10
+
+should I leave TAS to the end?? no
+
+will I end up improving my TAS tools? maybe, maybe only if they really annoy me
+
+I could go full crazy and make a bunch of floating windows, like level editor
+
+one thing I would like is timeline and controls more integrated
+
+anyway TAS 
+p0 up to 38s good, jumps on blue switch
+
+
+compile and old version and have it side by side new one...
+
+changed to this and now have a slightly different list fo demos to fix.
+while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y+=0.1;
+
+1641 p0 jump off
+2044 p0 gets key
+add new menu option
+add fire next available position..done..nice!!!
+
+level 4 - switch puzzle TAS 55.7 ..done!!!!
+
+2026-07-19 08:15:54
+
+level 6 - breakable 2:58 1 enemy(Cloner)
+its the TAS that is broken 37.2s
+done
+
+
+level 10 - the dead zone both fail
+normal 3:15--- new normal 3:07
+2026-07-19 10:18:50
+
+TAS 1:05
+
+file and path selected:C:\pm\savegame\demo\TAS\lev010-8P-105.gm
+821 0 player moving up and collision
+821 1 player moving up and collision
+821 2 player moving up and collision
+821 3 player moving up and collision
+821 4 player moving up and collision
+1369 3 player moving up and collision
+1380 1 player moving up and collision
+1462 3 player moving up and collision
+1464 1 player moving up and collision
+1554 2 player moving up and collision
+1702 6 player moving up and collision
+1710 7 player moving up and collision
+
+
+p0 good for most of level
+p4 takes secret path all good
+
+done at 1:06
+2026-07-19 12:00:28
+
+
+holy shit this is takeing a long time...
+
+do some easy ones, like in the demo levels
+
+87 block manip 28.4s now 27.5
+2026-07-19 12:04:27
+
+89 orbs 51.8s now 48.2
+2026-07-19 12:11:46
+
+demo section and training section are done
+just the main and extra
+32 left to go....
+
+39 bomb run 55.7s now 54.2
+2026-07-19 12:22:09
+
+21 long one 1:21 7 enemies left now 1:25 7 left
+2026-07-19 12:34:01
+
+46 bucket list 38.8s now 32.8
+2026-07-19 12:49:03
+
+28 nowhere to stand 49.2 1 now 46.2
+this is the one that it was very noticeable that the player's head hit the ceiling when trying to trigger lift
+just redo it...
+2026-07-19 13:10:01
+
+20 - strange things 2:22 15 now 2:19 15
+2026-07-19 13:22:39
+
+30 - coral cave
+n 2:30 8 2:29 9
+2026-07-19 13:56:11
+t 50.7 0..was already good!!!!
+
+13 - falling arrows  
+n 4:41 3:59!!!!
+2026-07-19 14:35:30
+t 1:13 // tas still works on new but has purple coins lefts
+
+
+24 - wendy 2:21 0 noew 2:24 1
+2026-07-19 15:02:40
+
+51 - cannon bees 2:20 now 2:23
+2026-07-19 15:13:58
+
+18 - incinerator 
+n 4:04 1 new 4:06 1
+2026-07-19 16:04:05
+
+t 1:15 1 (bad 1:13 6)
+2026-07-19 17:15:40
+
+
+
+
+
+the ones that are left are big ones....
+
+and extra ones
+
+56 - Zaiden 2:44 now 2:32
+2026-07-19 18:49:44
+
+49 - rocket square 2:37 new 2:02
+2026-07-20 04:08:07
+
+
+42 - cloner chain
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

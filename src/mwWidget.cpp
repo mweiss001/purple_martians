@@ -20,6 +20,7 @@
 #include "mwBottomMessage.h"
 #include "mwConfig.h"
 #include "mwDemoMode.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwObjectViewer.h"
 #include "mwScreen.h"
@@ -163,8 +164,8 @@ float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,i
 {
    if (q4)
    {
-      mWM.redraw_level_editor_background();
-      mWM.cycle_windows(1);
+      mLevelEditor.redraw_background();
+      mLevelEditor.mWM.cycle_windows(1);
    }
    else
    {
@@ -197,8 +198,8 @@ float mwWidget::get_slider_position3(float f, float sul, float sll, float sinc, 
 {
    if (q4)
    {
-      mWM.redraw_level_editor_background();
-      mWM.cycle_windows(1);
+      mLevelEditor.redraw_background();
+      mLevelEditor.mWM.cycle_windows(1);
    }
    else
    {
@@ -3269,7 +3270,7 @@ bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float b
       {
          hover = true;
          // get hover value from mouse position
-         hover_val = map_range((float)mInput.mouse_x, sx1, sx2, min, max);
+         hover_val = mMiscFnx.map_range<float>((float)mInput.mouse_x, sx1, sx2, min, max);
          if (mInput.mouse_b[1][0])
          {
             changed = changed_flag = true;
@@ -3290,7 +3291,7 @@ bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float b
    if (hover) display_val = hover_val;
 
    // get x position from display val and draw line
-   float vx = map_range(display_val, min, max,  sx1, sx2);
+   float vx = mMiscFnx.map_range<float>(display_val, min, max,  sx1, sx2);
    al_draw_line(vx, y1, vx, y2, mColor.White, 2);
 
    if (type == 1) al_draw_textf(mFont.pr8, mColor.White, sxc, tyc, df, "red:%d",       (int) (display_val * 255));

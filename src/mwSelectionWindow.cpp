@@ -9,6 +9,7 @@
 #include "mwHelp.h"
 #include "mwInput.h"
 #include "mwItem.h"
+#include "mwLevelEditor.h"
 #include "mwLift.h"
 #include "mwLoop.h"
 #include "mwObjectViewer.h"
@@ -1005,7 +1006,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
    // title bar controls
    int by1 = title_bar_rect.y1+2;
-   if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mWM.mW[2].active = 0;
+   if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mLevelEditor.mWM.mW[2].active = 0;
    if (mWidget.buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
    if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Tiles"))   mSelectionWindow.block_on = !mSelectionWindow.block_on;
    if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mSelectionWindow.special_on = !mSelectionWindow.special_on;

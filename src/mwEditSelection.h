@@ -14,9 +14,6 @@ class mwEditSelection
    mwEditSelection();
 
 
-
-
-
    void init();
    int ft_level_header[20];
    mwLevel ftLevel;
@@ -36,7 +33,6 @@ class mwEditSelection
    void fill_ft_variables_from_selection(int save_to_disk);
    void sel_to_ft(char * b);
    void ft_to_sel(char * b);
-
 
    void do_floodfill(int x, int y, int flood_block);
    void do_copy(int qx1, int qy1);

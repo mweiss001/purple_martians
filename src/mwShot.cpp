@@ -112,7 +112,7 @@ void mwShot::proc_player_shoot(int p)
 
             mGameEvent.add(1, x, y, p, b, 0, 0);
          }
-         //else printf("player shot array full!\n");
+         else printf("player shot array full!\n");
       }
    }
    if (mPlayer.syn[p].shot_wait_counter > 0) mPlayer.syn[p].shot_wait_counter--;

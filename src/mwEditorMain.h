@@ -28,21 +28,21 @@ public:
    int status_window_has_mouse;
    int level_editor_quit_confirmation_dialog = 1;
 
+   bool status_window_mouse_detect(mwRect<int> rect);
 
-   void draw_status_window(mwRect<int> rect, int draw_only, int have_focus);
 
-   void cm_process_menu_bar(int d);
+   void draw_status_window(mwRect<int> &rect, int draw_only, int have_focus);
+
+   void process_menu_bar(mwRect<int> &rect, int d, int have_focus);
 
 
    int collapsed;
    int filter_mode;
    int obj_filter[5][20];
-   void draw_filter_window(mwRect<int> &rect, int d);
+   void draw_filter_window(mwRect<int> &rect, int d, int have_focus);
 
 
    void draw_level_editor_background_overlays(int mouse_on_window);
-
-
 
 
 

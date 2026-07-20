@@ -706,7 +706,7 @@ void mwLevel::clear_data(void)
 
    i = 27;
    strcpy(data[i].level_name, "Gauntlet");
-   data[i].time_par = 3600; // 1:30 demo 1:23
+   data[i].time_par = 4000; // 1:40 demo 1:38
 
    i = 28;
    strcpy(data[i].level_name, "Nowhere to Stand");

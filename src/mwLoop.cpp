@@ -42,6 +42,7 @@
 
 #include "mwMain.h"
 #include "mwConfig.h"
+#include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
 
@@ -218,7 +219,7 @@ void mwLoop::game_menu(void)
          }
          if (top_menu_sel == 6)  // level editor
          {
-            mLevel.set_start_level(mWM.loop(mLevel.start_level));
+            mLevel.set_start_level(mLevelEditor.loop(mLevel.start_level));
             quit_action = 1; // menu
             state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
             return;

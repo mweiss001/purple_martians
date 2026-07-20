@@ -123,11 +123,15 @@ void mwGlobalLevelTool::changeBlockNumber(int oldNum, int newNum)
          replaceTileIfMatch(mItem.item[y][11], oldNum, newNum);
       }
 
+   // block walker changer
+   for (int y=0; y<100; y++)
+      if (mEnemy.Ei[y][0] == 4)
+         replaceTileIfMatch(mEnemy.Ei[y][13], oldNum, newNum);
 
-// need to add block damage and lifts, which now reference tiles
-
-
-
+   // lift changer
+   for (int l=0; l<NUM_LIFTS; l++)
+      if (mLift.cur[l].active)
+         replaceTileIfMatch(mLift.cur[l].draw_mode_val1, oldNum, newNum);
 
 
 

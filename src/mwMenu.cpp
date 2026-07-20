@@ -16,6 +16,7 @@
 #include "mwMain.h"
 
 #include "mwGameMoves.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 
 
@@ -300,8 +301,8 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
    while (selection == 999)
    {
-      mWM.redraw_level_editor_background();
-      mWM.cycle_windows(1);
+      mLevelEditor.redraw_background();
+      mLevelEditor.mWM.cycle_windows(1);
 
       // draw menu title
       int mt = strlen(menu_string[0])*8;

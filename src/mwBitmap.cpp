@@ -36,7 +36,7 @@ void mwBitmap::create_bitmaps()
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
    M_stilemap = create_and_clear_bitmap(704, 704);
-   M_btilemap = create_and_clear_bitmap(1408, 704);
+   M_btilemap = create_and_clear_bitmap(704, 1408);
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
 
@@ -45,7 +45,7 @@ void mwBitmap::create_bitmaps()
 
    // create tilemap bitmaps
    stilemap = create_and_clear_bitmap(704, 704);
-   btilemap = create_and_clear_bitmap(1408, 704);
+   btilemap = create_and_clear_bitmap(704, 1408);
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
 

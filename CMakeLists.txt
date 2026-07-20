@@ -172,6 +172,8 @@ add_executable(pm
         src/mwGroupEdit.h
         src/mwObjectViewer.cpp
         src/mwObjectViewer.h
+        src/mwLevelEditor.cpp
+        src/mwLevelEditor.h
 )
 
 

@@ -150,7 +150,7 @@ void mwDisplay::set_display_transform_and_adjust_window_positions(float old_disp
    scale_factor_current = scale_factor;
 
    // adjust window positions
-   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].rect.x1/sfa, mWM.mW[a].rect.y1/sfa);
+//   for (int a=0; a<(int)mWM.mW.size(); a++) mWM.mW[a].set_pos(mWM.mW[a].rect.x1/sfa, mWM.mW[a].rect.y1/sfa);
 
 
    mScreen.demo_controls_overlay_x = mScreen.demo_controls_overlay_x/sfa;

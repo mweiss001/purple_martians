@@ -11,6 +11,7 @@
 #include "mwHelp.h"
 #include "mwInput.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
@@ -944,8 +945,8 @@ void mwTileHelper::draw_replace(bool preview)
 int mwTileHelper::replace_helper_pattern(int x, int y)
 {
    // pattern sizes
-   int xs = (mWM.selection_rect.x2 - mWM.selection_rect.x1) + 1;
-   int ys = (mWM.selection_rect.y2 - mWM.selection_rect.y1) + 1;
+   int xs = (mLevelEditor.selection.x2 - mLevelEditor.selection.x1) + 1;
+   int ys = (mLevelEditor.selection.y2 - mLevelEditor.selection.y1) + 1;
 
    // pattern offsets
    int xo = pattern_offset_x;
@@ -955,7 +956,7 @@ int mwTileHelper::replace_helper_pattern(int x, int y)
    int xi = (x+xo) % xs;
    int yi = (y+yo) % ys;
 
-   return mLevel.l[mWM.selection_rect.x1+xi][mWM.selection_rect.y1+yi];
+   return mLevel.l[mLevelEditor.selection.x1+xi][mLevelEditor.selection.y1+yi];
 }
 
 
@@ -1405,10 +1406,10 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    int bsp = 3; // button spacing
 
    // pattern vars
-   int bx1 = mWM.selection_rect.x1;
-   int by1 = mWM.selection_rect.y1;
-   int bx2 = mWM.selection_rect.x2;
-   int by2 = mWM.selection_rect.y2;
+   int bx1 = mLevelEditor.selection.x1;
+   int by1 = mLevelEditor.selection.y1;
+   int bx2 = mLevelEditor.selection.x2;
+   int by2 = mLevelEditor.selection.y2;
    int bw = bx2 - bx1;
    int bh = by2 - by1;
 
@@ -1909,24 +1910,24 @@ void mwTileHelper::process_mouse(void)
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
       // add or del single tile at the specific location
-      if (match == 0) thl[mWM.gx][mWM.gy] = add_del;
+      if (match == 0) thl[mLevelEditor.gx][mLevelEditor.gy] = add_del;
 
       // add or del only connected tiles that match
-      if (match == 2) find_connected(mWM.gx, mWM.gy, group);
+      if (match == 2) find_connected(mLevelEditor.gx, mLevelEditor.gy, group);
 
       // add or del all tiles that match
       if (match == 1)
       {
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
-               if (mTileSets.compareTile(mLevel.l[mWM.gx][mWM.gy], mLevel.l[x][y], group)) thl[x][y] = add_del;
+               if (mTileSets.compareTile(mLevel.l[mLevelEditor.gx][mLevelEditor.gy], mLevel.l[x][y], group)) thl[x][y] = add_del;
       }
    }
 
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_level_editor_mode(1);
+      mLevelEditor.set_mode(1);
    }
 }
 

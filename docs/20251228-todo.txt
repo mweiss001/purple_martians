@@ -51,6 +51,29 @@ I already have almost exactly that with states, do I not ??
 
 
 
+I realy want to do this, but will break many demos...
+
+
+      if (syn[p].yinc < 0) // if moving upwards
+      {
+         if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
+         {
+            if (debug_print) printf("player moving up and collision\n");
+            //syn[p].y -= syn[p].yinc;        // take back move
+            while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y++; // I want to try instead of take back entire move, clamp to highest possible position
+            syn[p].yinc = 0;                // kill upwards motion
+         }
+      }
+
+it broke 40 demos
+
+I am so unhappy with the way that its it, I think I will just suck it up and fix all the demos
+
+fixed a bug in player move where moving up and hitting obstacle took back entire move
+now just takes back up until no collision is detected
+this broke 39 demo levels which will now need to be fixed
+It had to be done, gameplay was affected, it was frustrated to not be able to get close to block above when jumping
+
 
 
 
@@ -89,19 +112,11 @@ all I really need to do is get the latest version on pmh...i think...
 do something about drag move windows, when the mouse escapes...force capture
 
 
-
 when copying selection with block damage that follows lift, link translation does not set bd link to lift
 
 
 
 
-glt copy tiles needs to be extended to also copy refs in lifts
-
-
-
-
-
-I want to remove player damage from getting squished by lifts
 
 
 ------------------------------------------------------------------------------
@@ -411,6 +426,16 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+2026-07-19 02:36:31 - removed player damage from getting squished by lifts
+
+2026-07-19 02:30:03 - glt copy tiles extended to also copy refs in lifts and blokwalker
+
+
+
+
 
 - copy to new tileset of the same type, exact translation, no figuring out what tile to use, assume it was already manually done...
 new mode in replace 'Change only

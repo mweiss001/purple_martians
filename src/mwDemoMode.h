@@ -25,6 +25,8 @@ class mwDemoMode
    static void seek_to_frame(int frame, int draw);
 
 
+
+
    ALLEGRO_FS_ENTRY *demo_FS_filenames[100]{};
    int num_demo_filenames{};
    int demo_played[100]{};

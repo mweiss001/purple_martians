@@ -11,6 +11,7 @@
 #include "mwHelp.h"
 #include "mwInput.h"
 #include "mwItem.h"
+#include "mwLevelEditor.h"
 #include "mwLift.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -122,7 +123,7 @@ void mwObjectViewer::ov_get_size()
 
 //   mWM.mW[7].set_size(w, mWM.mW[7].rect.h);
 
-   mWM.mW[7].rect.setWidth(w);
+   mLevelEditor.mWM.mW[7].rect.setWidth(w);
 
 
 
@@ -552,8 +553,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int yld = ycs + mLift.draw_current_step_buttons(xa, xb, ycs, lift, step, d);
 
 
-      mWM.mW[7].rect.h = yld - mWM.mW[7].rect.y1-1; // global variable for height of ovw when variable due to lift
-      mWM.mW[7].set_size(mWM.mW[7].rect.w, mWM.mW[7].rect.h);
+      mLevelEditor.mWM.mW[7].rect.h = yld - mLevelEditor.mWM.mW[7].rect.y1-1; // global variable for height of ovw when variable due to lift
+      mLevelEditor.mWM.mW[7].set_size(mLevelEditor.mWM.mW[7].rect.w, mLevelEditor.mWM.mW[7].rect.h);
 
       yld += bts;
 
@@ -1238,8 +1239,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    if (obt != 4)
    {
       int llo = (3 - num_legend_lines)*8; // legend line offset
-      mWM.mW[7].rect.h = ya-y1+32-llo;
-      mWM.mW[7].set_size(mWM.mW[7].rect.w, mWM.mW[7].rect.h);
+      mLevelEditor.mWM.mW[7].rect.h = ya-y1+32-llo;
+      mLevelEditor.mWM.mW[7].set_size(mLevelEditor.mWM.mW[7].rect.w, mLevelEditor.mWM.mW[7].rect.h);
    }
 }
 
@@ -1508,7 +1509,7 @@ void mwObjectViewer::ov_process_mouse(void)
          int type = mEnemy.Ei[e][0];
 
          // check to see if we can set this object to be the current object
-         if ((mWM.hx>ex+msn) && (mWM.hx<ex+msp) && (mWM.hy>ey+msn) && (mWM.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[3][type]))
+         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[3][type]))
          {
             // set this enemy to current object
             obt = 3;
@@ -1518,7 +1519,7 @@ void mwObjectViewer::ov_process_mouse(void)
          }
 
          // if this object is already current object
-         if ((mWM.hx>ex+msn) && (mWM.hx<ex+msp) && (mWM.hy>ey+msn) && (mWM.hy<ey+msp) && (obt == 3) && (num == e))
+         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (obt == 3) && (num == e))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1534,8 +1535,8 @@ void mwObjectViewer::ov_process_mouse(void)
       {
          float x0 = mEnemy.Ef[e][0]+10;                       // center of enemy
          float y0 = mEnemy.Ef[e][1]+10;
-         float fx = mWM.hx;                                   // hi-res mouse pos
-         float fy = mWM.hy;
+         float fx = mLevelEditor.hx;                                   // hi-res mouse pos
+         float fy = mLevelEditor.hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
          float bdr = mEnemy.Ei[e][17];                        // prox radius
          float dif = dst-bdr;                                 // difference
@@ -1553,12 +1554,12 @@ void mwObjectViewer::ov_process_mouse(void)
          int y1 = mEnemy.Ei[e][12];
          int x2 = mEnemy.Ei[e][11]+mEnemy.Ei[e][13]+20;
          int y2 = mEnemy.Ei[e][12]+mEnemy.Ei[e][14]+20;
-         if ((mWM.hx>x1-mst) && (mWM.hx<x1+mst) && (mWM.hy>y1-mst) && (mWM.hy<y1+mst)) // upper left corner (move)
+         if ((mLevelEditor.hx>x1-mst) && (mLevelEditor.hx<x1+mst) && (mLevelEditor.hy>y1-mst) && (mLevelEditor.hy<y1+mst)) // upper left corner (move)
          {
             mouse_on_tb_ul = 1;
             mouse_move = 1;
          }
-         if ((mWM.hx>x2-mst) && (mWM.hx<x2+mst) && (mWM.hy>y2-mst) && (mWM.hy<y2+mst)) // lower right corner (resize)
+         if ((mLevelEditor.hx>x2-mst) && (mLevelEditor.hx<x2+mst) && (mLevelEditor.hy>y2-mst) && (mLevelEditor.hy<y2+mst)) // lower right corner (resize)
          {
             mouse_on_tb_lr = 1;
             mouse_adj = 1;
@@ -1567,7 +1568,7 @@ void mwObjectViewer::ov_process_mouse(void)
          // vinepod extended position
          int px = mEnemy.Ei[e][9];
          int py = mEnemy.Ei[e][10];
-         if ((mWM.hx>px+msn) && (mWM.hx<px+msp) && (mWM.hy>py+msn) && (mWM.hy<py+msp))
+         if ((mLevelEditor.hx>px+msn) && (mLevelEditor.hx<px+msp) && (mLevelEditor.hy>py+msn) && (mLevelEditor.hy<py+msp))
          {
             mouse_move = 1;
             mouse_on_vpodx = 1;
@@ -1578,7 +1579,7 @@ void mwObjectViewer::ov_process_mouse(void)
             // vinepod control point 1
             px = mEnemy.Ei[e][5];
             py = mEnemy.Ei[e][6];
-            if ((mWM.hx>px+msn) && (mWM.hx<px+msp) && (mWM.hy>py+msn) && (mWM.hy<py+msp))
+            if ((mLevelEditor.hx>px+msn) && (mLevelEditor.hx<px+msp) && (mLevelEditor.hy>py+msn) && (mLevelEditor.hy<py+msp))
             {
                mouse_move = 1;
                mouse_on_vpod1 = 1;
@@ -1587,7 +1588,7 @@ void mwObjectViewer::ov_process_mouse(void)
             // vinepod control point 2
             px = mEnemy.Ei[e][7];
             py = mEnemy.Ei[e][8];
-            if ((mWM.hx>px+msn) && (mWM.hx<px+msp) && (mWM.hy>py+msn) && (mWM.hy<py+msp))
+            if ((mLevelEditor.hx>px+msn) && (mLevelEditor.hx<px+msp) && (mLevelEditor.hy>py+msn) && (mLevelEditor.hy<py+msp))
             {
                mouse_move = 1;
                mouse_on_vpod2 = 1;
@@ -1605,17 +1606,17 @@ void mwObjectViewer::ov_process_mouse(void)
          int y1 = mEnemy.Ei[e][16];
          int x2 = x1 + w - 1;
          int y2 = y1 + h - 1;
-         if ((mWM.hx>x1-mst) && (mWM.hx<x1+mst) && (mWM.hy>y1-mst) && (mWM.hy<y1+mst)) // source upper left corner (move)
+         if ((mLevelEditor.hx>x1-mst) && (mLevelEditor.hx<x1+mst) && (mLevelEditor.hy>y1-mst) && (mLevelEditor.hy<y1+mst)) // source upper left corner (move)
          {
             mouse_on_csb_ul = 1;
             mouse_move = 1;
          }
-         if ((mWM.hx>x2-mst) && (mWM.hx<x2+mst) && (mWM.hy>y2-mst) && (mWM.hy<y2+mst)) // source lower right corner (re-size)
+         if ((mLevelEditor.hx>x2-mst) && (mLevelEditor.hx<x2+mst) && (mLevelEditor.hy>y2-mst) && (mLevelEditor.hy<y2+mst)) // source lower right corner (re-size)
          {
             mouse_on_csb_lr = 1;
             mouse_adj = 1;
          }
-         if ((mWM.hx>x3-mst) && (mWM.hx<x3+mst) && (mWM.hy>y3-mst) && (mWM.hy<y3+mst)) // destination upper left corner (move)
+         if ((mLevelEditor.hx>x3-mst) && (mLevelEditor.hx<x3+mst) && (mLevelEditor.hy>y3-mst) && (mLevelEditor.hy<y3+mst)) // destination upper left corner (move)
          {
             mouse_on_cdb_ul = 1;
             mouse_move = 1;
@@ -1633,7 +1634,7 @@ void mwObjectViewer::ov_process_mouse(void)
          int iy = mItem.item[b][5];
          int type = mItem.item[b][0];
          // check to see if we can set this object to be the current object
-         if ((mWM.hx>ix+msn) && (mWM.hx<ix+msp) && (mWM.hy>iy+msn) && (mWM.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[2][type]))
+         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[2][type]))
          {
             // set this item to current object
             obt = 2;
@@ -1642,7 +1643,7 @@ void mwObjectViewer::ov_process_mouse(void)
             mouse_on_obj = 1;
          }
          // if this object is already current object
-         if ((mWM.hx>ix+msn) && (mWM.hx<ix+msp) && (mWM.hy>iy+msn) && (mWM.hy<iy+msp) && (obt == 2) && (num == b))
+         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (obt == 2) && (num == b))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1658,8 +1659,8 @@ void mwObjectViewer::ov_process_mouse(void)
       {
          float x0 = (float) mItem.item[num][4]+10; // get center of item location
          float y0 = (float) mItem.item[num][5]+10;
-         float fx = (float) mWM.hx;
-         float fy = (float) mWM.hy;
+         float fx = (float) mLevelEditor.hx;
+         float fy = (float) mLevelEditor.hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
          float bdr = (float) mItem.item[num][7]; // bomb damage radius
          float dif = dst-bdr; // difference
@@ -1674,7 +1675,7 @@ void mwObjectViewer::ov_process_mouse(void)
          int x1 = mItem.item[num][4];
          int y1 = mItem.item[num][5];
          int y2 = y1 - mMiscFnx.get_sproingy_jump_height(num);
-         if ((mWM.hx>x1+msn) && (mWM.hx<x1+msp) && (mWM.hy>y2+msn) && (mWM.hy<y2+msp))
+         if ((mLevelEditor.hx>x1+msn) && (mLevelEditor.hx<x1+msp) && (mLevelEditor.hy>y2+msn) && (mLevelEditor.hy<y2+msp))
          {
             mouse_on_sp = 1;
             mouse_move = 1;
@@ -1684,7 +1685,7 @@ void mwObjectViewer::ov_process_mouse(void)
       {
          int x1 = mItem.item[num][13];
          int y1 = mItem.item[num][14];
-         if ((mWM.hx>x1-mst) && (mWM.hx<x1+msp) && (mWM.hy>y1-mst) && (mWM.hy<y1+mst))
+         if ((mLevelEditor.hx>x1-mst) && (mLevelEditor.hx<x1+msp) && (mLevelEditor.hy>y1-mst) && (mLevelEditor.hy<y1+mst))
          {
             mouse_on_bms = 1;
             mouse_move = 1;
@@ -1696,12 +1697,12 @@ void mwObjectViewer::ov_process_mouse(void)
          int y1 =      mItem.item[num][7];
          int x2 = x1 + mItem.item[num][8];
          int y2 = y1 + mItem.item[num][9];
-         if ((mWM.hx>x1-mst) && (mWM.hx<x1+mst) && (mWM.hy>y1-mst) && (mWM.hy<y1+mst)) // upper left corner (move)
+         if ((mLevelEditor.hx>x1-mst) && (mLevelEditor.hx<x1+mst) && (mLevelEditor.hy>y1-mst) && (mLevelEditor.hy<y1+mst)) // upper left corner (move)
          {
             mouse_on_item_sec_ul = 1;
             mouse_move = 1;
          }
-         if ((mWM.hx>x2-mst) && (mWM.hx<x2+mst) && (mWM.hy>y2-mst) && (mWM.hy<y2+mst)) // lower right corner (resize)
+         if ((mLevelEditor.hx>x2-mst) && (mLevelEditor.hx<x2+mst) && (mLevelEditor.hy>y2-mst) && (mLevelEditor.hy<y2+mst)) // lower right corner (resize)
          {
             mouse_on_item_sec_lr = 1;
             mouse_adj = 1;
@@ -1726,7 +1727,7 @@ void mwObjectViewer::ov_process_mouse(void)
                      int h =  mLift.stp[x][y].h / 2;
                      int nx = mLift.stp[x][y].x + w;
                      int ny = mLift.stp[x][y].y + h;
-                     if ((mWM.hx > nx - w)  && (mWM.hx < nx + w) && (mWM.hy > ny - h)  && (mWM.hy < ny + h)) // is mouse on this step ?
+                     if ((mLevelEditor.hx > nx - w)  && (mLevelEditor.hx < nx + w) && (mLevelEditor.hy > ny - h)  && (mLevelEditor.hy < ny + h)) // is mouse on this step ?
                      {
                         mouse_on_lift = 1;
                         obt = 4;
@@ -1748,7 +1749,7 @@ void mwObjectViewer::ov_process_mouse(void)
                int h =  mLift.stp[x][y].h / 2;
                int nx = mLift.stp[x][y].x + w;
                int ny = mLift.stp[x][y].y + h;
-               if ((mWM.hx > nx - w)  && (mWM.hx < nx + w) && (mWM.hy > ny - h)  && (mWM.hy < ny + h)) // is mouse on this step ?
+               if ((mLevelEditor.hx > nx - w)  && (mLevelEditor.hx < nx + w) && (mLevelEditor.hy > ny - h)  && (mLevelEditor.hy < ny + h)) // is mouse on this step ?
                {
                   mouse_on_lift = 1;
                   step = y;
@@ -1765,7 +1766,7 @@ void mwObjectViewer::ov_process_mouse(void)
       // is mouse on lower right adjustable corner
       int x2 = mLift.stp[lift][step].x + mLift.stp[lift][step].w;
       int y2 = mLift.stp[lift][step].y + mLift.stp[lift][step].h;
-      if ((mWM.hx > x2-8) && (mWM.hy > y2-8)) mouse_adj = 1;
+      if ((mLevelEditor.hx > x2-8) && (mLevelEditor.hy > y2-8)) mouse_adj = 1;
       else mouse_move = 1;
    }
 
@@ -1812,7 +1813,7 @@ void mwObjectViewer::ov_process_mouse(void)
          if (mouse_on_esp)    ov_b3_arrow_nudge(mEnemy.Ei[num][17], mEnemy.Ei[num][17]);
          if (mouse_on_bmb)    ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
          if (mouse_on_sp)     ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
-         mWM.redraw_level_editor_background();
+         mLevelEditor.redraw_background();
       }
    }
 
@@ -1823,8 +1824,8 @@ void mwObjectViewer::ov_process_mouse(void)
    if (mInput.mouse_b[1][0])
    {
       // hi-res mouse pos relative to level
-      int mx = mWM.hx-10;
-      int my = mWM.hy-10;
+      int mx = mLevelEditor.hx-10;
+      int my = mLevelEditor.hy-10;
 
       // snap to pos
       mMiscFnx.mw_round(mx, snap);
@@ -1865,8 +1866,8 @@ void mwObjectViewer::ov_process_mouse(void)
       while (mInput.mouse_b[1][0])
       {
          // hi-res mouse pos relative to level
-         mx = mWM.hx-10;
-         my = mWM.hy-10;
+         mx = mLevelEditor.hx-10;
+         my = mLevelEditor.hy-10;
 
          // snap to pos
          mMiscFnx.mw_round(mx, snap);
@@ -1956,8 +1957,8 @@ void mwObjectViewer::ov_process_mouse(void)
          {
             if (!mItem.item_secondary67_hires(mItem.item[num][0])) // force snap 20 for these item types
             {
-               mItem.item[num][6] = mWM.gx*20;
-               mItem.item[num][7] = mWM.gy*20;
+               mItem.item[num][6] = mLevelEditor.gx*20;
+               mItem.item[num][7] = mLevelEditor.gy*20;
             }
             else
             {
@@ -1971,8 +1972,8 @@ void mwObjectViewer::ov_process_mouse(void)
             if (min_size < 4) min_size = 4;
             if (!mItem.item_secondary67_hires(mItem.item[num][0])) // force snap 20 for these item types
             {
-               mItem.item[num][8] = (mWM.gx+1)*20 - mItem.item[num][6];
-               mItem.item[num][9] = (mWM.gy+1)*20 - mItem.item[num][7];
+               mItem.item[num][8] = (mLevelEditor.gx+1)*20 - mItem.item[num][6];
+               mItem.item[num][9] = (mLevelEditor.gy+1)*20 - mItem.item[num][7];
                min_size = 20;
             }
             else
@@ -1987,7 +1988,7 @@ void mwObjectViewer::ov_process_mouse(void)
          if (mouse_on_sp) // adjust sproingy jump height
          {
             float y0 = mItem.item[num][5]+10;
-            float fy = mWM.hy;
+            float fy = mLevelEditor.hy;
             mItem.item[num][7] = mMiscFnx.get_sp(y0-fy);
 
             // bounds check
@@ -1998,26 +1999,26 @@ void mwObjectViewer::ov_process_mouse(void)
          {
             float x0 = mItem.item[num][4]+10; // get center of item location
             float y0 = mItem.item[num][5]+10;
-            float fx = mWM.hx;
-            float fy = mWM.hy;
+            float fx = mLevelEditor.hx;
+            float fy = mLevelEditor.hy;
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
             mItem.item[num][7] = dist;
          }
          if (mouse_on_bms) // move block manip source
          {
-            mItem.item[num][13] = mWM.gx*20;
-            mItem.item[num][14] = mWM.gy*20;
+            mItem.item[num][13] = mLevelEditor.gx*20;
+            mItem.item[num][14] = mLevelEditor.gy*20;
          }
          if (mouse_on_esp) // adjust enemy shot prox
          {
             float x0 = mEnemy.Ef[num][0]+10; // get center of object location
             float y0 = mEnemy.Ef[num][1]+10;
-            float fx = mWM.hx;
-            float fy = mWM.hy;
+            float fx = mLevelEditor.hx;
+            float fy = mLevelEditor.hy;
             float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
             mEnemy.Ei[num][17] = dst;
          }
-         mWM.redraw_level_editor_background();
+         mLevelEditor.redraw_background();
       } // end of while mInput.mouse_b[1][0] pressed
 
       // snap non hires item secondaries to 20
@@ -2032,7 +2033,7 @@ void mwObjectViewer::ov_process_mouse(void)
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_level_editor_mode(1);
+      mLevelEditor.set_mode(1);
    }
 }
 
@@ -2096,10 +2097,10 @@ void mwObjectViewer::ov_move_enemy(int num, int x_offset, int y_offset)
 void mwObjectViewer::ov_check_if_valid(void)
 {
    // check if the current object is valid
-   if (obt==0)                               mWM.set_level_editor_mode(1);
-   if ((obt==2) && (!mItem.item[num][0]))    mWM.set_level_editor_mode(1);
-   if ((obt==3) && (!mEnemy.Ei[num][0]))     mWM.set_level_editor_mode(1);
-   if ((obt==4) && (!mLift.cur[num].active)) mWM.set_level_editor_mode(1);
+   if (obt==0)                               mLevelEditor.set_mode(1);
+   if ((obt==2) && (!mItem.item[num][0]))    mLevelEditor.set_mode(1);
+   if ((obt==3) && (!mEnemy.Ei[num][0]))     mLevelEditor.set_mode(1);
+   if ((obt==4) && (!mLift.cur[num].active)) mLevelEditor.set_mode(1);
 }
 
 void mwObjectViewer::ov_process_keypress(void)
@@ -2138,12 +2139,12 @@ void mwObjectViewer::ov_process_keypress(void)
          {
             while (!mInput.key[ALLEGRO_KEY_ESCAPE][0])
             {
-               if (mWM.redraw_level_editor_background())
+               if (mLevelEditor.redraw_background())
                {
                   for (int t=0; t<2; t++) mLift.move_lifts(1);  // move lifts for 2 frames
                   ov_draw_overlays(0);
                   mScreen.draw_scaled_level_region_to_display();
-                  mWM.cycle_windows(1); // draw only
+                  mLevelEditor.mWM.cycle_windows(1); // draw only
                }
             }
             while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1); // wait for release
@@ -2193,12 +2194,12 @@ void mwObjectViewer::object_viewer(int o, int n)
 {
    obt = o;
    num = n;
-   mWM.set_level_editor_mode(4); // object viewer
+   mLevelEditor.set_mode(4); // object viewer
 //   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 }
 
 
-void mwObjectViewer::draw(mwRect<int> & rect, int d)
+void mwObjectViewer::draw(mwRect<int> & rect, int d, int have_focus)
 {
    ov_check_if_valid();
    ov_get_size();
@@ -2220,9 +2221,9 @@ void mwObjectViewer::draw_level_editor_background_overlays(int mouse_on_window)
 
    // if mouse on legend line, show highlight
    legend_line = 0;
-   int y1_legend = mWM.mW[7].rect.y2 - 34 + (5-num_legend_lines)*8; // legend pos
+   int y1_legend = mLevelEditor.mWM.mW[7].rect.y2 - 34 + (5-num_legend_lines)*8; // legend pos
    int y2_legend = y1_legend + (num_legend_lines-1)*8;
-   if ((mInput.mouse_x > mWM.mW[7].rect.x1) && (mInput.mouse_x < mWM.mW[7].rect.x2) && (mInput.mouse_y > y1_legend) && (mInput.mouse_y < y2_legend)) // is mouse on legend
+   if ((mInput.mouse_x > mLevelEditor.mWM.mW[7].rect.x1) && (mInput.mouse_x < mLevelEditor.mWM.mW[7].rect.x2) && (mInput.mouse_y > y1_legend) && (mInput.mouse_y < y2_legend)) // is mouse on legend
       legend_line = ((mInput.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
 
    ov_draw_overlays(legend_line);

@@ -15,6 +15,7 @@
 #include "mwInput.h"
 #include "mwTriggerEvent.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwObjectViewer.h"
 
 void mwItem::proc_pmsg_collision(int i)
@@ -274,8 +275,8 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    char f[1800];
    int quit = 0;
 
-   int xa = mWM.mW[7].rect.x1;
-   int xb = mWM.mW[7].rect.x2;
+   int xa = mLevelEditor.mWM.mW[7].rect.x1;
+   int xb = mLevelEditor.mWM.mW[7].rect.x2;
 
    int smx = (xa+xb)/2;  // x center
    int smy = mObjectViewer.pop_msg_viewer_pos;

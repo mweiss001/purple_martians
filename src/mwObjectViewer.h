@@ -40,11 +40,10 @@ public:
    void object_viewer(int obt, int num);
 
 
-   void draw(mwRect<int> &rect, int draw_only);
+
+   void draw(mwRect<int> &rect, int draw_only, int have_focus);
 
    void draw_level_editor_background_overlays(int mouse_on_window);
-
-
 
 
 

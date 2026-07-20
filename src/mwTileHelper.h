@@ -38,13 +38,9 @@ class mwTileHelper
    void draw_pattern(bool preview);
 
 
-
-
-
    void tileSetWidget(int x, int y, int tile, struct tileSet &target, bool &clicked, int d);
 
    int tileSetSelectWidget(int x1, int y1, int x2, int pad_height, int color, struct tileSet &target, const char * txt, bool &clicked, int d);
-
 
    bool get_tileset(int x, int y, struct tileSet &ts, const char *txt);
 

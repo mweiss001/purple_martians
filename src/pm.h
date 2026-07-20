@@ -27,37 +27,11 @@
 #include <allegro5/allegro_color.h>
 
 
-template <typename T> T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh)
-{
-   return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
-}
-
-
-
-
-struct client_status_buffer_row
-{
-   std::uint64_t timestamp;
-   int frame;
-   int p;
-   int color;
-   std::string name;
-   std::string hostname;
-   int cpu;
-   int sync;
-   int ping;
-   int lcor;
-   int rcor;
-   int rwnd;
-   int difs;
-   int tkbs;
-};
 
 
 
 #define NUM_SPRITES 1024
 #define NUM_TILES 2048
-
 
 #define NUM_ANS 256
 #define NUM_PLAYERS 8

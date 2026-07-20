@@ -606,8 +606,8 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       }
 
       // map track start and end to screen positions
-      float rx1 = map_range((float)r.startFrame, sf, lf,  ix1, ix2);
-      float rx2 = map_range((float)r.endFrame,   sf, lf,  ix1, ix2);
+      float rx1 = mMiscFnx.map_range<float>((float)r.startFrame, sf, lf,  ix1, ix2);
+      float rx2 = mMiscFnx.map_range<float>((float)r.endFrame,   sf, lf,  ix1, ix2);
 
       // is mouse on bar?
       if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2))
@@ -648,14 +648,14 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       // draw vertical line at deaths
       for (auto& d : r.deaths)
       {
-         float dx = map_range((float)d, sf, lf,  ix1, ix2);
+         float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
          al_draw_line(dx, ry1, dx, ry2, mColor.pc[10], 1);
       }
 
       // draw vertical line at purple coins
       for (auto& d : r.purpleCoins)
       {
-         float dx = map_range((float)d, sf, lf,  ix1, ix2);
+         float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
          al_draw_line(dx, ry1, dx, ry2, mColor.pc[8], 1);
       }
 
@@ -680,7 +680,7 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    if (currentFrame > mGmInfo.lastFrame) currentFrame = mGmInfo.lastFrame;
 
    // draw vertical line at current frame
-   float fx = map_range((float)currentFrame, sf, lf,  ix1, ix2);
+   float fx = mMiscFnx.map_range<float>((float)currentFrame, sf, lf,  ix1, ix2);
    al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
    // is mouse on frame?
@@ -696,7 +696,7 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
 
          // map screen x position to frame num
-         float f = map_range( (float) mInput.mouse_x, ix1, ix2, sf, lf);
+         float f = mMiscFnx.map_range<float>( (float) mInput.mouse_x, ix1, ix2, sf, lf);
 
          // set frame num and seek to frame
          mLoop.frame_num = f;
@@ -804,7 +804,7 @@ void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y
 
 
    // draw vertical line at current frame
-   float fx = map_range((float)currentFrame, sf, lf,  (float)x1, (float)x2);
+   float fx = mMiscFnx.map_range<float>((float)currentFrame, sf, lf,  (float)x1, (float)x2);
    al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
    // is mouse on frame?
@@ -820,7 +820,7 @@ void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
 
          // map screen x position to frame num
-         float f = map_range( (float) mInput.mouse_x, (float)x1, (float)x2, sf, lf);
+         float f = mMiscFnx.map_range<float>( (float) mInput.mouse_x, (float)x1, (float)x2, sf, lf);
 
          // set frame num and seek to frame
          mLoop.frame_num = f;

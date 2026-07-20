@@ -12,6 +12,7 @@
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
+#include "mwLevelEditor.h"
 #include "mwMenu.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
@@ -395,8 +396,8 @@ int mwLift::create_lift(void)
 
          set_lift_to_step(l, 0); // set step 0 for lift
 
-         mWM.redraw_level_editor_background();  // do this twice to get proper window height
-         mWM.redraw_level_editor_background();
+         mLevelEditor.redraw_background();  // do this twice to get proper window height
+         mLevelEditor.redraw_background();
 
          insert_steps_until_quit(l, step);
 
@@ -430,7 +431,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    // position the menu on top of the step we are inserting before
    // int sty = 53 + (step + 9) * bts;
 
-   int sty = mWM.mW[7].rect.y1 + 44 + (step + 10) * bts;
+   int sty = mLevelEditor.mWM.mW[7].rect.y1 + 44 + (step + 10) * bts;
 
    if (sty > mDisplay.SCREEN_H-60) sty = mDisplay.SCREEN_H-60;
 
@@ -441,7 +442,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-   int xc = (mWM.mW[7].rect.x1 + mWM.mW[7].rect.x2)/2;
+   int xc = (mLevelEditor.mWM.mW[7].rect.x1 + mLevelEditor.mWM.mW[7].rect.x2)/2;
 
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, mColor.pc[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, mColor.pc[fc], 1); // frame
@@ -504,16 +505,16 @@ int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' bef
          stp[lift][x+1].type = stp[lift][x].type;
       }
       clear_lift_step(lift, step);
-      int step_ty = mWM.mW[7].rect.y1+ 38 + 7 * bts;
-      draw_steps(mWM.mW[7].rect.x1+1, mWM.mW[7].rect.x2-1, step_ty, lift, step, step, 1);     // show lift steps
+      int step_ty = mLevelEditor.mWM.mW[7].rect.y1+ 38 + 7 * bts;
+      draw_steps(mLevelEditor.mWM.mW[7].rect.x1+1, mLevelEditor.mWM.mW[7].rect.x2-1, step_ty, lift, step, step, 1);     // show lift steps
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
          delete_lift_step(lift, step);
          ret = 0;
       }
       else ret = 1;
-      mWM.redraw_level_editor_background();  // do this twice to get proper window height
-      mWM.redraw_level_editor_background();
+      mLevelEditor.redraw_background();  // do this twice to get proper window height
+      mLevelEditor.redraw_background();
 
    }
    return ret;

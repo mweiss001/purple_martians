@@ -12,6 +12,25 @@
 #include "mwRollingAverage.h"
 
 
+struct client_status_buffer_row
+{
+   std::uint64_t timestamp;
+   int frame;
+   int p;
+   int color;
+   std::string name;
+   std::string hostname;
+   int cpu;
+   int sync;
+   int ping;
+   int lcor;
+   int rcor;
+   int rwnd;
+   int difs;
+   int tkbs;
+};
+
+
 class mwClientStatusInsertQueue
 {
    public:

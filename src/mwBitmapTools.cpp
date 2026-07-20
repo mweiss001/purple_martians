@@ -13,6 +13,7 @@
 #include "mwEventQueue.h"
 #include "mwGlobalLevelTool.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -452,12 +453,12 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
    int quit = 0;
    while (!quit)
    {
-      mWM.redraw_level_editor_background(0);
-      mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      mLevelEditor.redraw_background(0);
+      mMiscFnx.crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
       mScreen.draw_scaled_level_region_to_display();
 
       int local_point_item_type = 1;
-      int local_point_item_num = mLevel.l[mWM.gx][mWM.gy];
+      int local_point_item_num = mLevel.l[mLevelEditor.gx][mLevelEditor.gy];
 
       int swx1 = 200;
       int swy1 = 200;

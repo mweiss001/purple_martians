@@ -60,6 +60,31 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
 
+
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+      {
+
+
+         // show enemy number
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y+26, ALLEGRO_ALIGN_CENTER, "%d", e);
+
+
+         // cannons show extra hits
+         if (Ei[e][0] == 2) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "%d", Ei[e][9]);
+
+         // enemy deathloop
+         if (Ei[e][0] == 99) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "!"); // dead man walking!
+
+
+      }
+
+
+
+      //      if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+
+
+
+
 //      if (Ei[e][0] == 5) // jumpworm
 //      {
 //         // enemy position (add 10 to get the center)
@@ -188,7 +213,7 @@ void mwEnemy::draw_enemies(void)
 
 void mwEnemy::proc_enemy_collision_with_pshot(int e)
 {
-   // enemy collison box
+   // enemy collision box
    float cb = (float) Ei[e][29]; // collision box size
    float x1 = Ef[e][0] - cb;
    float y1 = Ef[e][1] - cb;
@@ -459,7 +484,7 @@ Ef[][14] // rot
 -- Variables used in proc_enemy_collision_with_pshot(int e)
 -------------------------------------------------------------------------
 Ei[][26]  // player number that hit enemy with shot
-Ei[][29]  // enemies collison box size
+Ei[][29]  // enemies collision box size
 Ei[][31]  // flag that this enemy got shot with shot
 
 Ef[][0] // x

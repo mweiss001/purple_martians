@@ -114,9 +114,6 @@ void mwPlayer::proc_player_xy_move(int p)
    float initial_x_velocity = 1.15;
 
 
-
-
-
 // -----------   x move  ---------------------
    if ((syn[p].left) && (!syn[p].right)) // left only
    {
@@ -175,8 +172,8 @@ void mwPlayer::proc_player_xy_move(int p)
          }
          else // player is getting squished
          {
-            syn[p].health -= 1;
-            mGameEvent.add(11, 0, 0, p, 9, 0, 100);
+            //syn[p].health -= 1;
+            //mGameEvent.add(11, 0, 0, p, 9, 0, 100);
          }
       }
       else  if (syn[p].xinc < 0) // moving left and block collision
@@ -198,8 +195,8 @@ void mwPlayer::proc_player_xy_move(int p)
          }
          else // player is getting squished
          {
-            syn[p].health -= 1;
-            mGameEvent.add(11, 0, 0, p, 9, 0, 100);
+            //syn[p].health -= 1;
+            //mGameEvent.add(11, 0, 0, p, 9, 0, 100);
          }
       }
       else if (syn[p].xinc > 0) // moving right and block collision
@@ -262,10 +259,10 @@ void mwPlayer::proc_player_xy_move(int p)
       // check for collision with lift above
       if (mSolid.is_up_solid(syn[p].x, syn[p].y+1, 1, 1) > 31)
       {
-         if (debug_print) printf("collison with lift above\n");
+         if (debug_print) printf("collision with lift above\n");
          syn[p].player_ride = 0;   // player knocked off lift due to collision above
-         syn[p].health -= 1;       // take some damage
-         mGameEvent.add(11, 0, 0, p, 9, 0, 100);
+         //syn[p].health -= 1;       // take some damage
+         //mGameEvent.add(11, 0, 0, p, 9, 0, 100);
       }
 
       // if moving up and solid block above
@@ -273,11 +270,9 @@ void mwPlayer::proc_player_xy_move(int p)
       {
          if (debug_print) printf("moving up and solid block above\n");
          syn[p].player_ride = 0;  // player knocked off lift
-         syn[p].health -= 1;      // take some damage
-
          syn[p].y += 10;  // drop to make sure player falls off
-
-         mGameEvent.add(11, 0, 0, p, 9, 0, 100);
+         //syn[p].health -= 1;      // take some damage
+         //mGameEvent.add(11, 0, 0, p, 9, 0, 100);
       }
 
       // if moving down and solid block below
@@ -324,7 +319,14 @@ void mwPlayer::proc_player_xy_move(int p)
          if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
          {
             if (debug_print) printf("player moving up and collision\n");
-            syn[p].y -= syn[p].yinc;        // take back move
+//            syn[p].y -= syn[p].yinc;        // take back move
+
+            // instead of take back entire move, just take back up until solid is no longer triggered
+            while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y+=0.1;
+
+
+            printf("%d %d player moving up and collision\n", mLoop.frame_num, p);
+
             syn[p].yinc = 0;                // kill upwards motion
          }
       }
@@ -333,7 +335,7 @@ void mwPlayer::proc_player_xy_move(int p)
       {
          if (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))  // check for floor below (no lift)
          {
-            if (debug_print) printf("player moving down and collison\n");
+            if (debug_print) printf("player moving down and collision\n");
 
             int y = syn[p].y;
             int ym20 = y % 20;
@@ -348,9 +350,9 @@ void mwPlayer::proc_player_xy_move(int p)
             int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
             if ((a > 31) && (mLift.cur[a-32].yinc > 0))
             {
-               if (debug_print) printf("player moving down or steady and collison with lift moving down\n");
-               syn[p].health -= 1; // take some damage
-               mGameEvent.add(11, 0, 0, p, 9, 0, 100);
+               if (debug_print) printf("player moving down or steady and collision with lift moving down\n");
+               //syn[p].health -= 1; // take some damage
+               //mGameEvent.add(11, 0, 0, p, 9, 0, 100);
             }
 
             if (syn[p].jump)       // jump pressed

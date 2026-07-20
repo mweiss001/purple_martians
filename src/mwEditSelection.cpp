@@ -11,6 +11,7 @@
 #include "mwInput.h"
 #include "mwItem.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 
 #include "mwMiscFnx.h"
@@ -38,10 +39,10 @@ void mwEditSelection::init()
 
 void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
-   int rx1 = mWM.selection_rect.x1*20;    // source x
-   int ry1 = mWM.selection_rect.y1*20;    // source y
-   int rx2 = mWM.selection_rect.x2*20+20;
-   int ry2 = mWM.selection_rect.y2*20+20;
+   int rx1 = mLevelEditor.selection.x1*20;    // source x
+   int ry1 = mLevelEditor.selection.y1*20;    // source y
+   int rx2 = mLevelEditor.selection.x2*20+20;
+   int ry2 = mLevelEditor.selection.y2*20+20;
    int eib=0;
    int iib=0;
    int lib=0;
@@ -65,8 +66,8 @@ void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_wind
    al_draw_text( mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
    al_draw_rectangle(x1, y, x2, y+10, mColor.pc[fc], 1);
    y+=10;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mWM.selection_rect.x1, mWM.selection_rect.y1);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mWM.selection_rect.x2-mWM.selection_rect.x1+1, mWM.selection_rect.y2-mWM.selection_rect.y1+1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mLevelEditor.selection.x1, mLevelEditor.selection.y1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mLevelEditor.selection.x2-mLevelEditor.selection.x1+1, mLevelEditor.selection.y2-mLevelEditor.selection.y1+1);
    al_draw_rectangle(x1, y, x2, y+18, mColor.pc[fc], 1);
 
    y+=18;
@@ -204,20 +205,20 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    int eib=0;
    int iib=0;
    int lib=0;
-   int x1 = mWM.selection_rect.x1*20;
-   int y1 = mWM.selection_rect.y1*20;
-   int x2 = mWM.selection_rect.x2*20+20;
-   int y2 = mWM.selection_rect.y2*20+20;
+   int x1 = mLevelEditor.selection.x1*20;
+   int y1 = mLevelEditor.selection.y1*20;
+   int x2 = mLevelEditor.selection.x2*20+20;
+   int y2 = mLevelEditor.selection.y2*20+20;
 
    clear_ft_variables();
 
    // blocks
-   for (x=0; x<(mWM.selection_rect.x2-mWM.selection_rect.x1+1); x++)
-      for (y=0; y<(mWM.selection_rect.y2-mWM.selection_rect.y1+1); y++)
-         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mWM.selection_rect.x1+x >= 0) && (mWM.selection_rect.x1+x < 100) && (mWM.selection_rect.y1+y >= 0) && (mWM.selection_rect.y1+y < 100) )
+   for (x=0; x<(mLevelEditor.selection.x2-mLevelEditor.selection.x1+1); x++)
+      for (y=0; y<(mLevelEditor.selection.y2-mLevelEditor.selection.y1+1); y++)
+         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mLevelEditor.selection.x1+x >= 0) && (mLevelEditor.selection.x1+x < 100) && (mLevelEditor.selection.y1+y >= 0) && (mLevelEditor.selection.y1+y < 100) )
          {
-            if (mEditorMain.obj_filter[1][1])                              ftLevel.l[x][y] = mLevel.l[mWM.selection_rect.x1+x][mWM.selection_rect.y1+y];                      // get block and flags
-            if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mWM.selection_rect.x1+x][mWM.selection_rect.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
+            if (mEditorMain.obj_filter[1][1])                                      ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y];                      // get block and flags
+            if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
 
@@ -288,7 +289,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
                   ftLift.stp[c][s].y -= y1;
                }
          }
-   
+
    ft_level_header[3] = iib; // num_of_items
 
    printf("num of items:%d",iib);
@@ -296,8 +297,8 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   sw = ft_level_header[8] =  mWM.selection_rect.x2-mWM.selection_rect.x1+1; // width
-   sh = ft_level_header[9] =  mWM.selection_rect.y2-mWM.selection_rect.y1+1; // height
+   sw = ft_level_header[8] =  mLevelEditor.selection.x2-mLevelEditor.selection.x1+1; // width
+   sh = ft_level_header[9] =  mLevelEditor.selection.y2-mLevelEditor.selection.y1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -591,15 +592,15 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
 void mwEditSelection::do_clear(void)
 {
-   int x1 = mWM.selection_rect.x1*20;
-   int y1 = mWM.selection_rect.y1*20;
-   int x2 = mWM.selection_rect.x2*20+20;
-   int y2 = mWM.selection_rect.y2*20+20;
+   int x1 = mLevelEditor.selection.x1*20;
+   int y1 = mLevelEditor.selection.y1*20;
+   int x2 = mLevelEditor.selection.x2*20+20;
+   int y2 = mLevelEditor.selection.y2*20+20;
 
    // blocks
    if (mEditorMain.obj_filter[1][1])
-      for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
-         for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++) mLevel.l[x][y]=0;
+      for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
+         for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++) mLevel.l[x][y]=0;
 
    // items
    for (int i=0; i<500; i++)
@@ -741,23 +742,23 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
       bts = 24;
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
       {
-         for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
-            for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++)
+         for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
+            for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++)
                set_block_with_flag_filters(x, y, mEditorMain.draw_item_num);
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
       {
-         for (int x=mWM.selection_rect.x1; x<mWM.selection_rect.x2+1; x++)
+         for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
          {
-            set_block_with_flag_filters(x, mWM.selection_rect.y1, mEditorMain.draw_item_num);
-            set_block_with_flag_filters(x, mWM.selection_rect.y2, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(x, mLevelEditor.selection.y1, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(x, mLevelEditor.selection.y2, mEditorMain.draw_item_num);
          }
-         for (int y=mWM.selection_rect.y1; y<mWM.selection_rect.y2+1; y++)
+         for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++)
          {
-            set_block_with_flag_filters(mWM.selection_rect.x1, y, mEditorMain.draw_item_num);
-            set_block_with_flag_filters(mWM.selection_rect.x2, y, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(mLevelEditor.selection.x1, y, mEditorMain.draw_item_num);
+            set_block_with_flag_filters(mLevelEditor.selection.x2, y, mEditorMain.draw_item_num);
          }
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
@@ -805,19 +806,19 @@ void mwEditSelection::process_mouse(void)
       if (copy_mode)
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         do_copy(mWM.gx, mWM.gy);
+         do_copy(mLevelEditor.gx, mLevelEditor.gy);
       }
       if (brf_mode)
       {
          while (mInput.mouse_b[1][0])mEventQueue.proc(1);
-         do_floodfill(mWM.gx, mWM.gy, mEditorMain.draw_item_num);
+         do_floodfill(mLevelEditor.gx, mLevelEditor.gy, mEditorMain.draw_item_num);
       }
-      if ((!copy_mode) && (!brf_mode)) mWM.get_new_box("selection"); // get new selection
+      if ((!copy_mode) && (!brf_mode)) mLevelEditor.get_new_box("selection"); // get new selection
    }
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_level_editor_mode(1);
+      mLevelEditor.set_mode(1);
    }
 }
 
@@ -881,8 +882,8 @@ void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
    int by1 = rect.y1+3;
    if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
 
-   int mow = mWM.is_mouse_on_any_window();
-   mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mow);
+//   int mow = mLevelEditor.mWM.is_mouse_on_any_window();
+   mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mLevelEditor.mWM.mouse_on_window);
 
 
    // draw buttons and get y2
@@ -903,18 +904,18 @@ void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
 void mwEditSelection::draw_level_editor_background_overlays(int mouse_on_window)
 {
    // show selection
-   if (!copy_mode) mWM.show_level_buffer_block_rect(mWM.selection_rect, 14, "selection");
+   if (!copy_mode) mLevelEditor.show_selection_rect(mLevelEditor.selection, 14, "selection");
 
    // only show if mouse not on window
    if (!mouse_on_window)
    {
-      if (brf_mode) mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      if (brf_mode) mMiscFnx.crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
       if (copy_mode)
       {
          if (ft_bmp)
          {
-            al_draw_bitmap(ft_bmp, mWM.gx*20, mWM.gy*20, 0);
-            mWM.show_level_buffer_block_rect(mwRect<int>::fromX1Y1WH(mWM.gx, mWM.gy, sw-1, sh-1), 10, "paste");
+            al_draw_bitmap(ft_bmp, mLevelEditor.gx*20, mLevelEditor.gy*20, 0);
+            mLevelEditor.show_selection_rect(mwRect<int>::fromX1Y1WH(mLevelEditor.gx, mLevelEditor.gy, sw-1, sh-1), 10, "paste");
          }
          else copy_mode = 0;
       }

@@ -18,6 +18,7 @@
 #include "mwNetgame.h"
 #include "mwPlayer.h"
 #include "mwConfig.h"
+#include "mwLevelEditor.h"
 
 
 mwMiscFnx mMiscFnx;
@@ -719,8 +720,8 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
    int ret = 0;
    while (!quit)
    {
-      mWM.redraw_level_editor_background(0);
-      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      mLevelEditor.redraw_background(0);
+      crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
       mScreen.draw_scaled_level_region_to_display();
 
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, mColor.pc[0]);
@@ -733,21 +734,21 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
       al_draw_text(mFont.pr8, mColor.pc[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
       al_draw_text(mFont.pr8, mColor.pc[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
       al_draw_text(mFont.pr8, mColor.pc[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-      al_draw_textf(mFont.pr8, mColor.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mWM.gx, mWM.gy);
+      al_draw_textf(mFont.pr8, mColor.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mLevelEditor.gx, mLevelEditor.gy);
 
       if (mInput.mouse_b[1][0])
       {
-         mWM.get_new_box("selection");
+         mLevelEditor.get_new_box("selection");
 
-         x1 = mWM.selection_rect.x1*20;
-         y1 = mWM.selection_rect.y1*20;
-         x2 = (mWM.selection_rect.x2-mWM.selection_rect.x1)*20+20;
-         y2 = (mWM.selection_rect.y2-mWM.selection_rect.y1)*20+20;
+         x1 = mLevelEditor.selection.x1*20;
+         y1 = mLevelEditor.selection.y1*20;
+         x2 = (mLevelEditor.selection.x2-mLevelEditor.selection.x1)*20+20;
+         y2 = (mLevelEditor.selection.y2-mLevelEditor.selection.y1)*20+20;
 
          if (type == 2)
          {
-            x2 = (mWM.selection_rect.x2-mWM.selection_rect.x1)*20;
-            y2 = (mWM.selection_rect.y2-mWM.selection_rect.y1)*20;
+            x2 = (mLevelEditor.selection.x2-mLevelEditor.selection.x1)*20;
+            y2 = (mLevelEditor.selection.y2-mLevelEditor.selection.y1)*20;
          }
 
          quit = 1;
@@ -845,9 +846,9 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
    while(!quit)
    {
-      mWM.redraw_level_editor_background(0);
+      mLevelEditor.redraw_background(0);
 
-      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
 
       if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
 
@@ -876,8 +877,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       {
          int ix = mItem.item[num][4]+10;
          int iy = mItem.item[num][5]+10;
-         int dx = mWM.gx*20+10;
-         int dy = mWM.gy*20+10;
+         int dx = mLevelEditor.gx*20+10;
+         int dy = mLevelEditor.gy*20+10;
 
          float rot = (float)mItem.item[num][10] / 1000;
          al_draw_rotated_bitmap(mBitmap.sprite[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
@@ -888,8 +889,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       {
          int ex = mEnemy.Ef[num][0]+10;
          int ey = mEnemy.Ef[num][1]+10;
-         int dx = mWM.gx*20+10;
-         int dy = mWM.gy*20+10;
+         int dx = mLevelEditor.gx*20+10;
+         int dy = mLevelEditor.gy*20+10;
          float rot = mEnemy.Ef[num][14];
          al_draw_scaled_rotated_bitmap(mBitmap.sprite[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
@@ -912,62 +913,62 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       switch (obj_type)
       {
          case 2: // items
-            mItem.itemf[num][0] = mItem.item[num][4] = mWM.gx*20;
-            mItem.itemf[num][1] = mItem.item[num][5] = mWM.gy*20;
+            mItem.itemf[num][0] = mItem.item[num][4] = mLevelEditor.gx*20;
+            mItem.itemf[num][1] = mItem.item[num][5] = mLevelEditor.gy*20;
          break;
          case 3: // show enem
-            mEnemy.Ef[num][0] = mWM.gx*20;
-            mEnemy.Ef[num][1] = mWM.gy*20;
+            mEnemy.Ef[num][0] = mLevelEditor.gx*20;
+            mEnemy.Ef[num][1] = mLevelEditor.gy*20;
          break;
          case 4: // show lift
          {
-            mLift.stp[lift][step].x = mWM.gx*20;
-            mLift.stp[lift][step].y = mWM.gy*20;
+            mLift.stp[lift][step].x = mLevelEditor.gx*20;
+            mLift.stp[lift][step].y = mLevelEditor.gy*20;
             mLift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
          case 98: // cloner destination
          {
-            mEnemy.Ei[num][17] = mWM.gx*20;
-            mEnemy.Ei[num][18] = mWM.gy*20;
+            mEnemy.Ei[num][17] = mLevelEditor.gx*20;
+            mEnemy.Ei[num][18] = mLevelEditor.gy*20;
          }
          break;
          case 97: // set new rocket direction
          {
-            float xlen = mWM.gx*20 - mItem.item[num][4];      // get the x distance between item and x2
-            float ylen = mWM.gy*20 - mItem.item[num][5];      // get the y distance between item and y2
+            float xlen = mLevelEditor.gx*20 - mItem.item[num][4];      // get the x distance between item and x2
+            float ylen = mLevelEditor.gy*20 - mItem.item[num][5];      // get the y distance between item and y2
             float a = atan2(ylen, xlen) + ALLEGRO_PI/2;
             mItem.item[num][10] = a * 1000;
          }
          break;
          case 96: // set cannon or bouncer direction
          {
-            mEnemy.set_new_initial_direction(num, mWM.gx*20, mWM.gy*20);
+            mEnemy.set_new_initial_direction(num, mLevelEditor.gx*20, mLevelEditor.gy*20);
          }
          break;
          case 90: // vinepod extended
          {
-            mEnemy.Ei[num][9] = mWM.gx*20;
-            mEnemy.Ei[num][10] = mWM.gy*20;
+            mEnemy.Ei[num][9] = mLevelEditor.gx*20;
+            mEnemy.Ei[num][10] = mLevelEditor.gy*20;
          }
          break;
          case 91: // vinepod cp1
          {
-            mEnemy.Ei[num][5] = mWM.gx*20;
-            mEnemy.Ei[num][6] = mWM.gy*20;
+            mEnemy.Ei[num][5] = mLevelEditor.gx*20;
+            mEnemy.Ei[num][6] = mLevelEditor.gy*20;
          }
          break;
          case 92: // vinepod cp2
          {
-            mEnemy.Ei[num][7] = mWM.gx*20;
-            mEnemy.Ei[num][8] = mWM.gy*20;
+            mEnemy.Ei[num][7] = mLevelEditor.gx*20;
+            mEnemy.Ei[num][8] = mLevelEditor.gy*20;
          }
          break;
 
          case 95: // manip source area
          {
-            mItem.item[num][13] = mWM.gx*20;
-            mItem.item[num][14] = mWM.gy*20;
+            mItem.item[num][13] = mLevelEditor.gx*20;
+            mItem.item[num][14] = mLevelEditor.gy*20;
          }
 
       }
@@ -993,8 +994,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       }
    } // end of while(!quit);
 
-   if (mWM.gx > 99) mWM.gx = 99;
-   if (mWM.gy > 99) mWM.gy = 99;
+   if (mLevelEditor.gx > 99) mLevelEditor.gx = 99;
+   if (mLevelEditor.gy > 99) mLevelEditor.gy = 99;
 
    if (retval != 1) // restore old positions if cancelled
    {
@@ -1146,8 +1147,8 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      mWM.redraw_level_editor_background(0);
-      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      mLevelEditor.redraw_background(0);
+      crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
 
@@ -1171,7 +1172,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
          {
             itx = mItem.item[x][4]/20;
             ity = mItem.item[x][5]/20;
-            if ((mWM.gx == itx) && (mWM.gy == ity))
+            if ((mLevelEditor.gx == itx) && (mLevelEditor.gy == ity))
             {
                mouse_on_item = 1;
                ret_item = x;

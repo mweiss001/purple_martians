@@ -10,6 +10,7 @@
 #include "mwEnemy.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
+#include "mwLevelEditor.h"
 #include "mwWindowManager.h"
 #include "mwScreen.h"
 #include "mwMiscFnx.h"
@@ -491,14 +492,14 @@ and vinepod now
    for (int x=0; x<500; x++)
       if ((mItem.item[x][0] == 9) || (mItem.item[x][0] == 6) || (mItem.item[x][0] == 13))  // trigger, orb or timer
       {
-         if ((mWM.gx == mItem.item[x][4]/20) && (mWM.gy == mItem.item[x][5]/20))
+         if ((mLevelEditor.gx == mItem.item[x][4]/20) && (mLevelEditor.gy == mItem.item[x][5]/20))
          {
             mouse_on_item = 1;
             obj_type = 2;
             obj_num = x;
             if (mItem.item[x][0] == 13)  // for timer, determine timer num based on mouse y position
             {
-               int my = mWM.hy % 20;
+               int my = mLevelEditor.hy % 20;
                if (my < 10) obj_ext = 1;
                else obj_ext = 2;
             }
@@ -508,7 +509,7 @@ and vinepod now
    for (int e=0; e<100; e++)
       if (mEnemy.Ei[e][0] == 7) // vinepod (extended pos)
       {
-         if ((mWM.gx == mEnemy.Ei[e][9]/20) && (mWM.gy == mEnemy.Ei[e][10]/20))
+         if ((mLevelEditor.gx == mEnemy.Ei[e][9]/20) && (mLevelEditor.gy == mEnemy.Ei[e][10]/20))
          {
             mouse_on_item = 1;
             obj_type = 3;
@@ -529,7 +530,7 @@ and vinepod now
                int y1 = mLift.stp[l][pms].y;
                int x2 = mLift.stp[l][pms].w + x1;
                int y2 = mLift.stp[l][pms].h + y1;
-               if ((mWM.hx > x1)  && (mWM.hx < x2) && (mWM.hy > y1)  && (mWM.hy < y2))
+               if ((mLevelEditor.hx > x1)  && (mLevelEditor.hx < x2) && (mLevelEditor.hy > y1)  && (mLevelEditor.hy < y2))
                {
 
                   mLift.set_lift_to_step(l, pms);
@@ -595,8 +596,8 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 
    while(!quit)
    {
-      mWM.redraw_level_editor_background(0);
-      mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+      mLevelEditor.redraw_background(0);
+      mMiscFnx.crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
 
       mouse_on_item = is_mouse_on_trigger_item(ti_obj_type, ti_obj_num, ti_obj_ext);
 

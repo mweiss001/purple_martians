@@ -11,6 +11,7 @@
 #include "mwInput.h"
 #include "mwItem.h"
 #include "mwLevel.h"
+#include "mwLevelEditor.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -753,8 +754,8 @@ void mwGroupEdit::object_initial_position_random(int typ, int num)
       x = rand() % 100;
       y = rand() % 100;
       empt = 1;
-      if ((x < mWM.selection_rect.x1) || (x >= mWM.selection_rect.x2+1)) empt = 0;
-      if ((y < mWM.selection_rect.y1) || (y >= mWM.selection_rect.y2+1)) empt = 0;
+      if ((x < mLevelEditor.selection.x1) || (x >= mLevelEditor.selection.x2+1)) empt = 0;
+      if ((y < mLevelEditor.selection.y1) || (y >= mLevelEditor.selection.y2+1)) empt = 0;
       if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
    if (empt)
@@ -890,9 +891,9 @@ void mwGroupEdit::show_obj_list(int x, int y, int *ew, int *eh, int d)
                int old_mpl = mpl;
                while (mInput.mouse_b[1][0])
                {
-                  mWM.redraw_level_editor_background();
+                  mLevelEditor.redraw_background();
                   mScreen.draw_scaled_level_region_to_display();
-                  mWM.cycle_windows(1); // draw only
+                  mLevelEditor.mWM.cycle_windows(1); // draw only
 
                   mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
                   if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
@@ -1139,10 +1140,10 @@ int mwGroupEdit::show_controls(int x, int y, int *ew, int *eh, int hidden, int d
 void mwGroupEdit::add_selection_to_list(int set_filters)
 {
    // add everything in selection to list...
-   int rx1 = mWM.selection_rect.x1*20;
-   int ry1 = mWM.selection_rect.y1*20;
-   int rx2 = mWM.selection_rect.x2*20+20;
-   int ry2 = mWM.selection_rect.y2*20+20;
+   int rx1 = mLevelEditor.selection.x1*20;
+   int ry1 = mLevelEditor.selection.y1*20;
+   int rx2 = mLevelEditor.selection.x2*20+20;
+   int ry2 = mLevelEditor.selection.y2*20+20;
 
    for (int b=0; b<100; b++) // add enemies in selection
       if ((mEnemy.Ei[b][0]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) add_to_obj_list(3, b);
@@ -1170,7 +1171,7 @@ void mwGroupEdit::process_mouse(void)
    {
       if (show_sel_frame) // get new selection rectangle
       {
-         mWM.get_new_box("selection");
+         mLevelEditor.get_new_box("selection");
          if (mInput.SHFT()) add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
@@ -1183,7 +1184,7 @@ void mwGroupEdit::process_mouse(void)
             int type = mItem.item[i][0];
             if ((type) && (mEditorMain.obj_filter[2][type])) // filter for this type of item
             {
-               if ((mWM.gx == mItem.item[i][4]/20) && (mWM.gy == mItem.item[i][5]/20)) add_to_obj_list(2, i);
+               if ((mLevelEditor.gx == mItem.item[i][4]/20) && (mLevelEditor.gy == mItem.item[i][5]/20)) add_to_obj_list(2, i);
             }
          }
          // is mouse on enemy
@@ -1192,7 +1193,7 @@ void mwGroupEdit::process_mouse(void)
             int type = mEnemy.Ei[e][0];
             if ((type) && (mEditorMain.obj_filter[3][type])) // filter for this type of enemy
             {
-               if ((mWM.gx == mEnemy.Ef[e][0]/20) && (mWM.gy == mEnemy.Ef[e][1]/20)) add_to_obj_list(3, e);
+               if ((mLevelEditor.gx == mEnemy.Ef[e][0]/20) && (mLevelEditor.gy == mEnemy.Ef[e][1]/20)) add_to_obj_list(3, e);
             }
          }
       }
@@ -1200,12 +1201,12 @@ void mwGroupEdit::process_mouse(void)
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-      mWM.set_level_editor_mode(1);
+      mLevelEditor.set_mode(1);
    }
 }
 
 
-void mwGroupEdit::draw_list(mwRect<int> & rect, int d)
+void mwGroupEdit::draw_list(mwRect<int> & rect, int d, int have_focus)
 {
    remove_obj_list_filtered_items();
    int ew, eh;
@@ -1259,7 +1260,7 @@ void mwGroupEdit::draw_list(mwRect<int> & rect, int d)
 
 
 
-void mwGroupEdit::draw_controls(mwRect<int> & rect, int d)
+void mwGroupEdit::draw_controls(mwRect<int> & rect, int d, int have_focus)
 {
    int hidden = 0; // always show
    int ew, eh;
@@ -1294,8 +1295,8 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
    int x=0, y=0;
 
    // show selection frame
-   if (show_sel_frame) mWM.show_level_buffer_block_rect(mWM.selection_rect, 14, "selection");
-   else if (!mouse_on_window) mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
+   if (show_sel_frame) mLevelEditor.show_selection_rect(mLevelEditor.selection, 14, "selection");
+   else if (!mouse_on_window) mMiscFnx.crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
 
    // mark objects on map that are capable of being added to list
    for (int i=0; i<500; i++)
@@ -1338,7 +1339,7 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
                x = mEnemy.Ef[num][0]/20;
                y = mEnemy.Ef[num][1]/20;
             }
-            if ((mWM.gx == x) && (mWM.gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
+            if ((mLevelEditor.gx == x) && (mLevelEditor.gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
          }
       }
 

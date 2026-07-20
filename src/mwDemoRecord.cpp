@@ -450,8 +450,20 @@ void mwDemoRecord::proc_gm_list_menu(int gi)
       sprintf(mMenu.menu_string[mi++],"Add at current pos");
       sprintf(mMenu.menu_string[mi++],"slide +1 at current pos");
       sprintf(mMenu.menu_string[mi++],"slide -1 at current pos");
+
+
+      sprintf(mMenu.menu_string[mi++],"insert fire after current pos");
+
+
+
+
+
       sprintf(mMenu.menu_string[mi++],"end");
       int mr = mMenu.pmenu(5, 13, -4, 99);
+
+
+
+
 
       mi=0;
 
@@ -512,6 +524,57 @@ void mwDemoRecord::proc_gm_list_menu(int gi)
          refresh();
          set_active_section(current_section);
       }
+
+      if (mr == mi++) // add fire at next pos
+      {
+//         for (int x=0; x<mGameMoves.entry_pos; x++)
+//            if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]--;
+
+
+
+
+         mGameMoves.add_game_move2(f+4, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, m);
+
+
+
+
+         // To manipulate flags:
+         // l[x][y] |=  PM_BTILE_SOLID_PLAYER; // set flag
+         // l[x][y] &= ~PM_BTILE_SOLID_PLAYER; // clear flag
+         // l[x][y] ^=  PM_BTILE_SOLID_PLAYER; // toggle flag
+
+         // remove fire..
+
+         int mfo = m & ~PM_COMPMOVE_FIRE;
+
+         mGameMoves.add_game_move2(f+5, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, mfo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         mGameMoves.gm_sort();
+         refresh();
+         set_active_section(current_section);
+      }
+
+
+
+
    }
 }
 
@@ -1001,7 +1064,7 @@ void mwDemoRecord::stop_transport(void)
    }
 }
 
-void mwDemoRecord::start_record(void)
+void mwDemoRecord::start_record()
 {
    play = 1;
    record = 1;
@@ -1042,7 +1105,7 @@ void mwDemoRecord::start_record(void)
 }
 
 
-int mwDemoRecord::load_demo_record(void)
+int mwDemoRecord::load_demo_record()
 {
    if (!mGameMoves.load_gm_file_select()) return 0;
    current_frame_num = 1;
@@ -1051,7 +1114,7 @@ int mwDemoRecord::load_demo_record(void)
    return 1;
 }
 
-void mwDemoRecord::refresh(void)
+void mwDemoRecord::refresh()
 {
    fill_player_sections();
    find_level_done();
@@ -1062,7 +1125,7 @@ void mwDemoRecord::refresh(void)
 }
 
 
-void mwDemoRecord::reload(void)
+void mwDemoRecord::reload()
 {
    mGameMoves.load_gm(current_loaded_demo_file);
    refresh();
