@@ -31571,6 +31571,47 @@ there seem to be quite a few of them in redraw level editor background
 
 done...now window classes are so much cleaner
 
+
+
+
+
+
+
+
+
+
+
+
+
+I realy want to do this, but will break many demos...
+
+
+      if (syn[p].yinc < 0) // if moving upwards
+      {
+         if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
+         {
+            if (debug_print) printf("player moving up and collision\n");
+            //syn[p].y -= syn[p].yinc;        // take back move
+            while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y++; // I want to try instead of take back entire move, clamp to highest possible position
+            syn[p].yinc = 0;                // kill upwards motion
+         }
+      }
+
+it broke 40 demos
+
+I am so unhappy with the way that its it, I think I will just suck it up and fix all the demos
+
+fixed a bug in player move where moving up and hitting obstacle took back entire move
+now just takes back up until no collision is detected
+this broke 39 demo levels which will now need to be fixed
+It had to be done, gameplay was affected, it was frustrated to not be able to get close to block above when jumping
+
+
+
+
+
+
+
 2026-07-19 02:56:56
 
 made a breaking change to player move and I have 39 demo levels to fix...
@@ -31720,8 +31761,1613 @@ and extra ones
 49 - rocket square 2:37 new 2:02
 2026-07-20 04:08:07
 
+42 - cloner chain 6:14 3 enemies now 5:59
+48 - mayhem 41.8 now 38.6
+27 - gauntlet 1:26 now 1:38 idgaf wtf par time 1:30 changed
+55 - ancient ruins 2:33 2:37
 
-42 - cloner chain
+2026-07-20 05:03:01
+now all I have left are 18 in main section
+18 big ones!
+
+23 amazing
+n 5:58 first 2min good
+t 2:35
+
+
+
+2026-07-20 05:58:35
+
+I want to make my tas tools nicer...
+oh now here me go down the rabbit hole...
+
+the big thing is the transport and the timeline
+
+I want the transport to show current time, frame and have speed controls
+I want the timeline to be resizeable
+
+demorecord is over 2000 lines
+
+If I go fully down the rabbit hole, I would make a new window manager and windows for all the controls
+
+
+
+
+
+found the bug that messed with moving windows:
+
+void mwEditorMain::draw_status_window(mwRect<int> rect, int d, int have_focus)
+{
+   // this ugly hack is to prevent the draw item block flag toggles from capturing the mouse when moving selection windows over them
+   if (mWM.mW[2].moving) d = 1;
+   else d = 0;
+
+
+
+
+looking at my window class, it has a lot of specific things
+for example, draw calls specific fucntions for each window...can I put that in window manager?
+
+or can I register a draw function for each class 
+
+why do they have have_focus, is that only to highlight?
+
+
+   if (index == 1) mEditorMain.draw_status_window(rect, d, have_focus);
+   if (index == 2) mSelectionWindow.draw(rect, d, have_focus);
+   if (index == 3) mEditorMain.draw_filter_window(rect, d);
+   if (index == 4) mEditSelection.draw(rect, d, have_focus);
+   if (index == 5) mGroupEdit.draw_list(rect, d);
+   if (index == 6) mGroupEdit.draw_controls(rect, d);
+   if (index == 7) mObjectViewer.draw(rect, d);
+   if (index == 8) mEditorMain.cm_process_menu_bar(d); // top menu
+   if (index == 9) mTileHelper.draw(rect, d, have_focus);
+
+
+
+public:
+    // Declare a member variable that stores a function returning void with no arguments
+    std::function<void()> onClickAction;
+
+    void press() {
+        // Check if a function has been assigned before calling it
+        if (onClickAction) {
+            onClickAction(); 
+        }
+    }
+};
+
+
+
+need to make all the draw functions have the same signature
+
+
+   if (index == 1) mEditorMain.draw_status_window(rect, d, have_focus);
+   if (index == 2) mSelectionWindow.draw(         rect, d, have_focus);
+   if (index == 3) mEditorMain.draw_filter_window(rect, d, have_focus);
+   if (index == 4) mEditSelection.draw(           rect, d, have_focus);
+   if (index == 5) mGroupEdit.draw_list(          rect, d, have_focus);
+   if (index == 6) mGroupEdit.draw_controls(      rect, d, have_focus);
+   if (index == 7) mObjectViewer.draw(            rect, d, have_focus);
+   if (index == 8) mEditorMain.process_menu_bar(  rect, d, have_focus);
+   if (index == 9) mTileHelper.draw(              rect, d, have_focus);
+
+
+
+Global variable cannot be captured because it does not have automatic storage duration
+
+
+
+
+#include <iostream>
+#include <functional>
+
+class Shape {
+private:
+    // Store the custom draw logic as a functional object
+    std::function<void()> drawLogic;
+
+public:
+    // Constructor accepts the specific draw function
+    Shape(std::function<void()> customDraw) : drawLogic(customDraw) {}
+
+    // Every instance executes its assigned logic
+    void draw() {
+        if (drawLogic) {
+            drawLogic(); 
+        }
+    }
+};
+
+int main() {
+    // Instance 1: Uses a lambda to draw a circle
+    Shape circle([]() { std::cout << "Drawing a Circle!" << std::endl; });
+
+    // Instance 2: Uses a lambda to draw a square
+    Shape square([]() { std::cout << "Drawing a Square!" << std::endl; });
+
+    circle.draw(); // Outputs: Drawing a Circle!
+    square.draw(); // Outputs: Drawing a Square!
+}
+
+
+
+I think I have it figured out:
+
+need to add to window class:
+
+   int disable_input;
+
+needed to save this in each window instance when drawing
+
+
+   // by default disable input (display only)
+   disable_input = 1;
+
+   // this is the only case where input is enabled
+   if (have_focus) disable_input = 0;
+
+   if (moving) disable_input = 1;
+   if (draw_only) disable_input = 1;
+
+   if (drawFunction) drawFunction();
+
+
+//   if (index == 1) mEditorMain.draw_status_window(rect, disable_input, have_focus);
+   if (index == 2) mSelectionWindow.draw(         rect, disable_input, have_focus);
+   if (index == 3) mEditorMain.draw_filter_window(rect, disable_input, have_focus);
+   if (index == 4) mEditSelection.draw(           rect, disable_input, have_focus);
+   if (index == 5) mGroupEdit.draw_list(          rect, disable_input, have_focus);
+   if (index == 6) mGroupEdit.draw_controls(      rect, disable_input, have_focus);
+   if (index == 7) mObjectViewer.draw(            rect, disable_input, have_focus);
+   if (index == 8) mEditorMain.process_menu_bar(  rect, disable_input, have_focus);
+   if (index == 9) mTileHelper.draw(              rect, disable_input, have_focus);
+
+
+
+
+   mW[1].index = 1;
+   mW[1].layer = 0;
+   mW[1].active = 1;
+   mW[1].set_pos(100, 100);
+   mW[1].set_size(320, 53);
+   mW[1].set_title("Status Window");
+   mW[1].drawFunction = [this]() { mEditorMain.draw_status_window(mW[1].rect, mW[1].disable_input, mW[1].have_focus); };
+
+   mW[2].index = 2;
+   mW[2].layer = 1;
+   mW[2].active = 1;
+   mW[2].set_pos(100, 300);
+   mW[2].set_size(322, 100);
+   mW[2].set_title("Selection Window");
+   mW[2].drawFunction = [this]() { mSelectionWindow.draw(mW[2].rect, mW[2].disable_input, mW[2].have_focus); };
+
+
+now my window class does not have any specific draw code....
+
+
+now to go all fucking crazy....do the same with window manager
+make levelEditor class and make that own an instance of window manager
+
+it could have its own callbacks to draw background, etc...
+
+
+I really think this is the way to go...so many things specific to level editor are mixed with the window manager
+
+this is huge!!!
+
+make a class mwLevelEditor
+
+make it own the window manager instance
+
+do it fool!!!
+
+make a class mwLevelEditor..done
+
+class mwLevelEditor
+{
+public:
+   mwLevelEditor();
+
+   void init();
+
+   mwWindowManager mLevelEditorWindowManager;
+
+
+
+-------------
+should this window manager own the windows?
+I think it will have to
+
+should I do an array of windows? or maybe a vector?
+
+first make the old wm use a vector...
+this will also help me find all refs
+//   mwWindow mW[NUM_MW];
+   std::vector<mwWindow> mW;
+done
+
+
+add to wm contructor, num of windows
+
+I am getting lost here...
+where to start?
+
+
+
+
+right now the entry point into level editor is int mwWindowManager::loop(int edit_level)
+called from mLoop and proc cmd line args
+this calls initialize
+
+I will need to replace that with:
+
+mLevelEditor.loop()
+
+do it now...
+
+
+int mwLevelEditor::loop(int level)
+{
+
+   mLoop.level_editor_running = 1;
+   al_show_mouse_cursor(mDisplay.display);
+
+   mEventQueue.reset_fps_timer();
+
+   mWM.initialize(level);
+   if (mLoop.autosave_level_editor_state) mWM.load_mW();
+   mWM.active = 1;
+
+   while (mWM.active)
+   {
+      mWM.redraw_level_editor_background();
+      if (!mWM.cycle_windows(0)) mWM.process_mouse_on_background();
+      mWM.process_keypress();
+   }
+
+   if (mLoop.autosave_level_editor_state) mWM.save_mW();
+   mLoop.level_editor_running = 0;
+   mLevel.resume_allowed = 0;
+   al_hide_mouse_cursor(mDisplay.display);
+   return mLevel.last_level_loaded;
+}
+
+
+done...
+removed loop from wm and put it in level editor
+but part of it should be there....
+
+
+2026-07-20 12:13:11
+I have got it working!!!
+now window mamager class is very small...
+
+// mwWindowManager.h
+#ifndef mwWindowManager_H
+#define mwWindowManager_H
+#include "mwWindow.h"
+
+class mwWindowManager
+{
+   public:
+   mwWindowManager(int number_of_windows);
+   std::vector<mwWindow> mW;
+   int num_windows = 10;
+   int active;
+   void loop();
+   int is_mouse_on_any_window();
+   int get_max_layer();
+   int cycle_windows(int draw_only);
+};
+#endif
+
+
+
+
+to do:
+reset state from menu..done
+figure out constructor..done
+
+
+do I need this?
+
+int mwWindowManager::is_mouse_on_any_window(void)
+used 4 times
+
+do I not detect this anyway?
+
+what do I use it for?
+
+to determine whether or not to draw x and y on some windows
+
+I think that should be more like a levelEditor things and have a flag to determine if gx, gy, hx, hy are valid
+doesn't really belong in window manager class does it?
+
+
+mwLevelEditor. bool pos_valid;
+
+if mouse on window they are not....
+
+set this in le not win
+
+I guess they really did need to be separate
+
+- draw windows from bottom up
+
+
+
+I am getting confused, lets try to step back and make this as simple as possible...
+
+
+all my window manager class should do is:
+--------------------------------------------------------------------------
+- draw the windows from the bottom layer up
+- detect if the mouse is on each window as they are drawn
+- if it is on multiple, the higher layers will have priority
+- at the end of the draw and detect cycle, the highest layered window that contains the mouse wins
+- that window is the one that has focus 
+- change layers so that that window is on the higher layer
+
+- then process mouse input for that window only
+
+- if the mouse is not on any window, set flags to indicate that
+
+
+duties of the level editor class
+-----------------------------------
+draw the background depending on the level editor mode
+process mouse and keyboard input on the background depending on the level editor mode
+keep track of the mouse position relative to the entire level background
+
+
+
+
+--------
+
+I think I want to move the loop from wm to le..done...now the wm class is very small
+
+
+I want to make part of the window class a function pointer to a detect mouse function.
+
+if not defined, just the normal rect will be used
+if defined I can have my own custom detect code...
+
+   std::function<void()> drawFunction = nullptr;
+
+   std::function<int()> detectMouse = nullptr;
+
+
+   mWM.mW[1].index = 1;
+   mWM.mW[1].layer = 0;
+   mWM.mW[1].active = 1;
+   mWM.mW[1].set_pos(100, 100);
+   mWM.mW[1].set_size(320, 53);
+   mWM.mW[1].set_title("Status Window");
+   mWM.mW[1].drawFunction = [this]() { mEditorMain.draw_status_window(mWM.mW[1].rect, mWM.mW[1].disable_input, mWM.mW[1].have_focus); };
+   mWM.mW[1].detectMouse  = [this]() { return mEditorMain.status_window_mouse_detect(mWM.mW[1].rect); };
+
+
+// mwWindowManager.h
+#ifndef mwWindowManager_H
+#define mwWindowManager_H
+#include "mwWindow.h"
+
+
+now my class is even smaller and very generic
+
+class mwWindowManager
+{
+   public:
+   mwWindowManager(int number_of_windows);
+   std::vector<mwWindow> mW;
+   int num_windows = 10;
+   int mouse_on_window;
+   void cycle_windows(int draw_only);
+};
+#endif
+
+
+// mwWindowManager.cpp
+#include "pm.h"
+#include "mwWindowManager.h"
+
+mwWindowManager::mwWindowManager(int number_of_windows)
+{
+   num_windows = number_of_windows;
+   mwWindow w; // make blank entries in the vector
+   for (int i = 0; i<num_windows; i++) mW.push_back(w);
+}
+
+void mwWindowManager::cycle_windows(int draw_only)
+{
+   // check window positions for offscreen
+   for (int a=0; a<num_windows; a++) mW[a].check_offscreen();
+
+   // start with mouse not on any window by default
+   mouse_on_window = 0;
+  
+   // get the max layer (highest number = bottom layer) top_layer is always 0
+   int max_layer = 0;
+   for (int a=0; a<num_windows; a++)
+      if ((mW[a].active) && (mW[a].layer > max_layer)) max_layer = mW[a].layer;
+
+   // cycle layers from bottom up
+   for (int b = max_layer; b>=0; b--)
+   {
+      // find any active windows at that layer
+      for (int a=0; a<num_windows; a++)
+         if ((mW[a].active) && (mW[a].layer == b))
+         {
+            // draw with window
+            mW[a].draw(draw_only);
+
+            // detect mouse if not draw only
+            if ((!draw_only) && (mW[a].detect_mouse())) mouse_on_window = a;
+         }
+   }
+
+   if (draw_only) return;
+   
+   // set all windows to not have focus
+   for (int a=0; a<num_windows; a++) mW[a].have_focus = 0;
+   
+   if (mouse_on_window)
+   {
+      // set the window to be the only one with focus
+      mW[mouse_on_window].have_focus = 1;
+
+
+      // set the window layer to the top layer
+      
+      // detect if window is not at the top layer
+      if (mW[mouse_on_window].layer !=0)
+      {
+         // get old layer number of window we are promoting
+         int on = mW[mouse_on_window].layer;
+
+         // slide everything down one layer (add 1 to all layers)
+         for (int a=0; a<num_windows; a++)
+            if (mW[a].active) mW[a].layer++;
+
+         // set new top layer
+         mW[mouse_on_window].layer = 0;
+
+         // remove gaps in layers
+         for (int b=on+2; b<num_windows+10; b++) // cycle from old promoted layer down
+            for (int a=0; a<num_windows; a++)    // cycle all windows
+               if ((mW[a].active) && (mW[a].layer == b)) mW[a].layer--; // move layer up
+      }
+      
+      // process mouse input on the window
+      mW[mouse_on_window].process_mouse();
+   }
+}
+
+do everything else in mLevelEditor....done...
+
+this is so much cleaner!!!!
+
+2026-07-20 16:07:32
+
+do you remember why you started this?
+
+use the window class on tas
+
+just add an instance to demoRecord and start copying to windows...
+
+I still have something to patch in to windows class....
+call back for the function to redraw background and windows when dragging or resizing
+right now that is in each window, mucho duplication, could it be in the wm class...
+just make it another function pointer in the window class
+do it for level editor first...done...
+
+
+2026-07-21 02:43:33
+
+demo record controls to windows
+maybe even split the cpp file, its 2300+ lines
+
+
+
+2026-07-21 03:07:46
+testing level editor
+editorMain drag move is broken..fixed
+
+test:
+editorMain all seems to work
+edit Selection good
+
+Tile Helper
+choose pattern get box not working..fixed
+
+GroupEdit
+Randomize position in selection clears selection?..fixed
+
+Object Viewer
+get box broken..fixed
+drag overlay crashes
+snap is set to zero???
+
+
+I think I broke stuff when I separated
+mLevelEditor.redraw_background(int mode);
+and 
+mLevelEditor.get_mouse_position_on_background();
+
+why do they need to be separate?
+is there ever a case when I would want to draw background and not update position?
+
+usages 
+7 x redraw_background(int mode) 
+13 x redraw_background() 
+
+
+could I simplify the times I call this:
+
+I added get_mouse_position_on_background() to the main redraw...
+now that is the only time it is ever called
+lets see what that breaks..so far so good
+
+now what about all the calls to redraw? 20 of them
+
+
+start with the 4 in lift viewer
+
+      if (mMiscFnx.getxy("Lift Initial Position", 4, l, step) == 1)
+      {
+         step++;
+         initial_type = (4 | cf);  // make type 4 step type with same flags as initial
+         construct_lift_step(l, step, initial_type, 0, 0, 0, 0, 0); // type 4 - loop to step zero
+         cur[l].num_steps++; // add one to steps
+
+         set_lift_to_step(l, 0); // set step 0 for lift
+
+//         mLevelEditor.redraw_background();  // do this twice to get proper window height
+//         mLevelEditor.redraw_background();
+
+         insert_steps_until_quit(l, step);
+
+         mObjectViewer.object_viewer(4, l);
+         return 1;
+      }
+
+int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'step'
+{
+   int bts = 16;
+   int ret = 0;
+
+   // increment the number of steps
+   if (++cur[lift].num_steps > 40)
+   {
+      cur[lift].num_steps--;
+      ret = 0;
+      al_show_native_message_box(mDisplay.display, "Error", "Error creating lift step", "40 steps is the maximum", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+   }
+   else
+   {
+      // slide steps down to make room for new step
+      for (int x=cur[lift].num_steps-2; x>=step; x--)
+      {
+         stp[lift][x+1].x    = stp[lift][x].x;
+         stp[lift][x+1].y    = stp[lift][x].y;
+         stp[lift][x+1].w    = stp[lift][x].w;
+         stp[lift][x+1].h    = stp[lift][x].h;
+         stp[lift][x+1].val  = stp[lift][x].val;
+         stp[lift][x+1].type = stp[lift][x].type;
+      }
+      clear_lift_step(lift, step);
+      int step_ty = mLevelEditor.mWM.mW[7].rect.y1+ 38 + 7 * bts;
+      draw_steps(mLevelEditor.mWM.mW[7].rect.x1+1, mLevelEditor.mWM.mW[7].rect.x2-1, step_ty, lift, step, step, 1);     // show lift steps
+      if (get_new_lift_step(lift, step) == 99) // cancelled
+      {
+         delete_lift_step(lift, step);
+         ret = 0;
+      }
+      else ret = 1;
+      // mLevelEditor.redraw_background();  // do this twice to get proper window height
+      // mLevelEditor.redraw_background();
+
+   }
+   return ret;
+}
+
+does not seem to matter that these 4 calls are removed...
+
+next
+
+groupEdit drag move reorder list
+
+            else // keep mouse for drag swap
+            {
+               int old_mpl = mpl;
+               while (mInput.mouse_b[1][0])
+               {
+                  mLevelEditor.redraw_background();
+                  mScreen.draw_scaled_level_region_to_display();
+                  mLevelEditor.mWM.cycle_windows(1); // draw only
+
+                  mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
+                  if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
+                  if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mColor.pc[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
+               }
+               if (mpl != -1) swap_obj_list_items(old_mpl, mpl); // if mouse is on valid list item, do the swap
+
+
+can be replaced by this:
+
+void mwLevelEditor::redraw_callback()
+{
+   redraw_background(0);
+   mScreen.draw_scaled_level_region_to_display();
+   mWM.cycle_windows(1); // draw only
+}
+
+
+done...
+
+int mwMenu::tmenu(int menu_pos, int x1, int y1)
+// level editor main menu
+{
+
+      // mLevelEditor.redraw_background();
+      // mLevelEditor.mWM.cycle_windows(1);
+
+      mLevelEditor.redraw_callback();
+
+
+how can I make the menu not erase the background?
+I used to have a custom thing in the window class for window with index 8
+now what?
+
+one option: don't make erase mandatory, do it manually in each draw function
+i like this...
+
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+done...
+
+
+now back to the redraw cleanup...
+
+widgets..leave these 2 alone
+float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
+float mwWidget::get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2)
+
+object viewer...
+I have bugs, 
+first why is snap set to zero?
+
+void mwObjectViewer::init()
+{
+   obt = 0;
+   num = 0;
+   viewer_lock = 0;
+   snap = 20;
+}
+init was never called, fixed
+
+now ov seems to like resizing
+
+ov has 2 calls and the have to be like this:
+mLevelEditor.redraw_background();
+or the overlays do not get drawn...
+
+ov also has a call in run lifts...don't touch!!!
+
+that takes care of all 7 calls to redraw_background() 
+
+now 
+7 x redraw_background(int mode) 
+void mwBitmapTools::select_bitmap_from_level(int &tn)..good
+
+all done with this...I think I have squashed all bugs in level editor....
+
+
+back to demoRecord
+
+make a new file:
+mwDemoRecordGDT.cpp
+that got rid of 150 lines...
+
+let try moving transport into a window
+
+I am happy with how that went.
+
+next...
+game moves list
+
+make a new file
+mwDemoRecordGMList.cpp >600 lines
+
+it needs a title bar
+
+I also want to make the number of lines set by dragging the window size.
+I cant seem to resize...fixed
+
+I think I want to add to my window class:
+
+min_width
+max_width
+
+min_height
+max_height
+
+check when resizing...done
+
+now make the lower controls inside the main window
+hell, just put them in the title bar...
+
+show a triangle in the bottom right corner and highlight if moused over..done
+now I need to make the popup edit gm to line up....done...
+omg I think I have gmlist done...
+
+what's next?
+timeline...very important
+C:\pm\savegame\demo\TAS\lev016-8P-115.gm
+
+
+I have a really nice one I use for demo playback....
+It has timeline integrated with transport and speed controls
+also shows deaths and purple coins
+it also is unnecesarily complicated with small buttons...
+and a mode that shrinks to the bottom frame
+
+somehow I want to make some parts common...
+
+
+there is something called gmInfo
+
+after loading gm, play it through with  addEventsToDatabase = true;
+
+events 8(die) and 27(purple coin) are added to db
+
+
+then these are run: 
+
+   findPlayerTracks();
+   findDeaths();
+   findPurpleCoins();
+
+which fill these:
+
+struct gmPlayerInfoRecord
+{
+   int playerNum;
+   int playerCol;
+   std::string playerName;
+   int startFrame;
+   int endFrame;
+   std::vector<int> deaths;
+   std::vector<int> purpleCoins;
+};
+
+class mwGmInfo
+{
+   public:
+      void fill();
+
+      bool addEventsToDatabase{};
+      int lastFrame{};
+      std::vector<gmPlayerInfoRecord> gmPlayerInfo;
+
+
+then I think I can call this function:
+
+
+void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h)
+lets try it...
+
+that works way better than I had hoped
+
+now I want to title and resize
+
+i need to change this to respect draw only...done
+void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h)
+
+I also want to return the number of tracks
+or just use : mGmInfo.gmPlayerInfo.size()
+
+2026-07-21 10:08:48
+
+I cant get over just how good this looks!!!
+
+can I also make it show:
+- level done
+- current mouse pointer
+- current playtime
+
+if I can do this, there is nothing else I need from the old version
+
+where will I show the markers? just below
+there already is current time and mouse pointer...
+add level done
+make a nice marker
+
+I want a function that draws either frame or time or both, in a nice box, either small or regular text
+
+does gmInfo know about level done? yes
+
+I think I always want to draw above... toggle draw though...done
+
+disable the old one now...done
+
+move mores thing into their own files
+
+120 mwDemoRecordFileDetails.cpp
+130 mwDemoRecordGDT.cpp 
+170 mwDemoRecordRangeTools.cpp
+200 mwDemoRecordTransport.cpp
+570 mwDemoRecordGMList.cpp 
+629 mwDemoRecordSections.cpp
+400 mwDemoRecord.cpp
+
+
+nicer...
+
+I have a feeling there is much in sections that is not needed anymore...
+
+   
+
+when I change player from timeline I want current section to update
+maybe I could just get it to follow active local player??
+
+
+
+
+these could be used from gmInfo??
+
+   level_done_frame = 0;
+   level_done_player = -1;
+
+
+void mwDemoRecord::find_level_done(void)
+{
+   level_done_frame = 0;
+   level_done_player = -1;
+
+   seek_to_frame(0, 0);
+
+   mLoop.ff_state = 1;
+   int done = 0;
+   while (!done)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+      if (mPlayer.syn[0].level_done_mode)
+      {
+         level_done_frame  = mPlayer.syn[0].level_done_frame;
+         level_done_player = mPlayer.syn[0].level_done_player;
+         done = 1;
+      }
+      if (mLoop.frame_num > mDemoMode.last_frame + 400) done = 1;
+   }
+   mLoop.ff_state = 0;
+}
+
+
+I could just call this:
+
+mGmInfo.fill()
+
+then read these:
+
+mGmInfo.levelDoneFrame
+mGmInfo.levelDonePlayer
+
+this would remove some duplication..done...not sure what good it did...
+
+much of what is in sections is now in gmInfo
+
+compare:
+
+struct gmPlayerInfoRecord
+{
+   int playerNum;
+   int playerCol;
+   std::string playerName;
+   int startFrame;
+   int endFrame;
+   std::vector<int> deaths;
+   std::vector<int> purpleCoins;
+}
+
+   player_sections[i][0] = 1; // active
+
+
+these are all there
+   player_sections[i][1] = p;
+   player_sections[i][2] = c;
+   player_sections[i][3] = f1;
+   player_sections[i][4] = f2;
+
+
+these were only to draw old timeline
+   player_sections[i][5] = screen_pos_from_frame_num(f1, last_frame, sb_x1, sb_w);
+   player_sections[i][6] = y;
+   player_sections[i][7] = screen_pos_from_frame_num(f2, last_frame, sb_x1, sb_w);
+   player_sections[i][8] = y - sb_size;
+
+
+this is not
+   player_sections[i][9] = end_type;
+
+   player_sections[i][10]; // deaths
+   player_sections[i][11]; // level done
+   player_sections[i][12]; // ack frame
+   player_sections[i][13]; // hidden
+
+   player_sections[i][14]; // number of game moves
+   player_sections[i][15]; // frame of last game move
+
+
+I don't really think I would be missing anything
+
+
+2026-07-21 13:06:03
+
+what's the easy way?
+
+replace usages with something else....the vector in gmInfo
+I can still use the index from the vector, just like I used the array index for current section
+
+start with the main widget...
+
+   int current_section = 0;
+
+
+old iterate
+
+   for (int i=0; i<20; i++)
+      if (player_sections[i][0])
+      {
+
+new iterate
+
+   for (auto& r : mGmInfo.gmPlayerInfo)
+   {
+      int p = r.playerNum;
+      int c = r.playerCol;
+
+
+
+
+
+struct gmPlayerInfoRecord
+{
+   int playerNum;
+   int playerCol;
+   std::string playerName;
+   int startFrame;
+   int endFrame;
+   std::vector<int> deaths;
+   std::vector<int> purpleCoin
+int mwDemoRecord::draw_section_details(int x1, int y1)
+{
+   int i = current_section;
+   int p   = player_sections[i][1];
+   int col = player_sections[i][2];
+   int f1  = player_sections[i][3];
+   int f2  = player_sections[i][4];
+
+
+
+
+void mwDemoRecord::set_active_section(int i)
+{
+   if ((i >= 0) && (player_sections[i][0]))
+   {
+      current_section = i;
+      record_player_number = mPlayer.active_local_player = player_sections[current_section][1];
+      record_player_color = player_sections[current_section][2];
+      load_lnk_arr();    // load games moves into link array
+   }
+}
+
+
+removed all this:
+
+
+
+/*
+
+
+void mwDemoRecord::set_player_section(int i, int p, int c, int f1, int f2, int y, int end_type)
+{
+   player_sections[i][0] = 1; // active
+   player_sections[i][1] = p;
+   player_sections[i][2] = c;
+   player_sections[i][3] = f1;
+   player_sections[i][4] = f2;
+   player_sections[i][5] = screen_pos_from_frame_num(f1, mDemoMode.last_frame, sb_x1, sb_w);
+   player_sections[i][6] = y;
+   player_sections[i][7] = screen_pos_from_frame_num(f2, mDemoMode.last_frame, sb_x1, sb_w);
+   player_sections[i][8] = y - sb_size;
+   player_sections[i][9] = end_type;
+   sprintf(player_sections_names[i], "%s", mPlayer.syn[p].name);
+}
+
+*/
+/*
+
+
+   list all
+
+   player_sections[i][0] = 1; // active
+   player_sections[i][1] = p;
+   player_sections[i][2] = c;
+   player_sections[i][3] = f1;
+   player_sections[i][4] = f2;
+   player_sections[i][5] = screen_pos_from_frame_num(f1, last_frame, sb_x1, sb_w);
+   player_sections[i][6] = y;
+   player_sections[i][7] = screen_pos_from_frame_num(f2, last_frame, sb_x1, sb_w);
+   player_sections[i][8] = y - sb_size;
+   player_sections[i][9] = end_type;
+
+   player_sections[i][10]; // deaths
+   player_sections[i][11]; // level done
+   player_sections[i][12]; // ack frame
+   player_sections[i][13]; // hidden
+
+   player_sections[i][14]; // number of game moves
+   player_sections[i][15]; // frame of last game move
+
+*/
+
+/*
+void mwDemoRecord::fill_player_sections(void)
+{
+   sb_x1 = 14;
+   sb_x2 = mDisplay.SCREEN_W - 20;
+   sb_w = sb_x2 - sb_x1;
+   sb_y2 = mDisplay.SCREEN_H - 14;
+
+
+   // clear
+   for (int i=0; i<20; i++)
+   {
+      for (int j=0; j<20; j++) player_sections[i][j] = 0;
+      sprintf(player_sections_names[i], "%s", "");
+   }
+
+
+   int psi = 0;
+   int y = sb_y2-sb_spacing;
+
+   // find sections of active players
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      int col = 0; // = mPlayer.syn[p].color; // overwrite later
+      int f1 = -1;
+      int f2 = -1;
+
+      player_sections[psi][14] = 0; // number of game moves
+      player_sections[psi][15] = 0; // frame of last game move
+
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+      {
+         int gm_frame  = mGameMoves.arr[x][0];
+         int gm_type   = mGameMoves.arr[x][1]; // get type of game move
+         int gm_player = mGameMoves.arr[x][2]; // get player num of game move
+         int gm_color  = 0;                    // get player color of game move
+
+         // need to do this here to get embedded player number and color
+         if (gm_type & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+         {
+            char name[9] = { 0 };
+            mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, name);
+            snprintf(mPlayer.syn[gm_player].name, 9, "%s", name);
+         }
+
+         if (gm_player == p)
+         {
+            if (gm_color) col = gm_color;
+
+            // inc tally of number of game moves
+            player_sections[psi][14]++;
+
+            // check and update max frame number
+            if (mGameMoves.arr[x][0] > player_sections[psi][15]) player_sections[psi][15] = mGameMoves.arr[x][0];
+
+            if (gm_type == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN) player_sections[psi][13] = 1;
+
+            if (gm_type & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) f1 = gm_frame;
+
+            if (gm_type == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+            {
+               f2 = gm_frame;
+
+               set_player_section(psi, p, col, f1, f2, y, 1);
+               y -= (sb_size + sb_spacing);
+               psi++;
+
+               // reset pointers
+               f1 = -1;
+               f2 = -1;
+            }
+         }
+      }
+      if ((f1 != -1) && (f2 == -1)) // active with no matching inactive
+      {
+         set_player_section(psi, p, col, f1, mDemoMode.last_frame, y, 0);
+         y -= (sb_size + sb_spacing);
+         psi++;
+      }
+   }
+   sb_y1 = y;
+}
+
+
+// this finds deaths and level done...
+// don't think I need these anymore, info is in gminfo
+void mwDemoRecord::get_more_player_section_info(void)
+{
+   for (int i=0; i<20; i++)
+      if (player_sections[i][0])
+      {
+         int p   = player_sections[i][1];
+         int f1  = player_sections[i][3];
+         int f2  = player_sections[i][4];
+
+         player_sections[i][10] = 0; // deaths
+         player_sections[i][11] = 0; // level done
+
+         seek_to_frame(f1, 0);
+         while (mLoop.frame_num < f2)
+         {
+            mLoop.frame_num++;
+            mGameMoves.proc();
+            mLoop.move_frame();
+            if ((player_sections[i][11] == 0) && (mPlayer.syn[0].level_done_mode) && (mPlayer.syn[0].level_done_player == p)) player_sections[i][11] = mLoop.frame_num;
+            if ((mPlayer.syn[p].paused == 100) && (mPlayer.syn[p].paused_type == 1)) player_sections[i][10]++;
+         }
+      }
+   seek_to_frame(current_frame_num, 1);
+}
+
+// why?
+void mwDemoRecord::find_ack_moves(int i)
+{
+   player_sections[i][12] = 0; // ack_move_frame
+
+   // searches frame range of segment for ack moves
+   int p   = player_sections[i][1];
+   int f1  = player_sections[i][3];
+   int f2  = player_sections[i][4];
+
+   for (int x=f1; x<f2; x++)
+      if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK))
+         {
+            player_sections[i][12] = mGameMoves.arr[x][0]; // ack_move_frame
+            return; // quit immed after finding first ack
+         }
+}
+
+*/
+
+//   void set_player_section(int i, int p, int c, int f1, int f2, int y, int end_type);
+//   void fill_player_sections();
+  // void get_more_player_section_info();
+ //  void find_ack_moves(int i);
+
+   // int player_sections[20][20] = {0};
+   // char player_sections_names[20][9] = {0};
+
+    int p   = mGmInfo.gmPlayerInfo[i].playerNum;
+   int col = mGmInfo.gmPlayerInfo[i].playerCol;
+   int f1  = mGmInfo.gmPlayerInfo[i].startFrame;
+   int f2  = mGmInfo.gmPlayerInfo[i].endFrame;
+
+that's a lot...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

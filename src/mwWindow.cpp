@@ -19,10 +19,21 @@ mwWindow::mwWindow()
    have_focus = 0;
    disable_input = 0;
    layer = 0;
-   hidden = 0;
    moveable = 1;
    moving = 0;
    resizable = 0;
+
+   min_width = 100;
+   max_width = 100;
+
+   min_height = 100;
+   max_height = 100;
+
+
+   drawFunction = nullptr;
+   detectMouse = nullptr;
+   redrawCallback = nullptr;
+
 }
 
 void mwWindow::set_title(const char* st) {  sprintf(title, "%s", st);  }
@@ -31,8 +42,8 @@ void mwWindow::set_size(int w, int h)    {  rect.setWH(w, h);  }
 
 bool mwWindow::detect_mouse()
 {
-   if (!detectMouse) return rect.contains(mInput.mouse_x, mInput.mouse_y);
-   else return detectMouse();
+   if (detectMouse) return detectMouse();
+   else return rect.contains(mInput.mouse_x, mInput.mouse_y);
 }
 
 
@@ -50,54 +61,65 @@ void mwWindow::check_offscreen()
 
 void mwWindow::process_mouse(void)
 {
-   if (!hidden)
+   if (mInput.mouse_b[1][0])
    {
-      if (mInput.mouse_b[1][0])
-      {
-         // moveable and mouse on title bar
-         if ((moveable) && (mInput.mouse_x > rect.x1) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y1) && (mInput.mouse_y < rect.y1+8))
-         {
-            int mxo = mInput.mouse_x - rect.x1; // get offset from mouse position to window x, y
-            int myo = mInput.mouse_y - rect.y1;
-            moving = 1;
-            while (mInput.mouse_b[1][0])
-            {
-               set_pos(mInput.mouse_x - mxo, mInput.mouse_y - myo);
-               mLevelEditor.redraw_background(0);
-               mScreen.draw_scaled_level_region_to_display();
-               mLevelEditor.mWM.cycle_windows(1); // draw only
-            }
-            moving = 0;
-         }
+      // title bar rect
+      mwRect<int> title_bar_rect = rect;
+      title_bar_rect.setHeight(11);
 
-         // resizable and mouse on lower right corner
-         if ((resizable) && (mInput.mouse_x > rect.x2-10) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y2-10) && (mInput.mouse_y < rect.y2))
+      // size adjust rect
+      mwRect<int> size_adj_rect = rect;
+      size_adj_rect.setWH_adj_X1Y1(10, 10);
+
+      int mxo, myo;
+
+      // moveable and mouse on title bar
+      if (moveable && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y, mxo, myo))
+      {
+         moving = 1;
+         while (mInput.mouse_b[1][0])
          {
-            int mxo = mInput.mouse_x - rect.x2; // get offset from mouse position to window x, y
-            int myo = mInput.mouse_y - rect.y2;
-            moving = 1;
-            while (mInput.mouse_b[1][0])
-            {
-               rect.x2 = mInput.mouse_x-mxo;
-               rect.y2 = mInput.mouse_y-myo;
-               rect.w = rect.x2 - rect.x1;
-               rect.h = rect.y2 - rect.y1;
-               mLevelEditor.redraw_background(0);
-               mScreen.draw_scaled_level_region_to_display();
-               mLevelEditor.mWM.cycle_windows(1); // draw only
-            }
+            set_pos(mInput.mouse_x - mxo, mInput.mouse_y - myo);
+            if (redrawCallback) redrawCallback();
          }
-         moving = 0;
       }
+
+      // resizable and mouse on lower right corner
+      if (resizable && size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y))
+      {
+         mxo = mInput.mouse_x - rect.x2; // get offset from mouse position to window x2, y2
+         myo = mInput.mouse_y - rect.y2;
+         moving = 1;
+         while (mInput.mouse_b[1][0])
+         {
+            rect.x2 = mInput.mouse_x-mxo;
+            rect.y2 = mInput.mouse_y-myo;
+            rect.w = rect.x2 - rect.x1;
+            rect.h = rect.y2 - rect.y1;
+
+            bool lim = false;
+            if (rect.w < min_width)  { lim = 1; rect.w = min_width;  }
+            if (rect.w > max_width)  { lim = 1; rect.w = max_width;  }
+            if (rect.h < min_height) { lim = 1; rect.h = min_height; }
+            if (rect.h > max_height) { lim = 1; rect.h = max_height; }
+            if (lim)
+            {
+               rect.x2 = rect.x1 + rect.w;
+               rect.y2 = rect.y1 + rect.h;
+               al_set_mouse_xy(mDisplay.display, (rect.x2+mxo) * mDisplay.display_transform_double, (rect.y2+myo) * mDisplay.display_transform_double);
+            }
+
+            if (redrawCallback) redrawCallback();
+         }
+      }
+      moving = 0;
    }
 }
 
+
 void mwWindow::draw(int draw_only)
 {
-   // erase background
-   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[0]);
-
-   // by default disable input (display only)
+   // by default disable input (draw only)
    disable_input = 1;
 
    // this is the only case where input is enabled
@@ -109,37 +131,46 @@ void mwWindow::draw(int draw_only)
    if (drawFunction) drawFunction();
    else
    {
+      // erase background
+      rect.draw_filled_rectangle(mColor.pc[0]);
+
+      // title bar rect
+      mwRect<int> title_bar_rect = rect;
+      title_bar_rect.setHeight(11);
+
+      // size adjust rect
+      mwRect<int> size_adj_rect = rect;
+      size_adj_rect.setWH_adj_X1Y1(10, 10);
+
       // frame window
-      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[color], 1);
+      rect.draw_rectangle(mColor.pc[color], 1);
 
       // frame title bar
-      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y1+11, mColor.pc[color], 1);
+      title_bar_rect.draw_rectangle(mColor.pc[color], 1);
 
       // title
-      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+2, 0, "title:%s", title);
+      al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+ 2, 0, "title:%s", title);
       al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+12, 0, "index:%d", index);
       al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+22, 0, "layer:%d", layer);
       al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+30, 0, "focus:%d", have_focus);
       al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+38, 0, "x1:%d x2:%d w:%d", rect.x1, rect.x2, rect.w);
       al_draw_textf(mFont.pr8, mColor.pc[color], rect.x1+2, rect.y1+46, 0, "y1:%d y2:%d h:%d", rect.y1, rect.y2, rect.h);
-      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[10], 1);
 
       if (have_focus)
       {
-         // frame entire window
-         al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[10], 1);
+         // highlight window frame
+         rect.draw_rectangle(mColor.pc[10], 2);
 
-         // frame title bar
-         if (moveable)
+         if (moveable && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y))
          {
-            if ((mInput.mouse_x > rect.x1) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y1) && (mInput.mouse_y < rect.y1+8))
-               al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y1+11, mColor.pc[10], 1);
+            // highlight title bar frame
+            title_bar_rect.draw_rectangle(mColor.pc[10], 2);
          }
-         // lower right corner
-         if (resizable)
+
+         if (resizable && size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y))
          {
-            if ((mInput.mouse_x > rect.x2-10) && (mInput.mouse_x < rect.x2) && (mInput.mouse_y > rect.y2-10) && (mInput.mouse_y < rect.y2)) // lower right corner for resize
-               al_draw_rectangle(rect.x2-10, rect.y2-10, rect.x2, rect.y2, mColor.pc[10], 1);
+            // highlight size adj
+            size_adj_rect.draw_rectangle(mColor.pc[10], 2);
          }
       }
    }

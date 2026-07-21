@@ -985,6 +985,11 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
    int color = 9;
 
+
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
+
    // frame entire window
    rect.draw_rectangle(mColor.pc[color], 1);
 

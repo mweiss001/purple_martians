@@ -255,7 +255,7 @@ void mwScreen::draw_demo_controls_overlay()
       int timeline_ls = cls;
       int timeline_width;
       int timeline_height;
-      draw_demo_controls_overlay_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height); // get sizes only
+      draw_demo_controls_overlay_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height, 0, 1); // get sizes only
 
       // speed control sizes
       int speed_ls = cls;
@@ -343,7 +343,7 @@ void mwScreen::draw_demo_controls_overlay()
       }
       if (show_timeline)
       {
-         draw_demo_controls_overlay_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height);
+         draw_demo_controls_overlay_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height, 0, 0);
          ya += (timeline_height+control_spacing); // update running y position
       }
 
@@ -549,8 +549,15 @@ void mwScreen::draw_demo_controls_overlay_speed(int fx1, int fy1, int bts, int l
 }
 
 
-void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h)
+
+void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int display_time_labels, int display_only)
 {
+   int display_time_dir = 0;
+   int display_time_format = 2;
+
+   int display_time_distance = 18 + mLoop.pct_y;
+
+
    int baseFrameColor = 15;
 
    // height increase for active track
@@ -610,7 +617,7 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       float rx2 = mMiscFnx.map_range<float>((float)r.endFrame,   sf, lf,  ix1, ix2);
 
       // is mouse on bar?
-      if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2))
+      if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2) && (!display_only))
       {
          mouse_on_bar = p;
          frameColor = mColor.flash_color;
@@ -683,20 +690,38 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    float fx = mMiscFnx.map_range<float>((float)currentFrame, sf, lf,  ix1, ix2);
    al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
+   // add time text label below
+   if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, currentFrame, display_time_format, display_time_dir, display_time_distance, 15);
+
+
+
+
+   // draw vertical line at Level done
+   fx = mMiscFnx.map_range<float>((float) mGmInfo.levelDoneFrame, sf, lf,  ix1, ix2);
+   al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
+
+   // add time text label below
+   if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, mGmInfo.levelDoneFrame, display_time_format, display_time_dir, display_time_distance, 11);
+
+
+
    // is mouse on frame?
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!display_only))
    {
       // draw vertical line at mouse pos frame
       float fx = (float) mInput.mouse_x;
       al_draw_line(fx, y1, fx, y2, mColor.pc[14], 1);
 
+      // map screen x position to frame num
+      float f = mMiscFnx.map_range<float>( (float) mInput.mouse_x, ix1, ix2, sf, lf);
+
+      // add text label below indicator
+      if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, f, display_time_format, display_time_dir, display_time_distance, 14);
+
       // is mouse button pressed?
       if (mInput.mouse_b[1][0])
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-
-         // map screen x position to frame num
-         float f = mMiscFnx.map_range<float>( (float) mInput.mouse_x, ix1, ix2, sf, lf);
 
          // set frame num and seek to frame
          mLoop.frame_num = f;
@@ -778,6 +803,10 @@ int mwScreen::draw_demo_controls_overlay_players_small(int x, int y)
    return rx-x;
 }
 
+
+
+
+// one single line in the bottom tray frame
 void mwScreen::draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y2, int col)
 {
    // clear background and draw frame

@@ -174,6 +174,12 @@ add_executable(pm
         src/mwObjectViewer.h
         src/mwLevelEditor.cpp
         src/mwLevelEditor.h
+        src/mwDemoRecordGDT.cpp
+        src/mwDemoRecordGMList.cpp
+        src/mwDemoRecordRangeTools.cpp
+        src/mwDemoRecordSections.cpp
+        src/mwDemoRecordTransport.cpp
+        src/mwDemoRecordFileDetails.cpp
 )
 
 

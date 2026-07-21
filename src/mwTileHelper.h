@@ -65,7 +65,7 @@ class mwTileHelper
 
 
 
-   void process_mouse();
+   void process_mouse_on_background();
 
 
    std::vector<frameFill> frameFills;

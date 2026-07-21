@@ -50,7 +50,7 @@ class mwEditSelection
 
 
    void show_pointer_text(int x1, int x2, int y, int mouse_on_window);
-   void process_mouse();
+   void process_mouse_on_background();
 
 };
 

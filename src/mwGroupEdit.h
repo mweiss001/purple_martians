@@ -61,7 +61,7 @@ class mwGroupEdit
 
    int show_controls(int x, int y, int *ew, int *eh, int hidden, int draw_only);
    void add_selection_to_list(int set_filters);
-   void process_mouse();
+   void process_mouse_on_background();
 
    void draw_list(mwRect<int> &rect, int draw_only, int have_focus);
    void draw_controls(mwRect<int> &rect, int draw_only, int have_focus);

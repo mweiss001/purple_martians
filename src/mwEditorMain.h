@@ -13,7 +13,7 @@ public:
    void show_draw_item_cursor();
    void show_item_info(int x, int y, int color, int type, int num);
    void find_point_item();
-   void process_mouse();
+   void process_mouse_on_background();
 
    int draw_tile_mode = 1;
    int draw_item_num;

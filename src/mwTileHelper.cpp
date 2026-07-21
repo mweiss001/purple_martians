@@ -1821,6 +1821,9 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
 
 void mwTileHelper::draw(mwRect<int> &rect, int d, int have_focus)
 {
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
    mMiscFnx.titlex("Tile Helper", 15, 13, rect.x1, rect.x2, rect.y1+1);
    int by1 = rect.y1+3;
    if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
@@ -1903,7 +1906,7 @@ void mwTileHelper::find_connected(int x, int y, int group)
 }
 
 
-void mwTileHelper::process_mouse(void)
+void mwTileHelper::process_mouse_on_background(void)
 {
    if (mInput.mouse_b[1][0])
    {

@@ -21,6 +21,10 @@ class mwGmInfo
       std::vector<gmPlayerInfoRecord> gmPlayerInfo;
 
 
+   int levelDoneFrame{};
+   int levelDonePlayer{};
+
+
    private:
       void clear();
       void findPlayerTracks();
@@ -33,8 +37,6 @@ class mwGmInfo
       void findPurpleCoins();
       void addPurpleCoin(int p, int f);
 
-      int levelDoneFrame{};
-      int levelDonePlayer{};
 };
 
 extern mwGmInfo mGmInfo;

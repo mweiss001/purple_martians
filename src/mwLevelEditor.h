@@ -36,10 +36,14 @@ class mwLevelEditor
    void show_selection_rect(mwRect<int> rect, int color, const char * text);
    void show_selection_text(mwRect<int> rect);
 
-   bool get_new_box(const char* text, bool preview = false);
+   bool get_new_selection(const char* text, bool preview = false);
 
    void redraw_background(int mode);
    int redraw_background();
+
+
+   void redraw_callback();
+
 
    void save_mW();
    void load_mW();

@@ -116,6 +116,55 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
 }
 
 
+void mwMiscFnx::draw_time_text_box(int xc, int y1, int y2, int f, int format, int dir, int dist, int color)
+{
+   char ft1[256];
+   char ft2[256];
+   int bts = 10;
+
+
+   sprintf(ft1, "%d", f);
+   sprintf(ft2, "%s", mMiscFnx.chrms(f, ft2));
+
+   int y = y1;
+   if (dir) y = y2;
+
+
+
+   if (dir)
+   {
+      al_draw_line(xc, y, xc, y+dist, mColor.pc[color], 1);
+      y+=dist;
+      if (format == 0 || format == 2)
+      {
+         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1);
+         y+=bts;
+      }
+      if (format == 1 || format == 2)
+      {
+         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2);
+      }
+   }
+   else
+   {
+      al_draw_line(xc, y, xc, y-dist, mColor.pc[color], 1);
+      y-=(dist+bts);
+      if (format == 0 || format == 2)
+      {
+         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1);
+         y-=bts;
+      }
+      if (format == 1 || format == 2)
+      {
+         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2);
+      }
+   }
+
+
+}
+
+
+
 
 
 
@@ -718,9 +767,11 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
    int tx = mDisplay.SCREEN_W/2;
    int quit = 0;
    int ret = 0;
+
    while (!quit)
    {
       mLevelEditor.redraw_background(0);
+
       crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
       mScreen.draw_scaled_level_region_to_display();
 
@@ -738,7 +789,7 @@ int mwMiscFnx::get_block_range(const char *txt, int &x1, int &y1, int &x2, int &
 
       if (mInput.mouse_b[1][0])
       {
-         mLevelEditor.get_new_box("selection");
+         mLevelEditor.get_new_selection("selection");
 
          x1 = mLevelEditor.selection.x1*20;
          y1 = mLevelEditor.selection.y1*20;

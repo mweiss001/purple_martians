@@ -51,36 +51,6 @@ I already have almost exactly that with states, do I not ??
 
 
 
-I realy want to do this, but will break many demos...
-
-
-      if (syn[p].yinc < 0) // if moving upwards
-      {
-         if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
-         {
-            if (debug_print) printf("player moving up and collision\n");
-            //syn[p].y -= syn[p].yinc;        // take back move
-            while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y++; // I want to try instead of take back entire move, clamp to highest possible position
-            syn[p].yinc = 0;                // kill upwards motion
-         }
-      }
-
-it broke 40 demos
-
-I am so unhappy with the way that its it, I think I will just suck it up and fix all the demos
-
-fixed a bug in player move where moving up and hitting obstacle took back entire move
-now just takes back up until no collision is detected
-this broke 39 demo levels which will now need to be fixed
-It had to be done, gameplay was affected, it was frustrated to not be able to get close to block above when jumping
-
-
-
-
-
-
-
-
 
 
 
@@ -109,13 +79,7 @@ all I really need to do is get the latest version on pmh...i think...
 
 
 
-do something about drag move windows, when the mouse escapes...force capture
-
-
 when copying selection with block damage that follows lift, link translation does not set bd link to lift
-
-
-
 
 
 
@@ -166,22 +130,6 @@ when lift is huge in level editor, can't see or edit anything below it...
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 I want to make my own custom file dialogs
 
 especially for load, I want to see what I am loading, visually
@@ -193,19 +141,6 @@ I need some sub areas:
 - list of files found
 - display preview for files
 - button to load, save, etc
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

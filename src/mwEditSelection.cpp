@@ -799,7 +799,7 @@ void mwEditSelection::draw_fsel(void)
          ftLift.draw_lift(l, mwRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
 }
 
-void mwEditSelection::process_mouse(void)
+void mwEditSelection::process_mouse_on_background(void)
 {
    if (mInput.mouse_b[1][0])
    {
@@ -813,7 +813,7 @@ void mwEditSelection::process_mouse(void)
          while (mInput.mouse_b[1][0])mEventQueue.proc(1);
          do_floodfill(mLevelEditor.gx, mLevelEditor.gy, mEditorMain.draw_item_num);
       }
-      if ((!copy_mode) && (!brf_mode)) mLevelEditor.get_new_box("selection"); // get new selection
+      if ((!copy_mode) && (!brf_mode)) mLevelEditor.get_new_selection("selection"); // get new selection
    }
    if (mInput.mouse_b[2][0])
    {
@@ -877,12 +877,14 @@ int mwEditSelection::draw(int x1, int x2, int y1, int y2, int d, int have_focus)
 
 void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
 {
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
    mMiscFnx.titlex("Edit Selection", 15, 13, rect.x1, rect.x2, rect.y1+1);
 
    int by1 = rect.y1+3;
    if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
 
-//   int mow = mLevelEditor.mWM.is_mouse_on_any_window();
    mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mLevelEditor.mWM.mouse_on_window);
 
 

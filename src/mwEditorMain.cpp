@@ -227,7 +227,7 @@ void mwEditorMain::find_point_item(void)
 
 }
 
-void mwEditorMain::process_mouse(void)
+void mwEditorMain::process_mouse_on_background(void)
 {
    if (mInput.mouse_b[1][0])
    {
@@ -239,7 +239,7 @@ void mwEditorMain::process_mouse(void)
       {
          case 1: // block
          {
-            if (mLevelEditor.get_new_box("preview", true))
+            if (mLevelEditor.get_new_selection("preview", true))
             {
                mTileSets.drawRect(0);
                mScreen.init_level_background();
@@ -452,6 +452,9 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    int y3 = y1 + 12; // start of second line
    int y4 = y3 + 12; // start of items
 
+
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
 
    // frame entire window
    rect.draw_rectangle(mColor.pc[color], 1);

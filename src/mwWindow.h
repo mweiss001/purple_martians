@@ -8,29 +8,32 @@
 class mwWindow
 {
    public:
+   std::function<void()> drawFunction = nullptr;
+   std::function<bool()> detectMouse = nullptr;
+   std::function<void()> redrawCallback = nullptr;
+
 
    mwRect<int> rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
 
-   std::function<void()> drawFunction = nullptr;
 
-   std::function<bool()> detectMouse = nullptr;
+   int min_width;
+   int max_width;
 
-
-
+   int min_height;
+   int max_height;
 
 
    int index;
    int active;
+
    int have_focus;
-
    int disable_input;
-
 
    int layer;
    int moveable;
    int moving;
    int resizable;
-   int hidden;
+
    int color;
    char title[80];
 
@@ -41,10 +44,7 @@ class mwWindow
 
    void check_offscreen();
 
-
-
    void process_mouse();
-
 
    bool detect_mouse();
 

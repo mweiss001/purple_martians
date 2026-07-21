@@ -55,6 +55,9 @@ class mwMiscFnx
    char * chrmhd(int time, char* ft);
 
 
+   void draw_time_text_box(int xc, int y1, int y2, int f, int format, int dir, int dist, int color);
+
+
 
    int round20(int val);
 

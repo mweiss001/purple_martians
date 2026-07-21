@@ -891,11 +891,8 @@ void mwGroupEdit::show_obj_list(int x, int y, int *ew, int *eh, int d)
                int old_mpl = mpl;
                while (mInput.mouse_b[1][0])
                {
-                  mLevelEditor.redraw_background();
-                  mScreen.draw_scaled_level_region_to_display();
-                  mLevelEditor.mWM.cycle_windows(1); // draw only
-
-                  mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
+                  mLevelEditor.redraw_callback();
+                  mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;      // get raw list item
                   if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
                   if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mColor.pc[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
                }
@@ -1165,13 +1162,13 @@ void mwGroupEdit::add_selection_to_list(int set_filters)
    }
 }
 
-void mwGroupEdit::process_mouse(void)
+void mwGroupEdit::process_mouse_on_background(void)
 {
    if (mInput.mouse_b[1][0])
    {
       if (show_sel_frame) // get new selection rectangle
       {
-         mLevelEditor.get_new_box("selection");
+         mLevelEditor.get_new_selection("selection");
          if (mInput.SHFT()) add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
@@ -1208,6 +1205,9 @@ void mwGroupEdit::process_mouse(void)
 
 void mwGroupEdit::draw_list(mwRect<int> & rect, int d, int have_focus)
 {
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
    remove_obj_list_filtered_items();
    int ew, eh;
    show_obj_list(rect.x1, rect.y1, &ew, &eh, d);
@@ -1262,6 +1262,9 @@ void mwGroupEdit::draw_list(mwRect<int> & rect, int d, int have_focus)
 
 void mwGroupEdit::draw_controls(mwRect<int> & rect, int d, int have_focus)
 {
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
    int hidden = 0; // always show
    int ew, eh;
    mGroupEdit.show_controls(rect.x1, rect.y1+20, &ew, &eh, hidden, d);

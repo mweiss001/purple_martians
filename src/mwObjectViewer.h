@@ -9,6 +9,8 @@ public:
 
    void init();
 
+   mwObjectViewer() { init(); }
+
 
    int obt;
    int num;
@@ -34,18 +36,14 @@ public:
 
    void ov_b3_arrow_nudge(int& x, int& y);
 
-   void ov_process_mouse();
+   void ov_process_mouse_on_background();
    void ov_check_if_valid();
    void ov_process_keypress();
    void object_viewer(int obt, int num);
 
-
-
    void draw(mwRect<int> &rect, int draw_only, int have_focus);
 
    void draw_level_editor_background_overlays(int mouse_on_window);
-
-
 
 };
 

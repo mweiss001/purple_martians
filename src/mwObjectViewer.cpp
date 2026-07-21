@@ -23,13 +23,10 @@ mwObjectViewer mObjectViewer;
 
 void mwObjectViewer::init()
 {
-
    obt = 0;
    num = 0;
    viewer_lock = 0;
    snap = 20;
-
-
 }
 
 
@@ -1453,7 +1450,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       } // end of switch case
    }
 }
-void mwObjectViewer::ov_process_mouse(void)
+void mwObjectViewer::ov_process_mouse_on_background(void)
 {
 
    int lift=0, step=0;
@@ -2201,6 +2198,9 @@ void mwObjectViewer::object_viewer(int o, int n)
 
 void mwObjectViewer::draw(mwRect<int> & rect, int d, int have_focus)
 {
+   // erase background
+   rect.draw_filled_rectangle(mColor.pc[0]);
+
    ov_check_if_valid();
    ov_get_size();
    ov_title(rect.x1, rect.x2, rect.y1, rect.y2, mObjectViewer.legend_line);

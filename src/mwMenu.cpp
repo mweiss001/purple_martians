@@ -301,8 +301,7 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
    while (selection == 999)
    {
-      mLevelEditor.redraw_background();
-      mLevelEditor.mWM.cycle_windows(1);
+      mLevelEditor.redraw_callback();
 
       // draw menu title
       int mt = strlen(menu_string[0])*8;

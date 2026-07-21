@@ -396,9 +396,6 @@ int mwLift::create_lift(void)
 
          set_lift_to_step(l, 0); // set step 0 for lift
 
-         mLevelEditor.redraw_background();  // do this twice to get proper window height
-         mLevelEditor.redraw_background();
-
          insert_steps_until_quit(l, step);
 
          mObjectViewer.object_viewer(4, l);
@@ -513,9 +510,6 @@ int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' bef
          ret = 0;
       }
       else ret = 1;
-      mLevelEditor.redraw_background();  // do this twice to get proper window height
-      mLevelEditor.redraw_background();
-
    }
    return ret;
 }

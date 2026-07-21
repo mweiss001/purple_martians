@@ -38,6 +38,15 @@ public:
       y2 = y1 + h;
    }
 
+   void setWH_adj_X1Y1(T rectWidth, T rectHeight)
+   {
+      w = rectWidth;
+      h = rectHeight;
+      x1 = x2 - w;
+      y1 = y2 - h;
+   }
+
+
    void setX1Y1(T x, T y)
    {
       x1 = x;
@@ -45,6 +54,15 @@ public:
       x2 = x1 + w;
       y2 = y1 + h;
    }
+
+   void setX1Y1_adj_WH(T x, T y)
+   {
+      x1 = x;
+      y1 = y;
+      w = x2 - x1;
+      h = y2 - y1;
+   }
+
 
 
 
@@ -75,6 +93,8 @@ public:
       w = posX2 - posX1;
       h = posY2 - posY1;
    }
+
+
 
    void round()
    {
@@ -226,6 +246,21 @@ public:
    {
       al_draw_filled_rounded_rectangle(x1-size_adj, y1-size_adj, x2+size_adj, y2+size_adj, rx, ry, color);
    }
+
+
+   void clear_frame_title(ALLEGRO_COLOR b_color, ALLEGRO_COLOR f_color, ALLEGRO_COLOR t_color, int size, int t_just, ALLEGRO_FONT* font, std::string text)
+   {
+      draw_filled_rectangle(b_color);
+      draw_rectangle(f_color, 1);
+
+      mwRect<T> titleRect = mwRect<T>::fromX1Y1WH(x1, y1, w, size);
+      titleRect.draw_rectangle(f_color, 1);
+      T t_x = x1+4;
+      if (t_just == 1) t_x = XCenter();
+      T t_y = y1 + (size-8)/2;
+      al_draw_textf(font, t_color, t_x, t_y, t_just, text.c_str());
+   }
+
 
 
 

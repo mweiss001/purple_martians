@@ -1,53 +1,34 @@
 // mwDemoRecord.h
 
+#include "mwWindowManager.h"
+
 class mwDemoRecord
 {
    public:
+   mwWindowManager mWM = mwWindowManager(5);
 
+   void draw_transport_controls(mwRect<int> rect, int disable_input, int have_focus);
+   void draw_GMList(mwRect<int> rect, int disable_input, int have_focus);
+   void draw_timeline(mwRect<int> rect, int disable_input, int have_focus);
 
    int record_mode_active{};
 
-
-
    int lnk_arr[10000] = {0};
    int lnk_entry_pos = 0;
-
-   int player_sections[20][20] = {0};
-   char player_sections_names[20][9] = {0};
-
 
    char current_loaded_demo_file[256];
 
    int fhs[10000][4] = {0};
    int fhs_indx = 0;
 
-
    int play = 0;
    int record = 0;
 
    int record_player_number = 0;
    int record_player_color = 8;
-
    int record_punch_in_armed = 0;
-
-   int level_done_frame = 0;
-   int level_done_player = -1;
-
    int current_frame_num = 0;
    int current_section = 0;
-
-   // position and size of the scrollbar track list rectangle (timeline)
-   int sb_x1;
-   int sb_x2;
-   int sb_w;
-
-   int sb_y2;
-   int sb_h;
-   int sb_y1;
-
-   int sb_spacing = 4;
-   int sb_size = 20;
-   int sb_text = 1;
 
    int tm_frame = 1;
    int sh_cpu_graph = 0;
@@ -71,8 +52,6 @@ class mwDemoRecord
    int sh_rec_controls = 0;
    int sh_timeline = 1;
 
-   int timeline_size = 4;
-
    int sh_overlay_in_play = 0;
    int sh_overlay_in_rec = 1;
 
@@ -84,7 +63,9 @@ private:
    void seek_to_frame(int frame, int draw);
 public:
 
+   void init();
 
+   void redraw_callback();
 
    int draw_overlay();
 
@@ -103,19 +84,11 @@ public:
    void proc_range_tools_menu();
    int draw_range_tools(int x1, int y1);
 
-   void mark_timeline_position(int frame, int x1, int y1, int sb_y2, int col);
-   void set_player_section(int i, int p, int c, int f1, int f2, int y, int end_type);
-   void fill_player_sections();
-   void get_more_player_section_info();
-   void find_ack_moves(int i);
-   void find_level_done();
-
-   void draw_gm_txt_lines(int x, int y, int dump);
-   void proc_gm_list_menu(int gi);
-   void edit_gm(int gi);
+   void proc_gm_list_menu(int gi, int x, int y);
+   void edit_gm(int gi, int x, int y);
    void copy_ptp(int sp, int dp);
    void proc_edit_gm_type_menu(int & t);
-   void proc_edit_gm_player_num_menu(int & p);
+   void change_player_num_menu(int & p);
 
    void find_fire_held_sections(int p);
    void mark_player_carry(int p);
@@ -130,18 +103,9 @@ public:
    void proc_section_details_menu();
 
    int draw_section_details(int x, int y);
-   void draw_section_details_one_line(int i, int x, int y);
-
    int draw_record_settings(int x, int y);
-   void draw_timeline();
 
    void proc_transport_menu();
-   int draw_transport_controls(int x, int y);
-
-   float screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, float sb_w);
-
-
-
 
 };
 extern mwDemoRecord mDemoRecord;
