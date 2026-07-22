@@ -32962,34 +32962,55 @@ void mwDemoRecord::find_ack_moves(int i)
 that's a lot...
 
 
+2026-07-21 13:46:08
+
+time for a save and commit
+
+120 mwDemoRecordFileDetails.cpp
+130 mwDemoRecordGDT.cpp 
+170 mwDemoRecordRangeTools.cpp
+200 mwDemoRecordTransport.cpp
+570 mwDemoRecordGMList.cpp 
+350 mwDemoRecordSections.cpp
+380 mwDemoRecord.cpp
+100 mwDemoRecord.h
+
+
+now what else can I make a window?
+
+
+current section - should be easy...done
+
+changing in timeline should change current section...done
+
+2026-07-21 18:39:42
+
+next to windowize:
+
+file..done
+
+then maybe range tools..done
+
+might as well do the last record settings
 
 
 
+current frame does not update on transport when clicking on timeline
+but it does everywhere else? 
+
+then overall window active thingy
 
 
+2026-07-22 04:06:09
 
+to do:
+-record controls
+-overall controls
+-adjust window positions
+-restore alp when leaving
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+make cuurent position and mLoop frame the same
+make record player and rec player color same alp
 
 
 
@@ -33002,6 +33023,9 @@ that's a lot...
 
 
  
+
+
+
 
 
 

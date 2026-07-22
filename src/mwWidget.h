@@ -95,7 +95,8 @@ class mwWidget
 
 
 
-   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
+   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int
+                disable_input);
 
 
    bool mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
@@ -114,6 +115,15 @@ class mwWidget
    bool mButtonTile(int x1, int y1, int size, int tn, bool &var, bool disable_input);
 
    bool mButtonTile2(int x1, int y1, int size, int tn, const char* t, bool disable_input);
+
+
+
+   bool mTrackInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                         int r, int backgroundType, int frameType, int textType,
+                         int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                         int text_just, int &var, int ul, int ll, const char *txt, int disable_input);
+
+
 
 
    void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,

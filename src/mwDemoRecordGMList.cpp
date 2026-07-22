@@ -16,10 +16,10 @@
 #include "mwPlayer.h"
 #include "mwWidget.h"
 
-void mwDemoRecord::draw_GMList(mwRect<int> rect, int disable_input, int have_focus)
+void mwDemoRecord::draw_GMList(mwWindow w)
 {
    // set num_lines from window height
-   int num_lines = (rect.h-16)/8;
+   int num_lines = (w.rect.h-16)/8;
 
    // find starting gm index to show
    // ideally the current position should be in the middle of the list
@@ -44,27 +44,14 @@ void mwDemoRecord::draw_GMList(mwRect<int> rect, int disable_input, int have_foc
    int gm2 = gm1 + num_lines;
    if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
 
-   // erase, frame and title
-   int c = 13;
-   rect.clear_frame_title(mColor.pc[0], mColor.pc[c], mColor.pc[15], 12, ALLEGRO_ALIGN_CENTER, mFont.pr8, "Game Move List");
-
-   // size adjust rect
-   mwRect<int> size_adj_rect = rect;
-   size_adj_rect.setWH_adj_X1Y1(10, 10);
-
-   int triangle_color = c;
-   if (size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y)) triangle_color = 14;
-   al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[triangle_color]);
-
-   int x1 = rect.x1;
-   int x2 = rect.x2;
-   int ya = rect.y1+2;
-   int d = disable_input;
+   int x1 = w.rect.x1;
+   int x2 = w.rect.x2;
+   int ya = w.rect.y1+2;
+   int d = w.disable_input;
    if (mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_all, "all", 15, 15)) load_lnk_arr();
-   mWidget.togglec(x2-52, ya, x2-32, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "mono", 15, 15);
+   mWidget.togglec(x2-72, ya, x2-52, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "mono", 15, 15);
 
-
-   int ry = rect.y1+13; // running y
+   int ry = w.rect.y1+13; // running y
 
    for (int i=gm1; i<gm2; i++)
    {
@@ -97,24 +84,24 @@ void mwDemoRecord::draw_GMList(mwRect<int> rect, int disable_input, int have_foc
       int bkg_col = 0;
 
       // if f == current frame highlight in blue
-      if (f == current_frame_num) bkg_col = 12+128;
+      if (f == mLoop.frame_num) bkg_col = 12+128;
 
       // otherwise highlight both adjoining moves
-      if (f < current_frame_num)
+      if (f < mLoop.frame_num)
       {
          // get next frame number
          int ni = i+1;
          if (ni >= lnk_entry_pos-1) ni = lnk_entry_pos-1;
          int nf = mGameMoves.arr[lnk_arr[ni]][0];
-         if (nf > current_frame_num) bkg_col = 12+128;
+         if (nf > mLoop.frame_num) bkg_col = 12+128;
       }
-      if (f > current_frame_num)
+      if (f > mLoop.frame_num)
       {
          // get prev frame number
          int pi = i-1;
          if (pi < 0) pi = 0;
          int pf = mGameMoves.arr[lnk_arr[pi]][0];
-         if (pf < current_frame_num) bkg_col = 12+128;
+         if (pf < mLoop.frame_num) bkg_col = 12+128;
       }
 
 
@@ -145,11 +132,11 @@ void mwDemoRecord::draw_GMList(mwRect<int> rect, int disable_input, int have_foc
       // this is purposely here, after drawing the line
       if (mouse_on_line)
       {
-         proc_gm_list_menu(gi, rect.x1, line_rect.y2+8);
+         proc_gm_list_menu(gi, w.rect.x1, line_rect.y2+8);
          if (mInput.mouse_b[1][0])
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-            current_frame_num = f;
+            mLoop.frame_num = f;
             refresh();
          }
       }
@@ -215,11 +202,11 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
       }
       if (mr == mi++) // copy to rec_player
       {
-         copy_ptp(p, record_player_number);
+         copy_ptp(p, mPlayer.active_local_player);
       }
       if (mr == mi++) // add at current pos
       {
-         mGameMoves.add_game_move2(current_frame_num, t, p, m);
+         mGameMoves.add_game_move2(mLoop.frame_num, t, p, m);
          mGameMoves.gm_sort();
          refresh();
          set_active_section(current_section);
@@ -287,14 +274,6 @@ void mwDemoRecord::proc_edit_gm_type_menu(int & t)
 // translation table from gm index to index in gm_txt_line array
 void mwDemoRecord::load_lnk_arr(void)
 {
-
-
-
-
-
-
-
-
    lnk_entry_pos = 0;
    for (int i=0; i<mGameMoves.entry_pos; i++)
    {
@@ -530,7 +509,6 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          mWidget.slideri(xa+180, ya, x2-2,   16, 0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, -100, 1, "Damage:");
       }
 
-
       // erase and frame
       al_draw_filled_rectangle(x1, ya, x2, ya+24, mColor.pc[col+208]);
       al_draw_rectangle(x1, ya, x2, ya+24, mColor.pc[col], 1);
@@ -580,6 +558,3 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
       mEventQueue.proc(1);
    }
 }
-
-
-

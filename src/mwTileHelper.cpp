@@ -1371,7 +1371,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    if (replace_mode == 1) sprintf(msg, "Use Specific Tile");
    if (replace_mode == 2) sprintf(msg, "Change Flags Only");
    if (replace_mode == 3) sprintf(msg, "Translate Tileset");
-   if (mWidget.mButton(1, x3, 170,    1, yfb+2, bts,  2,2,1,1,  color, color,  15,   0,0, msg)) replace_mode++;
+   if (mWidget.mButton(1, x3, 170,    1, yfb+2, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode++;
    if (replace_mode > 3) replace_mode = 0;
 
    int tx = x3+176;
@@ -1387,7 +1387,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
 
    if (replace_mode != 2) // hide these controls in flag edit mode, they are immediate
    {
-      if (mWidget.mButton(4, -1, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit")) draw_replace(0);
+      if (mWidget.mButton(4, -1, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit", 0)) draw_replace(0);
       yfb+=bts;
       yfb+=bsp;
       mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, replace_preview, "preview", 15, 15);
@@ -1431,13 +1431,13 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 
 
    int c1 = color + 64;
-   if (mWidget.mButton(0, x3, xc+20,    1, yfb, bts,  2,2,1,1,  c1, c1,  15,   0,0, "Select Pattern"))
+   if (mWidget.mButton(0, x3, xc+20,    1, yfb, bts,  2,2,1,1,  c1, c1,  15,   0,0, "Select Pattern", 0))
    {
       int j1, j2, j3, j4;
       mMiscFnx.get_block_range("Select Pattern", j1, j2, j3, j4, 1);
    }
 
-   if (mWidget.mButton(4, -1, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit")) draw_pattern(0);
+   if (mWidget.mButton(4, -1, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit", 0)) draw_pattern(0);
    yfb+=(bts+bsp);
 
    mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, pattern_preview, "preview", 15, 15);
@@ -1487,7 +1487,7 @@ int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d
 
    char msg[256];
    sprintf(msg, " Current Tile Set: %s ", mTileSets.currentTileSet.name.c_str());
-   mWidget.mButton(5, (x1+x2)/2-3, -1,    1, yfb, bts,    2,2,1,1,   color,color,15,0,  0,msg);
+   mWidget.mButton(5, (x1+x2)/2-3, -1,    1, yfb, bts,    2,2,1,1,   color,color,15,0,  0,msg, 0);
 
    yfb+=(bts+2);
 
@@ -1591,12 +1591,12 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
    char msg[80];
 
    sprintf(msg, "Frames Detected:%d", frames_detected);
-       mWidget.mButton(5, xc, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, msg);
-   if (mWidget.mButton(3, x3, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "Detect")) find_bound(20);
+       mWidget.mButton(5, xc, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, msg, 0);
+   if (mWidget.mButton(3, x3, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "Detect", 0)) find_bound(20);
 
-   if (mWidget.mButton(3, x3+61+mLoop.pct_x, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "I")) invert_marks();
+   if (mWidget.mButton(3, x3+61+mLoop.pct_x, -1, 1, yfb, bts, 2, 2, 1,  1,   c1, c1, 15, 0, 0, "I", 0)) invert_marks();
 
-   if (mWidget.mButton(4, -1, x4, 1, yfb, bts, 2, 2, 1,  1,   10, 10, 15, 0, 0, "Commit")) draw_frame_fills(0);
+   if (mWidget.mButton(4, -1, x4, 1, yfb, bts, 2, 2, 1,  1,   10, 10, 15, 0, 0, "Commit", 0)) draw_frame_fills(0);
 
 
    yfb+=(bts+bsp);

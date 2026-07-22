@@ -24,11 +24,11 @@ void mwScreen::draw_demo_controls_overlay_play_stop_button(int xm, int x1, int x
 {
    if (demo_controls_paused)
    {
-      if (mWidget.mButton(xm, x1, x2, ym, y1, y2, r,  1,3,1,  pc+192,pc+80,15, 15,0, "Play")) demo_controls_paused = 0;
+      if (mWidget.mButton(xm, x1, x2, ym, y1, y2, r,  1,3,1,  pc+192,pc+80,15, 15,0, "Play", 0)) demo_controls_paused = 0;
    }
    else
    {
-      if (mWidget.mButton(xm, x1, x2, ym, y1, y2,  r,  1,3,1,  sc+192,sc+80,15, 15,0, "Stop")) demo_controls_paused = 1;
+      if (mWidget.mButton(xm, x1, x2, ym, y1, y2,  r,  1,3,1,  sc+192,sc+80,15, 15,0, "Stop", 0)) demo_controls_paused = 1;
    }
 }
 
@@ -123,15 +123,15 @@ int mwScreen::draw_demo_controls_overlay_titlebar(int x1, int y1, int x2, int y2
       int s = 10;
 
       al_draw_line(x2-w, y1, x2-w, y2, mColor.pc[fc], 1);
-      if (mWidget.mButton(2,s,x2-1,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "-")) set_demo_controls_tray_mode(true);
+      if (mWidget.mButton(2,s,x2-1,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "-", 0)) set_demo_controls_tray_mode(true);
 
       al_draw_line(x2-w*2, y1, x2-w*2, y2, mColor.pc[fc], 1);
-      if (mWidget.mButton(2,s,x2-1-w,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "t")) toggle_demo_controls_small_text();
+      if (mWidget.mButton(2,s,x2-1-w,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "t", 0)) toggle_demo_controls_small_text();
 
       al_draw_line(rx, y1, rx, y2, mColor.pc[fc], 1);
-      if (mWidget.mButton(1,rx+1,s,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "-")) adj_demo_controls_mode(-1);
+      if (mWidget.mButton(1,rx+1,s,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "-", 0)) adj_demo_controls_mode(-1);
       al_draw_text(mFont.pr8, mColor.pc[15], rx+10, y1+1, 0, "i");
-      if (mWidget.mButton(1,rx+16,s,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "+")) adj_demo_controls_mode(1);
+      if (mWidget.mButton(1,rx+16,s,  0,y1,y2,  0,  0,0,3,  0,0,15, 10,0, "+", 0)) adj_demo_controls_mode(1);
 
    }
 
@@ -166,7 +166,7 @@ void mwScreen::draw_demo_controls_overlay()
       draw_demo_controls_overlay_bottom_line();
       // expand "+" button in fixed position in lower left border corner
       int ym = mDisplay.SCREEN_H - 11;
-      if (mWidget.mButton(1,3,10,  0,ym,ym+10,  1,  0,0,1,  12+192,12+80,15, 15,0, "+")) set_demo_controls_tray_mode(false);
+      if (mWidget.mButton(1,3,10,  0,ym,ym+10,  1,  0,0,1,  12+192,12+80,15, 15,0, "+", 0)) set_demo_controls_tray_mode(false);
    }
    else
    {
@@ -255,7 +255,8 @@ void mwScreen::draw_demo_controls_overlay()
       int timeline_ls = cls;
       int timeline_width;
       int timeline_height;
-      draw_demo_controls_overlay_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height, 0, 1); // get sizes only
+      int junk;
+      draw_demo_controls_overlay_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height, junk, 0, 1); // get sizes only
 
       // speed control sizes
       int speed_ls = cls;
@@ -343,7 +344,8 @@ void mwScreen::draw_demo_controls_overlay()
       }
       if (show_timeline)
       {
-         draw_demo_controls_overlay_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height, 0, 0);
+         int junk;
+         draw_demo_controls_overlay_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height, junk, 0, 0);
          ya += (timeline_height+control_spacing); // update running y position
       }
 
@@ -365,7 +367,7 @@ bool bh(int &rx, int y1, int y2, int ls, int bc, const char* txt, bool smallText
    int x1 = rx;
    int x2 = rx + w;
    rx += w + ls;
-   if (!smallText && mWidget.mButton(0, x1, x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, txt)) return true;
+   if (!smallText && mWidget.mButton(0, x1, x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, txt, 0)) return true;
    if (smallText && mWidget.mButtonSmallText(0, x1, x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, txt)) return true;
    return false;
 }
@@ -415,7 +417,7 @@ void mwScreen::draw_demo_controls_overlay_pwd_nrd(int fx1, int fx2, int fy1, int
    else
    {
       mWidget.mCheckBox(1,fx1, 138,  0,y1,y2, pwd_col, demo_controls_pause_when_done, "Pause when done", 15, pwd_col);
-      if (mDemoMode.play_mode_active == 2 && mWidget.mButton(2,136,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo")) mDemoMode.continuous_random_next_level();
+      if (mDemoMode.play_mode_active == 2 && mWidget.mButton(2,136,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo", 0)) mDemoMode.continuous_random_next_level();
    }
 }
 
@@ -550,12 +552,12 @@ void mwScreen::draw_demo_controls_overlay_speed(int fx1, int fy1, int bts, int l
 
 
 
-void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int display_time_labels, int display_only)
+bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only)
 {
    int display_time_dir = 0;
    int display_time_format = 2;
 
-   int display_time_distance = 18 + mLoop.pct_y;
+   int display_time_distance = 18; // + mLoop.pct_y;
 
 
    int baseFrameColor = 15;
@@ -574,7 +576,7 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    h = (bts+ls)*size + ls + activeTrackHeightAdjust;
    if (ls == 0) h+= (size-1);
 
-   if (sizeOnly) return;
+   if (sizeOnly) return false;
 
    int y2 = y1 + h;
 
@@ -596,8 +598,11 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
 
    int mouse_on_bar = -1;
 
-   for (auto& r : mGmInfo.gmPlayerInfo)
+
+   for (int i = 0; i < (int) mGmInfo.gmPlayerInfo.size(); i++)
    {
+      struct gmPlayerInfoRecord r = mGmInfo.gmPlayerInfo[i];
+
       int p = r.playerNum;
       int c = r.playerCol;
 
@@ -620,6 +625,7 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2) && (!display_only))
       {
          mouse_on_bar = p;
+         gmInfo_index = i;
          frameColor = mColor.flash_color;
       }
 
@@ -693,17 +699,12 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    // add time text label below
    if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, currentFrame, display_time_format, display_time_dir, display_time_distance, 15);
 
-
-
-
    // draw vertical line at Level done
    fx = mMiscFnx.map_range<float>((float) mGmInfo.levelDoneFrame, sf, lf,  ix1, ix2);
    al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
    // add time text label below
    if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, mGmInfo.levelDoneFrame, display_time_format, display_time_dir, display_time_distance, 11);
-
-
 
    // is mouse on frame?
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!display_only))
@@ -721,16 +722,19 @@ void mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       // is mouse button pressed?
       if (mInput.mouse_b[1][0])
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
-         // set frame num and seek to frame
-         mLoop.frame_num = f;
+         // seek to frame
          mDemoMode.seek_to_frame(f, 1);
 
          // if mouse_on_bar set active local player to that bar
          if (mouse_on_bar != -1) mDemoMode.set_active_local_player(mouse_on_bar);
+
+         return true;
       }
    }
+   return false;
 }
 
 void mwScreen::draw_demo_controls_overlay_bottom_line()
@@ -756,7 +760,7 @@ void mwScreen::draw_demo_controls_overlay_bottom_line()
    //  nrd_length += mLoop.pct_x;
    if (mDemoMode.play_mode_active == 2)
    {
-      if (mWidget.mButton(0,x,x+nrd_length,  2,h,y2,  1,  1,3,1,  12+192,12+80,15, 15,0, "Next")) mDemoMode.continuous_random_next_level();
+      if (mWidget.mButton(0,x,x+nrd_length,  2,h,y2,  1,  1,3,1,  12+192,12+80,15, 15,0, "Next", 0)) mDemoMode.continuous_random_next_level();
       x += nrd_length + s; // update running position
    }
 

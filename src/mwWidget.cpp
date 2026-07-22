@@ -2569,29 +2569,45 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ---------------------------------------------------------------------------------------------------------------------------
 // ------------------new widgets from 2026 -----------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------
+
+
+// xType
+// 0  abs xa, abs xb
+// 1  abs xa, xb is width
+// 2  abs xb, xa is width
+// 3  abs xa, xb not used (auto text width from xa)
+// 4  abs xb, xa not used (auto text width from xb)
+// 5  abs xa, xb not used (auto text width centered on xa)
+// 6  abs xa, xb used to pad text length (auto text width centered on xa)
+
+// yType
+// 0  abs ya, abs yb
+// 1  abs ya, yb is height
+// 2  abs yb, ya is height
+// 5  abs center ya, yb height (y1, y2 are set from yb height)
+
+// backgroundType
+// 0 = do nothing
+// 1 = solid color
+// 2 = legacy faded button frame
+
+// frameType
+// 0 = no frame
+// 1 = static
+// 2 = highlight with var
+// 3 = highlight with mouse
+// 4 = highlight with both
+
+// textType
+// 0 = no text
+// 1 = normal
+// 2 = highlight with var
+// 3 = highlight with mouse
+// 4 = highlight with both
+
 
 
 void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2)
@@ -2625,24 +2641,19 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
       x2 = xa + tl/2;
    }
 
-
-
-
-
    // process y
    // default when yType == 0
    y1 = ya;
    y2 = yb;
 
-   if (yType == 1) y2 = ya + yb; // abs ya, yb is width
-   if (yType == 2) y1 = yb - ya; // abs yb, ya is width
-   if (yType == 5) // abs center ya,  y1, y2 is auto from yb width
+   if (yType == 1) y2 = ya + yb; // abs ya, yb is height
+   if (yType == 2) y1 = yb - ya; // abs yb, ya is height
+   if (yType == 5) // abs center ya,  y1, y2 is auto from yb height
    {
       y1 = ya - yb/2;
       y2 = ya + yb/2;
    }
 }
-
 
 mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt)
 {
@@ -2698,22 +2709,14 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 }
 
 
-
-
-
-//bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
-
-
-
-
-bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
+bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
 {
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
 
    // check if mouse is on button
    bool mouseOnButton = false;
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
 
    // if (backgroundType == 0) ; do nothing
    if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
@@ -2732,7 +2735,8 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
       al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
    }
 
-
+   // 0 = no text
+   // 1 = normal
    // 2 = highlight with var
    // 3 = highlight with mouse
    // 4 = highlight with both
@@ -2955,6 +2959,62 @@ bool mwWidget::mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int h
 
 
 
+
+// like slider it has a horizontal area that represents a range from ll to ul with var in that range
+// clicking will set new range
+// mouse over will display new value that would be set if clicked
+// returns true if clicked
+bool mwWidget::mTrackInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                         int r, int backgroundType, int frameType, int textType,
+                         int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                         int text_just, int &var, int ul, int ll, const char *txt, int disable_input)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+   mwRect<int> rect = mwRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+   int line_color = bar_col;
+   int display_var = var;
+   // map var to screen position
+   int line_x1 = mMiscFnx.map_range<int>(var, ll, ul, x1, x2);
+
+
+   if (!disable_input && rect.contains(mInput.mouse_x, mInput.mouse_y))
+   {
+      line_color = 10;
+      line_x1 = mInput.mouse_x;
+      // map mouse x position to var range
+      display_var = mMiscFnx.map_range<int>( mInput.mouse_x, x1, x2, ll, ul);
+
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+         var = display_var;
+         return true;
+      }
+   }
+
+   // draw text and line
+   char msg[80];
+   sprintf(msg, "%s%d", txt, display_var);
+   draw_widget_text(x1, y1+1, x2, y2, tcol, 0, msg);
+   al_draw_line(line_x1, y1, line_x1, y2, mColor.pc[line_color], 1);
+
+   return false;
+}
+
+
 void mwWidget::mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                           int r, int backgroundType, int frameType, int textType,
                           int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
@@ -2994,6 +3054,10 @@ void mwWidget::mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
       }
    }
 }
+
+
+
+
 
 float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int backgroundType, int frameType, int textType,
                            int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
@@ -3058,8 +3122,8 @@ void mwWidget::mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
 
    // add buttons
 
-   if (mButton(0, b1x1, b1x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "-")) var--;
-   if (mButton(0, b2x1, b2x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "+")) var++;
+   if (mButton(0, b1x1, b1x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "-", 0)) var--;
+   if (mButton(0, b2x1, b2x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "+", 0)) var++;
 
    if (var < ll) var = ll;
    if (var > ul) var = ul;

@@ -1113,7 +1113,7 @@ void mwPlayer::draw_player(int p)
 
       if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
       {
-         if (p == mDemoRecord.record_player_number)
+         if (p == active_local_player)
          {
             al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-38, ALLEGRO_ALIGN_CENTER, "x:%2.1f y:%2.1f", syn[p].x, syn[p].y);
             al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);

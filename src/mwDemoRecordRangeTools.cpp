@@ -7,12 +7,13 @@
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
 #include "mwInput.h"
+#include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwWidget.h"
 
 void mwDemoRecord::range_tools_set_fire_moves(int f, int clear_set)
 {
-   int p   = mGmInfo.gmPlayerInfo[current_section].playerNum;
+   int p = mGmInfo.gmPlayerInfo[current_section].playerNum;
 
    // look for an existing game move for this frame and player
    int existing_move = 0;
@@ -91,9 +92,9 @@ void mwDemoRecord::proc_range_tools_menu(void)
       sprintf(mMenu.menu_string[12],"Add single FIRE to Start");
       sprintf(mMenu.menu_string[13],"end");
       int mp = mMenu.pmenu(5, 13, -12, 1);
-      if (mp == 2) rt_start_frame = current_frame_num;
+      if (mp == 2) rt_start_frame = mLoop.frame_num;
       if (mp == 3) rt_start_frame = 1;
-      if (mp == 4) rt_end_frame = current_frame_num;
+      if (mp == 4) rt_end_frame = mLoop.frame_num;
       if (mp == 5) rt_end_frame = mDemoMode.last_frame;
       if (mp == 7) range_tools_do(1);
       if (mp == 8) range_tools_do(2);
@@ -123,46 +124,29 @@ void mwDemoRecord::proc_range_tools_menu(void)
    }
 }
 
-
-int mwDemoRecord::draw_range_tools(int x1, int y1)
+void mwDemoRecord::draw_range_tools(mwWindow w)
 {
-   int col = 10;
+   if (w.rect.contains(mInput.mouse_x, mInput.mouse_y)) proc_range_tools_menu();
 
-   int w = 148;
-   //w +=  mLoop.pct_x;
-   int x2 = x1 + w;
+   int x1 = w.rect.x1;
+   int x2 = w.rect.x2;
+   int y1 = w.rect.y1 + 14;
+   int xa = w.rect.x1+4;
+   int xb = w.rect.x2-4;
+   int d = w.disable_input;
+   int c = w.color;
 
-   int h = 50;
-   //h +=  mLoop.pct_y;
-   int y2 = y1 + h;
+   char m1[64];
 
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) proc_range_tools_menu();
+   al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "Start:%s", gettf(rt_start_frame, m1));
+   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,c,15, 0,  1,0,0,d, "Set")) rt_start_frame = mLoop.frame_num;
 
-   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[col], 1);
-   al_draw_line(x1, y1+12, x2, y1+12, mColor.pc[col], 1);
-   al_draw_textf(mFont.pr8, mColor.pc[15], (x1+w/2), y1+2, ALLEGRO_ALIGN_CENTER, "Range Tools");
+   y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
 
-   y1+=14;
+   al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "End  :%s", gettf(rt_end_frame, m1));
+   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,c,15, 0,  1,0,0,d, "Set")) rt_end_frame = mLoop.frame_num;
 
-   int xa = x1+4;
-   int xb = x2-4;
+   y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1);
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "Start:%d", rt_start_frame);
-   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Set")) rt_start_frame = current_frame_num;
-
-
-   y1+=10;
-   al_draw_line(x1, y1, x2, y1, mColor.pc[col], 1);
-
-   y1+=2;
-   al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "End:%d", rt_end_frame);
-   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Set")) rt_end_frame = current_frame_num;
-
-   y1+=10;
-   al_draw_line(x1, y1, x2, y1, mColor.pc[col], 1);
-
-   mWidget.togglec(xa, y1, xa+40, 16,  0,0,0,0,  0,0,0,0, 1,0,1,0, rt_all_players,  "All Players", 15, 15);
-
-   return y1;
+   mWidget.togglec(xa, y1, xa+40, 16,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_all_players,  "All Players", 15, 15);
 }

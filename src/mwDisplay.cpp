@@ -23,9 +23,8 @@
 
 #include "mwSettings.h"
 #include "mwBottomMessage.h"
-
-
-
+#include "mwDemoRecord.h"
+#include "mwLevelEditor.h"
 
 
 mwDisplay mDisplay;
@@ -152,9 +151,14 @@ void mwDisplay::set_display_transform_and_adjust_window_positions(float old_disp
    // adjust window positions
 //   for (int a=0; a<(int)mWM.mW.size(); a++) mWM.mW[a].set_pos(mWM.mW[a].rect.x1/sfa, mWM.mW[a].rect.y1/sfa);
 
+   for (int a=0; a<(int)mLevelEditor.mWM.mW.size(); a++) mLevelEditor.mWM.mW[a].set_pos(mLevelEditor.mWM.mW[a].rect.x1/sfa, mLevelEditor.mWM.mW[a].rect.y1/sfa);
+
 
    mScreen.demo_controls_overlay_x = mScreen.demo_controls_overlay_x/sfa;
    mScreen.demo_controls_overlay_y = mScreen.demo_controls_overlay_y/sfa;
+
+
+
 
 
 
@@ -299,10 +303,9 @@ int mwDisplay::init_display(void)
    return 1;
 }
 
-
 void mwDisplay::proc_display_change(void)
 {
-   if (last_display_change_frame != mLoop.frame_num - 1) // skip if just changed last frame
+   if ((last_display_change_frame != mLoop.frame_num - 1) || (mDemoRecord.record_mode_active)) // skip if just changed last frame
    {
       last_display_change_frame = mLoop.frame_num;
 
@@ -316,27 +319,6 @@ void mwDisplay::proc_display_change(void)
       set_window_title();
    }
 }
-
-//   if (last_display_change_frame == mLoop.frame_num - 1) // just changed last frame
-//   {
-//      //printf("skipping display change on frame:%d - just changed last frame:%d\n", mLoop.frame_num, last_display_change_frame);
-//   }
-//   else
-//   {
-//      last_display_change_frame = mLoop.frame_num;
-//
-//      //printf("%d - proc_display_change\n", mLoop.frame_num);
-//      al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
-//
-//      refresh_window_position_and_size();
-//      set_display_transform();
-//      mBitmap.rebuild_bitmaps();
-//      mConfig.save_config(PM_CFG_SAVE_DISPLAY);
-//      //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
-//      set_window_title();
-//   }
-//}
-
 
 // when the window is moved, no events are sent (in linux)
 // this function will poll and update display variables
