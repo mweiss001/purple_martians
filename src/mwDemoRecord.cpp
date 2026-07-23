@@ -37,9 +37,14 @@ void mwDemoRecord::init()
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
 
-   mWM.mW[3].init(3, 2, 500, 100, 383, 112, 10, "Transport Controls", 1, 1, 14, 1);
+
+   mWM.mW[3].init(3, 2, 500, 100, 320, 112, 10, "Transport Controls", 1, 1, 14, 1);
    mWM.mW[3].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
+
+   mWM.mW[3].set_resizeable(320, 2000, 100, 800);
+
+
 
    mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 1, 14, 1);
    mWM.mW[4].set_resizeable(200, 2000, 100, 800);
@@ -62,8 +67,7 @@ void mwDemoRecord::init()
    mWM.mW[8].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[8].drawFunction = [this]() { mDemoRecord.draw_record_settings(mWM.mW[8]); };
 
-
-   set_window_positions(1);
+   set_window_positions(2);
 
 }
 
@@ -105,18 +109,12 @@ void mwDemoRecord::set_window_positions(int set)
       mWM.mW[7].active = 0; // Range Tools
       mWM.mW[8].active = 0; // Record Settings
 
-
-
       mWM.mW[6].set_pos(20, 20);                     // File Details
       mWM.mW[5].set_pos(20, mWM.mW[6].rect.y2 + 10); // Current Section
       mWM.mW[1].set_pos(20, mWM.mW[5].rect.y2 + 10);    // Main
 
-
-
-
       //      mWM.mW[2].rect.setHeight(mDisplay.SCREEN_H - 40);
       mWM.mW[2].set_pos(20, mWM.mW[1].rect.y2 + 10);
-
 
       // Timeline
       mWM.mW[4].set_size(mDisplay.SCREEN_W/2, 120);
@@ -301,7 +299,9 @@ void mwDemoRecord::refresh()
 
 void mwDemoRecord::reload()
 {
+   int old_frame_num = mLoop.frame_num;
    mGameMoves.load_gm(current_loaded_demo_file);
+   mLoop.frame_num = old_frame_num;
    refresh();
 }
 
@@ -349,6 +349,10 @@ void mwDemoRecord::demo_record(void)
    int quit = 0;
 
    if (!load_demo_record()) quit = 1;
+
+
+//   load_mWM();
+
 
    while (!quit)
    {
@@ -409,6 +413,8 @@ void mwDemoRecord::demo_record(void)
       }
    }
 
+   save_mWM();
+
 
    mPlayer.active_local_player = 0;
    mConfig.load_config(); // to restore colors and other settings
@@ -428,3 +434,66 @@ void mwDemoRecord::redraw_callback()
    mWM.cycle_windows(1);
    al_flip_display();
 }
+
+
+
+void mwDemoRecord::save_mWM()
+{
+   // convert window vector to POD window array
+   mwWindow w[20];
+   for (int i = 0; i < (int)mWM.mW.size(); i++) w[i] = mWM.mW[i];
+
+   FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "wb");
+   if (fp)
+   {
+      fwrite(&w, sizeof(w), 1, fp);
+      fclose(fp);
+   }
+   else printf("error saving demoRecordWindowGeometry.pm\n");
+}
+
+
+
+void mwDemoRecord::load_mWM()
+{
+   // load static window array
+   mwWindow w[20];
+   FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "rb");
+   if (fp)
+   {
+      fread(&w, sizeof(w), 1, fp);
+      fclose(fp);
+
+      // copy only these values back to window vector
+      for (int i = 0; i < (int)mWM.mW.size(); i++)
+      {
+         mWM.mW[i].rect = w[i].rect;
+         mWM.mW[i].active = w[i].active;
+         mWM.mW[i].layer = w[i].layer;
+      }
+   }
+   else printf("error loading demoRecordWindowGeometry.pm -- using defaults\n");
+
+   // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
+   al_remove_filename("data/demoRecordWindowGeometry.pm");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -47,7 +47,6 @@ void mwWindowManager::cycle_windows(int draw_only)
       // set the window to be the only one with focus
       mW[mouse_on_window].have_focus = 1;
 
-
       // set the window layer to the top layer
 
       // detect if window is not at the top layer

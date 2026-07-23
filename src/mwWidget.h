@@ -95,8 +95,9 @@ class mwWidget
 
 
 
-   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int
-                disable_input);
+   bool mButton(mwRect<int> rect, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
+
+   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
 
 
    bool mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);

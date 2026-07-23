@@ -31748,9 +31748,6 @@ t 1:15 1 (bad 1:13 6)
 2026-07-19 17:15:40
 
 
-
-
-
 the ones that are left are big ones....
 
 and extra ones
@@ -33004,13 +33001,445 @@ then overall window active thingy
 2026-07-22 04:06:09
 
 to do:
--record controls
+-record controls/done
 -overall controls
 -adjust window positions
--restore alp when leaving
+-time format..done
+- add controls to timeline titlebar (time format, labels position..no
 
-make cuurent position and mLoop frame the same
-make record player and rec player color same alp
+-restore alp when leaving..done
+-make cuurent position and mLoop frame the same..done
+-make record player and rec player color same alp..done
+
+-add speed controls to transport...done
+-show player kills and maybe mark bullets that kill things
+-make overlay settings (show enemy number, show frame number on shots, show player pos and speed, mark instant enemy dies)
+-make gmlist mode where you can directly edit the move flags without having to enter edit mode
+-make gm list not so jumpy when selecting new frame
+
+
+
+2026-07-22 04:59:19
+
+- record controls done
+what does overall control look like?
+
+could I add some common things to window class?
+frame and title
+title size
+show X
+
+add draw_mode
+
+0 is do nothing at all, use place holder simple function
+1 is draw title frame
+
+add:
+title_rect
+main_rect
+resize_rect
+
+int draw_mode (0 legacy, 1= new shit)
+int title_bar_size
+int title_text_just (0 = left, 1 = center)
+int highlight_title_when_hovered_color (0=no)
+bool enable_X_button (sets window active = 0)
+
+
+   mwRect<int> rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
+   mwRect<int> title_rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
+   mwRect<int> main_rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
+   mwRect<int> resize_rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
+
+   int draw_mode;
+   int title_bar_height;
+   int title_text_just;
+   int title_bar_hover_highlight;
+   bool enable_X_button;
+
+
+now set init values
+
+   draw_mode = 0;
+   title_bar_height = 12;
+   title_text_just = 1;
+   title_bar_hover_highlight = 14;
+   enable_X_button = false;
+
+
+now in draw, do something different if draw mode 1
+also I want to make a function to set windows easier
+
+setup_window(int index, int layer, int active, int resizable, int moveable, int x, int y, int w, int h, const char* title)
+
+set_window_resizable(int minindex, int layer, int active, int resizable, int moveable, int x, int y, int w, int h, const char* title)
+   mWM.mW[2].min_width = 329;
+   mWM.mW[2].max_width = 329;
+   mWM.mW[2].min_height = 200;
+   mWM.mW[2].max_height = 1600;
+
+
+
+
+   mWM.mW[2].index = 2;
+   mWM.mW[2].layer = 1;
+   mWM.mW[2].active = 1;
+   mWM.mW[2].resizable = 1;
+   mWM.mW[2].min_width = 329;
+   mWM.mW[2].max_width = 329;
+   mWM.mW[2].min_height = 200;
+   mWM.mW[2].max_height = 1600;
+   mWM.mW[2].set_pos(800, 300);
+   mWM.mW[2].set_size(329, 200);
+   mWM.mW[2].set_title("Game Moves List");
+   mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
+   mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2].rect, mWM.mW[2].disable_input, mWM.mW[2].have_focus); };
+
+this is getting too complicated....
+
+lets just set title_bar height to a fixed 12, and not worry about extra rects
+
+done...
+
+now I have:
+- better simpler constructor
+- if draw mode == 1
+  -- clear, draw, title
+  -- option highlight of title frame
+  -- optional X button
+  
+going through resetting stuff
+
+BUG -- doing a fullscreen change while in demo mode really fucks things up
+  
+should I also pass color from window class when calling draw...yes
+
+
+that would mean I am passing 4 variables from the class to the draw funtion...
+could I not just pass a pointer to the class instance? yes! that is much simpler...
+
+do it for all...done
+
+make the resize triangle part of the window class also...done...nice!!
+
+now where was I?
+
+-overall controls
+-adjust window positions
+would overall controls work as a list of checkbox toggles?...lets try!!
+
+I want a button to resize and move them
+and drop down for some defaults
+
+I think I am ready to remove all traces of overlay....
+
+what about player grid? do I need it? yes keep it.
+
+removing a lot of crap...
+2026-07-22 09:28:34
+
+
+
+see if I can just work with active local player
+
+   record_player_number = 0;
+   record_player_color = 8;
+
+at the start of demo record, copy alp and restore alp after
+but alp will always be zero?
+alp already gets set to zero at the end of demoRecord...
+
+record_player_number is used internally to set alp...
+
+int p = record_player_number;
+
+      mPlayer.syn[p].active = 1;
+      mPlayer.syn[p].color = record_player_color;
+
+   mPlayer.active_local_player = p;
+
+
+
+i think it is redundant and can be removed...do it fool!!!!
+
+change all:record_player_number to mPlayer.active_local_player
+
+change all:
+record_player_color to 
+mPlayer.syn[mPlayer.syn.active_local_player].color
+
+int plr = mPlayer.active_local_player;
+int clr = mPlayer.syn[mPlayer.active_local_player].color;
+int clr = mPlayer.syn[plr].color;
+
+done...
+
+now what about current_frame_num?
+
+just use mLoop.frame_num
+
+int old_frame_num = mLoop.frame_num;
+mLoop.frame_num = old_frame_num;
+
+all that is gone!!!
+
+
+what about hiding when playing?
+all I have to do is not cycle the windows
+should I make it more fine grained? like individual windows? too complicated
+done...
+
+
+2026-07-22 11:03:11
+
+what next?
+- time format
+use in range tools also...done
+
+can I use it in timeline? I already show both there and will leave it like that...
+
+next?  eat??
+
+
+-add speed controls to transport
+
+this is nice, unfortunately the width is fixed at 350..
+void mwScreen::draw_demo_controls_overlay_speed(int fx1, int fy1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h)
+   w = (smallText ? 178 : 350) + ls*2;
+
+transport is 192
+
+I could do the small version and center it...
+also, what good is the slideri for frame?
+I could rely on timeline, but that might change the current player
+what widget does timeline use?, custom...
+made a new widget mTrackInt
+
+I have made transport look good with what I had...
+
+could I also get the nicer seek controls?
+
+I might want to re think transport
+- make it wider
+
+
+my nice seek bar is 418 wide
+
+I could redo the transport control and use this
+
+make a new one, dont kill the perfect old one...
+
+width 383
+
+
+2026-07-22 15:51:04
+figure out why changing display borks demoRecord...done
+
+2026-07-22 16:09:43
+make main window look better
+
+can I save window positions and sizes like I do with levelEditor
+I can try!! not without some bullshit
+
+all I realy want to save is the rects and actives
+
+
+
+
+
+2026-07-22 19:52:40
+
+dogfood:
+
+
+23 amazing
+n 5:58 first 2min good
+t 2:35
+
+lev 23 good till 1:50
+
+
+things to fix:
+
+- saving reloads level to frame 0...fixed
+
+the order of things on the transport annoy me...
+
+I think I want the jump buttons on the bottom
+color code +/- pairs
+
+play record should be bigger
+
+
+2026-07-23 06:16:04
+fixed loading and saving of window geometry for both levelEditor and demoRecord!!!
+
+I kind of want play to be in the middle, then on either side the + and - buttons
+
+made a new transport, resizable with play in the middle
+320 is the min width
+
+2026-07-23 10:25:17
+leaving for cnp
+
+in the middle of new transport controls...speed...
+
+commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

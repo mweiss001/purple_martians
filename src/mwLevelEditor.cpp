@@ -536,37 +536,44 @@ void mwLevelEditor::redraw_callback()
    mWM.cycle_windows(1); // draw only
 }
 
-
-
-
 void mwLevelEditor::save_mW()
 {
-   FILE *fp = fopen("data/mW.pm", "wb");
+   // convert window vector to POD window array
+   mwWindow w[20];
+   for (int i = 0; i < (int)mWM.mW.size(); i++) w[i] = mWM.mW[i];
+
+   FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "wb");
    if (fp)
    {
-      fwrite(&mWM, sizeof(mWM), 1, fp);
+      fwrite(&w, sizeof(w), 1, fp);
       fclose(fp);
    }
-   else printf("error saving mW.pm\n");
+   else printf("error saving levelEditorWindowGeometry.pm\n");
 }
+
+
 
 void mwLevelEditor::load_mW()
 {
-   FILE *fp = fopen("data/mW.pm", "rb");
+   // load static window array
+   mwWindow w[20];
+   FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "rb");
    if (fp)
    {
-      fread(&mWM, sizeof(mWM), 1, fp);
+      fread(&w, sizeof(w), 1, fp);
       fclose(fp);
+
+      // copy only these values back to window vector
+      for (int i = 0; i < (int)mWM.mW.size(); i++)
+      {
+         mWM.mW[i].rect = w[i].rect;
+         mWM.mW[i].active = w[i].active;
+         mWM.mW[i].layer = w[i].layer;
+      }
    }
-   else
-   {
-      printf("error loading mW.pm -- using defaults\n");
-   }
+   else printf("error loading levelEditorWindowGeometry.pm -- using defaults\n");
+
    // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
-   al_remove_filename("data/mW.pm");
-   mSelectionWindow.fill_block_array();
+   al_remove_filename("data/levelEditorWindowGeometry.pm");
 }
-
-
-
 

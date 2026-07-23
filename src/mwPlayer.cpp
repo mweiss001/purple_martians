@@ -325,7 +325,7 @@ void mwPlayer::proc_player_xy_move(int p)
             while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y+=0.1;
 
 
-            printf("%d %d player moving up and collision\n", mLoop.frame_num, p);
+            // printf("%d %d player moving up and collision\n", mLoop.frame_num, p);
 
             syn[p].yinc = 0;                // kill upwards motion
          }

@@ -15,8 +15,16 @@ class mwDemoRecord
    void draw_record_settings(mwWindow w);
 
 
-
    void draw_transport_controls_seek(int fx1, int fy1, int fy2, int d);
+
+   void draw_transport_controls_seek2(mwRect<int> rect, int d);
+
+
+
+   void draw_transport_controls_speed(int fx1, int fy1, int bts, int ls, int d);
+
+   void sh(bool inc_dec, float per);
+
 
 
    void set_window_positions(int set);
@@ -96,6 +104,12 @@ public:
    void proc_section_details_menu();
 
    void proc_transport_menu();
+
+
+   void save_mWM();
+   void load_mWM();
+
+
 
 };
 extern mwDemoRecord mDemoRecord;

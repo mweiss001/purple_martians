@@ -2709,6 +2709,15 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 }
 
 
+
+// wrapper for button that takes rect
+bool mwWidget::mButton(mwRect<int> rect, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
+{
+   return mButton(0, rect.x1, rect.x2, 0, rect.y1, rect.y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, txt, disable_input);
+}
+
+
+
 bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
 {
    int x1, y1, x2, y2;

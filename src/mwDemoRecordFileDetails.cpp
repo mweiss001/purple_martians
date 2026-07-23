@@ -86,20 +86,26 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    c = 4;
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (overwrite current)"))
    {
+      int old_frame = mLoop.frame_num;
       mGameMoves.save_gm(current_loaded_demo_file, 0);
       mGameMoves.load_gm(current_loaded_demo_file);
+      mLoop.frame_num = old_frame;
       refresh();
    }
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (auto new name)"))
    {
+      int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_make_fn("new copy", 0);
       mGameMoves.load_gm(current_loaded_demo_file);
+      mLoop.frame_num = old_frame;
       refresh();
    }
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (prompt for name)"))
    {
+      int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_file_select();
       mGameMoves.load_gm(current_loaded_demo_file);
+      mLoop.frame_num = old_frame;
       refresh();
    }
 }

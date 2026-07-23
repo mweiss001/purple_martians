@@ -6,10 +6,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwInput.h"
-#include "mwLevelEditor.h"
-#include "mwScreen.h"
 #include "mwWidget.h"
-
 
 mwWindow::mwWindow()
 {
@@ -44,28 +41,21 @@ mwWindow::mwWindow()
 void mwWindow::set_title(const char* st) {  sprintf(title, "%s", st);  }
 void mwWindow::set_pos(int x, int y)     {  rect.setX1Y1(x, y);   }
 void mwWindow::set_size(int w, int h)    {  rect.setWH(w, h);  }
-
-
 void mwWindow::init(int p_index, int p_layer, int p_x, int p_y, int p_w, int p_h, int p_color, const char* p_title, int p_draw_mode, int p_title_text_just, int p_title_bar_hover_highlight, bool p_enable_X_button)
 {
    active = 1;
-
    color = p_color;
-
    index = p_index;
    layer = p_layer;
-   set_pos(p_x, p_y);
-   set_size(p_w, p_h);
-   set_title(p_title);
-
    draw_mode = p_draw_mode;
    title_text_just = p_title_text_just;
    hover_highlight = p_title_bar_hover_highlight;
    enable_X_button = p_enable_X_button;
 
+   set_pos(p_x, p_y);
+   set_size(p_w, p_h);
+   set_title(p_title);
 }
-
-
 
 void mwWindow::set_resizeable(int min_w, int max_w, int min_h, int max_h)
 {
@@ -76,14 +66,11 @@ void mwWindow::set_resizeable(int min_w, int max_w, int min_h, int max_h)
    max_height = max_h;
 }
 
-
-
 bool mwWindow::detect_mouse()
 {
    if (detectMouse) return detectMouse();
    else return rect.contains(mInput.mouse_x, mInput.mouse_y);
 }
-
 
 void mwWindow::check_offscreen()
 {
@@ -93,10 +80,7 @@ void mwWindow::check_offscreen()
    if (rect.x1 > mDisplay.SCREEN_W-100) { rect.x1=mDisplay.SCREEN_W-100; change=1; }
    if (rect.y1 > mDisplay.SCREEN_H-100) { rect.y1=mDisplay.SCREEN_H-100; change=1; }
    if (change) set_pos(rect.x1, rect.y1 );
-
 }
-
-
 
 void mwWindow::process_mouse(void)
 {
@@ -154,7 +138,6 @@ void mwWindow::process_mouse(void)
    }
 }
 
-
 void mwWindow::draw(int draw_only)
 {
    // by default disable input (draw only)
@@ -179,42 +162,30 @@ void mwWindow::draw(int draw_only)
       // size adjust triangle
       if (resizable) al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[color]);
 
-
       if (have_focus)
       {
          // title bar rect
          mwRect<int> title_bar_rect = rect;
          title_bar_rect.setHeight(12);
 
-         if (moveable && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y))
-         {
-            // highlight title bar frame
-            title_bar_rect.draw_rectangle(mColor.pc[hover_highlight], 1);
-         }
+         // highlight title bar frame if hovered
+         if (moveable && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y)) title_bar_rect.draw_rectangle(mColor.pc[hover_highlight], 1);
 
          // size adjust rect
          mwRect<int> size_adj_rect = rect;
          size_adj_rect.setWH_adj_X1Y1(10, 10);
 
-         if (resizable && size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y))
-         {
-            al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[hover_highlight]);
-         }
-
+         // highlight size adjust triangle if hovered
+         if (resizable && size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y)) al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[hover_highlight]);
 
       }
-
-
-
-
-
    }
-
-
 
    if (drawFunction) drawFunction();
    else
    {
+      // original placeholder legacy drawing, default if no draw function has been defined
+
       // erase background
       rect.draw_filled_rectangle(mColor.pc[0]);
 
@@ -258,5 +229,3 @@ void mwWindow::draw(int draw_only)
       }
    }
 }
-
-

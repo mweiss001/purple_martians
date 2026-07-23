@@ -507,7 +507,6 @@ void sh(bool inc_dec, float per)
    }
 }
 
-
 void mwScreen::draw_demo_controls_overlay_speed(int fx1, int fy1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h)
 {
    w = (smallText ? 178 : 350) + ls*2;
