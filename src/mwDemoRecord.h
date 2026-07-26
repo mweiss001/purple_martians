@@ -28,8 +28,13 @@ class mwDemoRecord
    void draw_timeline_section_text(mwRect<int> rect, int gmInfo_index);
 
 
+   bool draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only);
+
+
    void change_player_color_and_name_dialog(int gmInfoIndex);
 
+
+   void delete_section(int gmInfo_index);
 
 
 
@@ -65,14 +70,9 @@ class mwDemoRecord
    int rt_end_frame = 0;
    int rt_all_players = 0;
 
-
    void gdt();
    char * gettf(int frame, char* ft);
 
-
-private:
-   void seek_to_frame(int frame, int draw);
-public:
 
    void init();
 

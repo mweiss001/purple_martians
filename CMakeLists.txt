@@ -180,6 +180,7 @@ add_executable(pm
         src/mwDemoRecordSections.cpp
         src/mwDemoRecordTransport.cpp
         src/mwDemoRecordFileDetails.cpp
+        src/mwDemoRecordTimeline.cpp
 )
 
 

@@ -33484,6 +33484,183 @@ wip commit...2026-07-25 18:52:53
 
 
 
+2026-07-26 05:58:14
+
+when context menu's overlap, choose one with fcous
+I think the names that show in section are not proper, they come from player struct  but they should come from gmInfo
+fixed by overwriting in section details
+
+delete section deletes all gm not just one section...fixed
+
+2026-07-26 06:42:19
+
+now finish add section dialog..done
+
+2026-07-26 07:00:25
+
+
+now, move the timeline thing
+
+make a new source file:
+
+mDemoRecordTimeline
+
+do i need 2 different seek to frame? one in demo mode and one in demo record?
+
+
+
+also the function to set active local player?
+
+
+
+
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+{
+   // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
+   mGameMoves.current_pos = 0;
+   mLoop.load_and_setup_level(mLevel.play_level, 4);
+
+
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+
+void mwDemoRecord::seek_to_frame(int frame, int draw)
+{
+   mLevel.load_level(mLevel.play_level, 0, 0);    // load level
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mPlayer.init_player(p, 1);      // full reset
+      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
+   }
+
+
+
+
+
+
+   mPlayer.syn[0].active = 1;
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+
+lets try simplifying and making a common one:
+
+usages:
+
+demo: 5
+draw timeline tracks
+2 x gminfo fill
+2 x screen overlay
+
+record: 4
+refresh
+fire held sections
+trasport track
+transport seek 2
+
+OK the common one will be:
+
+
+void mwDemoMode::seek_to_frame(int frame, int draw)
+{
+   // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
+   mLoop.load_and_setup_level(mLevel.play_level, 4);
+
+   mLoop.ff_state = 1;
+   mLoop.frame_num = 0;
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+   mLoop.ff_state = 0;
+}
+
+I think its working...
+
+stoppped the highlight from flashing.
+
+did some extra text info in timeline
+
+2026-07-26 08:08:33
+
+next to do:
+
+figure out the record controls in timeline
+now that I have the part where I can add sessions...
+I think the only thing I will do with record is record a specific section
+when I start I will only erase moves for that section, not till the end of time
+
+so what will record controls look like?
+
+checkbox - enable record punch in
+if enabled:
+play can be started and stopped
+
+any game key press will start record....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

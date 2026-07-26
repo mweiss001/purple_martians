@@ -211,7 +211,7 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
    int xb = w.rect.x2-2;
    int ya = trect.y2 + 4;
    int bts = 14;
-   if (mWidget.mTrackInt(0, xa, xb, 1, ya, bts,   0,0,1,1,    0, 10, 15,  15, 0, 0,    1, mLoop.frame_num, mDemoMode.last_frame+1000, 0,  "Current Frame:", d)) seek_to_frame(mLoop.frame_num, 1);
+   if (mWidget.mTrackInt(0, xa, xb, 1, ya, bts,   0,0,1,1,    0, 10, 15,  15, 0, 0,    1, mLoop.frame_num, mDemoMode.last_frame+1000, 0,  "Current Frame:", d)) mDemoMode.seek_to_frame(mLoop.frame_num, 1);
 
    ya+=bts+4;
 
@@ -429,33 +429,8 @@ void mwDemoRecord::draw_transport_controls_seek2(mwRect<int> rect, int d)
       if (f > lf) f = lf;
 
       mLoop.frame_num = f;
-      seek_to_frame(f, 1);
+     mDemoMode.seek_to_frame(f, 1);
    }
-}
-
-
-
-void mwDemoRecord::seek_to_frame(int frame, int draw)
-{
-   mLevel.load_level(mLevel.play_level, 0, 0);    // load level
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      mPlayer.init_player(p, 1);      // full reset
-      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
-   }
-   mPlayer.syn[0].active = 1;
-   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
-   mLoop.ff_state = 1;
-   mLoop.frame_num = 0;
-   while (mLoop.frame_num < frame)
-   {
-      mLoop.frame_num++;
-      mGameMoves.proc();
-      mLoop.move_frame();
-   }
-   if (draw) mDrawSequence.ds_draw(0, 0);
-   mLoop.ff_state = 0;
 }
 
 

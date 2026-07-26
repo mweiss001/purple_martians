@@ -214,24 +214,6 @@ void mwDemoRecord::draw_record_settings(mwWindow w)
 
 
 
-void mwDemoRecord::draw_timeline(mwWindow w)
-{
-   // make a smaller rect for timeline widget (below title bar, and leave space for adjustment in br corner)
-   mwRect<int> timeline_rect = mwRect<int>::fromX1Y1X2Y2(w.rect.x1, w.rect.y1+14, w.rect.x2-10, w.rect.y2 );
-
-   // determine track height from number of tracks and widget height
-   int num_tracks = mGmInfo.gmPlayerInfo.size();
-   int ls = (timeline_rect.h / num_tracks); // line size
-   int bts = ls - 2;
-
-   int gmInfo_index = -1;
-   if (mScreen.draw_demo_controls_overlay_timeline_tracks(timeline_rect.x1, timeline_rect.x2, timeline_rect.y1, bts, 2, 0, 0, timeline_rect.w, timeline_rect.h, gmInfo_index, 1, w.disable_input)) set_active_section(gmInfo_index);
-
-
-
-
-}
-
 
 // popup menu to set player number
 // used by:
@@ -294,7 +276,7 @@ void mwDemoRecord::refresh()
    int old_frame_num = mLoop.frame_num;
    mGmInfo.fill();
    load_lnk_arr();    // load games moves into link array
-   seek_to_frame(old_frame_num, 1);
+   mDemoMode.seek_to_frame(old_frame_num, 1);
 }
 
 void mwDemoRecord::reload()

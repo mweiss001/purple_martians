@@ -750,6 +750,9 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       if (type == 4) // DEMO
       {
+         mGameMoves.current_pos = 0;
+
+
          setup_players_after_level_load(1); // type 1 full reset,
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 

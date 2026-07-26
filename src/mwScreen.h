@@ -195,7 +195,7 @@ class mwScreen
    void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y2, int col);
 
 
-   bool draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y2, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int draw_time_labels, int display_only);
+//   bool draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y2, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int draw_time_labels, int display_only);
 
    void draw_demo_controls_overlay_play_stop_button_small(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
 
