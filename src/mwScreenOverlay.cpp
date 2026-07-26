@@ -1272,7 +1272,6 @@ void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float
 }
 
 
-
 void mwScreen::draw_screen_overlay()
 {
    int p = mPlayer.active_local_player;
@@ -1336,17 +1335,14 @@ void mwScreen::draw_screen_overlay()
       //draw_demo_debug_overlay(p, cx, cy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
 
-      if (!mDemoRecord.record_mode_active) draw_demo_controls_overlay();
+      if (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) draw_demo_controls_overlay();
    }
-
 
    t1 = al_get_time();
    if (draw_common_debug_overlay(p, cx, cy))
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_com", al_get_time() - t1);
 
-
    mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_total", al_get_time() - t0);
-
 }
 
 

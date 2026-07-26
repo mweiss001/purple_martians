@@ -510,7 +510,6 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
    }
 
-
    if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
    {
       strcat(dsc, " [");
@@ -527,35 +526,6 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "F");
       else                       strcat(dsc, " ");
       strcat(dsc, "]");
-
-
-//      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "[L]");
-//      else                       strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "[R]");
-//      else                       strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_UP)    strcat(dsc, "[U]");
-//      else                       strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "[D]");
-//      else                       strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "[J]");
-//      else                       strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "[F]");
-//      else                       strcat(dsc, "[ ]");
-//
-
-
-//      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "[FIRE]");
-//      else                       strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "[JUMP]");
-//      else                       strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "[DOWN]");
-//      else                       strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_UP)    strcat(dsc, "[UP]");
-//      else                       strcat(dsc, "[  ]");
-//      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "[RIGHT]");
-//      else                       strcat(dsc, "[     ]");
-//      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "[LEFT]");
-//      else                       strcat(dsc, "[    ]");
    }
 
    if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t = 1;
@@ -675,38 +645,36 @@ void mwGameMoves::find_player_info()
 
 bool mwGameMoves::does_game_move_contain_player(int i, int p)
 {
-   int gm_player = mGameMoves.arr[i][2]; // get player num of game move
+   // for most game moves player number is here:
+   int gm_player = mGameMoves.arr[i][2];
 
-   // need to do this here to get embedded player number and color
+   // for ACTIVE game moves, need to extract player number
    if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
    {
       int col  = 0;
       char name[9] = { 0 };
       mMiscFnx.gma_to_val(mGameMoves.arr[i][1], mGameMoves.arr[i][2], mGameMoves.arr[i][3], gm_player, col, name);
    }
-
    if (gm_player == p) return true;
    return false;
 }
 
-int mwGameMoves::find_first_active_game_move_for_player(int p, int start, int end)
+
+
+
+// returns index of game move, or -1 if not found
+int mwGameMoves::find_first_active_game_move_for_player(int p, int start_frame)
 {
-   if (start > entry_pos-1) start = entry_pos-1;
-   if (start < 0) start = 0;
-   if (end > entry_pos) end = entry_pos;
-
-   for (int x=start; x<end; x++)
-   {
-      if (arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+   for (int i=0; i<mGameMoves.entry_pos; i++)
+      if ((mGameMoves.arr[i][0] >= start_frame) && (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG))
       {
-         int pp, c;
-         char name[9] = { 0 };
-         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], pp, c, name);
-
-         if (p == pp) return x;
+         int gm_player;
+         int gm_color;
+         char gm_name[9] = { 0 };
+         mMiscFnx.gma_to_val(mGameMoves.arr[i][1], mGameMoves.arr[i][2], mGameMoves.arr[i][3], gm_player, gm_color, gm_name);
+         if (gm_player == p) return i;
       }
-   }
-   return 0;
+   return -1;
 }
 
 
@@ -720,7 +688,6 @@ void mwGameMoves::gma_change_color(int x, int new_color)
    mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, name);
    mMiscFnx.val_to_gma(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, new_color, name);
 }
-
 
 void mwGameMoves::gma_change_name(int x, char * new_name)
 {

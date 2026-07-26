@@ -266,3 +266,5 @@
 #define PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED    10
 #define PM_CFG_SAVE_PLAYER_NAME                    11
 #define PM_CFG_LOAD_PLAYER_NAME_AND_COLOR          12
+
+#define PM_CFG_SAVE_SPEED                          13

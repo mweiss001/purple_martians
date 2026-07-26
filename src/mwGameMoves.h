@@ -32,9 +32,7 @@ public:
    void gma_change_color(int x, int c);
    void gma_change_name(int x, char * new_name);
 
-   int find_first_active_game_move_for_player(int p, int start, int end);
-
-
+   int find_first_active_game_move_for_player(int p, int start);
 
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);

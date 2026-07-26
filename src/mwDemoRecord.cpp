@@ -339,9 +339,6 @@ void mwDemoRecord::demo_record(void)
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
    mLoop.frame_num = 0;
 
-   // this is used externally to check if demoRecord is running
-   record_mode_active = 1;
-
    record = 0;
    play = 0;
    current_section = 0;
@@ -350,8 +347,7 @@ void mwDemoRecord::demo_record(void)
 
    if (!load_demo_record()) quit = 1;
 
-
-//   load_mWM();
+   //load_mWM();
 
 
    while (!quit)
@@ -422,7 +418,6 @@ void mwDemoRecord::demo_record(void)
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
    mLoop.quit_action = 1; // menu
 
-   record_mode_active = 0;
 }
 
 void mwDemoRecord::redraw_callback()

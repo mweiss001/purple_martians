@@ -20,16 +20,22 @@ class mwDemoRecord
    void draw_transport_controls_seek2(mwRect<int> rect, int d);
 
 
+   void draw_transport_controls_speed(mwRect<int> rect, int d);
 
-   void draw_transport_controls_speed(int fx1, int fy1, int bts, int ls, int d);
+
+   void proc_timeline_context_menu(int gmInfo_index, int mouse_frame);
+
+   void draw_timeline_section_text(mwRect<int> rect, int gmInfo_index);
+
+
+   void change_player_color_and_name_dialog(int gmInfoIndex);
+
+
+
 
    void sh(bool inc_dec, float per);
 
-
-
    void set_window_positions(int set);
-
-   int record_mode_active{};
 
    int lnk_arr[10000] = {0};
    int lnk_entry_pos = 0;
@@ -102,6 +108,8 @@ public:
    void load_lnk_arr();
    void proc_cpu_time(double frame_start_timestamp);
    void proc_section_details_menu();
+
+   void add_new_section_dialog();
 
    void proc_transport_menu();
 

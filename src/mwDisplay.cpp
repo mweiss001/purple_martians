@@ -305,7 +305,7 @@ int mwDisplay::init_display(void)
 
 void mwDisplay::proc_display_change(void)
 {
-   if ((last_display_change_frame != mLoop.frame_num - 1) || (mDemoRecord.record_mode_active)) // skip if just changed last frame
+   if ((last_display_change_frame != mLoop.frame_num - 1) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)) // skip if just changed last frame
    {
       last_display_change_frame = mLoop.frame_num;
 

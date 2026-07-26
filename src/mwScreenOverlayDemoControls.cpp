@@ -10,6 +10,7 @@
 #include "mwWidget.h"
 #include "mwColor.h"
 #include "mwConfig.h"
+#include "mwDemoRecord.h"
 #include "mwDrawSequence.h"
 #include "mwInput.h"
 #include "mwLoop.h"
@@ -598,9 +599,11 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    int mouse_on_bar = -1;
 
 
+
    for (int i = 0; i < (int) mGmInfo.gmPlayerInfo.size(); i++)
    {
       struct gmPlayerInfoRecord r = mGmInfo.gmPlayerInfo[i];
+
 
       int p = r.playerNum;
       int c = r.playerCol;
@@ -619,6 +622,11 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       // map track start and end to screen positions
       float rx1 = mMiscFnx.map_range<float>((float)r.startFrame, sf, lf,  ix1, ix2);
       float rx2 = mMiscFnx.map_range<float>((float)r.endFrame,   sf, lf,  ix1, ix2);
+
+
+
+
+
 
       // is mouse on bar?
       if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2) && (!display_only))
@@ -644,6 +652,11 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       int tx1 = rx1 + 1;
       int tx2 = tx1 + th;
 
+
+
+
+
+
       // erase tile background
       al_draw_filled_rectangle(tx1, ty1, tx2, ty2, mColor.pc[c+192]);
 
@@ -656,7 +669,9 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
       // draw tile
       al_draw_scaled_bitmap(mBitmap.player_tile[c][1], 0, 0, 20, 20, tx1, ty1, th, th, 0);
 
-      
+
+
+
       // draw vertical line at deaths
       for (auto& d : r.deaths)
       {
@@ -671,17 +686,23 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
          al_draw_line(dx, ry1, dx, ry2, mColor.pc[8], 1);
       }
 
-      if (smallText)
-      {
-         float txtx = tx2 + 4;
-         float txty = ry1 + ((ry2-ry1) - 13)/2;
-         al_draw_textf(mFont.pixl, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
-      }
+      // if in demo record mode draw text externally
+      mwRect<int> text_rect =mwRect<int>::fromX1Y1X2Y2(tx2+2, ry1+1, rx2-1, ry2-1);
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.draw_timeline_section_text(text_rect, i);
       else
       {
-         float txtx = tx2 + 4;
-         float txty = ry1 + ((ry2-ry1) - 8)/2;
-         al_draw_textf(mFont.pr8, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
+         if (smallText)
+         {
+            float txtx = tx2 + 4;
+            float txty = ry1 + ((ry2-ry1) - 13)/2;
+            al_draw_textf(mFont.pixl, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
+         }
+         else
+         {
+            float txtx = tx2 + 4;
+            float txty = ry1 + ((ry2-ry1) - 8)/2;
+            al_draw_textf(mFont.pr8, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
+         }
       }
       // next bar position
       ry1 = ry2+vs; 
@@ -698,22 +719,32 @@ bool mwScreen::draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y1
    // add time text label below
    if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, currentFrame, display_time_format, display_time_dir, display_time_distance, 15);
 
-   // draw vertical line at Level done
-   fx = mMiscFnx.map_range<float>((float) mGmInfo.levelDoneFrame, sf, lf,  ix1, ix2);
-   al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
+   if (mGmInfo.levelDoneFrame != -1)
+   {
+      // draw vertical line at Level done
+      fx = mMiscFnx.map_range<float>((float) mGmInfo.levelDoneFrame, sf, lf,  ix1, ix2);
+      al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
-   // add time text label below
-   if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, mGmInfo.levelDoneFrame, display_time_format, display_time_dir, display_time_distance, 11);
+      // add time text label below
+      if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, mGmInfo.levelDoneFrame, display_time_format, display_time_dir, display_time_distance, 11);
+   }
+
+
+
 
    // is mouse on frame?
    if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!display_only))
    {
+
       // draw vertical line at mouse pos frame
       float fx = (float) mInput.mouse_x;
       al_draw_line(fx, y1, fx, y2, mColor.pc[14], 1);
 
       // map screen x position to frame num
       float f = mMiscFnx.map_range<float>( (float) mInput.mouse_x, ix1, ix2, sf, lf);
+
+      // if in demo record mode process right click menu
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.proc_timeline_context_menu(gmInfo_index, f);
 
       // add text label below indicator
       if (display_time_labels) mMiscFnx.draw_time_text_box(fx, y1, y2, f, display_time_format, display_time_dir, display_time_distance, 14);
@@ -741,7 +772,6 @@ void mwScreen::draw_demo_controls_overlay_bottom_line()
    int s = 6;
   // s += mLoop.pct_x;
 
-
    // running x position
    int x = BORDER_WIDTH+2;
 
@@ -763,16 +793,13 @@ void mwScreen::draw_demo_controls_overlay_bottom_line()
       x += nrd_length + s; // update running position
    }
 
-
    int tly = mDisplay.SCREEN_H - 11;
    int w = draw_demo_controls_overlay_players_small(x, tly);
 
    // if width is zero do not add spacing
    if (w) x+= w+s;
 
-
    draw_demo_controls_overlay_timeline(x, tly, mDisplay.SCREEN_W-BORDER_WIDTH - 60, tly+10, 9+160);
-
 }
 
 

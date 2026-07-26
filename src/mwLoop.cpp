@@ -774,7 +774,10 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       mSound.start_music(0); // rewind and start theme
 
-      if ((!mDemoMode.play_mode_active) && (!mDemoRecord.record_mode_active))
+
+      if ((!mDemoMode.play_mode_active) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
+
+//      if ((!mDemoMode.play_mode_active) && (!mDemoRecord.record_mode_active))
       {
          state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
          // add initial special game moves

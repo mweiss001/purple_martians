@@ -28,6 +28,8 @@
 mwConfig mConfig;
 
 
+//mConfig.save_config(PM_CFG_SAVE_SPEED);
+
 
 void mwConfig::save_config(int type)
 {
@@ -45,6 +47,20 @@ void mwConfig::save_config(int type)
    }
    else
    {
+      // this is different, if specifically requested save, do this then quit
+
+      if (type == PM_CFG_SAVE_SPEED)
+      {
+         asci(GAME, mLoop.frame_speed)
+         al_save_config_file("pm.cfg", cfg);
+         al_destroy_config(cfg);
+         return;
+      }
+
+
+
+
+
 
       if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
       {
@@ -71,10 +87,13 @@ void mwConfig::save_config(int type)
          asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
       }
 
+
+
       if ((type == 0) || (type == PM_CFG_SAVE_START_LEVEL))
       {
          asci(GAME, mLevel.start_level)
       }
+
 
       asci(GAME, mPlayer.loc[0].name_display)
 
@@ -97,7 +116,6 @@ void mwConfig::save_config(int type)
 
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mLoop.frame_speed)
-
       asci(GAME, mLoop.reset_frame_speed_at_program_start)
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
@@ -183,12 +201,6 @@ void mwConfig::save_config(int type)
       asci(LEVEL_EDITOR, mLevel.make_backup_on_save_level);
       asci(LEVEL_EDITOR, mBitmapTools.make_backup_on_save_bitmap);
       asci(LEVEL_EDITOR, mEditorMain.level_editor_quit_confirmation_dialog);
-
-
-
-
-
-
 
       asci(BMSG, mBottomMessage.bottom_msg_on)
       asci(BMSG, mBottomMessage.num_lines)

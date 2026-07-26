@@ -33288,6 +33288,354 @@ commit
 
 
 
+2026-07-23 20:34:35
+
+
+I need to rethink the current player thing, now that I removed that, how do I add another player?
+
+the way I used to do it was, just hit record...it would use current player, current player color and current frame
+
+punch-in still works great, it uses active local player and current frame
+
+maybe I could have something like 'add new player' and it would just add a new player game move (if feasible)
+
+then after that I could just puch in to it like normal...
+
+
+I also want to have a different punch in method
+- start from stopped, as soon a key pressed, play and reord from there??
+
+
+
+
+2026-07-24 06:49:25
+
+made it save speed...
+
+I am not sure about the trackInt thing in transport, it is dupliacted from timeline
+
+2026-07-24 06:50:46
+
+what I want to do now id figure out the record button stuff...
+
+
+how about a button to set record mode:
+0-off
+1-punch in from play mode
+2-punch in from stop mode
+or could they both be the same?
+
+-----
+how will I add more players?
+do I call them players, sections, sp,ething else ?
+
+
+what do I need? player number, player color, frame
+I can assume, cuurent frame
+so player num and col
+
+
+how about a button on sections
+add section
+when clicked pop up a dialog to:
+- choose from available (not used) player number at that frame
+- player color
+- player name
+then add a player active game move 
+
+I could probably just change color and name later
+I can probably reuse stuff from record controls
+
+- right click menu from current 'add new section'
+do it fool!!!
+
+rather than make an entire new dialog
+
+can I just right click on timeline and do it from the submenu there?
+
+all I really need to do is show a pop-up menu with available player that can be added
+
+figure that out...
+- get list of unused player nunber section at a specific frame
+
+if it is current frame, then all I have to do is check currently active
+
+
+
+
+2026-07-25 06:11:34
+
+I have this one file that displays weird in gmlist 'lev016-8P-115.gm'
+
+all 8 players have "ACTIVE" game moves on frame 1, this in normal
+but the colors and descriptions are wrong
+
+the only difference is that there is also a move for player 0 on frame 1
+
+also lev019-8P-107.gm, which also has a move on frame 0
+
+I think the problem is in load_link_array...when all is selected it works fine...
+
+2026-07-25 07:02:49
+
+I am still no closer to figuring out why?
+
+if the first entry in the list is a game move (type 5) then the player added after that are all player 5??)
+2026-07-25 07:12:06
+figured it out!!!
+when displaying lines in gmlist I was using index of link array instead of translated index!!!
+
+2026-07-25 07:24:45
+
+now what was I working on before?
+
+adding new sections...
+I think I can delete and add sections
+one thing is...
+if I add a player active move and later there is another section with that player number, there will be a comflict
+what can I do?
+
+when adding, check for another player active with the same number later...
+
+if found also add a player inactive just before...done
+2026-07-25 08:00:54
+
+
+now what?
+
+
+in addition to selecting player number, also select color and name??
+
+cant seem to change player color and name for newly added sections...
+
+
+
+this function is wrong:
+
+int mwGameMoves::find_first_active_game_move_for_player(int player, int start, int end)
+
+
+start and end are game moves index... they should be frame numbers
+
+new:
+
+int mwGameMoves::find_first_active_game_move_for_player(int player, int start_frame)
+
+it is still wrong!!
+
+one case needs frame number, and one needs index
+
+fixed by returning index or -1 if not found
+when I need frame I can easily get it with:
+
+            int na = mGameMoves.find_first_active_game_move_for_player(player_num, mLoop.frame_num+1);
+            if (na != -1)
+            {
+               int f = mGameMoves.arr[na][0]; // start frame of next section
+ 
+2026-07-25 09:29:55
+
+I also want to add context menu for timeline, seems like much duplication with that and section details
+
+timeline tracks:
+- need more control over what they display for text
+- want to do context menus
+
+can I do this while still keeping it common?
+
+
+right click on track should call a function with gmInfo index and mouse pos translated to frame number
+
+use this:
+
+#define PM_PROGRAM_STATE_DEMO_RECORD                    7
+(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+
+instead of:
+record_mode_active = 
+
+done..got rid of those references...
+
+added context menu to timeline... now can do things based in gmInfo index and mouse frame
+
+Now would like to show more things on the timeline track
+
+do the same as context menu, pass to a draw function
+
+
+add to context menu
+- change color
+- change name
+
+this means I will need some simple blocking dialogs to do this
+I think I have this done and looking good
+2026-07-25 17:03:54
+
+If no level done, do not show on timeline..done
+
+make the add section dialog look nicer
+
+make some more detailed text lines on time line tracks
+
+
+wip commit...2026-07-25 18:52:53
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 
 
 

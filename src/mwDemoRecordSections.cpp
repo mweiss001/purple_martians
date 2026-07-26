@@ -5,6 +5,7 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
+#include "mwEventQueue.h"
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
@@ -153,8 +154,38 @@ void mwDemoRecord::find_fire_held_sections(int p)
 }
 
 
+void mwDemoRecord::proc_timeline_context_menu(int gmInfo_index, int mouse_frame)
+{
+   if (mInput.mouse_b[2][0])
+   {
+      int i = gmInfo_index;
+      int p   = mGmInfo.gmPlayerInfo[i].playerNum;
+      //int f1  = mGmInfo.gmPlayerInfo[i].startFrame;
+      //int f2  = mGmInfo.gmPlayerInfo[i].endFrame;
 
-void mwDemoRecord::proc_section_details_menu(void)
+      sprintf(mMenu.menu_string[0],"Timeline Context  Menu");
+      sprintf(mMenu.menu_string[1],"----------------------");
+      sprintf(mMenu.menu_string[2],"Change Player Name and Color");
+      sprintf(mMenu.menu_string[3],"Delete Section");
+      sprintf(mMenu.menu_string[4],"Add new section at current pos");
+      sprintf(mMenu.menu_string[5],"end");
+      int mp = mMenu.pmenu(5, 13, -12, 1);
+
+      if (mp == 2)  change_player_color_and_name_dialog(gmInfo_index);
+
+      if (mp == 3 && p != 0) // delete section -- but don't delete player 0
+      {
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if (mGameMoves.does_game_move_contain_player(x, p)) mGameMoves.clear_single(x);
+         mGameMoves.gm_sort();
+         refresh();
+      }
+      if (mp == 4) add_new_section_dialog(); // add new section
+
+   }
+}
+
+void mwDemoRecord::proc_section_details_menu()
 {
    if (mInput.mouse_b[2][0])
    {
@@ -173,7 +204,8 @@ void mwDemoRecord::proc_section_details_menu(void)
       sprintf(mMenu.menu_string[7],"Remove Unused Fire Sections test");
       sprintf(mMenu.menu_string[8],"Remove Duplicate Game Move");
       sprintf(mMenu.menu_string[9],"Add FIRE at current pos");
-      sprintf(mMenu.menu_string[10],"end");
+      sprintf(mMenu.menu_string[10],"Add new Section at current pos");
+      sprintf(mMenu.menu_string[11],"end");
       int mp = mMenu.pmenu(5, 13, -12, 1);
 
       if (mp == 2)
@@ -227,11 +259,10 @@ void mwDemoRecord::proc_section_details_menu(void)
       {
          range_tools_set_fire_moves(mLoop.frame_num,     1);
          range_tools_set_fire_moves(mLoop.frame_num + 1, 0);
-
          mGameMoves.gm_sort();
          refresh();
-
       }
+      if (mp == 10) add_new_section_dialog(); // add new section
    }
 }
 
@@ -247,6 +278,44 @@ void mwDemoRecord::set_active_section(int i)
 
    load_lnk_arr();    // load games moves into link array
 }
+
+void mwDemoRecord::draw_timeline_section_text(mwRect<int> rect, int gmInfo_index)
+{
+   //rect.draw_filled_rectangle(mColor.Green);
+
+   float txtx = rect.x1 + 2;
+   float txty = rect.y1 + (rect.h - 8) / 2;
+
+
+
+   int i = gmInfo_index;
+   int p   = mGmInfo.gmPlayerInfo[i].playerNum;
+   //int col = mGmInfo.gmPlayerInfo[i].playerCol;
+   int f1  = mGmInfo.gmPlayerInfo[i].startFrame;
+   int f2  = mGmInfo.gmPlayerInfo[i].endFrame;
+
+   std::string name = mGmInfo.gmPlayerInfo[i].playerName;
+
+
+   char msg[256];
+//   sprintf(msg, "%d - P%d - [%s]", i, p, name.c_str());
+
+
+
+   sprintf(msg, "%d - P%d - [%s] s:%d e:%d", i, p, name.c_str(), f1, f2);
+
+
+
+
+
+   al_draw_text(mFont.pr8, mColor.pc[15], txtx, txty, 0, msg);
+
+
+
+
+
+}
+
 
 void mwDemoRecord::draw_current_section(mwWindow w)
 {
@@ -285,8 +354,8 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    if (mWidget.buttontcb(x+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,d, mPlayer.syn[p].name))
    {
       mMiscFnx.edit_player_name(x+134, ya, p);
-      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1, f2);
-      if (gi) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
       refresh();
    }
 
@@ -299,8 +368,8 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    int cl = mWidget.colsel(x, ya, x+200, 16,  10,0,0,0,  0,12,15,15,  0,0,1,d);
    if (cl != -1)
    {
-      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1, f2);
-      if (gi) mGameMoves.gma_change_color(gi, cl);
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_color(gi, cl);
       refresh();
    }
 
@@ -315,4 +384,159 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    ya+=line_space;
    al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].purpleCoins.size());
 }
+
+
+
+
+void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
+{
+   int p   = mGmInfo.gmPlayerInfo[gmInfoIndex].playerNum;
+   int col = mGmInfo.gmPlayerInfo[gmInfoIndex].playerCol;
+   std::string name = mGmInfo.gmPlayerInfo[gmInfoIndex].playerName;
+   mwRect<int> rect = mwRect<int>::fromX1Y1WH(mInput.mouse_x, mInput.mouse_y, 200, 95);
+   int xa = rect.x1+5;
+   int xb = rect.x2-3;
+
+   int bts = 16;
+   int c = 13;
+   int quit = 0;
+   while (!quit)
+   {
+      rect.clear_frame_title(mColor.Black, mColor.White, mColor.White, 12, 1, mFont.pr8, "Change name and color");
+
+      int ya = rect.y1+16;
+
+      al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
+      if (mWidget.buttontcb(xa+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, mPlayer.syn[p].name)) mMiscFnx.edit_player_name(xa+134, ya, p);
+
+      ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6;
+
+      al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
+      ya+=12;
+      int cl = mWidget.colsel(xa, ya, xb, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+      if (cl != -1) col = cl;
+
+      ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5;
+
+      if (mWidget.mButton(2, 70, xb-10,  1, ya, bts, 0, 2, 0, 2, 10, 0, 15, 0, 0, "Cancel", 0)) quit = 1;
+      if (mWidget.mButton(1, xa+10, 70,  1, ya, bts, 0, 2, 0, 2,  9, 0, 15, 0, 0, "Commit", 0))
+      {
+
+         int gi = mGameMoves.find_first_active_game_move_for_player(p, mGmInfo.gmPlayerInfo[gmInfoIndex].startFrame);
+         if (gi != -1)
+         {
+            mGameMoves.gma_change_color(gi, col);
+            mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+         }
+         quit = 1;
+      }
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+      al_flip_display();
+      mEventQueue.proc(1);
+   }
+   refresh();
+}
+
+
+void mwDemoRecord::add_new_section_dialog()
+{
+   mwRect<int> rect = mwRect<int>::fromX1Y1WH(mInput.mouse_x, mInput.mouse_y, 200, 95);
+
+   int xa = rect.x1+5;
+   int xb = rect.x2-3;
+   int bts = 16;
+   int c = 13;
+
+
+
+   // find available player numbers (not currently active at current frame number)
+   // add then to drop down list
+   std::vector<struct listItem> listItems;
+   for (int i=0; i< NUM_PLAYERS; i++)
+      if (!mPlayer.syn[i].active)
+      {
+         char msg[80];
+         sprintf(msg, "Player %d", i);
+         listItems.push_back(listItem(i, msg));
+      }
+
+
+   int player_num = 0;
+
+   // set to first item in list (if any in list)
+   if (listItems.size()) player_num = listItems[0].value;
+
+
+
+   int quit = 0;
+   while (!quit)
+   {
+      rect.clear_frame_title(mColor.Black, mColor.White, mColor.White, 12, 1, mFont.pr8, "Add new section");
+      int ya = rect.y1+16;
+
+      // erase and frame
+//      rect.draw_filled_rectangle(mColor.Black);
+  //    rect.draw_rectangle(mColor.White, 1);
+
+
+//      int xa = rect.x1+3;
+//      int ya = rect.y1+3;
+
+//      int bts = 16;
+
+//      al_draw_text(mFont.pr8, mColor.pc[15], xa-1, ya, 0, "Add new section");
+//      ya += bts;
+
+      if (listItems.size() == 0)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], xa-1, ya, 0, "No used player numbers!");
+      }
+      else
+      {
+         mWidget.mDropDown(1, xa, 100,   1, ya, bts, 0, 0, 0, 0, 15, 10, listItems, player_num, 0);
+         ya += bts+4;
+         if (mWidget.mButton(1, xa, 100,  1, ya, bts, 0, 2, 0, 2, 10, 0, 15, 0, 0, "Commit", 0))
+         {
+            // add active game move for player_num at current frame number
+            mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, player_num, mPlayer.syn[player_num].color);
+
+            // look forward for any other active moves with player_num
+            int na = mGameMoves.find_first_active_game_move_for_player(player_num, mLoop.frame_num+1);
+            if (na != -1)
+            {
+               int f = mGameMoves.arr[na][0]; // start frame of next section
+               mGameMoves.add_game_move(f-2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, player_num, 0);
+            }
+
+            mGameMoves.gm_sort();
+            refresh();
+            quit = 1;
+         }
+      }
+
+
+
+
+
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+      al_flip_display();
+      mEventQueue.proc(1);
+   }
+}
+
+
+
+
+
+
 

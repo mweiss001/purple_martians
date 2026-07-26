@@ -18,32 +18,7 @@
 
 void mwDemoRecord::draw_GMList(mwWindow w)
 {
-   // set num_lines from window height
-   int num_lines = (w.rect.h-16)/8;
-
-   // find starting gm index to show
-   // ideally the current position should be in the middle of the list
-   // find game move index closest to current frame
-   int i_closest = 0;
-   int dist = 999999;
-   for (int i=0; i<lnk_entry_pos; i++)
-   {
-      int td = abs(mGameMoves.arr[lnk_arr[i]][0] - mLoop.frame_num);
-      if (td < dist)
-      {
-         dist = td;
-         i_closest = i;
-      }
-   }
-
-   // go back half of num_lines (but don't go back past zero)
-   int gm1 = i_closest - num_lines/2;
-   if (gm1 < 0) gm1 = 0;
-
-   // set end of range
-   int gm2 = gm1 + num_lines;
-   if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
-
+   // show controls in title bar
    int x1 = w.rect.x1;
    int x2 = w.rect.x2;
    int ya = w.rect.y1+2;
@@ -51,8 +26,57 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    if (mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_all, "all", 15, 15)) load_lnk_arr();
    mWidget.togglec(x2-72, ya, x2-52, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "mono", 15, 15);
 
-   int ry = w.rect.y1+13; // running y
 
+   // set num_lines from window height
+   int num_lines = (w.rect.h-16)/8;
+
+
+
+   // find starting gm index to show
+
+   // ideally the current frame position should be near the middle of the list
+
+   // find game move index closest to current frame
+
+   int i_closest = 0;
+   int min_dist = 999999;
+   for (int i=0; i<lnk_entry_pos; i++)
+   {
+      // translate from link array index to game move index;
+      int gmi = lnk_arr[i];
+
+      // get frame number
+      int f = mGameMoves.arr[gmi][0];
+
+      // get distance from current frame
+      int dist = abs(f - mLoop.frame_num);
+
+      if (dist < min_dist)
+      {
+         min_dist = dist;
+         i_closest = i;
+      }
+   }
+
+   // go back half of num_lines
+   int gm1 = i_closest - num_lines/2;
+
+   // don't let start be before than the start of the array
+   if (gm1 < 0) gm1 = 0;
+
+
+   // set end of range
+   int gm2 = gm1 + num_lines;
+
+   // don't let end be after the end of the array
+   if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
+
+   // running y
+   int ry = w.rect.y1+13;
+
+
+
+   // iterate the link array
    for (int i=gm1; i<gm2; i++)
    {
       int gi = lnk_arr[i]; // get actual game move index from link translation table
@@ -61,17 +85,18 @@ void mwDemoRecord::draw_GMList(mwWindow w)
       int p = mGameMoves.arr[gi][2];
       int v = mGameMoves.arr[gi][3];
 
-
-      // do this to set p and color
-      if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+      // do this to extract player number, color, and name from new ACTIVE game move type
+      if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
       {
          char name[9] = { 0 };
-         mMiscFnx.gma_to_val(mGameMoves.arr[gi][1], mGameMoves.arr[gi][2], mGameMoves.arr[gi][3], p, v, name);
+         mMiscFnx.gma_to_val(t, p, v, p, v, name);
          snprintf(mPlayer.syn[p].name, 9, "%s", name);
       }
 
+
+
       char msg[256];
-      sprintf(msg, "%s", mGameMoves.get_gm_text2(i, f, t, p, v, msg));
+      sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
 
       // rect with line dimensions for background draw and mouse detection
       mwRect<int> line_rect = mwRect<int>::fromX1Y1X2Y2(x1, ry, x1+strlen(msg)*8, ry+8);
@@ -83,26 +108,48 @@ void mwDemoRecord::draw_GMList(mwWindow w)
 
       int bkg_col = 0;
 
-      // if f == current frame highlight in blue
+      // if this move is an exact match of current frame, highlight in blue
       if (f == mLoop.frame_num) bkg_col = 12+128;
 
       // otherwise highlight both adjoining moves
-      if (f < mLoop.frame_num)
+      else
       {
-         // get next frame number
-         int ni = i+1;
-         if (ni >= lnk_entry_pos-1) ni = lnk_entry_pos-1;
-         int nf = mGameMoves.arr[lnk_arr[ni]][0];
-         if (nf > mLoop.frame_num) bkg_col = 12+128;
+         // if frame number of this move is less than current frame, and next move is greater than current frame
+
+         // this move has a frame number less than current frame
+         if (f < mLoop.frame_num)
+         {
+            // get next move in list
+            int ni = i+1;
+
+            // make sure not past end of list
+            if (ni >= lnk_entry_pos-1) ni = lnk_entry_pos-1;
+
+            // get the frame number of the next move in the list
+            int nf = mGameMoves.arr[lnk_arr[ni]][0];
+
+            if (nf > mLoop.frame_num) bkg_col = 12+128;
+         }
+
+
+         // if frame number of this move is more than current frame, and previous move is less than current frame
+
+         // this move has a frame number more than current frame
+         if (f > mLoop.frame_num)
+         {
+            // get prev move in list
+            int pi = i-1;
+
+            // make sure not before beginning of list
+            if (pi < 0) pi = 0;
+
+            // get the frame number of the previous move in the list
+            int pf = mGameMoves.arr[lnk_arr[pi]][0];
+
+            if (pf < mLoop.frame_num) bkg_col = 12+128;
+         }
       }
-      if (f > mLoop.frame_num)
-      {
-         // get prev frame number
-         int pi = i-1;
-         if (pi < 0) pi = 0;
-         int pf = mGameMoves.arr[lnk_arr[pi]][0];
-         if (pf < mLoop.frame_num) bkg_col = 12+128;
-      }
+
 
 
       // determine if mouse is on the line, and set background color if it is
@@ -112,7 +159,7 @@ void mwDemoRecord::draw_GMList(mwWindow w)
          bkg_col = 10+128;
          mouse_on_line = 1;
 
-         // to line up nicely
+         // to line up context menu nicely
          if (mInput.mouse_b[2][0])
          {
             mInput.mouse_y = line_rect.y2+8;
@@ -120,19 +167,22 @@ void mwDemoRecord::draw_GMList(mwWindow w)
          }
       }
 
-      // line background color
+      // draw line background color
       line_rect.draw_filled_rectangle(mColor.pc[bkg_col]);
 
-      // line text
+      // draw line text
       al_draw_text(mFont.pr8, mColor.pc[text_col], x1, ry, 0, msg);
 
       // advance y pos for next line
       ry += line_rect.h;
 
-      // this is purposely here, after drawing the line
+      // process mouse input (this is purposely here, after drawing the line)
       if (mouse_on_line)
       {
+         // right-click context menu
          proc_gm_list_menu(gi, w.rect.x1, line_rect.y2+8);
+
+         // left click sets current frame
          if (mInput.mouse_b[1][0])
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
