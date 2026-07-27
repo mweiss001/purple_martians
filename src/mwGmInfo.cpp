@@ -64,6 +64,7 @@ void mwGmInfo::fill()
 
    mDemoMode.seek_to_frame(0, 0);
    findPlayerTracks();
+   findPlayerTracksLastMoves();
    findDeaths();
    findPurpleCoins();
 }
@@ -87,8 +88,9 @@ void mwGmInfo::findPlayerTracks()
          int p, c;
          char name[9] = { 0 };
          mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, name);
-         gmPlayerInfo.push_back({ p, c, name, f, 0, {}, {} });
+         gmPlayerInfo.push_back({ p, c, name, f, 0, false, f });
       }
+
 
       if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
       {
@@ -99,11 +101,15 @@ void mwGmInfo::findPlayerTracks()
       }
    }
 
-   // if last frame not set, set to lastFrame
+   // if end frame not set, set to lastFrame
    for (auto& r : gmPlayerInfo)
-      if (r.endFrame == 0) r.endFrame = lastFrame;
+      if (r.endFrame == 0)
+      {
+         r.endFrame = lastFrame;
+         r.noEnd = true;
+      }
 
-
+   // if (p0_hidden) erase all player 0
    if (p0_hidden)
    {
       for (int i=0; i<(int)gmPlayerInfo.size(); i++)
@@ -116,6 +122,33 @@ void mwGmInfo::findPlayerTracks()
       }
    }
 }
+
+
+void mwGmInfo::findPlayerTracksLastMoves()
+{
+   for (auto& r : gmPlayerInfo)
+   {
+      int p = r.playerNum;
+      int f1 = r.startFrame;
+      int f2 = r.endFrame;
+
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+      {
+         int f = mGameMoves.arr[x][0];
+         if (f >=f1 && f < f2 && mGameMoves.arr[x][2] == p) r.lastMoveFrame = f;
+      }
+
+   }
+}
+
+
+
+
+
+
+
+
+
 
 // returns index into gmPlayerInfo where p == playerNum and f is between startFrame and endFrame
 int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)

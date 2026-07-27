@@ -225,6 +225,26 @@ public:
    }
 
 
+   void draw_line_x1(ALLEGRO_COLOR color, float thickness, int size_adj = 0)
+   {
+      al_draw_line(x1-size_adj, y1-size_adj, x1-size_adj, y2+size_adj, color, thickness);
+   }
+
+   void draw_line_x2(ALLEGRO_COLOR color, float thickness, int size_adj = 0)
+   {
+      al_draw_line(x2+size_adj, y1-size_adj, x2+size_adj, y2+size_adj, color, thickness);
+   }
+
+   void draw_line_y1(ALLEGRO_COLOR color, float thickness, int size_adj = 0)
+   {
+      al_draw_line(x1-size_adj, y1-size_adj, x2+size_adj, y1-size_adj, color, thickness);
+   }
+
+   void draw_line_y2(ALLEGRO_COLOR color, float thickness, int size_adj = 0)
+   {
+      al_draw_line(x1-size_adj, y2+size_adj, x2+size_adj, y2+size_adj, color, thickness);
+   }
+
 
 
    void draw_filled_rectangle(ALLEGRO_COLOR color, int size_adj = 0)

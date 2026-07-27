@@ -103,6 +103,14 @@ void mwDemoRecord::draw_timeline_section_text(mwRect<int> rect, int gmInfo_index
    char text_coins[256];
    sprintf(text_coins, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].purpleCoins.size());
 
+   char text_lmf[256];
+   sprintf(text_lmf, "last move:%d", mGmInfo.gmPlayerInfo[i].lastMoveFrame);
+
+   char text_ne[256];
+   sprintf(text_ne, "no end:%d", mGmInfo.gmPlayerInfo[i].noEnd);
+
+
+
    char text_index[256];
    sprintf(text_index, "I:%d", i);
 
@@ -180,7 +188,10 @@ void mwDemoRecord::draw_timeline_section_text(mwRect<int> rect, int gmInfo_index
       sprintf(msg, "%s" , text_range);
       al_draw_text(mFont.pixl, mColor.pc[15], txtx, txty2, 0, msg);
 
-      sprintf(msg, "%s - %s" , text_deaths, text_coins);
+//      sprintf(msg, "%s - %s" , text_deaths, text_coins);
+
+      sprintf(msg, "%s - %s" , text_lmf, text_ne);
+
       al_draw_text(mFont.pixl, mColor.pc[15], txtx, txty3, 0, msg);
 
 
@@ -277,9 +288,11 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls,
       float rx1 = mMiscFnx.map_range<float>((float)r.startFrame, sf, lf,  ix1, ix2);
       float rx2 = mMiscFnx.map_range<float>((float)r.endFrame,   sf, lf,  ix1, ix2);
 
+      // make rectangle for bar
+      mwRect<int> bar = mwRect<int>::fromX1Y1X2Y2(rx1, ry1, rx2, ry2);
 
       // is mouse on bar?
-      if ((mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2) && (!display_only))
+      if (!display_only && bar.contains(mInput.mouse_x, mInput.mouse_y))
       {
          mouse_on_bar = p;
          gmInfo_index = i;
@@ -287,35 +300,83 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls,
       }
 
       // fill the background
-      al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[c+144]);
+      bar.draw_filled_rectangle(mColor.pc[c+144]);
+
+
 
       // frame
-      al_draw_rectangle(rx1, ry1, rx2, ry2, mColor.pc[frameColor], 1);
+      bar.draw_rectangle(mColor.pc[frameColor], 1);
+      if (p == mPlayer.active_local_player) bar.draw_rectangle(mColor.pc[frameColor], 1, -1);
 
-      // highlight for active player
-      if (p == mPlayer.active_local_player) al_draw_rectangle(rx1+1, ry1+1, rx2-1, ry2-1, mColor.pc[frameColor], 1);
+      // if noEnd, erase rhs frame line
+      if (r.noEnd)
+      {
+         if (p == mPlayer.active_local_player) al_draw_filled_rectangle(bar.x2-1.5, bar.y1+1.5, bar.x2+0.5, bar.y2-1.5, mColor.pc[c+144]);
+         else al_draw_filled_rectangle(bar.x2-1, bar.y1+0.5, bar.x2+0.5, bar.y2-0.5, mColor.pc[c+144]);
+      }
 
-      // tile position
-      int ty1 = ry1 + 1;
-      int ty2 = ry2 - 1;
-      int th = ty2 - ty1;
-      int tx1 = rx1 + 1;
-      int tx2 = tx1 + th;
+      // notch area with no game moves
 
+      float lmfx = mMiscFnx.map_range<float>((float)r.lastMoveFrame, sf, lf,  ix1, ix2);
 
-      // erase tile background
-      al_draw_filled_rectangle(tx1, ty1, tx2, ty2, mColor.pc[c+192]);
+      mwRect<int> ngR = mwRect<int>::fromX1Y1X2Y2(lmfx, bar.y1+4, bar.x2, bar.y2-4);
 
-      // draw tile rhs border line
-      al_draw_line(tx2+1, ry1, tx2+1, ty2+1, mColor.pc[frameColor], 1);
-
-      // draw tile rhs border line
-      if (p == mPlayer.active_local_player) al_draw_line(tx2, ry1, tx2, ty2, mColor.pc[frameColor], 1);
-
-      // draw tile
-      al_draw_scaled_bitmap(mBitmap.player_tile[c][1], 0, 0, 20, 20, tx1, ty1, th, th, 0);
+      ngR.draw_filled_rectangle(mColor.pc[c+192]);
 
 
+
+
+
+
+
+      int rx = bar.x1+2; // running x pos, in case we don't draw tile
+
+      bool show_tile = 0;
+
+      if (show_tile)
+      {
+         // make rect for tile
+         mwRect<int> tile = mwRect<int>::fromX1Y1X2Y2(bar.x1+1, bar.y1+1, bar.x1+bar.h-2, bar.y2-1);
+
+         rx += tile.w;
+
+         // erase tile background
+         tile.draw_filled_rectangle(mColor.pc[c+192]);
+
+         // draw tile rhs border line
+         al_draw_line(tile.x2+1, bar.y1, tile.x2+1, bar.y2, mColor.pc[frameColor], 1);
+
+         // draw tile rhs border line
+         if (p == mPlayer.active_local_player) al_draw_line(tile.x2, bar.y1, tile.x2, bar.y2, mColor.pc[frameColor], 1);
+
+         // draw tile
+         al_draw_scaled_bitmap(mBitmap.player_tile[c][1], 0, 0, 20, 20, tile.x1, tile.y1, tile.h, tile.w, 0);
+      }
+
+
+
+      // make rect for text
+      mwRect<int> text = mwRect<int>::fromX1Y1X2Y2(rx, bar.y1+1, bar.x1+bar.h-2, bar.y2-1);
+
+
+
+      // if in demo record mode draw text externally
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) draw_timeline_section_text(text, i);
+      else
+      {
+         if (smallText)
+         {
+            float txtx = rx + 4;
+            float txty = ry1 + ((ry2-ry1) - 13)/2;
+            al_draw_textf(mFont.pixl, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
+         }
+         else
+         {
+            float txtx = rx + 4;
+            float txty = ry1 + ((ry2-ry1) - 8)/2;
+            al_draw_textf(mFont.pr8, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
+         }
+      }
 
       // draw vertical line at deaths
       for (auto& d : r.deaths)
@@ -331,27 +392,15 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls,
          al_draw_line(dx, ry1, dx, ry2, mColor.pc[8], 1);
       }
 
-      // if in demo record mode draw text externally
-      mwRect<int> text_rect =mwRect<int>::fromX1Y1X2Y2(tx2+2, ry1+1, rx2-1, ry2-1);
-      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) draw_timeline_section_text(text_rect, i);
-      else
-      {
-         if (smallText)
-         {
-            float txtx = tx2 + 4;
-            float txty = ry1 + ((ry2-ry1) - 13)/2;
-            al_draw_textf(mFont.pixl, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
-         }
-         else
-         {
-            float txtx = tx2 + 4;
-            float txty = ry1 + ((ry2-ry1) - 8)/2;
-            al_draw_textf(mFont.pr8, mColor.pc[15], txtx, txty, 0, "%s", r.playerName.c_str());
-         }
-      }
+
       // next bar position
       ry1 = ry2+vs;
    }
+
+
+
+
+
 
    // don't let currentFrame exceed lastFrame
    int currentFrame = mLoop.frame_num;

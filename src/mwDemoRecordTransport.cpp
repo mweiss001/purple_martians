@@ -206,19 +206,35 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
    // draw transport controls
    draw_transport_controls_seek2(trect, d);
 
+
    // click track
    int xa = w.rect.x1+2;
    int xb = w.rect.x2-2;
    int ya = trect.y2 + 4;
    int bts = 14;
-   if (mWidget.mTrackInt(0, xa, xb, 1, ya, bts,   0,0,1,1,    0, 10, 15,  15, 0, 0,    1, mLoop.frame_num, mDemoMode.last_frame+1000, 0,  "Current Frame:", d)) mDemoMode.seek_to_frame(mLoop.frame_num, 1);
+//   if (mWidget.mTrackInt(0, xa, xb, 1, ya, bts,   0,0,1,1,    0, 10, 15,  15, 0, 0,    1, mLoop.frame_num, mDemoMode.last_frame+1000, 0,  "Current Frame:", d)) mDemoMode.seek_to_frame(mLoop.frame_num, 1);
+//   ya+=bts+4;
 
-   ya+=bts+4;
+
+
+
 
    // rect for speed controls
    mwRect<int> srect = mwRect<int>::fromX1Y1WH(w.rect.x1, ya, w.rect.w, 20);
    // draw speed controls
    draw_transport_controls_speed(srect, d);
+
+   ya+=24;
+
+
+   if (record_punch_in_armed)
+   {
+      if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,10,15, 0,  1,0,0,d, "Punch In Armed!")) record_punch_in_armed = 0;
+   }
+   else
+   {
+      if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,9,15, 0,  1,0,0,d, "Punch In Disarmed")) record_punch_in_armed = 1;
+   }
 
 
 
@@ -438,17 +454,23 @@ void mwDemoRecord::stop_transport(void)
 {
    if (play)
    {
+      printf("play stop\n");
       play = 0;
       mDrawSequence.ds_draw(0, 0);
    }
    if (record)
    {
+      printf("record stop\n");
+
       record = 0;
       mGameMoves.gm_sort();
       refresh();
-      set_active_section(current_section);
+//      set_active_section(current_section);
    }
 }
+
+
+
 
 
 void mwDemoRecord::start_record()
@@ -456,34 +478,39 @@ void mwDemoRecord::start_record()
    play = 1;
    record = 1;
 
-   int plr = mPlayer.active_local_player;
+   int p = mPlayer.active_local_player;
 
+
+   printf("erase all game moves for this player that have a frame number equal or higher than current frame number\n");
    // erase all game moves for this player that have a frame number equal or higher than current frame number
    for (int x=0; x<mGameMoves.entry_pos; x++)
       if (mGameMoves.arr[x][0] >= mLoop.frame_num)
       {
          int do_clear = 0;
-         if (mGameMoves.does_game_move_contain_player(x, plr)) do_clear = 1;
+         if (mGameMoves.does_game_move_contain_player(x, p)) do_clear = 1;
          if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_clear = 0; // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
          if (do_clear) mGameMoves.clear_single(x);
       }
 
-   // check if there still is an active game move after erasing
-   if (mGameMoves.find_first_active_game_move_for_player(plr, 0) != -1)
+   // check if there is no longer an active game move after erasing
+   if (mGameMoves.find_first_active_game_move_for_player(p, 0) == -1)
    {
-      int spi = mPlayer.syn[plr].spawn_point_index; // save spawn_point_index
-      mPlayer.init_player(plr, 1);                  // full player reset
-      mPlayer.syn[plr].spawn_point_index = spi;     // restore spawn_point_index
-      mItem.set_player_start_pos(plr);              // set starting position
+      printf("no active game move left\n");
 
-      mPlayer.syn[plr].active = 1;
+
+      int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
+      mPlayer.init_player(p, 1);                  // full player reset
+      mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
+      mItem.set_player_start_pos(p);              // set starting position
+
+      mPlayer.syn[p].active = 1;
 
       // insert 'active' game move
       int fn = mLoop.frame_num;
       if (fn < 1) fn = 1;
 
       // this is compatible with the new PM_GAMEMOVE_TYPE_PLAYER_ACTIVE 20260330
-      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, plr, mPlayer.syn[plr].color);
+      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
    }
-   mPlayer.syn[plr].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
+   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 }

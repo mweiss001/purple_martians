@@ -120,6 +120,122 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+---------------------------------------------------------
+I guess I am redoing everything about demoRecord...
+---------------------------------------------------------
+
+most important (next)
+- record button and punch in
+- work the same from stop as play (any game key press starts record)
+
+when record is started, erase all of section to end of section...
+do it fool!!
+
+what if the section being punched in...
+what if the frame number is not in that range
+
+fuck it, if I am punching in, all I need to know is the current player number and frame, fuck sections
+just erase to end for that player
+
+
+I might really need to do something about the end of sections
+
+I want to know if there is an INACTIVE move or not
+
+basically, if there is no INACTIVE, I should set end frame to -1
+this will be the most common type
+
+
+then I also want to know the frame 0f the last move
+
+then I want to be able to see this on the timeline track
+
+three sided rect with open end or closed end
+fade color when no more moves
+
+
+in gmInfo I am afraid to set last frame to -1, many things might break
+
+maybe I could just add:
+
+   bool noEnd;
+   int lastMoveFrame;
+
+
+2026-07-27 07:02:51
+
+I have this implemented.
+In timeline I draw the rect frame with no right hand side line when no inactive move
+I crudely erase a chuck of the rect to indicate where last game move starts...
+
+there is a funny bug when I punch in, sometimes I start from the spawn position
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+then after that:
+finish transport controls
+- need record button?
+- make it dockable with timeline
+
+
+
+
+
+- file and main window hidden with a toggle in top left corner
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 when choosing tiles for lift 3 tile draw, select from something other than level
 

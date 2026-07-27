@@ -33625,6 +33625,14 @@ play can be started and stopped
 any game key press will start record....
 
 
+2026-07-26 12:47:13
+
+the only thing left in section details not in timeline is the menu
+
+
+
+
+
 
 
 

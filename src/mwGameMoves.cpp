@@ -663,6 +663,7 @@ bool mwGameMoves::does_game_move_contain_player(int i, int p)
 
 
 // returns index of game move, or -1 if not found
+// if found, the caller can get the frame number with mGameMoves.arr[x][0]
 int mwGameMoves::find_first_active_game_move_for_player(int p, int start_frame)
 {
    for (int i=0; i<mGameMoves.entry_pos; i++)
@@ -676,6 +677,11 @@ int mwGameMoves::find_first_active_game_move_for_player(int p, int start_frame)
       }
    return -1;
 }
+
+
+
+
+
 
 
 

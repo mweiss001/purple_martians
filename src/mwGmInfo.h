@@ -7,6 +7,9 @@ struct gmPlayerInfoRecord
    std::string playerName;
    int startFrame;
    int endFrame;
+   bool noEnd;
+   int lastMoveFrame;
+
    std::vector<int> deaths;
    std::vector<int> purpleCoins;
 };
@@ -25,9 +28,14 @@ class mwGmInfo
    int levelDonePlayer{};
 
 
+
    private:
       void clear();
       void findPlayerTracks();
+
+      void findPlayerTracksLastMoves();
+
+
 
       int getGmPlayerInfoIndex(int p, int f);
 

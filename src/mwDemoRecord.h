@@ -38,6 +38,7 @@ class mwDemoRecord
 
 
 
+
    void sh(bool inc_dec, float per);
 
    void set_window_positions(int set);
