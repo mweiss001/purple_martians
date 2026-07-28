@@ -194,7 +194,13 @@ int mwLevelEditor::loop(int level)
    al_show_mouse_cursor(mDisplay.display);
    mEventQueue.reset_fps_timer();
    init(level);
-   if (mLoop.autosave_level_editor_state) load_mW();
+   if (mLoop.autosave_level_editor_state)
+   {
+      if (!load_mW()) set_mode(1);
+   }
+   else set_mode(1);
+
+
 
    while (active)
    {
@@ -540,7 +546,14 @@ void mwLevelEditor::save_mW()
 {
    // convert window vector to POD window array
    mwWindow w[20];
-   for (int i = 0; i < (int)mWM.mW.size(); i++) w[i] = mWM.mW[i];
+
+   // copy only these values
+   for (int i = 0; i < (int)mWM.mW.size(); i++)
+   {
+      w[i].rect   = mWM.mW[i].rect;
+      w[i].active = mWM.mW[i].active;
+      w[i].layer  = mWM.mW[i].layer;
+   }
 
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "wb");
    if (fp)
@@ -552,8 +565,7 @@ void mwLevelEditor::save_mW()
 }
 
 
-
-void mwLevelEditor::load_mW()
+bool mwLevelEditor::load_mW()
 {
    // load static window array
    mwWindow w[20];
@@ -566,14 +578,26 @@ void mwLevelEditor::load_mW()
       // copy only these values back to window vector
       for (int i = 0; i < (int)mWM.mW.size(); i++)
       {
-         mWM.mW[i].rect = w[i].rect;
+         mWM.mW[i].rect   = w[i].rect;
          mWM.mW[i].active = w[i].active;
-         mWM.mW[i].layer = w[i].layer;
+         mWM.mW[i].layer  = w[i].layer;
       }
-   }
-   else printf("error loading levelEditorWindowGeometry.pm -- using defaults\n");
 
-   // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
-   al_remove_filename("data/levelEditorWindowGeometry.pm");
+      // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
+      al_remove_filename("data/levelEditorWindowGeometry.pm");
+      return true;
+   }
+   printf("error loading levelEditorWindowGeometry.pm -- using defaults\n");
+   return false;
 }
+
+
+
+
+
+
+
+
+
+
 

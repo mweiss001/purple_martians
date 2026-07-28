@@ -149,7 +149,9 @@ void mwDisplay::set_display_transform_and_adjust_window_positions(float old_disp
    scale_factor_current = scale_factor;
 
    // adjust window positions
-//   for (int a=0; a<(int)mWM.mW.size(); a++) mWM.mW[a].set_pos(mWM.mW[a].rect.x1/sfa, mWM.mW[a].rect.y1/sfa);
+   for (int a=0; a<(int)mDemoRecord.mWM.mW.size(); a++) mDemoRecord.mWM.mW[a].set_pos(mDemoRecord.mWM.mW[a].rect.x1/sfa, mDemoRecord.mWM.mW[a].rect.y1/sfa);
+
+
 
    for (int a=0; a<(int)mLevelEditor.mWM.mW.size(); a++) mLevelEditor.mWM.mW[a].set_pos(mLevelEditor.mWM.mW[a].rect.x1/sfa, mLevelEditor.mWM.mW[a].rect.y1/sfa);
 

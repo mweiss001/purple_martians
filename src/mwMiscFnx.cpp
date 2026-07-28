@@ -116,49 +116,50 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
 }
 
 
-void mwMiscFnx::draw_time_text_box(int xc, int y1, int y2, int f, int format, int dir, int dist, int color)
-{
-   char ft1[256];
-   char ft2[256];
-   int bts = 10;
-
-   sprintf(ft1, "%d", f);
-   sprintf(ft2, "%s", mMiscFnx.chrms(f, ft2));
-
-   int y = y1;
-   if (dir) y = y2;
-
-   if (dir)
-   {
-      al_draw_line(xc, y, xc, y+dist, mColor.pc[color], 1);
-      y+=dist;
-      if (format == 0 || format == 2)
-      {
-         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1, 1);
-         y+=bts;
-      }
-      if (format == 1 || format == 2)
-      {
-         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2, 1);
-      }
-   }
-   else
-   {
-      al_draw_line(xc, y, xc, y-dist, mColor.pc[color], 1);
-      y-=(dist+bts);
-      if (format == 0 || format == 2)
-      {
-         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1, 1);
-         y-=bts;
-      }
-      if (format == 1 || format == 2)
-      {
-         mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2, 1);
-      }
-   }
-}
-
-
+// //void mwMiscFnx::draw_time_text_box(int xc, int y1, int y2, int f, int format, int dir, int dist, int color)
+//
+// void mwMiscFnx::draw_time_text_box(int xc, int y1, int y2, int f, int format, int ypos, int color)
+// {
+//    char ft1[256];
+//    char ft2[256];
+//    int bts = 10;
+//
+//    sprintf(ft1, "%d", f);
+//    sprintf(ft2, "%s", mMiscFnx.chrms(f, ft2));
+//
+//    if (ypos < 0)
+//    {
+//       int y = y2;
+//       al_draw_line(xc, y, xc, y-ypos, mColor.pc[color], 1);
+//       y-=ypos;
+//       if (format == 1 || format == 2)
+//       {
+//          mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1, 1);
+//          y+=bts;
+//       }
+//       if (format == 0 || format == 2)
+//       {
+//          mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2, 1);
+//       }
+//    }
+//    if (ypos > 0)
+//    {
+//       int y = y1;
+//       al_draw_line(xc, y, xc, y-ypos, mColor.pc[color], 1);
+//       y-=(ypos+bts);
+//       if (format == 1 || format == 2)
+//       {
+//          mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft1, 1);
+//          y-=bts;
+//       }
+//       if (format == 0 || format == 2)
+//       {
+//          mWidget.mButton(5, xc, -1, 1, y+2, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, ft2, 1);
+//       }
+//    }
+// }
+//
+//
 
 
 

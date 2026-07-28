@@ -46,7 +46,8 @@ class mwLevelEditor
 
 
    void save_mW();
-   void load_mW();
+
+   bool load_mW();
 };
 
 extern mwLevelEditor mLevelEditor;

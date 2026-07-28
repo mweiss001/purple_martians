@@ -9,8 +9,6 @@ class mwMiscFnx
 
 
 
-
-
    // use this so I do not have to send a char when I want to return one
    char tmp_return_40[40];
 
@@ -55,7 +53,7 @@ class mwMiscFnx
    char * chrmhd(int time, char* ft);
 
 
-   void draw_time_text_box(int xc, int y1, int y2, int f, int format, int dir, int dist, int color);
+//   void draw_time_text_box(int xc, int y1, int y2, int f, int format, int ypos, int color);
 
 
 

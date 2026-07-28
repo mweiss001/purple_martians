@@ -13,6 +13,7 @@
 
 mwGmInfo mGmInfo;
 
+
 void mwGmInfo::clear()
 {
    // clear game_event table
@@ -88,8 +89,9 @@ void mwGmInfo::findPlayerTracks()
          int p, c;
          char name[9] = { 0 };
          mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], p, c, name);
-         gmPlayerInfo.push_back({ p, c, name, f, 0, false, f });
+         gmPlayerInfo.push_back({ p, c, name, f, 0, false, f, {}, {} });
       }
+
 
 
       if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)

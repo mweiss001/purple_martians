@@ -12,6 +12,8 @@ struct gmPlayerInfoRecord
 
    std::vector<int> deaths;
    std::vector<int> purpleCoins;
+
+
 };
 
 class mwGmInfo
@@ -26,6 +28,8 @@ class mwGmInfo
 
    int levelDoneFrame{};
    int levelDonePlayer{};
+
+
 
 
 

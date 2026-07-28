@@ -199,34 +199,39 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
 {
    int d = w.disable_input;
 
+   int arm_x = w.rect.x2-70;
+   int arm_y = w.rect.y1+2;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, record_punch_in_armed, "arm", 15, 15);
 
+//   w.rect.setHeight(60+mLoop.pct_y);
+//   w.rect.draw_rectangle(mColor.White, 1);
 
    // rect for transport controls
    mwRect<int> trect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1+14, w.rect.w, 20);
    // draw transport controls
    draw_transport_controls_seek2(trect, d);
 
+   // rect for speed controls
+   mwRect<int> srect = mwRect<int>::fromX1Y1WH(w.rect.x1,  trect.y2+2, w.rect.w, 20);
+   // draw speed controls
+   draw_transport_controls_speed(srect, d);
+
+
 
    // click track
-   int xa = w.rect.x1+2;
-   int xb = w.rect.x2-2;
-   int ya = trect.y2 + 4;
-   int bts = 14;
+//   int xa = w.rect.x1+2;
+//   int xb = w.rect.x2-2;
+//   int ya = trect.y2 + 4;
+//   int bts = 14;
 //   if (mWidget.mTrackInt(0, xa, xb, 1, ya, bts,   0,0,1,1,    0, 10, 15,  15, 0, 0,    1, mLoop.frame_num, mDemoMode.last_frame+1000, 0,  "Current Frame:", d)) mDemoMode.seek_to_frame(mLoop.frame_num, 1);
 //   ya+=bts+4;
 
 
 
 
+//   ya+=24;
 
-   // rect for speed controls
-   mwRect<int> srect = mwRect<int>::fromX1Y1WH(w.rect.x1, ya, w.rect.w, 20);
-   // draw speed controls
-   draw_transport_controls_speed(srect, d);
-
-   ya+=24;
-
-
+/*
    if (record_punch_in_armed)
    {
       if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,10,15, 0,  1,0,0,d, "Punch In Armed!")) record_punch_in_armed = 0;
@@ -236,7 +241,7 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
       if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,9,15, 0,  1,0,0,d, "Punch In Disarmed")) record_punch_in_armed = 1;
    }
 
-
+*/
 
 
 /*
@@ -411,6 +416,10 @@ void mwDemoRecord::draw_transport_controls_seek2(mwRect<int> rect, int d)
       if (mWidget.mButton(crect,  0, 2, 0, 2, 11, 0, 15, 0, 0, "Play", d)) play = 1;
    }
 
+   if (record_punch_in_armed) al_draw_text(mFont.pixl, mColor.pc[10], crect.XCenter(), crect.y1-4, ALLEGRO_ALIGN_CENTER, "REC ARMED");
+
+
+
    // get current and last frame
    int f = mLoop.frame_num;
    int lf = mGmInfo.lastFrame;
@@ -454,21 +463,18 @@ void mwDemoRecord::stop_transport(void)
 {
    if (play)
    {
-      printf("play stop\n");
+      //printf("play stop\n");
       play = 0;
       mDrawSequence.ds_draw(0, 0);
    }
    if (record)
    {
-      printf("record stop\n");
-
+      //printf("record stop\n");
       record = 0;
       mGameMoves.gm_sort();
       refresh();
-//      set_active_section(current_section);
    }
 }
-
 
 
 
@@ -480,8 +486,7 @@ void mwDemoRecord::start_record()
 
    int p = mPlayer.active_local_player;
 
-
-   printf("erase all game moves for this player that have a frame number equal or higher than current frame number\n");
+   //printf("erase all game moves for Player:%d with frame number >= current frame number:%d\n", p, mLoop.frame_num);
    // erase all game moves for this player that have a frame number equal or higher than current frame number
    for (int x=0; x<mGameMoves.entry_pos; x++)
       if (mGameMoves.arr[x][0] >= mLoop.frame_num)
@@ -495,8 +500,7 @@ void mwDemoRecord::start_record()
    // check if there is no longer an active game move after erasing
    if (mGameMoves.find_first_active_game_move_for_player(p, 0) == -1)
    {
-      printf("no active game move left\n");
-
+      //printf("no active game move left\n");
 
       int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
       mPlayer.init_player(p, 1);                  // full player reset

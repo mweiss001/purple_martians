@@ -33629,1159 +33629,128 @@ any game key press will start record....
 
 the only thing left in section details not in timeline is the menu
 
+most important (next)
+- record button and punch in
+- work the same from stop as play (any game key press starts record)
 
+when record is started, erase all of section to end of section...
+do it fool!!
 
+what if the section being punched in...
+what if the frame number is not in that range
 
+fuck it, if I am punching in, all I need to know is the current player number and frame, fuck sections
+just erase to end for that player
 
 
+I might really need to do something about the end of sections
 
+I want to know if there is an INACTIVE move or not
 
+basically, if there is no INACTIVE, I should set end frame to -1
+this will be the most common type
 
 
+then I also want to know the frame 0f the last move
 
+then I want to be able to see this on the timeline track
 
+three sided rect with open end or closed end
+fade color when no more moves
 
 
+in gmInfo I am afraid to set last frame to -1, many things might break
 
+maybe I could just add:
 
+   bool noEnd;
+   int lastMoveFrame;
 
 
+2026-07-27 07:02:51
 
+I have this implemented.
+In timeline I draw the rect frame with no right hand side line when no inactive move
+I crudely erase a chuck of the rect to indicate where last game move starts...
 
+2026-07-27 09:35:07
+next make the punch in work from stopped...done
 
 
 
 
+2026-07-27 09:43:38
+now make the record armed look nicer
+made a toggle in the title bar
+now remove other button
 
+now make the height fixed and smaller...done
 
+2026-07-27 10:06:31 done for now
 
+- make time line optional lines below have more config ..done
+- need to add more parameters...
+now I have:
+int display_time_labels
 
+need more:
 
+   int display_time_dir = 0;
+   int display_time_format = 2;
+   int display_time_distance = 18; // + mLoop.pct_y;
 
+how about
+int display_time_labels;
+0 = none
++ offset or -offset
 
+then all I need is format...
+first change meaning of existing
 
+this is all done...now all I need to do is pass 
 
+display_time_labels to:
 
+bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only)
+make it line up nicer..done
 
 
+- fix timeline drag height (not sure how)
+i think I have that done perfectly
+but did I break demo..no!!!
 
 
+2026-07-28 06:27:25
+- show rec armed on timeline (I am imagining a red diagonal rectangle on current track, from current time to end)...done
 
 
 
 
+- make the transport dockable to the timeline..done
 
+first will be to always show text labels below timeline...done
 
+next would be to disable resizing of transport (only horizontal was enabled anyway)..done
 
+then disable move of tranport...
 
+then copy geometry
 
+   mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
 
 
+this seems to work
+drag move does not...
 
+add to redraw_callback...now it does!!
 
+   mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
 
+this looks so good, I don't think I will make it optional...for now
 
+fix the screen adjust stuff when adjusting double..done
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-   
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+fix level editor save and load..done
 
 
 

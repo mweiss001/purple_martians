@@ -28,7 +28,9 @@ class mwDemoRecord
    void draw_timeline_section_text(mwRect<int> rect, int gmInfo_index);
 
 
-   bool draw_timeline_tracks(int x1, int x2, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only);
+   bool draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only);
+
+   void draw_timeline_time_box(float xc, int y1, int y2, int y_offset, int f, int color);
 
 
    void change_player_color_and_name_dialog(int gmInfoIndex);
@@ -57,7 +59,7 @@ class mwDemoRecord
 
    int current_section = 0;
 
-   int tm_frame = 1;
+   int time_format = 1;
 
    int show_cpu_graph = 0;
    int show_player_grid = 0;
@@ -116,7 +118,7 @@ class mwDemoRecord
 
 
    void save_mWM();
-   void load_mWM();
+   bool load_mWM();
 
 
 

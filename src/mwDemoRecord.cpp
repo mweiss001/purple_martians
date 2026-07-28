@@ -37,14 +37,14 @@ void mwDemoRecord::init()
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
 
-
-   mWM.mW[3].init(3, 2, 500, 100, 320, 112, 10, "Transport Controls", 1, 1, 14, 1);
+   mWM.mW[3].init(3, 2, 500, 100, 320, 58, 8, "Transport Controls", 1, 1, 8, 1);
    mWM.mW[3].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
+   mWM.mW[3].moveable = 0;
+   mWM.mW[3].enable_X_button = 0;
 
-   mWM.mW[3].set_resizeable(320, 2000, 100, 800);
 
-
+   //   mWM.mW[3].set_resizeable(320, 2000, 60, 60);
 
    mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 1, 14, 1);
    mWM.mW[4].set_resizeable(200, 2000, 100, 800);
@@ -67,7 +67,6 @@ void mwDemoRecord::init()
    mWM.mW[8].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[8].drawFunction = [this]() { mDemoRecord.draw_record_settings(mWM.mW[8]); };
 
-   set_window_positions(2);
 
 }
 
@@ -123,12 +122,7 @@ void mwDemoRecord::set_window_positions(int set)
       // Transport Controls
       mWM.mW[3].set_pos(20, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h - 40);
 
-
-
    }
-
-
-
 
 
 
@@ -180,7 +174,7 @@ void mwDemoRecord::draw_mainW(mwWindow w)
 
    ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, tm_frame,             "Time/Frame format", 15, 15);
+   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, time_format,             "Time/Frame format", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_cpu_graph,       "Show cpu graph", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_player_grid,     "Show player grid", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_play, "Show windows when playing", 15, 15);
@@ -249,7 +243,7 @@ void mwDemoRecord::change_player_num_menu(int & p)
 // or            - mm:ss
 char * mwDemoRecord::gettf(int frame, char* ft)
 {
-   if (tm_frame) sprintf(ft, "%d", frame);
+   if (time_format) sprintf(ft, "%d", frame);
    else sprintf(ft, "%s", mMiscFnx.chrms(frame, ft));
    return ft;
 }
@@ -317,6 +311,8 @@ void mwDemoRecord::proc_cpu_time(double frame_start_timestamp)
 void mwDemoRecord::demo_record(void)
 {
    init();
+   if (!load_mWM()) set_window_positions(2);
+
    double frame_start_timestamp;
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
    mLoop.frame_num = 0;
@@ -329,7 +325,6 @@ void mwDemoRecord::demo_record(void)
 
    if (!load_demo_record()) quit = 1;
 
-   //load_mWM();
 
 
    while (!quit)
@@ -346,6 +341,13 @@ void mwDemoRecord::demo_record(void)
          if (mLoop.frame_speed < 30) mDisplay.proc_scale_factor_change();
          if (mLoop.frame_speed < 20) mDisplay.proc_scale_factor_change();
 
+         // punch in
+         if ((!record) && (record_punch_in_armed))
+         {
+            mPlayer.set_comp_move_from_player_key_check(0);
+            if (mPlayer.loc[0].comp_move) start_record();
+         }
+
          if (play)
          {
             mLoop.frame_num++;
@@ -354,27 +356,23 @@ void mwDemoRecord::demo_record(void)
             mGameMoves.proc();
             mLoop.move_frame();
             mDrawSequence.ds_draw(0, 0);
-
-            // punch in
-            if ((!record) && (record_punch_in_armed))
-            {
-               mPlayer.set_comp_move_from_player_key_check(0);
-               if (mPlayer.loc[0].comp_move) start_record();
-            }
          }
          else
          {
             al_clear_to_color(al_map_rgb(0, 0, 0));
             mScreen.draw_scaled_level_region_to_display();
             mScreen.draw_screen_overlay();
-
             if (show_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, mDisplay.SCREEN_H-200);
-
          }
          if (show_cpu_graph) proc_cpu_time(frame_start_timestamp);
       }
 
+
       al_set_target_backbuffer(mDisplay.display);
+
+      // set transport pos and size to dock above timeline
+      mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
+
 
       int show_windows = 1;
       if (play && !show_windows_in_play) show_windows = 0;
@@ -408,6 +406,11 @@ void mwDemoRecord::redraw_callback()
    al_clear_to_color(al_map_rgb(0, 0, 0));
    mScreen.draw_scaled_level_region_to_display();
    mScreen.draw_screen_overlay();
+
+   // set transport pos and size to dock above timeline
+   mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
+
+
    mWM.cycle_windows(1);
    al_flip_display();
 }
@@ -418,7 +421,14 @@ void mwDemoRecord::save_mWM()
 {
    // convert window vector to POD window array
    mwWindow w[20];
-   for (int i = 0; i < (int)mWM.mW.size(); i++) w[i] = mWM.mW[i];
+
+   // copy only these values
+   for (int i = 0; i < (int)mWM.mW.size(); i++)
+   {
+      w[i].rect   = mWM.mW[i].rect;
+      w[i].active = mWM.mW[i].active;
+      w[i].layer  = mWM.mW[i].layer;
+   }
 
    FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "wb");
    if (fp)
@@ -431,7 +441,7 @@ void mwDemoRecord::save_mWM()
 
 
 
-void mwDemoRecord::load_mWM()
+bool mwDemoRecord::load_mWM()
 {
    // load static window array
    mwWindow w[20];
@@ -444,15 +454,17 @@ void mwDemoRecord::load_mWM()
       // copy only these values back to window vector
       for (int i = 0; i < (int)mWM.mW.size(); i++)
       {
-         mWM.mW[i].rect = w[i].rect;
+         mWM.mW[i].rect   = w[i].rect;
          mWM.mW[i].active = w[i].active;
-         mWM.mW[i].layer = w[i].layer;
+         mWM.mW[i].layer  = w[i].layer;
       }
+      // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
+      al_remove_filename("data/demoRecordWindowGeometry.pm");
+      return true;
    }
-   else printf("error loading demoRecordWindowGeometry.pm -- using defaults\n");
+   printf("error loading demoRecordWindowGeometry.pm -- using defaults\n");
+   return false;
 
-   // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
-   al_remove_filename("data/demoRecordWindowGeometry.pm");
 }
 
 
