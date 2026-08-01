@@ -35,9 +35,14 @@ class mwSql
 
 
 
-   sqlite3 *db_game_events = nullptr;
+//   sqlite3 *db_game_events = nullptr;
 
    //   sqlite3 *db_logs     = nullptr;
+
+   sqlite3 *db_level_play_stats = nullptr;
+
+
+
 
 
 

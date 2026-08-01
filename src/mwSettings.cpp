@@ -1483,9 +1483,9 @@ void mwSettings::page_level_stats(void)
       if (mWidget.mCheckBox(6, xc, 10, 1, ya, bts, 0, mLevel.level_stats_show_level_number, "Show level numbers with names", 15, 15, 0)) mLevel.level_stats_bmp_msg_type = 0;
       ya +=8;
       ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-      al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num);
-      ya +=8;
-      ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+      // al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", 0);
+      // ya +=8;
+      //ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
       if (show_advanced)
       {

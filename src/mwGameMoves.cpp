@@ -1110,8 +1110,7 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
    // just counts and lists active and inactive game moves
    // find_player_info();
 
-
-   //   printf("Loaded gm file:%s\n", fname);
+//   printf("Loaded gm file:%s\n", fname);
 
    status = 2;
 

@@ -37,16 +37,25 @@ int mwSql::open_database()
 
    sprintf(filename, "%s", "data/sessions.db");
    if (sqlite3_open(filename, &db_sessions))        { printf("Can't open database %s\n", filename);  return (0); }
-   sprintf(filename, "%s", "data/game_events.db");
-   if (sqlite3_open(filename, &db_game_events))     { printf("Can't open database %s\n", filename);  return (0); }
+
+
+   //   sprintf(filename, "%s", "data/game_events.db");
+//   if (sqlite3_open(filename, &db_game_events))     { printf("Can't open database %s\n", filename);  return (0); }
 
    /*
    sprintf(filename, "%s", "data/client_status.db");
    if (sqlite3_open(filename, &db_client_status))   { printf("Can't open database %s\n", filename);  return (0); }
    */
 
+
    sprintf(filename, "%s", "data/server_status.db");
    if (sqlite3_open(filename, &db_server_status))   { printf("Can't open database %s\n", filename);  return (0); }
+
+
+   sprintf(filename, "%s", "data/level_play_stats.db");
+   if (sqlite3_open(filename, &db_level_play_stats))   { printf("Can't open database %s\n", filename);  return (0); }
+
+
 
 //   execute_sql("PRAGMA journal_mode = WAL", db_client_status);
 
@@ -110,6 +119,72 @@ void mwSql::create_tables()
                session_id        INT  ); ");
    execute_sql(sql, db_sessions);
 
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS play_data( \
+               id                  INTEGER PRIMARY KEY, \
+               level               INT,  \
+               time                INT,  \
+               completed           INT,  \
+               num_players         INT,  \
+               player_respawns     INT,  \
+               enemies_killed      INT,  \
+               enemies_left        INT,  \
+               coins_collected     INT ); ");
+   execute_sql(sql, db_level_play_stats);
+
+
+
+   /*
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_play_data( \
+               level                 INTEGER PRIMARY KEY, \
+               level_name            TEXT, \
+               status                INT,  \
+               min_respawns          INT,  \
+               max_coins_collected   INT,  \
+               tot_coins             INT,  \
+               min_enemies_left      INT,  \
+               min_enemies_left_par  INT,  \
+               max_enemies_killed    INT,  \
+               times_played          INT,  \
+               times_beat            INT,  \
+               times_quit            INT,  \
+               time_par              INT,  \
+               time_best             INT,  \
+               time_best_all_coins   INT,  \
+               time_worst            INT,  \
+               time_average          INT,  \
+               time_total            INT ); ");
+   execute_sql(sql, db_level_play_stats);
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
    // strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
@@ -152,10 +227,6 @@ void mwSql::create_tables()
 
   */
 
-
-
-
-
    strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
                timestamp     TEXT PRIMARY KEY, \
                version       TEXT, \
@@ -189,7 +260,7 @@ void mwSql::create_tables()
    execute_sql(sql, db_server_status);
 
 
-
+/*
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
                id          INTEGER PRIMARY KEY, \
@@ -202,6 +273,8 @@ void mwSql::create_tables()
                z3          INT, \
                z4          INT ); ");
    execute_sql(sql, db_game_events);
+
+  */
 
 
 }

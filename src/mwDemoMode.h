@@ -17,7 +17,6 @@ class mwDemoMode
    void run_single_from_cmd_fn(const char* fn);
    void run_single_from_cmd_prompt();
    void run_continuous_random();
-   void play_demo_for_stats();
 
    void continuous_random_next_level();
 

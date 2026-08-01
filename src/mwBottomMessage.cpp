@@ -37,6 +37,8 @@ void mwBottomMessage::init_filter_events(void)
    filter_event[40] = 1; // player hurt player
    filter_event[41] = 1; // player hurt by enemy
    filter_event[42] = 1; // player killed enemy
+   filter_event[43] = 1; // player shot enemy
+
 }
 
 void mwBottomMessage::create_test_mode_list(void)
@@ -401,7 +403,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
       if (ev == 42) // player killed enemy
       {
          custom_drawn = 1;
-         if (z4 == 1) draw_text(xpos, 15, " shot ");
+         if (z4 == 1) draw_text(xpos, 15, " killed ");
          if (z4 == 2) draw_text(xpos, 15, " exploded ");
          bm_draw_enemy(z3, xpos);
       }
@@ -444,6 +446,15 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          if (z2 == 9) draw_text(xpos, 15, " got squished by lift");
          draw_health(z1, -z4, xpos, 16, 0);
       }
+
+      if (ev == 43) // player shot enemy
+      {
+         custom_drawn = 1;
+         draw_text(xpos, 15, " shot ");
+         bm_draw_enemy(mEnemy.Ei[z2][0], xpos);
+      }
+
+
 
       if (!custom_drawn) printf(" no bmsg handler for event:%d\n",ev); // not caught by one of the handlers here
       else // add to bmsg bitmap array

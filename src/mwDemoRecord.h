@@ -28,7 +28,7 @@ class mwDemoRecord
    void draw_timeline_section_text(mwRect<int> rect, int gmInfo_index);
 
 
-   bool draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only);
+   bool draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_only);
 
    void draw_timeline_time_box(float xc, int y1, int y2, int y_offset, int f, int color);
 
@@ -73,11 +73,27 @@ class mwDemoRecord
    int rt_end_frame = 0;
    int rt_all_players = 0;
 
+   int timeline_level_done_color = 11;
+   int timeline_mouse_pos_color = 14;
+   int timeline_player_deaths_color = 10;
+   int timeline_purple_coins_color = 8;
+   int timeline_enemies_shot_color = 14;
+   int timeline_enemies_killed_color = 10;
+   int timeline_display_time_labels = -4;
+   int timeline_show_player_icons = 1;
+
+
+
+
+
    void gdt();
    char * gettf(int frame, char* ft);
 
 
    void init();
+
+   void set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_shot, int enemies_killed, int time_labels, int player_icons);
+
 
    void redraw_callback();
 

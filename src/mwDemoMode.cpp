@@ -14,7 +14,10 @@
 #include "mwDrawSequence.h"
 #include "mwBitmap.h"
 #include "mwConfig.h"
+#include "mwEnemy.h"
+#include "mwGmInfo.h"
 #include "mwSound.h"
+#include "mwSql.h"
 
 
 mwDemoMode mDemoMode;
@@ -71,45 +74,12 @@ int mwDemoMode::load_demo_file_array()
    return 1;
 }
 
-// very fast, no drawing
-void mwDemoMode::play_demo_for_stats()
-{
-   mLevel.load_level(mLevel.play_level, 0, 0);    // load level
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      mPlayer.init_player(p, 1);      // full reset
-      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
-   }
-   mPlayer.syn[0].active = 1;
-   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
-
-//   double t0 = al_get_time(); // for the entire function
-
-   mLoop.frame_num = 0;
-   int done = 0;
-   while (!done)
-   {
-      if (mLoop.frame_num > last_frame+200)
-      {
-         done = 1;
-         // this is so that I can track if demo level play back did not complete
-         mLevel.add_play_data_record(mLevel.play_level, 0); // count this as quitting
-         // printf(" - lev:%d quit!", mLevel.play_level);
-      }
-      if (mPlayer.syn[0].level_done_mode) done = 1;
-      mLoop.frame_num++;
-      mGameMoves.proc();
-      mLoop.move_frame();
-   }
-
-//   printf("t1: %f\n", (al_get_time() - t0)*1000);
-
-}
-
 
 void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
 {
+   double t0 = al_get_time(); // for the entire function
+
+
    if (!load_demo_file_array()) return;
 
    // save initial state
@@ -120,14 +90,25 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
    mSound.sound_on = 0; // no sound
 
 
+//   num_demo_filenames = 10; // debug smaller list
+
+
    for (int i=0; i<num_demo_filenames; i++)
    {
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]), false);
       //printf("i:%d - filename:%s - lev:%d ", i, al_get_fs_entry_name(demo_FS_filenames[i]), mLevel.play_level);
-      play_demo_for_stats();
+      mGmInfo.fill();
+      mGmInfo.add();
+
+      al_set_target_backbuffer(mDisplay.display);
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
       al_flip_display();
    }
+
+   mLevel.check_achievements();
+   mLevel.save_data();
+   mLevel.level_stats_bmp_msg_type = 0;
+
 
    // restore initial state
    demo_debug_running_demo_saves_level_data = old_demo_debug_running_demo_saves_level_data;
@@ -135,6 +116,11 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
 
    // restore local player color and name
    mConfig.load_config();
+
+
+   printf("play_all_demos_and_save_stats time:%f\n", (al_get_time() - t0));
+
+
 }
 
 

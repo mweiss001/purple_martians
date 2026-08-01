@@ -33753,6 +33753,1045 @@ fix the screen adjust stuff when adjusting double..done
 fix level editor save and load..done
 
 
+2026-07-29 05:26:30
+
+- why does the drawing of demoRecord happen like this:
+
+   mScreen.draw_scaled_level_region_to_display();
+   mScreen.draw_screen_overlay();
+
+I removed the 2 calls to mScreen.draw_screen_overlay() and everthing still works
+I am going to put them back, I want to see the frame
+
+
+
+
+this is a big one
+
+it all ties into wanting to use the database for stats, instead of the flat file thing I am using now
+
+to start with, what do the tables look like?
+
+struct level_data
+{
+   char level_name[200];
+
+   int status;
+   int status_color;
+   char status_text[16];
+
+   int min_respawns;
+   int max_purple_coins_collected;
+   int tot_purple_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
+
+
+struct level_play_data
+{
+   int level;
+   double start_timestamp;
+   int timer;
+   int completed;
+   int number_players;
+   int enemies_killed;
+   int enemies_left_alive_at_exit;
+   int player_respawns;
+   int purple_coins_collected;
+};
+
+   struct level_data data[100];
+   struct level_play_data play_data[100000];
+
+void mwLevel::load_data(void)
+{
+   FILE *fp =fopen("data/level_data.pm","rb");
+   if (fp)
+   {
+      fread(data,           sizeof(data),          1, fp);
+      fread(area_locks,     sizeof(area_locks),    1, fp);
+      fread(area_array,     sizeof(area_array),    1, fp);
+      fread(play_data,      sizeof(play_data),     1, fp);
+      fread(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   else
+   {
+      printf("Error loading data/level_data.pm, recreating....\n");
+      clear_data();
+      save_data();
+   }
+}
+
+void mwLevel::save_data(void)
+{
+   FILE *fp =fopen("data/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fwrite(play_data,      sizeof(play_data),     1, fp);
+      fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
+}
+
+
+
+where to start on this...
+
+here:
+
+this could almost exactly correspond to a gmInfo record
+
+struct level_play_data
+{
+   int level;
+   double start_timestamp;
+   int timer;
+   int completed;
+   int number_players;
+   int enemies_killed;
+   int enemies_left_alive_at_exit;
+   int player_respawns;
+   int purple_coins_collected;
+};
+
+do I use start_timestamp? no
+
+
+make a database called:
+
+   sqlite3 *db_level_play_stats = nullptr;
+
+   sprintf(filename, "%s", "data/level_play_stats.db");
+   if (sqlite3_open(filename, &db_level_play_stats))   { printf("Can't open database %s\n", filename);  return (0); }
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS play_data( \
+               id                  INTEGER PRIMARY KEY, \
+               level               INT,  \
+               time                INT,  \
+               completed           INT,  \
+               num_players         INT,  \
+               player_respawns     INT,  \
+               enemies_killed      INT,  \
+               enemies_left        INT,  \
+               coins_collected     INT ); ");
+   execute_sql(sql, db_level_play_stats);
+   
+done...
+
+now fill it?
+
+void mwLevel::add_play_data_record(int lev, int type)
+
+find an insert example in my code...
+
+   char sql[500];
+   sprintf(sql,
+   "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
+                          ts.c_str(),   ip, port, hostname, p,          mPlayer.syn[p].color, name.c_str());
+
+   mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
+
+
+do I use num players? no
+
+      char sql[500];
+      sprintf(sql,
+      "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d,   %d, %d, %d, %d) RETURNING id;" ,
+                              lev,     ct,       cmp,           0,    level_data_player_respawns,  level_data_enemies_killed, mEnemy.num_enemy, level_data_purple_coins_collected);
+
+      int id = mSql.execute_sql_and_return_one_int(sql, mSql.db_level_play_stats);
+
+
+
+I want to remove
+
+   int number_players;
+   double start_timestamp;
+   
+   they are never used...
+   
+struct level_play_data
+{
+   int level;
+   double start_timestamp;
+   int timer;
+   int completed;
+   int number_players;
+   int enemies_killed;
+   int enemies_left_alive_at_exit;
+   int player_respawns;
+   int purple_coins_collected;
+};
+
+
+done...
+
+
+
+
+2026-07-29 07:00:36
+
+I have data going into the table...
+void mwLevel::add_play_data_record(int lev, int type)
+
+
+now implement clear
+void mwLevel::clear_data(void)
+
+   mSql.execute_sql("DELETE FROM play_data", mSql.db_level_play_stats);
+
+seems to work
+
+now implement the other table...
+
+
+this one will have a primary key of the level number
+
+struct level_data
+{
+   char level_name[200];
+
+   int status;
+   int status_color;
+   char status_text[16];
+
+   int min_respawns;
+   int max_purple_coins_collected;
+   int tot_purple_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_play_data( \
+               level                 INTEGER PRIMARY KEY, \
+               level_name            TEXT, \
+               status                INT,  \
+               status_color          INT,  \
+               status_text           TEXT, \
+               min_respawns          INT,  \
+               max_coins_collected   INT,  \
+               tot_coins             INT,  \
+               min_enemies_left      INT,  \
+               min_enemies_left_par  INT,  \
+               max_enemies_killed    INT,  \
+               times_played          INT,  \
+               times_beat            INT,  \
+               times_quit            INT,  \
+               time_par              INT,  \
+               time_best             INT,  \
+               time_best_all_coins   INT,  \
+               time_worst            INT,  \
+               time_average          INT,  \
+               time_total            INT ); ");
+   execute_sql(sql, db_level_play_stats);
+
+
+add to clear...done
+
+now make this function work with the database:
+void mwLevel::calc_level_stats(int lev)
+
+I need to insert levels first
+
+
+do I want to keep status for the currently loaded level?
+
+Or just look it up when I need to?
+
+
+try the just look it up...
+
+make a helper function?
+
+
+bool get_level_status (int level, int &status, int &status_color, const char * status_text)
+remove from table...done
+
+
+I think I am ready to display from the database
+
+
+wow, >700 lines of wow!!!
+
+
+where to start?
+
+make a copy of old?
+
+what else?
+
+the areas
+
+what do I do now?
+
+
+I have area array
+int area_array[100][2];
+
+the first is the level number
+the second is the area is belongs to
+
+this seems weird, is there a better way?
+
+database.
+table of areas
+each area can have name, rect position on overworld, status, etc
+
+then a table to link levels to areas
+
+there is much to do here....
+
+
+2026-07-30 06:47:42
+
+start with modifying this function to get data from either place:
+
+void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int msg_type)
+
+
+2026-07-30 06:53:56
+
+so much messy duplication...
+what would happen if I just copied the database to the data[level] array?
+I could sync the 2 copies
+
+2026-07-30 06:55:25
+
+2026-07-30 16:00:23 im back baby
+
+
+I've been thinking, I would like to keep a copy in memory of each level under 100's status
+I can also save it to database
+
+what is its function?
+- keeps track of all the times level are played
+
+
+
+
+
+
+2026-07-31 04:20:18
+
+figure out high level stuff before continuing...
+
+- keep individual level plays in database now instead of array of 'struct level_play_data'
+- fill that with a call to gmInfo fill
+- keep in memory the array of 'struct level_data' but store it using a database table
+
+
+
+
+ok sounds good for now...
+
+make function to load from db, or just recreate?
+
+lets just nail down parts of that main plan:
+
+- keep individual level plays in database now instead of array of 'struct level_play_data'
+- fill that with a call to gmInfo fill
+
+
+this is what I have:
+void mwLevel::add_play_data_record(int lev, int type)
+
+why do I have 8 calls to it?
+
+play_demo_for_stats() quit (reached end of demo without level done)
+
+proc_gate_collision() -  debug set level complete
+
+2 x game menu arrows to change level, while level is is progress (resume allowed)
+visual level select while level is is progress (resume allowed)
+
+void mwLoop::proc_program_state(void) // returning to overworld from level done
+
+void mwLoop::proc_level_done_mode(void) 30 start of rocket cut scene
+void mwLoop::proc_level_done_mode(void) 9 start of move player to exit
+
+this function: 
+void mwLevel::add_play_data_record(int lev, int type)
+uses these values:
+
+      play_data[i].player_respawns            = level_data_player_respawns;
+      play_data[i].enemies_killed             = level_data_enemies_killed;
+      play_data[i].purple_coins_collected     = level_data_purple_coins_collected;
+      play_data[i].enemies_left_alive_at_exit = mEnemy.num_enemy;
+
+
+I think what I was trying to do, was use gmInfo instead to reduce duplication
+
+that sounds right...so how will I do that?
+
+gmInfo.fill
+- works when a demo level is loaded
+- plays the game through with flag addEventsToDatabase = true;
+- then collects data for the gm file and puts it in its own local vector of player info
+- each player info has sub vectors about that players deaths and coins collected
+
+? can I use gmInfo fill differently?
+- I don't think I need the layer where I save to database
+- can I make gmInfo always save locally all events (or the ones I care about?)
+- make that happen whenever playing a level
+could I make that part of the event class? yes
+
+do it fool!
+
+struct game_event
+{
+   int frame;
+   int ev;  
+   int x;  
+   int y;  
+   int z1;  
+   int z2;  
+   int z3;  
+   int z4;  
+};
+
+   std::vector<game_event> game_events;
+
+   game_events.push_back({ mLoop.frame_num, ev, x, y, z1, z2, z3, z4 });
+
+where do I clear it?
+
+void mwGmInfo::clear()
+{
+   // clear game_event table
+   mSql.execute_sql("DELETE FROM game_events", mSql.db_game_events);
+   
+   gmPlayerInfo.clear();
+   lastFrame = -1;
+   levelDoneFrame = -1;
+   levelDonePlayer = -1;
+}
+
+
+
+// called at the end of load_gm
+void mwGmInfo::fill()
+{
+
+now change finddeaths and purple coins to not use database...done
+I think I can get rid of the database use here....
+
+now make it always add to vector?
+
+void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
+
+make everything pass the filter (!mLoop.ff_state)
+
+void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
+{
+   // do not do anything if replaying 
+   if (mLoop.ff_state) return;
+
+   // add to local vector that keeps track of all events for current level play
+   game_events.push_back({ mLoop.frame_num, ev, x, y, z1, z2, z3, z4 });
+
+   
+   // if (mGmInfo.addEventsToDatabase)
+   // {
+   //    if ((ev == 8) || (ev == 27))
+   //    {
+   //        game_events.push_back({ mLoop.frame_num, ev, x, y, z1, z2, z3, z4 });
+   //    }
+   // }
+
+now where should I clear it?
+when clearing game moves array?
+when loading level?
+
+
+when loading gm is a good place...
+also when starting new game, or clearing game moves array
+
+right now, only gmInfo uses it...will that change? probably not...
+
+make gmInfo clear it and only add if gmInfo needs it...
+
+done...
+
+now what?
+
+the function 
+
+void mwLevel::add_play_data_record(int lev, int type)
+is common for normal play and when loading demo
+
+uses values that are stored as the level is played
+
+      play_data[i].player_respawns            = level_data_player_respawns;
+      play_data[i].enemies_killed             = level_data_enemies_killed;
+      play_data[i].purple_coins_collected     = level_data_purple_coins_collected;
+
+do I want to do anything with this?
+
+
+what am I trying to do?
+make common when adding record?
+call gmInfo fill when adding?
+
+I think when I call add_play_data_record(int lev, int type)
+I can assume it is alright to play back the level with fill
+
+why?
+
+then I would not have to keep track of: 
+      play_data[i].player_respawns            = level_data_player_respawns;
+      play_data[i].enemies_killed             = level_data_enemies_killed;
+      play_data[i].purple_coins_collected     = level_data_purple_coins_collected;
+
+while level was playing, I could do it all at once when done...
+
+void mwLevel::level_start_data()
+{
+   level_data_purple_coins_collected = 0;
+   level_data_player_respawns = 0;
+   level_data_enemies_killed = 0;
+}
+
+
+the only thing that is used elsewhere is 'level_data_purple_coins_collected' in top display
+
+so...
+
+how about always add events to vector (then I don't have to replay level to add them)
+
+clear vector here:
+
+void mwLevel::level_start_data()
+
+add to gmInfo:
+
+      int coinsCollected{};
+      int playerDeaths{};
+      int enemiesKilled{};
+
+
+set with fill...
+
+I think I have that in place
+
+how to test...
+
+
+I need to call fill at the start of add
+
+i need to separate the fill from the playing back to fill events...no
+
+
+2026-07-31 06:53:16
+
+chasing bug:
+why do I not see player deaths anymore?
+
+this does not find any?
+
+void mwGmInfo::findDeaths()
+{
+   printf("mwGmInfo::findDeaths()\n");
+
+   for (auto& gm : mGameEvent.game_events)
+      if (gm.ev == 8)
+      {
+         playerDeaths++;
+         int p = gm.z1;
+         int f = gm.frame;
+         printf("death: p:%d, f:%d\n", p, f);
+         int index = getGmPlayerInfoIndex(p, f);
+         if (index != -1) gmPlayerInfo[index].deaths.push_back(f);
+      }
+
+
+
+mwGmInfo::fill()
+mwGameEvent::add() - f:703 ev:8 p:5
+mwGameEvent::add() - f:1544 ev:8 p:0
+mwGmInfo::findDeaths() - size:0
+
+something is clearing it...
+
+void mwLevel::level_start_data()
+why? how what????
+load_level is calling it
+
+2026-07-31 07:30:55 gtgfn...
+
+
+----------------------------------------------------------------------
+Level Data Refactor to use database and common gmInfo
+----------------------------------------------------------------------
+
+this is done...
+
+
+
+- make individual level play data a database table instead of an array of structs...done
+
+- make the way of getting that data common for both a currently played level and one played from demo file
+
+- both should use the gmInfo class 'fill' method
+
+- 'fill' reads the game moves list for some things and the events vector for others
+
+- 'fill' can be called right before saving gm (to add newly generated gm's), or when loading gm (demo)
+
+it will work on the currently loaded game moves list
+
+
+just to make things common I think I will only save events when asked to...or always
+always is simpler
+
+- always save game events
+
+- fill can either use the events as is, or replay and generate new ones
+
+
+
+
+
+-------------
+
+gmInfo can be used for 2 things:
+
+- when loading a demo file and using it to set stats
+
+- when saving a just played file and need info to add to database
+
+either way its job is to take the current game moves list and fill the gm structure
+
+doing so might replay the current game (load level, play back, etc)
+I might not want to do that, so can I do it without replaying?
+the only point of replaying was to get the game events and I want to always get them
+
+
+just have the play demo for stats do that before calling fill
+
+
+
+
+am I making things to complicated?
+
+when I want to add a play record what info do I need?
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS play_data( \
+               id                  INTEGER PRIMARY KEY, \
+               level               INT,  \
+               time                INT,  \
+               completed           INT,  \
+               num_players         INT,  \
+               player_respawns     INT,  \
+               enemies_killed      INT,  \
+               enemies_left        INT,  \
+               coins_collected     INT ); ");
+   execute_sql(sql, db_level_play_stats);
+
+i can get this with a simple count of game events
+I can even do it live while the game is in progress
+
+--------------
+why do I want to do it like this?
+
+the 3 variables, should be a part of gmInfo and tracked as the level is played back
+
+also completed
+
+I feel like this is very complicated, but could be simple....but how?
+
+the heart of it is gmInfo
+
+as the level plays, things that I need to keep track of could be manually updated in gmInfo
+or they could be populated from gameEvents vector
+
+I want to do something, but am unsure of direction....
+
+replace:
+mLevel.level_data_enemies_killed
+mLevel.level_data_purple_coins_collected
+
+
+all these values are way too high...why?
+count events I was not resetting events...fixed
+
+now I have play demo for stats working, or at least not too broken...
+
+
+now I want to fix the calc
+
+for now, load from database and save in existing array of structs...
+
+
+
+there is a section I need to change
+
+      for (int i=0; i<play_data_num; i++)
+         if (play_data[i].level == lev)
+         {
+
+            tc++; // all times played
+
+            tta += play_data[i].timer;
+            if (play_data[i].timer > wt) wt = play_data[i].timer;
+
+            if (play_data[i].completed)
+            {
+               tb++;
+               ttb += play_data[i].timer;
+            }
+            else tq++;
+         }
+
+these values are calculated every time a line is printed
+
+
+   int tc = 0; // number of times played
+   int tb = 0; // number of times beat
+   int tq = 0; // number of times quit
+
+   int tta = 0; // total time spent playing
+   int ttb = 0; // total time spent playing only if level completed
+
+   int wt = 0; // worst time
+   int mt = 0; // average time
+
+what if I just add them to calc?
+
+ they are already there:
+ 
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+fixed
+
+remove play_data completely
+what about play data_num?
+I want something to display to show number of records...meh...
+removed!!!
+now what?
+
+try all, it seems to work fine, but is slower...
+
+it seems to load the level 3 times
+
+2026-08-01 03:09:03
+also try to onlt run calc when all is done
+also profile so I can measure the effect of changes
+play_all_demos_and_save_stats time:20929.689588
+
+
+play_all_demos_and_save_stats time:1758.358900
+
+
+I am trying to run play demo for stats simpler...
+runnng into issues where playing the level through to level_done automatically triggers the 
+add_play_data_record(int lev, int type)
+
+I want to call this manually??
+
+
+how can i tell is the level has been done?
+
+
+bool mwDemoMode::check_level_done()
+{
+   // 10s past last game move
+   if (mPlayer.syn[0].level_done_mode == 0 && mLoop.frame_num > last_frame + 400)
+   {
+      // skip players seek exit, jump to mode 5
+      mPlayer.syn[0].level_done_mode = 5;
+   }
+
+   // divert before normal next level mode
+   if (mPlayer.syn[0].level_done_mode == 1) return true;
+   return false;
+}
+
+
+
+
+
+what tasks do I need to do for demo_fill?
+make that its own function
+
+
+
+fill_for_demo_stats
+- just load demo file and call this
+- loads level
+- plays and fills gm
+- adds record
+
+how can I make fill not have to load level twice?
+
+fixed...
+
+now it only calls it once...test
+play_all_demos_and_save_stats time:10855.042299
+
+much faster...
+now see if I can only call calc and achieve once at end...done, no speed increase
+
+what about the original add...
+
+
+now I have a common add in gmInfo
+called twice:
+- play all demos for stats
+-  void mwLevel::add_play_data_record(int lev, int type)
+
+both times I call fill then add
+
+both times I call calc right after moved calc to add..
+
+2026-08-01 05:40:06
+
+I think I am on to something...it seems like things are simpler now...
+
+I am not using the table 'level_play_data'...
+
+now does it still work for demoRecord? seems to...
+
+
+
+shot speed = 12
+
+2000/12 = 166 frames / 40 = approx 4 seconds for player shot to travel from one end of level to another
+
+do I want to capture:
+- kills
+- enemy hits
+kills with bullets
+kills with explosions
+
+- enemy hit with player shot
+- enemy killed with player shot
+- enemy killed with player explosion
+
+do they need to be separate, or can I make somthing common?
+
+I am planning on making it belong to a player, so I don't need to capture player number
+
+struct gmPlayerHitEnemy
+{
+   int frame;
+   int enemyNum;
+   bool type; // ( 0 = shot  1 = explosion)
+   int indexNum; // shotNum or itemNum
+   int shotFiredFrame;
+   int hitsLeft; // 0 - dead
+};
+
+I need to make some more events, or extend existing ones
+
+2026-08-01 05:53:35
+show these...done
+now what?
+
+I am capturing what?
+
+42 - enemies killed
+
+I also want enemies shot
+
+43 - eneny shot 
+what do I need besides player number and enemy number?
+how about bullet number and frame number of bullet shot
+
+            // event 43 - enemy hit
+            mGameEvent.add(43, 0, 0, p, e, c, mShot.p[c].active);
+done...
+
+now do I need to ignore this in bmsg?
+made it work in bmsg as well
+now add in gminfo
+works well!!!
+
+BUG - why does demo overlay show in demo record..fixed
+
+
+options in timeline titlebar:
+- make it look better
+
+- show player icon
+- how many details to show
+- marking of things like deaths, purple coins, kills...
+- add kills and shots to mGmInfo...done
+
+
+
+
+
+also make these things not show in normal demo playback mode
+
+
+at the start of timeline, make bool vars for all these optional things
+
+set them statically if normal demo playback and differently if demo record using variable from demo class
+
+i was thinking about having a separate var for color, but why not combine them?
+
+   int level_done_color = 11;
+   int mouse_pos_color = 14;
+   int player_deaths_color = 10;
+   int purple_coins_color = 8;
+   int enemies_shot_color = 14;
+   int enemies_killed_color = 10;
+
+all these are done...
+
+now make some variables in demoRecord class instead
+
+   int timeline_level_done_color = 11;
+   int timeline_mouse_pos_color = 14;
+   int timeline_player_deaths_color = 10;
+   int timeline_purple_coins_color = 8;
+   int timeline_enemies_shot_color = 14;
+   int timeline_enemies_killed_color = 10;
+   int timeline_display_time_labels = -4;
+
+made it so that I can load different sets for demo play and demo record
+
+I want to save these choices for record
+
+and change them...
+
+can I save them with window geometry?
+
+how do I save a single int?
+
+
+void mwLevel::load_data(void)
+{
+   FILE *fp =fopen("data/level_data.pm","rb");
+   if (fp)
+   {
+      fread(data,           sizeof(data),          1, fp);
+      fread(area_locks,     sizeof(area_locks),    1, fp);
+      fread(area_array,     sizeof(area_array),    1, fp);
+      fread(play_data,      sizeof(play_data),     1, fp);
+      fread(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   else
+   {
+      printf("Error loading data/level_data.pm, recreating....\n");
+      clear_data();
+      save_data();
+   }
+}
+
+void mwLevel::save_data(void)
+{
+   FILE *fp =fopen("data/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fwrite(play_data,      sizeof(play_data),     1, fp);
+      fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
+}
+now make toggles on the titlebar...done also icons..done
+
+now I also want to toggle time/frame format and save that as well..done
+
+all that is left it to make it look better
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

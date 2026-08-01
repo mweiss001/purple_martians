@@ -161,7 +161,7 @@ void mwShot::draw_pshots()
       {
          al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
 
-         // overlay frame number of when bullet was shot (useful for doing muliplayer recording)
+         // overlay frame number of when bullet was shot (useful for doing multiplayer recording)
          if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) al_draw_textf(mFont.pixl, mColor.pc[15], mShot.p[b].x+10, mShot.p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", mShot.p[b].active);
       }
 }

@@ -2,52 +2,68 @@
 
 struct gmPlayerInfoRecord
 {
-   int playerNum;
-   int playerCol;
-   std::string playerName;
-   int startFrame;
-   int endFrame;
-   bool noEnd;
-   int lastMoveFrame;
+   int playerNum{};
+   int playerCol{};
+   std::string playerName{};
+   int startFrame{};
+   int endFrame{};
+   bool noEnd{};
+   int lastMoveFrame{};
 
-   std::vector<int> deaths;
-   std::vector<int> purpleCoins;
+   std::vector<int> playerDeaths{};
+   std::vector<int> coinsCollected{};
+   std::vector<int> enemiesKilled{};
+   std::vector<int> enemiesShot{};
+
 
 
 };
+
+struct gmPlayerHitEnemy
+{
+   int frame{};
+   int enemyNum{};
+   bool type{}; // ( 0 = shot  1 = explosion)
+   int indexNum{}; // shotNum or itemNum
+   int shotFiredFrame{};
+   int hitsLeft{}; // 0 - dead
+};
+
 
 class mwGmInfo
 {
    public:
       void fill();
+      void add();
 
-      bool addEventsToDatabase{};
+      bool completed{};
       int lastFrame{};
-      std::vector<gmPlayerInfoRecord> gmPlayerInfo;
+
+      int levelDoneFrame{};
+      int levelDonePlayer{};
+
+      int playerDeaths{};
+      int coinsCollected{};
+      int enemiesKilled{};
+      int enemiesShot{};
+
+      std::vector<gmPlayerInfoRecord> gmPlayerInfo{};
 
 
-   int levelDoneFrame{};
-   int levelDonePlayer{};
-
-
+      int countTotalPurpleCoinsCollected();
 
 
 
    private:
       void clear();
       void findPlayerTracks();
-
       void findPlayerTracksLastMoves();
-
-
-
       int getGmPlayerInfoIndex(int p, int f);
 
       void findDeaths();
-      void addDeath(int p, int f);
-
       void findPurpleCoins();
-      void addPurpleCoin(int p, int f);
+      void findEnemiesKilled();
+      void findEnemiesShot();
 
 };
 

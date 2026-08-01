@@ -769,7 +769,7 @@ void mwScreen::draw_level_info(void) // used only in menu
          y+=9;
 
 
-         int mpc = mLevel.data[lev].max_purple_coins_collected;
+         int mpc = mLevel.data[lev].max_coins_collected;
          int tpc = mLevel.data[lev].tot_purple_coins;
          int pcc = 15;
          if (mpc >= tpc) pcc = 8;

@@ -324,7 +324,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       if (status == 0) al_draw_scaled_bitmap(mBitmap.sprite[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
 
       // show icon for purple coin achievement
-      if (mLevel.data[lev].max_purple_coins_collected == mLevel.data[lev].tot_purple_coins)
+      if (mLevel.data[lev].max_coins_collected == mLevel.data[lev].tot_purple_coins)
          al_draw_scaled_bitmap(mBitmap.sprite[197], 0, 0, 19, 19, x-5, y-10, 12, 12, 0); // show purple coin
 
       // show icon for par time achievement
@@ -529,7 +529,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       draw_line(bx, bx2, (int)yp, "Min Time Overall",  chrms(mLevel.data[lev].time_best,           msg), 15); yp+=yi;
       draw_line(bx, bx2, (int)yp, "Min Time w/coins",  chrms(mLevel.data[lev].time_best_all_coins, msg), 15); yp+=yi;
       draw_line(bx, bx2, (int)yp, "Min Player Deaths",  chrd(mLevel.data[lev].min_respawns,         msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Max Purple Coins",   chrd(mLevel.data[lev].max_purple_coins_collected, mLevel.data[lev].tot_purple_coins, msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Max Purple Coins",   chrd(mLevel.data[lev].max_coins_collected, mLevel.data[lev].tot_purple_coins, msg), 15); yp+=yi;
       draw_line(bx, bx2, (int)yp, "Max Enemies Killed", chrd(mLevel.data[lev].max_enemies_killed,   msg), 15); yp+=yi;
       draw_line(bx, bx2, (int)yp, "Min Enemies Left",   chrd(mLevel.data[lev].min_enemies_left,     msg), 15); yp+=yi;
    }
@@ -563,7 +563,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Purple Coins");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
-      draw_line(bx, bx2, (int)yp, "Collected", chrd(mLevel.data[lev].max_purple_coins_collected, msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Collected", chrd(mLevel.data[lev].max_coins_collected, msg), 15); yp+=yi;
       draw_line(bx, bx2, (int)yp, "Total",     chrd(mLevel.data[lev].tot_purple_coins,           msg), 15); yp+=yi;
    }
 

@@ -18,6 +18,42 @@
 
 void mwDemoRecord::draw_timeline(mwWindow w)
 {
+   int d = w.disable_input;
+   int arm_x = w.rect.x2-60;
+   int arm_y = w.rect.y1+2;
+   int cb_spacing = 30;
+
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_level_done_color, "d", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_show_player_icons, "i", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_purple_coins_color, "c", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_enemies_killed_color, "k", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_enemies_shot_color, "s", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_player_deaths_color, "d", 15, 15);
+
+   arm_x-=cb_spacing;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, time_format, "f", 15, 15);
+
+
+
+   if (timeline_purple_coins_color) timeline_purple_coins_color = 8;
+   if (timeline_enemies_killed_color) timeline_enemies_killed_color = 10;
+   if (timeline_enemies_shot_color) timeline_enemies_shot_color = 14;
+   if (timeline_player_deaths_color) timeline_player_deaths_color = 10;
+   if (timeline_level_done_color) timeline_level_done_color = 11;
+
+
+
+
    // make a smaller rect for timeline widget (below title bar, and leave space for adjustment in br corner)
    mwRect<int> timeline_rect = mwRect<int>::fromX1Y1X2Y2(w.rect.x1+2, w.rect.y1+14, w.rect.x2-4, w.rect.y2 );
 
@@ -30,12 +66,15 @@ void mwDemoRecord::draw_timeline(mwWindow w)
    float bts = lh - track_spacing;
 
    int gmInfo_index = -1;
-   if (draw_timeline_tracks(timeline_rect.x1, timeline_rect.x2, timeline_rect.y1, bts, track_spacing, 0, 0, timeline_rect.w, timeline_rect.h, gmInfo_index, -4, w.disable_input)) set_active_section(gmInfo_index);
+   if (draw_timeline_tracks(timeline_rect.x1, timeline_rect.x2, timeline_rect.y1, bts, track_spacing, 0, 0, timeline_rect.w, timeline_rect.h, gmInfo_index, w.disable_input)) set_active_section(gmInfo_index);
 }
 
 
-bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_time_labels, int display_only)
+bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_only)
 {
+
+
+
    int baseFrameColor = 15;
 
    // height increase for active track
@@ -160,13 +199,10 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
       }
 
 
-
-
       int rx = bar.x1+2; // running x pos, in case we don't draw tile
 
-      bool show_tile = 0;
 
-      if (show_tile)
+      if (timeline_show_player_icons)
       {
          // make rect for tile
          mwRect<int> tile = mwRect<int>::fromX1Y1X2Y2(bar.x1+1, bar.y1+1, bar.x1+bar.h-2, bar.y2-1);
@@ -210,19 +246,45 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
          }
       }
 
-      // draw vertical line at deaths
-      for (auto& d : r.deaths)
+      if (timeline_player_deaths_color)
       {
-         float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
-         al_draw_line(dx, ry1, dx, ry2, mColor.pc[10], 1);
+         // draw vertical line at deaths
+         for (auto& d : r.playerDeaths)
+         {
+            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
+            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_player_deaths_color], 1);
+         }
       }
 
-      // draw vertical line at purple coins
-      for (auto& d : r.purpleCoins)
+      if (timeline_purple_coins_color)
       {
-         float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
-         al_draw_line(dx, ry1, dx, ry2, mColor.pc[8], 1);
+         // draw vertical line at purple coins
+         for (auto& d : r.coinsCollected)
+         {
+            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
+            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_purple_coins_color], 1);
+         }
       }
+
+      if (timeline_enemies_shot_color)
+      {
+         for (auto& d : r.enemiesShot)
+         {
+            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
+            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_enemies_shot_color], 1);
+         }
+      }
+
+      if (timeline_enemies_killed_color)
+      {
+         // draw vertical line at kills
+         for (auto& d : r.enemiesKilled)
+         {
+            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
+            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_enemies_killed_color], 1);
+         }
+      }
+
 
 
       // next bar position
@@ -239,20 +301,20 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
    al_draw_line(fx, y1, fx, y2, mColor.pc[15], 1);
 
    // add time text label below
-   draw_timeline_time_box(fx, y1, y2, display_time_labels, currentFrame, 15);
+   draw_timeline_time_box(fx, y1, y2, timeline_display_time_labels, currentFrame, 15);
 
 
 
 
 
-   if (mGmInfo.levelDoneFrame != -1)
+   if ((timeline_level_done_color) && (mGmInfo.levelDoneFrame != -1))
    {
       // draw vertical line at Level done
       fx = mMiscFnx.map_range<float>((float) mGmInfo.levelDoneFrame, sf, lf,  ix1, ix2);
-      al_draw_line(fx, y1, fx, y2, mColor.pc[11], 1);
+      al_draw_line(fx, y1, fx, y2, mColor.pc[timeline_level_done_color], 1);
 
       // add time text label below
-      draw_timeline_time_box(fx, y1, y2, display_time_labels, mGmInfo.levelDoneFrame, 11);
+      draw_timeline_time_box(fx, y1, y2, timeline_display_time_labels, mGmInfo.levelDoneFrame, timeline_level_done_color);
    }
 
 
@@ -268,11 +330,18 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
       // if in demo record mode process right click menu
       if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) proc_timeline_context_menu(gmInfo_index, f);
 
-      // draw vertical line at mouse pos frame
-      al_draw_line(fx, y1, fx, y2, mColor.pc[14], 1);
 
-      // add text label below indicator
-      draw_timeline_time_box(fx, y1, y2, display_time_labels, f, 14);
+      if (timeline_mouse_pos_color)
+      {
+         // draw vertical line at mouse pos frame
+         al_draw_line(fx, y1, fx, y2, mColor.pc[timeline_mouse_pos_color], 1);
+
+         // add text label below indicator
+         draw_timeline_time_box(fx, y1, y2, timeline_display_time_labels, f, timeline_mouse_pos_color);
+
+      }
+
+
 
 
       // is mouse button pressed?
@@ -315,10 +384,10 @@ void mwDemoRecord::draw_timeline_section_text(mwRect<int> rect, int gmInfo_index
    sprintf(text_range, "Range:%s to %s", gettf(f1, m1), gettf(f2, m2));
 
    char text_deaths[256];
-   sprintf(text_deaths, "Deaths:%d", (int)mGmInfo.gmPlayerInfo[i].deaths.size());
+   sprintf(text_deaths, "Deaths:%d", (int)mGmInfo.gmPlayerInfo[i].playerDeaths.size());
 
    char text_coins[256];
-   sprintf(text_coins, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].purpleCoins.size());
+   sprintf(text_coins, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].coinsCollected.size());
 
    char text_lmf[256];
    sprintf(text_lmf, "last move:%d", mGmInfo.gmPlayerInfo[i].lastMoveFrame);

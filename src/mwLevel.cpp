@@ -234,7 +234,6 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          }
 
          level_check();
-         level_start_data();
 
          mShot.clear_shots();
 

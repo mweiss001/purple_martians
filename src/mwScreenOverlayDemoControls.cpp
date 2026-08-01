@@ -162,6 +162,9 @@ int mwScreen::draw_demo_controls_overlay_titlebar(int x1, int y1, int x2, int y2
 
 void mwScreen::draw_demo_controls_overlay()
 {
+   mDemoRecord.set_timeline_colors(0, 14, 10, 8, 0, 0, 0, 1);
+
+
    if (demo_controls_tray_mode)
    {
       draw_demo_controls_overlay_bottom_line();
@@ -257,7 +260,7 @@ void mwScreen::draw_demo_controls_overlay()
       int timeline_width;
       int timeline_height;
       int junk;
-      mDemoRecord.draw_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height, junk, 0, 1); // get sizes only
+      mDemoRecord.draw_timeline_tracks(0, transport_width, 0, bts, timeline_ls, smallText, 1, timeline_width, timeline_height, junk, 1); // get sizes only
 
       // speed control sizes
       int speed_ls = cls;
@@ -346,7 +349,7 @@ void mwScreen::draw_demo_controls_overlay()
       if (show_timeline)
       {
          int junk;
-         mDemoRecord.draw_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height, junk, 0, 0);
+         mDemoRecord.draw_timeline_tracks(xa, xa+transport_width, ya, bts, timeline_ls, smallText, 0, timeline_width, timeline_height, junk, 0);
          ya += (timeline_height+control_spacing); // update running y position
       }
 

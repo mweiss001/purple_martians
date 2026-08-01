@@ -14,18 +14,19 @@ mwGameEvent mGameEvent;
 
 void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   if (mGmInfo.addEventsToDatabase)
-   {
-      if ((ev == 8) || (ev == 27))
-      {
-         char sql[500];
-         sprintf(sql, "INSERT INTO game_events VALUES(null, %d, %d, %d, %d, %d, %d, %d, %d)", mLoop.frame_num, ev, x, y, z1, z2, z3, z4);
-         mSql.execute_sql(sql, mSql.db_game_events);
-      }
-   }
+   // do not do anything if replaying
+   if (mLoop.ff_state) return;
 
 
-   if ((!mLoop.ff_state) && (!mDisplay.no_display))
+
+   bool add_to_vector = false;
+   if (ev ==  8) add_to_vector = true; // player deaths
+   if (ev == 27) add_to_vector = true; // purple coins
+   if (ev == 42) add_to_vector = true; // enemy killed
+   if (ev == 43) add_to_vector = true; // enemy shot
+   if (add_to_vector) game_events.push_back({ mLoop.frame_num, ev, x, y, z1, z2, z3, z4 });
+
+   if (!mDisplay.no_display)
    {
       if (ev == 11) // tally raw damage
       {
@@ -111,6 +112,9 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       }
    }
 }
+
+
+
 /*
 
 master list of events
@@ -141,6 +145,10 @@ num snd msg description
 40   6  yes player hurt by player
 41   6  yes player hurt by enemy
 42   8  yes player killed enemy
+
+43   -  no  player shot enemy
+
+
 
 */
 

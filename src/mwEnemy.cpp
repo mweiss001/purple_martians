@@ -240,6 +240,9 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
             mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
             mDemoRecord.mark_player_shot_used(p, mShot.p[c].active, 1);
             mShot.p[c].active = 0;             // shot dies
+
+            mGameEvent.add(43, 0, 0, p, e, c, mShot.p[c].active); // event 43 - enemy shot
+
          }
       }
 }
@@ -455,8 +458,6 @@ void mwEnemy::enemy_killed(int e)
    mBitmap.zz[3][na] = dl / mBitmap.zz[4][na]; // set ans timer
 
    mGameEvent.add(42, 0, 0, Ei[e][26], e, type, hbm);
-   if (!mLoop.ff_state) mLevel.level_data_enemies_killed++;
-
 }
 
 

@@ -24,6 +24,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwEventQueue.h"
+#include "mwGmInfo.h"
 
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
@@ -1123,7 +1124,7 @@ void mwScreen::draw_top_frame(int p)
       int tpc = mLevel.data[mLevel.play_level].tot_purple_coins;
       if (tpc)
       {
-         int ct = mLevel.level_data_purple_coins_collected;
+         int ct = mGmInfo.countTotalPurpleCoinsCollected();
          int cp = mPlayer.syn[p].stat_purple_coins;
 
          //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
@@ -1294,16 +1295,13 @@ void mwScreen::draw_screen_overlay()
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_lev_don", al_get_time() - t1);
    }
 
-   if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
-   {
-      t1 = al_get_time();
-      if (mBottomMessage.bmsg_draw(0))
-         mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_bot_msg", al_get_time() - t1);
+   t1 = al_get_time();
+   if (mBottomMessage.bmsg_draw(0))
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_bot_msg", al_get_time() - t1);
 
-      t1 = al_get_time();
-      if (draw_player_text_overlay())
-         mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_plr_txt", al_get_time() - t1);
-   }
+   t1 = al_get_time();
+   if (draw_player_text_overlay())
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_plr_txt", al_get_time() - t1);
 
    t1 = al_get_time();
    draw_top_frame(p);
@@ -1328,14 +1326,11 @@ void mwScreen::draw_screen_overlay()
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_clt", al_get_time() - t1);
    }
 
-
-   if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
+   if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
    {
       t1 = al_get_time();
-      //draw_demo_debug_overlay(p, cx, cy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
-
-      if (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) draw_demo_controls_overlay();
+      draw_demo_controls_overlay();
    }
 
    t1 = al_get_time();

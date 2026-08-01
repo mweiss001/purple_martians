@@ -313,10 +313,16 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Range:%s to %s", gettf(f1, m1), gettf(f2, m2));
 
    ya+=line_space;
-   al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Deaths:%d", (int)mGmInfo.gmPlayerInfo[i].deaths.size());
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Deaths:%d", (int)mGmInfo.gmPlayerInfo[i].playerDeaths.size());
 
    ya+=line_space;
-   al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].purpleCoins.size());
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Kills:%d", (int)mGmInfo.gmPlayerInfo[i].enemiesKilled.size());
+
+   ya+=line_space;
+   al_draw_textf(mFont.pr8, mColor.pc[15], x, ya, 0, "Purple Coins:%d", (int)mGmInfo.gmPlayerInfo[i].coinsCollected.size());
+
+
+
 }
 
 

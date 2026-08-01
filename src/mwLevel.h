@@ -13,7 +13,7 @@ struct level_data
    char status_text[16];
 
    int min_respawns;
-   int max_purple_coins_collected;
+   int max_coins_collected;
    int tot_purple_coins;
    int min_enemies_left;
    int min_enemies_left_par;
@@ -32,18 +32,6 @@ struct level_data
 };
 
 
-struct level_play_data
-{
-   int level;
-   double start_timestamp;
-   int timer;
-   int completed;
-   int number_players;
-   int enemies_killed;
-   int enemies_left_alive_at_exit;
-   int player_respawns;
-   int purple_coins_collected;
-};
 
 
 class mwLevel
@@ -97,8 +85,6 @@ class mwLevel
    void fill_area_array();
 
    struct level_data data[100];
-   struct level_play_data play_data[100000];
-   int play_data_num;
 
    int area_locks[16];
 
@@ -127,6 +113,11 @@ class mwLevel
    void unlock_all_level_in_area(int area);
 
 
+   int get_level_status(int level, int &status_color, char * status_text);
+
+
+
+
    void reset_level_data();
    void unlock_all_levels();
 
@@ -142,6 +133,8 @@ class mwLevel
 
    int find_msg(const char* str);
 
+   void data_helper(int i, int time_par, const char *name);
+
    void clear_data();
    void load_data();
    void save_data();
@@ -149,14 +142,12 @@ class mwLevel
 
    void dump_level_data();
 
-   void level_start_data();
 
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
    void check_achievements();
 
    void update_level_status(int lev);
-
 
    int level_exists(int level);
 
@@ -175,20 +166,8 @@ class mwLevel
 
    int make_backup_on_save_level = 0;
 
-
-
-
-
-
-   int level_data_purple_coins_collected;
-   int level_data_player_respawns;
-   int level_data_enemies_killed;
-
    int skc_trigger_demo;
    int skc_trigger_demo_cheat;
-
-
-
 
 };
 extern mwLevel mLevel;

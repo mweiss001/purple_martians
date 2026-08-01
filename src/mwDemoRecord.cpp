@@ -37,21 +37,17 @@ void mwDemoRecord::init()
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
 
-   mWM.mW[3].init(3, 2, 500, 100, 320, 58, 8, "Transport Controls", 1, 1, 8, 1);
+   mWM.mW[3].init(3, 2, 500, 100, 320, 58, 8, "Transport Controls", 1, 1, 12, 1);
    mWM.mW[3].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
-   mWM.mW[3].moveable = 0;
    mWM.mW[3].enable_X_button = 0;
 
-
-   //   mWM.mW[3].set_resizeable(320, 2000, 60, 60);
-
-   mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 1, 14, 1);
+   mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 1, 12, 1);
    mWM.mW[4].set_resizeable(200, 2000, 100, 800);
    mWM.mW[4].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[4].drawFunction = [this]() { mDemoRecord.draw_timeline(mWM.mW[4]); };
 
-   mWM.mW[5].init(5, 4, 200, 400, 208, 124, 11, "Current Section", 1, 1, 14, 1);
+   mWM.mW[5].init(5, 4, 200, 400, 208, 136, 11, "Current Section", 1, 1, 14, 1);
    mWM.mW[5].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[5].drawFunction = [this]() { mDemoRecord.draw_current_section(mWM.mW[5]); };
 
@@ -68,7 +64,25 @@ void mwDemoRecord::init()
    mWM.mW[8].drawFunction = [this]() { mDemoRecord.draw_record_settings(mWM.mW[8]); };
 
 
+   set_timeline_colors(11, 14, 10, 8, 14, 10, -4, 1);
+
+
 }
+
+
+void mwDemoRecord::set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_shot, int enemies_killed, int time_labels, int player_icons)
+{
+   timeline_level_done_color = level_done;
+   timeline_mouse_pos_color = mouse_pos;
+   timeline_player_deaths_color = player_deaths;
+   timeline_purple_coins_color = purple_coins;
+   timeline_enemies_shot_color = enemies_shot;
+   timeline_enemies_killed_color = enemies_killed;
+   timeline_display_time_labels = time_labels;
+   timeline_show_player_icons = player_icons;
+}
+
+
 
 
 void mwDemoRecord::set_window_positions(int set)
@@ -255,8 +269,14 @@ char * mwDemoRecord::gettf(int frame, char* ft)
 int mwDemoRecord::load_demo_record()
 {
 //   if (!mGameMoves.load_gm_file_select()) return 0;
-//   if (!mGameMoves.load_demo_level(5)) return 0;
-   if (!mGameMoves.load_gm("C:/pm/savegame/demo/TAS/lev016-8P-115.gm", 1)) return 0;
+//   if (!mGameMoves.load_demo_level(2)) return 0;
+
+   //   if (!mGameMoves.load_gm("C:/pm/savegame/demo/TAS/lev016-8P-115.gm", 1)) return 0;
+
+   if (!mGameMoves.load_gm("C:/pm/savegame/demo/TAS/lev018-5P-115.gm", 1)) return 0;
+
+
+
 
    mLoop.frame_num = 1;
 
@@ -308,10 +328,14 @@ void mwDemoRecord::proc_cpu_time(double frame_start_timestamp)
 }
 
 
-void mwDemoRecord::demo_record(void)
+void mwDemoRecord::demo_record()
 {
    init();
    if (!load_mWM()) set_window_positions(2);
+
+
+
+
 
    double frame_start_timestamp;
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
@@ -379,6 +403,20 @@ void mwDemoRecord::demo_record(void)
       if (record && !show_windows_in_rec) show_windows = 0;
       if (show_windows) mWM.cycle_windows(0);
 
+
+      // toggle for main windows in top left corner
+      int ya = 1;
+
+
+      if (mWidget.togglec(-1, ya, 9, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, mWM.mW[1].active, "", 15, 15))
+      {
+
+
+      }
+
+
+
+
       al_flip_display();
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
@@ -406,10 +444,10 @@ void mwDemoRecord::redraw_callback()
    al_clear_to_color(al_map_rgb(0, 0, 0));
    mScreen.draw_scaled_level_region_to_display();
    mScreen.draw_screen_overlay();
-
-   // set transport pos and size to dock above timeline
-   mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
-
+   // set transport position and size to dock above timeline
+   if (mWM.mW[4].moving) mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);
+   // set timeline position to dock below timeline
+   if (mWM.mW[3].moving) mWM.mW[4].rect.setX1Y1(mWM.mW[3].rect.x1, mWM.mW[3].rect.y2);
 
    mWM.cycle_windows(1);
    al_flip_display();
@@ -433,12 +471,20 @@ void mwDemoRecord::save_mWM()
    FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "wb");
    if (fp)
    {
-      fwrite(&w, sizeof(w), 1, fp);
+      fwrite(&w,                             sizeof(w),                             1, fp);
+      fwrite(&timeline_level_done_color,     sizeof(timeline_level_done_color),     1, fp);
+      fwrite(&timeline_mouse_pos_color,      sizeof(timeline_mouse_pos_color),      1, fp);
+      fwrite(&timeline_player_deaths_color,  sizeof(timeline_player_deaths_color),  1, fp);
+      fwrite(&timeline_purple_coins_color,   sizeof(timeline_purple_coins_color),   1, fp);
+      fwrite(&timeline_enemies_shot_color,   sizeof(timeline_enemies_shot_color),   1, fp);
+      fwrite(&timeline_enemies_killed_color, sizeof(timeline_enemies_killed_color), 1, fp);
+      fwrite(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
+      fwrite(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
+      fwrite(&time_format,                   sizeof(time_format),                   1, fp);
       fclose(fp);
    }
    else printf("error saving demoRecordWindowGeometry.pm\n");
 }
-
 
 
 bool mwDemoRecord::load_mWM()
@@ -448,7 +494,18 @@ bool mwDemoRecord::load_mWM()
    FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "rb");
    if (fp)
    {
-      fread(&w, sizeof(w), 1, fp);
+      fread(&w,                             sizeof(w),                             1, fp);
+      fread(&timeline_level_done_color,     sizeof(timeline_level_done_color),     1, fp);
+      fread(&timeline_mouse_pos_color,      sizeof(timeline_mouse_pos_color),      1, fp);
+      fread(&timeline_player_deaths_color,  sizeof(timeline_player_deaths_color),  1, fp);
+      fread(&timeline_purple_coins_color,   sizeof(timeline_purple_coins_color),   1, fp);
+      fread(&timeline_enemies_shot_color,   sizeof(timeline_enemies_shot_color),   1, fp);
+      fread(&timeline_enemies_killed_color, sizeof(timeline_enemies_killed_color), 1, fp);
+      fread(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
+      fread(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
+      fread(&time_format,                   sizeof(time_format),                   1, fp);
+
+
       fclose(fp);
 
       // copy only these values back to window vector

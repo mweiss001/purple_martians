@@ -58,8 +58,6 @@ void mwPlayer::proc_player_health(int p)
 
          mLog.add_headerf(LOG_NET, -1, 0, "PLAYER:%d DIED!", p);
          mLog.add_log_net_db_row(LOG_NET, 0, p, "PLAYER:%d DIED!", p);
-
-         mLevel.level_data_player_respawns++;
          syn[p].stat_respawns++;
       }
    }
