@@ -293,7 +293,7 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
 
    // don't let currentFrame exceed lastFrame
    int currentFrame = mLoop.frame_num;
-   if (currentFrame > mGmInfo.lastFrame) currentFrame = mGmInfo.lastFrame;
+//   if (currentFrame > mGmInfo.lastFrame) currentFrame = mGmInfo.lastFrame;
 
 
    // draw vertical line at current frame

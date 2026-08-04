@@ -3,7 +3,7 @@
 class mwDemoRecord
 {
    public:
-   mwWindowManager mWM = mwWindowManager(9);
+   mwWindowManager mWM = mwWindowManager(8);
 
    void draw_mainW(mwWindow w);
    void draw_GMList(mwWindow w);
@@ -15,12 +15,11 @@ class mwDemoRecord
    void draw_record_settings(mwWindow w);
 
 
-   void draw_transport_controls_seek(int fx1, int fy1, int fy2, int d);
-
-   void draw_transport_controls_seek2(mwRect<int> rect, int d);
-
+   void draw_transport_controls_seek(mwRect<int> rect, int d);
 
    void draw_transport_controls_speed(mwRect<int> rect, int d);
+
+
 
 
    void proc_timeline_context_menu(int gmInfo_index, int mouse_frame);
@@ -39,8 +38,6 @@ class mwDemoRecord
    void delete_section(int gmInfo_index);
 
 
-
-
    void sh(bool inc_dec, float per);
 
    void set_window_positions(int set);
@@ -48,7 +45,7 @@ class mwDemoRecord
    int lnk_arr[10000] = {0};
    int lnk_entry_pos = 0;
 
-   char current_loaded_demo_file[256];
+   char last_loaded_demo_file[1024];
 
    int fhs[10000][4] = {0};
    int fhs_indx = 0;
@@ -98,7 +95,7 @@ class mwDemoRecord
    void redraw_callback();
 
    void demo_record();
-   int load_demo_record();
+   int load_demo_record(bool get_new);
    void refresh();
    void reload();
 

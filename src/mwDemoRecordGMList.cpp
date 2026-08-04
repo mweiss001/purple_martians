@@ -209,11 +209,13 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
       sprintf(mMenu.menu_string[mi++],"Dump");
       sprintf(mMenu.menu_string[mi++],"Erase After");
       sprintf(mMenu.menu_string[mi++],"copy to record player");
-      sprintf(mMenu.menu_string[mi++],"Add at current pos");
+      sprintf(mMenu.menu_string[mi++],"Insert new at current pos");
       sprintf(mMenu.menu_string[mi++],"slide +1 at current pos");
       sprintf(mMenu.menu_string[mi++],"slide -1 at current pos");
 
-      sprintf(mMenu.menu_string[mi++],"insert fire after current pos");
+      sprintf(mMenu.menu_string[mi++],"Add fire 4 frames after current pos");
+      sprintf(mMenu.menu_string[mi++],"Add fire at current pos");
+
 
       sprintf(mMenu.menu_string[mi++],"end");
       int mr = mMenu.pmenu(5, 13, -4, 99);
@@ -252,8 +254,15 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
       }
       if (mr == mi++) // copy to rec_player
       {
-         copy_ptp(p, mPlayer.active_local_player);
+      //   copy_ptp(p, mPlayer.active_local_player);
+         // crashes!!! 20260803
+
       }
+
+
+
+
+
       if (mr == mi++) // add at current pos
       {
          mGameMoves.add_game_move2(mLoop.frame_num, t, p, m);
@@ -278,8 +287,13 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
          set_active_section(current_section);
       }
 
+
       if (mr == mi++) // add fire at pos+4
       {
+         // uses 'm' as the fire move
+
+         //printf("add fire at pos+4 f:%d p:%d m:%d\n", f, p, m);
+
          // press fire
          mGameMoves.add_game_move2(f+4, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, m);
 
@@ -291,6 +305,38 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
          refresh();
          set_active_section(current_section);
       }
+
+      if (mr == mi++) // add fire at pos
+      {
+
+         int cf = mLoop.frame_num;
+
+         //printf("add fire at pos f:%d p:%d m:%d\n", cf, p, m);
+
+         m |=  PM_COMPMOVE_FIRE; // set flag
+
+         // press fire
+         mGameMoves.add_game_move2(cf, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, m);
+
+
+
+
+
+
+         // release fire
+         int mfo = m & ~PM_COMPMOVE_FIRE;
+         mGameMoves.add_game_move2(cf+1, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, mfo);
+
+         mGameMoves.gm_sort();
+         refresh();
+         set_active_section(current_section);
+      }
+
+
+
+
+
+
    }
 }
 

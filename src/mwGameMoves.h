@@ -29,6 +29,9 @@ public:
 
    bool does_game_move_contain_player(int i, int p);
 
+   int get_player_num_from_game_move(int i);
+
+
    void gma_change_color(int x, int c);
    void gma_change_name(int x, char * new_name);
 
@@ -55,6 +58,9 @@ public:
 
    int  save_gm(const char *sfname, int sendto);
    bool save_gm(const char *fname);
+
+
+
 
 
    void find_player_info();

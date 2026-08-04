@@ -28,7 +28,7 @@ mwDemoRecord mDemoRecord;
 void mwDemoRecord::init()
 {
 
-   mWM.mW[1].init(1, 0, 10, 10, 256, 190, 5, "Demo Record Main Controls", 1, 1, 14, 0);
+   mWM.mW[1].init(1, 0, 10, 10, 256, 176, 5, "Demo Record Main Controls", 1, 1, 14, 0);
    mWM.mW[1].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[1].drawFunction = [this]() { mDemoRecord.draw_mainW(mWM.mW[1]); };
 
@@ -59,13 +59,7 @@ void mwDemoRecord::init()
    mWM.mW[7].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[7].drawFunction = [this]() { mDemoRecord.draw_range_tools(mWM.mW[7]); };
 
-   mWM.mW[8].init(8, 7, 100, 940, 148, 88, 8, "Record Settings", 1, 1, 14, 1);
-   mWM.mW[8].redrawCallback = []() { mDemoRecord.redraw_callback(); };
-   mWM.mW[8].drawFunction = [this]() { mDemoRecord.draw_record_settings(mWM.mW[8]); };
-
-
    set_timeline_colors(11, 14, 10, 8, 14, 10, -4, 1);
-
 
 }
 
@@ -97,7 +91,6 @@ void mwDemoRecord::set_window_positions(int set)
       mWM.mW[5].active = 1; // Current Section
       mWM.mW[6].active = 1; // File Details
       mWM.mW[7].active = 0; // Range Tools
-      mWM.mW[8].active = 0; // Record Settings
 
       mWM.mW[1].set_pos(mWM.mW[6].rect.x2+2, 20);    // Main
 
@@ -120,7 +113,6 @@ void mwDemoRecord::set_window_positions(int set)
       mWM.mW[5].active = 1; // Current Section
       mWM.mW[6].active = 1; // File Details
       mWM.mW[7].active = 0; // Range Tools
-      mWM.mW[8].active = 0; // Record Settings
 
       mWM.mW[6].set_pos(20, 20);                     // File Details
       mWM.mW[5].set_pos(20, mWM.mW[6].rect.y2 + 10); // Current Section
@@ -169,9 +161,9 @@ void mwDemoRecord::draw_mainW(mwWindow w)
    int bts = 12;
 
 
-   for (int i=2; i<9; i++)
+   for (int i=2; i<8; i++)
       mWidget.mCheckBox(0, xa, xb,  1, ya + (i-2)*bts, bts, 0, mDemoRecord.mWM.mW[i].active, mDemoRecord.mWM.mW[i].title, 15, 15, d);
-   ya+=7*bts;
+   ya+=6*bts;
 
    ya+=2; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=4;
 
@@ -188,7 +180,7 @@ void mwDemoRecord::draw_mainW(mwWindow w)
 
    ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, time_format,             "Time/Frame format", 15, 15);
+   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, time_format,          "Time/Frame format", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_cpu_graph,       "Show cpu graph", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_player_grid,     "Show player grid", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_play, "Show windows when playing", 15, 15);
@@ -197,35 +189,8 @@ void mwDemoRecord::draw_mainW(mwWindow w)
 }
 
 
-void mwDemoRecord::draw_record_settings(mwWindow w)
-{
-   int xa = w.rect.x1+4;
-   int xb = w.rect.x2-4;
-   int ya = w.rect.y1+14;
-   int d = w.disable_input;
-
-   mWidget.slideri(xa, ya, xb, 16,  0,0,0,0,  0,12,15,15,  0,0,1,d, mPlayer.active_local_player, 7, 0, 1, "Player Number:");
-
-   int cl = mWidget.colsel(xa, ya, xb, 16,  10,0,0,0,  0,12,15,15,  0,0,1,d);
-   if (cl != -1) mPlayer.syn[mPlayer.active_local_player].color = cl;
-
-   int clr = mPlayer.syn[mPlayer.active_local_player].color;
-
-   al_draw_bitmap(mBitmap.player_tile[clr][1], xa, ya, 0 );
-   al_draw_text(mFont.pr8, mColor.pc[clr], xa+22, ya+7, 0, mColor.color_name[clr]);
-   ya+=24;
-   al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1);
-   ya+=2;
-   mWidget.toggle(xa+4, ya, xb-4, 16,   0,0,0,0,  0,0,0,0, 1,0,1,d, record_punch_in_armed, "Arm", "Armed", 15, 15, 9, 10);
-}
-
-
-
-
-
 // popup menu to set player number
 // used by:
-// transport controls to set punch in player
 // edit gm list to change player number in game move
 void mwDemoRecord::change_player_num_menu(int & p)
 {
@@ -252,30 +217,32 @@ void mwDemoRecord::change_player_num_menu(int & p)
 
 // time formatted string
 // pass it frame number and a string to write on
-// it will return a formatted string with either:
-// if (tm_frame) - integer frame number
-// or            - mm:ss
+// it will return the string formatted with either:
+// if (time_format) - integer frame number
+// or               - mm:ss
 char * mwDemoRecord::gettf(int frame, char* ft)
 {
    if (time_format) sprintf(ft, "%d", frame);
-   else sprintf(ft, "%s", mMiscFnx.chrms(frame, ft));
+   else             sprintf(ft, "%s", mMiscFnx.chrms(frame, ft));
    return ft;
 }
 
 
 
 
-
-int mwDemoRecord::load_demo_record()
+int mwDemoRecord::load_demo_record(bool get_new)
 {
-//   if (!mGameMoves.load_gm_file_select()) return 0;
-//   if (!mGameMoves.load_demo_level(2)) return 0;
+   // check if  current_loaded_demo_file exists and try to load it
 
-   //   if (!mGameMoves.load_gm("C:/pm/savegame/demo/TAS/lev016-8P-115.gm", 1)) return 0;
-
-   if (!mGameMoves.load_gm("C:/pm/savegame/demo/TAS/lev018-5P-115.gm", 1)) return 0;
-
-
+   if (get_new)
+   {
+      if (!mGameMoves.load_gm_file_select()) return 0;
+   }
+   else // try to load current_loaded_demo_file
+   {
+      if (!mGameMoves.load_gm(last_loaded_demo_file, 1))
+         if (!mGameMoves.load_gm_file_select()) return 0;
+   }
 
 
    mLoop.frame_num = 1;
@@ -296,7 +263,7 @@ void mwDemoRecord::refresh()
 void mwDemoRecord::reload()
 {
    int old_frame_num = mLoop.frame_num;
-   mGameMoves.load_gm(current_loaded_demo_file);
+   mGameMoves.load_gm(last_loaded_demo_file);
    mLoop.frame_num = old_frame_num;
    refresh();
 }
@@ -335,8 +302,6 @@ void mwDemoRecord::demo_record()
 
 
 
-
-
    double frame_start_timestamp;
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
    mLoop.frame_num = 0;
@@ -347,8 +312,7 @@ void mwDemoRecord::demo_record()
 
    int quit = 0;
 
-   if (!load_demo_record()) quit = 1;
-
+   if (!load_demo_record(0)) quit = 1;
 
 
    while (!quit)
@@ -375,6 +339,10 @@ void mwDemoRecord::demo_record()
          if (play)
          {
             mLoop.frame_num++;
+
+//            if (mLoop.frame_num > mGmInfo.lastFrame) mGmInfo.lastFrame = mLoop.frame_num;
+
+
             mBitmap.update_animation();
             mPlayer.proc_player_input();
             mGameMoves.proc();
@@ -404,15 +372,10 @@ void mwDemoRecord::demo_record()
       if (show_windows) mWM.cycle_windows(0);
 
 
-      // toggle for main windows in top left corner
+      // toggle for main window in top left corner
       int ya = 1;
+      mWidget.togglec(-1, ya, 9, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, mWM.mW[1].active, "", 15, 15);
 
-
-      if (mWidget.togglec(-1, ya, 9, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, mWM.mW[1].active, "", 15, 15))
-      {
-
-
-      }
 
 
 
@@ -458,10 +421,10 @@ void mwDemoRecord::redraw_callback()
 void mwDemoRecord::save_mWM()
 {
    // convert window vector to POD window array
-   mwWindow w[20];
+   mwWindow w[10];
 
    // copy only these values
-   for (int i = 0; i < (int)mWM.mW.size(); i++)
+   for (int i=0; i<(int)mWM.mW.size(); i++)
    {
       w[i].rect   = mWM.mW[i].rect;
       w[i].active = mWM.mW[i].active;
@@ -481,6 +444,9 @@ void mwDemoRecord::save_mWM()
       fwrite(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
       fwrite(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
       fwrite(&time_format,                   sizeof(time_format),                   1, fp);
+      fwrite(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),      1, fp);
+
+
       fclose(fp);
    }
    else printf("error saving demoRecordWindowGeometry.pm\n");
@@ -490,7 +456,7 @@ void mwDemoRecord::save_mWM()
 bool mwDemoRecord::load_mWM()
 {
    // load static window array
-   mwWindow w[20];
+   mwWindow w[10];
    FILE *fp = fopen("data/demoRecordWindowGeometry.pm", "rb");
    if (fp)
    {
@@ -504,12 +470,13 @@ bool mwDemoRecord::load_mWM()
       fread(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
       fread(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
       fread(&time_format,                   sizeof(time_format),                   1, fp);
+      fread(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),      1, fp);
 
 
       fclose(fp);
 
       // copy only these values back to window vector
-      for (int i = 0; i < (int)mWM.mW.size(); i++)
+      for (int i=0; i<(int)mWM.mW.size(); i++)
       {
          mWM.mW[i].rect   = w[i].rect;
          mWM.mW[i].active = w[i].active;

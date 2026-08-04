@@ -63,10 +63,10 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    int c = 9;
    int d = w.disable_input;
 
-   al_draw_text(mFont.pr8, mColor.pc[15], w.rect.XCenter(), ya+2, ALLEGRO_ALIGN_CENTER, al_get_path_filename(al_create_path(current_loaded_demo_file)));
+   al_draw_text(mFont.pr8, mColor.pc[15], w.rect.XCenter(), ya+2, ALLEGRO_ALIGN_CENTER, al_get_path_filename(al_create_path(last_loaded_demo_file)));
    ya+=bts;
 
-   if (mWidget.buttont(xa,     ya, xa+48,  bts,  0,0,0,0,  0,c,15,0,  1,0,0,d, "Load")) load_demo_record();
+   if (mWidget.buttont(xa,     ya, xa+48,  bts,  0,0,0,0,  0,c,15,0,  1,0,0,d, "Load")) load_demo_record(1);
    if (mWidget.buttont(xa+50,  ya, xa+116, bts,  0,0,0,0,  0,c,15,0,  1,0,0,d, "Reload")) reload();
    if (mWidget.buttont(xa+118, ya, xb,     bts,  0,0,0,0,  0,c,15,0,  1,0,1,d, "Refresh")) refresh();
 
@@ -87,8 +87,8 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (overwrite current)"))
    {
       int old_frame = mLoop.frame_num;
-      mGameMoves.save_gm(current_loaded_demo_file, 0);
-      mGameMoves.load_gm(current_loaded_demo_file);
+      mGameMoves.save_gm(last_loaded_demo_file, 0);
+      mGameMoves.load_gm(last_loaded_demo_file);
       mLoop.frame_num = old_frame;
       refresh();
    }
@@ -96,7 +96,7 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    {
       int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_make_fn("new copy", 0);
-      mGameMoves.load_gm(current_loaded_demo_file);
+      mGameMoves.load_gm(last_loaded_demo_file);
       mLoop.frame_num = old_frame;
       refresh();
    }
@@ -104,7 +104,7 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    {
       int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_file_select();
-      mGameMoves.load_gm(current_loaded_demo_file);
+      mGameMoves.load_gm(last_loaded_demo_file);
       mLoop.frame_num = old_frame;
       refresh();
    }

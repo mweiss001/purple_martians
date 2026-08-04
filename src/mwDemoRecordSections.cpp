@@ -391,16 +391,28 @@ void mwDemoRecord::add_new_section_dialog()
    char msg[256];
    char ft[256];
 
-   // find available player numbers (not currently active at current frame number)
-   // add then to drop down list
+
+   // find available player numbers (not currently active at current frame number) and add to drop down list
    std::vector<struct listItem> listItems;
-   for (int i=0; i< NUM_PLAYERS; i++)
-      if (!mPlayer.syn[i].active)
+   for (int i=0; i<NUM_PLAYERS; i++)
+   {
+      // first check if player is active right now
+      bool player_used = mPlayer.syn[i].active;
+
+      if (!player_used)
+      {
+         // then check if player becomes active next frame
+         // this is because the earliest frame PLAYER_ACTIVE occurs on is 1
+         int na = mGameMoves.find_first_active_game_move_for_player(i, mLoop.frame_num);
+         if ((na != -1) && (mGameMoves.arr[na][0] == mLoop.frame_num + 1)) player_used = true;
+      }
+      if (!player_used)
       {
          sprintf(msg, "Player %d", i);
          listItems.push_back(listItem(i, msg));
       }
 
+   }
 
    int player_num = 0;
 

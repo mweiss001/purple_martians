@@ -1213,11 +1213,11 @@ int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, in
    int xts=23;
 
 
-   tileSetWidget(x1+xt++*xts, yfb, 256, target, clicked, d); // purple pipes
-   tileSetWidget(x1+xt++*xts, yfb, 320, target, clicked, d); // red pipes
-   tileSetWidget(x1+xt++*xts, yfb, 384, target, clicked, d); // green pipes
-   tileSetWidget(x1+xt++*xts, yfb, 448, target, clicked, d); // blue pipes
-   tileSetWidget(x1+xt++*xts, yfb, 192, target, clicked, d); // purple bricks
+   tileSetWidget(x1+xt++*xts, yfb, 1024, target, clicked, d); // purple pipes
+   tileSetWidget(x1+xt++*xts, yfb, 1072, target, clicked, d); // red pipes
+   tileSetWidget(x1+xt++*xts, yfb, 1120, target, clicked, d); // green pipes
+   tileSetWidget(x1+xt++*xts, yfb, 1168, target, clicked, d); // blue pipes
+   tileSetWidget(x1+xt++*xts, yfb, 1216, target, clicked, d); // purple bricks
    xt++;
    tileSetWidget(x1+xt++*xts, yfb, 672, target, clicked, d); // template
    tileSetWidget(x1+xt++*xts, yfb, 704, target, clicked, d); // ice machine

@@ -95,14 +95,150 @@ void mwGameMoves::gm_swap(int i, int j)
 
 void mwGameMoves::gm_sort(void)
 {
-   // first sort by frame
+/*
+
+
+   void mwGameMoves::gm_sort(void)
+   {
+      // first sort by frame
+      int swap_flag = 1;
+      while (swap_flag)
+      {
+         swap_flag = 0;
+         for (int x=0; x<entry_pos-1; x++)
+         {
+            if (arr[x][0] > arr[x+1][0])
+            {
+               gm_swap(x, x+1);
+               swap_flag++; // if any swaps
+            }
+         }
+      }
+
+      // then sort by type
+      swap_flag = 1;
+      while (swap_flag)
+      {
+         swap_flag = 0;
+         for (int x=0; x<entry_pos-1; x++)
+         {
+            if (arr[x][0] == arr[x+1][0]) // same frame num
+            {
+               int t1 = mGameMoves.arr[x][1];
+               if (t1 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t1 = 1;
+
+               int t2 = mGameMoves.arr[x+1][1];
+               if (t2 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t2 = 1;
+
+               if (t1 > t2) // sort by player num
+               {
+                  gm_swap(x, x+1);
+                  swap_flag++; // if any swaps
+               }
+            }
+         }
+      }
+
+      // then sort by player num
+      swap_flag = 1;
+      while (swap_flag)
+      {
+         swap_flag = 0;
+         for (int x=0; x<entry_pos-1; x++)
+         {
+            int t1 = mGameMoves.arr[x][1];
+            if (t1 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t1 = 1;
+
+            int t2 = mGameMoves.arr[x+1][1];
+            if (t2 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t2 = 1;
+
+            if (t1 == t2) // same type
+            {
+               int p1 = get_player_num_from_game_move(x);
+               int p2 = get_player_num_from_game_move(x+1);
+
+               if (p1 > p2) // sort by player num
+               {
+                  gm_swap(x, x+1);
+                  swap_flag++; // if any swaps
+               }
+            }
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    int swap_flag = 1;
    while (swap_flag)
    {
       swap_flag = 0;
       for (int x=0; x<entry_pos-1; x++)
       {
-         if (arr[x][0] > arr[x+1][0])
+
+         // first sort by frame
+         int f1 = arr[x][0];
+         int f2 = arr[x+1][0];
+
+         if (f1 == f2) // same frame num
+         {
+            // sort by type
+            int t1 = mGameMoves.arr[x][1];
+            if (t1 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t1 = 1;
+
+            int t2 = mGameMoves.arr[x+1][1];
+            if (t2 & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) t2 = 1;
+
+            if (t1 == t2) // same type
+            {
+               // sort by player num
+               int p1 = get_player_num_from_game_move(x);
+               int p2 = get_player_num_from_game_move(x+1);
+               if (p1 > p2) // swap player num
+               {
+                  gm_swap(x, x+1);
+                  swap_flag++; // if any swaps
+               }
+            }
+            if (t1 > t2) // swap type
+            {
+               gm_swap(x, x+1);
+               swap_flag++; // if any swaps
+            }
+         }
+         if (f1 > f2) // swap frame
          {
             gm_swap(x, x+1);
             swap_flag++; // if any swaps
@@ -110,21 +246,7 @@ void mwGameMoves::gm_sort(void)
       }
    }
 
-   // then sort by player num
-   swap_flag = 1;
-   while (swap_flag)
-   {
-      swap_flag = 0;
-      for (int x=0; x<entry_pos-1; x++)
-      {
-         if (arr[x][0] == arr[x+1][0]) // same frame num
-            if (arr[x][2] > arr[x+1][2]) // sort by player num
-            {
-               gm_swap(x, x+1);
-               swap_flag++; // if any swaps
-            }
-      }
-   }
+
 
    // then put shot config first of all in the same frame
    swap_flag = 1;
@@ -661,6 +783,30 @@ bool mwGameMoves::does_game_move_contain_player(int i, int p)
 
 
 
+// return player number of game move or -1 if game move type does not have player number
+int mwGameMoves::get_player_num_from_game_move(int i)
+{
+//   if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_SHOT_CONFIG) return -1;
+
+   int gm_player = mGameMoves.arr[i][2];
+
+   // for ACTIVE game moves, need to extract player number
+   if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
+   {
+      int col  = 0;
+      char name[9] = { 0 };
+      mMiscFnx.gma_to_val(mGameMoves.arr[i][1], mGameMoves.arr[i][2], mGameMoves.arr[i][3], gm_player, col, name);
+   }
+   return gm_player;
+}
+
+
+
+
+
+
+
+
 
 // returns index of game move, or -1 if not found
 // if found, the caller can get the frame number with mGameMoves.arr[x][0]
@@ -677,11 +823,6 @@ int mwGameMoves::find_first_active_game_move_for_player(int p, int start_frame)
       }
    return -1;
 }
-
-
-
-
-
 
 
 
@@ -760,7 +901,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
       save_gm(fname);
 
       mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
-      sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
+      sprintf(mDemoRecord.last_loaded_demo_file, "%s", fname); // update current loaded demo filename
 
       //save_gm_txt(fname); // also save as a human readable text file
       if (sendto) mNetgame.server_add_file_to_send(fname, sendto);
@@ -1105,7 +1246,7 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
 
    mLevel.play_level = HEADER_level; // set play level
    mDemoMode.last_frame = HEADER_last_frame;
-   sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
+   sprintf(mDemoRecord.last_loaded_demo_file, "%s", fname);
 
    // just counts and lists active and inactive game moves
    // find_player_info();

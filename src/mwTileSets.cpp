@@ -37,11 +37,11 @@ void mwTileSets::init()
    tileSets.push_back(ts);
 
 
-   construct48( 1024, 256, "Purple Pipes");
-   construct48( 1072, 320, "Red Pipes");
-   construct48( 1120, 384, "Green Pipes");
-   construct48( 1168, 448, "Blue Pipes");
-   construct48( 1216, 192, "Purple Bricks");
+   construct48( 1024, 1024, "Purple Pipes");
+   construct48( 1072, 1072, "Red Pipes");
+   construct48( 1120, 1120, "Green Pipes");
+   construct48( 1168, 1168, "Blue Pipes");
+   construct48( 1216, 1216, "Purple Bricks");
 
 
 

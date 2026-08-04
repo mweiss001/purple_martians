@@ -9,14 +9,290 @@
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
-#include "mwInput.h"
 #include "mwItem.h"
-#include "mwLevel.h"
 #include "mwLoop.h"
-#include "mwMenu.h"
 #include "mwPlayer.h"
-#include "mwScreen.h"
 #include "mwWidget.h"
+
+
+
+void mwDemoRecord::draw_transport_controls(mwWindow w)
+{
+   int d = w.disable_input;
+
+   int arm_x = w.rect.x2-70;
+   int arm_y = w.rect.y1+2;
+   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, record_punch_in_armed, "arm", 15, 15);
+
+   // draw large time above the title bar
+
+   // get formatted text
+   char ct[64];
+   gettf(mLoop.frame_num, ct);
+
+   // rect for time display
+   int tw = strlen(ct) * 16 + 4;
+   mwRect<int> tdrect = mwRect<int>::fromX1Y1WH(w.rect.XCenter()-tw/2,  w.rect.y1-22, tw, 20);
+   tdrect.draw_filled_rounded_rectangle(3, 3, mColor.Black);
+   tdrect.draw_rounded_rectangle(3, 3, mColor.White, 1);
+   al_draw_textf(mFont.pr16, mColor.White, w.rect.XCenter()+1, tdrect.y1+3, ALLEGRO_ALIGN_CENTER, "%s", gettf(mLoop.frame_num, ct));
+
+
+   // rect for transport controls
+   mwRect<int> trect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1+14, w.rect.w, 20);
+   // draw transport controls
+   draw_transport_controls_seek(trect, d);
+
+
+   // rect for speed controls
+   mwRect<int> srect = mwRect<int>::fromX1Y1WH(w.rect.x1,  trect.y2+2, w.rect.w, 20);
+   // draw speed controls
+   draw_transport_controls_speed(srect, d);
+}
+
+
+
+// button helper
+bool bh2(float &rx, int y1, int y2, int ls, float padt, int bc, int d, const char* txt)
+{
+   float w = (strlen(txt)+1)*8 + padt;
+   float x1 = rx;
+   float x2 = rx + w;
+   rx += w + ls;
+   if (mWidget.mButton(0, x1, x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, txt, d)) return true;
+   return false;
+}
+
+// speed adjust helper
+void mwDemoRecord::sh(bool inc_dec, float per)
+{
+   float adj = mLoop.frame_speed * per;
+   if (adj < 1) adj = 1;
+
+   if (inc_dec) // inc
+   {
+      mLoop.frame_speed += adj;
+      if (mLoop.frame_speed > 200) mLoop.frame_speed = 200;
+   }
+   else // dec
+   {
+      mLoop.frame_speed -= adj;
+      if (mLoop.frame_speed < 4) mLoop.frame_speed = 4;
+   }
+}
+
+
+// this one will be resizeable
+void mwDemoRecord::draw_transport_controls_speed(mwRect<int> rect, int d)
+{
+
+   // get initial frame_speed to determine if this function modifies it
+   int old_frame_speed = mLoop.frame_speed;
+
+
+   float middle_button_size = 0.24; // percent
+   float edge_size = (1 - middle_button_size) / 2;
+
+   // create left side rect
+   mwRect<float> lrect = mwRect<float>::fromX1Y1WH(rect.x1+1, rect.y1, (float)rect.w * edge_size, rect.h);
+
+   // create right side rect
+   mwRect<float> rrect = mwRect<float>::fromX2Y2WH(rect.x2-1, rect.y2, (float)rect.w * edge_size, rect.h);
+
+   // create middle button rect
+   mwRect<int> crect = mwRect<int>::fromX1Y1X2Y2(lrect.x2+1, rect.y1, rrect.x1-1, rect.y2);
+
+   // show rects
+   // rect.draw_rectangle(mColor.White, 1, 1);
+   // lrect.draw_rectangle(mColor.Blue, 1);
+   // rrect.draw_rectangle(mColor.Blue, 1);
+   // crect.draw_rectangle(mColor.Red,  1);
+
+   // draw center button
+   char msg[80];
+   sprintf(msg, "Speed:%d", mLoop.frame_speed);
+   if (mWidget.mButton(crect,  0, 2, 0, 2, 10, 0, 15, 0, 0, msg, d)) mLoop.frame_speed = 40;
+
+
+   int s = 1;
+   float padt = (lrect.w-115) / 3;
+
+   // running x position
+   float rx = lrect.x1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "min"  )) mLoop.frame_speed = 4;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-50%" )) sh(0, .5);
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-10%" )) sh(0, .1);
+
+
+   // running x position
+   rx = rrect.x1+1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+10%" )) sh(1, .1);
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+50%" )) sh(1, .5);
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "max"  )) mLoop.frame_speed = 200;
+
+   if (old_frame_speed != mLoop.frame_speed)
+   {
+      mEventQueue.adjust_fps_timer(mLoop.frame_speed);
+      mConfig.save_config(PM_CFG_SAVE_SPEED);
+   }
+}
+
+// this one will be resizeable
+void mwDemoRecord::draw_transport_controls_seek(mwRect<int> rect, int d)
+{
+   float middle_button_size = 0.16; // percent
+   float edge_size = (1 - middle_button_size) / 2;
+
+   // create left side rect
+   mwRect<float> lrect = mwRect<float>::fromX1Y1WH(rect.x1+1, rect.y1, (float)rect.w * edge_size, rect.h);
+
+   // create right side rect
+   mwRect<float> rrect = mwRect<float>::fromX2Y2WH(rect.x2-1, rect.y2, (float)rect.w * edge_size, rect.h);
+
+   // create middle button rect
+   mwRect<int> crect = mwRect<int>::fromX1Y1X2Y2(lrect.x2+1, rect.y1, rrect.x1-1, rect.y2);
+
+    // show rects
+    // rect.draw_rectangle(mColor.White, 1, 1);
+    // lrect.draw_rectangle(mColor.Blue, 1);
+    // rrect.draw_rectangle(mColor.Blue, 1);
+    // crect.draw_rectangle(mColor.Red, 1);
+
+   if (play)
+   {
+      if (mWidget.mButton(crect,  0, 2, 0, 2, 10, 0, 15, 0, 0, "Stop", d)) stop_transport();
+   }
+   else
+   {
+      if (mWidget.mButton(crect,  0, 2, 0, 2, 11, 0, 15, 0, 0, "Play", d)) play = 1;
+   }
+
+   if (record_punch_in_armed) al_draw_text(mFont.pixl, mColor.pc[10], crect.XCenter(), crect.y1-4, ALLEGRO_ALIGN_CENTER, "REC ARMED");
+
+
+   // get current and last frame
+   int f = mLoop.frame_num;
+   int lf = mGmInfo.lastFrame+100;
+   // get initial f to determine if this function modifies it
+   int initial_f = f;
+
+   int s = 1;
+   float padt = (lrect.w-165) / 5;
+
+   // running x position
+   float rx = lrect.x1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "beg" )) f  = 0;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-60" )) f -= 2400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-10" )) f -= 400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "-1s" )) f -= 40;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "-1f" )) f -= 1;
+
+   // running x position
+   rx = rrect.x1+1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "+1f" )) f += 1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "+1s" )) f += 40;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+10" )) f += 400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+60" )) f += 2400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "end" )) f = lf;
+
+
+   // changed by this function
+   if (f != initial_f)
+   {
+      // enforce limits
+      if (f < 0) f = 0;
+      if (f > lf) f = lf;
+
+      mLoop.frame_num = f;
+     mDemoMode.seek_to_frame(f, 1);
+   }
+}
+
+
+void mwDemoRecord::stop_transport(void)
+{
+   if (play)
+   {
+      //printf("play stop\n");
+      play = 0;
+      mDrawSequence.ds_draw(0, 0);
+   }
+   if (record)
+   {
+      //printf("record stop\n");
+      record = 0;
+      mGameMoves.gm_sort();
+      refresh();
+   }
+}
+
+
+void mwDemoRecord::start_record()
+{
+   play = 1;
+   record = 1;
+
+   int p = mPlayer.active_local_player;
+
+   //printf("erase all game moves for Player:%d with frame number >= current frame number:%d\n", p, mLoop.frame_num);
+   for (int x=0; x<mGameMoves.entry_pos; x++)
+      if (mGameMoves.arr[x][0] >= mLoop.frame_num)
+      {
+         int do_clear = 0;
+         if (mGameMoves.does_game_move_contain_player(x, p)) do_clear = 1;
+         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_clear = 0; // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
+         if (do_clear) mGameMoves.clear_single(x);
+      }
+
+
+   // check if there is no longer an active game move after erasing
+   // this can happen when punching in from the start
+   if (mGameMoves.find_first_active_game_move_for_player(p, 0) == -1)
+   {
+      //printf("no active game move left\n");
+
+      int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
+      mPlayer.init_player(p, 1);                  // full player reset
+      mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
+      mItem.set_player_start_pos(p);              // set starting position
+
+      mPlayer.syn[p].active = 1;
+
+      // insert 'active' game move
+      int fn = mLoop.frame_num;
+      if (fn < 1) fn = 1;
+
+      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+   }
+
+   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,69 +432,7 @@ void mwDemoRecord::draw_transport_controls_seek(int fx1, int fy1, int h, int d)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void mwDemoRecord::draw_transport_controls(mwWindow w)
-{
-   int d = w.disable_input;
-
-   int arm_x = w.rect.x2-70;
-   int arm_y = w.rect.y1+2;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, record_punch_in_armed, "arm", 15, 15);
-
-//   w.rect.setHeight(60+mLoop.pct_y);
-//   w.rect.draw_rectangle(mColor.White, 1);
-
-   // rect for transport controls
-   mwRect<int> trect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1+14, w.rect.w, 20);
-   // draw transport controls
-   draw_transport_controls_seek2(trect, d);
-
-   // rect for speed controls
-   mwRect<int> srect = mwRect<int>::fromX1Y1WH(w.rect.x1,  trect.y2+2, w.rect.w, 20);
-   // draw speed controls
-   draw_transport_controls_speed(srect, d);
-
-
-
-   // click track
+// click track
 //   int xa = w.rect.x1+2;
 //   int xb = w.rect.x2-2;
 //   int ya = trect.y2 + 4;
@@ -228,10 +442,6 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
 
 
 
-
-//   ya+=24;
-
-/*
    if (record_punch_in_armed)
    {
       if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,10,15, 0,  1,0,0,d, "Punch In Armed!")) record_punch_in_armed = 0;
@@ -241,10 +451,10 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
       if (mWidget.buttont(xa+1,ya, xb-1, bts, 0,0,0,0, 0,9,15, 0,  1,0,0,d, "Punch In Disarmed")) record_punch_in_armed = 1;
    }
 
-*/
 
 
-/*
+
+
    bts = 32;
    int x7 = xa+120;
    int x8 = xa+280;
@@ -296,225 +506,3 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
    mScreen.draw_demo_controls_overlay_speed(w.rect.x1+15, ya, bts, 2, 0, 0, sw, sh);
 */
 
-
-}
-
-
-
-// button helper
-bool bh2(float &rx, int y1, int y2, int ls, float padt, int bc, int d, const char* txt)
-{
-   float w = (strlen(txt)+1)*8 + padt;
-   float x1 = rx;
-   float x2 = rx + w;
-   rx += w + ls;
-   if (mWidget.mButton(0, x1, x2,  0,y1,y2,  0,  1,3,1,  bc+192,bc+80,15, 15,0, txt, d)) return true;
-   return false;
-}
-
-// speed adjust helper
-void mwDemoRecord::sh(bool inc_dec, float per)
-{
-   float adj = mLoop.frame_speed * per;
-   if (adj < 1) adj = 1;
-
-   if (inc_dec) // inc
-   {
-      mLoop.frame_speed += adj;
-      if (mLoop.frame_speed > 200) mLoop.frame_speed = 200;
-   }
-   else // dec
-   {
-      mLoop.frame_speed -= adj;
-      if (mLoop.frame_speed < 4) mLoop.frame_speed = 4;
-   }
-}
-
-
-// this one will be resizeable
-void mwDemoRecord::draw_transport_controls_speed(mwRect<int> rect, int d)
-{
-
-   // get initial frame_speed to determine if this function modifies it
-   int old_frame_speed = mLoop.frame_speed;
-
-
-   float middle_button_size = 0.24; // percent
-   float edge_size = (1 - middle_button_size) / 2;
-
-   // create left side rect
-   mwRect<float> lrect = mwRect<float>::fromX1Y1WH(rect.x1+1, rect.y1, (float)rect.w * edge_size, rect.h);
-
-   // create right side rect
-   mwRect<float> rrect = mwRect<float>::fromX2Y2WH(rect.x2-1, rect.y2, (float)rect.w * edge_size, rect.h);
-
-   // create middle button rect
-   mwRect<int> crect = mwRect<int>::fromX1Y1X2Y2(lrect.x2+1, rect.y1, rrect.x1-1, rect.y2);
-
-   // show rects
-   // rect.draw_rectangle(mColor.White, 1, 1);
-   // lrect.draw_rectangle(mColor.Blue, 1);
-   // rrect.draw_rectangle(mColor.Blue, 1);
-   // crect.draw_rectangle(mColor.Red,  1);
-
-   // draw center button
-   char msg[80];
-   sprintf(msg, "Speed:%d", mLoop.frame_speed);
-   if (mWidget.mButton(crect,  0, 2, 0, 2, 10, 0, 15, 0, 0, msg, d)) mLoop.frame_speed = 40;
-
-
-   int s = 1;
-   float padt = (lrect.w-115) / 3;
-
-   // running x position
-   float rx = lrect.x1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "min"  )) mLoop.frame_speed = 4;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-50%" )) sh(0, .5);
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-10%" )) sh(0, .1);
-
-
-   // running x position
-   rx = rrect.x1+1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+10%" )) sh(1, .1);
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+50%" )) sh(1, .5);
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "max"  )) mLoop.frame_speed = 200;
-
-   if (old_frame_speed != mLoop.frame_speed)
-   {
-      mEventQueue.adjust_fps_timer(mLoop.frame_speed);
-      mConfig.save_config(PM_CFG_SAVE_SPEED);
-   }
-}
-
-// this one will be resizeable
-void mwDemoRecord::draw_transport_controls_seek2(mwRect<int> rect, int d)
-{
-   float middle_button_size = 0.16; // percent
-   float edge_size = (1 - middle_button_size) / 2;
-
-   // create left side rect
-   mwRect<float> lrect = mwRect<float>::fromX1Y1WH(rect.x1+1, rect.y1, (float)rect.w * edge_size, rect.h);
-
-   // create right side rect
-   mwRect<float> rrect = mwRect<float>::fromX2Y2WH(rect.x2-1, rect.y2, (float)rect.w * edge_size, rect.h);
-
-   // create middle button rect
-   mwRect<int> crect = mwRect<int>::fromX1Y1X2Y2(lrect.x2+1, rect.y1, rrect.x1-1, rect.y2);
-
-    // show rects
-    // rect.draw_rectangle(mColor.White, 1, 1);
-    // lrect.draw_rectangle(mColor.Blue, 1);
-    // rrect.draw_rectangle(mColor.Blue, 1);
-    // crect.draw_rectangle(mColor.Red, 1);
-
-   if (play)
-   {
-      if (mWidget.mButton(crect,  0, 2, 0, 2, 10, 0, 15, 0, 0, "Stop", d)) stop_transport();
-   }
-   else
-   {
-      if (mWidget.mButton(crect,  0, 2, 0, 2, 11, 0, 15, 0, 0, "Play", d)) play = 1;
-   }
-
-   if (record_punch_in_armed) al_draw_text(mFont.pixl, mColor.pc[10], crect.XCenter(), crect.y1-4, ALLEGRO_ALIGN_CENTER, "REC ARMED");
-
-
-
-   // get current and last frame
-   int f = mLoop.frame_num;
-   int lf = mGmInfo.lastFrame;
-   // get initial f to determine if this function modifies it
-   int initial_f = f;
-
-   int s = 1;
-   float padt = (lrect.w-165) / 5;
-
-   // running x position
-   float rx = lrect.x1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "beg" )) f  = 0;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-60" )) f -= 2400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-10" )) f -= 400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "-1s" )) f -= 40;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "-1f" )) f -= 1;
-
-   // running x position
-   rx = rrect.x1+1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "+1f" )) f += 1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "+1s" )) f += 40;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+10" )) f += 400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+60" )) f += 2400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "end" )) f = lf;
-
-
-   // changed by this function
-   if (f != initial_f)
-   {
-      // enforce limits
-      if (f < 0) f = 0;
-      if (f > lf) f = lf;
-
-      mLoop.frame_num = f;
-     mDemoMode.seek_to_frame(f, 1);
-   }
-}
-
-
-void mwDemoRecord::stop_transport(void)
-{
-   if (play)
-   {
-      //printf("play stop\n");
-      play = 0;
-      mDrawSequence.ds_draw(0, 0);
-   }
-   if (record)
-   {
-      //printf("record stop\n");
-      record = 0;
-      mGameMoves.gm_sort();
-      refresh();
-   }
-}
-
-
-
-
-void mwDemoRecord::start_record()
-{
-   play = 1;
-   record = 1;
-
-   int p = mPlayer.active_local_player;
-
-   //printf("erase all game moves for Player:%d with frame number >= current frame number:%d\n", p, mLoop.frame_num);
-   // erase all game moves for this player that have a frame number equal or higher than current frame number
-   for (int x=0; x<mGameMoves.entry_pos; x++)
-      if (mGameMoves.arr[x][0] >= mLoop.frame_num)
-      {
-         int do_clear = 0;
-         if (mGameMoves.does_game_move_contain_player(x, p)) do_clear = 1;
-         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_clear = 0; // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
-         if (do_clear) mGameMoves.clear_single(x);
-      }
-
-   // check if there is no longer an active game move after erasing
-   if (mGameMoves.find_first_active_game_move_for_player(p, 0) == -1)
-   {
-      //printf("no active game move left\n");
-
-      int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
-      mPlayer.init_player(p, 1);                  // full player reset
-      mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
-      mItem.set_player_start_pos(p);              // set starting position
-
-      mPlayer.syn[p].active = 1;
-
-      // insert 'active' game move
-      int fn = mLoop.frame_num;
-      if (fn < 1) fn = 1;
-
-      // this is compatible with the new PM_GAMEMOVE_TYPE_PLAYER_ACTIVE 20260330
-      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
-   }
-   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
-}

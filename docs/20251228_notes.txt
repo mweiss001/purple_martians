@@ -34741,6 +34741,488 @@ all that is left it to make it look better
 
 
 
+I think I am close enough that I want to dogfood it and fix more demo's
+
+
+2026-08-01 09:32:23
+
+I have 18 demo's to fix....
+
+looks like back to 23 amazing 
+last I worked on these was 12 days ago 2026-07-20 05:58:35....
+
+23 amazing
+n 5:58 first 2min good
+t 2:35
+
+2026-08-01 11:11:33
+I have done n at 6:05 and I am happy with it...
+
+now to do the t version...omg
+
+start 2026-08-01 11:11:53
+
+I think I am going to completely redo it...
+player 1 run to end
+
+BUG - when looking for new section to add and current pos = 0 does not detect other sections also at zero
+actually, at frame 0, only P0 is active...is that the way its supposed to be?
+I have a few options here...
+- do not let demoRecord rewind past frame 1
+- adjust the testing to detect game move at next frame..did this...fixed....
+
+BUG - why are the gmInfo sections not in order?
+sort game moves...
+P0 comes last...why?
+my sort function does not take into account the new player active stuff
+fixed...now sort is by frame, then type, then player number and looks great...
+
+BUG - when recording past last frame, frame does not show...
+
+I think this is a timeline thing
+- should I make timeline go past end? yes..done
+- should I adjust end when recording....
+
+
+I think I do, but yet it does not work....
+
+
+after recording, sort happens
+
+
+void mwDemoRecord::stop_transport(void)
+{
+   if (play)
+   {
+      //printf("play stop\n");
+      play = 0;
+      mDrawSequence.ds_draw(0, 0);
+   }
+   if (record)
+   {
+      //printf("record stop\n");
+      record = 0;
+      mGameMoves.gm_sort();
+      refresh();
+   }
+}
+
+
+void mwDemoRecord::refresh()
+{
+   int old_frame_num = mLoop.frame_num;
+   mGmInfo.fill();
+   load_lnk_arr();    // load games moves into link array
+   mDemoMode.seek_to_frame(old_frame_num, 1);
+}
+
+its not sorting right....fixed...
+
+FEATURE...I really want a large clock showing time/frame when recording / playback
+
+back to 23
+
+I have all 8 player rushing right from start.
+
+last 4 players stop and wait at hole
+
+p0 purple shoots 3x1 plaform then jumps on switch as fast as possible, but not too fast or key will not fall
+
+first switch 472...try to do better
+455 is possible but triggers again too soon
+
+p1 red waits for key to fall
+p2 green helps p1 shoot 3x1 platform then goes to kill cannon in corner
+p3 blue tries to help jump on switch...
+
+2026-08-01 21:33:30
+
+552 (13.8s) keyed block disappears
+
+2026-08-02 06:32:11
+I really want a big time display...done
+
+BUG - cant seek frame ahead because of last frame bullshit
+what if I call fill at the end of record? will that adjust it? I already do that...
+
+
+2026-08-02 07:05:08
+
+save last filename loaded...done 
+
+is record settings window used for anything?
+all it does is change active local player and color...remove...done
+
+
+
+2026-08-02 07:08:22
+
+back to tas 23
+
+all 8 players are good till approx frame 600
+
+p0 needs to go down bomb hole as fast as possible..done
+at least one other player should do the same...p3 blue
+
+now blue is a couple frames ahead of purple
+
+try yellow and see if you can do even better than that
+hold jump till head hits, faster that way...
+
+yellow is definitely the fastest so far...
+
+do more fastly, why not all?
+p5 done same as yellow
+p6 done same as yellow
+p7 done same as yellow
+
+
+so now I have 3 4 5 6 7 all leading the way
+
+2 is not possible, has to kill corner enemy
+1 is not possible, has to get key
+
+leave p1 ready to fall on key and get coin
+
+should I also leave p2?...yes for now
+
+2026-08-02 08:21:24
+
+
+now make a new p blaze trail down, who? p3
+
+do it fool!
+
+p3 on blue lift at ~900
+now redo p0 with no firing
+
+now I have p0 and p3 on blue lift 
+
+now what is the fastest way to get all keys?
+I think I might want another player down here...
+
+p0 ride to top and see if he can get both top keys
+what is the fastest p0 can get top right green key? 1164
+
+then have someone waiting to get red switch
+
+what are the other importantest keys there?
+
+blue to get red switch as fast as possible after green blocks gone...
+1485??
+did it again and got 1438!!
+
+2026-08-02 09:59:13
+
+now what?
+I need to get a player to the trakbot cloner as fast as possible...
+
+bring p7 down with the other 2
+get to red switch blocks at 1080 (with ~4s to spare)
+maybe could do something else while waiting?
+or just stay there and kill any escaping trakbots
+
+2026-08-02 11:40:16
+still working on p7 after the trakbot cloner
+killed all in that area at 1869
+
+what could I do to make things easier?
+have a quick way to insert fire and not fire at current pos
+
+2026-08-02 12:07:52
+what area to do next?
+
+p0 to collect all key in area...done...
+p2 go right and kill everything up to bomb cloner..done
+
+that messed up p7 and the trakbot cloner...now there are more to kill there
+probably the clober tried to make more but could not, because there were no empty enemy slots
+that is, until I killed an freed some up...
+fix p7...done
+2026-08-02 13:23:49
+next
+
+p6 white to open green blocks and go that way...
+did some of it manually, done by 1:05
+
+next...
+
+after blue gets red switch, red fall to lower right corner...done
+
+then red do the rocket section..done at 1:12 can probably do better
+
+then bring p5 down to do section locked by purple blocks...
+
+how soon can I go through green door? ~35s and what player? taan
+
+done, but now I need to wait for keys...
+
+2026-08-02 15:59:41
+
+redo the red rocket...
+
+now at 1:00 I have the three keys at the exit...
+with 35 enemies left
+
+2026-08-02 18:00:30
+
+make yellow fall down the center, get the purple coin, then wait to get the 2 keys
+this will free up white to clear more on the left side...
+
+
+2026-08-03 05:29:51
+
+i cant believe I spent like 12H on level 23 yesteday and I am still not done
+I think I'm close though...
+
+p0 at 41s is done, he should move to center to kill manually kill what is left
+
+2026-08-03 06:01:06
+
+made a few tweaks to the level
+red and green keyed blocks for exit area are fixed so they are both required, not just one 
+added single sticky bomb in chimney to help kill and free coins in area below
+increased the rocket cloner max items from 3 to 4
+
+BUG in tile helper I cant see or choose extended tilesets...fixed
+
+
+I don't know if I am going to use the big bomb, it seem like cheating a bit
+I could pass rockets to player above the screen and have them direct them to the keys..
+lets try that
+
+
+---------------------
+Level 23 TAS notes
+---------------------
+initially all 8 player run right without stopping across the entire level.
+p0 kills all enemies in the way
+
+p0 and p3 jump on swicth to lower key
+494 12.4s  p1 gets key
+
+all players go down to the next level
+
+p2 goes all the way across to the right, killing all cannons and getting to the bomb cloner at 1050 26.3s
+p2 drops 2 bombs then goes all the way down on the extreme left 
+p2 gets to the bottom left at 1627 40s
+
+p0 p3 p4 p5 p6 p7 all go down at the gold pipe around 172 17s
+
+p6 gets the green key and p4 and p6 go left
+
+
+p1 gets the green key at 1164 29.1s (this could be improved but only by a few frames)
+
+this unlocks the green blocks so p3 can go up and get the red switch at 1438 36s
+
+1438 - 36.0s red switch (now trakbot cloners can be killed)
+
+also now p1 falls on key and way to bottom right is unlocked
+
+p1 and p5 go down to bottom right
+
+p1 gets to rockets at 1867 46.7s
+
+
+
+--------------------------------
+
+how about this...
+blue does nothing after getting red switch, have him be the one to go through the green door
+this is not time sensitive...
+blue goes in green door at 1816 45s
+then taan and red can both do rockets
+taan gets to rockets at 1836 (31 frames before red)
+now taan is the one that kill enemies
+
+taan at rockets...
+
+first kill the cloner...always...nasty
+
+taan kills cloner then sends rocket up for someone else to finish
+yellow got green key at 2034
+
+
+now the other key...
+can red take a rocket up there?
+2065 red get red key did better 2059
+
+now get blue to go through as soon as blocks open
+
+
+are any of those 4 keys time sensitive?
+
+first one is rocket cloner
+last one is track bot cage
+middle are bomb cloner and cannon cloner
+I think just do them in order as efficiently as possible
+got the last of the 4 keys at 2205 55.1s
+
+2026-08-03 08:47:54
+
+now what?
+
+get taan to clean up better in middle...done
+
+now what?
+its looking so good, I'm afraid to mess it up!!
+
+yellow to hunt down and kill trakbot 51
+before I do that I am at 2186 with 15 enemies left
+
+or I could juet get yellow over there to kill last trackbots and use 7 purple to get 51 (he is closer)
+
+start be getting yellow over there and hope it doesn't break anything...
+it did, hopefully its minor
+
+make yellow kill last caged trakbots....done at 2347
+
+now get p7 to kill 51..done at 2127 53.2
+
+but now the caged trakbots escape the other direction!!!wtf??
+
+bring purple over...there at 2046
+
+bring red over also...done
+
+
+now redo taan cleaning up enemies...done
+
+now at 2312 57.8 13 enemies left
+
+use purple to kill caged trakbots, he can do it quickest...
+
+crashed and I had not saved in a long time....
+2026-08-03 10:15:31
+this is where I think I was:
+
+2026-08-03 08:47:54
+got the last of the 4 keys at 2205 55.1s
+90 minutes ago!!!!
+
+start by bringing yellow, red, purple over...
+
+purple is over 2042
+yellow is over at 2239
+red is over at 22:56
+
+2nd rockt lit at 1992 1985
+
+2026-08-03 11:00:40
+now I have 2395, 14 enemies, center all clear
+
+next... get closest to kill caged trakbots
+
+I could just leave 7 there....do it...
+
+next get p0 to kill all in tunnel then 51? or 51 first?
+51 first, others might be able to kill the rest...
+
+51 dead at 2249 56.2s
+I have p0 cleaning up last section, but it is after 1:00 and others might be bale to do it faster...
+2026-08-03 11:33:12
+
+what about white? kill bomb cloner and take last bomb down....
+2285  
+the soonest the cloner can die is 2332 58.3s
+i take the last bomb down with me but earliest I can kill cannon is 1:02
+
+get p7 to kill last trakbots...done at 2268 or 56.7s
+
+
+now what is up with green? he has stuff to do....
+
+good until 1623 when he gets top extreme bottom left corner...take it from there...
+
+
+2026-08-03 12:42:42
+0 enemies at 59.3!!!! 2373
+final stats 59.3 2374 frames
+what did I start out with? the old TAS was 2:35
+
+but I broke the main demo!
+
+fix it...
+remove bomb from level...done
+
+good up to rocket area, redo from there...
+5:51 done
+
+2026-08-03 14:26:24
+
+I now show 16 levels to fix on stats page...
+can I do an easy one, please?
+
+
+33 kate's gate 
+n only 2:06 8 enemies
+just do it all again
+done 1:55 5 enemies
+
+35 bomb toss
+n only 4:00 5e
+new 3:06 e 13
+
+2026-08-03 16:26:47
+
+now it says 14!
+
+29 Brain Trust
+n 3:38 e0 new 3:28 e0
+t 4P 1:58 e0 new 6p 1:21 e0
+
+
+now it says 12!!
+
+how about crazy fox?
+
+19 Crazy Fox
+n 5:24 e1
+t 1:07 e1 8P
+
+n seems good for about 3:30
+ 
+t makes it to end but only gets 2/6 coins
+
+might not be that hard...
+
+lets look at TAS
+i seemed to be very easy but the more I changed, the more broken it got...
+
+was this the one with the very cool bomb tossing? yes
+in the original
+2557 - large bomb
+yellow jump 2510 2511 2520
+orb 1653 coin 2671
+level done 2719
+e1 left
+also in original, yellowe has 43 health and needs a +50 before jumping through bomb
+I am giving up for now
+2026-08-03 21:51:11
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
@@ -34766,6 +35248,17 @@ all that is left it to make it look better
 
 
 
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 

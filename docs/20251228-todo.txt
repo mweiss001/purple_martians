@@ -135,30 +135,41 @@ options in timeline titlebar:
 - enemy number and death start
 - bullet start frame number
 
-I think I am close enough that I want to dogfood it and fix more demo's
+- save more options like:
+hide while playing and recording
 
-2026-08-01 09:32:23
 
-I have 18 demo's to fix....
+- change 'add fire at pos' and pos + 4 to make them overwrite existing game moves if they exist, rather than blindly creating ones
 
-looks like back to 23 amazing 
-last I worked on these was 12 days ago 2026-07-20 05:58:35....
 
-23 amazing
-n 5:58 first 2min good
-t 2:35
 
+make dedicated button for 'add game move at current pos'...I use it a lot
+also copy game move
+copy game move to game move+1
+add jump at current pos
+test the 'copy data to another player'
 
+- I want the game moves list to look nicer, I use it a lot
+could I hide the gm index optionally? I never used it except for debugging
 
+can I edit game moves in place
 
+also do something about the weird scroll jump
+could I force always have current in exact middle
 
+could I do thin rectangles to show current game (prev/next)
 
+mark player shots and if they ever eventually kill enemy
+optionally mark fire held sections
+flag if there are 2 game moves with the same frame and player
 
 
 
 
 
 
+BUG - sometimes active game move gets erased, for player 0
+there is no way to add one
 
 
 
@@ -178,323 +189,18 @@ t 2:35
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--------------------------------------------------
+tiles and tilesets
+--------------------------------------------------
 
 when choosing tiles for lift 3 tile draw, select from something other than level
+
+
+
+
+
+
+
 
 
 when lift is huge in level editor, can't see or edit anything below it...
