@@ -16,19 +16,149 @@
 #include "mwPlayer.h"
 #include "mwWidget.h"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwDemoRecord::draw_GMList(mwWindow w)
 {
-   // show controls in title bar
    int x1 = w.rect.x1;
    int x2 = w.rect.x2;
-   int ya = w.rect.y1+2;
+   int xc = w.rect.XCenter();
    int d = w.disable_input;
+
+
+   // show controls in title bar
+   int ya = w.rect.y1 + 2;
+   int tbh = 14; // title bar height
+
    if (mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_all, "all", 15, 15)) load_lnk_arr();
    mWidget.togglec(x2-72, ya, x2-52, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "mono", 15, 15);
 
+   // show controls below title bar
+   ya = w.rect.y1 + tbh;
+   int bah = 49; // + mLoop.pct_y; // buttons area height
+
+   // simpler variable names for local scope
+   int f = mLoop.frame_num;
+   int p = mPlayer.active_local_player;
+
+   // if set, edit this gm_Index after displaying list
+   int edit_gmIndex = -1;
+
+
+
+   // finds the game move with the highest frame number equal or less than f
+   int prev_move = mGameMoves.find_previous_move_for_player(p, f);
+
+   int prev_move_type = 0; // by default - no move found
+   if (prev_move != -1)
+   {
+      prev_move_type = 1; // prev move found
+      if (mGameMoves.arr[prev_move][0] == f) prev_move_type = 2; // prev move is equal to current frame
+   }
+
+
+   char msg[256];
+   sprintf(msg, "%s", "Add move at current frame");
+   if (prev_move_type == 2) sprintf(msg, "%s", "Copy move at current frame");
+
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, msg, d))
+   {
+      // default values for new move
+      int nf = f;
+      int nd = 0;
+
+      // if move found, copy data
+      if (prev_move_type) nd = mGameMoves.arr[prev_move][3];
+
+      // move found and current frame
+      if (prev_move_type == 2) nf = f + 1;
+
+      // add move with temp value '9999' then sort into place
+      mGameMoves.add_game_move2(nf, 5, p, 9999);
+      mGameMoves.gm_sort();
+      refresh();
+
+
+      // find index of newly added move with d3 of 9999
+      for (int i=0; i<mGameMoves.entry_pos; i++)
+         if ((mGameMoves.arr[i][0] == nf) && (mGameMoves.arr[i][1] == 5) && (mGameMoves.arr[2][0] == p) && (mGameMoves.arr[i][3] == 9999))
+         {
+            // change from marker '9999' to actual data
+            mGameMoves.arr[i][3] = nd;
+
+            // mark for editing after drawing gm list
+            edit_gmIndex = i;
+         }
+   }
+
+
+
+   ya +=12;
+   if (mWidget.mButton(0, x1+2, xc-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "slide -1", d))
+   {
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]--;
+      mGameMoves.gm_sort();
+      refresh();
+      mLoop.frame_num--;
+   }
+
+   if (mWidget.mButton(0, xc+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "slide +1", d))
+   {
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]++;
+      mGameMoves.gm_sort();
+      refresh();
+      mLoop.frame_num++;
+   }
+
+   ya +=12;
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "Add fire at current frame", d))
+   {
+      mGameMoves.set_flag_for_player_at_frame(f+0, p, PM_COMPMOVE_FIRE, 1);
+      mGameMoves.set_flag_for_player_at_frame(f+1, p, PM_COMPMOVE_FIRE, 0);
+      mGameMoves.gm_sort();
+      refresh();
+   }
+
+   ya +=12;
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "Add fire at current frame + 4", d))
+   {
+      mGameMoves.set_flag_for_player_at_frame(f+4, p, PM_COMPMOVE_FIRE, 1);
+      mGameMoves.set_flag_for_player_at_frame(f+5, p, PM_COMPMOVE_FIRE, 0);
+      mGameMoves.gm_sort();
+      refresh();
+   }
+
+
+
+
+
+
+
+
+   // running y
+   int ry = w.rect.y1 + tbh + bah;
+   al_draw_line(x1, ry-1, x2, ry-1, mColor.pc[w.color], 1);
+
+
 
    // set num_lines from window height
-   int num_lines = (w.rect.h-16)/8;
+   int num_lines = (w.rect.h-tbh-bah-1)/8;
 
 
 
@@ -71,8 +201,15 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    // don't let end be after the end of the array
    if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
 
-   // running y
-   int ry = w.rect.y1+13;
+
+
+   // y positions for current gm frame
+   int cy1 = -1;
+   int cy2 = -1;
+
+   // y positions for mouse over gm frame
+   int my1 = -1;
+   int my2 = -1;
 
 
 
@@ -109,7 +246,16 @@ void mwDemoRecord::draw_GMList(mwWindow w)
       int bkg_col = 0;
 
       // if this move is an exact match of current frame, highlight in blue
-      if (f == mLoop.frame_num) bkg_col = 12+128;
+      if (f == mLoop.frame_num)
+      {
+         //bkg_col = 12+128;
+
+         // set first only if not set yet
+         if (cy1 == -1) cy1 = ry;
+
+         cy2 = ry + line_rect.h-1;
+
+      }
 
       // otherwise highlight both adjoining moves
       else
@@ -128,7 +274,13 @@ void mwDemoRecord::draw_GMList(mwWindow w)
             // get the frame number of the next move in the list
             int nf = mGameMoves.arr[lnk_arr[ni]][0];
 
-            if (nf > mLoop.frame_num) bkg_col = 12+128;
+            if (nf > mLoop.frame_num)
+            {
+               //bkg_col = 12+128;
+               cy1 = ry;
+            }
+
+
          }
 
 
@@ -146,18 +298,26 @@ void mwDemoRecord::draw_GMList(mwWindow w)
             // get the frame number of the previous move in the list
             int pf = mGameMoves.arr[lnk_arr[pi]][0];
 
-            if (pf < mLoop.frame_num) bkg_col = 12+128;
+            if (pf < mLoop.frame_num)
+            {
+               //bkg_col = 12+128;
+               cy2 = ry + line_rect.h-1;
+            }
+
          }
       }
-
 
 
       // determine if mouse is on the line, and set background color if it is
       int mouse_on_line = 0;
       if ((!d) && (line_rect.contains(mInput.mouse_x, mInput.mouse_y)))
       {
-         bkg_col = 10+128;
+         //bkg_col = 10+128;
          mouse_on_line = 1;
+
+         my1 = ry;
+         my2 = ry + line_rect.h-1;
+
 
          // to line up context menu nicely
          if (mInput.mouse_b[2][0])
@@ -190,8 +350,31 @@ void mwDemoRecord::draw_GMList(mwWindow w)
             refresh();
          }
       }
+
+      if (gi == edit_gmIndex)
+      {
+         edit_gm(gi, x1, ry+ line_rect.h);
+      }
+   } // all lines drawn
+
+   // draw rext for current move outline
+   if ((cy1 != -1) && (cy2 != -1))
+   {
+      mwRect<int> rect = mwRect<int>::fromX1Y1X2Y2(x1+2, cy1, x2-2, cy2);
+      rect.draw_rectangle(mColor.White, 0, +1);
+   }
+
+   // draw rext for current move outline
+   if ((my1 != -1) && (my2 != -1))
+   {
+      mwRect<int> rect = mwRect<int>::fromX1Y1X2Y2(x1+2, my1, x2-2, my2);
+      rect.draw_rectangle(mColor.Yellow, 0, +1);
    }
 }
+
+
+
+
 
 void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
 {
@@ -199,8 +382,9 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
    {
       int f = mGameMoves.arr[gi][0];
       int t = mGameMoves.arr[gi][1];
-      int p = mGameMoves.arr[gi][2];
+      int p = mGameMoves.get_player_num_from_game_move(gi);
       int m = mGameMoves.arr[gi][3];
+
 
       int mi=0;
       sprintf(mMenu.menu_string[mi++],"Edit");
@@ -208,7 +392,7 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
       sprintf(mMenu.menu_string[mi++],"Delete");
       sprintf(mMenu.menu_string[mi++],"Dump");
       sprintf(mMenu.menu_string[mi++],"Erase After");
-      sprintf(mMenu.menu_string[mi++],"copy to record player");
+      sprintf(mMenu.menu_string[mi++],"Copy all moves to active player");
       sprintf(mMenu.menu_string[mi++],"Insert new at current pos");
       sprintf(mMenu.menu_string[mi++],"slide +1 at current pos");
       sprintf(mMenu.menu_string[mi++],"slide -1 at current pos");
@@ -252,15 +436,27 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
          mGameMoves.gm_sort();
          refresh();
       }
+
+
       if (mr == mi++) // copy to rec_player
       {
-      //   copy_ptp(p, mPlayer.active_local_player);
-         // crashes!!! 20260803
+         int sp = p;
+         int dp = mPlayer.active_local_player;
 
+         //printf("copy_ptp(sp:%d, dp:%d)\n", sp,  dp);
+
+         // erase all moves for destination player
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if ((mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (mGameMoves.arr[x][2] == dp)) mGameMoves.clear_single(x);
+
+         // copy all moves from source player to destination player
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if ((mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (mGameMoves.arr[x][2] == sp))
+               mGameMoves.add_game_move2(mGameMoves.arr[x][0], mGameMoves.arr[x][1], dp, mGameMoves.arr[x][3]);
+
+         mGameMoves.gm_sort();
+         refresh();
       }
-
-
-
 
 
       if (mr == mi++) // add at current pos
@@ -294,7 +490,7 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
 
          //printf("add fire at pos+4 f:%d p:%d m:%d\n", f, p, m);
 
-         // press fire
+         // add fire
          mGameMoves.add_game_move2(f+4, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, m);
 
          // release fire
@@ -348,19 +544,18 @@ void mwDemoRecord::proc_edit_gm_type_menu(int & t)
       al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
 
       sprintf(mMenu.menu_string[0],"PLAYER_MOVE");
-      sprintf(mMenu.menu_string[1],"--");
-      sprintf(mMenu.menu_string[2],"PLAYER_INACTIVE");
-      sprintf(mMenu.menu_string[3],"SHOT_CONFIG");
-      sprintf(mMenu.menu_string[4],"PLAYER_HIDDEN");
-      sprintf(mMenu.menu_string[5],"LEVEL_DONE_ACK");
-      sprintf(mMenu.menu_string[6],"end");
+      sprintf(mMenu.menu_string[1],"PLAYER_INACTIVE");
+      sprintf(mMenu.menu_string[2],"SHOT_CONFIG");
+      sprintf(mMenu.menu_string[3],"PLAYER_HIDDEN");
+      sprintf(mMenu.menu_string[4],"LEVEL_DONE_ACK");
+      sprintf(mMenu.menu_string[5],"end");
       switch (mMenu.pmenu(5, 13, -4, 99))
       {
          case 0: t = PM_GAMEMOVE_TYPE_PLAYER_MOVE; break;
-         case 2: t = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE; break;
-         case 3: t = PM_GAMEMOVE_TYPE_SHOT_CONFIG; break;
-         case 4: t = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN; break;
-         case 5: t = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK; break;
+         case 1: t = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE; break;
+         case 2: t = PM_GAMEMOVE_TYPE_SHOT_CONFIG; break;
+         case 3: t = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN; break;
+         case 4: t = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK; break;
       }
       mInput.mouse_y-=8;
       al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
@@ -377,9 +572,18 @@ void mwDemoRecord::load_lnk_arr(void)
       if (gm_list_all) add = 1;
       else
       {
-         if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) add = 1; // new version with embedded name
+         // always add player active moves for all players
+         if (mGameMoves.arr[i][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) add = 1;
+
+         // always add shot config moves
          if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
-         if (mGameMoves.arr[i][2] == mGmInfo.gmPlayerInfo[current_section].playerNum) add = 1;
+
+         // add current player moves
+         if (mGameMoves.arr[i][2] == mPlayer.active_local_player) add = 1;
+
+         //if (mGameMoves.arr[i][2] == mGmInfo.gmPlayerInfo[current_section].playerNum) add = 1;
+
+
       }
       if (add)
       {
@@ -393,52 +597,6 @@ void mwDemoRecord::load_lnk_arr(void)
    }
 }
 
-void mwDemoRecord::copy_ptp(int sp, int dp)
-{
-   // erase all moves for destination player
-   for (int x=0; x<mGameMoves.entry_pos; x++)
-   {
-      int do_erase = 0;
-      if (mGameMoves.arr[x][2] == dp) do_erase = 1; // player num match
-      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_erase = 0;
-      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
-      {
-         int gm_player;
-         int gm_color;
-         char gm_name[9] = { 0 };
-         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, gm_name);
-         if (dp == gm_player) do_erase = 1;
-      }
-      if (do_erase) mGameMoves.clear_single(x);
-   }
-
-   // copy all moves from source player to destination player
-   for (int x=0; x<mGameMoves.entry_pos; x++)
-   {
-      int do_copy = 0;
-      if (mGameMoves.arr[x][2] == sp) do_copy = 1; // player num match
-      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) do_copy = 0;
-      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
-      {
-         // extract info to see if player matches
-         int gm_player;
-         int gm_color;
-         char gm_name[9] = { 0 };
-         mMiscFnx.gma_to_val(mGameMoves.arr[x][1], mGameMoves.arr[x][2], mGameMoves.arr[x][3], gm_player, gm_color, gm_name);
-         if (sp == gm_player)
-         {
-            // make new active game move with dp number, name, and color
-            int t, d1, d2;
-            mMiscFnx.val_to_gma(t, d1, d2, dp, mPlayer.syn[dp].color, mPlayer.syn[dp].name);
-            mGameMoves.add_game_move2(mGameMoves.arr[x][0], t, d1, d2);
-         }
-         do_copy = 0;
-      }
-      if (do_copy) mGameMoves.add_game_move2(mGameMoves.arr[x][0], mGameMoves.arr[x][1], dp, mGameMoves.arr[x][3]);
-   }
-   mGameMoves.gm_sort();
-   refresh();
-}
 
 void mwDemoRecord::edit_gm(int gi, int sx, int sy)
 {

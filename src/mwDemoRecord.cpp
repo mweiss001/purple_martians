@@ -28,7 +28,7 @@ mwDemoRecord mDemoRecord;
 void mwDemoRecord::init()
 {
 
-   mWM.mW[1].init(1, 0, 10, 10, 256, 176, 5, "Demo Record Main Controls", 1, 1, 14, 0);
+   mWM.mW[1].init(1, 0, 10, 10, 256, 176, 5, "Demo Record Main Controls", 1, 1, 14, 1);
    mWM.mW[1].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[1].drawFunction = [this]() { mDemoRecord.draw_mainW(mWM.mW[1]); };
 
@@ -55,11 +55,13 @@ void mwDemoRecord::init()
    mWM.mW[6].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[6].drawFunction = [this]() { mDemoRecord.draw_file_details(mWM.mW[6]); };
 
-   mWM.mW[7].init(7, 6, 100, 800, 148, 50, 6, "Range Tools", 1, 1, 14, 1);
+   mWM.mW[7].init(7, 6, 100, 800, 164, 74, 6, "Range Tools", 1, 1, 14, 1);
    mWM.mW[7].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[7].drawFunction = [this]() { mDemoRecord.draw_range_tools(mWM.mW[7]); };
 
    set_timeline_colors(11, 14, 10, 8, 14, 10, -4, 1);
+
+
 
 }
 

@@ -68,7 +68,13 @@ class mwDemoRecord
 
    int rt_start_frame = 0;
    int rt_end_frame = 0;
+
    int rt_all_players = 0;
+
+   int rt_player = 0;
+   int rt_player_mode = 0;
+
+
 
    int timeline_level_done_color = 11;
    int timeline_mouse_pos_color = 14;
@@ -110,7 +116,6 @@ class mwDemoRecord
 
    void proc_gm_list_menu(int gi, int x, int y);
    void edit_gm(int gi, int x, int y);
-   void copy_ptp(int sp, int dp);
    void proc_edit_gm_type_menu(int & t);
    void change_player_num_menu(int & p);
 

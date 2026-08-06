@@ -392,6 +392,10 @@ void mwDemoRecord::add_new_section_dialog()
    char ft[256];
 
 
+   int add_fn = mLoop.frame_num;
+   if (add_fn < 1) add_fn = 1;
+
+
    // find available player numbers (not currently active at current frame number) and add to drop down list
    std::vector<struct listItem> listItems;
    for (int i=0; i<NUM_PLAYERS; i++)
@@ -426,7 +430,7 @@ void mwDemoRecord::add_new_section_dialog()
    int quit = 0;
    while (!quit)
    {
-      sprintf(msg, "Add new section at:%s", gettf(mLoop.frame_num, ft));
+      sprintf(msg, "Add new section at:%s", gettf(add_fn, ft));
       rect.clear_frame_title(mColor.Black, mColor.pc[c], mColor.White, 12, 1, mFont.pr8, msg);
       int ya = rect.y1+16;
 
@@ -458,10 +462,10 @@ void mwDemoRecord::add_new_section_dialog()
          if (mWidget.mButton(1, xa+10, 70,  1, ya, bts, 0, 2, 0, 2, 9, 0, 15, 0, 0, "Commit", 0))
          {
             // add active game move for player_num at current frame number
-            mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, player_num, mPlayer.syn[player_num].color);
+            mGameMoves.add_game_move(add_fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, player_num, mPlayer.syn[player_num].color);
 
             // look forward for any other active moves with player_num
-            int na = mGameMoves.find_first_active_game_move_for_player(player_num, mLoop.frame_num+1);
+            int na = mGameMoves.find_first_active_game_move_for_player(player_num, add_fn+1);
             if (na != -1)
             {
                int f = mGameMoves.arr[na][0]; // start frame of next section

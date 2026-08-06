@@ -35197,9 +35197,42 @@ yellow jump 2510 2511 2520
 orb 1653 coin 2671
 level done 2719
 e1 left
-also in original, yellowe has 43 health and needs a +50 before jumping through bomb
+also in original, yellow has 43 health and needs a +50 before jumping through bomb
 I am giving up for now
 2026-08-03 21:51:11
+
+BUG - sometimes active game move gets erased when punching in from start..fixed code I commented out!
+there is no way to add one in gmlist..this is how it should be..only add with sections
+remove that from popup menu...done
+
+
+2026-08-04 05:36:41
+gmlist 
+could I do thin rectangles to show current move (prev/next)
+
+make a vector for current lines
+iterate while drawing lines
+- could have 1 for exact, 2 for in between or 2+ for muliple with same frame
+after iterating draw rect
+
+what will the vector need?
+could it just be 2 ints for ypos..yes that works
+
+do thin rectangles to show current move (prev/next)...done
+also do for mouse pos highlight
+I like how it looks better than text highlight
+done
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -802,8 +802,47 @@ int mwGameMoves::get_player_num_from_game_move(int i)
 
 
 
+// finds the game move with the highest frame number equal or less than f
+int mwGameMoves::find_previous_move_for_player(int p, int f)
+{
+   // find previous move to copy from
+   int max_f = -1;
+   int max_i = -1;
+
+   for (int i=0; i<entry_pos; i++)
+      if ((arr[i][0] <= f) && (arr[i][0] > max_f) && (arr[i][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (arr[i][2] == p))
+      {
+         max_f = arr[i][0];
+         max_i = i;
+      }
+   return max_i;
+}
 
 
+// ensures that flag is set or cleared for player at specific frame
+// if game move exists for player at frame, modify
+// otherwise create new game move by copying from previous and then modifying flag
+void mwGameMoves::set_flag_for_player_at_frame(int f, int p, int flag, bool set_clear)
+{
+   // finds the game move with the highest frame number equal or less than f
+   int prev_move = find_previous_move_for_player(p, f);
+
+   // move already exists
+   if ((prev_move != -1) && (arr[prev_move][0] == f))
+   {
+      if (set_clear) arr[prev_move][3] |=  flag; // set flag
+      else           arr[prev_move][3] &= ~flag; // clear flag
+   }
+   // create new move
+   else
+   {
+      int nd = 0; // default value if no previous move found
+      if (prev_move != -1) nd = arr[prev_move][3];
+      if (set_clear) nd |= flag;
+      else           nd &= ~flag;
+      add_game_move2(f, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, nd);
+   }
+}
 
 
 

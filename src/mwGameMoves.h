@@ -31,6 +31,10 @@ public:
 
    int get_player_num_from_game_move(int i);
 
+   void set_flag_for_player_at_frame(int f, int p, int flag, bool set_clear);
+
+   int find_previous_move_for_player(int p, int f);
+
 
    void gma_change_color(int x, int c);
    void gma_change_name(int x, char * new_name);

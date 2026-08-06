@@ -82,7 +82,6 @@ all I really need to do is get the latest version on pmh...i think...
 when copying selection with block damage that follows lift, link translation does not set bd link to lift
 
 
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -112,9 +111,6 @@ the bitmap drawing functions and font drawing functions.
 
 
 
-
-
-
 TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -125,10 +121,21 @@ I guess I am redoing everything about demoRecord...
 ---------------------------------------------------------
 
 - file and main window hidden with a toggle in top left corner
-this will not be part of windows
+this will not be part of windows..done but only for main
+bring back close button for main..done
+
+-I really want a way to optionally make level background not centered 
+what about having it in its own window? with the frame and everything
+
+
+-I want a big time format that stays when recording
+
+
 
 options in timeline titlebar:
 - make it look better
+
+
 
 - somewhere I want toggleable options about overlays
 - player position and speed
@@ -139,7 +146,475 @@ options in timeline titlebar:
 hide while playing and recording
 
 
+
+GMList
+----------------
+
+- I want the game moves list to look nicer, I use it a lot
+could I hide the gm index optionally? I never used it except for debugging
+
+also do something about the weird scroll jump
+could I force always have current in exact middle
+
+
 - change 'add fire at pos' and pos + 4 to make them overwrite existing game moves if they exist, rather than blindly creating ones
+what do they do now?
+they use gi, the index of the line the mouse is on
+
+
+
+
+where will I add buttons?
+
+make a section below title bar
+
+to not mess things up, just adjust the main rect
+
+is this all I need?
+
+
+
+   // set num_lines from window height
+   int num_lines = (w.rect.h-16)/8;
+   // running y
+   int ry = w.rect.y1+13;
+
+
+new:
+   int num_lines = (w.rect.h-16-20)/8;
+   int ry = w.rect.y1+33;
+
+that got me 20 lines!!!
+
+now make some buttons:
+- add gm at current frame (and open for edit?)
+
+that seems to work
+
+now how about copy?
+
+should not the one I just did be called copy
+
+I could use controls from last gm previous to mLoop.frame_num
+
+then copy and insert would be the same
+
+what if there is also a move at the current frame (for this player?)
+
+if there is already a move at he current frame, I should not allow a duplicate
+
+change the button depending on context
+
+no move at current pos  -- Add move at current pos
+move at current pos     -- Copy move to pos + 1
+
+this is done and working great
+
+now how about slide?
+that would be so nice
+move current pos with slide 
+done
+
+now add:
+add fire at current and +4
+
+
+I want to add the move only if it does not exist and modify if it does
+
+should i make a helper function for that
+
+inputs:
+-frame
+-player
+-flag
+-add_or_remove 
+
+void set_flag_for_player_at_frame(int f, int p, int flag, bool set_clear)
+
+this works so well!!!
+
+copy/add
+when adding also copy from prev move
+
+I might simplify the add copy stuff...
+
+what if I had a function that would find the prevous game move...or use the one I have
+
+if it find current frame, modify
+if prevous to current frame, we will those values also...
+
+2026-08-06 04:42:46
+
+I think I have this part done:
+copy, add
+add fire, add fire +4
+slide + and -
+
+what did copy to new player do?
+
+
+I would kind of like to make it work again...
+I would use it only at the start???
+to make other players follow this one exactly
+I guess it does not have to be the start, just need to make sure player is on same starting position
+
+I would guess that I want to erase after?
+
+does this seem like something for range tools?
+
+what I really want is to copy a range from a player to another player
+inputs:
+
+source_player
+source_start_frame
+length
+
+destination_player
+destination_start
+
+only copy game move, no actives
+
+I could mark the range in range tools
+
+but I would need a way to mark dest frame (use current)
+how would I mark dest player?
+
+figure it out and do this...
+
+did the simple version from gmlist menu
+
+erases all moves from dest
+copies all moves from src to dest
+to use:
+make the active track the one you want to overwrite
+in gmlist, mouse over the source 'PLAYER_ACTIVE' move, right click and choose copy to source
+
+now how to do this with range in range tools
+select start and end in range tools
+use current pos and player as dest
+
+-- still need src player
+
+
+should I add more to range tools? like range player?
+
+or should I make a dialog
+
+
+add rt_player
+
+add rt_player_mode
+0 = specifically set player
+1 = follow active local player
+
+
+2026-08-06 06:24:14
+OK, I now have the range tools done...now add to menu
+'copy range to active player at current pos'
+
+now make it happen!!
+I think it works!!!! awesome
+
+2026-08-06 06:52:47
+now what?
+
+I think there is a bug when adding new section...adds at frame 0..fixed i think
+
+
+I would like to make the columns in gmList optional
+
+what do I have now?
+
+gm index [1234]
+frame    [12345]
+type [1]
+player [1]
+data [12]
+
+then text description
+P0 MOVE [LRUDJF]
+
+I think most of the time, I would want a more minimal line like:
+frame   text description
+[12345] P0 MOVE [LRUDJF]
+
+100000 frames = 2500s = 41:40
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -147,29 +622,22 @@ make dedicated button for 'add game move at current pos'...I use it a lot
 also copy game move
 copy game move to game move+1
 add jump at current pos
+
+
 test the 'copy data to another player'
 
-- I want the game moves list to look nicer, I use it a lot
-could I hide the gm index optionally? I never used it except for debugging
+
 
 can I edit game moves in place
 
-also do something about the weird scroll jump
-could I force always have current in exact middle
 
-could I do thin rectangles to show current game (prev/next)
+
 
 mark player shots and if they ever eventually kill enemy
 optionally mark fire held sections
 flag if there are 2 game moves with the same frame and player
 
 
-
-
-
-
-BUG - sometimes active game move gets erased, for player 0
-there is no way to add one
 
 
 
@@ -194,6 +662,11 @@ tiles and tilesets
 --------------------------------------------------
 
 when choosing tiles for lift 3 tile draw, select from something other than level
+
+in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
+
+
+
 
 
 

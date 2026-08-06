@@ -9,6 +9,7 @@
 #include "mwInput.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
+#include "mwPlayer.h"
 #include "mwWidget.h"
 
 void mwDemoRecord::range_tools_set_fire_moves(int f, int clear_set)
@@ -90,7 +91,10 @@ void mwDemoRecord::proc_range_tools_menu(void)
       sprintf(mMenu.menu_string[10],"Remove FIRE from Range");
       sprintf(mMenu.menu_string[11],"Add FIRE to Range");
       sprintf(mMenu.menu_string[12],"Add single FIRE to Start");
-      sprintf(mMenu.menu_string[13],"end");
+
+      sprintf(mMenu.menu_string[13],"Copy Range to Active Player at Current Position");
+
+      sprintf(mMenu.menu_string[14],"end");
       int mp = mMenu.pmenu(5, 13, -12, 1);
       if (mp == 2) rt_start_frame = mLoop.frame_num;
       if (mp == 3) rt_start_frame = 1;
@@ -121,12 +125,47 @@ void mwDemoRecord::proc_range_tools_menu(void)
          mGameMoves.gm_sort();
          refresh();
       }
+
+      if (mp == 13)
+      {
+         int sp = rt_player;
+         int dp = mPlayer.active_local_player;
+
+         int sp_f1 = rt_start_frame;
+         int sp_f2 = rt_end_frame;
+
+         int f_offset = mLoop.frame_num - sp_f1;
+
+         int dp_f1 = sp_f1 + f_offset;
+         int dp_f2 = sp_f2 + f_offset;
+
+         // erase all moves for destination player
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if ((mGameMoves.arr[x][0] >= dp_f1) && (mGameMoves.arr[x][0] <= dp_f2) && (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (mGameMoves.arr[x][2] == dp))  mGameMoves.clear_single(x);
+
+
+         // copy all moves from source player to destination player
+         for (int x=0; x<mGameMoves.entry_pos; x++)
+            if ((mGameMoves.arr[x][0] >= sp_f1) && (mGameMoves.arr[x][0] <= sp_f2) && (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (mGameMoves.arr[x][2] == sp))
+               mGameMoves.add_game_move2(mGameMoves.arr[x][0] + f_offset, mGameMoves.arr[x][1], dp, mGameMoves.arr[x][3]);
+
+
+         mGameMoves.gm_sort();
+         refresh();
+      }
+
+
+
    }
 }
 
 void mwDemoRecord::draw_range_tools(mwWindow w)
 {
-   if (w.rect.contains(mInput.mouse_x, mInput.mouse_y)) proc_range_tools_menu();
+
+   // rect for main menu
+   mwRect<int> mmrect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1, w.rect.w, 36);
+   if (mmrect.contains(mInput.mouse_x, mInput.mouse_y)) proc_range_tools_menu();
+
 
    int x1 = w.rect.x1;
    int x2 = w.rect.x2;
@@ -146,7 +185,19 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "End  :%s", gettf(rt_end_frame, m1));
    if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,c,15, 0,  1,0,0,d, "Set")) rt_end_frame = mLoop.frame_num;
 
-   y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1);
+   y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
 
-   mWidget.togglec(xa, y1, xa+40, 16,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_all_players,  "All Players", 15, 15);
+   al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "Range Player:%d", rt_player);
+
+   y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
+
+   // rect for player menu
+   mwRect<int> pmrect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1+36, w.rect.w, 12);
+   if (pmrect.contains(mInput.mouse_x, mInput.mouse_y)) change_player_num_menu(rt_player);
+
+   mWidget.togglec(xa, y1, xa+40, 12,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_player_mode,  "Use Active Player", 15, 15);
+   if (rt_player_mode) rt_player = mPlayer.active_local_player;
+
+   mWidget.togglec(xa, y1, xa+40, 12,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_all_players,  "All Players", 15, 15);
+
 }
