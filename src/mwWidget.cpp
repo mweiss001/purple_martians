@@ -1861,6 +1861,32 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 3) sprintf(msg, "Type: Purple Coin");
    }
 
+
+
+
+   if (bn == 701)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "X Centered");
+      if (var == 1) sprintf(msg,  "X Left Justified");
+      if (var == 2) sprintf(msg,  "X Right Justified");
+   }
+
+   if (bn == 702)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "Y Centered");
+      if (var == 1) sprintf(msg,  "Y Top Justified");
+      if (var == 2) sprintf(msg,  "Y Bottom Justified");
+   }
+
+
+
+
+
+
    if (bn == 600)
    {
       if (press) var++;
@@ -2672,8 +2698,12 @@ mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int
 
 
 
-
-
+bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt)
+{
+   bool ret = mCheckBox(xType, xa, xb, yType, ya, yb, frame_col, var, t, text_col, box_col, disable_input);
+   if (!disable_input) mToolTip(xType, xa+12, (strlen(tt) + 1)*8+6, yType, ya, yb,  0,   1,0,1,   0,15,15, tt, xa+2, ya, xa+10, ya+9);
+   return ret;
+}
 
 
 
@@ -2690,7 +2720,7 @@ mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int
 
 void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
 {
-   //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.White, 1); // debug show trigger area
+   //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.Red, 1); // debug show trigger area
 
    // check if mouse is on button
    if ((mInput.mouse_x > tx1) && (mInput.mouse_x < tx2) && (mInput.mouse_y > ty1) && (mInput.mouse_y < ty2))

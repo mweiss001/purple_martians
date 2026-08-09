@@ -11,6 +11,7 @@
 #include "mwBitmap.h"
 #include "mwLift.h"
 #include "mwColor.h"
+#include "mwDemoRecord.h"
 #include "mwEditorMain.h"
 #include "mwLoop.h"
 #include "mwItem.h"
@@ -220,6 +221,11 @@ void mwScreen::set_screen_display_variables(void)
       if (!mLoop.level_editor_running) screen_display_y += a/2;  // new screen_display_y draw ypos
    }
 
+
+
+
+
+
 // ----------------------------------------------------------------------
 // step 2 - now that we know the screen buffer width and height
 // scale that to find out the size of the region to grab from level buffer
@@ -393,6 +399,30 @@ void mwScreen::draw_scaled_level_region_to_display(void)
    set_screen_display_variables();
 
    if (!mLoop.level_editor_running) set_level_display_region_xy();
+
+
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+   {
+      int sls = mDisplay.scale_factor_current * 2000;    // get the scaled size of the entire level
+
+      int sdw = mDisplay.SCREEN_W-BORDER_WIDTH*2;
+      if (sdw > sls) // is screen width greater than entire level width?
+      {
+         if (mDemoRecord.background_x_justify == 1) screen_display_x = BORDER_WIDTH; // left
+         if (mDemoRecord.background_x_justify == 2) screen_display_x = mDisplay.SCREEN_W - sls - BORDER_WIDTH; // right
+      }
+
+      int sdh = mDisplay.SCREEN_H-BORDER_WIDTH*2;
+      if (sdh > sls) // is screen height greater than entire level height?
+      {
+         if (mDemoRecord.background_y_justify == 1) screen_display_y = BORDER_WIDTH; // top
+         if (mDemoRecord.background_y_justify == 2) screen_display_y = mDisplay.SCREEN_H - sls - BORDER_WIDTH; // bottom
+      }
+   }
+
+
+
+
 
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));

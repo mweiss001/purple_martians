@@ -31,6 +31,7 @@ void mwGmInfo::clear()
    coinsCollected = 0;
    playerDeaths = 0;
    enemiesKilled = 0;
+
 }
 
 
@@ -88,8 +89,7 @@ void mwGmInfo::fill()
    findPlayerTracksLastMoves();
    findDeaths();
    findPurpleCoins();
-   findEnemiesKilled();
-   findEnemiesShot();
+   findEnemyHits();
 }
 
 
@@ -178,7 +178,6 @@ void mwGmInfo::findPlayerTracksLastMoves()
 }
 
 
-
 // returns index into gmPlayerInfo where p == playerNum and f is between startFrame and endFrame
 int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)
 {
@@ -188,34 +187,39 @@ int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)
 }
 
 
-
-void mwGmInfo::findEnemiesShot()
+void mwGmInfo::findEnemyHits()
 {
    enemiesShot = 0;
    for (auto& gm : mGameEvent.game_events)
       if (gm.ev == 43)
       {
          enemiesShot++;
-         int p = gm.z1;
-         int f = gm.frame;
+         int f  = gm.frame;
+         int p  = gm.z1; // player num
+         int e  = gm.z2; // enemy num
+         int sf = gm.z4; // shot fired frame
+         int hc = gm.z3; // enemy extra hits to kill
+
          int index = getGmPlayerInfoIndex(p, f);
-         if (index != -1) gmPlayerInfo[index].enemiesShot.push_back(f);
+         if (index != -1) gmPlayerInfo[index].enemyHits.push_back({f, e, sf, hc });
+
       }
 }
 
 
-void mwGmInfo::findEnemiesKilled()
+int mwGmInfo::testFire(int f, int p)
 {
-   enemiesKilled = 0;
-   for (auto& gm : mGameEvent.game_events)
-      if (gm.ev == 42)
-      {
-         enemiesKilled++;
-         int p = gm.z1;
-         int f = gm.frame;
-         int index = getGmPlayerInfoIndex(p, f);
-         if (index != -1) gmPlayerInfo[index].enemiesKilled.push_back(f);
-      }
+   int index = getGmPlayerInfoIndex(p, f);
+   if (index != -1)
+   {
+      for (auto eh : gmPlayerInfo[index].enemyHits)
+         if (eh.shotFiredFrame == f)
+         {
+            if (eh.hitsLeft) return 1; // hit, but not killed
+            else return 2; // killed
+         }
+   }
+   return 0;
 }
 
 void mwGmInfo::findDeaths()
@@ -245,7 +249,6 @@ void mwGmInfo::findPurpleCoins()
          if (index != -1) gmPlayerInfo[index].coinsCollected.push_back(f);
       }
 }
-
 
 int mwGmInfo::countTotalPurpleCoinsCollected()
 {

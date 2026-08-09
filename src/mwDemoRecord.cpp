@@ -28,11 +28,11 @@ mwDemoRecord mDemoRecord;
 void mwDemoRecord::init()
 {
 
-   mWM.mW[1].init(1, 0, 10, 10, 256, 176, 5, "Demo Record Main Controls", 1, 1, 14, 1);
+   mWM.mW[1].init(1, 0, 10, 10, 256, 276, 5, "Demo Record Main Controls", 1, 1, 14, 1);
    mWM.mW[1].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[1].drawFunction = [this]() { mDemoRecord.draw_mainW(mWM.mW[1]); };
 
-   mWM.mW[2].init(2, 1, 800, 300, 329, 200, 15, "Game Moves List", 1, 1, 14, 1);
+   mWM.mW[2].init(2, 1, 800, 300, 329, 200, 15, "Moves", 1, 0, 14, 1);
    mWM.mW[2].set_resizeable(329, 329, 200, 1600);
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
@@ -42,7 +42,7 @@ void mwDemoRecord::init()
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
    mWM.mW[3].enable_X_button = 0;
 
-   mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 1, 12, 1);
+   mWM.mW[4].init(4, 3, 500, 500, 300, 100, 8, "Timeline", 1, 0, 12, 1);
    mWM.mW[4].set_resizeable(200, 2000, 100, 800);
    mWM.mW[4].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[4].drawFunction = [this]() { mDemoRecord.draw_timeline(mWM.mW[4]); };
@@ -59,21 +59,20 @@ void mwDemoRecord::init()
    mWM.mW[7].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[7].drawFunction = [this]() { mDemoRecord.draw_range_tools(mWM.mW[7]); };
 
-   set_timeline_colors(11, 14, 10, 8, 14, 10, -4, 1);
+   set_timeline_colors(11, 14, 10, 8, 14, -4, 1);
 
 
 
 }
 
 
-void mwDemoRecord::set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_shot, int enemies_killed, int time_labels, int player_icons)
+void mwDemoRecord::set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_hit, int time_labels, int player_icons)
 {
    timeline_level_done_color = level_done;
    timeline_mouse_pos_color = mouse_pos;
    timeline_player_deaths_color = player_deaths;
    timeline_purple_coins_color = purple_coins;
-   timeline_enemies_shot_color = enemies_shot;
-   timeline_enemies_killed_color = enemies_killed;
+   timeline_enemy_hit_color = enemies_hit;
    timeline_display_time_labels = time_labels;
    timeline_show_player_icons = player_icons;
 }
@@ -187,6 +186,23 @@ void mwDemoRecord::draw_mainW(mwWindow w)
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_player_grid,     "Show player grid", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_play, "Show windows when playing", 15, 15);
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_rec,  "Show windows when recording", 15, 15);
+
+
+   ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
+
+   bts = 16;
+
+   mWidget.buttonp(xa, ya, xa+200, bts,  701,0,0,0,  0,w.color+128,15,0, 1,0,1,d, background_x_justify);
+   mWidget.buttonp(xa, ya, xa+200, bts,  702,0,0,0,  0,w.color+128,15,0, 1,0,1,d, background_y_justify);
+
+
+
+//   mWidget.buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
+
+
+
+
+
 
 }
 
@@ -441,12 +457,17 @@ void mwDemoRecord::save_mWM()
       fwrite(&timeline_mouse_pos_color,      sizeof(timeline_mouse_pos_color),      1, fp);
       fwrite(&timeline_player_deaths_color,  sizeof(timeline_player_deaths_color),  1, fp);
       fwrite(&timeline_purple_coins_color,   sizeof(timeline_purple_coins_color),   1, fp);
-      fwrite(&timeline_enemies_shot_color,   sizeof(timeline_enemies_shot_color),   1, fp);
-      fwrite(&timeline_enemies_killed_color, sizeof(timeline_enemies_killed_color), 1, fp);
+      fwrite(&timeline_enemy_hit_color,      sizeof(timeline_enemy_hit_color),      1, fp);
       fwrite(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
       fwrite(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
       fwrite(&time_format,                   sizeof(time_format),                   1, fp);
-      fwrite(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),      1, fp);
+      fwrite(&gm_list_simple,                sizeof(gm_list_simple),                1, fp);
+
+      fwrite(&background_x_justify,          sizeof(background_x_justify),          1, fp);
+      fwrite(&background_y_justify,          sizeof(background_y_justify),          1, fp);
+
+
+      fwrite(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),         1, fp);
 
 
       fclose(fp);
@@ -467,12 +488,16 @@ bool mwDemoRecord::load_mWM()
       fread(&timeline_mouse_pos_color,      sizeof(timeline_mouse_pos_color),      1, fp);
       fread(&timeline_player_deaths_color,  sizeof(timeline_player_deaths_color),  1, fp);
       fread(&timeline_purple_coins_color,   sizeof(timeline_purple_coins_color),   1, fp);
-      fread(&timeline_enemies_shot_color,   sizeof(timeline_enemies_shot_color),   1, fp);
-      fread(&timeline_enemies_killed_color, sizeof(timeline_enemies_killed_color), 1, fp);
+      fread(&timeline_enemy_hit_color,      sizeof(timeline_enemy_hit_color),      1, fp);
       fread(&timeline_display_time_labels,  sizeof(timeline_display_time_labels),  1, fp);
       fread(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
       fread(&time_format,                   sizeof(time_format),                   1, fp);
-      fread(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),      1, fp);
+      fread(&gm_list_simple,                sizeof(gm_list_simple),                1, fp);
+      fread(&background_x_justify,          sizeof(background_x_justify),          1, fp);
+      fread(&background_y_justify,          sizeof(background_y_justify),          1, fp);
+
+
+      fread(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),         1, fp);
 
 
       fclose(fp);

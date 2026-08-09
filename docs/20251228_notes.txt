@@ -35224,6 +35224,256 @@ I like how it looks better than text highlight
 done
 
 
+- simplify the way gmInfo does enemy shots and hits (maybe later)...done
+
+
+struct gmPlayerHitEnemy
+{
+   int frame{};
+   int enemyNum{};
+   bool type{}; // ( 0 = shot  1 = explosion)
+   int indexNum{}; // shotNum or itemNum
+   int shotFiredFrame{};
+   int hitsLeft{}; // 0 - dead
+};
+
+remove:
+   bool type{}; // ( 0 = shot  1 = explosion)
+   int indexNum{}; // shotNum or itemNum
+done
+
+
+struct gmPlayerInfoRecord
+{
+   int playerNum{};
+   int playerCol{};
+   std::string playerName{};
+   int startFrame{};
+   int endFrame{};
+   bool noEnd{};
+   int lastMoveFrame{};
+
+   std::vector<int> playerDeaths{};
+   std::vector<int> coinsCollected{};
+
+//   std::vector<int> enemiesKilled{};
+//   std::vector<int> enemiesShot{};
+
+   std::vector<gmPlayerHitEnemy> enemyHits{};
+};
+
+done....
+
+
+
+can I force the background left or right justified if full level width is less than screen width?
+where is that?
+
+mScreen.draw_scaled_level_region_to_display();
+
+
+void mwScreen::draw_scaled_level_region_to_display(void)
+{
+   set_screen_display_variables();
+
+
+void mwScreen::draw_scaled_level_region_to_display(void)
+{
+   set_screen_display_variables();
+
+   if (!mLoop.level_editor_running) set_level_display_region_xy();
+
+
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+   {
+      int sdw = mDisplay.SCREEN_W-BORDER_WIDTH*2;
+      int sdh = mDisplay.SCREEN_H-BORDER_WIDTH*2;
+      int sls = mDisplay.scale_factor_current * 2000;    // get the scaled size of the entire level
+      if (sdw > sls)                                     // is screen_display_w greater than entire level width?
+      {
+         screen_display_x = BORDER_WIDTH;
+         screen_display_x = mDisplay.SCREEN_W - sls - BORDER_WIDTH;
+      }
+      if (sdh > sls)                                     // is screen_display_w greater than entire level width?
+      {
+         screen_display_y = BORDER_WIDTH;
+         screen_display_y = mDisplay.SCREEN_H - sls - BORDER_WIDTH;
+      }
+   }
+
+
+
+now make varaibles to control this:
+
+in demoRecord:
+
+int background_x_justify;
+0-center
+1-left
+2-right
+
+int background_y_justify;
+0-center
+1-top
+2-bottom
+
+
+this is the final...
+
+   int background_x_justify = 0; //  0-center 1-left 2-right
+   int background_y_justify = 0; //  0-center 1-top 2-bottom
+
+void mwScreen::draw_scaled_level_region_to_display(void)
+{
+   set_screen_display_variables();
+
+   if (!mLoop.level_editor_running) set_level_display_region_xy();
+
+
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+   {
+      int sls = mDisplay.scale_factor_current * 2000;    // get the scaled size of the entire level
+
+      int sdw = mDisplay.SCREEN_W-BORDER_WIDTH*2;
+      if (sdw > sls) // is screen width greater than entire level width?
+      {
+         if (mDemoRecord.background_x_justify == 1) screen_display_x = BORDER_WIDTH; // left
+         if (mDemoRecord.background_x_justify == 2) screen_display_x = mDisplay.SCREEN_W - sls - BORDER_WIDTH; // right
+      }
+
+      int sdh = mDisplay.SCREEN_H-BORDER_WIDTH*2;
+      if (sdh > sls) // is screen height greater than entire level height?
+      {
+         if (mDemoRecord.background_y_justify == 1) screen_display_y = BORDER_WIDTH; // top
+         if (mDemoRecord.background_y_justify == 2) screen_display_y = mDisplay.SCREEN_H - sls - BORDER_WIDTH; // bottom
+      }
+   }
+
+
+
+
+2026-08-08 07:56:48
+I want to make few minor changes to gmlist
+- fully erase background ..done
+- make buttons skinnier (less text)..done
+- shrink width when in simple mode
+orignal = 329
+simple = 172
+
+make title of gmlist left just..done
+shrink a moce titlebar toggle..done
+
+- in simple mode do not pop up edit after create..done
+
+- fully erase background
+breaks when adding then edit??
+why when editing after inserting, does the window frame not show?
+could I quit and re enter ?
+void mwDemoRecord::draw_GMList(mwWindow w)
+could I just redraw the window frame? sure that seem simplest...done
+
+
+
+
+2026-08-09 06:42:20
+
+
+- save options like simple...done
+- tooltips for check boxes...done
+- when adjusting size of gm_list, it uses the big width...set min size...done...
+- edit in place, hard to tell if flag is set when mouse over always shows it...hmmm...fixed
+- gmlist draw function is huge, can I make some helper functions, like controls...done
+
+
+
+tooltip checkboxes
+describe:
+just like 
+
+   if (mWidget.togglec(tbx, ya, tbx+10, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_simple, "s", 15, 15)) load_lnk_arr();
+
+but also with:
+
+maybe use new versions:
+
+bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input)
+void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
+
+call it:
+
+bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input)
+
+try this:
+
+- convert to new type
+- add single line below
+
+
+   int tbx = x1+120;
+   mWidget.mCheckBox(1, tbx, 10, 1, ya-1, 10, 0, gm_list_mono, "m", 15, 15, d);
+   if (!d) mWidget.mToolTip(1, tbx+12, 11*8+6, 1, ya-1, 10,  0,   1,0,1,   0,15,15, "mono color", tbx+2, ya, tbx+10, ya+9);
+
+   tbx-=30;
+   if (mWidget.mCheckBox(1, tbx, 10, 1, ya-1, 10, 0, gm_list_all, "a", 15, 15, d)) load_lnk_arr();
+   if (!d) mWidget.mToolTip(1, tbx+12, 11*8+6, 1, ya-1, 10,  0,   1,0,1,   0,15,15, "all players", tbx+2, ya, tbx+10, ya+9);
+
+   tbx-=30;
+   if (mWidget.mCheckBox(1, tbx, 10, 1, ya-1, 10, 0, gm_list_simple, "s", 15, 15, d)) load_lnk_arr();
+   if (!d) mWidget.mToolTip(1, tbx+12, 7*8+6, 1, ya-1, 10,  0,   1,0,1,   0,15,15, "simple", tbx+2, ya, tbx+10, ya+9);
+
+/*
+   if (mWidget.togglec(tbx, ya, tbx+10, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_simple, "s", 15, 15)) load_lnk_arr();
+
+   tbx+=30;
+   if (mWidget.togglec(tbx,  ya, tbx+10, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_all, "a", 15, 15)) load_lnk_arr();
+
+   tbx+=30;
+   mWidget.togglec(tbx, ya, tbx+10, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "m", 15, 15);
+*/
+
+done!!!
+
+
+- title bar of timelime to have left justified title and tooltip checkboxes
+- lj done
+
+this is all done...
+
+each call looks like this: 
+   mWidget.mCheckBox(1, tbx, 10, 1, ya-1, 10, 0, timeline_enemy_hit_color, "h", 15, 15, d);
+   if (!d) mWidget.mToolTip(1, tbx+12, 5*8+6, 1, ya-1, 10,  0,   1,0,1,   0,15,15, "hits", tbx+2, ya, tbx+10, ya+9);
+
+and I do it 9 times...can I simplify?
+
+bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt)
+{
+   bool ret = mCheckBox(xType, xa, xb, yType, ya, yb, frame_col, var, t, text_col, box_col, disable_input);
+   if (!disable_input) mToolTip(xType, xa+12, (strlen(tt) + 1)*8+6, yType, ya, yb,  0,   1,0,1,   0,15,15, tt, xa+2, ya, xa+10, ya+9);
+   return ret;
+}
+
+mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_mono, "m", 15, 15, d, "mono color");
+
+
+   int tbx = x1+120;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_mono, "m", 15, 15, d, "mono color");
+
+   tbx-=30;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_all, "a", 15, 15, d, "all players");
+   
+   tbx-=30;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_simple, "s", 15, 15, d, "simple");
+
+
+
+2026-08-09 07:31:49
+
+- options for background justify
+make 3 way toggle buttons for x and y
+701 and 702
+int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
+added controls and saved with other settings...done
+
 
 
 

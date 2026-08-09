@@ -105,6 +105,11 @@ class mwWidget
 
 
 
+
+
+
+
+
    bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool
                            disable_input = false);
 
@@ -155,6 +160,14 @@ class mwWidget
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int inc, const char *txt);
+
+
+
+   bool mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt);
+
+
+
+
 
 
 

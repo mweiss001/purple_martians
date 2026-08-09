@@ -19,40 +19,26 @@
 void mwDemoRecord::draw_timeline(mwWindow w)
 {
    int d = w.disable_input;
-   int arm_x = w.rect.x2-60;
-   int arm_y = w.rect.y1+2;
+   int ya = w.rect.y1 + 1;
+   int tbx = w.rect.x2-60;
    int cb_spacing = 30;
 
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_level_done_color, "d", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_show_player_icons, "i", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_purple_coins_color, "c", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_enemies_killed_color, "k", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_enemies_shot_color, "s", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, timeline_player_deaths_color, "d", 15, 15);
-
-   arm_x-=cb_spacing;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, time_format, "f", 15, 15);
-
-
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_level_done_color,    "l", 15, 15, d, "level done");
+   tbx-=cb_spacing;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_show_player_icons,   "i", 15, 15, d, "icons");
+   tbx-=cb_spacing;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_purple_coins_color,  "p", 15, 15, d, "purple coins");
+   tbx-=cb_spacing;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_enemy_hit_color,     "h", 15, 15, d, "hits");
+   tbx-=cb_spacing;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_player_deaths_color, "d", 15, 15, d, "deaths");
+   tbx-=cb_spacing;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, time_format,                  "t", 15, 15, d, "time format");
 
    if (timeline_purple_coins_color) timeline_purple_coins_color = 8;
-   if (timeline_enemies_killed_color) timeline_enemies_killed_color = 10;
-   if (timeline_enemies_shot_color) timeline_enemies_shot_color = 14;
+   if (timeline_enemy_hit_color) timeline_enemy_hit_color = 14;
    if (timeline_player_deaths_color) timeline_player_deaths_color = 10;
    if (timeline_level_done_color) timeline_level_done_color = 11;
-
-
-
 
    // make a smaller rect for timeline widget (below title bar, and leave space for adjustment in br corner)
    mwRect<int> timeline_rect = mwRect<int>::fromX1Y1X2Y2(w.rect.x1+2, w.rect.y1+14, w.rect.x2-4, w.rect.y2 );
@@ -266,26 +252,16 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
          }
       }
 
-      if (timeline_enemies_shot_color)
+      if (timeline_enemy_hit_color)
       {
-         for (auto& d : r.enemiesShot)
+         for (auto& d : r.enemyHits)
          {
-            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
-            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_enemies_shot_color], 1);
+            float dx = mMiscFnx.map_range<float>((float)d.frame, sf, lf,  ix1, ix2);
+            int color = 10; // kill by default
+            if (d.hitsLeft) color = timeline_enemy_hit_color; // hit
+            al_draw_line(dx, ry1, dx, ry2, mColor.pc[color], 1);
          }
       }
-
-      if (timeline_enemies_killed_color)
-      {
-         // draw vertical line at kills
-         for (auto& d : r.enemiesKilled)
-         {
-            float dx = mMiscFnx.map_range<float>((float)d, sf, lf,  ix1, ix2);
-            al_draw_line(dx, ry1, dx, ry2, mColor.pc[timeline_enemies_killed_color], 1);
-         }
-      }
-
-
 
       // next bar position
       ry1 = ry2+vs;

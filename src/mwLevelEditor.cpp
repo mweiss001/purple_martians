@@ -200,7 +200,7 @@ int mwLevelEditor::loop(int level)
    }
    else set_mode(1);
 
-
+   active = 1;
 
    while (active)
    {

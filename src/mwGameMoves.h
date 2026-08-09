@@ -50,9 +50,9 @@ public:
    void proc_game_move_player_hidden(int p);
    void proc_game_move_shot_config(int shot, int damg);
 
-
-   char* get_gm_text2(int gm, int f, int t, int p, int v, char* tmp);
    char* get_gm_text(int gm, char* tmp);
+   char* get_gm_text2(int gm, int f, int t, int p, int v, char* tmp);
+   char* get_gm_text3(int gm, char* tmp);
 
    char* get_save_txt(int num, char *txt);
 

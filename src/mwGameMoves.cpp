@@ -657,6 +657,74 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 }
 
 
+
+// only does MOVE
+char* mwGameMoves::get_gm_text3(int gm, char* tmp)
+{
+   int f = arr[gm][0];
+   int t = arr[gm][1];
+   int p = arr[gm][2];
+   int v = arr[gm][3];
+
+   char dsc[80] = {0};
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
+   {
+      strcat(dsc, " [");
+      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "L");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "R");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_UP)    strcat(dsc, "U");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "D");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "J");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "F");
+      else                       strcat(dsc, " ");
+      strcat(dsc, "]");
+
+      int eh = mGmInfo.testFire(f, p);
+      if (eh == 1) strcat(dsc, "-hit");
+      if (eh == 2) strcat(dsc, "-kill");
+
+
+   }
+   sprintf(tmp, "[%5d]%s", f, dsc);
+
+
+   return tmp;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 char* mwGameMoves::get_gm_text(int gm, char* tmp)
 {
    int f = arr[gm][0]; // frame

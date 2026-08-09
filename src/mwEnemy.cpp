@@ -237,11 +237,18 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
             int p = mShot.p[c].player;         // player number of shot
             Ei[e][31] = 1;                     // flag that this enemy got shot
             Ei[e][26] = p;                     // number of player that shot enemy
+
+            int hc = 0; // extra hits to kill (by default 0)
+            if (Ei[e][0] == 2) hc = Ei[e][9];
+
+
             mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
             mDemoRecord.mark_player_shot_used(p, mShot.p[c].active, 1);
+
+            mGameEvent.add(43, 0, 0, p, e, hc, mShot.p[c].active); // event 43 - enemy shot
+
             mShot.p[c].active = 0;             // shot dies
 
-            mGameEvent.add(43, 0, 0, p, e, c, mShot.p[c].active); // event 43 - enemy shot
 
          }
       }
@@ -554,14 +561,14 @@ Ei[][2] = draw mode
 
 Ei[][22] = player hit
 Ei[][23] = player hit retrigger
-Ei[][24] = helath bonus shape
+Ei[][24] = health bonus shape
 Ei[][25] = health bonus amount
 Ei[][26] = used to tell what player killed enemy
 Ei[][27] = time to live
 Ei[][28] = cloner create id
 Ei[][29] = collision box size
 Ei[][30] = death loop count
-Ei[][31] = flag that this enemy got shot with shot
+Ei[][31] = flag that this enemy got hit with shot
 
 
 Ef[][0] =  x

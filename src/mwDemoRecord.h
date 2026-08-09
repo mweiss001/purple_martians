@@ -6,7 +6,7 @@ class mwDemoRecord
    mwWindowManager mWM = mwWindowManager(8);
 
    void draw_mainW(mwWindow w);
-   void draw_GMList(mwWindow w);
+   void draw_GMList(mwWindow &w);
    void draw_transport_controls(mwWindow w);
    void draw_timeline(mwWindow w);
    void draw_current_section(mwWindow w);
@@ -20,6 +20,7 @@ class mwDemoRecord
    void draw_transport_controls_speed(mwRect<int> rect, int d);
 
 
+   int draw_GMList_controls(mwWindow &w);
 
 
    void proc_timeline_context_menu(int gmInfo_index, int mouse_frame);
@@ -65,6 +66,18 @@ class mwDemoRecord
 
    int gm_list_all = 0;
    int gm_list_mono = 0;
+   int gm_list_simple = 0;
+
+   int gm_list_start_index = 0;
+
+   int edit_gmIndex = -1;
+
+
+
+   int background_x_justify = 2; //  0-center 1-left 2-right
+   int background_y_justify = 1; //  0-center 1-top 2-bottom
+
+
 
    int rt_start_frame = 0;
    int rt_end_frame = 0;
@@ -80,8 +93,7 @@ class mwDemoRecord
    int timeline_mouse_pos_color = 14;
    int timeline_player_deaths_color = 10;
    int timeline_purple_coins_color = 8;
-   int timeline_enemies_shot_color = 14;
-   int timeline_enemies_killed_color = 10;
+   int timeline_enemy_hit_color = 14;
    int timeline_display_time_labels = -4;
    int timeline_show_player_icons = 1;
 
@@ -95,7 +107,7 @@ class mwDemoRecord
 
    void init();
 
-   void set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_shot, int enemies_killed, int time_labels, int player_icons);
+   void set_timeline_colors(int level_done, int mouse_pos, int player_deaths, int purple_coins, int enemies_hit, int time_labels, int player_icons);
 
 
    void redraw_callback();

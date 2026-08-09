@@ -1,5 +1,15 @@
 // mwGmInfo.h
 
+
+struct gmPlayerHitEnemy
+{
+   int frame{};
+   int enemyNum{};
+   int shotFiredFrame{};
+   int hitsLeft{}; // 0 - dead
+};
+
+
 struct gmPlayerInfoRecord
 {
    int playerNum{};
@@ -12,22 +22,9 @@ struct gmPlayerInfoRecord
 
    std::vector<int> playerDeaths{};
    std::vector<int> coinsCollected{};
-   std::vector<int> enemiesKilled{};
-   std::vector<int> enemiesShot{};
-
-
-
+   std::vector<gmPlayerHitEnemy> enemyHits{};
 };
 
-struct gmPlayerHitEnemy
-{
-   int frame{};
-   int enemyNum{};
-   bool type{}; // ( 0 = shot  1 = explosion)
-   int indexNum{}; // shotNum or itemNum
-   int shotFiredFrame{};
-   int hitsLeft{}; // 0 - dead
-};
 
 
 class mwGmInfo
@@ -52,6 +49,8 @@ class mwGmInfo
 
       int countTotalPurpleCoinsCollected();
 
+      int testFire(int f, int p);
+
 
 
    private:
@@ -62,8 +61,7 @@ class mwGmInfo
 
       void findDeaths();
       void findPurpleCoins();
-      void findEnemiesKilled();
-      void findEnemiesShot();
+      void findEnemyHits();
 
 };
 

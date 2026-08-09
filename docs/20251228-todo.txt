@@ -340,6 +340,411 @@ frame   text description
 
 100000 frames = 2500s = 41:40
 
+2026-08-06 07:23:15 commit
+next:
+
+GMList:
+- width
+- no jumping when clicked
+- edit in place
+
+
+edit in place
+
+            int c_x1 = tb_x1+72;
+            int c_x2 = c_x1+48;
+            if ((mInput.mouse_x > c_x1) && (mInput.mouse_x < c_x2))
+            {
+               int cn = (mInput.mouse_x - c_x1) / 8;
+               int cnx = c_x1 + cn*8;
+
+               al_draw_rectangle(cnx, tb_y1, cnx+8, tb_y2, mColor.pc[10], 1);
+
+               if (mInput.mouse_b[1][0])
+               {
+                  while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+                  v ^= (int) pow(2, cn);
+               }
+            }
+
+
+I have this roughly in place
+min width (just frame num and move details) and move only
+edit in place
+no change current with click
+
+needs some fine tuning
+
+make some options like
+simple checkbox
+- shows only moves
+- shows only frame num and move
+- edit in place
+
+2026-08-07 05:31:51
+added simple checkbox
+
+BUG - there is a time when mouse higlight shows two moves..fixed
+- make simple hide anything but 'MOVE'..done
+
+make edit in place coexist with mouse press on line..done
+
+now make gmlist not jump when selecting new move
+just make sure that current move is visible
+try to maintain previous scroll position
+
+add: 
+   int gm_list_start_index = 0;
+
+I think I've got it!!!
+
+So what do I have?
+- bad jump scroll when clicking is fixed
+- simple mode
+- edit in place
+
+
+what do I want to do now?
+
+slide is good but I want to be able to move just one thing
+buttons at top are getting crowded
+
+add tooltips?
+
+
+big new feature:
+show if fire move kills enemy
+
+right now I am not saving that information in gmInfo
+
+I only store the frame number that a player kills or shoots enemy
+
+I would need to also store the frame number of when the shot was fired
+
+then armed with player number and frame the shot was fired, I could match it up to the FIRE game move
+
+so the first thing to do would be to also capture that info...
+while I am at it, I also want to capture the enemy number
+
+should I do this for shot or killed or both?
+
+lets just do shot for now and see how that works
+
+
+I have this struct already in place, but I don't think I am filling it..
+
+
+struct gmPlayerHitEnemy
+{
+   int frame{};
+   int enemyNum{};
+   bool type{}; // ( 0 = shot  1 = explosion)
+   int indexNum{}; // shotNum or itemNum
+   int shotFiredFrame{};
+   int hitsLeft{}; // 0 - dead
+};
+
+
+
+I would need to make a vector of this struct belonging to player
+
+   std::vector<gmPlayerHitEnemy> enemyHits{};
+
+
+I think I need to modify event 43
+
+I don't really care about the shot index number, but I do care about the enemy hits left...or do I?
+yes, change it...
+
+Ei[][9]   extra hits to kill
+
+but only used for type 2 - cannon
+
+            int hc = 0; // extra hits to kill (by default 0) 
+            if (Ei[e][0] == 2) hc = Ei[e][9];
+           
+            mGameEvent.add(43, 0, 0, p, e, hc, mShot.p[c].active); // event 43 - enemy shot
+
+2026-08-07 17:32:34
+
+I have the info collected, now can I display it?
+in the enemyHits vector, if I have a matching p and sf show something beside the move
+
+2026-08-07 18:29:08
+
+I now can show hit and kill
+
+
+I think I want to dogfood while testing these new features...
+
+do level 19 TAS
+
+p0 run right
+2nd spawn point 505 or 12.6s
+older 536 or 13.4
+
+2026-08-07 23:58:04
+
+3-4 hours for .5s!!!
+
+2026-08-08 01:42:41
+
+now I am about 20s in
+all 8 players are good.
+
+
+what should I do first?
+I can have 6 bombs simultaneously!!!
+
+2026-08-08 09:58:26
+
+back to dogfood!!!
+
+one more thing, when edit in place do a refresh
+
+
+2026-08-08 19:11:42
+I'm finally done!!
+2709 or 1:07
+
+the original was 2719!! I got 0.25s or 10 frames faster!!
+and it only took 12-16 hours of my time!!!
+
+regular 11024 4:35
+old regular 12977 5:24
+
+
+
+now it says I have 11 demo's left to fix...
+
+another big one...beginnings
+
+31 - beginnings
+old:
+main 12584 5:14 6e  
+tas 3680 1:32 8P 2e
+
+most of the tas looks good
+
+probabaly diverges 
+
+
+2026-08-09 04:55:28
+
+more things to do to demoRecord:
+
+- auto save and versioned saving
+
+- also show deaths, purple coins in gmlist right hand column
+- player info box to have cleared background
+- auto save and versioned saving
+- can I somehow have the sliding anchor position be different from the current position?
+- can I somehow change the currently active player without changing the current time?
+- why does timeline show the current position tags and bleed over to transport tools
+- make optional all the level screen overlays, show player info etc...
+
+- in this interests of copying from older gm's previous to player move change, make a version that has all this new cool demoRecord stuff, but has the old player move and demos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

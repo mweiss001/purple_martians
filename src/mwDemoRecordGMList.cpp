@@ -18,21 +18,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void mwDemoRecord::draw_GMList(mwWindow w)
+int mwDemoRecord::draw_GMList_controls(mwWindow &w)
 {
    int x1 = w.rect.x1;
    int x2 = w.rect.x2;
@@ -44,8 +30,16 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    int ya = w.rect.y1 + 2;
    int tbh = 14; // title bar height
 
-   if (mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_all, "all", 15, 15)) load_lnk_arr();
-   mWidget.togglec(x2-72, ya, x2-52, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, gm_list_mono, "mono", 15, 15);
+   int tbx = x1+120;
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_mono, "m", 15, 15, d, "mono color");
+
+   tbx-=30;
+   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_all, "a", 15, 15, d, "all players")) load_lnk_arr();
+
+   tbx-=30;
+   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_simple, "s", 15, 15, d, "simple")) load_lnk_arr();
+
+
 
    // show controls below title bar
    ya = w.rect.y1 + tbh;
@@ -56,8 +50,7 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    int p = mPlayer.active_local_player;
 
    // if set, edit this gm_Index after displaying list
-   int edit_gmIndex = -1;
-
+   edit_gmIndex = -1;
 
 
    // finds the game move with the highest frame number equal or less than f
@@ -71,11 +64,14 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    }
 
 
-   char msg[256];
-   sprintf(msg, "%s", "Add move at current frame");
-   if (prev_move_type == 2) sprintf(msg, "%s", "Copy move at current frame");
+   int bcol = w.color + 192;
+   int fcol = 15;
 
-   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, msg, d))
+   char msg[256];
+   sprintf(msg, "%s", "Add move");
+   if (prev_move_type == 2) sprintf(msg, "%s", "Copy move");
+
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, msg, d))
    {
       // default values for new move
       int nf = f;
@@ -87,28 +83,41 @@ void mwDemoRecord::draw_GMList(mwWindow w)
       // move found and current frame
       if (prev_move_type == 2) nf = f + 1;
 
-      // add move with temp value '9999' then sort into place
-      mGameMoves.add_game_move2(nf, 5, p, 9999);
-      mGameMoves.gm_sort();
-      refresh();
+
+      if (gm_list_simple)
+      {
+         mGameMoves.add_game_move2(nf, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, nd);
+         mGameMoves.gm_sort();
+         refresh();
+      }
+      else
+      {
+         // add move with temp value '9999' then sort into place
+         mGameMoves.add_game_move2(nf, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, 9999);
+         mGameMoves.gm_sort();
+         refresh();
+
+         // clear, frame, title after refresh
+         w.rect.clear_frame_title(mColor.pc[w.color+224], mColor.pc[w.color], mColor.White, 12, w.title_text_just, mFont.pr8, w.title);
 
 
-      // find index of newly added move with d3 of 9999
-      for (int i=0; i<mGameMoves.entry_pos; i++)
-         if ((mGameMoves.arr[i][0] == nf) && (mGameMoves.arr[i][1] == 5) && (mGameMoves.arr[2][0] == p) && (mGameMoves.arr[i][3] == 9999))
-         {
-            // change from marker '9999' to actual data
-            mGameMoves.arr[i][3] = nd;
+         // find index of newly added move with d3 of 9999
+         for (int i=0; i<mGameMoves.entry_pos; i++)
+            if ((mGameMoves.arr[i][0] == nf) && (mGameMoves.arr[i][1] == 5) && (mGameMoves.arr[i][2] == p) && (mGameMoves.arr[i][3] == 9999))
+            {
+               // change from marker '9999' to actual data
+               mGameMoves.arr[i][3] = nd;
 
-            // mark for editing after drawing gm list
-            edit_gmIndex = i;
-         }
+               // mark for editing after drawing gm list
+               edit_gmIndex = i;
+            }
+      }
    }
 
 
 
    ya +=12;
-   if (mWidget.mButton(0, x1+2, xc-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "slide -1", d))
+   if (mWidget.mButton(0, x1+2, xc-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide -1", d))
    {
       for (int x=0; x<mGameMoves.entry_pos; x++)
          if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]--;
@@ -117,7 +126,7 @@ void mwDemoRecord::draw_GMList(mwWindow w)
       mLoop.frame_num--;
    }
 
-   if (mWidget.mButton(0, xc+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "slide +1", d))
+   if (mWidget.mButton(0, xc+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide +1", d))
    {
       for (int x=0; x<mGameMoves.entry_pos; x++)
          if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]++;
@@ -127,7 +136,7 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    }
 
    ya +=12;
-   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "Add fire at current frame", d))
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "Add fire", d))
    {
       mGameMoves.set_flag_for_player_at_frame(f+0, p, PM_COMPMOVE_FIRE, 1);
       mGameMoves.set_flag_for_player_at_frame(f+1, p, PM_COMPMOVE_FIRE, 0);
@@ -136,7 +145,7 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    }
 
    ya +=12;
-   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  11+192,1+80,15, 15,0, "Add fire at current frame + 4", d))
+   if (mWidget.mButton(0, x1+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "Add fire + 4", d))
    {
       mGameMoves.set_flag_for_player_at_frame(f+4, p, PM_COMPMOVE_FIRE, 1);
       mGameMoves.set_flag_for_player_at_frame(f+5, p, PM_COMPMOVE_FIRE, 0);
@@ -144,6 +153,9 @@ void mwDemoRecord::draw_GMList(mwWindow w)
       refresh();
    }
 
+   return bah;
+
+}
 
 
 
@@ -151,49 +163,36 @@ void mwDemoRecord::draw_GMList(mwWindow w)
 
 
 
-   // running y
+void mwDemoRecord::draw_GMList(mwWindow &w)
+{
+   if (gm_list_simple) w.rect.setWidth(172);
+   else w.rect.setWidth(329);
+
+   w.set_resizeable(w.rect.w, w.rect.w, 200, 1600);
+
+
+
+
+   int tbh = 14; // title bar height
+   int bah = draw_GMList_controls(w); // button area height
+
+   int x1 = w.rect.x1;
+   int x2 = w.rect.x2;
+   int d = w.disable_input;
+
+
+   // start of list and running y position
    int ry = w.rect.y1 + tbh + bah;
    al_draw_line(x1, ry-1, x2, ry-1, mColor.pc[w.color], 1);
 
 
 
-   // set num_lines from window height
+   // set num_lines from available space
    int num_lines = (w.rect.h-tbh-bah-1)/8;
 
 
-
-   // find starting gm index to show
-
-   // ideally the current frame position should be near the middle of the list
-
-   // find game move index closest to current frame
-
-   int i_closest = 0;
-   int min_dist = 999999;
-   for (int i=0; i<lnk_entry_pos; i++)
-   {
-      // translate from link array index to game move index;
-      int gmi = lnk_arr[i];
-
-      // get frame number
-      int f = mGameMoves.arr[gmi][0];
-
-      // get distance from current frame
-      int dist = abs(f - mLoop.frame_num);
-
-      if (dist < min_dist)
-      {
-         min_dist = dist;
-         i_closest = i;
-      }
-   }
-
-   // go back half of num_lines
-   int gm1 = i_closest - num_lines/2;
-
-   // don't let start be before than the start of the array
-   if (gm1 < 0) gm1 = 0;
-
+   // starting index
+   int gm1 = gm_list_start_index;
 
    // set end of range
    int gm2 = gm1 + num_lines;
@@ -202,68 +201,116 @@ void mwDemoRecord::draw_GMList(mwWindow w)
    if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
 
 
+   // is current frame position visible on list?
+   int f = mLoop.frame_num;
+   int gm1_frame = mGameMoves.arr[lnk_arr[gm1]][0];
+   int gm2_frame = mGameMoves.arr[lnk_arr[gm2]][0];
+   if ((gm1_frame > f) || (gm2_frame < f))
+   {
+      // find new starting gm index to show
+      // ideally the current frame position should be near the middle of the list
+      // find game move index closest to current frame
+
+      int i_closest = 0;
+      int min_dist = 999999;
+      for (int i=0; i<lnk_entry_pos; i++)
+      {
+         // translate from link array index to game move index;
+         int gmi = lnk_arr[i];
+
+         // get frame number
+         int gmf = mGameMoves.arr[gmi][0];
+
+         // get distance from current frame
+         int dist = abs(gmf - mLoop.frame_num);
+
+         if (dist < min_dist)
+         {
+            min_dist = dist;
+            i_closest = i;
+         }
+      }
+
+      // go back half of num_lines
+      gm1 = i_closest - num_lines/2;
+
+      // don't let start be before than the start of the array
+      if (gm1 < 0) gm1 = 0;
+
+      // save for next time
+      gm_list_start_index = gm1;
+
+      // set end of range
+      gm2 = gm1 + num_lines;
+
+      // don't let end be after the end of the array
+      if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
+   }
+
 
    // y positions for current gm frame
    int cy1 = -1;
    int cy2 = -1;
 
-   // y positions for mouse over gm frame
+   // y positions for mouseover gm frame
    int my1 = -1;
    int my2 = -1;
-
 
 
    // iterate the link array
    for (int i=gm1; i<gm2; i++)
    {
-      int gi = lnk_arr[i]; // get actual game move index from link translation table
-      int f = mGameMoves.arr[gi][0];
-      int t = mGameMoves.arr[gi][1];
-      int p = mGameMoves.arr[gi][2];
-      int v = mGameMoves.arr[gi][3];
+      // get actual game move index from link translation table
+      int gi = lnk_arr[i];
 
-      // do this to extract player number, color, and name from new ACTIVE game move type
-      if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+      // get the 4 values from game move
+      int gif = mGameMoves.arr[gi][0];
+      int git = mGameMoves.arr[gi][1];
+      int gip = mGameMoves.arr[gi][2];
+      int giv = mGameMoves.arr[gi][3];
+
+      // extract player number, color, and name from ACTIVE game move
+      if (git & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
       {
          char name[9] = { 0 };
-         mMiscFnx.gma_to_val(t, p, v, p, v, name);
-         snprintf(mPlayer.syn[p].name, 9, "%s", name);
+         mMiscFnx.gma_to_val(git, gip, giv, gip, giv, name);
+
+         // why? // so that we use player name from demo file instead of local player name? ???
+         // snprintf(mPlayer.syn[gip].name, 9, "%s", name);
       }
 
 
-
+      // fill the text line
       char msg[256];
-      sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
+      if (gm_list_simple) sprintf(msg, "%s", mGameMoves.get_gm_text3(gi, msg));
+      else                sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, gif, git, gip, giv, msg));
 
-      // rect with line dimensions for background draw and mouse detection
-      mwRect<int> line_rect = mwRect<int>::fromX1Y1X2Y2(x1, ry, x1+strlen(msg)*8, ry+8);
-
-
-      int text_col = mPlayer.syn[p].color;
-      if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
+      // set line color from player color
+      int text_col = mPlayer.syn[gip].color;
+      if (git == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
       if (gm_list_mono) text_col = 15;
 
-      int bkg_col = 0;
+      // rect with line dimensions for background draw and mouse detection
+      mwRect<int> line_rect = mwRect<int>::fromX1Y1X2Y2(x1, ry, x1+strlen(msg)*8, ry+7);
 
-      // if this move is an exact match of current frame, highlight in blue
-      if (f == mLoop.frame_num)
+
+      // if this move is an exact match of current frame, set start and end cy values
+      if (gif == mLoop.frame_num)
       {
-         //bkg_col = 12+128;
-
-         // set first only if not set yet
+         // set start y pos of current frame rect only if not set yet
          if (cy1 == -1) cy1 = ry;
 
-         cy2 = ry + line_rect.h-1;
-
+         // set end y pos of current frame rect
+         cy2 = ry + line_rect.h;
       }
 
-      // otherwise highlight both adjoining moves
+      // this move is not an exact match with current frame, check if immediately adjacent to current frame
       else
       {
-         // if frame number of this move is less than current frame, and next move is greater than current frame
+         // check if frame number of this move is less than current frame, and next move is greater than current frame
 
          // this move has a frame number less than current frame
-         if (f < mLoop.frame_num)
+         if (gif < mLoop.frame_num)
          {
             // get next move in list
             int ni = i+1;
@@ -274,20 +321,14 @@ void mwDemoRecord::draw_GMList(mwWindow w)
             // get the frame number of the next move in the list
             int nf = mGameMoves.arr[lnk_arr[ni]][0];
 
-            if (nf > mLoop.frame_num)
-            {
-               //bkg_col = 12+128;
-               cy1 = ry;
-            }
-
-
+            // set start y pos of current frame rect
+            if (nf > mLoop.frame_num) cy1 = ry;
          }
 
-
-         // if frame number of this move is more than current frame, and previous move is less than current frame
+         // check if frame number of this move is more than current frame, and previous move is less than current frame
 
          // this move has a frame number more than current frame
-         if (f > mLoop.frame_num)
+         if (gif > mLoop.frame_num)
          {
             // get prev move in list
             int pi = i-1;
@@ -298,73 +339,108 @@ void mwDemoRecord::draw_GMList(mwWindow w)
             // get the frame number of the previous move in the list
             int pf = mGameMoves.arr[lnk_arr[pi]][0];
 
-            if (pf < mLoop.frame_num)
-            {
-               //bkg_col = 12+128;
-               cy2 = ry + line_rect.h-1;
-            }
-
+            // set end y pos of current frame rect
+            if (pf < mLoop.frame_num) cy2 = ry + line_rect.h;
          }
       }
 
 
-      // determine if mouse is on the line, and set background color if it is
-      int mouse_on_line = 0;
-      if ((!d) && (line_rect.contains(mInput.mouse_x, mInput.mouse_y)))
-      {
-         //bkg_col = 10+128;
-         mouse_on_line = 1;
-
-         my1 = ry;
-         my2 = ry + line_rect.h-1;
-
-
-         // to line up context menu nicely
-         if (mInput.mouse_b[2][0])
-         {
-            mInput.mouse_y = line_rect.y2+8;
-            al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
-         }
-      }
-
-      // draw line background color
-      line_rect.draw_filled_rectangle(mColor.pc[bkg_col]);
+      // draw line background
+      line_rect.draw_filled_rectangle(mColor.Black);
 
       // draw line text
       al_draw_text(mFont.pr8, mColor.pc[text_col], x1, ry, 0, msg);
 
-      // advance y pos for next line
-      ry += line_rect.h;
 
       // process mouse input (this is purposely here, after drawing the line)
-      if (mouse_on_line)
-      {
-         // right-click context menu
-         proc_gm_list_menu(gi, w.rect.x1, line_rect.y2+8);
 
-         // left click sets current frame
-         if (mInput.mouse_b[1][0])
+      // determine if mouse is on the line, and set my1, my2
+      if ((!d) && (line_rect.contains(mInput.mouse_x, mInput.mouse_y)))
+      {
+         my1 = ry;
+         my2 = ry + line_rect.h;
+
+
+         // right click context menu
+         if (mInput.mouse_b[2][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-            mLoop.frame_num = f;
-            refresh();
+            // to line up context menu nicely
+            int yp = line_rect.y2 + line_rect.h + 1;
+
+            mInput.mouse_y = yp;
+            al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+            proc_gm_list_menu(gi, x1, yp);
+         }
+
+
+         // edit in place
+         if (gm_list_simple)
+         {
+            int c_x1 = x1+72;
+            int c_x2 = c_x1+48;
+            if ((mInput.mouse_x > c_x1) && (mInput.mouse_x < c_x2))
+            {
+               int cn = (mInput.mouse_x - c_x1) / 8;
+               int cnx = c_x1 + cn*8;
+               al_draw_rectangle(cnx-1, my1-1, cnx+9, my2+1, mColor.pc[10], 1);
+
+               //al_draw_textf(mFont.pixl, mColor.pc[15],  cnx, my1-10, 0, "%d", cn);
+
+               // show the letter
+               const char m2[8] = "LRUDJF";
+               if ((cn >=0) && (cn <=5))
+               {
+                  int cfsc = 12; // not set color
+                  if (mGameMoves.arr[gi][3] & (int) pow(2, cn)) cfsc = 15; // set color
+                  al_draw_textf(mFont.pr8, mColor.pc[cfsc],  cnx, my1, 0, "%c", m2[cn]);
+               }
+
+
+               if (mInput.mouse_b[1][0])
+               {
+                  while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+                  mGameMoves.arr[gi][3] ^= (int) pow(2, cn);
+                  refresh();
+               }
+            }
+
+            // left click to the left of edit in place sets current frame
+            if ((mInput.mouse_x < c_x1) && (mInput.mouse_b[1][0]))
+            {
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+               mLoop.frame_num = gif;
+               refresh();
+            }
+
+         }
+         else
+         {
+            // left click sets current frame
+            if (mInput.mouse_b[1][0])
+            {
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+               mLoop.frame_num = gif;
+               refresh();
+            }
          }
       }
 
-      if (gi == edit_gmIndex)
-      {
-         edit_gm(gi, x1, ry+ line_rect.h);
-      }
+      // advance y pos for next line
+      ry += line_rect.h + 1;
+
+      // edit in place
+      if (gi == edit_gmIndex) edit_gm(gi, x1, ry + line_rect.h + 1);
+
    } // all lines drawn
 
-   // draw rext for current move outline
+   // draw rect for current move outline
    if ((cy1 != -1) && (cy2 != -1))
    {
       mwRect<int> rect = mwRect<int>::fromX1Y1X2Y2(x1+2, cy1, x2-2, cy2);
       rect.draw_rectangle(mColor.White, 0, +1);
    }
 
-   // draw rext for current move outline
+   // draw rect for mouse position outline
    if ((my1 != -1) && (my2 != -1))
    {
       mwRect<int> rect = mwRect<int>::fromX1Y1X2Y2(x1+2, my1, x2-2, my2);
@@ -514,11 +590,6 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
          // press fire
          mGameMoves.add_game_move2(cf, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, m);
 
-
-
-
-
-
          // release fire
          int mfo = m & ~PM_COMPMOVE_FIRE;
          mGameMoves.add_game_move2(cf+1, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, mfo);
@@ -580,11 +651,11 @@ void mwDemoRecord::load_lnk_arr(void)
 
          // add current player moves
          if (mGameMoves.arr[i][2] == mPlayer.active_local_player) add = 1;
-
-         //if (mGameMoves.arr[i][2] == mGmInfo.gmPlayerInfo[current_section].playerNum) add = 1;
-
-
       }
+
+      // in simple mode add only 'PM_GAMEMOVE_TYPE_PLAYER_MOVE'
+      if ((gm_list_simple) && (mGameMoves.arr[i][1] != PM_GAMEMOVE_TYPE_PLAYER_MOVE)) add = 0;
+
       if (add)
       {
          lnk_arr[lnk_entry_pos] = i;
@@ -626,7 +697,7 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
 
       // show text line of game move being edited
       sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
-      al_draw_text(mFont.pr8, mColor.pc[15], xa-1, ya, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[15], x1, ya, 0, msg);
       ya+=9;
 
       al_draw_line(x1, ya, x2, ya, mColor.pc[col], 1);
@@ -679,7 +750,10 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
                int cn = (mInput.mouse_x - c_x1) / 8;
                int cnx = c_x1 + cn*8;
 
-               al_draw_rectangle(cnx, tb_y1, cnx+8, tb_y2, mColor.pc[10], 1);
+               al_draw_rectangle(cnx-1, tb_y1, cnx+8+1, tb_y2, mColor.pc[10], 1);
+
+               const char m2[8] = "LRUDJF";
+               if ((cn >=0) && (cn <=5)) al_draw_textf(mFont.pr8, mColor.pc[15],  cnx, tb_y1+1, 0, "%c", m2[cn]);
 
                if (mInput.mouse_b[1][0])
                {
@@ -801,7 +875,10 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
       x7 += 60 + sp;
       if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Cancel")) quit = 1;
 
+
+      // to hide remnants when height is bigger, erase area below
       al_draw_filled_rectangle(x1+1, ya+21, x2-1, ya+40, mColor.pc[0]);
+
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {

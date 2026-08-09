@@ -162,7 +162,7 @@ int mwScreen::draw_demo_controls_overlay_titlebar(int x1, int y1, int x2, int y2
 
 void mwScreen::draw_demo_controls_overlay()
 {
-   mDemoRecord.set_timeline_colors(0, 14, 10, 8, 0, 0, 0, 1);
+   mDemoRecord.set_timeline_colors(0, 14, 10, 8, 0, 0, 1);
 
 
    if (demo_controls_tray_mode)
