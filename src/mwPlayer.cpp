@@ -317,10 +317,17 @@ void mwPlayer::proc_player_xy_move(int p)
          if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
          {
             if (debug_print) printf("player moving up and collision\n");
-//            syn[p].y -= syn[p].yinc;        // take back move
 
-            // instead of take back entire move, just take back up until solid is no longer triggered
+
+            //            syn[p].y -= syn[p].yinc;        // take back move
+
+            // instead of taking back entire move, just take back up until solid is no longer triggered
+            // this change here broke many demo levels and took many, many hours to fix...:(
+            // never again will I make a breaking change like that
             while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y+=0.1;
+
+
+
 
 
             // printf("%d %d player moving up and collision\n", mLoop.frame_num, p);

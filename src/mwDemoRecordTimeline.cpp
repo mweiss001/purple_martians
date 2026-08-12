@@ -89,7 +89,8 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
 
    // get start frame and last frame
    float sf = 0;
-   float lf = mGmInfo.lastFrame;
+   float lf = timeline_last_frame;
+
 
    // starting y position
    float ry1 = y1 + ls;
@@ -126,9 +127,18 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
          frameColor = baseFrameColor;
       }
 
+
+      // get track start and end pos as float
+      float rsf = r.startFrame;
+      float ref = r.endFrame;
+
+      // if end pos is not fixed amd less than lf, make it lf
+      if (r.noEnd) ref = lf;
+
       // map track start and end to screen positions
-      float rx1 = mMiscFnx.map_range<float>((float)r.startFrame, sf, lf,  ix1, ix2);
-      float rx2 = mMiscFnx.map_range<float>((float)r.endFrame,   sf, lf,  ix1, ix2);
+      float rx1 = mMiscFnx.map_range<float>(rsf, sf, lf,  ix1, ix2);
+      float rx2 = mMiscFnx.map_range<float>(ref, sf, lf,  ix1, ix2);
+
 
       // make rectangle for bar
       mwRect<int> bar = mwRect<int>::fromX1Y1X2Y2(rx1, ry1, rx2, ry2);

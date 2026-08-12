@@ -488,7 +488,6 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
 int mwBottomMessage::bmsg_draw(int outline)
 {
    int drawn = 0;
-
    double t0 = al_get_time();
    if (bottom_msg_on)
    {

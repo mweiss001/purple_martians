@@ -172,6 +172,9 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    int y1 = w.rect.y1 + 14;
    int xa = w.rect.x1+4;
    int xb = w.rect.x2-4;
+   int xc = w.rect.XCenter();
+
+
    int d = w.disable_input;
    int c = w.color;
 
@@ -199,5 +202,29 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    if (rt_player_mode) rt_player = mPlayer.active_local_player;
 
    mWidget.togglec(xa, y1, xa+40, 12,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_all_players,  "All Players", 15, 15);
+
+
+
+   int bcol = w.color + 192;
+   int fcol = 15;
+
+   if (mWidget.mButton(0, xa, xc-2,  0,y1,y1+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide -1", d))
+   {
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if ((mGameMoves.arr[x][2] == rt_player) && (mGameMoves.arr[x][0] >= rt_start_frame)) mGameMoves.arr[x][0]--;
+      mGameMoves.gm_sort();
+      rt_start_frame--;
+      refresh();
+   }
+
+   if (mWidget.mButton(0, xc+2, xb,  0,y1,y1+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide +1", d))
+   {
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if ((mGameMoves.arr[x][2] == rt_player) && (mGameMoves.arr[x][0] >= rt_start_frame)) mGameMoves.arr[x][0]++;
+      mGameMoves.gm_sort();
+      rt_start_frame++;
+      refresh();
+   }
+
 
 }

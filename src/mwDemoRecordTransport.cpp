@@ -172,28 +172,31 @@ void mwDemoRecord::draw_transport_controls_seek(mwRect<int> rect, int d)
 
    // get current and last frame
    int f = mLoop.frame_num;
-   int lf = mGmInfo.lastFrame+100;
+//   int lf = mGmInfo.lastFrame+100;
+   int lf = timeline_last_frame+100;
+
+
    // get initial f to determine if this function modifies it
    int initial_f = f;
 
    int s = 1;
-   float padt = (lrect.w-165) / 5;
+   float padt = (lrect.w-180) / 5;
 
    // running x position
    float rx = lrect.x1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "beg" )) f  = 0;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-60" )) f -= 2400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-10" )) f -= 400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "-1s" )) f -= 40;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "-1f" )) f -= 1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "beg"  )) f  = 0;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "-10s" )) f -= 400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "-1s"  )) f -= 40;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "-10f" )) f -= 10;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "-1f"  )) f -= 1;
 
    // running x position
    rx = rrect.x1+1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "+1f" )) f += 1;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "+1s" )) f += 40;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+10" )) f += 400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+60" )) f += 2400;
-   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "end" )) f = lf;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 8,  d, "+1f"  )) f += 1;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 12, d, "+10f" )) f += 10;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 13, d, "+1s"  )) f += 40;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 9,  d, "+10s" )) f += 400;
+   if (bh2(rx, rect.y1, rect.y2, s, padt, 15, d, "end"  )) f = lf;
 
 
    // changed by this function
@@ -203,8 +206,7 @@ void mwDemoRecord::draw_transport_controls_seek(mwRect<int> rect, int d)
       if (f < 0) f = 0;
       if (f > lf) f = lf;
 
-      mLoop.frame_num = f;
-     mDemoMode.seek_to_frame(f, 1);
+      mDemoMode.seek_to_frame(f, 1);
    }
 }
 

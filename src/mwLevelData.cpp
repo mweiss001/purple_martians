@@ -697,7 +697,7 @@ void mwLevel::clear_data(void)
    data_helper(57,  7200,  "Valentine");           // 3:00 demo 2:43
    data_helper(60,  2400,  "Bomb Toss");           // 2:00 demo not done
    data_helper(61,  2400,  "Bomb Toss 2");         // 2:00 demo not done
-   data_helper(62,  12000, "Escape Rocket!");      // 5:00 demo 4:38
+   data_helper(64,  12000, "Escape Rocket!");      // 5:00 demo 4:38
 
    // ---------------------------------------
    // Training Levels

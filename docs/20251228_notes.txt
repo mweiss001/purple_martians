@@ -35475,6 +35475,209 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 added controls and saved with other settings...done
 
 
+- make + and - 10 frame buttons for transport and lose 60s...done
+
+- in this interests of copying from older gm's previous to player move change, make a version that has all this new cool demoRecord stuff, but has the old player move and demos
+done...put that version on the desktop...
+
+
+2026-08-11 05:57:16
+
+show bmsg, does not show when seeking only when playing
+I think it take one frame to add to bmsg, then one frame to show??
+I want to use that as a tool in demo record
+I think the problem is, there are no bitmaps.
+bmsg_bmp2
+
+when seeking I probably have ff on, which supresses adding bmsg?
+why do I need mLoop.ff_state to be on?
+- does not add game events
+
+old....
+when +1f or any +, I really dont need to reload and replay, just ff there...done
+what if I modify this to do different if seeking forward?
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+{
+   // seeking forwards
+   if (mLoop.frame_num < frame)
+   {
+      //printf("seek forwards\n");
+      while (mLoop.frame_num < frame)
+      {
+         mLoop.frame_num++;
+         mGameMoves.proc();
+         mLoop.move_frame();
+      }
+   }
+   // seeking backwards or same frame
+   else
+   {
+      //printf("seek backwards\n");
+      // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
+      mLoop.load_and_setup_level(mLevel.play_level, 4);
+      mLoop.ff_state = 1;
+      mLoop.frame_num = 0;
+      while (mLoop.frame_num < frame)
+      {
+         mLoop.frame_num++;
+         mGameMoves.proc();
+         mLoop.move_frame();
+      }
+      mLoop.ff_state = 0;
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+}
+
+
+
+I can see needing this for rewind, but not for seek...try with it off in seek...
+I think this is what was needed...
+why did I ever have it on?
+
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+{
+   // seeking backwards or same frame, reload level and play forward
+   if (frame <= mLoop.frame_num) mLoop.load_and_setup_level(mLevel.play_level, 4);
+
+   while (mLoop.frame_num < frame)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   if (draw) mDrawSequence.ds_draw(0, 0);
+}
+
+
+
+2026-08-11 06:40:45
+
+- last frame, especially in timeline, gets clamped to what is found in gmInfo
+this can be very annoying when trying to play past the end of the game moves
+find a way to fix it
+
+have a variable in demo record for last frame
+set it when loading or reloading gmfile
+do not set it when just doing gminfo
+make it advance whenever frame number does(max)
+
+   int timeline_last_frame = 0;
+
+I think I have this fixed...
+
+2026-08-11 06:58:00
+
+- can I somehow have the sliding anchor position be different from the current position?
+I could use range tools... that has the ability to specify a different position
+in range tools
+set start range
+ignore end range
+make buttons to shift from start to end of file and also shift range start
+I think I have this done...
+
+
+
+
+2026-08-11 07:44:31
+
+I have blue to top left.
+next player to go top left will be red...fix red from 1034ish...
+
+2026-08-11 12:00:00
+
+now red is the first one to get there!!
+
+I think I should get yellow up there also...
+
+
+45.4 1817 purple switch!!!
+38 enemies left
+
+at that very second I should be ready to go kill cloners
+
+last time odd player moved was around 15s or 700...
+
+gtg back to work...
+
+2026-08-11 13:06:03
+
+
+what was time on last demo?
+2183 54.6 
+I am almost 10s ahead!!!
+
+2026-08-11 18:25:14
+got all odd to the bottom by the exit
+but that fucked up the evens!!
+
+yellow to 920
+
+2026-08-12 03:09:26
+redid up to purple switch, new frame 1821 (old 1817)
+redid and got 1815!!!
+try for even better?? this is a very critical time sensitive thing, everything else is waiting for this switch...
+
+first up on yellow 1723 1719!!
+now purple switch 1808!!!
+Im going to stop there!!!
+
+
+2026-08-12 04:09:00
+2072 all cloners dead
+
+next...
+who gets blue switch?
+blue 2025
+
+now who will go down blue hole?
+
+2026-08-12 06:07:50
+
+I am done!!! 2281 57.0s
+
+now I have 3 left:
+smash
+2 x escape rocket
+
+2026-08-12 06:27:05
+
+I should commit....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

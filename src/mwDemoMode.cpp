@@ -323,13 +323,9 @@ void mwDemoMode::run_single_from_gate(const int lev)
 
 void mwDemoMode::seek_to_frame(const int frame, const int draw)
 {
-   // printf("seek_to_frame - lev:%d\n", mLevel.play_level);
-//   mGameMoves.current_pos = 0;
-   mLoop.load_and_setup_level(mLevel.play_level, 4);
-//   mPlayer.syn[0].active = 1;
-//   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
-   mLoop.ff_state = 1;
-   mLoop.frame_num = 0;
+   // if seeking backwards or same frame, reload level and play forwards
+   if (frame <= mLoop.frame_num) mLoop.load_and_setup_level(mLevel.play_level, 4);
+
    while (mLoop.frame_num < frame)
    {
       mLoop.frame_num++;
@@ -337,7 +333,6 @@ void mwDemoMode::seek_to_frame(const int frame, const int draw)
       mLoop.move_frame();
    }
    if (draw) mDrawSequence.ds_draw(0, 0);
-   mLoop.ff_state = 0;
 }
 
 // this takes care of advancing the frame and drawing

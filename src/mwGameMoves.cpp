@@ -556,9 +556,7 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
       {
          mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became INACTIVE!                              ", p);
          mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became INACTIVE!", p);
-
       }
-
 
       mScreen.add_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);

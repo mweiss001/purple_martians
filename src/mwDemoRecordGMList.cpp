@@ -50,7 +50,7 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
    int p = mPlayer.active_local_player;
 
    // if set, edit this gm_Index after displaying list
-   edit_gmIndex = -1;
+   gm_list_edit_index = -1;
 
 
    // finds the game move with the highest frame number equal or less than f
@@ -109,7 +109,7 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
                mGameMoves.arr[i][3] = nd;
 
                // mark for editing after drawing gm list
-               edit_gmIndex = i;
+               gm_list_edit_index = i;
             }
       }
    }
@@ -122,8 +122,8 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
       for (int x=0; x<mGameMoves.entry_pos; x++)
          if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]--;
       mGameMoves.gm_sort();
-      refresh();
       mLoop.frame_num--;
+      refresh();
    }
 
    if (mWidget.mButton(0, xc+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide +1", d))
@@ -131,8 +131,8 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
       for (int x=0; x<mGameMoves.entry_pos; x++)
          if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]++;
       mGameMoves.gm_sort();
-      refresh();
       mLoop.frame_num++;
+      refresh();
    }
 
    ya +=12;
@@ -150,6 +150,7 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
       mGameMoves.set_flag_for_player_at_frame(f+4, p, PM_COMPMOVE_FIRE, 1);
       mGameMoves.set_flag_for_player_at_frame(f+5, p, PM_COMPMOVE_FIRE, 0);
       mGameMoves.gm_sort();
+      mLoop.frame_num+=4;
       refresh();
    }
 
@@ -429,7 +430,7 @@ void mwDemoRecord::draw_GMList(mwWindow &w)
       ry += line_rect.h + 1;
 
       // edit in place
-      if (gi == edit_gmIndex) edit_gm(gi, x1, ry + line_rect.h + 1);
+      if (gi == gm_list_edit_index) edit_gm(gi, x1, ry + line_rect.h + 1);
 
    } // all lines drawn
 

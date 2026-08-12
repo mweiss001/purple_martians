@@ -55,7 +55,7 @@ void mwDemoRecord::init()
    mWM.mW[6].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[6].drawFunction = [this]() { mDemoRecord.draw_file_details(mWM.mW[6]); };
 
-   mWM.mW[7].init(7, 6, 100, 800, 164, 74, 6, "Range Tools", 1, 1, 14, 1);
+   mWM.mW[7].init(7, 6, 100, 800, 164, 87, 6, "Range Tools", 1, 1, 14, 1);
    mWM.mW[7].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[7].drawFunction = [this]() { mDemoRecord.draw_range_tools(mWM.mW[7]); };
 
@@ -245,9 +245,6 @@ char * mwDemoRecord::gettf(int frame, char* ft)
    return ft;
 }
 
-
-
-
 int mwDemoRecord::load_demo_record(bool get_new)
 {
    // check if  current_loaded_demo_file exists and try to load it
@@ -262,8 +259,11 @@ int mwDemoRecord::load_demo_record(bool get_new)
          if (!mGameMoves.load_gm_file_select()) return 0;
    }
 
+   mLoop.frame_num = 0;
 
-   mLoop.frame_num = 1;
+   timeline_last_frame = mDemoMode.last_frame;
+
+   // printf("timeline_last_frame:%d\n", timeline_last_frame);
 
    refresh();
    set_active_section(0);
@@ -347,6 +347,10 @@ void mwDemoRecord::demo_record()
          if (mLoop.frame_speed < 30) mDisplay.proc_scale_factor_change();
          if (mLoop.frame_speed < 20) mDisplay.proc_scale_factor_change();
 
+
+         if (mLoop.frame_num > timeline_last_frame) timeline_last_frame = mLoop.frame_num;
+
+
          // punch in
          if ((!record) && (record_punch_in_armed))
          {
@@ -357,9 +361,6 @@ void mwDemoRecord::demo_record()
          if (play)
          {
             mLoop.frame_num++;
-
-//            if (mLoop.frame_num > mGmInfo.lastFrame) mGmInfo.lastFrame = mLoop.frame_num;
-
 
             mBitmap.update_animation();
             mPlayer.proc_player_input();

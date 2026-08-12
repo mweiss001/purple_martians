@@ -35,9 +35,7 @@ class mwDemoRecord
 
    void change_player_color_and_name_dialog(int gmInfoIndex);
 
-
    void delete_section(int gmInfo_index);
-
 
    void sh(bool inc_dec, float per);
 
@@ -64,13 +62,13 @@ class mwDemoRecord
    int show_windows_in_play = 1;
    int show_windows_in_rec = 0;
 
+
+
    int gm_list_all = 0;
    int gm_list_mono = 0;
    int gm_list_simple = 0;
-
    int gm_list_start_index = 0;
-
-   int edit_gmIndex = -1;
+   int gm_list_edit_index = -1;
 
 
 
@@ -78,12 +76,9 @@ class mwDemoRecord
    int background_y_justify = 1; //  0-center 1-top 2-bottom
 
 
-
    int rt_start_frame = 0;
    int rt_end_frame = 0;
-
    int rt_all_players = 0;
-
    int rt_player = 0;
    int rt_player_mode = 0;
 
@@ -96,6 +91,8 @@ class mwDemoRecord
    int timeline_enemy_hit_color = 14;
    int timeline_display_time_labels = -4;
    int timeline_show_player_icons = 1;
+
+   int timeline_last_frame = 0;
 
 
 

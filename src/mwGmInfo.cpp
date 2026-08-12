@@ -187,6 +187,7 @@ int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)
 }
 
 
+
 void mwGmInfo::findEnemyHits()
 {
    enemiesShot = 0;
