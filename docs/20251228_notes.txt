@@ -35643,6 +35643,241 @@ smash
 
 I should commit....
 
+64 escape rocket
+N 4:30 10819 c9 e0
+T 3204 c9 e61
+
+When I redo TAS I will get all enemies...probably
+
+
+What is the single player strategy?
+upper left purple area
+green pyramid top the bottom then red area
+then jump with spring over blue to get to next red area
+get coin in red area 
+
+1:50
+
+get coin in blue area
+get 4 green B blocks and key
+finish other green area in top right
+then middle right green area
+then up through yellow door
+
+2:42
+
+get red switch
+get key in red area
+kill worm cloner
+purple switch
+coin under cells
+then go to bomb shaft
+
+3:24
+
+kill all in bomshaft and below
+now all enemies dead
+get all dead coin at bottom
+jump up at rocket and light bomb
+get coin on left of rocket
+now have all 9 coins 9976 4:09
+wait for kids then launch
+
+
+2026-08-12 07:25:53
+
+I played up to about 3:40, but I left 2 cannons alive in the main area....
+
+now back to start of bomb shaft 3:20 enemies 46 and 48 killed!!!
+
+2026-08-12 07:36:28
+
+2026-08-12 10:28:06
+
+complete at 10873 4:30 
+had to wait till 4:-00 for last coin to drop...
+
+try something else...get coin after releasing kids .... easy 420, now do it better
+
+done with 10028 4:10 c8 e0
+
+yay! that is done!
+
+now what the fuck is wrong with little rocket?
+did I break it?
+4:28 10759..done
+
+2026-08-12 12:19:29
+
+now I am finally down to 2...
+
+one big one left
+
+64 escape rocket tas
+T 3204 c9 e61
+
+what is the strategy?
+
+is there a certain order to do things?
+
+get all red keys before going down bomb area
+
+
+purple area around start:
+- get blue key by 4 vinepod
+- that will unlock area above with coin and purple key
+- that will unlock area above with blue and purple key
+- blue key is for green area
+- purple key is for yellow door to top
+
+green area green key unlocks purple switch
+
+after doing purple area, do green area for green key
+
+
+how many to get purple area done fast?
+
+remainder could clean up
+
+
+
+2026-08-13 07:19:57
+
+many hours on 17 TAS and it is looking great!
+last red key 1071
+
+just need to kill 3 mega cannons and finish...
+I want to bring blue or green or red (or all of them!)  to the bottom of the bomb shaft and sneak through asap...
+
+who is the first I can get there?
+
+when does it open? 1871
+
+I think the fastest I can do the level is 3131 1:18...not bad
+
+still need to clean up and kill all enemies in lower right corner
+
+2026-08-14 07:12:18
+it is done!!!
+
+maybe I could make all players do a silly victory jump at the end??
+
+3131 1:18 e8 c9
+
+2026-08-14 07:15:18
+
+now the only one missing is smash!!!!
+and 
+10- Dead Zone normal is missing one coin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
