@@ -35770,6 +35770,26 @@ now the only one missing is smash!!!!
 and 
 10- Dead Zone normal is missing one coin
 
+now done at 3:16 with all coins...
+old was 3:15
+
+
+2026-08-14 07:54:38
+done!!!
+going the lethbridge
+
+
+
+2026-08-15 07:32:59
+I have smash done also
+copied smash from 015 to 115 then made 015 playable and did demo
+I now have all demos working!!
+
+do a commit
+
+
+
+
 
 
 
