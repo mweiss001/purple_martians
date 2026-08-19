@@ -196,7 +196,7 @@ int mwMain::initial_setup()
 
 
 
-   mLevel.setup_data();
+   mLevel.load_data();
    mFont.load_fonts();
    mBitmap.load_tiles();
 

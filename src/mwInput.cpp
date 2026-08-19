@@ -224,7 +224,7 @@ void mwInput::serial_key_check(int key)
 
    if (serial_key_test("devset"))
    {
-      mBottomMessage.bottom_msg_on = 0;
+      mBottomMessage.display_enable = 0;
       mDemoMode.config_autoplay_enabled = 0;
       mLogo.show_splash_screen = 0;
       mSound.sound_on = 0;

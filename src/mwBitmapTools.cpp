@@ -447,6 +447,8 @@ void mwBitmapTools::combine_tile(void)
 // gets block with flags from level
 // used by widget button to get new tile for block manip and block walker
 // now used in tile helper also
+
+
 void mwBitmapTools::select_bitmap_from_level(int &tn)
 {
    int quit = 0;

@@ -27,6 +27,9 @@ class mwLevelEditor
 
    bool pos_valid;
 
+   int last_level_num_edit = 0;
+
+
 
    void get_mouse_position_on_background();
    void process_mouse();

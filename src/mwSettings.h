@@ -75,7 +75,7 @@ class mwSettings
    void page_controls2();
    void page_netgame();
    int page_demo();
-   void page_level_bottom_msg();
+   void page_bottom_msg();
    void page_level_stats();
    void page_transitions();
    void page_viewport();

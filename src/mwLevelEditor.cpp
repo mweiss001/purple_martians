@@ -34,7 +34,6 @@ void mwLevelEditor::init(int level)
    mItem.sort_item(1);
    mInput.initialize();
    init_windows();
-   set_mode(1);
 }
 
 void mwLevelEditor::init_windows()
@@ -188,17 +187,33 @@ void mwLevelEditor::set_mode(int new_mode)
    }
 }
 
+
+
 int mwLevelEditor::loop(int level)
 {
    mLoop.level_editor_running = 1;
    al_show_mouse_cursor(mDisplay.display);
    mEventQueue.reset_fps_timer();
+
+
+   // setup windows and load passed level
    init(level);
+
+   last_level_num_edit = 0;
+
    if (mLoop.autosave_level_editor_state)
    {
-      if (!load_mW()) set_mode(1);
+      if (load_mW())
+      {
+         set_mode(mode);
+         selection.setX1Y1X2Y2(selection.x1, selection.y1, selection.x2, selection.y2);
+      }
    }
-   else set_mode(1);
+
+   // if autosave off, or load fails, or load level != current level
+   if (last_level_num_edit != level) set_mode(1);
+
+
 
    active = 1;
 
@@ -210,12 +225,15 @@ int mwLevelEditor::loop(int level)
       process_keypress();
    }
 
+   last_level_num_edit = mLevel.last_level_loaded;
+
    if (mLoop.autosave_level_editor_state) save_mW();
    mLoop.level_editor_running = 0;
    mLevel.resume_allowed = 0;
    al_hide_mouse_cursor(mDisplay.display);
    return mLevel.last_level_loaded;
 }
+
 
 
 void mwLevelEditor::process_scrolledge(void)
@@ -422,13 +440,11 @@ void mwLevelEditor::get_mouse_position_on_background()
    float mx4 = mx3 + mx2;
    float my4 = my3 + my2;
 
-   if (mx4<0 || mx4>99 || my4<0 || my4>99) pos_valid = false;
+   if (mx4<0 || (int)mx4>99 || my4<0 || (int)my4>99) pos_valid = false;
 
    // put in final variables with limit check
    gx = mMiscFnx.enforce_limit(mx4, 0, 99);
    gy = mMiscFnx.enforce_limit(my4, 0, 99);
-
-
 
    // hx, hy in 0-1999 scale
    // the mouse position past the border width is how far we are into the scaled level background
@@ -558,7 +574,28 @@ void mwLevelEditor::save_mW()
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "wb");
    if (fp)
    {
-      fwrite(&w, sizeof(w), 1, fp);
+      fwrite(&w,                                      sizeof(w),                                      1, fp);
+      fwrite(&last_level_num_edit,                    sizeof(last_level_num_edit),                    1, fp);
+      fwrite(&mode,                                   sizeof(mode),                                   1, fp);
+
+      fwrite(&selection.x1,                           sizeof(selection.x1),                           1, fp);
+      fwrite(&selection.y1,                           sizeof(selection.y1),                           1, fp);
+      fwrite(&selection.x2,                           sizeof(selection.x2),                           1, fp);
+      fwrite(&selection.y2,                           sizeof(selection.y2),                           1, fp);
+
+      fwrite(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
+      fwrite(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
+      fwrite(&mEditorMain.draw_tile_mode,             sizeof(mEditorMain.draw_tile_mode),             1, fp);
+      fwrite(&mEditorMain.show_flag_details,          sizeof(mEditorMain.show_flag_details),          1, fp);
+      fwrite(&mEditorMain.show_non_default_blocks,    sizeof(mEditorMain.show_non_default_blocks),    1, fp);
+      fwrite(&mEditorMain.show_tile_overlays,         sizeof(mEditorMain.show_tile_overlays),         1, fp);
+
+      fwrite(&mObjectViewer.obt,                      sizeof(mObjectViewer.obt),                      1, fp);
+      fwrite(&mObjectViewer.num,                      sizeof(mObjectViewer.num),                      1, fp);
+      fwrite(&mObjectViewer.viewer_lock,              sizeof(mObjectViewer.viewer_lock),              1, fp);
+      fwrite(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
+      fwrite(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
+      fwrite(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
       fclose(fp);
    }
    else printf("error saving levelEditorWindowGeometry.pm\n");
@@ -572,7 +609,30 @@ bool mwLevelEditor::load_mW()
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "rb");
    if (fp)
    {
-      fread(&w, sizeof(w), 1, fp);
+      fread(&w,                                      sizeof(w),                                      1, fp);
+      fread(&last_level_num_edit,                    sizeof(last_level_num_edit),                    1, fp);
+      fread(&mode,                                   sizeof(mode),                                   1, fp);
+
+      fread(&selection.x1,                           sizeof(selection.x1),                           1, fp);
+      fread(&selection.y1,                           sizeof(selection.y1),                           1, fp);
+      fread(&selection.x2,                           sizeof(selection.x2),                           1, fp);
+      fread(&selection.y2,                           sizeof(selection.y2),                           1, fp);
+
+
+      fread(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
+      fread(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
+      fread(&mEditorMain.draw_tile_mode,             sizeof(mEditorMain.draw_tile_mode),             1, fp);
+      fread(&mEditorMain.show_flag_details,          sizeof(mEditorMain.show_flag_details),          1, fp);
+      fread(&mEditorMain.show_non_default_blocks,    sizeof(mEditorMain.show_non_default_blocks),    1, fp);
+      fread(&mEditorMain.show_tile_overlays,         sizeof(mEditorMain.show_tile_overlays),         1, fp);
+      fread(&mObjectViewer.obt,                      sizeof(mObjectViewer.obt),                      1, fp);
+      fread(&mObjectViewer.num,                      sizeof(mObjectViewer.num),                      1, fp);
+      fread(&mObjectViewer.viewer_lock,              sizeof(mObjectViewer.viewer_lock),              1, fp);
+      fread(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
+      fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
+      fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+
+
       fclose(fp);
 
       // copy only these values back to window vector

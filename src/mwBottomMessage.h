@@ -25,8 +25,11 @@ class mwBottomMessage
 
    int filter_event[100];
 
-   int bottom_msg_on;
-   int bottom_msg_timer;
+   int display_enable;
+   int display_timer;
+   int display_timer_reset_val;
+
+
 
    int test_mode_list_created;
 

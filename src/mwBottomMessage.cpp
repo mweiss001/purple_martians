@@ -146,7 +146,7 @@ void mwBottomMessage::initialize(void)
          al_clear_to_color(al_map_rgba(0,0,0,0));
       }
       bmsg_index = 0;
-      bottom_msg_timer = 0;
+      display_timer = 0;
 
       test_mode_list_created = 0;
 
@@ -459,7 +459,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
       if (!custom_drawn) printf(" no bmsg handler for event:%d\n",ev); // not caught by one of the handlers here
       else // add to bmsg bitmap array
       {
-         bottom_msg_timer = 100; // start the timer
+         display_timer = display_timer_reset_val*40; // start the timer
          if (++bmsg_index > BMSG_MAX_LINES-1) bmsg_index = 0;
          al_set_target_bitmap(bmsg_bmp[bmsg_index]);
          al_clear_to_color(al_map_rgba(0, 0, 0, 0));
@@ -489,12 +489,12 @@ int mwBottomMessage::bmsg_draw(int outline)
 {
    int drawn = 0;
    double t0 = al_get_time();
-   if (bottom_msg_on)
+   if (display_enable)
    {
-      bottom_msg_timer = 100; // always draw
-      if (bottom_msg_timer > 0)
+      if (display_timer_reset_val == 0) display_timer = 100; // always draw
+      if (display_timer > 0)
       {
-         bottom_msg_timer--;
+         display_timer--;
          drawn = 1;
 
          int nb = num_lines;  // number of bottom message lines to display (max 20)

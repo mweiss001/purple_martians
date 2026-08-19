@@ -637,10 +637,13 @@ void mwScreen::draw_tile_overlay(int tile, int x, int y)
 
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
-   // double t0 = al_get_time();
+   double t0 = al_get_time();
    //printf("init_level_background\n");
    al_set_target_bitmap(mBitmap.level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_hold_bitmap_drawing(1);
+
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
@@ -654,6 +657,7 @@ void mwScreen::init_level_background(void) // fill level_background with block t
 
          // mark tiles with non-default flags in level editor only
          if ((mLoop.level_editor_running) && (mEditorMain.show_non_default_blocks)) mark_non_default_block(x, y, tile);
+
       }
 
    // draw gates for overworld level
@@ -669,7 +673,9 @@ void mwScreen::init_level_background(void) // fill level_background with block t
       if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
          mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
 
-   // printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
+   al_hold_bitmap_drawing(0);
+
+//   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 
 }
 
@@ -790,7 +796,7 @@ void mwScreen::draw_level_info(void) // used only in menu
       if (mLevel.data[lev].status < 2)
       {
          mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg),        15); y+=9;
-         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(  mLevel.data[lev].tot_purple_coins, msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(  mLevel.data[lev].tot_coins, msg), 15); y+=9;
       }
       else // completed
       {
@@ -800,7 +806,7 @@ void mwScreen::draw_level_info(void) // used only in menu
 
 
          int mpc = mLevel.data[lev].max_coins_collected;
-         int tpc = mLevel.data[lev].tot_purple_coins;
+         int tpc = mLevel.data[lev].tot_coins;
          int pcc = 15;
          if (mpc >= tpc) pcc = 8;
          mItem.draw_line(x1, x2, y, "Purple Coins",   mItem.chrd(mpc, tpc, msg), pcc); y+=9;

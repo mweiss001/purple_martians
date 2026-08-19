@@ -28,12 +28,6 @@ void mwEditSelection::init()
 {
    copy_mode = 0;
    brf_mode = 0;
-
-
-
-
-
-
 }
 
 
@@ -275,13 +269,20 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
          }
       }
 
+
+
    // lifts
+   liftIDTranslations.clear();
    if (mEditorMain.obj_filter[4][1])
       for (b=0; b<NUM_LIFTS; b++) // source, if in selection
          if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
             c = lib++; // destination
             ftLift.copy_lift_from_other_instance(c, mLift, b);
+
+            // save link from old lift number to new
+            liftIDTranslations.push_back({b, c});
+
             for (int s=0; s<ftLift.cur[c].num_steps; s++)  // shift move steps
                if ((ftLift.stp[c][s].type & 31) == 1)
                {
@@ -289,6 +290,26 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
                   ftLift.stp[c][s].y -= y1;
                }
          }
+
+   // change lift refs in items
+   for (int b=0; b<iib; b++)
+      // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
+      if (((ftItem.item[b][0] == PM_ITEM_TYPE_TRIGGR) && (ftItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftItem.item[b][0] == PM_ITEM_TYPE_BLKDMG) && (ftItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+      {
+         // change link to new lift
+         for (auto lit : liftIDTranslations)
+            if (ftItem.item[b][10] == lit.oldLiftNumber) ftItem.item[b][10] = lit.newLiftNumber;
+      }
+
+
+
+
+
+
+
+
+
+
 
    ft_level_header[3] = iib; // num_of_items
 
@@ -345,6 +366,9 @@ void mwEditSelection::do_copy(int qx1, int qy1)
       for (y=0; y<sh; y++)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ftLevel.l[x][y]);
+
+
+
 
 
    // this section is to make any copied pm_event links have new unique pm_events and still linked properly
@@ -414,6 +438,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
 
    // lifts
+   liftIDTranslations.clear();
    if (mEditorMain.obj_filter[4][1])
    {
       for (b=0; b<ft_level_header[5]; b++)
@@ -423,6 +448,10 @@ void mwEditSelection::do_copy(int qx1, int qy1)
          {
             int lim = 0;
             mLift.copy_lift_from_other_instance(l, ftLift, b);
+
+            liftIDTranslations.push_back({b, l});
+
+
             for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
             {
                if ((mLift.stp[l][s].type & 31) == 1) // shift move steps
@@ -441,10 +470,13 @@ void mwEditSelection::do_copy(int qx1, int qy1)
                   }
                }
 
+
+
+
                // do link translations
                if (copy_mode != 2) // do not do any link translation for move, only for copy
                   for (int i=0; i<clt_last; i++) // does this lift step have an entry in the clt table?
-                     if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
+                     if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == s)) // found match
                         mLift.stp[l][s].val = clt[i][4];  // new event
 
             }
@@ -547,14 +579,29 @@ void mwEditSelection::do_copy(int qx1, int qy1)
                }
 
                if (copy_mode != 2) // do not do any link translation for move, only for copy
+               {
+                  // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
+                  if (((mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+                  {
+                     // change link to new lift
+                     for (auto lit : liftIDTranslations)
+                        if (mItem.item[c][10] == lit.oldLiftNumber) mItem.item[c][10] = lit.newLiftNumber;
+                  }
+
+
                   for (int i=0; i<clt_last; i++)                   // does this copy item have an entry in the clt table?
                      if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
-                        {
-                           mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+                     {
+                        mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+                        printf("new item event!!\n");
+                     }
 
-                           printf("new item event!!\n");
 
-                        }
+
+
+               }
+
+
 
                // also adjust secondary locations
                if (mItem.item_secondary67(mItem.item[c][0]))
@@ -686,7 +733,7 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
 {
    int bts = 16;
 
-   bts += mLoop.pct_y;
+//   bts += mLoop.pct_y;
 
    int col = 9;
    char msg[20] = "Copy Selection";

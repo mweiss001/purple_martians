@@ -8,6 +8,18 @@
 #define SEL_SIZE 384800
 
 
+struct liftIDTranslation
+{
+   int oldLiftNumber;
+   int newLiftNumber;
+};
+
+
+
+
+
+
+
 class mwEditSelection
 {
    public:
@@ -28,6 +40,10 @@ class mwEditSelection
    int sh;
 
    void clear_ft_variables();
+
+   std::vector<liftIDTranslation> liftIDTranslations{};
+
+
 
    int load_selection();
    void fill_ft_variables_from_selection(int save_to_disk);

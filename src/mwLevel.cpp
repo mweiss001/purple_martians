@@ -403,7 +403,7 @@ void mwLevel::level_check(void)
    number_of_starts = 0;
 
    // number of purple coins
-   data[lev].tot_purple_coins = 0;
+   data[lev].tot_coins = 0;
 
    // min val for exit enemy lock
    data[lev].min_enemies_left_par = 100;
@@ -411,7 +411,7 @@ void mwLevel::level_check(void)
    for (int i=0; i<500; i++)
    {
       if (mItem.item[i][0] == 5) number_of_starts++;
-      if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[lev].tot_purple_coins++;
+      if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[lev].tot_coins++;
       if ((mItem.item[i][0] == 3) && (mItem.item[i][8] < data[lev].min_enemies_left_par)) data[lev].min_enemies_left_par = mItem.item[i][8];
    }
 

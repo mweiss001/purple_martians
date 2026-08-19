@@ -79,7 +79,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Deaths:%d", mPlayer.syn[p].stat_respawns); y+=8;
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Shots:%d", mPlayer.syn[p].stat_shots_fired); y+=8;
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Enemy Hits:%d", mPlayer.syn[p].stat_enemy_hits); y+=8;
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", mPlayer.syn[p].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins); y+=8;
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", mPlayer.syn[p].stat_purple_coins, mLevel.data[mLevel.play_level].tot_coins); y+=8;
 
 }
 
@@ -1121,7 +1121,7 @@ void mwScreen::draw_top_frame(int p)
       tdx += 88;
 
       // draw purple coins if the level has any
-      int tpc = mLevel.data[mLevel.play_level].tot_purple_coins;
+      int tpc = mLevel.data[mLevel.play_level].tot_coins;
       if (tpc)
       {
          int ct = mGmInfo.countTotalPurpleCoinsCollected();

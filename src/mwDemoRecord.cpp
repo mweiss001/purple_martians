@@ -463,18 +463,14 @@ void mwDemoRecord::save_mWM()
       fwrite(&timeline_show_player_icons,    sizeof(timeline_show_player_icons),    1, fp);
       fwrite(&time_format,                   sizeof(time_format),                   1, fp);
       fwrite(&gm_list_simple,                sizeof(gm_list_simple),                1, fp);
-
       fwrite(&background_x_justify,          sizeof(background_x_justify),          1, fp);
       fwrite(&background_y_justify,          sizeof(background_y_justify),          1, fp);
-
-
       fwrite(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),         1, fp);
-
-
       fclose(fp);
    }
    else printf("error saving demoRecordWindowGeometry.pm\n");
 }
+
 
 
 bool mwDemoRecord::load_mWM()
@@ -496,11 +492,7 @@ bool mwDemoRecord::load_mWM()
       fread(&gm_list_simple,                sizeof(gm_list_simple),                1, fp);
       fread(&background_x_justify,          sizeof(background_x_justify),          1, fp);
       fread(&background_y_justify,          sizeof(background_y_justify),          1, fp);
-
-
       fread(&last_loaded_demo_file,         sizeof(last_loaded_demo_file),         1, fp);
-
-
       fclose(fp);
 
       // copy only these values back to window vector

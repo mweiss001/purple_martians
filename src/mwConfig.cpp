@@ -202,7 +202,8 @@ void mwConfig::save_config(int type)
       asci(LEVEL_EDITOR, mBitmapTools.make_backup_on_save_bitmap);
       asci(LEVEL_EDITOR, mEditorMain.level_editor_quit_confirmation_dialog);
 
-      asci(BMSG, mBottomMessage.bottom_msg_on)
+      asci(BMSG, mBottomMessage.display_enable)
+      asci(BMSG, mBottomMessage.display_timer_reset_val)
       asci(BMSG, mBottomMessage.num_lines)
       ascf(BMSG, mBottomMessage.io)
       ascf(BMSG, mBottomMessage.fo)
@@ -222,14 +223,8 @@ void mwConfig::save_config(int type)
 
       asci(SETTINGS, mSettings.log_group)
 
-
       asci(OVERLAY, mSettings.number_of_debug_overlay_modes);
-
       asci(LEVEL_EDITOR, mLoop.autosave_level_editor_state);
-
-
-
-
 
 
       al_save_config_file("pm.cfg", cfg);
@@ -398,7 +393,8 @@ void mwConfig::load_config(int type)
    agci(DEMO, mScreen.demo_controls_overlay_y, -1)
 
 
-   agci(BMSG, mBottomMessage.bottom_msg_on, 1)
+   agci(BMSG, mBottomMessage.display_enable, 1)
+   agci(BMSG, mBottomMessage.display_timer_reset_val, 3)
    agci(BMSG, mBottomMessage.num_lines, 8)
    agcf(BMSG, mBottomMessage.io, 1.0)
    agcf(BMSG, mBottomMessage.fo, 0.1)

@@ -134,13 +134,12 @@ void mwSql::create_tables()
    execute_sql(sql, db_level_play_stats);
 
 
-
-   /*
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_play_data( \
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_data( \
                level                 INTEGER PRIMARY KEY, \
                level_name            TEXT, \
                status                INT,  \
+               status_color          INT,  \
+               status_text           TEXT, \
                min_respawns          INT,  \
                max_coins_collected   INT,  \
                tot_coins             INT,  \
@@ -159,7 +158,6 @@ void mwSql::create_tables()
    execute_sql(sql, db_level_play_stats);
 
 
-*/
 
 
 
@@ -399,4 +397,10 @@ int mwSql::execute_sql_and_return_2d_vector_int(const char *sql, sqlite3 *db, st
    sqlite3_finalize(stmt);
    return 0;
 }
+
+
+
+
+
+
 

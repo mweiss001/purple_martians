@@ -477,6 +477,33 @@ void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int 
 }
 
 
+void mwWidget::sliderinb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 int &var, float sul, float sll, float sinc, const char *txt)
+{
+   char msg[80];
+   int y2 = y1+bts-2;
+   float sdx = var;
+
+   sprintf(msg, "%s%d", txt, var);
+   draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
+
+   if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
+      al_draw_text(mFont.pr8, mColor.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, msg);
+
+      if (mInput.mouse_b[1][0])
+      {
+         {
+            var = get_slider_position2nb(sul, sll, sinc, q4, x1, y1, x2, y2);
+            sprintf(msg, "%s%d", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
+         }
+      }
+   }
+   if (q6 == 1) y1+=bts;
+}
+
 
 
 
@@ -1120,24 +1147,19 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       }
    }
 
-
-   if (bn == 320) // lift draw block select...
+   if (bn == 320) // lift draw single block select...
    {
-      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
-      sprintf(msg, "Block:%d", tn);
-      if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      sprintf(msg, "Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
    }
 
-   if (bn == 321) // lift draw block select...
+   if (bn == 321) // lift draw start block of 3 select...
    {
-      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
-      sprintf(msg, "Start Block:%d", tn);
-      if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      sprintf(msg, "Start Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
    }
-
-
-
-
 
    if (bn == 411) // DAMAGE Field X Lift Alignment
    {
@@ -1374,7 +1396,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int tn = mLift.cur[num].draw_mode_val1;
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
-
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
       al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
    }
@@ -1384,9 +1405,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       int x = (x2+x1)/2+80;
       int y = (y2+y1)/2-10;
-
       al_draw_filled_rectangle(x-1, y-1, x+61, y+21, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.tile[tn], x, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+0], x+0,  y, 0);
       al_draw_bitmap(mBitmap.tile[tn+1], x+20, y, 0);
       al_draw_bitmap(mBitmap.tile[tn+2], x+40, y, 0);
    }
@@ -2706,18 +2726,6 @@ bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
 {
    //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.Red, 1); // debug show trigger area
@@ -3057,7 +3065,7 @@ bool mwWidget::mTrackInt(int xType, int xa, int xb, int yType, int ya, int yb,
 void mwWidget::mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                           int r, int backgroundType, int frameType, int textType,
                           int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                          int text_just, int &var, float sul, float sll, float sinc, const char *txt)
+                          int text_just, int &var, float sul, float sll, float sinc, const char *txt, bool disable_input)
 {
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
@@ -3126,6 +3134,69 @@ float mwWidget::drawSlider(int x1, int y1, int x2, int y2, int r, int background
    }
    return dsx;
 }
+
+
+
+
+void mwWidget::mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                          int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, bool disable_input)
+{
+
+   if (var == 0) mStepSliderInt(xType, xa, xb, yType, ya, yb,  r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, var, ul, ll, slinc, stinc1, stinc2, txt2, disable_input);
+   else          mStepSliderInt(xType, xa, xb, yType, ya, yb,  r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, var, ul, ll, slinc, stinc1, stinc2, txt, disable_input);
+
+
+}
+
+
+
+
+void mwWidget::mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                          int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, bool disable_input)
+{
+   // running x offset for step buttons
+   int rx = 0;
+
+   if (stinc1)
+   {
+      char msg[100];
+      sprintf(msg, "-%d", stinc1);
+      int bsp = strlen(msg)*8 + 6;
+      if (mButton(1, xa+rx, bsp, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var-=stinc1;
+      sprintf(msg, "+%d", stinc1);
+      if (mButton(2, bsp, xb-rx, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var+=stinc1;
+      rx += bsp+2;
+   }
+
+   if (stinc2)
+   {
+      char msg[100];
+      sprintf(msg, "-%d", stinc2);
+      int bsp = strlen(msg)*8 + 6;
+      if (mButton(1, xa+rx, bsp, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var-=stinc2;
+      sprintf(msg, "+%d", stinc2);
+      if (mButton(2, bsp, xb-rx, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var+=stinc2;
+      rx += bsp+2;
+   }
+
+
+   // do slider in remaining space
+   mSliderInt(xType, xa+rx, xb-rx, yType, ya, yb,   r, backgroundType, frameType, textType,   bcol, fcol, bar_col, tcol, hcol, highlight,   text_just, var, ul, ll, slinc, txt, disable_input);
+
+   // enforce limits
+   if (var < ll) var = ll;
+   if (var > ul) var = ul;
+
+}
+
+
+
+
+
 
 
 

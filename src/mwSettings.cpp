@@ -434,7 +434,7 @@ void mwSettings::settings_pages(int set_page)
       if (current_page == 3)  page_controls2();
       if (current_page == 4)  page_netgame();
       if (current_page == 5)  if (page_demo()) return;
-      if (current_page == 6)  page_level_bottom_msg();
+      if (current_page == 6)  page_bottom_msg();
       if (current_page == 7)  page_level_stats();
       if (current_page == 8)  page_transitions();
       if (current_page == 10) page_viewport();
@@ -457,6 +457,11 @@ void mwSettings::settings_pages(int set_page)
          quit = 1;
       }
    }
+
+   // reset bottom message test list, if created
+   if (mBottomMessage.test_mode_list_created) mBottomMessage.initialize();
+
+
    al_hide_mouse_cursor(mDisplay.display);
    mConfig.save_config();
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
@@ -615,7 +620,7 @@ void mwSettings::page_main(void)
    ya -=2;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
+   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.display_enable, "Show bottom message display", tc, 15);
 
    if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Settings")) current_page = 6;
 
@@ -1056,7 +1061,7 @@ int mwSettings::page_demo(void)
 // ---------------------------------------------------------------
 //  6 - bottom message settings
 // ---------------------------------------------------------------
-void mwSettings::page_level_bottom_msg(void)
+void mwSettings::page_bottom_msg(void)
 {
    int line_spacing = 8;
 //         if (show_advanced) line_spacing = 7;
@@ -1073,7 +1078,9 @@ void mwSettings::page_level_bottom_msg(void)
    int sbs = 8; // space between sections
 
    // make a test list of types of bmsg
-   if (!mBottomMessage.test_mode_list_created) mBottomMessage.create_test_mode_list();
+   if (!mLevel.resume_allowed && !mBottomMessage.test_mode_list_created) mBottomMessage.create_test_mode_list();
+
+
 
    // redraw bottom frame to remove version that we will draw over
    int color = mPlayer.syn[mPlayer.active_local_player].color;
@@ -1081,7 +1088,7 @@ void mwSettings::page_level_bottom_msg(void)
       al_draw_line(BORDER_WIDTH+10, (mDisplay.SCREEN_H-1-x)+0.5f, mDisplay.SCREEN_W-(BORDER_WIDTH+10), (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[color + (x * 16)], 1);
 
 
-   mBottomMessage.bottom_msg_timer = 10;
+   mBottomMessage.display_timer = 10;
    mBottomMessage.bmsg_draw(1);
 
    int reload = 0;
@@ -1101,6 +1108,7 @@ void mwSettings::page_level_bottom_msg(void)
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 1;
 
+      mBottomMessage.display_timer_reset_val = 3;
       mBottomMessage.num_lines = 16;
       mBottomMessage.io = 1.0;
       mBottomMessage.fo = 0.1;
@@ -1118,12 +1126,29 @@ void mwSettings::page_level_bottom_msg(void)
 
    xa = cfp_x1 + 10;
    xb = xa + 200;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom messages", tc, 15);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.display_enable, "Show bottom messages", tc, 15);
+
+   ya+=line_spacing-4;
+   xb = cfp_x2 - 10;
+
+//   mWidget.slider0(xa, ya, xb, bts,  0,0,0,0,  0,14+96,15,15, 0,0,1,0, mBottomMessage.display_timer_reset_val, 10, 0, 1, "Hide after x seconds:", "Always Show");
+
+   mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts,   2, 2, 1, 1,     14+96, 14+96, 15, 15, 15,0, 0,   mBottomMessage.display_timer_reset_val, 10, 0, 1, 1, 4, "Hide after x seconds:", 0);
+   ya+=bts;
+
+
+
+
 
    ya -= 6;
    al_draw_line(cfp_x1+4, bmsf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[tc], 1 ); // draw the sides of the frame first
    al_draw_line(cfp_x2-4, bmsf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[tc], 1 );
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+
+
+
+
 
    // -------------------------
    // line config section
@@ -1132,7 +1157,7 @@ void mwSettings::page_level_bottom_msg(void)
    // give some space and do our own line
    int lc = 10;
    int lcw = lc+96;
-   ya-=line_spacing*2;
+   ya-=line_spacing*2+1;
    ya+=sbs;
 
    int lcf_y1 = ya; // save this for later when we draw frame
@@ -1163,16 +1188,9 @@ void mwSettings::page_level_bottom_msg(void)
 
 
    ya-=4;
-
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
-   float nl = mBottomMessage.num_lines;
-   mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, nl, BMSG_MAX_LINES, 1, 1, "Number of lines:");
-   mBottomMessage.num_lines = (int) nl;
-
-   //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15, 0,0,1,0, mBottomMessage.num_lines, 20, 1, 1, "Number of lines:");
-
-
+   mWidget.sliderinb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.num_lines, BMSG_MAX_LINES, 1, 1, "Number of lines:");
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya-6, line_spacing, lc);
    ya -=4;
@@ -1210,7 +1228,7 @@ void mwSettings::page_level_bottom_msg(void)
    int tic = 11;
    int ticw = tic+96;
 
-   ya-=line_spacing*2;
+   ya-=line_spacing*2+1;
    ya+=sbs;
 
    int ticf_y1 = ya; // save this for later when we draw frame
@@ -1319,7 +1337,7 @@ void mwSettings::page_level_bottom_msg(void)
    // give some space and do our own line
    int ec = 14;
    int ecw = ec+96;
-   ya-=line_spacing*2;
+   ya-=line_spacing*2+1;
    ya+=sbs;
 
    int esf_y1 = ya; // save this for later when we draw frame
@@ -1421,8 +1439,6 @@ void mwSettings::page_level_bottom_msg(void)
    al_draw_line(cfp_x1+4, esf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[ec], 1 ); // draw the sides of the frame first
    al_draw_line(cfp_x2-4, esf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[ec], 1 );
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, ec);
-
-
 
    if (reload)  mBottomMessage.test_mode_list_created = 0; // force reload
 

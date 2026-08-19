@@ -4,102 +4,18 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-I had 3 clients sessions running for almost 10 days.
-One day they all showed 'lost server connection'
-in sessions they all still show as open
-2026-01-25 16:49:18	9 13:12:57	825177	192.168.1.155	e6430	open
-2026-01-25 19:19:14	9 10:43:01	816181	192.168.1.113	4230h	open
-2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
-
-I have been having some problems playing back server games....
-My thoughts:
-they seem to occur when playing with a bunch of fakekey players...
-things to check...
-when starting new level, is health carried over from previous level?
-when do they join, instantly?? when do they joining when playing back?
-changed it so that next level resets player health to 100...
-now I need to test....did one test good...do some more...did a second one... all good
-
-
-2026-03-08 07:03:44
-started new server last night around 11
-lev 16, fakekey many clients
-all gms in timeline show as 2H long, or 1H longer than they should
-DST happened, but does not full explain wtf
-actually the wrong durations are only in timeline, they look fine in gm table
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
+also in demoRecord
+I want to rethink the whole 3 numbers thing
 
-
-in level editor, when loading new level and cancelling, new level is loaded anyway
-don't know if it is possible to fix, I think the visual preview loads the level...
-
-could I make a way of loading the level without overwriting all the structures?
-
-could I double them all?
-
-could I load them into something like ft?
-
-all this time I have been assuming there is only one l100 item enemy list etc...
-there could be an array
-
-- I could use this for loading levels without overwriting the current one
-- I could use it for ft stuff
-
-I already have almost exactly that with states, do I not ??
-
-
-
-
-
-
-
-
-
-
-
-right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
-hurry up and fix it!!!
-I think I will just deploy the test version
-
-bump version 7.24.6161_beta
-make release...
-put same version on server
-
-I think I can kill all on server pmh...
-
-all I really need to do is get the latest version on pmh...i think...
-
-
-
-
-when copying selection with block damage that follows lift, link translation does not set bd link to lift
 
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-Bottom Message does not ever go away. I have 'bottom_msg_timer' for that, but I need to make a control to change it in settings
-
 
 
      
-Try this!!!!!
-Deferred drawing
-al_hold_bitmap_drawing
-
-void al_hold_bitmap_drawing(bool hold)
-
-Enables or disables deferred bitmap drawing.
-This allows for efficient drawing of many bitmaps that share a parent bitmap,
-such as sub-bitmaps from a tilesheet or simply identical bitmaps.
-Drawing bitmaps that do not share a parent is less efficient,
-so it is advisable to stagger bitmap drawing calls such that the parent bitmap
-is the same for large number of those calls.
-While deferred bitmap drawing is enabled, the only functions that can be used are
-the bitmap drawing functions and font drawing functions.
-
-
 
 
 
@@ -110,1376 +26,215 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
----------------------------------------------------------
-I guess I am redoing everything about demoRecord...
----------------------------------------------------------
+widgets
+make setter and slider combo
+make setter with optional number of setter elements
 
-- file and main window hidden with a toggle in top left corner
-this will not be part of windows..done but only for main
-bring back close button for main..done
+use this in many places where I am getting frustrated setting values with slider
 
--I really want a way to optionally make level background not centered 
-what about having it in its own window? with the frame and everything
+for example event trigger number
 
 
--I want a big time format that stays when recording
+what to call it?
+mStepSliderInt
+internally it will call mSliderInt
 
+I am quite happy with it!!!
 
+when using it and replacing normal slider, send bts-1 and after do ya+=bts+1;
 
-options in timeline titlebar:
-- make it look better
 
+where else would it be useful?
 
+I will probably need a float version as well...
 
-- somewhere I want toggleable options about overlays
-- player position and speed
-- enemy number and death start
-- bullet start frame number
 
-- save more options like:
-hide while playing and recording
 
 
 
-GMList
-----------------
 
-- I want the game moves list to look nicer, I use it a lot
-could I hide the gm index optionally? I never used it except for debugging
 
-also do something about the weird scroll jump
-could I force always have current in exact middle
 
 
-- change 'add fire at pos' and pos + 4 to make them overwrite existing game moves if they exist, rather than blindly creating ones
-what do they do now?
-they use gi, the index of the line the mouse is on
 
 
+here is a big one...
 
-
-where will I add buttons?
-
-make a section below title bar
-
-to not mess things up, just adjust the main rect
-
-is this all I need?
-
-
-
-   // set num_lines from window height
-   int num_lines = (w.rect.h-16)/8;
-   // running y
-   int ry = w.rect.y1+13;
-
-
-new:
-   int num_lines = (w.rect.h-16-20)/8;
-   int ry = w.rect.y1+33;
-
-that got me 20 lines!!!
-
-now make some buttons:
-- add gm at current frame (and open for edit?)
-
-that seems to work
-
-now how about copy?
-
-should not the one I just did be called copy
-
-I could use controls from last gm previous to mLoop.frame_num
-
-then copy and insert would be the same
-
-what if there is also a move at the current frame (for this player?)
-
-if there is already a move at he current frame, I should not allow a duplicate
-
-change the button depending on context
-
-no move at current pos  -- Add move at current pos
-move at current pos     -- Copy move to pos + 1
-
-this is done and working great
-
-now how about slide?
-that would be so nice
-move current pos with slide 
-done
-
-now add:
-add fire at current and +4
-
-
-I want to add the move only if it does not exist and modify if it does
-
-should i make a helper function for that
-
-inputs:
--frame
--player
--flag
--add_or_remove 
-
-void set_flag_for_player_at_frame(int f, int p, int flag, bool set_clear)
-
-this works so well!!!
-
-copy/add
-when adding also copy from prev move
-
-I might simplify the add copy stuff...
-
-what if I had a function that would find the prevous game move...or use the one I have
-
-if it find current frame, modify
-if prevous to current frame, we will those values also...
-
-2026-08-06 04:42:46
-
-I think I have this part done:
-copy, add
-add fire, add fire +4
-slide + and -
-
-what did copy to new player do?
-
-
-I would kind of like to make it work again...
-I would use it only at the start???
-to make other players follow this one exactly
-I guess it does not have to be the start, just need to make sure player is on same starting position
-
-I would guess that I want to erase after?
-
-does this seem like something for range tools?
-
-what I really want is to copy a range from a player to another player
-inputs:
-
-source_player
-source_start_frame
-length
-
-destination_player
-destination_start
-
-only copy game move, no actives
-
-I could mark the range in range tools
-
-but I would need a way to mark dest frame (use current)
-how would I mark dest player?
-
-figure it out and do this...
-
-did the simple version from gmlist menu
-
-erases all moves from dest
-copies all moves from src to dest
-to use:
-make the active track the one you want to overwrite
-in gmlist, mouse over the source 'PLAYER_ACTIVE' move, right click and choose copy to source
-
-now how to do this with range in range tools
-select start and end in range tools
-use current pos and player as dest
-
--- still need src player
-
-
-should I add more to range tools? like range player?
-
-or should I make a dialog
-
-
-add rt_player
-
-add rt_player_mode
-0 = specifically set player
-1 = follow active local player
-
-
-2026-08-06 06:24:14
-OK, I now have the range tools done...now add to menu
-'copy range to active player at current pos'
-
-now make it happen!!
-I think it works!!!! awesome
-
-2026-08-06 06:52:47
-now what?
-
-I think there is a bug when adding new section...adds at frame 0..fixed i think
-
-
-I would like to make the columns in gmList optional
+redo the overworld level to rearrange the levels once again
+at the same time, replace flat int arrays saved to disk with database tables....
 
 what do I have now?
 
-gm index [1234]
-frame    [12345]
-type [1]
-player [1]
-data [12]
+   int area_array[100][2];
 
-then text description
-P0 MOVE [LRUDJF]
+   const char* area_names[20] =
+     
+   int area_locks[16];
+   
+   
+   struct level_data data[100];
 
-I think most of the time, I would want a more minimal line like:
-frame   text description
-[12345] P0 MOVE [LRUDJF]
-
-100000 frames = 2500s = 41:40
-
-2026-08-06 07:23:15 commit
-next:
-
-GMList:
-- width
-- no jumping when clicked
-- edit in place
-
-
-edit in place
-
-            int c_x1 = tb_x1+72;
-            int c_x2 = c_x1+48;
-            if ((mInput.mouse_x > c_x1) && (mInput.mouse_x < c_x2))
-            {
-               int cn = (mInput.mouse_x - c_x1) / 8;
-               int cnx = c_x1 + cn*8;
-
-               al_draw_rectangle(cnx, tb_y1, cnx+8, tb_y2, mColor.pc[10], 1);
-
-               if (mInput.mouse_b[1][0])
-               {
-                  while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-                  v ^= (int) pow(2, cn);
-               }
-            }
-
-
-I have this roughly in place
-min width (just frame num and move details) and move only
-edit in place
-no change current with click
-
-needs some fine tuning
-
-make some options like
-simple checkbox
-- shows only moves
-- shows only frame num and move
-- edit in place
-
-2026-08-07 05:31:51
-added simple checkbox
-
-BUG - there is a time when mouse higlight shows two moves..fixed
-- make simple hide anything but 'MOVE'..done
-
-make edit in place coexist with mouse press on line..done
-
-now make gmlist not jump when selecting new move
-just make sure that current move is visible
-try to maintain previous scroll position
-
-add: 
-   int gm_list_start_index = 0;
-
-I think I've got it!!!
-
-So what do I have?
-- bad jump scroll when clicking is fixed
-- simple mode
-- edit in place
-
-
-what do I want to do now?
-
-slide is good but I want to be able to move just one thing
-buttons at top are getting crowded
-
-add tooltips?
-
-
-big new feature:
-show if fire move kills enemy
-
-right now I am not saving that information in gmInfo
-
-I only store the frame number that a player kills or shoots enemy
-
-I would need to also store the frame number of when the shot was fired
-
-then armed with player number and frame the shot was fired, I could match it up to the FIRE game move
-
-so the first thing to do would be to also capture that info...
-while I am at it, I also want to capture the enemy number
-
-should I do this for shot or killed or both?
-
-lets just do shot for now and see how that works
-
-
-I have this struct already in place, but I don't think I am filling it..
-
-
-struct gmPlayerHitEnemy
+struct level_data
 {
-   int frame{};
-   int enemyNum{};
-   bool type{}; // ( 0 = shot  1 = explosion)
-   int indexNum{}; // shotNum or itemNum
-   int shotFiredFrame{};
-   int hitsLeft{}; // 0 - dead
+   char level_name[200];
+
+   int status;
+   int status_color;
+   char status_text[16];
+
+   int min_respawns;
+   int max_coins_collected;
+   int tot_purple_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+
+   int time_worst;
+   int time_average;
+   int time_total;
 };
 
+I already have data converted to table, but I like to keep it in memory for ease of quick lookup
+like when I want to draw all the gates
 
+test to see if I dont need to save the old way...
 
-I would need to make a vector of this struct belonging to player
+do I have a table for that? actually no...
 
-   std::vector<gmPlayerHitEnemy> enemyHits{};
+this could get complex...
+what am I trying to accomplish?
+I have the individual plays stored in a table, but not the tallied version...I keep that in memory
 
+to start with just save and load that data from a database table instead of binary file chunk
 
-I think I need to modify event 43
+this will make things a little more complex to start, but I want to work towards using the database...
 
-I don't really care about the shot index number, but I do care about the enemy hits left...or do I?
-yes, change it...
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_data( \
+               level                 INTEGER PRIMARY KEY, \
+               level_name            TEXT, \
+               status                INT,  \
+               status_color          INT,  \
+               status_text           TEXT, \
 
-Ei[][9]   extra hits to kill
+               min_respawns          INT,  \
+               max_coins_collected   INT,  \
+               tot_coins             INT,  \
+               min_enemies_left      INT,  \
+               min_enemies_left_par  INT,  \
+               max_enemies_killed    INT,  \
+               times_played          INT,  \
+               times_beat            INT,  \
+               times_quit            INT,  \
+               time_par              INT,  \
+               time_best             INT,  \
+               time_best_all_coins   INT,  \
+               time_worst            INT,  \
+               time_average          INT,  \
+               time_total            INT ); ");
+   execute_sql(sql, db_level_play_stats);
 
-but only used for type 2 - cannon
 
-            int hc = 0; // extra hits to kill (by default 0) 
-            if (Ei[e][0] == 2) hc = Ei[e][9];
-           
-            mGameEvent.add(43, 0, 0, p, e, hc, mShot.p[c].active); // event 43 - enemy shot
+2026-08-16 10:11:10
 
-2026-08-07 17:32:34
+this is done...
 
-I have the info collected, now can I display it?
-in the enemyHits vector, if I have a matching p and sf show something beside the move
+now what?
 
-2026-08-07 18:29:08
 
-I now can show hit and kill
+   int area_array[100][2];
 
+   const char* area_names[20] =
+     
+   int area_locks[16];
 
-I think I want to dogfood while testing these new features...
 
-do level 19 TAS
 
-p0 run right
-2nd spawn point 505 or 12.6s
-older 536 or 13.4
+how about a table to replace 
 
-2026-08-07 23:58:04
+   int area_array[100][2];
+   const char* area_names[20] =
 
-3-4 hours for .5s!!!
 
-2026-08-08 01:42:41
+it does not do what I thought
+its just a link of areas and levels
 
-now I am about 20s in
-all 8 players are good.
 
+new:
 
-what should I do first?
-I can have 6 bombs simultaneously!!!
+areas
+name
+index
+x1
+y1
+x2
+y2
+visible
 
-2026-08-08 09:58:26
+message position
 
-back to dogfood!!!
+another table to link levels to areas
 
-one more thing, when edit in place do a refresh
 
+what are my big goals with this?
 
-2026-08-08 19:11:42
-I'm finally done!!
-2709 or 1:07
+currently:
+8 areas with 5 levels each = 40 levels
 
-the original was 2719!! I got 0.25s or 10 frames faster!!
-and it only took 12-16 hours of my time!!!
+1 final level
 
-regular 11024 4:35
-old regular 12977 5:24
+8 training levels
 
+20 TAS levels
 
+I think I biggest overall thing I want is to do is thin the marginal levels....
 
-now it says I have 11 demo's left to fix...
+redid lev055 ancient ruins, now 1:59
+new for all 95: 2:47:52
+redid blocks and lifts on 21 long one
 
-another big one...beginnings
 
-31 - beginnings
-old:
-main 12584 5:14 6e  
-tas 3680 1:32 8P 2e
 
-most of the tas looks good
 
-probabaly diverges 
 
 
-2026-08-09 04:55:28
 
-more things to do to demoRecord:
 
 
 
 
 
 
-- auto save and versioned saving
 
 
-- also show deaths, purple coins in gmlist right hand column
-- player info box to have cleared background
-- auto save and versioned saving
 
 
 
-- can I somehow change the currently active player without changing the current time?
-- why does timeline show the current position tags and bleed over to transport tools
-- make optional all the level screen overlays, show player info etc...
 
 
 
 
-31 - beginnings
-old:
-main 12584 5:14 6e  
-tas 3680 1:32 8P 2e not all coins???
 
 
-make some notes:
-p4 - lt blue
-is the one that kills to top cloner and enemies
-shoots down at 3222
 
-purple switch needs to be switched before that...
 
-who does that?
-p3 blue, with the first bomb...
-bomb lit 2911, do better that 2915
-got 2909!!now 2906!!
 
-purple switch 3208!!! 14 better
 
-now adjust p4 lt blue....14 better
 
-something fucky is going on...
-why does adjusting (sliding p4 affect p3?)
 
-I should investigate this shit....
 
-I have saved when blue gets switch at 3208
 
-now go to lt blue and slide 3197 +
 
-it got weird but then fixed itself?
 
 
-   if (mWidget.mButton(0, x1+2, xc-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide -1", d))
-   {
-      for (int x=0; x<mGameMoves.entry_pos; x++)
-         if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]--;
-      mGameMoves.gm_sort();
-      refresh();
-      mLoop.frame_num--;
-   }
 
-   if (mWidget.mButton(0, xc+2, x2-2,  0,ya,ya+10,  0,  1,3,1,  bcol,fcol,15, 15,0, "slide +1", d))
-   {
-      for (int x=0; x<mGameMoves.entry_pos; x++)
-         if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= f)) mGameMoves.arr[x][0]++;
-      mGameMoves.gm_sort();
-      refresh();
-      mLoop.frame_num++;
-   }
-
-could it be that I am changing mLoop.frame_num manually? I should probaly do a seek...
- 
-
-void mwDemoRecord::refresh()
-{
-   int old_frame_num = mLoop.frame_num;
-   mGmInfo.fill();
-   load_lnk_arr();    // load games moves into link array
-   mDemoMode.seek_to_frame(old_frame_num, 1);
-}
-or just set it before refresh...fixed...
-
-
-back to 31...
-lt blue kills stuff earlier
-blue to flip switch again asap 3242
-blue to kill cannon then go back
-done...
-
-now all that is left is the bottom right area
-- 1 purple coin and a few enemies
-how far back should I go? 2850 or so...
-who will be the second player to get a bomb?
-lets make it p2
-what frame does blue jump
-
-what is the quickest I can get the second bomb?
-2918 lit
-
-I have the 2nd bomb making a great hole!!
-now when can I get third and who will do it?
-p7 3087
-
-got p7 to break all blocks above cloner in one shot!
-
-next 4th bomb...
-
-done !!! 3402 1:25 e1 4c
-
-now it says I have 10 left!!!
-
-do 31 regular
-main 12584 5:14 6e  
-how much can I save?
-first 47s
-I did 4:57 e1
-
-
-2026-08-09 10:31:56
-
-now I have 9 left!!
-
-yellow cake...
-original
-normal 7992 3:19 e0 c2 ...good
-TAS 1802 45s e0 2c
-
-some minor issue with killing the jumpworm cloner
-yellow is supposed to kill cloner 1716 
-green is supposed to kill jumpworm 1752
-
-looks like lt blue is late to get key...1733  1738!!!
-why?
-
-lands on 1450
-
-
-just make yellow and green shoot 5 frame later....done
-
-now 1807 45.2 e0 3c
-
-2026-08-09 10:59:53
-
-now I am down to 8!!!
-
-next big apple!!
-
-16 - Big Apple
-N 9673 4:01 e0 c4
-T 3024 1:15 e0 c4 .. fixed to get last coin...
-
-N needs to be redone from 50s on...done at 11684 4:52 e0 
-
-now I am down to 7!!!
-
-11 Good and Evil
-N 11405 4:45 e8 c2
-T 2082 52s e9 c2..good
-
-N 10831 4:31 e8 c2...done
-
-now I am down to 6!!!
-
-2026-08-09 11:55:30
-
-12 - Bucket of Bad
-N  14839 6:10 e6 4c
-TAS 3549 1:28 e6 4c
-
-
-I might just do the normal one over....
-I'm sure I can do better than 6:10
-
-N 13918 5:47 e8 c4...done
-
-2026-08-09 12:49:04
-omg now 5!!!!
-
-
-I want to figure out player color for gm list
-sometimes player 0 color comes from local machine, only when seeking to frame 0...
-
-
-int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)
-{
-   for (int i=0; i<(int)gmPlayerInfo.size(); i++)
-      if (p == gmPlayerInfo[i].playerNum && frame >= gmPlayerInfo[i].startFrame && frame <= gmPlayerInfo[i].endFrame) return i;
-   return -1;
-}
-
-17 - Little Rocket
-N 12386 5:08 e2 c8 
-T 2710 1:07 e2 c8
-
-new N 5:14 e2 c8 
-newer N 4:56 e2 c8 
-
-2026-08-09 14:06:23
-
-I have 4 left !!!!
-
-1 - little rocket TAS
-2 - final rocket N and TAS
-1 - smash
-
-
-little rocket TAS here I come!
-I think I will need to redo it from scratch...
-
-
-p0 get red switch ASAP....582 on prev...557 this time
-
-what frame does p0 get key? 301
-then what frame does he jump for switch? 524 let go: 539
-524 539 causes 2 flips
-
-524 540 single at 555
-
-
-as soon that happens
-p2 go get red key
-
-but before that, all other players are trapped in rocket and should be killing as much as possible
-
-
-2026-08-09 15:00:25
-
-Im starting to fade...i know its only 3:00 but I've been at this for like 10 hours already...
-
-
-
-I want to try an experiment....
-move the tas folder and test...
-
-I have discovered
-1- Dead Zone normal is missing one coin
-all tas seem fine except for the 2 I am working on
-
-other players kill what you can in the rocket
-
-
-2026-08-09 17:24:45
-
-make p2 join others at bottom on rocket
-
-at 600 15s all even players are below rocket
-
-2026-08-09 17:40:14
-now bring p7 up with his buddies
-
-have them all go through the instant the blocks open
-
-2026-08-09 18:07:01
-at 16.0s or 640
--all odd players are at left base of rocket
--all even players are at right base of rocket
--no enemies alive in rocket
-
-next...
-
-get red key ASAP
-
-2026-08-10 07:34:05
-769 I have 4 odd players descendig and killing all as they go....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-make dedicated button for 'add game move at current pos'...I use it a lot
-also copy game move
-copy game move to game move+1
-add jump at current pos
-
-
-test the 'copy data to another player'
-
-
-
-can I edit game moves in place
-
-
-
-
-mark player shots and if they ever eventually kill enemy
-optionally mark fire held sections
-flag if there are 2 game moves with the same frame and player
 
 
 
@@ -1505,23 +260,14 @@ flag if there are 2 game moves with the same frame and player
 tiles and tilesets
 --------------------------------------------------
 
-when choosing tiles for lift 3 tile draw, select from something other than level
 
 in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
 
 
-
-
-
-
-
-
-
-
-
-
 when lift is huge in level editor, can't see or edit anything below it...
 - have a disable draw lifts control??
+
+could I change the filters to have edit, draw, copy etc
 
 
 
@@ -1540,10 +286,6 @@ I need some sub areas:
 
 
 
-
-
-
-
 what if i had a mode where player could control movement of lift with direction key?
 
 
@@ -1556,17 +298,10 @@ add to settings:
 
 
 
-
-
-
-
 Widgets
 ---------------
 make setter and slider combo
-
 make setter with optional number of setter elements
-
-
 
 
 
@@ -1579,32 +314,6 @@ Tile helper
 -----------
 
 make more presets...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 help screens
@@ -1708,6 +417,78 @@ what if I get the settings.pm file from the server
 edit it and send it back
 how big is it? settings.pm is 8K
 why am i scared of 8K? I do server client file transfer all the time
+
+
+
+
+
+
+
+
+in level editor, when loading new level and cancelling, new level is loaded anyway
+don't know if it is possible to fix, I think the visual preview loads the level...
+
+could I make a way of loading the level without overwriting all the structures?
+
+could I double them all?
+
+could I load them into something like ft?
+
+all this time I have been assuming there is only one l100 item enemy list etc...
+there could be an array
+
+- I could use this for loading levels without overwriting the current one
+- I could use it for ft stuff
+
+I already have almost exactly that with states, do I not ??
+
+
+
+I had 3 clients sessions running for almost 10 days.
+One day they all showed 'lost server connection'
+in sessions they all still show as open
+2026-01-25 16:49:18	9 13:12:57	825177	192.168.1.155	e6430	open
+2026-01-25 19:19:14	9 10:43:01	816181	192.168.1.113	4230h	open
+2026-01-28 04:59:06	7 01:03:09	608589	192.168.1.153	asp3	open
+
+I have been having some problems playing back server games....
+My thoughts:
+they seem to occur when playing with a bunch of fakekey players...
+things to check...
+when starting new level, is health carried over from previous level?
+when do they join, instantly?? when do they joining when playing back?
+changed it so that next level resets player health to 100...
+now I need to test....did one test good...do some more...did a second one... all good
+
+
+2026-03-08 07:03:44
+started new server last night around 11
+lev 16, fakekey many clients
+all gms in timeline show as 2H long, or 1H longer than they should
+DST happened, but does not full explain wtf
+actually the wrong durations are only in timeline, they look fine in gm table
+WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
+
+
+
+
+
+right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
+hurry up and fix it!!!
+I think I will just deploy the test version
+
+bump version 7.24.6161_beta
+make release...
+put same version on server
+
+I think I can kill all on server pmh...
+
+all I really need to do is get the latest version on pmh...i think...
+
+
+
+
+
 
 
 
@@ -2498,4 +1279,27 @@ from this pop-up menu allow a very limited set of things...
 
 
 
+
+demoRecord
+-------------------
+
+more things to do to demoRecord:
+
+- auto save and versioned saving
+
+- somewhere I want toggleable options about overlays
+- player position and speed
+- enemy number and death start
+- bullet start frame number
+also player info box to have cleared background
+
+gmList
+- also show deaths, purple coins in gmlist right hand column
+- optionally mark fire held sections
+- flag if there are 2 identical game moves
+
+- can I somehow change the currently active player without changing the current time?
+- why does timeline show the current position tags and bleed over to transport tools?
+
+these are not important...I am done with demoRecord!!
 

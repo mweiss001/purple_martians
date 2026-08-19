@@ -108,7 +108,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       tally[0][12] += data[lev].times_quit;
       tally[0][6]  += data[lev].min_respawns;
       tally[0][7]  += data[lev].max_enemies_killed;
-      tally[0][4]  += data[lev].tot_purple_coins;
+      tally[0][4]  += data[lev].tot_coins;
       tally[0][5]  += data[lev].max_coins_collected;
       tally[0][8]  += data[lev].time_par;
       tally[0][9]  += data[lev].time_best;
@@ -157,7 +157,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
          {
             int pc_col = 15;
             if (status == 3) pc_col = 8;
-            al_draw_textf(mFont.pr8, mColor.pc[pc_col], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", data[lev].max_coins_collected, data[lev].tot_purple_coins);
+            al_draw_textf(mFont.pr8, mColor.pc[pc_col], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", data[lev].max_coins_collected, data[lev].tot_coins);
          }
       }
       x += width + 8;

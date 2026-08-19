@@ -14,7 +14,7 @@ struct level_data
 
    int min_respawns;
    int max_coins_collected;
-   int tot_purple_coins;
+   int tot_coins;
    int min_enemies_left;
    int min_enemies_left_par;
    int max_enemies_killed;
@@ -113,9 +113,9 @@ class mwLevel
    void unlock_all_level_in_area(int area);
 
 
-   int get_level_status(int level, int &status_color, char * status_text);
+//   int get_level_status(int level, int &status_color, char * status_text);
 
-
+   void set_status_text_and_color(int status);
 
 
    void reset_level_data();
@@ -135,10 +135,18 @@ class mwLevel
 
    void data_helper(int i, int time_par, const char *name);
 
+   void set_level_names_and_par_time();
+
+
    void clear_data();
    void load_data();
    void save_data();
-   void setup_data();
+
+   void save_level_data_to_db();
+   void load_level_data_from_db();
+
+
+
 
    void dump_level_data();
 

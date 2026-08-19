@@ -40,10 +40,12 @@ class mwWidget
 
    float get_slider_position2nb(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2);
 
-
-
    void sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt);
+
+   void sliderinb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 int &var, float sul, float sll, float sinc, const char *txt);
+
 
 
 
@@ -133,9 +135,8 @@ class mwWidget
 
 
    void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
-                   int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol,
-                   int highlight,
-                   int text_just, int &var, float sul, float sll, float sinc, const char *txt);
+                   int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, bool disable_input);
 
 
 
@@ -156,10 +157,27 @@ class mwWidget
    bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
 
 
+
+
    void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int inc, const char *txt);
+
+
+
+   void mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, bool disable_input);
+
+   void mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, bool disable_input);
+
+
+
 
 
 

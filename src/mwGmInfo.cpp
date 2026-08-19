@@ -100,8 +100,13 @@ void mwGmInfo::fill()
 void mwGmInfo::add()
 {
    char sql[500];
+
+
    sprintf(sql, "INSERT INTO play_data (level,                          time,           completed, num_players,        player_respawns,         enemies_killed,     enemies_left,        coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);" ,
                                         mLevel.play_level, mGmInfo.lastFrame,   mGmInfo.completed,           0,   mGmInfo.playerDeaths,  mGmInfo.enemiesKilled, mEnemy.num_enemy, mGmInfo.coinsCollected);
+
+   printf("sql:%s \n", sql);
+
    mSql.execute_sql(sql, mSql.db_level_play_stats);
 
    mLevel.calc_level_stats(mLevel.play_level);

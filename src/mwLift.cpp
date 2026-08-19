@@ -12,6 +12,7 @@
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
+#include "mwItem.h"
 #include "mwLevelEditor.h"
 #include "mwMenu.h"
 #include "mwLoop.h"
@@ -317,6 +318,15 @@ void mwLift::erase_lift(int lift)
 {
    for (int l=lift; l<NUM_LIFTS-1; l++) // slide down to close hole in array
    {
+
+
+      // check if lift number is referenced in bd or trigger
+      for (int i=0; i<500; i++)
+         if (((mItem.item[i][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[i][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+            if (mItem.item[i][10] == l+1) mItem.item[i][10] = l; // change link to new lift
+
+
+
       cur[l] = cur[l+1];
       for (int s=0; s<40; s++)
          stp[l][s] = stp[l+1][s];
@@ -699,12 +709,11 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    int c2 = 14;
    int c3 = 15;
 
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",            "Hide Lift",            c3, c3+dim, c2, c2+dim);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF", "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ", "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
-
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",             "Hide Lift",            c3, c3+dim, c2, c2+dim);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF",  "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ",  "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ",  "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",       "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
 
 
@@ -712,25 +721,38 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    switch (stp[l][s].type & 31)
    {
       case 1: // move and resize
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 1000, 1, 1, "Speed:");
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].w,   1600, 20, 1, "Width:");
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
+      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 1000, 1, 1, "Speed:");
+      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].w,   1600, 20, 1, "Width:");
+      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
+
+
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].x,   1600, 1, 20, 1, 10, "X:",      d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].y,   1600, 1, 20, 1, 10, "Y:",      d); ya+=bts+1;
+
       break;
       case 2: // wait time
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
+         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 2000, 1, 1,  1, 10, "Timer:",  d); ya+=bts+1;
+
       break;
       case 3: // wait prox
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
+         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 200, 1, 1,  1, 10, "Distance:",  d); ya+=bts+1;
       break;
       case 4: // end step
          mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
       break;
       case 5: // wait trigger
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
-     if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
+         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  d); ya+=bts+1;
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
       break;
       case 6: // send trigger
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
+         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  d); ya+=bts+1;
       break;
    }
 
