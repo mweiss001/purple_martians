@@ -22,6 +22,7 @@ void mwWindowManager::cycle_windows(int draw_only)
    for (int a=0; a<num_windows; a++)
       if ((mW[a].active) && (mW[a].layer > max_layer)) max_layer = mW[a].layer;
 
+
    // cycle layers from bottom up
    for (int b = max_layer; b>=0; b--)
    {

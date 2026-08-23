@@ -325,6 +325,19 @@ void mwGlobalLevelTool::execute(void)
 
 
 
+      // for (int y=0; y<500; y++)
+      //    if (mItem.item[y][0] == 5)
+      //    {
+      //       if (mItem.item[y][6] == 0)  printf("l:%d \n", le[x]);
+      //    }
+/*
+      if (var == 0) sprintf(msg, "Start Mode:Default");
+      if (var == 1) sprintf(msg, "Team Start");
+      if (var == 2) sprintf(msg, "Checkpoint Common");
+      if (var == 3) sprintf(msg, "Checkpoint Individual");
+*/
+
+
       if (0)
       {
          mLevel.save_level(le[x]);

@@ -2,7 +2,6 @@
 #ifndef MWRECT_H
 #define MWRECT_H
 
-
 template <typename T>
 class mwRect
 {
@@ -184,10 +183,17 @@ public:
 
 
 
-   void set_clipping_rectangle()
+   void set_clipping_rectangle(int display_transform_double = 1)
    {
-      al_set_clipping_rectangle(x1, y1, w, h);
+//      al_set_clipping_rectangle(x1, y1, w, h);
+      al_set_clipping_rectangle(x1 * display_transform_double, y1 * display_transform_double, w * display_transform_double, h * display_transform_double);
+
    }
+
+
+
+
+
 
    void print()
    {

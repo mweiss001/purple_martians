@@ -82,7 +82,7 @@ void mwWindow::check_offscreen()
    if (change) set_pos(rect.x1, rect.y1 );
 }
 
-void mwWindow::process_mouse(void)
+void mwWindow::process_mouse()
 {
    if (mInput.mouse_b[1][0])
    {
@@ -149,7 +149,6 @@ void mwWindow::draw(int draw_only)
    // in these cases, force disable
    if (moving) disable_input = 1;
    if (draw_only) disable_input = 1;
-
 
    if (draw_mode == 1)
    {

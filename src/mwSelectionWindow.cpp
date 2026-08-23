@@ -20,9 +20,6 @@
 mwSelectionWindow mSelectionWindow;
 
 
-
-
-
 void mwSelectionWindow::init()
 {
    block_on = 1;

@@ -614,7 +614,7 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(12,  16800, "Bucket of Bad");       // 7:00 demo 6:10
    data_helper(13,  14400, "Falling Arrows");      // 6:00 demo 4:41
    data_helper(14,  600,   "Block Puzzle");        // 0:15 demo 0:08.8
-   data_helper(15,  1800,  "Smash");               // 0:45 demo 0:40.0
+   data_helper(15,  1800,  "Smash");               // 0:45 demo 0:34.1
    data_helper(16,  14400, "Big Apple");           // 6:00 demo 4:01
    data_helper(17,  16800, "Little Rocket");       // 7:00 demo 5:08
    data_helper(18,  12000, "Incinerator");         // 5:00 demo 4:04

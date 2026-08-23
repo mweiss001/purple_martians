@@ -15,6 +15,8 @@ class mwFileIterator
 
    ALLEGRO_FS_ENTRY *filenames[1000] = { nullptr };
 
+   std::vector<ALLEGRO_FS_ENTRY*> files;
+
 
    int num_filenames;
 };

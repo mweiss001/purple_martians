@@ -637,7 +637,7 @@ void mwScreen::draw_tile_overlay(int tile, int x, int y)
 
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
-   double t0 = al_get_time();
+   //double t0 = al_get_time();
    //printf("init_level_background\n");
    al_set_target_bitmap(mBitmap.level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -656,9 +656,19 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          if ((tile & PM_BTILE_SHOW_OVERLAY) || ((mLoop.level_editor_running) && (mEditorMain.show_tile_overlays))) draw_tile_overlay(tile, x, y);
 
          // mark tiles with non-default flags in level editor only
-         if ((mLoop.level_editor_running) && (mEditorMain.show_non_default_blocks)) mark_non_default_block(x, y, tile);
-
+         // if ((mLoop.level_editor_running) && (mEditorMain.show_non_default_blocks)) mark_non_default_block(x, y, tile);
       }
+   al_hold_bitmap_drawing(0);
+
+
+   // mark tiles with non-default flags in level editor only
+   if ((mLoop.level_editor_running) && (mEditorMain.show_non_default_blocks))
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+             mark_non_default_block(x, y, mLevel.l[x][y]);
+
+
+
 
    // draw gates for overworld level
    if (mLevel.last_level_loaded == 1)
@@ -673,7 +683,11 @@ void mwScreen::init_level_background(void) // fill level_background with block t
       if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
          mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
 
-   al_hold_bitmap_drawing(0);
+
+
+
+
+
 
 //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 

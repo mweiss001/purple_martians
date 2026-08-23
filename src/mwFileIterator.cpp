@@ -13,13 +13,23 @@ mwFileIterator::mwFileIterator()
 
 void mwFileIterator::initialize(void)
 {
-   mFileIterator.num_filenames = 0;
+   num_filenames = 0;
+
+   files.clear();
+
+
 }
 
 int add_file(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
+   // why do I need to create a new one? al_create_fs_entry(al_get_fs_entry_name(fs))
+
+
+   mFileIterator.files.push_back(al_create_fs_entry(al_get_fs_entry_name(fs)));
+
    if (mFileIterator.num_filenames > 999) return 0; // only get 1000 max
    mFileIterator.filenames[mFileIterator.num_filenames++] = al_create_fs_entry(al_get_fs_entry_name(fs));
+
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
@@ -61,7 +71,7 @@ int mwFileIterator::get_most_recent(const char* fname)
 
 char* mwFileIterator::get_most_recent_fname(const char* fname, char* tmp)
 {
-   int index = mwFileIterator::get_most_recent(fname);
+   int index = get_most_recent(fname);
    if (index > -1) sprintf(tmp, "%s", al_get_fs_entry_name(filenames[index]));
    else sprintf(tmp, " ");
    return tmp;

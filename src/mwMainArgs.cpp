@@ -19,6 +19,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
+#include "mwLoadSelectionDialog.h"
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwLevelEditor.h"
@@ -174,9 +175,6 @@ void mwMain::copy_files_to_clients(int type)
 
 void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
-
-
-
 
 
 
@@ -568,7 +566,9 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 void mwMain::temp_test(void)
 {
 
-   printf("test!!!!\n");
+//   printf("test!!!!\n");
+
+//   mLoadSelectionDialog.run();
 
 
    /*

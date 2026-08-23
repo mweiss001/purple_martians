@@ -9,6 +9,7 @@
 #include "mwEditSelection.h"
 #include "mwEnemy.h"
 #include "mwEventQueue.h"
+#include "mwLoadSelectionDialog.h"
 #include "mwFont.h"
 #include "mwGroupEdit.h"
 #include "mwInput.h"
@@ -120,6 +121,10 @@ void mwLevelEditor::init_windows()
    mWM.mW[9].set_title("Tile Helper");
    mWM.mW[9].drawFunction = [this]() { mTileHelper.draw(mWM.mW[9].rect, mWM.mW[9].disable_input, mWM.mW[9].have_focus); };
    mWM.mW[9].redrawCallback = []() { mLevelEditor.redraw_callback(); };
+
+
+
+
 }
 
 void mwLevelEditor::set_mode(int new_mode)
@@ -191,6 +196,14 @@ void mwLevelEditor::set_mode(int new_mode)
 
 int mwLevelEditor::loop(int level)
 {
+
+//   mFileSelect.run();
+
+
+   mSelectionWindow.init(); // needs to be called after load sprit
+
+
+
    mLoop.level_editor_running = 1;
    al_show_mouse_cursor(mDisplay.display);
    mEventQueue.reset_fps_timer();

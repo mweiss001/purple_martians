@@ -7,17 +7,13 @@ BUGS!!
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
 also in demoRecord
 I want to rethink the whole 3 numbers thing
-
+how about only 2 numbers when only one player?
+or maybe all the time
 
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
-     
-
-
 
 
 
@@ -26,31 +22,21 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-widgets
-make setter and slider combo
-make setter with optional number of setter elements
-
-use this in many places where I am getting frustrated setting values with slider
-
-for example event trigger number
-
-
-what to call it?
-mStepSliderInt
-internally it will call mSliderInt
-
-I am quite happy with it!!!
-
-when using it and replacing normal slider, send bts-1 and after do ya+=bts+1;
-
-
-where else would it be useful?
-
-I will probably need a float version as well...
 
 
 
+make tile draw mode show in all modes, put it on the top tool bar
+in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
 
+
+when lift is huge in level editor, can't see or edit anything below it...
+- have a disable draw lifts control??
+
+could I change the filters to have edit, draw, copy etc?
+
+
+replace more old old slider with new mStepSliderInt
+will probaly need a float version also... 
 
 
 
@@ -261,17 +247,6 @@ tiles and tilesets
 --------------------------------------------------
 
 
-in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
-
-
-when lift is huge in level editor, can't see or edit anything below it...
-- have a disable draw lifts control??
-
-could I change the filters to have edit, draw, copy etc
-
-
-
-
 I want to make my own custom file dialogs
 
 especially for load, I want to see what I am loading, visually
@@ -285,23 +260,21 @@ I need some sub areas:
 - button to load, save, etc
 
 
-
 what if i had a mode where player could control movement of lift with direction key?
 
 
+
 add to settings:
-- prompt to save when quitting level editor
-- make backup when saving level
-- make backup when saving tilemaps
-- show level numbers in stats
+- prompt to save when quitting level editor..done
+- make backup when saving level..done
+- make backup when saving tilemaps..done
+- show level numbers in stats..done
 - debug keyboard shortcuts
 
 
 
 Widgets
 ---------------
-make setter and slider combo
-make setter with optional number of setter elements
 
 
 

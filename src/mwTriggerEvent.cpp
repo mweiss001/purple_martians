@@ -36,6 +36,7 @@ void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, in
 {
    if (type == 2) // item
    {
+      if (mItem.item[v1][0] == 5)  al_draw_textf(mFont.pr8, mColor.pc[5],  x, y, 0, "ev:%2d - item:%3d [st] ", ev, v1);
       if (mItem.item[v1][0] == 6)  al_draw_textf(mFont.pr8, mColor.pc[7],  x, y, 0, "ev:%2d - item:%3d [orb] ", ev, v1);
       if (mItem.item[v1][0] == 9)  al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "ev:%2d - item:%3d [trg] ", ev, v1);
       if (mItem.item[v1][0] == 10) al_draw_textf(mFont.pr8, mColor.pc[11], x, y, 0, "ev:%2d - item:%3d [msg] ", ev, v1);
@@ -95,6 +96,9 @@ void mwTriggerEvent::show_all_events(void)
          if (mItem.item[i][15]) show_event_line(x, y, mItem.item[i][15], 2, i, 4); // t2 o/p
 
       }
+
+      if ((mItem.item[i][0] == 5 ) && (mItem.item[i][9])) show_event_line(x, y, mItem.item[i][9], 2, i, 0); // start
+
       if ((mItem.item[i][0] == 10) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // message
       if ((mItem.item[i][0] == 16) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // block manip
       if ((mItem.item[i][0] == 17) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // block damage
@@ -176,6 +180,8 @@ int mwTriggerEvent::is_pm_event_used(int ev)
          if (mItem.item[i][15] == ev) return 1;
       }
 
+
+      if ((mItem.item[i][0] == 5 ) && (mItem.item[i][9] == ev)) return 1; // start
       if ((mItem.item[i][0] == 10) && (mItem.item[i][1] == ev)) return 1; // message
       if ((mItem.item[i][0] == 16) && (mItem.item[i][1] == ev)) return 1; // bm
       if ((mItem.item[i][0] == 17) && (mItem.item[i][1] == ev)) return 1; // bd
@@ -313,6 +319,17 @@ void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
          eva[evan][1] = mItem.item[i][5]+10;
          evan++;
       }
+
+      // start
+      if ((mItem.item[i][0] == 5) && (mItem.item[i][9] == ev))
+      {
+         eva[evan][0] = mItem.item[i][4]+10;
+         eva[evan][1] = mItem.item[i][5]+10;
+         evan++;
+      }
+
+
+
    }
 
    for (int e=0; e<100; e++)
@@ -380,6 +397,17 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
          for (int i2=0; i2<evan; i2++)
             al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
       }
+
+      if (itype == 5) // start
+      {
+         ev = mItem.item[i][9];
+         if (ev > 0) find_event_txrs_for_event(ev, evan, eva);
+         for (int i2=0; i2<evan; i2++)
+            al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
+
+      }
+
+
       if ((itype == 10) || (itype == 16) || (itype == 17) || (itype == 19))  // message, block manip, block damage, hider
       {
          ev = mItem.item[i][1];
@@ -741,6 +769,9 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
    vinepod, cloner
    lifts
 
+   // need to add start...
+
+
    prompts for a trigger sender
    finds unused event number
    sets that in both sender and receiver
@@ -768,15 +799,23 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
             if (timer_num == 2) rx_event_index = 14; // timer 2
          }
 
+         if (rx_type == 5) rx_event_index = 9; // start
+
+
+
          // set event num in receiver
          mItem.item[obj_num][rx_event_index] = ev;
 
-         // does receiver need a toogle or regular sender?
+         // does receiver need a toggle or regular sender? ( // single event or continuous )
+
          int tog = 0;
          int timer_mode = obj_ext2;
          if ((rx_type == 16) && (mItem.item[obj_num][3] == 3))  tog = 1; // block manip mode 3 - toggle blocks
          if ((rx_type == 17) && (mItem.item[obj_num][11] == 1)) tog = 1; // block damage mode 1 - toggle damage
          if ((rx_type == 13) && (timer_mode == 1))              tog = 1; // timer mode 1 - free run after trigger
+
+         if (rx_type == 5) tog = 1; // start
+
 
          // set event num in sender
          set_event_num_in_sender(ti_obj_type, ti_num, ti_obj_ext, tog, ev);

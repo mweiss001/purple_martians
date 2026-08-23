@@ -37,6 +37,8 @@ void mwDemoRecord::init()
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
 
+
+
    mWM.mW[3].init(3, 2, 500, 100, 320, 58, 8, "Transport Controls", 1, 1, 12, 1);
    mWM.mW[3].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
@@ -419,6 +421,7 @@ void mwDemoRecord::demo_record()
    mLoop.quit_action = 1; // menu
 
 }
+
 
 void mwDemoRecord::redraw_callback()
 {

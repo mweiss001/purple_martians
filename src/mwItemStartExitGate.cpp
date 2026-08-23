@@ -18,11 +18,46 @@
 #include "mwDisplay.h"
 #include "mwLevelIcons.h"
 #include "mwNetgame.h"
+#include "mwTriggerEvent.h"
 
-
+/*
 // -----------------------------------------------------------------------
 // Start
 // -----------------------------------------------------------------------
+
+item[][0]  = 5 - Start
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+item[][4]  = x pos
+item[][5]  = y pos
+
+item[][6] mode
+item[][7] start index
+item[][8] no backsies
+
+item[][9] trigger event number
+
+
+
+
+*/
+
+
+void mwItem::proc_start(int i)
+{
+   int et = item[i][9];                 // number of pm_event trigger we are looking for
+   int trig = mTriggerEvent.event[et];  // is the trigger event set?
+   if (et == 0) trig = 0;               // if event is zero, ignore
+
+   if (trig) proc_start_collision(0, i); // force player 0
+
+
+
+}
+
+
+
 
 int mwItem::draw_start(int i, int x, int y, int shape)
 {

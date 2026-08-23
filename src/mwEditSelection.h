@@ -15,16 +15,17 @@ struct liftIDTranslation
 };
 
 
-
-
-
+struct itemIDTranslation
+{
+   int oldItemNumber;
+   int newItemNumber;
+};
 
 
 class mwEditSelection
 {
    public:
    mwEditSelection();
-
 
    void init();
    int ft_level_header[20];
@@ -36,16 +37,21 @@ class mwEditSelection
 
    int copy_mode;
    int brf_mode;
-   int sw;
-   int sh;
+//   int sw;
+//   int sh;
 
    void clear_ft_variables();
 
    std::vector<liftIDTranslation> liftIDTranslations{};
 
+   std::vector<itemIDTranslation> itemIDTranslations{};
 
 
-   int load_selection();
+
+   int load_selection(const char* filename);
+
+   int load_selection_prompt();
+
    void fill_ft_variables_from_selection(int save_to_disk);
    void sel_to_ft(char * b);
    void ft_to_sel(char * b);

@@ -45,6 +45,11 @@ class mwItem
    void proc_start_collision(int p, int i);
    void set_player_start_pos(int p);
 
+   void proc_start(int i);
+
+
+
+
    int draw_exit(int i, int x, int y, int shape);
    void proc_exit_collision(int p, int i);
 
@@ -259,6 +264,12 @@ item[][12] matching keyed blocks only
 item[][6] mode
 item[][7] start index
 item[][8] no backsies
+
+
+
+
+
+
 
 
 

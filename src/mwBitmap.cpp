@@ -13,6 +13,7 @@
 #include "mwLoop.h"
 #include "mwHelp.h"
 #include "mwLevelIcons.h"
+#include "mwSelectionWindow.h"
 
 
 mwBitmap mBitmap;
@@ -144,7 +145,6 @@ int mwBitmap::load_tiles()
          }
    }
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
-
    return 1;
 }
 

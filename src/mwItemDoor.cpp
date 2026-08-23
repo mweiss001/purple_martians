@@ -45,9 +45,9 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    int col = item[i][6];
    int drawn = 0;
 
-   if (mItem.item[i][1] == 1) tmp = mBitmap.door_tile[1][col][0]; // old style door static shape
+   if (item[i][1] == 1) tmp = mBitmap.door_tile[1][col][0]; // old style door static shape
 
-   else if (mItem.item[i][1] == 2) // new style door animation sequence
+   else if (item[i][1] == 2) // new style door animation sequence
    {
       int tmr = mLoop.frame_num;
       if (mLoop.level_editor_running) tmr = al_get_timer_count(mEventQueue.fps_timer);

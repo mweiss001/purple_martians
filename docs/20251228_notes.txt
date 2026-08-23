@@ -30603,12 +30603,9 @@ I should commit...
 
 
 
-
-
 2026-07-15 02:19:19
 
 these are still global variables
-
 
 int ft_level_header[20];
 int ft_l[100][100];
@@ -36458,6 +36455,31 @@ maybe a few bug fixes...
 Bottom Message does not ever go away. I have 'bottom_msg_timer' for that, but I need to make a control to change it in settings..done
 
 
+
+
+widgets
+make setter and slider combo
+make setter with optional number of setter elements
+
+use this in many places where I am getting frustrated setting values with slider
+
+for example event trigger number
+
+
+what to call it?
+mStepSliderInt
+internally it will call mSliderInt
+
+I am quite happy with it!!!
+
+when using it and replacing normal slider, send bts-1 and after do ya+=bts+1;
+
+
+where else would it be useful?
+
+I will probably need a float version as well...
+
+
 2026-08-16 08:33:52
 
 when copying selection with block damage that follows lift, link translation does not set bd link to lift
@@ -36763,6 +36785,428 @@ wait a minute here!
 how did I not need this up till now?
 
 because all these turn when hitting a wall anyway!!!!
+
+make lock also lock lift step...
+
+
+fixed lift set new step when move = 0, size only....
+
+
+/*
+void mwLift::set_lift_xyinc(int l, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc and num of frames for move
+   float val = stp[l][step].val;
+   float move_time = 0;
+   float xlen = stp[l][step].x - cur[l].x;             // x length
+   float ylen = stp[l][step].y - cur[l].y;             // y length
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+
+   if (hy_dist < 1)      // no move
+   {
+      move_time = val;   // use val as straight timer
+      cur[l].xinc = 0;   // no xinc
+      cur[l].yinc = 0;   // no yinc
+   }
+   else // get time based on speed and distance
+   {
+      float speed = val / 10;              // stored speed scaled by 10
+      move_time = hy_dist / speed;         // get time (time = distance / speed)
+      cur[l].xinc = xlen / move_time;      // set xinc
+      cur[l].yinc = ylen / move_time;      // set yinc
+   }
+
+   float wd = stp[l][step].w - cur[l].w;   // width dif
+   float hd = stp[l][step].h - cur[l].h;   // height dif
+
+
+   cur[l].winc = wd / move_time;           // set winc
+   cur[l].hinc = hd / move_time;           // set hinc
+
+   cur[l].current_step = step;
+
+   cur[l].limit_counter = move_time;
+   cur[l].limit_type = 1;
+}
+*/
+
+
+// this is a much nicer approach, unfortunately it breaks 1/3 of demo levels
+// not anymore, now it only breaks one...crush
+
+
+void mwLift::set_lift_xyinc(int l, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc, winc, hinc, and number of frames to complete
+
+   float xlen = stp[l][step].x - cur[l].x;             // x length
+   float ylen = stp[l][step].y - cur[l].y;             // y length
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+
+   float wd = stp[l][step].w - cur[l].w;               // width dif
+   float hd = stp[l][step].h - cur[l].h;               // height dif
+   float hy_dif = sqrt(pow(wd, 2) + pow(hd, 2));       // hypotenuse dif
+
+   float speed = (float) stp[l][step].val / 10;  // stored speed scaled by 10
+   float move_time = 0; // default
+
+
+   // no move
+   if (hy_dist < 1)
+   {
+      cur[l].xinc = 0;
+      cur[l].yinc = 0;
+   }
+   else
+   {
+      move_time = hy_dist / speed;                  // time = distance / speed
+      cur[l].xinc = xlen / move_time;               // set xinc
+      cur[l].yinc = ylen / move_time;               // set yinc
+   }
+
+   // no size change
+   if (hy_dif < 1)
+   {
+      cur[l].winc = 0;
+      cur[l].hinc = 0;
+   }
+   else
+   {
+      // if not set already by move
+      if (move_time == 0) move_time = hy_dif / speed;  // time = dif / speed
+      cur[l].winc = wd / move_time;
+      cur[l].hinc = hd / move_time;
+   }
+
+   // just in case neither dist or size has set it
+   if (move_time == 0) move_time = stp[l][step].val;   // use val as straight timer
+
+
+   cur[l].current_step = step;
+   cur[l].limit_counter = move_time;
+   cur[l].limit_type = 1;
+}
+
+
+
+
+make start block active with trigger
+good for when I want it to activate when player enters an area
+
+how hard would this be to implement?
+
+void mwItem::proc_start_collision(int p, int i)
+
+this assumes that I can get player number that collided with start
+if I do it with trigger, I do not know that
+I could just do it with player 0 and ignore individual checkpoints...
+actually how many of those do I ever use?
+
+lots     if (var == 0) sprintf(msg, "Start Mode:Default");
+
+4 time in lev 60 and 61   if (var == 1) sprintf(msg, "Team Start");
+
+lots...      if (var == 2) sprintf(msg, "Checkpoint Common");
+
+4 times in lev>300      if (var == 3) sprintf(msg, "Checkpoint Individual");
+
+I think I can ignore it...so what var should I use?
+
+item[][9] trigger event number
+
+
+         case 5: // start
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            ya+=4; // spacer
+            mWidget.buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
+            mWidget.buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
+            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][8], "Increase Index Only:OFF", "Increase Index Only:ON", 15, 15, 11, 11);
+
+            ya+=4; // spacer
+
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+            mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][9], 99, 0, 1, 1, 0, "Event Trigger:", "OFF:", d); ya+=bts+1;
+
+
+modified this:
+void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+
+
+// checks all objects for a reference to the passed event number
+int mwTriggerEvent::is_pm_event_used(int ev)
+{
+   for (int i=0; i<500; i++) // iterate items
+   {
+      if (mItem.item[i][0] == 6) // orb
+      {
+         if (mItem.item[i][10] == ev) return 1;
+         if (mItem.item[i][11] == ev) return 1;
+         if (mItem.item[i][12] == ev) return 1;
+         if (mItem.item[i][13] == ev) return 1;
+      }
+      if (mItem.item[i][0] == 9) // trigger
+      {
+         if (mItem.item[i][11] == ev) return 1;
+         if (mItem.item[i][12] == ev) return 1;
+         if (mItem.item[i][13] == ev) return 1;
+         if (mItem.item[i][14] == ev) return 1;
+      }
+      if (mItem.item[i][0] == 13) // timer
+      {
+         if (mItem.item[i][12] == ev) return 1;
+         if (mItem.item[i][13] == ev) return 1;
+         if (mItem.item[i][14] == ev) return 1;
+         if (mItem.item[i][15] == ev) return 1;
+      }
+
+      
+      if ((mItem.item[i][0] == 5 ) && (mItem.item[i][9] == ev)) return 1; // start
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][1] == ev)) return 1; // message
+      if ((mItem.item[i][0] == 16) && (mItem.item[i][1] == ev)) return 1; // bm
+      if ((mItem.item[i][0] == 17) && (mItem.item[i][1] == ev)) return 1; // bd
+
+void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
+
+void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int obj_ext)
+
+added case in ov draw overlays
+
+
+now need to listen for event...
+
+I think it is working...
+
+need to add to link translation table also...
+
+2026-08-21 07:36:03
+
+
+new bug...when copying door the links between them are all fucked up..
+how to fix
+
+when adding to ft sel do translation to new item numbers
+same when copying out
+I think I got it!!!!
+
+what about when I am in mouse adjust mode for rect, show actual values and allow arrow nudge
+
+how about making the mouse on shit part of the class, then using it when drawing overlays?
+
+   int mouse_on_obj = 0;
+
+   // vinepod only
+   int mouse_on_vpodx = 0;
+   int mouse_on_vpod1 = 0;
+   int mouse_on_vpod2 = 0;
+   int mouse_on_tb_ul = 0;
+   int mouse_on_tb_lr = 0;
+
+   // cloner only
+   int mouse_on_csb_ul = 0;
+   int mouse_on_csb_lr = 0;
+   int mouse_on_cdb_ul = 0;
+
+   // enemy shot prox
+   int mouse_on_esp = 0;
+
+   int mouse_on_sp = 0;
+   int mouse_on_bmb = 0;
+   int mouse_on_bms = 0;
+
+
+   int mouse_on_item_sec_ul = 0;
+   int mouse_on_item_sec_lr = 0;
+
+   int mouse_on_lift = 0;
+
+   int mouse_move = 0;
+   int mouse_adj = 0;
+
+did this, but did not end up using it...
+just added this to
+
+void mwObjectViewer::ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, int w, int h, int color, int crosshairs)
+{
+   float thickness = 2.0;
+   int x2 = x1+w;
+   int y2 = y1+h;
+   al_draw_rectangle(x1+1, y1+1, x2-1, y2-1, mColor.pc[color], thickness);
+
+   if (crosshairs)
+   {
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-22, 0, "x1:%d y1:%d", x1, y1);
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-16, 0, "x2:%d y2:%d", x2, y2);
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-10, 0, "w:%d h:%d", x2-x1, y2-y1);
+
+      int xc = (x1+x2)/2;
+      int yc = (y1+y2)/2;
+      al_draw_line(0, yc, 1999, yc, mColor.pc[color], thickness);
+      al_draw_line(xc, 0, xc, 1999, mColor.pc[color], thickness);
+   }
+}
+
+
+
+-----------------------------
+new class: mwFileSelect
+
+what does it do?
+
+like normal file select in win or lin, but has display preview of selected file
+
+needs a way to select folder:
+either tree or simple list of dirs
+list of dirs
+
+then needs a list of files found in current dir
+
+maybe an optional filter section
+
+then needs a preview section
+
+then needs some buttons like choose, or accept, or cancel
+
+how will it get called?
+
+if (mFileSelect.init(char * filename, )
+
+
+I think to start with I will just work on the custom version for sel...
+
+show a list of files, one will be highlighted and show preview for that
+
+
+maybe work on smaller re-usable parts
+
+list of files with navigation...
+
+- current dir
+- current highlighte file
+
+
+get a list of files
+first define path
+
+
+   char sel_filename[500];
+   sprintf(sel_filename,"sel\\");
+
+
+
+I have a crude list of files
+
+I need to make this better:
+what if more files than room?
+need a scroll bar
+also need mouse navigation
+
+maybe I need a generic list box
+pass it a list of strings
+
+make it work first then make it a generic function
+
+need scroll bar and mouse scroll wheel
+al_reset_clipping_rectangle();
+
+I think I have the list looking good
+
+now can I make it generic?
+
+
+what do I want to do for the list?
+
+vector?
+Do I need more than one variable?
+
+index is good
+
+I am going to make it a std::vector of strings....
+
+I am also going to make it a class:  mwListBox
+
+
+
+I want to test it at different sizes...
+
+looking good!!
+
+I have a class mwListBox
+I have a class mwFileSelect that uses it
+
+now what??
+
+load and show selected
+
+2026-08-23 07:03:50
+
+none of the sel files from before 20260715 work, that is when I changed how I save them
+
+
+in edit selection show data for loaded ft when in copy mode...done
+
+I think there is a bug in copy/move
+- move does not do link translation, even though it deletes and re-adds objects
+you know, this is probably fine...
+what isn't though is bd and trigger to lift links and door links..they need to happen in move also
+.. i think I have this fixed
+
+
+there might be a bug here...check...
+void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
+fixed
+
+now I have more weirdness
+default block flags are not loaded for selection window?
+
+mSelectionWindow.init() needs to be called after load sprit
+done
+
+
+custom file dialog for load selection
+-------------------------------------
+
+how should I integrate?
+
+add window to level editor?
+
+pop up modal when load clicked in es?
+
+
+that seems to work...
+I should call it something else though...not file select....
+mwLoadSelection
+do it...
+
+what else do I need to do to finish??
+
+it works, but I would like to make it integrate nicer with level editor
+
+all I would really need to do is just redraw the background
+
+make 2 new windows in level editor
+
+then I will need to figure out how to make it modal
+or I could redraw the level editor background...
+
+I think I am done with this...
+
+test, make some nice selections....
+done
+
+
+2026-08-23 10:45:16
+
+commit, then back to level 111
+
+
+
+
+
+
+
+
 
 
 

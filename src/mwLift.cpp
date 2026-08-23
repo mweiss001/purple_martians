@@ -30,7 +30,7 @@ mwLift::mwLift()
    initialize();
 }
 
-void mwLift::initialize(void)
+void mwLift::initialize()
 {
    strcpy (lift_step_type_name[0], "BAD!");
    strcpy (lift_step_type_name[1], "Move");
@@ -39,17 +39,15 @@ void mwLift::initialize(void)
    strcpy (lift_step_type_name[4], "End ");
    strcpy (lift_step_type_name[5], "REvt");
    strcpy (lift_step_type_name[6], "SEvt");
-
    clear_lifts();
-
 }
-
 
 
 void mwLift::clear_lifts()
 {
    for (int l=0; l<NUM_LIFTS; l++) clear_lift(l);
 }
+
 void mwLift::clear_lift(int l)
 {
    cur[l].active = 0;
@@ -93,53 +91,13 @@ void mwLift::clear_lift_step(int l, int s)
    stp[l][s].val  = 0;
 }
 
-
 void mwLift::copy_lift_from_other_instance(int l, const mwLift &other, int other_l)
 {
    cur[l] = other.cur[other_l];
 
    for (int s=0; s<40; s++) // copy steps
       stp[l][s] = other.stp[other_l][s];
-
-
-/*
-   mLift.cur[l].active               = ftLift.cur[b].active;
-   mLift.cur[l].flags                = ftLift.cur[b].flags;
-   mLift.cur[l].mode                 = ftLift.cur[b].mode;
-   mLift.cur[l].mode_countdown_timer = ftLift.cur[b].mode_countdown_timer;
-   mLift.cur[l].mode_reset_value     = ftLift.cur[b].mode_reset_value;
-   mLift.cur[l].color                = ftLift.cur[b].color;
-   mLift.cur[l].draw_mode            = ftLift.cur[b].draw_mode;
-   mLift.cur[l].draw_mode_val1       = ftLift.cur[b].draw_mode_val1;
-   mLift.cur[l].draw_mode_val2       = ftLift.cur[b].draw_mode_val2;
-   mLift.cur[l].draw_mode_val3       = ftLift.cur[b].draw_mode_val3;
-   mLift.cur[l].num_steps            = ftLift.cur[b].num_steps;
-
-
-   for (y=0; y<ftLift.cur[b].num_steps; y++) // copy steps
-   {
-      int vx     = ftLift.stp[b][y].x;
-      int vy     = ftLift.stp[b][y].y;
-      int vw     = ftLift.stp[b][y].w;
-      int vh     = ftLift.stp[b][y].h;
-      int val    = ftLift.stp[b][y].val;
-      int type   = ftLift.stp[b][y].type;
-
-
-  */
-
-
-
-
-
-
 }
-
-
-
-
-
-
 
 int mwLift::construct_lift(int lift, char* lift_name)
 {
@@ -155,7 +113,7 @@ int mwLift::construct_lift(int lift, char* lift_name)
 int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
 {
    clear_lift_step(l, s);
-//   printf("type:%d\n", type);
+   //printf("type:%d\n", type);
 
    if ((type > 0) && (type < 16)) // get flags and color from previous steps
    {
@@ -189,7 +147,7 @@ int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int
 }
 
 
-int mwLift::get_num_lifts(void)
+int mwLift::get_num_lifts()
 {
    int nl = 0;
    for (int l=0; l<NUM_LIFTS; l++)
@@ -217,7 +175,7 @@ int mwLift::get_prev_lift(int l)
    return l;
 }
 
-void mwLift::show_all_lifts(void)
+void mwLift::show_all_lifts()
 {
    char msg[2000];
    int text_pos = 0;
@@ -316,9 +274,10 @@ int mwLift::find_previous_move_step(int lift, int step) // searches back from pa
 
 void mwLift::erase_lift(int lift)
 {
-   for (int l=lift; l<NUM_LIFTS-1; l++) // slide down to close hole in array
-   {
+   // slide down to close hole in array
 
+   for (int l=lift; l<NUM_LIFTS-1; l++)
+   {
 
       // check if lift number is referenced in bd or trigger
       for (int i=0; i<500; i++)
@@ -355,20 +314,20 @@ void mwLift::delete_lift_step(int l, int step)
    cur[l].num_steps--;
 }
 
-void mwLift::lift_setup(void) // set all lifts to step 0
+void mwLift::lift_setup() // set all lifts to step 0
 {
    for (int l=0; l<NUM_LIFTS; l++)
       if (cur[l].active) set_lift_to_step(l, 0);
 }
 
-int mwLift::get_empty_lift(void) // find an inactive lift
+int mwLift::get_empty_lift() // find an inactive lift
 {
    for (int l=0; l<NUM_LIFTS; l++)
       if (!cur[l].active) return l;
    return -1;
 }
 
-int mwLift::create_lift(void)
+int mwLift::create_lift()
 {
    char msg[1024];
    int step = 0;
@@ -729,8 +688,8 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  d); ya+=bts+1;
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  d); ya+=bts+1;
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].x,   1600, 1, 20, 1, 10, "X:",      d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].y,   1600, 1, 20, 1, 10, "Y:",      d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].x,   1999, 0, 20, 1, 10, "X:",      d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].y,   1999, 0, 20, 1, 10, "Y:",      d); ya+=bts+1;
 
       break;
       case 2: // wait time
@@ -1089,56 +1048,10 @@ void mwLift::draw_lifts()
       }  // end of iterate lifts
 }
 
-
-void mwLift::set_lift_xyinc(int l, int step)
-{
-   //  used when switching to a new move step;
-   //  sets xinc, yinc and num of frames for move
-   float val = stp[l][step].val;
-   float move_time = 0;
-   float xlen = stp[l][step].x - cur[l].x;             // x length
-   float ylen = stp[l][step].y - cur[l].y;             // y length
-   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-
-   if (hy_dist < 1)      // no move
-   {
-      move_time = val;   // use val as straight timer
-      cur[l].xinc = 0;   // no xincl
-      cur[l].yinc = 0;   // no yinc
-   }
-   else // get time based on speed and distance
-   {
-      float speed = val / 10;              // stored speed scaled by 10
-      move_time = hy_dist / speed;         // get time (time = distance / speed)
-      cur[l].xinc = xlen / move_time;      // set xinc
-      cur[l].yinc = ylen / move_time;      // set yinc
-   }
-
-   float wd = stp[l][step].w - cur[l].w;   // width dif
-   float hd = stp[l][step].h - cur[l].h;   // height dif
-
-
-   cur[l].winc = wd / move_time;           // set winc
-   cur[l].hinc = hd / move_time;           // set hinc
-
-   cur[l].current_step = step;
-
-   cur[l].limit_counter = move_time;
-   cur[l].limit_type = 1;
-}
-
-
-
-
-/*
-
-this is a much nicer approach, unfortunately it breaks 1/3 of demo levels
-
 void mwLift::set_lift_xyinc(int l, int step)
 {
    //  used when switching to a new move step;
    //  sets xinc, yinc, winc, hinc, and number of frames to complete
-
 
    float xlen = stp[l][step].x - cur[l].x;             // x length
    float ylen = stp[l][step].y - cur[l].y;             // y length
@@ -1148,51 +1061,45 @@ void mwLift::set_lift_xyinc(int l, int step)
    float hd = stp[l][step].h - cur[l].h;               // height dif
    float hy_dif = sqrt(pow(wd, 2) + pow(hd, 2));       // hypotenuse dif
 
-   float speed = stp[l][step].val / 10;                // stored speed scaled by 10
-   float move_time = 0;
+   float speed = (float) stp[l][step].val / 10;  // stored speed scaled by 10
+   float move_time = 0; // default
 
-
-   // get time based on distance and speed
-   if (hy_dist > 1)
-   {
-      move_time = hy_dist / speed;         // get time (time = distance / speed)
-      cur[l].xinc = xlen / move_time;      // set xinc
-      cur[l].yinc = ylen / move_time;      // set yinc
-   }
-   else
+   // no move
+   if (hy_dist < 1)
    {
       cur[l].xinc = 0;
       cur[l].yinc = 0;
    }
-
-   // get time based on geometry change and speed
-   if (hy_dif > 1)
-   {
-      if (move_time == 0) // not set by hy_dist
-      {
-         move_time = hy_dif / speed;  // get time (time = dif / speed)
-      }
-      cur[l].winc = wd / move_time;
-      cur[l].hinc = hd / move_time;
-   }
    else
+   {
+      move_time = hy_dist / speed;                  // time = distance / speed
+      cur[l].xinc = xlen / move_time;               // set xinc
+      cur[l].yinc = ylen / move_time;               // set yinc
+   }
+
+   // no size change
+   if (hy_dif < 1)
    {
       cur[l].winc = 0;
       cur[l].hinc = 0;
    }
-
-   // not set by hy_dist or hy_dif
-   if (move_time == 0)
+   else
    {
-      move_time = stp[l][step].val;   // use val as straight timer
+      // if not set already by move
+      if (move_time == 0) move_time = hy_dif / speed;  // time = dif / speed
+      cur[l].winc = wd / move_time;
+      cur[l].hinc = hd / move_time;
    }
+
+   // just in case neither dist or size has set it
+   if (move_time == 0) move_time = stp[l][step].val;   // use val as straight timer
 
    cur[l].current_step = step;
    cur[l].limit_counter = move_time;
    cur[l].limit_type = 1;
 }
 
-*/
+
 
 
 

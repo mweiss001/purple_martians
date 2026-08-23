@@ -6,6 +6,7 @@
 #include "mwEditorMain.h"
 #include "mwEnemy.h"
 #include "mwEventQueue.h"
+#include "mwLoadSelectionDialog.h"
 #include "mwFont.h"
 #include "mwHelp.h"
 #include "mwInput.h"
@@ -33,12 +34,13 @@ void mwEditSelection::init()
 
 void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
+
    int rx1 = mLevelEditor.selection.x1*20;    // source x
    int ry1 = mLevelEditor.selection.y1*20;    // source y
    int rx2 = mLevelEditor.selection.x2*20+20;
    int ry2 = mLevelEditor.selection.y2*20+20;
-   int eib=0;
    int iib=0;
+   int eib=0;
    int lib=0;
 
    // count items in box
@@ -53,6 +55,25 @@ void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_wind
    for (int d=0; d<NUM_LIFTS; d++)
       if ((mLift.cur[d].active) && (mEditorMain.obj_filter[4][1]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
+
+   int sx = mLevelEditor.selection.x1;
+   int sy = mLevelEditor.selection.y1;
+   int sw = mLevelEditor.selection.w + 1;
+   int sh = mLevelEditor.selection.h + 1;
+
+
+   if (copy_mode)
+   {
+      sx = 0;
+      sy = 0;
+      sw = ft_level_header[8];
+      sh = ft_level_header[9];
+
+      iib = ft_level_header[3];
+      eib = ft_level_header[4];
+      lib = ft_level_header[5];
+   }
+
    int xc = (x1+x2)/2;
    int fc = 13;
    int tc = 15;
@@ -60,15 +81,15 @@ void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_wind
    al_draw_text( mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
    al_draw_rectangle(x1, y, x2, y+10, mColor.pc[fc], 1);
    y+=10;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mLevelEditor.selection.x1, mLevelEditor.selection.y1);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mLevelEditor.selection.x2-mLevelEditor.selection.x1+1, mLevelEditor.selection.y2-mLevelEditor.selection.y1+1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", sx, sy);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9,  ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", sw, sh);
    al_draw_rectangle(x1, y, x2, y+18, mColor.pc[fc], 1);
-
    y+=18;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9,  ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+17, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
    al_draw_rectangle(x1, y, x2, y+26, mColor.pc[fc], 1);
+
 }
 
 void mwEditSelection::do_floodfill(int x, int y, int flood_block)
@@ -156,38 +177,65 @@ void mwEditSelection::clear_ft_variables(void)
 }
 
 
-int mwEditSelection::load_selection(void)
+int mwEditSelection::load_selection_prompt()
 {
-   char sel_filename[500];
-   sprintf(sel_filename,"sel\\");
-   if (mMiscFnx.mw_file_select("Load Selection", sel_filename, ".sel", 0))
+
+   mLoadSelectionDialog.run();
+   return 1;
+
+
+   // char sel_filename[500];
+   // sprintf(sel_filename,"sel\\");
+   // if (mMiscFnx.mw_file_select("Load Selection", sel_filename, ".sel", 0)) return load_selection(sel_filename);
+   // return 0;
+
+
+
+}
+
+
+int mwEditSelection::load_selection(const char* filename)
+{
+   printf("load_selection(%s)\n", filename);
+
+   FILE *fp = fopen(filename, "rb");
+   if (!fp)
    {
-      FILE *fp = fopen(sel_filename, "rb");
-      if (!fp)
-      {
-         char msg[1024];
-         sprintf(msg, "Error opening %s", sel_filename);
-         return 0;
-      }
-      else  // file open !
-      {
-         clear_ft_variables();
+      char msg[1024];
+      sprintf(msg, "Error opening %s", filename);
+      return 0;
+   }
+   else  // file open !
+   {
+      clear_ft_variables();
 
-         // read the compressed data
-         char cmp[SEL_SIZE];
-         fread(cmp, sizeof(cmp), 1, fp);
-         fclose(fp);
+      // read the compressed data
+      char cmp[SEL_SIZE];
+      fread(cmp, sizeof(cmp), 1, fp);
+      fclose(fp);
 
-         // decompress cmp to ft
-         char ft[SEL_SIZE];
-         uLongf destLen = sizeof(ft);
-         uncompress((Bytef*)ft, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
+      // decompress cmp to ft
+      char ft[SEL_SIZE];
+      uLongf destLen = sizeof(ft);
+      uncompress((Bytef*)ft, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
 
-         // copy to variables
-         sel_to_ft(ft);
+      // copy to variables
+      sel_to_ft(ft);
 
-         ftLift.lift_setup(); // set all lifts to step 0
-      }
+      int sw = ft_level_header[8];
+      int sh = ft_level_header[9];
+      printf("sw:%d sh:%d\n", sw, sh);
+
+      printf("Number of items: %d\n", ft_level_header[3]);
+      printf("Number of enemies: %d\n", ft_level_header[4]);
+      printf("Number of lifts: %d\n", ft_level_header[5]);
+
+
+      ftLift.lift_setup(); // set all lifts to step 0
+
+
+      draw_fsel();
+
    }
    return 1;
 }
@@ -195,7 +243,6 @@ int mwEditSelection::load_selection(void)
 
 void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 {
-   int b, c, x, y;
    int eib=0;
    int iib=0;
    int lib=0;
@@ -207,25 +254,28 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    clear_ft_variables();
 
    // blocks
-   for (x=0; x<(mLevelEditor.selection.x2-mLevelEditor.selection.x1+1); x++)
-      for (y=0; y<(mLevelEditor.selection.y2-mLevelEditor.selection.y1+1); y++)
+   for (int x=0; x<(mLevelEditor.selection.x2-mLevelEditor.selection.x1+1); x++)
+      for (int y=0; y<(mLevelEditor.selection.y2-mLevelEditor.selection.y1+1); y++)
          if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mLevelEditor.selection.x1+x >= 0) && (mLevelEditor.selection.x1+x < 100) && (mLevelEditor.selection.y1+y >= 0) && (mLevelEditor.selection.y1+y < 100) )
          {
             if (mEditorMain.obj_filter[1][1])                                      ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y];                      // get block and flags
             if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
-
+   itemIDTranslations.clear();
    // items
-   for (b=0; b<500; b++)
+   for (int b=0; b<500; b++)
       if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
-         c = iib++;
+         int c = iib++; // destination
+
+         // save link from old item number to new
+         itemIDTranslations.push_back({b, c});
 
          // copy all 16 variables
-         for (y=0; y<16; y++) ftItem.item[c][y] = mItem.item[b][y];
+         for (int y=0; y<16; y++) ftItem.item[c][y] = mItem.item[b][y];
 
-         // set new x, y (now relative to the selection window ul corner)
+         // shift x, y (now relative to the selection window ul corner)
          ftItem.item[c][4] -= x1;
          ftItem.item[c][5] -= y1;
 
@@ -240,15 +290,27 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
          }
       }
 
+   // change door refs in items
+   for (int b=0; b<iib; b++)
+      if (ftItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftItem.item[b][8] == 1) // type linked dest item
+      {
+         // change link to new door
+         for (auto lit : itemIDTranslations)
+            if (ftItem.item[b][9] == lit.oldItemNumber) ftItem.item[b][9] = lit.newItemNumber;
+      }
+
+
+
    // enemies
-   for (b=0; b<100; b++) // check for enemies in box
+   for (int b=0; b<100; b++) // check for enemies in box
       if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
-         c = eib++;
-         for (y=0; y<32; y++) ftEnemy.Ei[c][y] = mEnemy.Ei[b][y];
-         for (y=0; y<16; y++) ftEnemy.Ef[c][y] = mEnemy.Ef[b][y];
+         int c = eib++;
+         for (int y=0; y<32; y++) ftEnemy.Ei[c][y] = mEnemy.Ei[b][y];
+         for (int y=0; y<16; y++) ftEnemy.Ef[c][y] = mEnemy.Ef[b][y];
 
+         // shift x, y (now relative to the selection window ul corner)
          ftEnemy.Ef[c][0]-= x1;
          ftEnemy.Ef[c][1]-= y1;
 
@@ -274,16 +336,17 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    // lifts
    liftIDTranslations.clear();
    if (mEditorMain.obj_filter[4][1])
-      for (b=0; b<NUM_LIFTS; b++) // source, if in selection
+      for (int b=0; b<NUM_LIFTS; b++) // source, if in selection
          if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
-            c = lib++; // destination
+            int c = lib++; // destination
             ftLift.copy_lift_from_other_instance(c, mLift, b);
 
             // save link from old lift number to new
             liftIDTranslations.push_back({b, c});
 
-            for (int s=0; s<ftLift.cur[c].num_steps; s++)  // shift move steps
+            // shift x, y of move steps (now relative to the selection window ul corner)
+            for (int s=0; s<ftLift.cur[c].num_steps; s++)
                if ((ftLift.stp[c][s].type & 31) == 1)
                {
                   ftLift.stp[c][s].x -= x1;
@@ -291,9 +354,8 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
                }
          }
 
-   // change lift refs in items
+   // change lift refs in items (only trigger and block damage)
    for (int b=0; b<iib; b++)
-      // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
       if (((ftItem.item[b][0] == PM_ITEM_TYPE_TRIGGR) && (ftItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftItem.item[b][0] == PM_ITEM_TYPE_BLKDMG) && (ftItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
       {
          // change link to new lift
@@ -303,23 +365,11 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
 
 
-
-
-
-
-
-
-
-
    ft_level_header[3] = iib; // num_of_items
-
-   printf("num of items:%d",iib);
-
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
-
-   sw = ft_level_header[8] =  mLevelEditor.selection.x2-mLevelEditor.selection.x1+1; // width
-   sh = ft_level_header[9] =  mLevelEditor.selection.y2-mLevelEditor.selection.y1+1; // height
+   ft_level_header[8] =  mLevelEditor.selection.x2-mLevelEditor.selection.x1+1; // width
+   ft_level_header[9] =  mLevelEditor.selection.y2-mLevelEditor.selection.y1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -361,14 +411,14 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
    int erase_out_of_bounds_main = 0;  // 0 = adjust
 
+   int sw = ft_level_header[8];
+   int sh = ft_level_header[9];
+
    // blocks
    for (x=0; x<sw; x++)
       for (y=0; y<sh; y++)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ftLevel.l[x][y]);
-
-
-
 
 
    // this section is to make any copied pm_event links have new unique pm_events and still linked properly
@@ -410,6 +460,13 @@ void mwEditSelection::do_copy(int qx1, int qy1)
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ftItem.item[b][1], clt, clt_last);
          }
+
+         if (ftItem.item[b][0] == 5) // start
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 9, ftItem.item[b][1], clt, clt_last);
+         }
+
+
       }
       for (b=0; b<100; b++) // iterate enemies in ft
       {
@@ -451,7 +508,6 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
             liftIDTranslations.push_back({b, l});
 
-
             for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
             {
                if ((mLift.stp[l][s].type & 31) == 1) // shift move steps
@@ -470,9 +526,6 @@ void mwEditSelection::do_copy(int qx1, int qy1)
                   }
                }
 
-
-
-
                // do link translations
                if (copy_mode != 2) // do not do any link translation for move, only for copy
                   for (int i=0; i<clt_last; i++) // does this lift step have an entry in the clt table?
@@ -481,7 +534,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
             }
             mLift.set_lift_to_step(l, 0);
-            if (lim)  mLift.erase_lift(l);
+            if (lim) mLift.erase_lift(l);
          }
       }
    } // end of if copy lifts
@@ -549,6 +602,8 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
 
    // items
+   itemIDTranslations.clear();
+
    for (b=0; b<500; b++)
       if ((ftItem.item[b][0]) && (mEditorMain.obj_filter[2][ftItem.item[b][0]]))
       {
@@ -557,6 +612,8 @@ void mwEditSelection::do_copy(int qx1, int qy1)
          {
             if (mItem.item[c][0] == 0) // found empty
             {
+               itemIDTranslations.push_back({b, c});
+
                //copied = 1000+c;
                int lim = 0;
                // copy all 16 variables
@@ -578,30 +635,23 @@ void mwEditSelection::do_copy(int qx1, int qy1)
                   mItem.item[c][5] = mMiscFnx.enforce_limit(mItem.item[c][5], 0, 1980);
                }
 
-               if (copy_mode != 2) // do not do any link translation for move, only for copy
+               // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
+               if (((mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
                {
-                  // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
-                  if (((mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
-                  {
-                     // change link to new lift
-                     for (auto lit : liftIDTranslations)
-                        if (mItem.item[c][10] == lit.oldLiftNumber) mItem.item[c][10] = lit.newLiftNumber;
-                  }
+                  // change link to new lift
+                  for (auto lit : liftIDTranslations)
+                     if (mItem.item[c][10] == lit.oldLiftNumber) mItem.item[c][10] = lit.newLiftNumber;
+               }
 
-
+               if (copy_mode != 2) // only do translations for copy, not move
+               {
                   for (int i=0; i<clt_last; i++)                   // does this copy item have an entry in the clt table?
                      if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
                      {
                         mItem.item[c][clt[i][2]] = clt[i][4];  // new event
-                        printf("new item event!!\n");
+                        // printf("new item event!!\n");
                      }
-
-
-
-
                }
-
-
 
                // also adjust secondary locations
                if (mItem.item_secondary67(mItem.item[c][0]))
@@ -629,6 +679,16 @@ void mwEditSelection::do_copy(int qx1, int qy1)
             } // end of found empty
          }  // end if iterate real item array
       } // end of attempt copy
+
+   // change door refs
+   for (int c=0; c<500; c++) // search for empty place to copy to
+      if (mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mItem.item[c][8] == 1) // type linked dest item
+      {
+         // change link to new door
+         for (auto lit : itemIDTranslations)
+            if (mItem.item[c][9] == lit.oldItemNumber) mItem.item[c][9] = lit.newItemNumber;
+      }
+
    mEnemy.sort_enemy();
    mItem.sort_item(1);
    mScreen.init_level_background();
@@ -671,61 +731,34 @@ void mwEditSelection::do_clear(void)
 }
 
 
-
 void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
 {
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
-      // blocks and flags
-      if ((mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) mLevel.l[x][y] = tn;
-
-      // this is wrong!!!!
-      // blocks only (same as block and flags?) mLevel.l[x][y] = tn;
-
-
-      if ((mEditorMain.obj_filter[1][1]) && (!mEditorMain.obj_filter[1][2]))
+      // both blocks and flags
+      if ((mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2]))
       {
-         mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
-
-         int mtn = tn & PM_BTILE_TILENUM_MASK; // strip flags from tile
-
-         mLevel.l[x][y] |= mtn; // merge tileNum
-
+         mLevel.l[x][y] = tn;
+         return;
       }
 
+      // blocks only
+      if ((mEditorMain.obj_filter[1][1]) && (!mEditorMain.obj_filter[1][2]))
+      {
+         mLevel.l[x][y] &= ~PM_BTILE_TILENUM_MASK; // clear lower bits
+         int tileNum =  tn & PM_BTILE_TILENUM_MASK;
+         mLevel.l[x][y] |= tileNum; // merge tileNum
+         return;
+
+      }
       // flags only
       if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2]))
       {
          mLevel.l[x][y] &= PM_BTILE_TILENUM_MASK; // clear upper bits
-         mLevel.l[x][y] &= ~PM_BTILE_ALL_FLAGS;   // clear flags in destination
-         int flags = tn & PM_BTILE_ALL_FLAGS;     // get only flags from draw item
-         mLevel.l[x][y] |= flags;                 // merge
+         int flags    = tn & ~PM_BTILE_TILENUM_MASK;
+         mLevel.l[x][y] |= flags; // merge flags
+         return;
       }
-
-/*
-
-      void mwTileSets::drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode)
-      {
-         // replace with tileNum and drawItemFlags
-         if (drawTileMode == 1) mLevel.l[x][y] = tileNum | drawItemFlags;
-
-
-         // change only tile portion (lower 10 bits)
-         if (drawTileMode == 2)
-         {
-            mLevel.l[x][y] &= 0b11111111111111111111110000000000; // clear lower bits
-            mLevel.l[x][y] |= tileNum; // merge tileNum
-         }
-
-         // change only flags portion (upper 22 bits)
-         if (drawTileMode == 3)
-         {
-            mLevel.l[x][y] &= 0b00000000000000000000001111111111; // clear upper bits
-            mLevel.l[x][y] |= drawItemFlags; // merge drawItemFlags
-         }
-      }
-*/
-
    }
 }
 
@@ -774,12 +807,9 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Save To Disk")) fill_ft_variables_from_selection(1);
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Load From Disk"))
    {
-      if (load_selection())
+      if (load_selection_prompt())
       {
          copy_mode = 1;
-         sw = ft_level_header[8];
-         sh = ft_level_header[9];
-         draw_fsel();
       }
    }
    if (mEditorMain.draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
@@ -819,6 +849,11 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
 
 void mwEditSelection::draw_fsel(void)
 {
+
+   int sw = ft_level_header[8];
+   int sh = ft_level_header[9];
+
+
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(sw*20, sh*20);
    al_set_target_bitmap(ft_bmp);
@@ -869,7 +904,7 @@ void mwEditSelection::process_mouse_on_background(void)
    }
 }
 
-void mwEditSelection::sel_to_ft(char * b) // for load level
+void mwEditSelection::sel_to_ft(char * b) // for load
 {
    int sz = 0, offset = 0;
    sz = sizeof(ft_level_header); memcpy(ft_level_header, b+offset, sz); offset += sz;
@@ -882,7 +917,7 @@ void mwEditSelection::sel_to_ft(char * b) // for load level
    sz = sizeof(ftItem.pmsgtext); memcpy(ftItem.pmsgtext, b+offset, sz); offset += sz;
 }
 
-void mwEditSelection::ft_to_sel(char * b) // for save level
+void mwEditSelection::ft_to_sel(char * b) // for save
 {
    int sz = 0, offset = 0;
    offset += sz; sz = sizeof(ft_level_header); memcpy(b+offset, ft_level_header, sz);
@@ -895,33 +930,6 @@ void mwEditSelection::ft_to_sel(char * b) // for save level
    offset += sz; sz = sizeof(ftItem.pmsgtext); memcpy(b+offset, ftItem.pmsgtext, sz);
 }
 
-
-/*
-int mwEditSelection::draw(int x1, int x2, int y1, int y2, int d, int have_focus)
-{
-   mMiscFnx.titlex("Edit Selection", 15, 13, x1, x2, y1+1);
-
-   int by1 = y1+3;
-   if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
-
-   int mow = mWM.is_mouse_on_any_window();
-   mEditSelection.show_pointer_text(x1+1, x2-1, y1+20, mow);
-
-   int sy2 = mEditSelection.draw_buttons(x1+1, x2-1, y1+80, d);
-
-   int fc = 13;
-   if (have_focus) fc = 10;
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-
-   return sy2;
-
-   //set_size(w, sy2-y1-1);
-
-
-}
-
-*/
-
 void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
 {
    // erase background
@@ -933,6 +941,7 @@ void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
    if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
 
    mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mLevelEditor.mWM.mouse_on_window);
+
 
 
    // draw buttons and get y2
@@ -964,6 +973,10 @@ void mwEditSelection::draw_level_editor_background_overlays(int mouse_on_window)
          if (ft_bmp)
          {
             al_draw_bitmap(ft_bmp, mLevelEditor.gx*20, mLevelEditor.gy*20, 0);
+
+            int sw = ft_level_header[8];
+            int sh = ft_level_header[9];
+
             mLevelEditor.show_selection_rect(mwRect<int>::fromX1Y1WH(mLevelEditor.gx, mLevelEditor.gy, sw-1, sh-1), 10, "paste");
          }
          else copy_mode = 0;

@@ -181,6 +181,10 @@ add_executable(pm
         src/mwDemoRecordTransport.cpp
         src/mwDemoRecordFileDetails.cpp
         src/mwDemoRecordTimeline.cpp
+        src/mwLoadSelectionDialog.cpp
+        src/mwLoadSelectionDialog.h
+        src/mwListBox.cpp
+        src/mwListBox.h
 )
 
 

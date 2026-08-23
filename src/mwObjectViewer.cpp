@@ -77,12 +77,8 @@ int mwObjectViewer::create_obj(int obt, int type, int num)
 }
 void mwObjectViewer::ov_get_size()
 {
-//   int obt = mWM.mW[7].obt;
-  // int num = mWM.mW[7].num;
-
-
-
    int type=0, w=300;
+
    if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = mEnemy.Ei[num][0];
 
@@ -117,12 +113,7 @@ void mwObjectViewer::ov_get_size()
 
    if (obt == 4)                   w = 300; // lift
 
-
-//   mWM.mW[7].set_size(w, mWM.mW[7].rect.h);
-
    mLevelEditor.mWM.mW[7].rect.setWidth(w);
-
-
 
 }
 
@@ -147,7 +138,6 @@ void mwObjectViewer::set_switch_tile(int i)
    if ((nc == 1) && (c[0] == 10)) mItem.item[i][1] = b+2; // red
    if ((nc == 1) && (c[0] == 12)) mItem.item[i][1] = b+3; // blue
    if ((nc == 1) && (c[0] == 8))  mItem.item[i][1] = b+4; // purple
-
 
    // two colors selected
    if ((nc == 2) && (c[0] == 9)  && (c[1] == 10)) mItem.item[i][1] = b+5;  // green red
@@ -467,6 +457,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // --------------------------------------------------
    int lc = 6; // lock_color;
    if (viewer_lock) lc = 7;
+
+   int by1 = y1+2;
+   if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Viewer Basics");
+
+
+
 
    if (mWidget.buttont(xa,  ya, x27-1, bts,                0,0,0,0,  0, 9,15,0, 1,0,0,d, "Prev")) mb = 22;
        mWidget.toggle( x27, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
@@ -930,6 +926,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
             mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][8], "Increase Index Only:OFF", "Increase Index Only:ON", 15, 15, 11, 11);
 
+            ya+=4; // spacer
+
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+            mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][9], 99, 0, 1, 1, 0, "Event Trigger:", "OFF:", d); ya+=bts+1;
+
+
+
          break;
          case 6: // orb
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
@@ -1159,9 +1162,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                ya+=4; // spacer
 //               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
 
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF:", d);
-               ya+=bts+1;
-
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF:", d); ya+=bts+1;
 
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
 
@@ -1187,7 +1188,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             {
                //mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
 
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 1, 1,  1, 0, "Lift Number:",  d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:",  d); ya+=bts+1;
 
 
 
@@ -1203,8 +1204,6 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 18: // gate
             mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][6], 99, 1, 1,        "Level Number:" );
          break;
-
-
 
 
          case 19: // hider
@@ -1233,26 +1232,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          }
          break;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      }
+     }
    }
    // set height
    if (obt != 4)
@@ -1270,8 +1250,14 @@ void mwObjectViewer::ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, in
    int x2 = x1+w;
    int y2 = y1+h;
    al_draw_rectangle(x1+1, y1+1, x2-1, y2-1, mColor.pc[color], thickness);
+
+
    if (crosshairs)
    {
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-22, 0, "x1:%d y1:%d", x1, y1);
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-16, 0, "x2:%d y2:%d", x2, y2);
+      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-10, 0, "w:%d h:%d", x2-x1, y2-y1);
+
       int xc = (x1+x2)/2;
       int yc = (y1+y2)/2;
       al_draw_line(0, yc, 1999, yc, mColor.pc[color], thickness);
@@ -1403,6 +1389,11 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mItem.proc_key_block_range(num, 2); // show blocks that will be affected
          break;
+
+         case 5: // start
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+
          case 14: // switch
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
@@ -1472,9 +1463,8 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       } // end of switch case
    }
 }
-void mwObjectViewer::ov_process_mouse_on_background(void)
+void mwObjectViewer::ov_process_mouse_on_background()
 {
-
    int lift=0, step=0;
    if (obt == 4)
    {
@@ -1482,35 +1472,35 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
       step = mLift.cur[lift].current_step;
    }
 
-   int mouse_on_obj = 0;
+   mouse_on_obj = 0;
 
    // vinepod only
-   int mouse_on_vpodx = 0;
-   int mouse_on_vpod1 = 0;
-   int mouse_on_vpod2 = 0;
-   int mouse_on_tb_ul = 0;
-   int mouse_on_tb_lr = 0;
+   mouse_on_vpodx = 0;
+   mouse_on_vpod1 = 0;
+   mouse_on_vpod2 = 0;
+   mouse_on_tb_ul = 0;
+   mouse_on_tb_lr = 0;
 
    // cloner only
-   int mouse_on_csb_ul = 0;
-   int mouse_on_csb_lr = 0;
-   int mouse_on_cdb_ul = 0;
+   mouse_on_csb_ul = 0;
+   mouse_on_csb_lr = 0;
+   mouse_on_cdb_ul = 0;
 
    // enemy shot prox
-   int mouse_on_esp = 0;
+   mouse_on_esp = 0;
 
-   int mouse_on_sp = 0;
-   int mouse_on_bmb = 0;
-   int mouse_on_bms = 0;
+   mouse_on_sp = 0;
+   mouse_on_bmb = 0;
+   mouse_on_bms = 0;
 
 
-   int mouse_on_item_sec_ul = 0;
-   int mouse_on_item_sec_lr = 0;
+   mouse_on_item_sec_ul = 0;
+   mouse_on_item_sec_lr = 0;
 
-   int mouse_on_lift = 0;
+   mouse_on_lift = 0;
 
-   int mouse_move = 0;
-   int mouse_adj = 0;
+   mouse_move = 0;
+   mouse_adj = 0;
 
    int mst = 6;      // mouse select threshold
    int msn = 10-mst; // mouse select negative threshold
@@ -1735,7 +1725,8 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
    mouse_on_lift = 0;
    if (mEditorMain.obj_filter[4][1])
    {
-      if ((!mInput.key[MAP_LOCK_KEY][0]) && (!viewer_lock)) // no lock...check all lifts and steps
+      // no lock...check all lifts and steps
+      if ((!mInput.key[MAP_LOCK_KEY][0]) && (!viewer_lock))
       {
          for (int x=0; x<NUM_LIFTS; x++)  // cycle lifts
             if (mLift.cur[x].active)
@@ -1758,9 +1749,30 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
                   }
       }
 
-      if (((mInput.key[MAP_LOCK_KEY][0]) || (viewer_lock)) && (obt == 4)) // locked, but locked to current lift
+
+      // locked, but locked to lift
+      if (((mInput.key[MAP_LOCK_KEY][0]) || (viewer_lock)) && (obt == 4))
       {
          int x = lift; // check only current lift
+
+         // lock current step also, only detect mouse on current step if current step is move step
+         int y = mLift.cur[x].current_step; // check only current step
+         if ((mLift.stp[x][y].type & 31) == 1) // check only move step
+         {
+            int w =  mLift.stp[x][y].w / 2;
+            int h =  mLift.stp[x][y].h / 2;
+            int nx = mLift.stp[x][y].x + w;
+            int ny = mLift.stp[x][y].y + h;
+            if ((mLevelEditor.hx > nx - w)  && (mLevelEditor.hx < nx + w) && (mLevelEditor.hy > ny - h)  && (mLevelEditor.hy < ny + h)) // is mouse on this step ?
+            {
+               mouse_on_lift = 1;
+               step = y;
+            }
+         }
+
+
+      /*
+         // don't lock to current step, detect mouse on any move step and set that step as current step
          for (int y=0; y<mLift.cur[x].num_steps; y++)  // cycle steps
             if ((mLift.stp[x][y].type & 31) == 1) // look for move step
             {
@@ -1775,6 +1787,10 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
                   mLift.set_lift_to_step(lift, step);   // set current step in current lift
                }
             }
+*/
+
+
+
       }
    }
    if (mouse_on_lift)
@@ -1796,6 +1812,7 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
    if (mouse_move)     al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
    else if (mouse_adj) al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else                al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+
 
 
 
@@ -1891,6 +1908,10 @@ void mwObjectViewer::ov_process_mouse_on_background(void)
          // snap to pos
          mMiscFnx.mw_round(mx, snap);
          mMiscFnx.mw_round(my, snap);
+
+//         al_draw_textf(mFont.pixl, mColor.pc[15], mInput.mouse_x, mInput.mouse_y-32, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+
+         //printf("x:%d y:%d\n", mx, my);
 
 
          if (mouse_on_obj)
@@ -2113,7 +2134,7 @@ void mwObjectViewer::ov_move_enemy(int num, int x_offset, int y_offset)
 }
 
 
-void mwObjectViewer::ov_check_if_valid(void)
+void mwObjectViewer::ov_check_if_valid()
 {
    // check if the current object is valid
    if (obt==0)                               mLevelEditor.set_mode(1);
@@ -2122,7 +2143,7 @@ void mwObjectViewer::ov_check_if_valid(void)
    if ((obt==4) && (!mLift.cur[num].active)) mLevelEditor.set_mode(1);
 }
 
-void mwObjectViewer::ov_process_keypress(void)
+void mwObjectViewer::ov_process_keypress()
 {
    char msg[1024];
    int type=0, lift=0, step=0;
@@ -2214,7 +2235,7 @@ void mwObjectViewer::object_viewer(int o, int n)
    obt = o;
    num = n;
    mLevelEditor.set_mode(4); // object viewer
-//   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 }
 
 
@@ -2222,12 +2243,9 @@ void mwObjectViewer::draw(mwRect<int> & rect, int d, int have_focus)
 {
    // erase background
    rect.draw_filled_rectangle(mColor.pc[0]);
-
    ov_check_if_valid();
    ov_get_size();
    ov_title(rect.x1, rect.x2, rect.y1, rect.y2, mObjectViewer.legend_line);
-   int by1 = rect.y1+2;
-   if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Viewer Basics");
    ov_draw_buttons(rect.x1, rect.y1, rect.x2, rect.y2, d);
 }
 
@@ -2250,13 +2268,4 @@ void mwObjectViewer::draw_level_editor_background_overlays(int mouse_on_window)
 
    ov_draw_overlays(legend_line);
 }
-
-
-
-
-
-
-
-
-
 

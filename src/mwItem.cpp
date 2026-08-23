@@ -165,7 +165,6 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == PM_ITEM_TYPE_LIT_BOMB) drawn = draw_lit_bomb     (i);
    if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
 
-
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
 
@@ -218,6 +217,11 @@ void mwItem::move_items()
          if (type == PM_ITEM_TYPE_HIDER)    proc_hider(i);
          if (type == PM_ITEM_TYPE_LIT_BOMB) proc_lit_bomb(i);
          if (type == PM_ITEM_TYPE_LIT_RCKT) proc_lit_rocket(i);
+
+
+         if (type == PM_ITEM_TYPE_START)    proc_start(i);
+
+
 
 
          // check for time to live
