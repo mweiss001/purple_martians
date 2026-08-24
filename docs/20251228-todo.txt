@@ -24,6 +24,8 @@ TO DO
 
 
 save tileset groups with level editor..done
+now sometimes get crash when retarting level editor...???
+
 
 
 make tile draw mode show in all modes, put it on the top tool bar
@@ -34,6 +36,9 @@ loadSelectionDialog
 - enter to set, esc to cancel
 - larger frame around thing to paste
 - minimum size width, even if paste is smaller
+
+
+
 
 
 
