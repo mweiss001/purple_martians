@@ -596,6 +596,10 @@ void mwLevelEditor::save_mW()
       fwrite(&selection.x2,                           sizeof(selection.x2),                           1, fp);
       fwrite(&selection.y2,                           sizeof(selection.y2),                           1, fp);
 
+      fwrite(&mSelectionWindow.tileSetGroups,         sizeof(mSelectionWindow.tileSetGroups),         1, fp);
+
+
+
       fwrite(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fwrite(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
       fwrite(&mEditorMain.draw_tile_mode,             sizeof(mEditorMain.draw_tile_mode),             1, fp);
@@ -630,6 +634,11 @@ bool mwLevelEditor::load_mW()
       fread(&selection.y1,                           sizeof(selection.y1),                           1, fp);
       fread(&selection.x2,                           sizeof(selection.x2),                           1, fp);
       fread(&selection.y2,                           sizeof(selection.y2),                           1, fp);
+      fread(&mSelectionWindow.tileSetGroups,         sizeof(mSelectionWindow.tileSetGroups),         1, fp);
+
+
+
+
 
 
       fread(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
@@ -644,6 +653,9 @@ bool mwLevelEditor::load_mW()
       fread(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
       fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+
+
+
 
 
       fclose(fp);

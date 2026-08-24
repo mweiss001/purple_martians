@@ -16,8 +16,9 @@ public:
    mwRect<int> rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
    mwRect<int> list_rect = mwRect<int>::fromX1Y1WH(0,0,0,0);
 
-   int selected_item = 0;
+   int selected_item = -1;
    bool selection_changed;
+
 
 
 private:

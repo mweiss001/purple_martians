@@ -23,10 +23,32 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+save tileset groups with level editor..done
 
 
 make tile draw mode show in all modes, put it on the top tool bar
 in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
+
+
+loadSelectionDialog
+- enter to set, esc to cancel
+- larger frame around thing to paste
+- minimum size width, even if paste is smaller
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 
 
 when lift is huge in level editor, can't see or edit anything below it...

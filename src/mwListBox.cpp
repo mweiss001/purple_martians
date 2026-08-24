@@ -14,7 +14,7 @@ void mwListBox::init()
 {
    list.clear();
    list_start_index = 0;
-   selected_item = 0;
+   selected_item = -1;
    selection_changed = false;
 }
 
@@ -192,15 +192,20 @@ void mwListBox::draw_list()
    frame_line(selected_item-list_start_index, 11);
 
    // frame hover item line
-   if (hover_item != -1) frame_line(hover_item, 14);
+   frame_line(hover_item, 14);
+
+//   if (hover_item != -1) frame_line(hover_item, 14);
+
 
    al_reset_clipping_rectangle();
 }
 
 void mwListBox::frame_line(int line, int color)
 {
-   int ya = list_rect.y1 + line_padding + line * line_height - line_padding;
-   int yb = ya + 8 + line_padding*2;
-   al_draw_rectangle(list_rect.x1+1, ya, list_rect.x2-1, yb, mColor.pc[color], 1);
+   if (line>=0 && line < num_items)
+   {
+      int ya = list_rect.y1 + line_padding + line * line_height - line_padding;
+      int yb = ya + 8 + line_padding*2;
+      al_draw_rectangle(list_rect.x1+1, ya, list_rect.x2-1, yb, mColor.pc[color], 1);
+   }
 }
-

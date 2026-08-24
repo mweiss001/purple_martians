@@ -180,8 +180,11 @@ void mwEditSelection::clear_ft_variables(void)
 int mwEditSelection::load_selection_prompt()
 {
 
-   mLoadSelectionDialog.run();
-   return 1;
+   return mLoadSelectionDialog.run();
+
+
+
+//   return 1;
 
 
    // char sel_filename[500];
@@ -222,14 +225,15 @@ int mwEditSelection::load_selection(const char* filename)
       // copy to variables
       sel_to_ft(ft);
 
+
+/*
       int sw = ft_level_header[8];
       int sh = ft_level_header[9];
       printf("sw:%d sh:%d\n", sw, sh);
-
       printf("Number of items: %d\n", ft_level_header[3]);
       printf("Number of enemies: %d\n", ft_level_header[4]);
       printf("Number of lifts: %d\n", ft_level_header[5]);
-
+*/
 
       ftLift.lift_setup(); // set all lifts to step 0
 

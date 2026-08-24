@@ -9,16 +9,21 @@ class mwLoadSelectionDialog
 
 public:
 
-   void run();
+   int run();
 
 private:
 
    mwWindowManager mWM = mwWindowManager(3);
    void draw_file_select(mwWindow w);
-   void draw_selection(mwWindow w);
+   void draw_selection(mwWindow &w);
    void redraw_callback();
 
    mwListBox mListBox;
+
+   int quit = 0;
+   int retval = 0;
+
+
 
 
 
