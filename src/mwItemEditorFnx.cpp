@@ -611,22 +611,17 @@ int mwItem::create_item(int type)
 
 int mwItem::create_timer(int i)
 {
-   int bad = 0;
    // set the item location
    if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
    {
       item[i][0] = 13;  // type 13 - timer
-      //mItem.item[i][2] = 0; // draw color
+      mItem.item[i][2] = 0; // default no progress bar display
    }
-   else bad = 1;
-   if (!bad)
-   {
-      if (!mMiscFnx.get_block_range("Display Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, i);
+   else return 0;
+   mObjectViewer.object_viewer(2, i);
    return 1;
 }
+
 
 int mwItem::create_hider(int i)
 {

@@ -163,7 +163,12 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == PM_ITEM_TYPE_HIDER)    drawn = draw_hider        (i, x, y, shape);
    if (type == PM_ITEM_TYPE_LIT_RCKT) drawn = draw_rocket       (i, x, y, shape);
    if (type == PM_ITEM_TYPE_LIT_BOMB) drawn = draw_lit_bomb     (i);
+   //if (type == PM_ITEM_TYPE_GATE)     drawn = draw_gate         (i, x, y, custom);
    if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
+
+
+
+
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);

@@ -37201,6 +37201,20 @@ done
 commit, then back to level 111
 
 
+2026-08-25 05:13:10
+
+loadSelectionDialog
+- enter to set, esc to cancel
+- larger frame around thing to paste
+- minimum size width, even if paste is smaller
+done...
+
+
+
+
+
+
+
 
 
 

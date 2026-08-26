@@ -138,6 +138,12 @@ class mwWidget
                    int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                    int text_just, int &var, float sul, float sll, float sinc, const char *txt, bool disable_input);
 
+   void mSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
+                   int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, const char *txt0, bool disable_input);
+
+
+
 
 
    float drawSlider(int x1, int y1, int x2, int y2,

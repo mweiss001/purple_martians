@@ -197,17 +197,9 @@ void mwLevelEditor::set_mode(int new_mode)
 int mwLevelEditor::loop(int level)
 {
 
-//   mFileSelect.run();
-
-
-   mSelectionWindow.init(); // needs to be called after load sprit
-
-
-
    mLoop.level_editor_running = 1;
    al_show_mouse_cursor(mDisplay.display);
    mEventQueue.reset_fps_timer();
-
 
    // setup windows and load passed level
    init(level);
@@ -226,6 +218,8 @@ int mwLevelEditor::loop(int level)
    // if autosave off, or load fails, or load level != current level
    if (last_level_num_edit != level) set_mode(1);
 
+
+   mSelectionWindow.init(); // needs to be called after load sprit and after load_mW
 
 
    active = 1;
@@ -584,6 +578,10 @@ void mwLevelEditor::save_mW()
       w[i].layer  = mWM.mW[i].layer;
    }
 
+   int tileSetGroupsVisible[32];
+   for (int i = 0; i < 32; i++) tileSetGroupsVisible[i] = mSelectionWindow.tileSetGroups[i].visible;
+
+
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "wb");
    if (fp)
    {
@@ -596,7 +594,7 @@ void mwLevelEditor::save_mW()
       fwrite(&selection.x2,                           sizeof(selection.x2),                           1, fp);
       fwrite(&selection.y2,                           sizeof(selection.y2),                           1, fp);
 
-      fwrite(&mSelectionWindow.tileSetGroups,         sizeof(mSelectionWindow.tileSetGroups),         1, fp);
+      fwrite(&tileSetGroupsVisible,                   sizeof(tileSetGroupsVisible),                   1, fp);
 
 
 
@@ -623,6 +621,10 @@ bool mwLevelEditor::load_mW()
 {
    // load static window array
    mwWindow w[20];
+
+   int tileSetGroupsVisible[32];
+
+
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "rb");
    if (fp)
    {
@@ -634,12 +636,8 @@ bool mwLevelEditor::load_mW()
       fread(&selection.y1,                           sizeof(selection.y1),                           1, fp);
       fread(&selection.x2,                           sizeof(selection.x2),                           1, fp);
       fread(&selection.y2,                           sizeof(selection.y2),                           1, fp);
-      fread(&mSelectionWindow.tileSetGroups,         sizeof(mSelectionWindow.tileSetGroups),         1, fp);
 
-
-
-
-
+      fread(&tileSetGroupsVisible,                   sizeof(tileSetGroupsVisible),                   1, fp);
 
       fread(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fread(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
@@ -655,9 +653,6 @@ bool mwLevelEditor::load_mW()
       fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
 
 
-
-
-
       fclose(fp);
 
       // copy only these values back to window vector
@@ -667,6 +662,10 @@ bool mwLevelEditor::load_mW()
          mWM.mW[i].active = w[i].active;
          mWM.mW[i].layer  = w[i].layer;
       }
+
+
+      for (int i = 0; i < 32; i++) mSelectionWindow.tileSetGroups[i].visible = tileSetGroupsVisible[i];
+
 
       // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
       al_remove_filename("data/levelEditorWindowGeometry.pm");

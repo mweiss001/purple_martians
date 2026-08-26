@@ -19,17 +19,10 @@
 
 mwSelectionWindow mSelectionWindow;
 
-
-void mwSelectionWindow::init()
+void mwSelectionWindow::setupTileSetGroups()
 {
-   block_on = 1;
-   special_on = 1;
 
-   fill_block_array();
-   load_pde();
-
-
-      // set up tile set groups
+         // set up tile set groups
 
    int i;
 
@@ -197,39 +190,17 @@ void mwSelectionWindow::init()
 */
 
 
+}
 
 
 
+void mwSelectionWindow::init()
+{
+   block_on = 1;
+   special_on = 1;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   fill_block_array();
+   load_pde();
 
 }
 

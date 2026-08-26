@@ -23,31 +23,18 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-save tileset groups with level editor..done
-now sometimes get crash when retarting level editor...???
-
-
 
 make tile draw mode show in all modes, put it on the top tool bar
 in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
 
 
-loadSelectionDialog
-- enter to set, esc to cancel
-- larger frame around thing to paste
-- minimum size width, even if paste is smaller
+make toolbar icons in selection window use nice popup tooltip
+
+
+move legend text up one pixel
 
 
 
-
-
-
-
-
-
-
-
- 
 
 
 
@@ -64,6 +51,138 @@ could I change the filters to have edit, draw, copy etc?
 
 replace more old old slider with new mStepSliderInt
 will probaly need a float version also... 
+
+work on one thing at a time...
+
+do items...
+door..done
+bonus..done 
+I have found a misalignment in stepSlideInt between the text in slider and buttons
+off by one when bts is even
+fixed by changing mButton which added 1 to text drawing...removed
+
+this might break other stuff...check and fix manually if needed
+
+72 instances!
+
+exit..done
+key..done
+start..done
+orb..done
+
+I have a few place where I will need to do something about this:
+
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+
+ya+=4; // spacer
+mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 0, "Continuously Set Event When:",  d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][10], 99, 0, 1,  1, 10, "On:", "-", d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+ya+=4; // spacer
+mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 0, "Set Event When Switching:",  d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "On:", "-", d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+
+
+mine..done
+bomb..done
+rocket..done
+message..done
+switch..done
+spring...done
+
+timer...
+make creator not prompt for display area, off by default
+if not draw do not display adjustments...done
+timer set and rx events are a little different....done
+
+trigger...done
+block manip..done
+block damage..done
+gate..done
+hider..done
+
+
+all items should be done...
+
+now on to enemies (and I will probably need float version of stepper)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -33,11 +33,17 @@ class mwSelectionWindow
 
 public:
 
-   mwSelectionWindow() { init(); }
+   mwSelectionWindow()
+   {
+      //init();
+      setupTileSetGroups();
+   }
 
 
    void init();
    tileSetGroup tileSetGroups[32];
+
+   void setupTileSetGroups();
 
 
    std::vector<pde> pdes;
@@ -90,9 +96,8 @@ private:
    void set_block_set_main_blocks(int &x, int &y);
 
 
-
-
    bool isTileSetGroupVisible(std::string name);
+
 
 
 
