@@ -791,9 +791,10 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
       x8 = x7 - bs; x7 = x8 - (bp + 8*2);
       if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+1")) f++;
 
-      ya+=17;
+      ya+=16;
+      mWidget.mSliderInt(0, xa, x2-2,  1, ya, 14,  2, 2, 1, 1,  c, c, 15, 15, 15,0, 0,  f, mDemoMode.last_frame+1000, 0, 1, "", 0, 0);
+      ya+=16;
 
-      mWidget.slideri(xa, ya, x2-2, 16,  0,0,0,0,  0,c,15,15,  0,0,1,0, f, mDemoMode.last_frame+1000, 0, 1, "");
       if (f < 0) f = 0;
 
       if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
@@ -832,10 +833,9 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          al_draw_filled_rectangle(x1, ya, x2, ya+yi, mColor.pc[col+208]);
          al_draw_rectangle(x1, ya, x2, ya+yi, mColor.pc[col], 1);
          ya+=2;
-
          mWidget.togglfc(xa,     ya, xa+20,  16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b01, "Other Players", 15, 15);
          mWidget.togglfc(xa+128, ya, xa+148, 16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b10, "Self", 15, 15);
-         mWidget.slideri(xa+180, ya, x2-2,   16, 0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, -100, 1, "Damage:");
+         mWidget.mStepSliderInt(0, xa+180, x2-2,  1, ya, 14,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  v, 100, -100, 1, 1, 0, "Damage:", 0, 0); ya+=16;
       }
 
       // erase and frame

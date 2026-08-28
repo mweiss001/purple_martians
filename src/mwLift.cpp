@@ -685,33 +685,33 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
       // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
 
 
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].x,   1999, 0, 20, 1, 10, "X:",      d); ya+=bts+1;
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].y,   1999, 0, 20, 1, 10, "Y:",      d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", 1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].x,   1999, 0, 20, 1, 10, "X:",      1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].y,   1999, 0, 20, 1, 10, "Y:",      1, d); ya+=bts+1;
 
       break;
       case 2: // wait time
          //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 2000, 1, 1,  1, 10, "Timer:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 2000, 1, 1,  1, 10, "Timer:",  1, d); ya+=bts+1;
 
       break;
       case 3: // wait prox
          //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 200, 1, 1,  1, 10, "Distance:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 200, 1, 1,  1, 10, "Distance:",  1, d); ya+=bts+1;
       break;
       case 4: // end step
          mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
       break;
       case 5: // wait trigger
          //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  1, d); ya+=bts+1;
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
       break;
       case 6: // send trigger
          //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
-         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  1, d); ya+=bts+1;
       break;
    }
 

@@ -1133,7 +1133,7 @@ void mwSettings::page_bottom_msg(void)
 
 //   mWidget.slider0(xa, ya, xb, bts,  0,0,0,0,  0,14+96,15,15, 0,0,1,0, mBottomMessage.display_timer_reset_val, 10, 0, 1, "Hide after x seconds:", "Always Show");
 
-   mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts,   2, 2, 1, 1,     14+96, 14+96, 15, 15, 15,0, 0,   mBottomMessage.display_timer_reset_val, 10, 0, 1, 1, 4, "Hide after x seconds:", 0);
+   mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts,   2, 2, 1, 1,     14+96, 14+96, 15, 15, 15,0, 0,   mBottomMessage.display_timer_reset_val, 10, 0, 1, 1, 4, "Hide after x seconds:", 0, 0);
    ya+=bts;
 
 
@@ -1665,10 +1665,9 @@ void mwSettings::page_viewport(void)
       xb = cfp_x2 - 10;
       int xw4 = (xb - xa)/2;
       xb = xa+xw4-10;
-      mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,0,0, mScreen.viewport_x_div, 1, 0.01, .01, "X scale:");
-
+      mWidget.mStepSliderFloat(0, xa, xb,  1, ya, bts,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mScreen.viewport_x_div, 1, 0.01, 0.01, 0.01, 0,  "X scale:", 0, 0);
       xa += xw4; xb = xa+xw4-10;
-      mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,1,0, mScreen.viewport_y_div, 1, 0.01, .01, "Y scale:");
+      mWidget.mStepSliderFloat(0, xa, xb,  1, ya, bts,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mScreen.viewport_y_div, 1, 0.01, 0.01, 0.01, 0,  "Y scale:", 0, 0);  ya+=bts+2;
 
       xa = cfp_x1 + 10;
       xb = cfp_x2 - 10;

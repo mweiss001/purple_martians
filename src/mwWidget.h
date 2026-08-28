@@ -24,17 +24,21 @@ class mwWidget
 
    public:
 
-   void slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                    int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
 
    bool slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
                 int q4, int q5, int q6, int q7,
                 int &var, float sul, float sll, float sinc, const char *txt);
 
-   bool sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
+
+   /*
+
+   void slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                    int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
+
+   bool sliderf(int x1, int &y1, int x2, int bts, int q0, int q1, int q2, int q3,
                 int q4, int q5, int q6, int q7,
                 float &var, float sul, float sll, float sinc, const char *txt);
-
+*/
 
 
 
@@ -126,6 +130,21 @@ class mwWidget
 
 
 
+
+
+
+
+
+   void mSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
+                     int r, int backgroundType, int frameType, int textType,
+                     int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                     int text_just, float &var, float sul, float sll, float sinc, const char *txt, int update, bool disable_input);
+
+
+
+
+
+
    bool mTrackInt(int xType, int xa, int xb, int yType, int ya, int yb,
                          int r, int backgroundType, int frameType, int textType,
                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
@@ -136,12 +155,11 @@ class mwWidget
 
    void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                    int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, bool disable_input);
+                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, int update, bool disable_input);
 
    void mSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
                    int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, const char *txt0, bool disable_input);
-
+                   int text_just, int &var, float sul, float sll, float sinc, const char *txt, const char *txt0, int update, bool disable_input);
 
 
 
@@ -164,6 +182,13 @@ class mwWidget
 
 
 
+   void mStepSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
+                         int r, int backgroundType, int frameType, int textType,
+                         int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                         int text_just, float &var, float ul, float ll, float slinc, float stinc1, float stinc2, const char *txt, int update, bool disable_input);
+
+
+
 
    void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,
@@ -175,12 +200,12 @@ class mwWidget
    void mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, bool disable_input);
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input);
 
    void mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, bool disable_input);
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, int update, bool disable_input);
 
 
 

@@ -575,7 +575,7 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    int y1 = y;
    int h = (bts+2) * 9 + 37;
 
-   if (draw_mode > 1 && draw_mode < 6) h+=19;
+   if (draw_mode > 1 && draw_mode < 6) h+=17;
    //h += mLoop.pct_y;
    int y2 = y1 + h;
 
@@ -613,7 +613,7 @@ int mwTileEditor::draw_mode_controls(int x, int y)
 
    if (draw_mode > 1 && draw_mode < 6)
    {
-      mWidget.sliderf(xa+1, ya, xb-1,  16,  0,0,0,0,  0,12,15 ,15,  0,0,1,0, th, 8, 0,  0.1, "Line Size:");
+      mWidget.mStepSliderFloat(0, xa+1, xb-1,  1, ya, bts,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  th, 8, 0, 0.1, 0.1, 0,  "Line Size:", 1, 0); ya+=bts+2;
       ya+= -3;
       al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
       ya+= line_spacing;

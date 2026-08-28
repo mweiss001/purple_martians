@@ -80,6 +80,17 @@ public:
    void ov_get_size();
    void set_switch_tile(int i);
    void ov_title(int x1, int x2, int y1, int y2, int legend_highlight);
+
+
+   void odbi(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt);
+   void odb0(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt, const char* txt0);
+   void odbf(int d, int xa, int xb, int &ya, int bts, int col, float &var, float ul, float ll, float sl_inc, float st1_inc, float st2_inc, const char* txt);
+   void odbt(int d, int xa, int xb, int &ya, int bts, int colt, int &var, int col0, int col1,  const char* txt0, const char* txt1);
+
+
+
+
+
    void ov_draw_buttons(int x1, int y1, int x2, int y2, int draw_only);
 
    void ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, int w, int h, int color, int crosshairs);
@@ -94,6 +105,10 @@ public:
    void ov_process_mouse_on_background();
    void ov_check_if_valid();
    void ov_process_keypress();
+
+
+
+
    void object_viewer(int obt, int num);
 
    void draw(mwRect<int> &rect, int draw_only, int have_focus);

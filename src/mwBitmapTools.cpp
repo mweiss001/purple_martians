@@ -775,7 +775,7 @@ void mwBitmapTools::animation_sequence_editor()
          }
       }
       y5+=4;
-      mWidget.slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  0,0,1,0, mBitmap.zz[3][zzindx], 100, 0, 1, "Animation Delay:");
+      mWidget.mStepSliderInt(0, xa, xb,  1, y5, 15,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mBitmap.zz[3][zzindx], 100, 0, 1,  1, 0, "Animation Delay:", 0, 0); y5+=16;
       y5+=4;
       if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) mBitmap.save_sprit();
 

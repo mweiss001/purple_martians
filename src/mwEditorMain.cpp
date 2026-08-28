@@ -896,7 +896,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
 
    bts = 12;
    int yt = by1-2;
-   if (mLevelEditor.mWM.mW[7].active) mWidget.slideri(x1, yt, x1+80, bts, 0,0,0,0,   0,12,15,15,  1,0,0,d, mObjectViewer.snap, 20, 1, 1,  "Snap:");
+   if (mLevelEditor.mWM.mW[7].active) mWidget.mSliderInt(0, x1, x1+80,  1, yt, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
 
    // status display in the lower right border
    int y2 = mDisplay.SCREEN_H-BORDER_WIDTH+3;

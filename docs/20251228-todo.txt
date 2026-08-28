@@ -116,6 +116,198 @@ all items should be done...
 now on to enemies (and I will probably need float version of stepper)
 
 
+making float version
+
+starting with mSliderFloat
+
+how is sliderf non-blocking?
+
+
+
+
+sliderf
+
+         while (mInput.mouse_b[1][0])
+         {
+            var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
+            sprintf(msg, "%s%3.2f", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
+         }
+
+
+float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
+{
+   if (q4)
+   {
+      mLevelEditor.redraw_background();
+      mLevelEditor.mWM.cycle_windows(1);
+   }
+
+
+I think I have fixed it so that msliderInt, msliderInt0, mStepSliderInt, mStepSliderInt0 all have optional background update when adjusting slider...
+
+now back to float
+
+how to make the text on adjust smaller...
+
+use + ++ - --
+
+
+bouncer..done
+cannon..done
+archwag..done
+blkwlk..done
+jumpworm..done
+flapper..done
+crew..done
+trakbot..done
+cloner..done
+vinepod..done
+all enemies done
+
+lifts done
+
+items done
+
+what next?
+group edit
+
+make separate lines for each value..done
+rename from min max to v1, v2..done
+make type a drop down list...done
+rename do it to apply..done
+I think group edit is done
+where else would I want to replace old legacy slider?
+
+level editor is mostly done...
+
+can I clean up the widget mess some?
+
+sliders...
+can I get rid of some legacy ones?
+
+bool mwWidget::sliderf(int x1, int &y1, int x2, int bts, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+3 usages...
+do it...done
+
+void mwWidget::slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+0 usages
+removed...
+
+   bool slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
+14 usages...
+now down to 9 and they are all in settings...
+
+this is nice cleaning up all this crap...
+
+2026-08-28 07:32:51
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

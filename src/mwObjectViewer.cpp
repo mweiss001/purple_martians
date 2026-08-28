@@ -102,15 +102,20 @@ void mwObjectViewer::ov_get_size()
    if ((obt == 2) && (type == 18)) w = 220; // gate
    if ((obt == 2) && (type == 19)) w = 260; // hider
 
-   if ((obt == 3) && (type == 1 )) w = 220; // bouncer
-   if ((obt == 3) && (type == 2 )) w = 220; // cannon
-   if ((obt == 3) && (type == 3 )) w = 220; // archwagon
-   if ((obt == 3) && (type == 4 )) w = 220; // blokwalk
-   if ((obt == 3) && (type == 5 )) w = 220; // jumpworm
-   if ((obt == 3) && (type == 6 )) w = 220; // flapper
-   if ((obt == 3) && (type == 7 )) w = 220; // vinepod
-   if ((obt == 3) && (type == 8 )) w = 220; // trakbot
-   if ((obt == 3) && (type == 9 )) w = 240; // cloner
+   if (obt == 3) w = 300; // all enemies
+
+   if ((obt == 3) && (type == 9 )) w = 320; // cloner
+
+
+   // if ((obt == 3) && (type == 1 )) w = 300; // bouncer
+   // if ((obt == 3) && (type == 2 )) w = 300; // cannon
+   // if ((obt == 3) && (type == 3 )) w = 300; // archwagon
+   // if ((obt == 3) && (type == 4 )) w = 300; // blokwalk
+   // if ((obt == 3) && (type == 5 )) w = 300; // jumpworm
+   // if ((obt == 3) && (type == 6 )) w = 300; // flapper
+   // if ((obt == 3) && (type == 7 )) w = 300; // vinepod
+   // if ((obt == 3) && (type == 8 )) w = 300; // trakbot
+   // if ((obt == 3) && (type == 9 )) w = 300; // cloner
 
    if (obt == 4)                   w = 300; // lift
 
@@ -424,6 +429,37 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
       al_draw_text(mFont.pr8, mColor.pc[legend_color[x]], xc, y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
 
+void mwObjectViewer::odbi(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt)
+{
+   mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2,2,1,1,   col, col, 15,15,15,0,0,  var,   ul,   ll,  sl_inc, st1_inc, st2_inc, txt, 1, d);
+   ya+=bts+1;
+}
+
+void mwObjectViewer::odb0(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt, const char* txt0)
+{
+   mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2,2,1,1,   col, col, 15,15,15,0,0,  var,   ul,   ll,  sl_inc, st1_inc, st2_inc, txt, txt0, 1, d);
+   ya+=bts+1;
+}
+
+void mwObjectViewer::odbf(int d, int xa, int xb, int &ya, int bts, int col, float &var, float ul, float ll, float sl_inc, float st1_inc, float st2_inc, const char* txt)
+{
+   mWidget.mStepSliderFloat(0, xa, xb,  1, ya, bts-1,  2,2,1,1,   col, col, 15,15,15,0,0,  var,   ul,   ll,  sl_inc, st1_inc, st2_inc, txt, 1, d);
+   ya+=bts+1;
+}
+
+void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int colt, int &var, int col0, int col1,  const char* txt0, const char* txt1)
+{
+   mWidget.toggle(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, var, txt0, txt1, colt, colt, col0, col1);
+}
+
+
+
+
+
+
+
+
+
 
 void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
@@ -508,10 +544,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          ya+=2;
       }
 
-
-
       if (mLift.cur[lift].mode)
-         mWidget.slideri    (xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].mode_reset_value, 2000, 1, 1,  "Reset Timer:");
+         odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");
+
       if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mb = 26; // lift name
       ya+=bts;
 
@@ -581,136 +616,126 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // enemy subtypes
       {
          case 1: // bouncer
-            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case 2: // cannon
-            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
+            odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
+            ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
+            odbi(d, xa, xb, ya, bts,  8, mEnemy.Ei[n][9],        40,        0,        1,        1,        0,      "Extra Hits To Kill:");
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Shot Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Shot Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Shot Retrigger Time:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][17],     2000,       20,        1,        1,       10,      "Shot Proximity:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][15],      200,        1,        1,        1,       10,      "Retrigger Time:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case 3: // archwag
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][11],      100,        0,        1,        1,       10,      "Jump Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][12],      100,        0,        1,        1,       10,      "Jump Before Wall:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][7],       600,        0,        1,        1,       10,      "Jump Under Width:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][6],       500,        0,        1,        1,       10,      "Jump Timer Wait:", "Off");
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Shot Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Shot Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Shot Retrigger Time:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][17],     2000,       20,        1,        1,       10,      "Shot Proximity:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][15],      200,        1,        1,        1,       10,      "Retrigger Time:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case 4: // block walker
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][11],      100,        0,        1,        1,       10,      "Jump Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][12],      100,        0,        1,        1,       10,      "Jump Before Wall:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][7],       600,        0,        1,        1,       10,      "Jump Under Width:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][6],       500,        0,        1,        1,       10,      "Jump Timer Wait:", "Off");
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts, 318,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 148 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
          break;
          case 5: // jumpworm
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
+            odbi(d, xa, xb, ya, bts, 11, mEnemy.Ei[n][4],        12,        1,        1,        1,        0,     "X-Speed (Ground):1/");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][6],        12,      0.4,     0.01,     0.01,      0.1,     "X-Speed (jump):");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        12,      0.4,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][8],  160, 0, 1,    "Wall Jump Boost:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][11],      100,        0,        1,        1,       10,      "Jump Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][12],      100,        0,        1,        1,       10,      "Jump Before Wall:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][8],       160,        0,        1,        1,       10,      "Wall Jump Boost:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][7],       600,        0,        1,        1,       10,      "Jump Under Width:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][6],       500,        0,        1,        1,       10,      "Jump Timer Wait:", "Off");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case 6: // flapper
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,    "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][5],         8,      0.5,     0.01,     0.01,      0.1,     "X-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][6],         1,     0.01,     0.01,     0.01,      0.1,     "X-Accel:");
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        12, 12,  "Initial Direction:Left ",    "Initial Direction:Right");
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
+            odbf(d, xa, xb, ya, bts, 13, mEnemy.Ef[n][3],         5,      0.0,     0.01,     0.01,      0.1,      "Y-Speed:");
+            odbf(d, xa, xb, ya, bts, 13, mEnemy.Ef[n][10],        8,      0.5,      0.1,     0.01,      0.1,      "Flap Speed:");
+            odbi(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][21],       80,        0,        1,        1,       10,      "Flap Height:");
+            odbi(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][20],     1000,    -1000,        1,        1,       10,      "Height Above Player:");
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Shot Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Shot Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Shot Retrigger Time:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][17],     2000,       20,        1,        1,       10,      "Shot Proximity:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][15],      200,        1,        1,        1,       10,      "Retrigger Time:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
-
-
-
 
          case 7: // vinepod
          {
-
-
-
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400,  2,  2,  "Extend Time:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][9],  400,  0,  1,  "Pause:");
-
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][17],      400,        2,        1,        1,       10,      "Extend Time:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][9],       400,        0,        1,        1,       10,      "Pause:");
             ya+=4; // spacer
-
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 15+dim, 15, 11+dim, 11);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_FIRE_SHOT)
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Shot Speed:");
-
+            odbf(d, xa, xb, ya, bts, 11, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
             ya+=4; // spacer
-
-            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,2,15,15,  1,0,1,d, mEnemy.Ei[n][19], 99, 0, 1, "Output Event:", "OFF");
-
+            odb0(d, xa, xb, ya, bts,  2, mEnemy.Ei[n][19],       99,        0,        1,        1,       10,      "Output Event:", "OFF");
             ya+=4; // spacer
 
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
@@ -719,10 +744,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
 
             ya+=4; // spacer
-
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][18], 99, 0, 1,    "Event Trigger:", "OFF");
+            odb0(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][18],       99,        0,        1,        1,       10,      "Event Trigger:", "OFF");
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
-
             ya+=4; // spacer
 
             mWidget.togglf(     xa, ya, xb, bts,  0,0,0,0,  0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ", 15+dim, 15, 14+dim, 14);
@@ -736,10 +759,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ", 15+dim, 15, 3+dim, 3);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
             {
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 3,15,15,  1,0,1,d, mEnemy.Ef[n][6],  8,  1,  0.1,  "Control Point Scale:");
+            odbf(d, xa, xb, ya, bts,  3, mEnemy.Ef[n][6],        8,         1,      0.1,      0.1,        1,      "Control Point Scale:");
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) mMiscFnx.getxy("Vinepod Control Point 1", 91, 13, n);
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) mMiscFnx.getxy("Vinepod Control Point 2", 92, 13, n);
-            //if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "Set Thirds")) mEnemy.vinepod_set_cp_thirds(n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "Set Thirds")) mEnemy.vinepod_set_cp_thirds(n);
             }
 
             ya+=4; // spacer
@@ -748,106 +771,87 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             static float sca = 1.0;
 
 
-
             int c = 6;
             mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, xfrm, "Transform Tools:Off", "Transform Tools:On", 15, 15, c+64, c);
 
 
             if (xfrm)
             {
+               ya+=2; // spacer
+
                int xh = 70;
                if (mWidget.buttont(xa, ya, xa+xh-2, bts,  0,0,0,0,  0, c,15, 0,  1,0,0,d, "Rotate")) mEnemy.vinepod_rotate(n, mEnemy.deg_to_rad(rot));
-               mWidget.slideri(    xa+xh+2, ya, xb, bts,  0,0,0,0,  0, c,15,15,  1,0,1,d, rot,  180,  -180,  1,  "Degrees:");
-
-  //             ya+=4; // spacer
+               odbi(d, xa+xh+2, xb, ya, bts,  c, rot,                    180,    -180,        1,        1,       10,      "Degrees:");
+               ya+=2; // spacer
 
                if (mWidget.buttont(xa, ya, xa+xh-2, bts,  0,0,0,0,  0, c,15, 0,  1,0,0,d, "Scale")) mEnemy.vinepod_scale(n, sca);
-               mWidget.sliderf(    xa+xh+2, ya, xb, bts,  0,0,0,0,  0, c,15,15,  1,0,1,d, sca,  10,  0.01,  .01,  "");
-
-//               ya+=4; // spacer
+               odbf(d, xa+xh+2, xb, ya, bts,  c, sca,                     10,    0.01,     0.01,      0.1,       1,      "");
+               ya+=2; // spacer
 
                xh = (xb-xa)/2;
                if (mWidget.buttont(xa, ya, xa+xh-2, bts,  0,0,0,0,  0, c,15, 0,  1,0,0,d, "Mirror X")) mEnemy.vinepod_mirror_x(n);
                if (mWidget.buttont(xa+xh+2, ya, xb, bts,  0,0,0,0,  0, c,15, 0,  1,0,1,d, "Mirror Y")) mEnemy.vinepod_mirror_y(n);
             }
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          }
          break;
          case 8: // trakbot
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][2],  10, .5, 0.1, "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  10, .5, 0.1, "Y-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][2],        10,      0.5,     0.01,     0.01,      0.1,      "X-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        10,      0.5,     0.01,     0.01,      0.1,      "Y-Speed:");
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][7], "Drop Mode:Off", "Drop Mode:On ", 15, 15, 6+64, 6);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][7],    6+64, 6,  "Drop Mode:Off", "Drop Mode:On ");
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Shot Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Shot Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Shot Retrigger Time:");
+            odbf(d, xa, xb, ya, bts,  9, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][17],     2000,       20,        1,        1,       10,      "Shot Proximity:");
+            odbi(d, xa, xb, ya, bts,  9, mEnemy.Ei[n][15],      200,        1,        1,        1,       10,      "Retrigger Time:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
+
          case 9: // cloner
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][30],    12, 10,  "Not Invincible", "Invincible!");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][8], 99, 0, 1,    "Event Trigger:", "OFF");
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
+            odb0(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][8],        99,        0,        1,        1,       10,      "Event Trigger:", "none");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
+            odb0(d, xa, xb, ya, bts, 14, mEnemy.Ei[n][9],      4800,        0,        1,        1,       10,      "Created Time To Live:", "-");
+            odb0(d, xa, xb, ya, bts, 14, mEnemy.Ei[n][10],      600,        0,        1,        1,       10,      "Max Created Objects:", "-");
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", mEnemy.Ei[n][15], mEnemy.Ei[n][16], mEnemy.Ei[n][19], mEnemy.Ei[n][20], 1);
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
             ya+=4; // spacer
             mWidget.buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
             mWidget.buttonp(    xa, ya, xb, bts,  82,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][5]); // draw mode
-
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,   "Health Bonus:");
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
+            odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
+            odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
 
          case 19: // crew
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][11],      100,        0,        1,        1,       10,      "Jump Before Hole:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][12],      100,        0,        1,        1,       10,      "Jump Before Wall:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][7],       600,        0,        1,        1,       10,      "Jump Under Width:", "Off");
+            odb0(d, xa, xb, ya, bts,  7, mEnemy.Ei[n][6],       500,        0,        1,        1,       10,      "Jump Timer Wait:", "Off");
             ya+=4; // spacer
             mWidget.colsel(    xa, ya, xb, bts,  9,n,0,0,  0, 0, 0,0, 0,0,1,d); // change color
             ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][8],  1, 0.2, 0.05, "Scale:");
-
-
-
-
+            odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][8],       1.0,      0.2,     0.05,     0.01,      0.1,      "Scale:");
          break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       }
    }
@@ -883,7 +887,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mWidget.buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
                ya+=4; // spacer
                mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][7], 100, 0, 1,  1, 10, "Health:",  d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][7], 100, 0, 1,  1, 10, "Health:", 1, d); ya+=bts+1;
                mItem.item[n][1] = 1035;
                mItem.item[n][2] = 1;
                if (mItem.item[n][7] == 10) mItem.item[n][1] = 1023;
@@ -904,7 +908,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
             mWidget.mButton(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,      12, 12, 15, 15,0, "Enemy Count Lock",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 100, 0, 1,  1, 10, "",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 100, 0, 1,  1, 10, "", 1, d); ya+=bts+1;
          break;
 
 
@@ -923,11 +927,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 5: // start
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             mWidget.buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
-            mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     11, 11, 15, 15, 15,0, 0,   mItem.item[n][7], 9, 0, 1, 1, 0, "Start Index:", d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     11, 11, 15, 15, 15,0, 0,   mItem.item[n][7], 9, 0, 1, 1, 0, "Start Index:", 1, d); ya+=bts+1;
             mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][8], "Increase Index Only:OFF", "Increase Index Only:ON", 15, 15, 11, 11);
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-            mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][9], 99, 0, 1, 1, 0, "Event Trigger:", "OFF", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][9], 99, 0, 1, 1, 0, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
          break;
 
          case 6: // orb
@@ -941,21 +945,21 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mItem.item[n][6] == 0)                                                           // only show initial state for toggle mode
                mWidget.togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
             if ((mItem.item[n][6] == 3) || (mItem.item[n][6] == 4))                                    // only show timer for mode 3 and 4
-               { mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     8, 8, 15, 15, 15,0, 0,   mItem.item[n][7], 400, 0, 1, 1, 10, "Time:", d); ya+=bts+1; }
+               { mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     8, 8, 15, 15, 15,0, 0,   mItem.item[n][7], 400, 0, 1, 1, 10, "Time:", 1, d); ya+=bts+1; }
             ya+=4; // spacer
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 0, "Continuously Set Event When:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][10], 99, 0, 1,  1, 10, "On:",  "-", d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][10], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
             ya+=4; // spacer
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 0, "Set Event When Switching:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "On:",  "-", d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
          break;
 
          case 7: // mine
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:",  1, d); ya+=bts+1;
          break;
 
          case 8: // bomb
@@ -963,11 +967,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             mWidget.button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
             if (!mItem.item[n][12])
-               { mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 2000, 1, 1,  1, 10, "Time:",  d); ya+=bts+1; }
+               { mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 2000, 1, 1,  1, 10, "Time:", 1, d); ya+=bts+1; }
             ya+=4; // spacer
             mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
             ya+=4; // spacer
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  14, 14, 15, 15, 15,0, 0,  mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  14, 14, 15, 15, 15,0, 0,  mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:", 1, d); ya+=bts+1;
          break;
 
 
@@ -977,21 +981,21 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (!(mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
             {
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:",  d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:", 1, d); ya+=bts+1;
                ya+=4; // spacer
                mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
                ya+=4; // spacer
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
                ya+=4; // spacer
             }
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Draw New Message Area")) mMiscFnx.get_block_range("Message Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
 
             int q = 10;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
             ya+=4; // spacer
             mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,3,15,0,   1,0,1,d); // Set Message Frame
             ya+=4; // spacer
@@ -1015,11 +1019,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, 11, n);
             ya+=4; // spacer
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 20, 1, 1,  1, 10, "Maximum Speed:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 200, 1, 1,  1, 10, "Acceleration:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][6], 100, 1, 1,  1, 10, "Steerability:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][8], 20, 1, 1,  1, 10, "Maximum Speed:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 200, 1, 1,  1, 10, "Acceleration:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][6], 100, 1, 1,  1, 10, "Steerability:", 1, d); ya+=bts+1;
             ya+=4; // spacer
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  14, 14, 15, 15, 15,0, 0,  mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  14, 14, 15, 15, 15,0, 0,  mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:", 1, d); ya+=bts+1;
          break;
 
 
@@ -1039,7 +1043,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 15: // sproingy
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 200, 40, 1,  1, 0, "Sproinginess:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 200, 40, 1,  1, 0, "Sproinginess:", 1, d); ya+=bts+1;
          break;
 
 
@@ -1053,29 +1057,29 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             {
                if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,    0,11,15,0,  1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
                int q = 8;
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:",  d); ya+=bts+1;
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:",  d); ya+=bts+1;
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:",  d); ya+=bts+1;
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:",  d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:", 1, d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
             }
             ya+=4; int p = 13; // spacer
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  p, p, 15, 15, 15,0, 0,  mItem.item[n][10], 1000, 0, 1,  1, 10, "Timer 1:",  "OFF", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  p, p, 15, 15, 15,0, 0,  mItem.item[n][10], 1000, 0, 1,  1, 10, "Timer 1:",  "OFF", 1, d); ya+=bts+1;
             if (mItem.item[n][10])
             {
                mWidget.buttonpd(   xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][12], 99, 0, 1, 1, 0, "Input Event:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][12], 99, 0, 1, 1, 0, "Input Event:", "OFF", 1, d); ya+=bts+1;
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,p,15,0,  1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][13], 99, 0, 1, 1, 0, "Output Event:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][13], 99, 0, 1, 1, 0, "Output Event:", "OFF", 1, d); ya+=bts+1;
                mWidget.buttonp(    xa, ya, xb, bts, 85,0,0,0,   0,p,15,0,   1,0,1,d, t1_op_mode); // output mode
             }
             ya+=4; p = 14; // spacer
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  p, p, 15, 15, 15,0, 0,  mItem.item[n][11], 1000, 0, 1,  1, 10, "Timer 2:",  "OFF", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  p, p, 15, 15, 15,0, 0,  mItem.item[n][11], 1000, 0, 1,  1, 10, "Timer 2:",  "OFF", 1, d); ya+=bts+1;
             if (mItem.item[n][11])
             {
                mWidget.buttonpd(   xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][14], 99, 0, 1, 1, 0, "Input Event:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][14], 99, 0, 1, 1, 0, "Input Event:", "OFF", 1, d); ya+=bts+1;
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,p,15,0,  1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 2, t2_mode);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][15], 99, 0, 1, 1, 0, "Output Event:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     p, p, 15, 15, 15,0, 0,   mItem.item[n][15], 99, 0, 1, 1, 0, "Output Event:", "OFF", 1, d); ya+=bts+1;
                mWidget.buttonp(    xa, ya, xb, bts, 85,0,0,0,   0,p,15,0,   1,0,1,d, t2_op_mode); // output mode
             }
             state = 1;
@@ -1089,10 +1093,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             int q = 14;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
 
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
@@ -1107,17 +1111,17 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
 
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 0, "Continuously Set Event When:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "On:",  "-", d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
             ya+=4; // spacer
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 0, "Set Event When Switching:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "On:",  "-", d); ya+=bts+1;
-            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][14], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][14], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
 
             ya+=4; // spacer
             if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
             {
-               mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,    0,6,15,15,   1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );  // Lift Number
+               mWidget.mSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1, "Lift Number:", 1, d); ya+=bts+1;
                mWidget.button(  xa, ya, xb, bts, 211,n,0,0,  0,6,15,0,    1,0,1,d);  // X Alignment
                mWidget.button(  xa, ya, xb, bts, 212,n,0,0,  0,6,15,0,    1,0,1,d);  // Y Alignment
             }
@@ -1167,7 +1171,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                }
 
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
             }
          }
          break;
@@ -1175,10 +1179,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             int q = 10;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
 
 
             ya+=4; // spacer
@@ -1198,7 +1202,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                ya+=4; // spacer
 
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
             }
             ya+=4; // spacer
             if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON",        15+dim, 15, 10+dim, 10))
@@ -1206,7 +1210,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                {
                  // mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][15], 2000, -2000, 1,        "Player Damage:" );
 
-                  mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:",  d); ya+=bts+1;
+                  mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:", 1, d); ya+=bts+1;
                }
 
             mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON",        15+dim, 15, 10+dim, 10);
@@ -1216,7 +1220,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ",          15+dim, 15, 6+dim, 6))
             {
-               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:",  d); ya+=bts+1;
+               mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:", 1, d); ya+=bts+1;
                if (!mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ",          15+dim, 15, 6+dim, 6))
                {
                   mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
@@ -1227,7 +1231,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
          case 18: // gate
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][6], 99, 1, 1,  1, 10, "Level:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][6], 99, 1, 1,  1, 10, "Level:", 1, d); ya+=bts+1;
          break;
 
 
@@ -1235,10 +1239,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             int q = 10;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:",  d); ya+=bts+1;
-            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:",  d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][6], 1990, 0, 1,  1, 10, "x:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
+            mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
 
             ya+=4; // spacer
             int p=7; // mode color
@@ -1254,7 +1258,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             {
                ya+=4; // spacer
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", d); ya+=bts+1;
+               mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
             }
          }
          break;
