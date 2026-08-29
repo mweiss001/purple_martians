@@ -218,6 +218,199 @@ void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_col
    al_draw_text(mFont.pr8, mColor.pc[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }
 
+
+
+void mwSettings::settings_pages_redraw(int disable_input)
+{
+   for (int i=0; i<20; i++) st[i].show = 0; // all off
+   for (int i=0; i<9; i++ ) st[i].show = 1; // always on
+
+   st[1].show = 0; // tab 'mode' is not used
+
+   if (show_advanced)
+   {
+      for (int i=10; i<14; i++) st[i].show = 1;
+      if (show_debug)
+         for (int i=16; i<19; i++) st[i].show = 1;
+   }
+
+   // if current page is not shown, change to page 0
+   if (!st[current_page].show) current_page = 0;
+
+   // set width and x positions
+   cf_w = 400;
+   cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
+   cf_x2 = cf_x1 + cf_w;
+
+   // set page x size, this has to go before the tab size
+   cfp_x1 = cf_x1 + frame_width;
+   cfp_x2 = cf_x2 - frame_width;
+   cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
+
+   // figure out the title height
+   int bx, by, bw, bh;
+   al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
+   float title_h = bh + 8;
+
+
+   // figure out the tabs height
+
+   // iterate through all the tabs, determine width and position
+   int next_x1 = cfp_x1+1; // start at page x1;
+   int next_y2 = 0;        // we don't know where are going to start yet, so do them at offset 0
+   for (int i=0; i<num_pages; i++)
+   {
+      if (st[i].show)
+      {
+         st[i].x1 = next_x1;
+
+         st[i].y2 = next_y2;
+         int bx, by, bw, bh; // set size of tab based on text size
+         al_get_text_dimensions(mFont.pr8, st[i].title, &bx, &by, &bw, &bh);
+         bh = 8 + 5; // force 8 because with descender, text height is sometimes different and things don't line up
+         bw += 8;
+
+         if ((st[i].x1 + bw) > cfp_x2) // time for a new line
+         {
+            st[i].y2 -= bh;      // raise y2 one line
+            st[i].x1 = cfp_x1+1; // reset x1
+         }
+
+         st[i].y1 = st[i].y2 - bh; // y1 is above (less than) y2
+         st[i].x2 = st[i].x1 + bw; // x2 is to the right (greater than) x1
+
+         // advance to next
+         next_x1 = st[i].x2 + 1; // x1 of next tab is x2 of this tab plus pad
+         next_y2 = st[i].y2;     // y2 of next tab is the same y2 as this tab
+
+      }
+   }
+
+   int tabs_h = 8 - (next_y2-bh); // find the height of the last tab
+
+   int page_h = 360;  // fixed page height
+
+   cf_h = page_h + tabs_h + title_h + frame_width*2;
+
+   cf_y1 = 32;  // or just line up under Main Title
+
+   cf_y2 = cf_y1 + cf_h;
+
+   if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
+   {
+      cf_y2 = mDisplay.SCREEN_H;      // bottom is bottom of screen
+      cf_y1 = cf_y2 - cf_h;
+
+      if (cf_y1 < 0)         // if top is past top of screen
+      {
+         cf_y1 = 0;          // top is top of screen
+         cf_y2 = cf_y1 + cf_h;
+      }
+   }
+
+   fc = mPlayer.syn[0].color; // frame color
+
+   al_show_mouse_cursor(mDisplay.display);
+   al_set_target_backbuffer(mDisplay.display);
+   al_flip_display();
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+   mScreen.frame_and_title();
+
+   // wait for timer event menu_update
+   while (!mEventQueue.menu_update) mEventQueue.proc(1);
+   mEventQueue.menu_update = 0;
+
+
+   // figure out the title size
+   al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
+   float title_w = bw + 12;
+   float title_x1 = cf_x1 + (cf_w - title_w) / 2;
+   float title_x2 = title_x1 + title_w;
+   float title_xc = title_x1 + title_w / 2;
+
+   float title_y1 = cf_y1 + frame_width/2-1;
+   float title_y2 = title_y1 + title_h;
+   float title_ty = 0.5 + title_y1 + (title_h - bh) / 2;
+
+   // set the bottom of the tab area, where the tabs will start and extend upwards
+   cfp_y1 = cf_y1 + tabs_h + title_h;
+
+   al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
+
+
+   // frame everything
+   for (int a=0; a<frame_width; a++)
+      al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
+
+   // frame from top of page to top of window, this is here to draw under the tabs
+   for (int a=0; a<frame_width; a++)
+      al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, mColor.pc[fc+a*48], 1.5);
+
+   // frame and draw title, this needs to go on top of previous frame
+   for (int a=0; a<frame_width; a++)
+      al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
+   al_draw_text(mFont.pr8, mColor.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, title);
+
+   int xa = title_xc+46;
+   int ya = title_ty;
+   mWidget.togglec(xa, ya, xa+80, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,disable_input, show_advanced, "Advanced", tc, tc);
+
+   if (show_advanced)
+   {
+      xa += 88;
+      mWidget.togglec(xa, ya, xa+56, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,disable_input, show_debug, "Debug", tc, tc);
+   }
+
+   // draw and process tabs
+   int mouse_on_tab = -1;
+   for (int i=0; i<num_pages; i++)
+   {
+      if (st[i].show)
+      {
+         st[i].y1 += cfp_y1; // adjust y values to top of page
+         st[i].y2 += cfp_y1;
+         if ((!disable_input) && (mInput.mouse_x > st[i].x1) && (mInput.mouse_x < st[i].x2) && (mInput.mouse_y > st[i].y1) && (mInput.mouse_y < st[i].y2)) mouse_on_tab = i;
+         draw_tab(st, i, fc+128, tc+128); // draw the tab
+      }
+   }
+
+   draw_tab(st, current_page, fc, tc); // draw the current tab on top
+   if (mouse_on_tab != -1)
+   {
+      draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+         current_page = mouse_on_tab;
+         mConfig.save_config();
+      }
+   }
+
+   // frame page
+   for (int a=0; a<frame_width; a++)
+      al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
+
+
+   if (current_page == 0)  page_main();
+   //if (current_page == 1)  page_mode();
+   if (current_page == 2)  page_controls();
+   if (current_page == 3)  page_controls2();
+   if (current_page == 4)  page_netgame();
+   if (current_page == 5)  if (page_demo(disable_input)) return;
+   if (current_page == 6)  page_bottom_msg(disable_input);
+   if (current_page == 7)  page_level_stats();
+   if (current_page == 8)  page_transitions();
+   if (current_page == 10) page_viewport();
+   if (current_page == 11) page_overlay();
+   if (current_page == 12) page_double();
+   if (current_page == 13) page_speed();
+   if (current_page == 16) page_info();
+   if (current_page == 17) if (page_log()) return;
+   if (current_page == 18) page_misc();
+
+}
+
+
 void mwSettings::settings_pages(int set_page)
 {
    // if esc is pressed on entry, wait for release
@@ -225,7 +418,6 @@ void mwSettings::settings_pages(int set_page)
 
    if (set_page != -1) current_page = set_page;
 
-   struct settings_tab st[20] = {};
 
    sprintf(st[0].title,  "Main");
    //sprintf(st[1].title,  "Mode");
@@ -246,204 +438,11 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[17].title,  "Logging");
    sprintf(st[18].title,  "misc");
 
-   int num_pages = 20;
-
-   const char *title = "Settings";
-
-
-
-   fc = 10; // frame color
-   tc = 15; // text color
-   int frame_width = 4; // border width
 
    int quit = 0;
    while (!quit)
    {
-      for (int i=0; i<20; i++) st[i].show = 0; // all off
-      for (int i=0; i<9; i++ ) st[i].show = 1; // always on
-
-      st[1].show = 0; // tab 'mode' is not used
-
-      if (show_advanced)
-      {
-         for (int i=10; i<14; i++) st[i].show = 1;
-         if (show_debug)
-            for (int i=16; i<19; i++) st[i].show = 1;
-      }
-
-      // if current page is not shown, change to page 0
-      if (!st[current_page].show) current_page = 0;
-
-      // set width and x positions
-      cf_w = 400;
-      cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
-      cf_x2 = cf_x1 + cf_w;
-
-      // set page x size, this has to go before the tab size
-      cfp_x1 = cf_x1 + frame_width;
-      cfp_x2 = cf_x2 - frame_width;
-      cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
-
-      // figure out the title height
-      int bx, by, bw, bh;
-      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
-      float title_h = bh + 8;
-
-
-      // figure out the tabs height
-
-      // iterate through all the tabs, determine width and position
-      int next_x1 = cfp_x1+1; // start at page x1;
-      int next_y2 = 0;        // we don't know where are going to start yet, so do them at offset 0
-      for (int i=0; i<num_pages; i++)
-      {
-         if (st[i].show)
-         {
-            st[i].x1 = next_x1;
-
-            st[i].y2 = next_y2;
-            int bx, by, bw, bh; // set size of tab based on text size
-            al_get_text_dimensions(mFont.pr8, st[i].title, &bx, &by, &bw, &bh);
-            bh = 8 + 5; // force 8 because with descender, text height is sometimes different and things don't line up
-            bw += 8;
-
-            if ((st[i].x1 + bw) > cfp_x2) // time for a new line
-            {
-               st[i].y2 -= bh;      // raise y2 one line
-               st[i].x1 = cfp_x1+1; // reset x1
-            }
-
-            st[i].y1 = st[i].y2 - bh; // y1 is above (less than) y2
-            st[i].x2 = st[i].x1 + bw; // x2 is to the right (greater than) x1
-
-            // advance to next
-            next_x1 = st[i].x2 + 1; // x1 of next tab is x2 of this tab plus pad
-            next_y2 = st[i].y2;     // y2 of next tab is the same y2 as this tab
-
-         }
-      }
-
-      int tabs_h = 8 - (next_y2-bh); // find the height of the last tab
-
-      int page_h = 360;  // fixed page height
-
-      cf_h = page_h + tabs_h + title_h + frame_width*2;
-
-      cf_y1 = 32;  // or just line up under Main Title
-
-      cf_y2 = cf_y1 + cf_h;
-
-      if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
-      {
-         cf_y2 = mDisplay.SCREEN_H;      // bottom is bottom of screen
-         cf_y1 = cf_y2 - cf_h;
-
-         if (cf_y1 < 0)         // if top is past top of screen
-         {
-            cf_y1 = 0;          // top is top of screen
-            cf_y2 = cf_y1 + cf_h;
-         }
-      }
-
-      fc = mPlayer.syn[0].color; // frame color
-
-      al_show_mouse_cursor(mDisplay.display);
-      al_set_target_backbuffer(mDisplay.display);
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-      mScreen.frame_and_title();
-
-      // wait for timer event menu_update
-      while (!mEventQueue.menu_update) mEventQueue.proc(1);
-      mEventQueue.menu_update = 0;
-
-
-      // figure out the title size
-      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
-      float title_w = bw + 12;
-      float title_x1 = cf_x1 + (cf_w - title_w) / 2;
-      float title_x2 = title_x1 + title_w;
-      float title_xc = title_x1 + title_w / 2;
-
-      float title_y1 = cf_y1 + frame_width/2-1;
-      float title_y2 = title_y1 + title_h;
-      float title_ty = 0.5 + title_y1 + (title_h - bh) / 2;
-
-      // set the bottom of the tab area, where the tabs will start and extend upwards
-      cfp_y1 = cf_y1 + tabs_h + title_h;
-
-      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
-
-
-      // frame everything
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
-
-      // frame from top of page to top of window, this is here to draw under the tabs
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, mColor.pc[fc+a*48], 1.5);
-
-      // frame and draw title, this needs to go on top of previous frame
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
-      al_draw_text(mFont.pr8, mColor.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, title);
-
-      int xa = title_xc+46;
-      int ya = title_ty;
-      mWidget.togglec(xa, ya, xa+80, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_advanced, "Advanced", tc, tc);
-
-      if (show_advanced)
-      {
-         xa += 88;
-         mWidget.togglec(xa, ya, xa+56, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_debug, "Debug", tc, tc);
-      }
-
-      // draw and process tabs
-      int mouse_on_tab = -1;
-      for (int i=0; i<num_pages; i++)
-      {
-         if (st[i].show)
-         {
-            st[i].y1 += cfp_y1; // adjust y values to top of page
-            st[i].y2 += cfp_y1;
-            if ((mInput.mouse_x > st[i].x1) && (mInput.mouse_x < st[i].x2) && (mInput.mouse_y > st[i].y1) && (mInput.mouse_y < st[i].y2)) mouse_on_tab = i;
-            draw_tab(st, i, fc+128, tc+128); // draw the tab
-         }
-      }
-
-      draw_tab(st, current_page, fc, tc); // draw the current tab on top
-      if (mouse_on_tab != -1)
-      {
-         draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
-         if (mInput.mouse_b[1][0])
-         {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-            current_page = mouse_on_tab;
-            mConfig.save_config();
-         }
-      }
-
-      // frame page
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
-
-
-      if (current_page == 0)  page_main();
-      //if (current_page == 1)  page_mode();
-      if (current_page == 2)  page_controls();
-      if (current_page == 3)  page_controls2();
-      if (current_page == 4)  page_netgame();
-      if (current_page == 5)  if (page_demo()) return;
-      if (current_page == 6)  page_bottom_msg();
-      if (current_page == 7)  page_level_stats();
-      if (current_page == 8)  page_transitions();
-      if (current_page == 10) page_viewport();
-      if (current_page == 11) page_overlay();
-      if (current_page == 12) page_double();
-      if (current_page == 13) page_speed();
-      if (current_page == 16) page_info();
-      if (current_page == 17) if (page_log()) return;
-      if (current_page == 18) page_misc();
+      settings_pages_redraw(0);
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -461,19 +460,10 @@ void mwSettings::settings_pages(int set_page)
    // reset bottom message test list, if created
    if (mBottomMessage.test_mode_list_created) mBottomMessage.initialize();
 
-
    al_hide_mouse_cursor(mDisplay.display);
    mConfig.save_config();
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -588,14 +578,13 @@ void mwSettings::page_main(void)
    int old_se_scaler = mSound.se_scaler;
    x1a = x1b + 12;
    x1b = x1a + 140;
-   mWidget.slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,sc+dim,15+dim+32,0,  0,0,0,0, mSound.se_scaler, 9, 0, 1, "Sound Effects:");
-
+   mWidget.mSliderInt(0, x1a, x1b,  1, ya, bts-2,  2, 2, 1, 1,  sc+dim,sc+dim, 15+dim+32, 15+dim+32, 15,0, 0,  mSound.se_scaler, 9, 0, 1, "Sound Effects:", 0, 0);
    if (old_se_scaler != mSound.se_scaler) mSound.set_se_scaler();
 
    int old_st_scaler = mSound.st_scaler;
    x1a = x1b + 12;
    x1b = x1a + 140;
-   mWidget.slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,sc+dim,15+dim+32,0,  0,0,1,0, mSound.st_scaler, 9, 0, 1, "Sound Track:");
+   mWidget.mSliderInt(0, x1a, x1b,  1, ya, bts-2,  2, 2, 1, 1,  sc+dim,sc+dim, 15+dim+32, 15+dim+32, 15,0, 0,  mSound.st_scaler, 9, 0, 1, "Sound Track:", 0, 0); ya+=bts;
    if (old_st_scaler != mSound.st_scaler) mSound.set_st_scaler();
 
    ya -=2;
@@ -863,16 +852,13 @@ void mwSettings::page_netgame(void)
    int frame_y1 = ya;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-   al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Server Name or IP Address");
-   ya+=12;
 
-   char msg[256];
-   sprintf(msg, "%s", mNetgame.server_address);
 
-   if (mWidget.buttontcb(cfp_txc - (strlen(msg)*4), ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,1,0, msg))  mMiscFnx.edit_server_name(cfp_txc, ya-28);
+   al_draw_text(mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Server:");
+   if (mWidget.mButton(3, xa+58, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mNetgame.server_address, 0)) mMiscFnx.edit_server_name(xa+56, ya);
+   ya+=20;
 
-   ya+=8;
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients require the Server's Name or IP");
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Clients require the Server's Name or IP");
 
    ya += 8;
    al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
@@ -887,30 +873,24 @@ void mwSettings::page_netgame(void)
    frame_y1 = ya;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-   al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Player Name (max 8 char)");
-   ya+=12;
+   al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
+   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_player_name(xa+98, ya, 0);
+   ya+=20;
 
-
-   sprintf(msg, "%s", mPlayer.syn[0].name);
-   if (mWidget.buttontcb(cfp_txc - (strlen(msg)*4), ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,1,0, msg))  mMiscFnx.edit_player_name(cfp_txc, ya-28, 0);
-
-   ya+=8;
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Optional. Shown in netgame.");
-
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Optional. Shown in netgame. (max 8 char)");
    ya+=8;
 
    // line to separate sections
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
 
 
-
-   al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show player name above players head.");
+   al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "Show player name above players head.");
 
    ya += 8;
 
    ya += line_spacing;
 
-   mWidget.buttonp(cfp_x1+110, ya, cfp_x2-110, bts,  17,0,0,0,  0,12,15,15, 0,0,0,0, mPlayer.loc[0].name_display);
+   mWidget.buttonp(xa, ya, xa+220, bts,  17,0,0,0,  0,12,15,15, 0,0,0,0, mPlayer.loc[0].name_display);
 
    ya += line_spacing;
 
@@ -923,15 +903,12 @@ void mwSettings::page_netgame(void)
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
 
 
-
-
-
-
    // pvp section
    // top of frame
    fc = 12;
    frame_y1 = ya;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
 
 
 
@@ -948,7 +925,7 @@ void mwSettings::page_netgame(void)
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
    ya+=4;
 
-   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mPlayer.syn[0].player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:");
+   mWidget.mSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mPlayer.syn[0].player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:", 0, 0); ya+=bts;
    ya+=4;
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots do to");
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya+10, ALLEGRO_ALIGN_CENTER, "other players and themselves.");
@@ -970,7 +947,7 @@ void mwSettings::page_netgame(void)
 // ---------------------------------------------------------------
 //  5 - demo
 // ---------------------------------------------------------------
-int mwSettings::page_demo(void)
+int mwSettings::page_demo(int disable_input)
 {
    int line_spacing = 13;
 
@@ -985,13 +962,13 @@ int mwSettings::page_demo(void)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game")) mDemoMode.run_continuous_random();
+   if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,disable_input, "Play random demo game")) mDemoMode.run_continuous_random();
    ya +=10;
-   if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game")) mDemoMode.run_single_from_settings();
+   if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,disable_input, "Choose file and run saved game")) mDemoMode.run_single_from_settings();
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mDemoMode.config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
 
    ya -=4;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1004,18 +981,18 @@ int mwSettings::page_demo(void)
 
    if (save_allowed)
    {
-      if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm_file_select();
+      if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,disable_input, "Save current game in progress")) mGameMoves.save_gm_file_select();
    }
    else
    {
-      mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,15+128,tc, 0,  1,0,1,0, "No game in progress");
+      mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,15+128,tc, 0,  1,0,1,disable_input, "No game in progress");
    }
 
    ya +=6;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", tc, 14);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", tc, 14);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.server_send_files_to_clients,     "Enable server send files to clients", tc, 14);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.server_send_files_to_clients,     "Enable server send files to clients", tc, 14);
 
 
 
@@ -1027,10 +1004,17 @@ int mwSettings::page_demo(void)
    //ya -=4;
    al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "'DEMO MODE' overlay opacity");
 
+
+
+
+
    ya +=16;
    float old_overlay_opacity = mDemoMode.overlay_opacity;
-   if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) mScreen.draw_large_text_overlay(3, 15);
-   mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.overlay_opacity, 0.4, 0, .01, "");
+   if (((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) || disable_input) mScreen.draw_large_text_overlay(3, 15);
+
+
+   mWidget.mSliderFloat(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mDemoMode.overlay_opacity, 0.4, 0, .01, "", 2, disable_input); ya+=bts;
+
    if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config();
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1038,7 +1022,7 @@ int mwSettings::page_demo(void)
 
    if (show_advanced)
    {
-      if (mWidget.buttont(xa+70, ya, xb-70, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Demo Recording System"))
+      if (mWidget.buttont(xa+70, ya, xb-70, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,disable_input, "Run Demo Recording System"))
       {
          mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
          return 1;
@@ -1051,19 +1035,12 @@ int mwSettings::page_demo(void)
 
 
 
-
-
-
-
-
-
-
 // ---------------------------------------------------------------
 //  6 - bottom message settings
 // ---------------------------------------------------------------
-void mwSettings::page_bottom_msg(void)
+void mwSettings::page_bottom_msg(int draw_only)
 {
-   int line_spacing = 8;
+   int line_spacing = 7;
 //         if (show_advanced) line_spacing = 7;
 //         line_spacing +=  mLoop.pct_y;
    int xa = cfp_x1 + 10;
@@ -1079,7 +1056,6 @@ void mwSettings::page_bottom_msg(void)
 
    // make a test list of types of bmsg
    if (!mLevel.resume_allowed && !mBottomMessage.test_mode_list_created) mBottomMessage.create_test_mode_list();
-
 
 
    // redraw bottom frame to remove version that we will draw over
@@ -1103,7 +1079,7 @@ void mwSettings::page_bottom_msg(void)
    xb = cfp_x2 - 10;
    xa = xb - 180;
 
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8+96,15, 0,  1,0,0,0, "Reset All To Defaults"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8+96,15, 0,  1,0,0, draw_only, "Reset All To Defaults"))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 1;
@@ -1126,19 +1102,13 @@ void mwSettings::page_bottom_msg(void)
 
    xa = cfp_x1 + 10;
    xb = xa + 200;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.display_enable, "Show bottom messages", tc, 15);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,draw_only, mBottomMessage.display_enable, "Show bottom messages", tc, 15);
 
-   ya+=line_spacing-4;
+   ya+=line_spacing-6;
    xb = cfp_x2 - 10;
 
-//   mWidget.slider0(xa, ya, xb, bts,  0,0,0,0,  0,14+96,15,15, 0,0,1,0, mBottomMessage.display_timer_reset_val, 10, 0, 1, "Hide after x seconds:", "Always Show");
-
-   mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts,   2, 2, 1, 1,     14+96, 14+96, 15, 15, 15,0, 0,   mBottomMessage.display_timer_reset_val, 10, 0, 1, 1, 4, "Hide after x seconds:", 0, 0);
-   ya+=bts;
-
-
-
-
+   mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts,   2, 2, 1, 1,     14+96, 14+96, 15, 15, 15,0, 0,   mBottomMessage.display_timer_reset_val, 10, 0, 1, 1, 4, "Hide after x seconds:", 0, draw_only);
+   ya+=bts+2;
 
    ya -= 6;
    al_draw_line(cfp_x1+4, bmsf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[tc], 1 ); // draw the sides of the frame first
@@ -1171,7 +1141,7 @@ void mwSettings::page_bottom_msg(void)
    xb = cfp_x2-10;
    xa = xb - 80;
 
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15, 0,  1,0,0,0, "Defaults"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15, 0,  1,0,0,draw_only, "Defaults"))
    {
       mBottomMessage.num_lines = 16;
       mBottomMessage.io = 1.0;
@@ -1186,29 +1156,24 @@ void mwSettings::page_bottom_msg(void)
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+8, line_spacing, lc);
 
-
    ya-=4;
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
-   mWidget.sliderinb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.num_lines, BMSG_MAX_LINES, 1, 1, "Number of lines:");
-
+   mWidget.mSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  lcw, lcw, 15, 15, 15,0, 0,  mBottomMessage.num_lines, BMSG_MAX_LINES, 1, 1, "Number of lines:", 2, draw_only); ya+=bts;
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya-6, line_spacing, lc);
    ya -=4;
-
 
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
    int xw4 = (xb - xa)/2;
 
    xb = xa+xw4-10;
-   mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.io, 1, 0, .05, "Initial Opacity:");
-   mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.fo, 1, 0, .05, "Final Opacity:");
-
+   mWidget.mSliderFloat(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  lcw, lcw, 15, 15, 15,0, 0,  mBottomMessage.io, 1, 0, .05, "Initial Opacity:", 2, draw_only); ya+=bts;
+   mWidget.mSliderFloat(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  lcw, lcw, 15, 15, 15,0, 0,  mBottomMessage.fo, 1, 0, .05, "Final Opacity:", 2, draw_only); ya+=bts;
    ya-=bts*2;
-
    xa += xw4; xb = xa+xw4-10;
-   mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.ivs, 1, 0, .05, "Initial Scale:");
-   mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.fvs, 1, 0, .05, "Final Scale:");
+   mWidget.mSliderFloat(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  lcw, lcw, 15, 15, 15,0, 0,  mBottomMessage.ivs, 1, 0, .05, "Initial Scale:", 2, draw_only); ya+=bts;
+   mWidget.mSliderFloat(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  lcw, lcw, 15, 15, 15,0, 0,  mBottomMessage.fvs, 1, 0, .05, "Final Scale:", 2, draw_only); ya+=bts;
 
    // force horizontal and vertical scales to be the same
    mBottomMessage.ihs = mBottomMessage.ivs;
@@ -1240,7 +1205,7 @@ void mwSettings::page_bottom_msg(void)
 
    xa = cfp_x1+10;
    xb = xa + 40;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,0, "Min"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,draw_only, "Min"))
    {
       mBottomMessage.disp_player = 0;
       mBottomMessage.disp_enemy = 0;
@@ -1251,7 +1216,7 @@ void mwSettings::page_bottom_msg(void)
    }
    xb = cfp_x2-10;
    xa = xb - 40;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,0, "Max"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,draw_only, "Max"))
    {
       mBottomMessage.disp_player = 2;
       mBottomMessage.disp_enemy = 3;
@@ -1273,7 +1238,7 @@ void mwSettings::page_bottom_msg(void)
    int xd = 0;
 
    // player display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_player)) reload = 1;
+   if (mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_player)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1285,11 +1250,11 @@ void mwSettings::page_bottom_msg(void)
 
    if (mBottomMessage.disp_player) // any mode that has text
    {
-      if (mWidget.buttonp(xa, ya, xb, bts,  14,0,0,0,  0,ticw,15,15, 0,0,1,0, mBottomMessage.disp_player_text_long)) reload = 1;
+      if (mWidget.buttonp(xa, ya, xb, bts,  14,0,0,0,  0,ticw,15,15, 0,0,1,draw_only, mBottomMessage.disp_player_text_long)) reload = 1;
    }
 
    // enemy display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_enemy)) reload = 1;
+   if (mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_enemy)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1299,7 +1264,7 @@ void mwSettings::page_bottom_msg(void)
    ya+=bts;
 
    // item display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_item)) reload = 1;
+   if (mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_item)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1311,7 +1276,7 @@ void mwSettings::page_bottom_msg(void)
 
 
    // health display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  13,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_health)) reload = 1;
+   if (mWidget.buttonp(xa, ya, xb, bts,  13,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_health)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1350,7 +1315,7 @@ void mwSettings::page_bottom_msg(void)
 
    xa = cfp_x1+10;
    xb = xa + 68;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,0, "All Off"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,draw_only, "All Off"))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 0;
@@ -1360,7 +1325,7 @@ void mwSettings::page_bottom_msg(void)
 
    xb = cfp_x2-10;
    xa = xb - 60;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,0, "All On"))
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,draw_only, "All On"))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 1;
@@ -1375,15 +1340,15 @@ void mwSettings::page_bottom_msg(void)
    xw4 = (xb - xa)/5;
 
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[20], "Key",    tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[20], "Key",    tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[22], "Door",   tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[22], "Door",   tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[23], "Exit",   tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[23], "Exit",   tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[25], "Bomb",   tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[25], "Bomb",   tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[27], "Coin",   tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[27], "Coin",   tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
 
    ya += line_spacing+8;
@@ -1392,13 +1357,13 @@ void mwSettings::page_bottom_msg(void)
    xw4 = (xb - xa)/5;
 
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[26], "Rocket", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[26], "Rocket", tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[21], "Switch", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[21], "Switch", tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[12], "Damage", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[12], "Damage", tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[28], "Health Bonus",  tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[28], "Health Bonus",  tc, 15)) reload = 1;
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
 
@@ -1407,11 +1372,11 @@ void mwSettings::page_bottom_msg(void)
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/3;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[8], "Player Died", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[8], "Player Died", tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[7], "Player Quit", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[7], "Player Quit", tc, 15)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[6], "Player Joined", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[6], "Player Joined", tc, 15)) reload = 1;
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
 
@@ -1421,10 +1386,10 @@ void mwSettings::page_bottom_msg(void)
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/5;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[41], "Player Hurt by Enemy", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[41], "Player Hurt by Enemy", tc, 15)) reload = 1;
 
    xa += xw4*3; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[42], "Enemy Killed", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[42], "Enemy Killed", tc, 15)) reload = 1;
 
 
    ya += line_spacing+8;
@@ -1432,7 +1397,7 @@ void mwSettings::page_bottom_msg(void)
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/2;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[40], "Player Hurt by Player", tc, 15)) reload = 1;
+   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[40], "Player Hurt by Player", tc, 15)) reload = 1;
 
 
    ya += 10;
@@ -1562,9 +1527,10 @@ void mwSettings::page_transitions(void)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   mWidget.slideri(xa+80, ya, xb-80, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Number of steps:");
+
+   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mScreen.transition_num_steps, 400, 4, 1, "Number of steps:", 0, 0); ya+=bts;
    ya +=8;
-   mWidget.slideri(xa+80, ya, xb-80, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay,     100, 1, 1, "Step delay:");
+   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mScreen.transition_delay, 100, 1, 1, "Step delay:", 0, 0); ya+=bts;
 
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1744,14 +1710,11 @@ void mwSettings::page_overlay(void)
    int x3 = xb+1;
    int y4 = ya - line_spacing;
 
-
    mMiscFnx.rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
    al_draw_rectangle(x1, y3, x2, y4, mColor.pc[11], 1);
-
-
    bts = 20;
-   mWidget.slideri(xb-140, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,0,0, number_of_debug_overlay_modes, 4, 2, 1, "Active modes:");
-   if (mWidget.buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults")) reset_overlay_settings();
+   mWidget.mStepSliderInt(0, xb-180, xb,  1, ya, bts-2,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  number_of_debug_overlay_modes, 4, 2, 1, 1, 0, "Active modes:", 0, 0);// ya+=bts+4;
+   if (mWidget.buttont(xa, ya, xa+180, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults")) reset_overlay_settings();
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 }
 
@@ -1818,14 +1781,13 @@ void mwSettings::page_double(void)
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "(See Controls 2)");
    ya+=12;
 
-   mWidget.slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, mDisplay.display_transform_double_max, 10, 2, 1, "Maximum Value:");
+   mWidget.mStepSliderInt(0, xa+20, xb-20,  1, ya, bts-2,  2, 2, 1, 1,  7, 7, 15, 15, 15,0, 0, mDisplay.display_transform_double_max, 10, 2, 1, 1, 0, "Maximum Value:", 0, 0); ya+=bts;
 
    ya +=4;
-
    xb = xa+180;
 
    static int newval = mDisplay.display_transform_double;
-   mWidget.slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, mDisplay.display_transform_double_max, 1, 1, "New Value:");
+   mWidget.mStepSliderInt(0, xa+20, xb,  1, ya, bts-2,  2, 2, 1, 1,   e, e, 15, 15, 15,0, 0, newval, mDisplay.display_transform_double_max, 1, 1, 1, 0, "New Value:", 0, 0);
 
    xa = xa+200;
    xb = cfp_x2 - 30;
@@ -1891,7 +1853,6 @@ void mwSettings::page_speed(void)
    ya -=4;
 
 
-
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
    int adj = 0;
@@ -1903,7 +1864,7 @@ void mwSettings::page_speed(void)
 
 
    int old_frame_speed = mLoop.frame_speed;
-   mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,cc,15,15, 0,0,1,adj, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+   mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,    cc, cc, 15, 15, 15,0, 0,  mLoop.frame_speed, 200, 4, 1, 1, 10, "Frame Speed:", 0, adj); ya+=bts;
    if (old_frame_speed != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
 
    ya -=2;

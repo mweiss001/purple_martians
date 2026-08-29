@@ -10,65 +10,30 @@ struct listItem
 
 
 
-
 class mwWidget
 {
    private:
    void draw_widget_area(int x1, int y1, int x2, int y2, int q1);
    void draw_widget_text(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg);
-   float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2);
-   float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2);
-   float get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2);
-   float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col);
-   float draw_slider(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, float sdx, float sul, float sll, int order, const char* msg);
 
-   public:
-
-
-   bool slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
-                int q4, int q5, int q6, int q7,
-                int &var, float sul, float sll, float sinc, const char *txt);
-
-
-   /*
-
-   void slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                    int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
-
-   bool sliderf(int x1, int &y1, int x2, int bts, int q0, int q1, int q2, int q3,
-                int q4, int q5, int q6, int q7,
-                float &var, float sul, float sll, float sinc, const char *txt);
-*/
-
-
-
-   float get_slider_position2nb(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2);
-
-   void sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                 float &var, float sul, float sll, float sinc, const char *txt);
-
-   void sliderinb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                 int &var, float sul, float sll, float sinc, const char *txt);
-
-
-
+public:
 
    int button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
 
    int buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
    int buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 
-   int buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
    int buttontcb(int xc, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
-
 
    int buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 
    int buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 
 
-   bool buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
 
+
+
+   bool buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
 
    int buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
    int colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
@@ -100,27 +65,24 @@ class mwWidget
    mwRect<int> xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt);
 
 
-
    bool mButton(mwRect<int> rect, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
+   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
+   bool mButton(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
 
-   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int frameType, int backgroundType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
+
+   bool mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight,
+                      int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1, int disable_input);
+
+
 
 
    bool mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
    void drawWidgetSmallText(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg);
 
 
-
-
-
-
-
-
-   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool
-                           disable_input = false);
+   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input = false);
 
    void mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
-
 
    bool mButtonPlayerTile(int x1, int y1, int size, int tn, int fc, int hc, int highlight);
 
@@ -135,14 +97,6 @@ class mwWidget
 
 
 
-   void mSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
-                     int r, int backgroundType, int frameType, int textType,
-                     int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                     int text_just, float &var, float sul, float sll, float sinc, const char *txt, int update, bool disable_input);
-
-
-
-
 
 
    bool mTrackInt(int xType, int xa, int xb, int yType, int ya, int yb,
@@ -150,8 +104,20 @@ class mwWidget
                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                          int text_just, int &var, int ul, int ll, const char *txt, int disable_input);
 
+   void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int inc, const char *txt);
 
 
+
+
+
+
+   void mSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
+                     int r, int backgroundType, int frameType, int textType,
+                     int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                     int text_just, float &var, float sul, float sll, float sinc, const char *txt, int update, bool disable_input);
 
    void mSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                    int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
@@ -161,13 +127,55 @@ class mwWidget
                    int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                    int text_just, int &var, float sul, float sll, float sinc, const char *txt, const char *txt0, int update, bool disable_input);
 
-
-
-
    float drawSlider(int x1, int y1, int x2, int y2,
-                    int r, int backgroundType, int frameType, int textType,
-                    int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight, int text_just,
+                    int r, int backgroundType,
+                    int bcol, int fcol, int bar_col, int tcol, int text_just,
                     float sdx, float sul, float sll, int order, const char *msg);
+
+   float drawSliderBar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col);
+
+   float getSliderPosition(float sdx, float sul, float sll, int x1, int y1, int x2, int y2);
+
+   float getSliderPositionMouse(float sul, float sll, float sinc, int x1, int y1, int x2, int y2);
+
+   float getSliderPositionMouseAlt(float f, float sul, float sll, float sinc, int x1, int y1, int x2, int y2);
+
+   void updateCall(int update);
+
+
+
+   void mStepSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
+                         int r, int backgroundType, int frameType, int textType,
+                         int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                         int text_just, float &var, float ul, float ll, float slinc, float stinc1, float stinc2, const char *txt, int update, bool disable_input);
+
+   void mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input);
+
+   void mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, int update, bool disable_input);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
                          changed_flag, bool display_only = false);
@@ -181,31 +189,6 @@ class mwWidget
    bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
 
 
-
-   void mStepSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
-                         int r, int backgroundType, int frameType, int textType,
-                         int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                         int text_just, float &var, float ul, float ll, float slinc, float stinc1, float stinc2, const char *txt, int update, bool disable_input);
-
-
-
-
-   void mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
-                 int r, int backgroundType, int frameType, int textType,
-                 int bcol, int fcol, int tcol, int hcol, int highlight,
-                 int text_just, int &var, int ul, int ll, int inc, const char *txt);
-
-
-
-   void mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
-                 int r, int backgroundType, int frameType, int textType,
-                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input);
-
-   void mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
-                 int r, int backgroundType, int frameType, int textType,
-                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
-                 int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, int update, bool disable_input);
 
 
 

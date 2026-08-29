@@ -814,14 +814,12 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
 
          ya+=2;
          al_draw_text( mFont.pr8, mColor.pc[15], xa+2, ya, 0, "Player Name:");
-         ya -=2;
-
-         if (mWidget.buttontcb(xa+102, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, name))
+         ya-=2;
+         if (mWidget.mButton(3, xa+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, name, 0))
          {
-            ya -=15;
-            mMiscFnx.edit_player_name(xa+138, ya, pp);
+            mMiscFnx.edit_player_name(xa+98, ya, pp);
             mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
-            //refresh();
+            refresh();
          }
          ya+=13;
       }

@@ -15,6 +15,21 @@ class mwSettings
    public:
    void settings_pages(int set_page);
 
+   void settings_pages_redraw(int disable_input);
+
+
+   struct settings_tab st[20] = {};
+
+   int num_pages = 20;
+   const char *title = "Settings";
+
+
+   int frame_width = 4; // border width
+
+
+
+
+
    int current_page = 0;
    int show_advanced;
    int show_debug;
@@ -74,8 +89,12 @@ class mwSettings
    void page_controls();
    void page_controls2();
    void page_netgame();
-   int page_demo();
-   void page_bottom_msg();
+
+public:
+   int page_demo(int disable_input);
+   void page_bottom_msg(int disable_input);
+private:
+
    void page_level_stats();
    void page_transitions();
    void page_viewport();

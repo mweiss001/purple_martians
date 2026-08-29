@@ -749,7 +749,7 @@ void mwBitmapTools::animation_sequence_editor()
       if ((pointer != -1) && (mInput.mouse_b[1][0])) zzindx = pointer;
 
       int y5 = 260;
-      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Clear and Get New Shapes"))
+      if (mWidget.mButton(0,xa,xb,  y5,16,   0,2,3,1,   11,11,15,15,0,  "Clear and Get New Shapes", 0))
       {
          for (int c=0; c<20; c++) mBitmap.zz[c][zzindx] = 0;
          int as_quit = 0;
@@ -774,11 +774,11 @@ void mwBitmapTools::animation_sequence_editor()
             }
          }
       }
+
       y5+=4;
       mWidget.mStepSliderInt(0, xa, xb,  1, y5, 15,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mBitmap.zz[3][zzindx], 100, 0, 1,  1, 0, "Animation Delay:", 0, 0); y5+=16;
       y5+=4;
-      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) mBitmap.save_sprit();
-
+      if (mWidget.mButton(0,xa,xb,  y5,16,   0,2,3,1,   10,10,15,15,0,  "Save Changes", 0)) mBitmap.save_sprit();
       if (mInput.key[ALLEGRO_KEY_DELETE][0]) // erase current sequence
       {
          while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc(1);
@@ -1218,11 +1218,9 @@ void mwBitmapTools::redraw_grid(mwRect<int> tile_grid_rect, mwRect<int> selectio
 // called from cm_process_menu_bar()
 void mwBitmapTools::edit_tile_flags()
 {
-
    // rect for position of main tile grid
    mwRect<int> tile_grid_rect = mwRect<int>::fromX1Y1WH(4, 4, 640, 1280);
 
-   char msg[1024];
    int mode = 0;
    int quit = 0;
    int gridlines = 0;
@@ -1399,9 +1397,8 @@ void mwBitmapTools::edit_tile_flags()
 
       // mode button
       ya+=60;
-      sprintf(msg, "%s", "Mode:Single");
-      if (mode == 1) sprintf(msg, "%s", "Mode:Multiple");
-      if (mWidget.buttontcb(cx, ya, 0, 14, 0,0,0,0, 0,13,15,14, 1,0,0,0, msg)) mode = !mode;
+      mWidget.mButtonToggle(3, cx, -1,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
+
 
       ya += 13;
 
@@ -1419,21 +1416,11 @@ void mwBitmapTools::edit_tile_flags()
          al_draw_text(mFont.pr8, mColor.pc[15], cx+2, ya+16, 0, "- toggle flags for all selected tiles");
       }
 
-
       ya += 50;
       // gridlines check box
       mWidget.togglec(cx, ya, cx+80, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
-
       ya += 20;
-      // save button
-      if (mWidget.buttontcb(cx, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save")) mBitmap.save_sprit();
-
-
-
-
-
-
-
+      if (mWidget.mButton(3, cx, -1, 1, ya, 14,   1, 0, 3, 2,       10, 15, 15, 10, 0, "Save", 0))    mBitmap.save_sprit();
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -1754,24 +1741,18 @@ void mwBitmapTools::copy_tiles()
 
       mWidget.togglec(xa, ya, xa+20, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, gridlines, "Grid", 15, 15);
 
-
-
       // main bitmap -----------------------------------------------------------------------------------------------
       al_draw_bitmap(b1, b1r.x1, b1r.y1, 0);
 
-
       // draw top controls, starting from left
       int b1_cx = b1r.x1;
-      ya = b1r.y1 - 12;
-
-      if (mWidget.buttontcb(b1_cx, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load")) reload_b1 = 1;
+      ya = b1r.y1 - 14;
+      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b1 = 1;
       b1_cx+=50;
-      if (mWidget.buttontcb(b1_cx, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload")) reload_b1 = 2;
+      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 13, 0, "Reload", 0)) reload_b1 = 2;
       b1_cx+=66;
-      if (mWidget.buttontcb(b1_cx, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save")) mw_save_bitmap(b1_fn, b1);
+      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 10, 0, "Save", 0)) mw_save_bitmap(b1_fn, b1);
       b1_cx+=64;
-
-
 
       // title with filename only, no path
       ALLEGRO_PATH *ap1 = al_create_path(b1_fn);
@@ -1881,21 +1862,19 @@ void mwBitmapTools::copy_tiles()
       al_draw_textf(mFont.pr8, mColor.pc[15], b2r.x1+104,  b2r.y1-10, 0, "%s", al_get_path_filename(ap));
       al_destroy_path(ap);
 
-      ya = b2r.y1-12;
-      if (mWidget.buttontcb(b2r.x1,    ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load") )     reload_b2 = 1;
-
+      ya = b2r.y1-14;
+      if (mWidget.mButton(3, b2r.x1, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b2 = 1;
 
       char msg[80];
       sprintf(msg, "Pad:%d", b2_pad);
-      if (mWidget.buttontcb(b2r.x1+48, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, msg) )
+
+      if (mWidget.mButton(3, b2r.x1+48, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  14, 0, msg, 0))
       {
          b2_pad = !b2_pad;
          b2_ts = 20 + b2_pad*2;
       }
 
-
       //if (mWidget.buttontcb(b2_x+42, ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Load 1/2") ) reload_b2 = 3;
-
 
 
       draw_gridlines_and_frame(b2r, 1, 15+64, 1, gridlines, 15+128, 0, b2_ts); // dim

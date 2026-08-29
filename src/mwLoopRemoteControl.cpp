@@ -207,16 +207,14 @@ void mwLoop::remote_control_loop()
    cx = 540;
    cy = rcy; // restore cy
    int cxc2 = cx + 100;
-   if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, " Select and Reload Level ") )
+
+
+   if (mWidget.mButton(5, cxc2, -1, cy, 16,   1, 2, 0, 1,    13, 13, 15, 0, 0, " Select and Reload Level ", 0))
    {
       if (mVisualLevel.visual_level_select(100) == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
    }
    cy+=6;
-   if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, "  Reload Current Level   ") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
-
-
-
-
+   if (mWidget.mButton(5, cxc2, -1, cy, 16,   1, 2, 0, 1,    9, 9, 15, 0, 0, " Reload Current Level ", 0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
    cy+=10;
    static int show_bandwidth = 0;
    if (mWidget.buttontcb(cx, cy, 0, 13, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;

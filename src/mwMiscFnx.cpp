@@ -1450,8 +1450,6 @@ int mwMiscFnx::mw_file_select(const char * title, char * fn, const char * ext, i
 }
 
 
-
-
 // edit text stuff
 void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore)
 {
@@ -1502,46 +1500,66 @@ void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int c
 }
 
 
+// edit text stuff
+void mwMiscFnx::show_cursor_simple(char *f, int cursor_pos, int x, int y, int cursor_color, int restore)
+{
+   char msg[16];
+   // make a string from the cursor text char
+   msg[0] = f[cursor_pos];
+   msg[1] = 0;
+
+   x+= cursor_pos*8;
+
+   if (restore) // black background, text color text
+   {
+      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[0]);
+      al_draw_text(mFont.pr8, mColor.pc[cursor_color], x, y, 0, msg);
+   }
+   else // red background, black text
+   {
+      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[10]);
+      al_draw_text(mFont.pr8, mColor.pc[0], x, y, 0, msg);
+   }
+}
 
 void mwMiscFnx::edit_server_name(int x, int y)
 {
    int tc = 10;
-
    char fst[80];
+
    strcpy(fst, mNetgame.server_address);
+
    int char_count = strlen(fst);
    int cursor_pos=0;
-   int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
    while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
    int quit = 0;
+
+   int y2 = y + 12;
+   int tx1 = x + 4;
+   int ty1 = y + 2;
+
    while (!quit)
    {
-      int tx = x;
-      int ty1 = y+20;
-      int w = (char_count+1)*4;
+      int tx2 = tx1 + char_count*8 + 10;
 
       al_flip_display();
 
-      // clear text background
-      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
+      // clear background
+      al_draw_filled_rectangle(x, y-1, tx2+10, y2+1, mColor.pc[0]);
 
-      // frame text
-      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[tc], 1);
+      // frame
+      al_draw_rectangle       (x, y, tx2, y2, mColor.pc[tc], 1);
 
-      al_draw_text(mFont.pr8, mColor.pc[tc], tx, ty1+1-4, ALLEGRO_ALIGN_CENTER, fst);
+      // draw text
+      al_draw_text(mFont.pr8, mColor.pc[tc], tx1, ty1, 0, fst);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, tc, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1-3, tc, 1);
+
+      if (blink_counter++ < blink_count) show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 0);
+      else                               show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
-      if (cursor_pos != old_cp)
-      {
-         show_cursor(fst, old_cp, tx, ty1-3, tc, 1); // erase old blinking cursor if moved
-         old_cp = cursor_pos;
-         blink_counter = 0;
-      }
 
       al_rest(.08);
       mEventQueue.proc(1);
@@ -1588,60 +1606,51 @@ void mwMiscFnx::edit_server_name(int x, int y)
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
          strcpy(mNetgame.server_address, fst);
+         mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
          quit = 1;
       }
-
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-
    }
 }
-
-
-
-
-
 
 
 
 void mwMiscFnx::edit_player_name(int x, int y, int p)
 {
    int tc = 10;
-
    char fst[80];
    strcpy(fst, mPlayer.syn[p].name);
    int char_count = strlen(fst);
    int cursor_pos=0;
-   int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
    while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
    int quit = 0;
+
+   int y2 = y + 12;
+   int tx1 = x + 4;
+   int ty1 = y + 2;
+
    while (!quit)
    {
-      int tx = x;
-      int ty1 = y+20;
-      int w = (char_count+1)*4;
+      int tx2 = tx1 + char_count*8 + 10;
 
       al_flip_display();
 
-      // clear text background
-      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
+      // clear background
+      al_draw_filled_rectangle(x, y-1, tx2+10, y2+1, mColor.pc[0]);
 
-      // frame text
-      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[tc], 1);
+      // frame
+      al_draw_rectangle       (x, y, tx2, y2, mColor.pc[tc], 1);
 
-      al_draw_text(mFont.pr8, mColor.pc[tc], tx, ty1+1-4, ALLEGRO_ALIGN_CENTER, fst);
+      // draw text
+      al_draw_text(mFont.pr8, mColor.pc[tc], tx1, ty1, 0, fst);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, tc, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1-3, tc, 1);
+
+      if (blink_counter++ < blink_count) show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 0);
+      else                               show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
-      if (cursor_pos != old_cp)
-      {
-         show_cursor(fst, old_cp, tx, ty1-3, tc, 1); // erase old blinking cursor if moved
-         old_cp = cursor_pos;
-         blink_counter = 0;
-      }
 
       al_rest(.08);
       mEventQueue.proc(1);

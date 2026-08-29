@@ -202,6 +202,235 @@ this is nice cleaning up all this crap...
 
 2026-08-28 07:32:51
 
+2026-08-28 17:30:37
+I want to try using mTrackInt as non blocking slider
+only one use of mWidget.sliderinb
+
+tried mTrackInt, but it does not do what I wanted
+
+could I just do a normal slider with an update callback?
+
+I send 'update' to slider
+
+if the slider blocks (when mouse pressed)
+draw slider also calls update...
+
+right now it is used for level editor only...
+
+I want to uncomplicate this...
+make mSliderInt not depened on these functions
+
+make sliders and other call update fucntion when blocking....
+
+redid settings to do that...
+
+removed sliderinfb
+
+now modify the float version..done...
+removed sliderfnb
+now fix demo opacity page..done
+now what else can I remove?
+
+widgets is looking much nicer
+
+
+
+mwWidget::buttont
+200 results!!!
+
+what does it do?
+
+
+// displays a text string, and returns 1 if pressed
+int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
+
+I could replace with my new mButton...but 200 will take a while
+
+bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
+
+do a few:
+
+      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Clear and Get New Shapes"))
+
+      mWidget.mButton(0, xa, xb,  1, y5, 15,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mBitmap.zz[3][zzindx], 100, 0, 1,  1, 0, "Animation Delay:", 0, 0); y5+=16;
+
+
+how about make a simple obdbb thingy...
+first move the others to widgets...no
+
+go through ov and do all buttont
+now down to 156!
+
+
+
+moving on...
+
+// displays a text string, and returns 1 if pressed
+// auto width based on text length x1 is the center
+// highlight outline when moused over
+int buttontca(
+8 usages
+done and removed
+
+
+
+// no faded frame, just a simple frame that highlights when moused over
+// displays a text string, and returns 1 if pressed
+// auto width based on text length x1 is the center
+// highlight outline when moused over
+int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+35 usages
+      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b1 = 1;
+
+now down to 28...
+
+edit player name is stupidly centered
+made my own custom version...
+
+now test in all places..
+
+   ya+=line_space+2;
+   al_draw_text( mFont.pr8, mColor.pc[15], x, ya, 0, "Player Name:");
+   ya-=2;
+
+   if (mWidget.mButton(3, x+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
+   {
+      mMiscFnx.edit_player_name(x+98, ya, p);
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+      refresh();
+   }
+
+
+edit player name is good
+
+now what about edit server name?
+only one instance!!
+
+...gtg
+
+2026-08-29 16:53:07
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

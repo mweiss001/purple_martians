@@ -87,6 +87,7 @@ public:
    void odbf(int d, int xa, int xb, int &ya, int bts, int col, float &var, float ul, float ll, float sl_inc, float st1_inc, float st2_inc, const char* txt);
    void odbt(int d, int xa, int xb, int &ya, int bts, int colt, int &var, int col0, int col1,  const char* txt0, const char* txt1);
 
+   bool odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt);
 
 
 

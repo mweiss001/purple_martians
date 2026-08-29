@@ -402,7 +402,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    if (sty > mDisplay.SCREEN_H-60) sty = mDisplay.SCREEN_H-60;
 
    int num_of_step_types = 6;
-   int sth = (num_of_step_types * 12) + 26;
+   int sth = (num_of_step_types * 12) + 28;
    int sty2 = sty + sth;
 
    int fc = 14; // frame color
@@ -430,17 +430,17 @@ int mwLift::get_new_lift_step(int lift, int step)
       int c3 = 15; // highlight color
       int bts = 14;
       int ya = sty+2+bts;
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Move"))
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Move", 0))
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          set_size_from_previous_step(lift, step);
          if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Time")) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Prox")) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Event")) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Send Event")) quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Done"))          quit = 99;
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Time", 0))  quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Prox", 0))  quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Event", 0)) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Send Event", 0))     quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
+      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Done", 0))           quit = 99;
    } // end of while (!quit)
    return quit;
 }

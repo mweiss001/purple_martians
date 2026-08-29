@@ -285,9 +285,9 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    al_draw_text( mFont.pr8, mColor.pc[15], x, ya, 0, "Player Name:");
    ya-=2;
 
-   if (mWidget.buttontcb(x+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,d, mPlayer.syn[p].name))
+   if (mWidget.mButton(3, x+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
    {
-      mMiscFnx.edit_player_name(x+134, ya, p);
+      mMiscFnx.edit_player_name(x+98, ya, p);
       int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
       if (gi != -1) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
       refresh();
@@ -345,7 +345,9 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
       int ya = rect.y1+16;
 
       al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-      if (mWidget.buttontcb(xa+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, mPlayer.syn[p].name)) mMiscFnx.edit_player_name(xa+134, ya, p);
+      if (mWidget.mButton(3, xa+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0)) mMiscFnx.edit_player_name(xa+98, ya, p);
+
+
 
       ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6; // spacer line
 
@@ -448,7 +450,9 @@ void mwDemoRecord::add_new_section_dialog()
          ya+= bts+4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=4;
 
          al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-         if (mWidget.buttontcb(xa+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, mPlayer.syn[player_num].name)) mMiscFnx.edit_player_name(xa+134, ya, player_num);
+         if (mWidget.buttontcb(xa+98, ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,0,0, mPlayer.syn[player_num].name)) mMiscFnx.edit_player_name(xa+98, ya, player_num);
+
+
 
          ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6;
 
