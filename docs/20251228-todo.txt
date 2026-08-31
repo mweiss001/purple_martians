@@ -324,9 +324,36 @@ only one instance!!
 
 2026-08-29 16:53:07
 
+   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0))
+   {
+      if (mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8)) mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
 
 
+2026-08-31 07:13:46
+I have greatly simplified the edit text stuff...
+player name
+server name
+lift name
 
+now all use:
+mwMiscFnx::edit_string_simple(int x, int y, char * string, int len)
+
+now what else was I doing?
+
+getting rid of 
+int mwWidget::buttontcb
+22 instances left
+9 remote control
+4 edit tile
+9 tilesets adjust color
+
+
+2026-08-31 07:27:55
+
+now just 18
+9 remote control
+9 tilesets adjust color
 
 
 

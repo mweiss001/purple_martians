@@ -834,92 +834,61 @@ void mwSettings::page_controls2(void)
 // ---------------------------------------------------------------
 void mwSettings::page_netgame(void)
 {
-   int line_spacing = 6;
+   int line_spacing = 7;
+   int section_spacing = 16;
    //line_spacing +=  mLoop.pct_y;
+   int fc = 8;
    int tc = 13;
-   int fc = 15;
    int xa = cfp_x1 + 10;
    int xb = cfp_x2 - 10;
-   int ya = cfp_y1 + 4;
+   int ya = cfp_y1 + 4 + line_spacing;
    int bts = 16;
 
 
-
    // server name section
-   // top of frame
-   fc = 8;
+   mwRect<int> srect = mwRect<int>::fromX1Y1X2Y2(cfp_x1+4, ya, cfp_x2-4, ya+24+line_spacing*3);
+   srect.draw_rectangle(mColor.pc[fc], 1);
    ya += line_spacing;
-   int frame_y1 = ya;
-   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-
-
-
    al_draw_text(mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Server:");
-   if (mWidget.mButton(3, xa+58, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mNetgame.server_address, 0)) mMiscFnx.edit_server_name(xa+56, ya);
-   ya+=20;
-
+   if (mWidget.mButton(3, xa+58, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mNetgame.server_address, 0)) mMiscFnx.edit_string_simple(xa+58, ya, mNetgame.server_address, sizeof(mNetgame.server_address) );
+   ya+=16 + line_spacing;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Clients require the Server's Name or IP");
 
-   ya += 8;
-   al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-   al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
+   ya = srect.y2 + section_spacing;
 
 
    // player name section
-   // top of frame
-   fc = 8;
+   mwRect<int> nrect = mwRect<int>::fromX1Y1X2Y2(cfp_x1+4, ya, cfp_x2-4, ya+50+line_spacing*5);
+   nrect.draw_rectangle(mColor.pc[fc], 1);
    ya += line_spacing;
-   frame_y1 = ya;
-   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
    al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_player_name(xa+98, ya, 0);
+   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8);
    ya+=20;
-
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Optional. Shown in netgame. (max 8 char)");
    ya+=8;
 
-   // line to separate sections
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
-
-
    al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "Show player name above players head.");
-
-   ya += 8;
-
-   ya += line_spacing;
-
+   ya += 8 + line_spacing;
    mWidget.buttonp(xa, ya, xa+220, bts,  17,0,0,0,  0,12,15,15, 0,0,0,0, mPlayer.loc[0].name_display);
 
-   ya += line_spacing;
-
-
-   ya += 8;
-
-
-   al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-   al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
+   ya = nrect.y2 + section_spacing;
 
 
    // pvp section
-   // top of frame
-   fc = 12;
-   frame_y1 = ya;
-   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-
-
-
+   mwRect<int> prect = mwRect<int>::fromX1Y1X2Y2(cfp_x1+4, ya, cfp_x2-4, ya+96+line_spacing*6);
+   prect.draw_rectangle(mColor.pc[fc], 1);
+   ya += line_spacing;
 
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Do player's shots affect other players?");
 
    ya+=10;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15);
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Do player's shots affect themselves?");
 
    ya+=10;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -927,18 +896,12 @@ void mwSettings::page_netgame(void)
 
    mWidget.mSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mPlayer.syn[0].player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:", 0, 0); ya+=bts;
    ya+=4;
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots do to");
-   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya+10, ALLEGRO_ALIGN_CENTER, "other players and themselves.");
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "The amount of damage player's shots do to");
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya+10, 0, "other players and themselves.");
 
+   ya = prect.y2 + section_spacing;
 
-   ya += 20;
-   al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-   al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
-
-   ya+=8;
    if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
-
 }
 
 

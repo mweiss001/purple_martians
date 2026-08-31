@@ -4,6 +4,7 @@
 #include "mwDemoRecord.h"
 
 #include "mwColor.h"
+#include "mwConfig.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
@@ -817,8 +818,7 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          ya-=2;
          if (mWidget.mButton(3, xa+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, name, 0))
          {
-            mMiscFnx.edit_player_name(xa+98, ya, pp);
-            mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
+            if (mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[pp].name, 8)) mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
             refresh();
          }
          ya+=13;

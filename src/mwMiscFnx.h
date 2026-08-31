@@ -112,15 +112,12 @@ class mwMiscFnx
    void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
 
 
-   void show_cursor_simple(char *f, int cursor_pos, int x, int y, int cursor_color, int restore);
-
    void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
 
-   void edit_server_name(int x, int y);
-   void edit_player_name(int x, int y, int p);
+   void show_cursor_simple(char *f, int cursor_pos, int x, int y, int cursor_color, int restore);
+   bool edit_string_simple(int x, int y, char * string, int len);
 
 
-   int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 };
 extern mwMiscFnx mMiscFnx;

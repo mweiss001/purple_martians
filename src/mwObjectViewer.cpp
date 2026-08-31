@@ -553,7 +553,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       if (mLift.cur[lift].mode)
          odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");
 
-      if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mb = 26; // lift name
+      // draw blank button frame
+      mWidget.mButton(0, xa, xb,   1, ya, bts-2,   0, 2, 0, 0,   13, 15, 15,  0, 0, "", 1);
+      al_draw_text( mFont.pr8, mColor.pc[15], xa+4, ya+3, 0, "Lift Name:");
+      if (mWidget.mButton(3, xa+84, -1,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLift.cur[lift].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLift.cur[lift].lift_name, sizeof(mLift.cur[lift].lift_name));
+
+
+
       ya+=bts;
 
       // list of step buttons
@@ -607,9 +613,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
       if (mb == 26)
       {
-         char fst[80];
-         strcpy(fst, mLift.cur[lift].lift_name);
-         if (mMiscFnx.edit_lift_name(lift, yld, xa+10, fst)) strcpy(mLift.cur[lift].lift_name, fst);
+
+
+//         char fst[80];
+//         strcpy(fst, mLift.cur[lift].lift_name);
+//         if (mMiscFnx.edit_lift_name(lift, yld, xa+10, fst)) strcpy(mLift.cur[lift].lift_name, fst);
       }
    }
 

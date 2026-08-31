@@ -877,15 +877,15 @@ void mwTileEditor::edit_tile(int tile)
 
       // show top row of buttons
       int ya = dy1-14;
-
       int xa = dx2-86;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,11, 1,0,0,0, "Load"))
+
+      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  11, 0, "Load", 0))
       {
          tilemap_bitmap = mBitmapTools.load_block_tiles_to_bitmap();
          mBitmapTools.get_tile_from_tilemap(tilemap_bitmap, edit_tile_bitmap, edit_tile_index);
       }
       xa = dx2-42;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Save"))
+      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Save", 0))
       {
          mBitmapTools.put_tile_to_tilemap(tilemap_bitmap, edit_tile_bitmap, edit_tile_index);
          mBitmapTools.save_bitmap_to_block_tiles_file(tilemap_bitmap);
@@ -893,11 +893,10 @@ void mwTileEditor::edit_tile(int tile)
       }
 
       xa = dx1+142;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Select Tile")) set_edit_tile(mBitmapTools.select_bitmap());
+      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Select Tile", 0)) set_edit_tile(mBitmapTools.select_bitmap());
 
       xa = dx1+282;
-      if (mWidget.buttontcb(xa, ya, 0, 14, 0,0,0,0, 0,15,15,10, 1,0,0,0, "Copy Tiles")) mBitmapTools.copy_tiles();
-
+      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Copy Tiles", 0)) mBitmapTools.copy_tiles();
 
       // show all the widgets to the right of the main tile area
       xa = dx2+20;

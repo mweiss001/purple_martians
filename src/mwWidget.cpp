@@ -2349,7 +2349,7 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
       int ta = 0; // always
       // if (xType > 2) ta = 0;
 
-      draw_widget_text(x1, y1, x2, y2, c, ta, txt);
+                                                     draw_widget_text(x1, y1, x2, y2, c, ta, txt);
    }
 
    if (mouseOnButton && (mInput.mouse_b[1][0]))

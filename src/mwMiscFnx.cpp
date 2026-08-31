@@ -1451,56 +1451,6 @@ int mwMiscFnx::mw_file_select(const char * title, char * fn, const char * ext, i
 
 
 // edit text stuff
-void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore)
-{
-   char msg[1024];
-   int len = strlen(f);
-   char dt[40][120];
-   int row=0, col=0, cursor_row=0, cursor_col=0;
-   // get cursor row and column and fill dt
-   for (int a=0; a<len+1; a++)
-   {
-      if (a == cursor_pos)
-      {
-         cursor_row = row;
-         cursor_col = col;
-      }
-      if (f[a] == 126) // line break
-      {
-         row++;
-         col=0;
-         dt[row][col] = (char)NULL; // in case len = 0
-      }
-      else  // regular char
-      {
-         dt[row][col] = f[a];
-         col++;
-         dt[row][col] = (char)NULL;
-      }
-   }
-
-   // make a string from the cursor text char
-   msg[0] = f[cursor_pos];
-   msg[1] = 0;
-
-   int x, y;
-   x = cursor_col*8+xpos_c - strlen(dt[cursor_row])*4;
-   y = ypos+cursor_row*8;
-
-   if (restore) // black background, text color text
-   {
-      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[0]);
-      al_draw_text(mFont.pr8, mColor.pc[cursor_color], x, y, 0, msg);
-   }
-   else // red background, black text
-   {
-      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[10]);
-      al_draw_text(mFont.pr8, mColor.pc[0], x, y, 0, msg);
-   }
-}
-
-
-// edit text stuff
 void mwMiscFnx::show_cursor_simple(char *f, int cursor_pos, int x, int y, int cursor_color, int restore)
 {
    char msg[16];
@@ -1522,13 +1472,13 @@ void mwMiscFnx::show_cursor_simple(char *f, int cursor_pos, int x, int y, int cu
    }
 }
 
-void mwMiscFnx::edit_server_name(int x, int y)
+bool mwMiscFnx::edit_string_simple(int x, int y, char * string, int len)
 {
+   bool ret = false;
+
    int tc = 10;
    char fst[80];
-
-   strcpy(fst, mNetgame.server_address);
-
+   strcpy(fst, string);
    int char_count = strlen(fst);
    int cursor_pos=0;
    int blink_count = 3;
@@ -1543,7 +1493,6 @@ void mwMiscFnx::edit_server_name(int x, int y)
    while (!quit)
    {
       int tx2 = tx1 + char_count*8 + 10;
-
       al_flip_display();
 
       // clear background
@@ -1555,11 +1504,9 @@ void mwMiscFnx::edit_server_name(int x, int y)
       // draw text
       al_draw_text(mFont.pr8, mColor.pc[tc], tx1, ty1, 0, fst);
 
-
       if (blink_counter++ < blink_count) show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 0);
       else                               show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
-
 
       al_rest(.08);
       mEventQueue.proc(1);
@@ -1605,243 +1552,12 @@ void mwMiscFnx::edit_server_name(int x, int y)
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
-         strcpy(mNetgame.server_address, fst);
+         mw_strncpy(string, fst, len);
          mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
          quit = 1;
+         ret = true;
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
+   return ret;
 }
-
-
-
-void mwMiscFnx::edit_player_name(int x, int y, int p)
-{
-   int tc = 10;
-   char fst[80];
-   strcpy(fst, mPlayer.syn[p].name);
-   int char_count = strlen(fst);
-   int cursor_pos=0;
-   int blink_count = 3;
-   int blink_counter = 0;
-   while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
-   int quit = 0;
-
-   int y2 = y + 12;
-   int tx1 = x + 4;
-   int ty1 = y + 2;
-
-   while (!quit)
-   {
-      int tx2 = tx1 + char_count*8 + 10;
-
-      al_flip_display();
-
-      // clear background
-      al_draw_filled_rectangle(x, y-1, tx2+10, y2+1, mColor.pc[0]);
-
-      // frame
-      al_draw_rectangle       (x, y, tx2, y2, mColor.pc[tc], 1);
-
-      // draw text
-      al_draw_text(mFont.pr8, mColor.pc[tc], tx1, ty1, 0, fst);
-
-
-      if (blink_counter++ < blink_count) show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 0);
-      else                               show_cursor_simple(fst, cursor_pos, tx1, ty1, tc, 1);
-      if (blink_counter> blink_count*2) blink_counter = 0;
-
-
-      al_rest(.08);
-      mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
-      {
-         if (++cursor_pos > char_count) cursor_pos = char_count;
-      }
-      if (mInput.key[ALLEGRO_KEY_LEFT][0])
-      {
-         if (--cursor_pos < 0) cursor_pos = 0;
-      }
-      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
-      {
-         for (int a = cursor_pos; a < char_count; a++)
-           fst[a]=fst[a+1];
-         --char_count;
-         fst[char_count] = (char)NULL; // set last to NULL
-      }
-      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
-      {
-         cursor_pos--;
-         for (int a = cursor_pos; a < char_count; a++)
-           fst[a]=fst[a+1];
-         char_count--;
-         fst[char_count] = (char)NULL; // set last to NULL
-      }
-
-      int k = mInput.key_pressed_ASCII;
-      if ((k>31) && (k<127)) // insert if alphanumeric or return
-      {
-         // move over to make room
-         for (int a = char_count; a>=cursor_pos; a--)
-            fst[a+1]=fst[a];
-
-         // set char
-         fst[cursor_pos] = k;
-
-         // inc both
-         cursor_pos++;
-         char_count++;
-
-         fst[char_count] = (char)NULL; // set last to NULL
-      }
-      if (mInput.key[ALLEGRO_KEY_ENTER][3])
-      {
-         mw_strncpy(mPlayer.syn[p].name, fst, 8);
-         mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
-         quit = 1;
-      }
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
-{
-   int cursor_pos=0;
-   int old_cp=0;
-   int blink_count = 3;
-   int blink_counter = 0;
-   int a=0;
-   int char_count = strlen(fst);
-   while (1)
-   {
-      al_flip_display();
-      al_rest(0.05);
-
-
-      int x2 = x1 + mLift.cur[lift].w -1;
-      int y2 = y1 + mLift.cur[lift].h -1;
-      int tx = ((x1+x2)/2);
-      int ty1 = ((y1+y2)/2) - 3;
-
-      //int color = lifts[lift].color;
-
-      int color = (mLift.stp[lift][0].type >> 28) & 15;
-
-
-      // draw updated lift
-      for (a=0; a<10; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[color + ((9 - a)*16)], 2 );
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[color] );
-      al_draw_text(mFont.pr8, mColor.pc[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
-
-
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1, 15, 1);
-      if (blink_counter> blink_count*2) blink_counter = 0;
-
-      if (cursor_pos != old_cp)
-      {
-         show_cursor(fst, old_cp, tx, ty1, 15, 1); // erase old blinking cursor if moved
-         old_cp = cursor_pos;
-         blink_counter = 0;
-      }
-
-      mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
-      {
-         if (++cursor_pos >= char_count) cursor_pos = char_count-1;
-      }
-      if (mInput.key[ALLEGRO_KEY_LEFT][0])
-      {
-         if (--cursor_pos < 0) cursor_pos = 0;
-      }
-      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
-      {
-         for (a = cursor_pos; a < char_count; a++)
-           fst[a]=fst[a+1];
-         char_count--;
-         // set last to NULL
-         fst[char_count] = (char)NULL;
-      }
-      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
-      {
-         cursor_pos--;
-         for (a = cursor_pos; a < char_count; a++)
-           fst[a]=fst[a+1];
-         char_count--;
-         // set last to NULL
-         fst[char_count] = (char)NULL;
-      }
-
-      int k = mInput.key_pressed_ASCII;
-      if ((k>31) && (k<127)) // insert if alphanumeric or return
-      {
-         // move over to make room
-         for (a = char_count; a>=cursor_pos; a--)
-            fst[a+1]=fst[a];
-
-         // set char
-         fst[cursor_pos] = k;
-
-         // inc both
-         cursor_pos++;
-         char_count++;
-
-         // set last to NULL
-         fst[char_count] = (char)NULL;
-      }
-      if (mInput.key[ALLEGRO_KEY_ENTER][3]) return 1;
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) return 0;
-   }
-}
-
