@@ -48,56 +48,58 @@ void mwLoop::remote_control_loop()
 
    int i = 0;
    cx = 38;
-   if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "cpu " ))
+
+
+   if (mWidget.mButton(3,cx,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "cpu", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 1;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "sync" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "sync", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 2;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "ping" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "ping", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 3;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "difs" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "difs", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 4;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "tkbs" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "tkbs", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 5;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rwnd" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "rwnd", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 6;
-   if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "lcor" ))
+   if (mWidget.mButton(3,cx+=48,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "lcor", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
    }
 
    i = 7;
-   if (mWidget.buttontcb(cx+=48*3, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rcor" ))
+   if (mWidget.mButton(3,cx+=48*3,0,   1, cy+1, 9,   1, 0, 3, 1,    0, -1, mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,  15, 0, "rcor", 0))
    {
       mQuickGraph2[i].active = !mQuickGraph2[i].active;
       initialize_and_resize_remote_graphs();
@@ -209,15 +211,19 @@ void mwLoop::remote_control_loop()
    int cxc2 = cx + 100;
 
 
-   if (mWidget.mButton(5, cxc2, -1, cy, 16,   1, 2, 0, 1,    13, 13, 15, 0, 0, " Select and Reload Level ", 0))
+   if (mWidget.mButton(5, cxc2, 0, cy, 16,   1, 2, 0, 1,    13, 13, 15, 0, 0, " Select and Reload Level ", 0))
    {
       if (mVisualLevel.visual_level_select(100) == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
    }
    cy+=6;
-   if (mWidget.mButton(5, cxc2, -1, cy, 16,   1, 2, 0, 1,    9, 9, 15, 0, 0, " Reload Current Level ", 0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
+   if (mWidget.mButton(5, cxc2, 0, cy, 16,   1, 2, 0, 1,    9, 9, 15, 0, 0, " Reload Current Level ", 0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
    cy+=10;
    static int show_bandwidth = 0;
-   if (mWidget.buttontcb(cx, cy, 0, 13, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;
+
+   if (mWidget.mButton(3, cx, 0,   1, cy, 12,   0, 0, 3, 1,    0, 15, 15,  14, 0, "Show/Hide Bandwidth", 0)) show_bandwidth = !show_bandwidth;
+
+
+
 
    cy = mxcy; // position of next section under buttons
    cx = 10;

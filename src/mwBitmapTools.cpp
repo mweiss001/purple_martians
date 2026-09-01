@@ -1397,7 +1397,7 @@ void mwBitmapTools::edit_tile_flags()
 
       // mode button
       ya+=60;
-      mWidget.mButtonToggle(3, cx, -1,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
+      mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
 
 
       ya += 13;
@@ -1420,7 +1420,7 @@ void mwBitmapTools::edit_tile_flags()
       // gridlines check box
       mWidget.togglec(cx, ya, cx+80, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
       ya += 20;
-      if (mWidget.mButton(3, cx, -1, 1, ya, 14,   1, 0, 3, 2,       10, 15, 15, 10, 0, "Save", 0))    mBitmap.save_sprit();
+      if (mWidget.mButton(3, cx, 0, 1, ya, 14,   1, 0, 3, 2,       10, 15, 15, 10, 0, "Save", 0))    mBitmap.save_sprit();
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -1747,11 +1747,11 @@ void mwBitmapTools::copy_tiles()
       // draw top controls, starting from left
       int b1_cx = b1r.x1;
       ya = b1r.y1 - 14;
-      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b1 = 1;
+      if (mWidget.mButton(3, b1_cx, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b1 = 1;
       b1_cx+=50;
-      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 13, 0, "Reload", 0)) reload_b1 = 2;
+      if (mWidget.mButton(3, b1_cx, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 13, 0, "Reload", 0)) reload_b1 = 2;
       b1_cx+=66;
-      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 10, 0, "Save", 0)) mw_save_bitmap(b1_fn, b1);
+      if (mWidget.mButton(3, b1_cx, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15, 10, 0, "Save", 0)) mw_save_bitmap(b1_fn, b1);
       b1_cx+=64;
 
       // title with filename only, no path
@@ -1863,12 +1863,12 @@ void mwBitmapTools::copy_tiles()
       al_destroy_path(ap);
 
       ya = b2r.y1-14;
-      if (mWidget.mButton(3, b2r.x1, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b2 = 1;
+      if (mWidget.mButton(3, b2r.x1, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b2 = 1;
 
       char msg[80];
       sprintf(msg, "Pad:%d", b2_pad);
 
-      if (mWidget.mButton(3, b2r.x1+48, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  14, 0, msg, 0))
+      if (mWidget.mButton(3, b2r.x1+48, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  14, 0, msg, 0))
       {
          b2_pad = !b2_pad;
          b2_ts = 20 + b2_pad*2;

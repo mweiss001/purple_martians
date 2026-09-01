@@ -84,21 +84,16 @@ void mwSettings::reset_overlay_settings(void)
 
 
 
+
 void mwSettings::redraw_one_fcontrol(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int num_lines, int i, int &key, const char* nam)
 {
    int xa = x+1;
    int xb = xa + 35;  // 'new' button end
    int tx = xb + 10;  // text pos padded after 'new' button
    float yo = (bts-8)/2; // text y offset so it is centered with the button
-
    if (num == i) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "%s set new control", nam);
    else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "%s %s", nam, mInput.key_names[key]);
-
-   ya+=1; bts-=2; // make button a little smaller
-   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15, 0,  1,1,0,0, "new"))) mInput.my_readkey3(x, y, tc, bts+2, i, num_lines);
-
-   ya-=1; bts+=2; // fix values
-
+   if ((show_buttons) && (mWidget.mButton(0, xa, xb,   1, ya+1, bts-4,    1, 2, 0, 1,   13, 0, 15, 0, 0, "new",   0))) mInput.my_readkey3(x, y, tc, bts, i, num_lines);
    al_draw_line(x-1, ya-1, xa+320, ya-1, mColor.White, 0);
    ya+=bts;
 }
@@ -112,7 +107,6 @@ int mwSettings::redraw_all_fcontrols(int x, int y, int bts, int tc, int show_but
 
    al_draw_filled_rectangle(x-1, y-1, x+w+1, yb, mColor.pc[13+224]); // erase background
    al_draw_rectangle       (x-1, y-1, x+w+1, yb, mColor.pc[15], 0);  // frame
-
 
    float x9 = 38;
    al_draw_line            (x+x9, y-1, x+x9, yb, mColor.pc[15], 0);  // frame
@@ -143,15 +137,9 @@ void mwSettings::redraw_one_control(int x, int y, int &ya, int bts, int tc, int 
    int xb = xa + 35;  // 'new' button end
    int tx = xb + 10;  // text pos padded after 'new' button
    float yo = (bts-8)/2; // text y offset so it is centered with the button
-
    if (num == i) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "%s set new control", nam);
    else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "%s %s", nam, mInput.key_names[key]);
-
-   ya+=1; bts-=2; // make button a little smaller
-   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15, 0,  1,1,0,0, "new"))) mInput.my_readkey2(x, y, tc, bts+2, i);
-
-   ya-=1; bts+=2; // fix values
-
+   if ((show_buttons) && (mWidget.mButton(0, xa, xb,   1, ya+1, bts-4,    1, 2, 0, 1,   13, 0, 15, 0, 0, "new",   0))) mInput.my_readkey2(x, y, tc, bts, i);
    al_draw_line(x-1, ya-1, xa+240, ya-1, mColor.White, 0);
    ya+=bts;
 }
@@ -162,7 +150,6 @@ int mwSettings::redraw_all_controls(int x, int y, int bts, int tc, int show_butt
 
    al_draw_filled_rectangle(x-1, y-1, x+241, ya + bts*7-1, mColor.pc[13+224]); // erase background
    al_draw_rectangle       (x-1, y-1, x+241, ya + bts*7-1, mColor.pc[15], 0);  // frame
-
 
    float x9 = 38;
    al_draw_line            (x+x9, y-1, x+x9, ya + bts*7-1, mColor.pc[15], 0);  // frame
@@ -496,7 +483,9 @@ void mwSettings::page_main(void)
 
    int old_mcm = mMain.classic_mode;
    mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
-   if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
+
+   if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
+
 
    if (old_mcm != mMain.classic_mode)
    {
@@ -601,7 +590,8 @@ void mwSettings::page_main(void)
    mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mLogo.show_splash_screen, "Show splash screen on startup", tc, tc);
    x1a = x1b + 24+8;
    x1b = x1a + 80;
-   if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,8,tc, 0,  1,0,1,0, "Show now"))
+
+   if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   8, 0, tc, 0, 0, "Show now",   0))
    {
        mLogo.splash_screen();
        while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
@@ -610,15 +600,13 @@ void mwSettings::page_main(void)
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.display_enable, "Show bottom message display", tc, 15);
-
-   if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Settings")) current_page = 6;
-
-
+   if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, tc, 0, 0, "Settings",   0)) current_page = 6;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
    mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mDemoMode.config_autoplay_enabled, "Autoplay demo when idle", tc, 15);
-   if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Settings")) current_page = 5;
+   if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, tc, 0, 0, "Settings",   0)) current_page = 5;
+
    ya -=2;
 
    al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
@@ -628,11 +616,7 @@ void mwSettings::page_main(void)
    if (show_advanced)
    {
       ya+= line_spacing-4;
-
-
-      x1a = cfp_x1 + 60;
-      x1b = cfp_x2 - 60;
-      if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, tc, 0, 0, "Reset All Settings to Defaults!",   0))
       {
          al_remove_filename("pm.cfg");
          al_remove_filename("data/mW.pm");
@@ -669,7 +653,10 @@ void mwSettings::page_mode(void)
 
    int old_mcm = mMain.classic_mode;
    mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
-   if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
+//   if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
+
+   if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
+
 
    if (old_mcm != mMain.classic_mode)
    {
@@ -707,7 +694,10 @@ void mwSettings::page_mode(void)
 
    if ((show_advanced) && (!mMain.classic_mode))
    {
-      if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels();
+
+
+//      if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
       al_set_target_backbuffer(mDisplay.display);
       ya +=8;
       al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
@@ -754,7 +744,8 @@ void mwSettings::page_controls(void)
    int ty1 = ya;
 
    ya+=12;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Prompt to set all new controls"))  mInput.get_all_keys(kx, ya, tc, bts);
+
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Prompt to set all new controls",   0)) mInput.get_all_keys(kx, ya, tc, bts);
 
    int gc = 11;
 
@@ -763,11 +754,12 @@ void mwSettings::page_controls(void)
    xb = xa + bw;
 
    ya += 12;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,gc,15, 0,  1,0,1,0, "Set all to joystick 1")) mInput.set_controls_to_custom_sets(1);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,gc,15, 0,  1,0,1,0, "Set all to joystick 2")) mInput.set_controls_to_custom_sets(2);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,gc,15, 0,  1,0,1,0, "Set all to arrow keys")) mInput.set_controls_to_custom_sets(3);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,gc,15, 0,  1,0,1,0, "Set all to IJKL"))       mInput.set_controls_to_custom_sets(4);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,gc,15, 0,  1,0,1,0, "Set all to WASD"))       mInput.set_controls_to_custom_sets(5);
+
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   gc, 0, 15, 0, 0, "Set all to joystick 1",   0)) mInput.set_controls_to_custom_sets(1);
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   gc, 0, 15, 0, 0, "Set all to joystick 2",   0)) mInput.set_controls_to_custom_sets(2);
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   gc, 0, 15, 0, 0, "Set all to arrow keys",   0)) mInput.set_controls_to_custom_sets(3);
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   gc, 0, 15, 0, 0, "Set all to IJKL",         0)) mInput.set_controls_to_custom_sets(4);
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   gc, 0, 15, 0, 0, "Set all to WSAD",         0)) mInput.set_controls_to_custom_sets(5);
 
    ya += 12;
    xa = cfp_x1 + 40;
@@ -775,15 +767,15 @@ void mwSettings::page_controls(void)
    int xw4 = (xb - xa)/2;
 
    xb = xa+xw4-10;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Test controls"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   14, 0, 15, 0, 0, "Test controls",         0))
    {
       al_draw_filled_rectangle(cf_x1+10, ty1, cf_x2-10, cf_y2-10, mColor.pc[fc+224]); // erase everything
       mInput.test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*8);
    }
 
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Controls Help")) mHelp.help("Game Controls");
-
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Controls Help",         0)) mHelp.help("Game Controls");
 }
 
 
@@ -810,7 +802,8 @@ void mwSettings::page_controls2(void)
 
    ya = redraw_all_fcontrols(xa+24, ya, bts, tc, 1, -1, last_control);
    ya += line_spacing;
-   if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+
+   if (mWidget.mButton(5, cfp_txc, 20,   1, ya, bts-2,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Reset all to defaults",         0))
    {
       mInput.function_key_fullscreen      = ALLEGRO_KEY_F12;
       mInput.function_key_text_double     = ALLEGRO_KEY_F11;
@@ -850,7 +843,7 @@ void mwSettings::page_netgame(void)
    srect.draw_rectangle(mColor.pc[fc], 1);
    ya += line_spacing;
    al_draw_text(mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Server:");
-   if (mWidget.mButton(3, xa+58, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mNetgame.server_address, 0)) mMiscFnx.edit_string_simple(xa+58, ya, mNetgame.server_address, sizeof(mNetgame.server_address) );
+   if (mWidget.mButton(3, xa+58, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mNetgame.server_address, 0)) mMiscFnx.edit_string_simple(xa+58, ya, mNetgame.server_address, sizeof(mNetgame.server_address) );
    ya+=16 + line_spacing;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Clients require the Server's Name or IP");
 
@@ -863,7 +856,7 @@ void mwSettings::page_netgame(void)
    ya += line_spacing;
 
    al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8);
+   if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8);
    ya+=20;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Optional. Shown in netgame. (max 8 char)");
    ya+=8;
@@ -901,7 +894,8 @@ void mwSettings::page_netgame(void)
 
    ya = prect.y2 + section_spacing;
 
-   if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Netgame Help",   0)) mHelp.help("Netgame");
+
 }
 
 
@@ -925,9 +919,9 @@ int mwSettings::page_demo(int disable_input)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,disable_input, "Play random demo game")) mDemoMode.run_continuous_random();
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   fc, 0, tc, 0, 0, "Play random demo game",   disable_input)) mDemoMode.run_continuous_random();
    ya +=10;
-   if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,disable_input, "Choose file and run saved game")) mDemoMode.run_single_from_settings();
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   fc, 0, tc, 0, 0, "Choose file and run saved game",   disable_input)) mDemoMode.run_single_from_settings();
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -944,11 +938,11 @@ int mwSettings::page_demo(int disable_input)
 
    if (save_allowed)
    {
-      if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,disable_input, "Save current game in progress")) mGameMoves.save_gm_file_select();
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   14, 0, tc, 0, 0, "Save current game in progress",   disable_input)) mGameMoves.save_gm_file_select();
    }
    else
    {
-      mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,15+128,tc, 0,  1,0,1,disable_input, "No game in progress");
+      mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   15+128, 0, tc, 0, 0, "No game in progress",   disable_input);
    }
 
    ya +=6;
@@ -982,11 +976,12 @@ int mwSettings::page_demo(int disable_input)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
    if (show_advanced)
    {
-      if (mWidget.buttont(xa+70, ya, xb-70, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,disable_input, "Run Demo Recording System"))
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, tc, 0, 0, "Run Demo Recording System",   disable_input))
       {
+         printf("test11\n");
+
          mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
          return 1;
       }
@@ -1042,7 +1037,8 @@ void mwSettings::page_bottom_msg(int draw_only)
    xb = cfp_x2 - 10;
    xa = xb - 180;
 
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8+96,15, 0,  1,0,0, draw_only, "Reset All To Defaults"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   8+96, 0, 15, 0, 0, "Reset All To Defaults",   0))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 1;
@@ -1104,7 +1100,8 @@ void mwSettings::page_bottom_msg(int draw_only)
    xb = cfp_x2-10;
    xa = xb - 80;
 
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15, 0,  1,0,0,draw_only, "Defaults"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   lcw, 0, 15, 0, 0, "Defaults",   0))
    {
       mBottomMessage.num_lines = 16;
       mBottomMessage.io = 1.0;
@@ -1168,7 +1165,8 @@ void mwSettings::page_bottom_msg(int draw_only)
 
    xa = cfp_x1+10;
    xb = xa + 40;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,draw_only, "Min"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   ticw, 0, 15, 0, 0, "Min",   0))
    {
       mBottomMessage.disp_player = 0;
       mBottomMessage.disp_enemy = 0;
@@ -1179,7 +1177,8 @@ void mwSettings::page_bottom_msg(int draw_only)
    }
    xb = cfp_x2-10;
    xa = xb - 40;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,draw_only, "Max"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   ticw, 0, 15, 0, 0, "Max",   0))
    {
       mBottomMessage.disp_player = 2;
       mBottomMessage.disp_enemy = 3;
@@ -1278,17 +1277,17 @@ void mwSettings::page_bottom_msg(int draw_only)
 
    xa = cfp_x1+10;
    xb = xa + 68;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,draw_only, "All Off"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   ecw, 0, 15, 0, 0, "All Off",   0))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 0;
       reload = 1;
    }
 
-
    xb = cfp_x2-10;
    xa = xb - 60;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,draw_only, "All On"))
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   ecw, 0, 15, 0, 0, "All On",   0))
    {
       for (int i=0; i<100; i++)
          mBottomMessage.filter_event[i] = 1;
@@ -1415,7 +1414,9 @@ void mwSettings::page_level_stats(void)
    int ya = cfp_y1 + 10;
    int bts = 16;
 
-   mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Stats");
+   mWidget.mButton(0, xa+100, xb-100,   1, ya, bts-2,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Show All Stats",   0);
+
+//   mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Stats");
    if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
    {
       ya+=line_spacing+8;
@@ -1435,23 +1436,23 @@ void mwSettings::page_level_stats(void)
       {
          al_set_target_backbuffer(mDisplay.display);
 
-         if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   8, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels();
          ya +=8;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play all")) mDemoMode.play_all_demos_and_save_stats(cfp_txc, ya);
+
+         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   fc, 0, 15, 0, 0, "Play all",   0)) mDemoMode.play_all_demos_and_save_stats(cfp_txc, ya);
          ya +=8;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Play all demo levels and set stats."); ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "GDT")) mDemoRecord.gdt();
+         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   fc, 0, tc, 0, 0, "GDT",   0)) mDemoRecord.gdt();
          ya +=8;
-         //al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Play all demo levels and set stats."); ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Reset all level data",   0)) mLevel.reset_level_data();
          ya +=8;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;

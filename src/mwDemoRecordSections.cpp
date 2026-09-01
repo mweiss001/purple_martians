@@ -285,7 +285,7 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    al_draw_text( mFont.pr8, mColor.pc[15], x, ya, 0, "Player Name:");
    ya-=2;
 
-   if (mWidget.mButton(3, x+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
+   if (mWidget.mButton(3, x+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
    {
       if (mMiscFnx.edit_string_simple(x+98, ya, mPlayer.syn[0].name, 8))
       {
@@ -347,7 +347,7 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
       int ya = rect.y1+16;
 
       al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-      if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[p].name, 8);
+      if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[p].name, 8);
 
       ya+=16; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6; // spacer line
 
@@ -450,7 +450,7 @@ void mwDemoRecord::add_new_section_dialog()
          ya+= bts+4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=4;
 
          al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-         if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[player_num].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[player_num].name, 8);
+         if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[player_num].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[player_num].name, 8);
 
 
          ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6;

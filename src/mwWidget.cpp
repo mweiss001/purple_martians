@@ -940,11 +940,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 }
 
 
-
-
-
-
-
 // displays a text string, and returns 1 if pressed
 int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
@@ -961,49 +956,6 @@ int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    return ret;
 }
 
-
-
-// no faded frame, just a simple frame that highlights when moused over
-// displays a text string, and returns 1 if pressed
-// auto width based on text length x1 is the center
-// highlight outline when moused over
-int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
-{
-   int y2 = (y1+bts)-2;
-   int ret = 0;
-
-   int tl = (strlen(txt)+1)*8;
-
-   int x2 = x1+tl;
-
-   int fc = q1;
-   int tc = q2;
-
-
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) // mouse on button
-   {
-      fc = q3;       // show highlight
-      tc = q3;       // show highlight
-
-      if ((!q7) && (mInput.mouse_b[1][0]))
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-         ret = 1;
-      }
-   }
-
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
-   draw_widget_text(x1, y1+1, x2, y2, tc, q5, txt);
-
-
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      ret = 1;
-   }
-   if (q6) y1+=bts;
-   return ret;
-}
 
 
 
@@ -1024,79 +976,6 @@ int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int 
    if (q6) y1+=bts;
    return ret;
 }
-
-
-
-
-
-// displays a text string and tile, and returns 1 if pressed --- tile is tn
-int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
-{
-   int y2 = y1+bts-2;
-   int ret = 0;
-
-   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
-
-   // draw tile
-   int x = x1+num;
-
-   al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mColor.pc[0]);
-   al_draw_bitmap(mBitmap.tile[tn], x, y1+1, 0);
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      ret = 1;
-   }
-   if (q6) y1+=bts;
-   return ret;
-}
-
-
-// displays a text string and player tile, and returns 1 if pressed --- tile is tn
-int mwWidget::buttonpt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
-{
-   int y2 = y1+bts-2;
-   int ret = 0;
-   int tile_size = num;
-
-   int highlight = type;
-
-   int col = q1;     // main color
-   int bc = col+192; // background color
-   int fc = col+64;  // frame color
-   if (highlight) fc = 15; // frame highlight color
-
-   // draw button background
-   al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 1, 1, mColor.pc[bc]);
-
-   // draw button frame
-   al_draw_rounded_rectangle(       x1, y1, x2, y2, 1, 1, mColor.pc[fc], 1);
-
-   // draw button text
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
-
-   // draw tile
-   int x = x1 + 2;
-   int y = y1 + 2;
-
-   // erase tile background
-   al_draw_filled_rectangle(x-1, y-1, x+tile_size+1, y+tile_size+1, mColor.pc[0]);
-   // draw tile
-   al_draw_scaled_bitmap(mBitmap.player_tile[tn][1], 0, 0, 20, 20, x, y, tile_size, tile_size, 0);
-
-   // draw frame vertical line between tile and text
-   al_draw_line(x+tile_size+2, y1, x+tile_size+2, y2, mColor.pc[fc], 1);
-
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      ret = 1;
-   }
-   if (q6) y1+=bts;
-   return ret;
-}
-
 
 
 
@@ -2066,11 +1945,6 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-
-
-
-
-
 // ---------------------------------------------------------------------------------------------------------------------------
 // ------------------new widgets from 2026 -----------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------
@@ -2080,10 +1954,11 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
 // 0  abs xa, abs xb
 // 1  abs xa, xb is width
 // 2  abs xb, xa is width
-// 3  abs xa, xb not used (auto text width from xa)
-// 4  abs xb, xa not used (auto text width from xb)
-// 5  abs xa, xb not used (auto text width centered on xa)
-// 6  abs xa, xb used to pad text length (auto text width centered on xa)
+// 3  abs xa,         width from text length, xb used to pad text length
+// 4  abs xb,         width from text length, xa used to pad text length
+// 5  centered on xa, width from text length, xb used to pad text length
+
+
 
 // yType
 // 0  abs ya, abs yb
@@ -2103,12 +1978,22 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
 // 3 = highlight with mouse
 // 4 = highlight with both
 
+
 // textType
-// 0 = no text
-// 1 = normal
-// 2 = highlight with var
-// 3 = highlight with mouse
-// 4 = highlight with both
+// 0  = no text
+// 1  = centered
+// 2  = centered highlight with var
+// 3  = centered highlight with mouse
+// 4  = centered highlight with both
+// 21 = left justified
+// 22 = left justified highlight with var
+// 23 = left justified highlight with mouse
+// 24 = left justified highlight with both
+
+
+
+
+
 
 
 
@@ -2120,23 +2005,26 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
    x1 = xa;
    x2 = xb;
 
-
    if (xType == 1) x2 = xa + xb; // abs xa, xb is width
    if (xType == 2) x1 = xb - xa; // abs xb, xa is width
 
    int tl = (strlen(txt)+1)*8; // text length
 
-   if (xType == 3) x2 = xa + tl; // abs xa, xb is auto text width
-   if (xType == 4) x1 = xb - tl; // abs xb, xa is auto text width
-
-   if (xType == 5) // abs center xa,  auto text width
+   if (xType == 3) x2 = xa + (tl + xb); // abs xa, auto width from text with xb padding text length
+   if (xType == 4) x1 = xb - (tl + xa); // abs xb, auto width from text with xa padding text length
+   if (xType == 5) // abs center xa,  auto width from text with xb padding text length
    {
+      tl+=xb;
       x1 = xa - tl/2;
       x2 = xa + tl/2;
    }
 
+
+
    if (xType == 6) // abs center xa,  auto text width with xb padding added to text length
    {
+      printf("xyHelper MODE 6  --  I thought this was unused!!!!!!\n");
+
       tl += xb; // text length
 
       x1 = xa - tl/2;
@@ -2164,13 +2052,6 @@ mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int
    mwRect<int> r = mwRect<int>::fromX1Y1X2Y2(x1, y1, x2, y2);
    return r;
 }
-
-
-
-
-
-
-
 
 
 
@@ -2331,7 +2212,7 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
       int c = fcol;
       if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
       if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
-      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+      if (c != -1) al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
    }
 
    // 0 = no text
@@ -2339,17 +2220,21 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
    // 2 = highlight with var
    // 3 = highlight with mouse
    // 4 = highlight with both
+
+   // text justify
+   int tj = 0;
+   if (textType > 20)
+   {
+      tj = 1;
+      textType-=20;
+   }
+
    if (textType)
    {
       int c = tcol;
       if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
       if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
-
-      // centering
-      int ta = 0; // always
-      // if (xType > 2) ta = 0;
-
-                                                     draw_widget_text(x1, y1, x2, y2, c, ta, txt);
+      draw_widget_text(x1, y1, x2, y2, c, tj, txt);
    }
 
    if (mouseOnButton && (mInput.mouse_b[1][0]))
@@ -2516,14 +2401,27 @@ bool mwWidget::mButtonTile2(int x1, int y1, int size, int tn, const char* t, boo
 
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1); // draw frame
 
-      if (strlen(t)) mToolTip(5, x1+10, 80,     1, y1-14, 12,       1,     1, 1, 1,    0,  15, 15,    t, x1, y1, x2, y2);
+      if (strlen(t)) mToolTip(5, x1+10, 0,     1, y1-14, 12,       1,     1, 1, 1,    0,  15, 15,    t, x1, y1, x2, y2);
 
    }
    return false;
 }
 
+// just like button but with added tile
+bool mwWidget::mButtonTile3(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int x1, int y1, int size, int tn, const char* txt, int disable_input)
+{
+   bool ret = mButton(xType, xa, xb, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, txt, disable_input);
 
+   int x2 = x1 + size;
+   int y2 = y1 + size;
+   al_draw_filled_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.Black); // erase tile and frame
 
+   // draw tile
+   al_draw_scaled_bitmap(mBitmap.tile[tn], 0, 0, 20, 20, x1, y1, size, size, 0);
+
+   return ret;
+
+}
 
 
 

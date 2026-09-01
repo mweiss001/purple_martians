@@ -377,23 +377,26 @@ int mwMiscFnx::exit_level_editor_dialog(void)
 
       if (ret == 0) bc = 10;
       else bc = 15;
-
-      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Save and Exit"))         { quit = 1; ret = 0; }
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Save and Exit",   0))  { quit = 1; ret = 0; }
+      by1+=bts;
       if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
       by1+=4;
 
       if (ret == 1) bc = 10;
       else bc = 15;
-      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Exit Without Saving"))   { quit = 1; ret = 1; }
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Exit Without Saving",   0))  { quit = 1; ret = 1; }
+      by1+=bts;
       if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
       by1+=4;
 
       if (ret == 2) bc = 10;
       else bc = 15;
-      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Cancel"))                { quit = 1; ret = 2; }
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Cancel",   0))  { quit = 1; ret = 2; }
+      by1+=bts;
       if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
+
 
       mEventQueue.proc(1);
       al_flip_display();

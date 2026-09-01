@@ -385,13 +385,15 @@ int mwLog::log_file_viewer(int type)
       int xa = xpos;
       int xb = xpos + 180;
 
-      if (mWidget.buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Client Sync Graph"))  run_client_server_sync_graph(num_lines);
-      ly+=4;
-      if (mWidget.buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Bandwidth Graph"))    run_bandwidth_graph(num_lines, 1);
-      ly+=4;
-      if (mWidget.buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Ping Graph"))         run_ping_graph(num_lines);
-      ly+=4;
-      if (mWidget.buttont(xa, ly, xb, 16, 0,0,0,0, 0,14,15,0, 1,0,1,0, "Help"))               mHelp.help("Log File Viewer");
+
+      if (mWidget.mButton(0, xa, xb,   1, ly, 14,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Client Sync Graph",   0)) run_client_server_sync_graph(num_lines);
+      ly+=20;
+      if (mWidget.mButton(0, xa, xb,   1, ly, 14,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Bandwidth Graph",     0)) run_bandwidth_graph(num_lines, 1);
+      ly+=20;
+      if (mWidget.mButton(0, xa, xb,   1, ly, 14,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Ping Graph",          0)) run_ping_graph(num_lines);
+      ly+=20;
+      if (mWidget.mButton(0, xa, xb,   1, ly, 14,    1, 2, 0, 1,   14, 0, 15, 0, 0, "Help",                0)) mHelp.help("Log File Viewer");
+      ly+=20;
 
       al_flip_display();
 

@@ -508,9 +508,8 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    al_draw_text( mFont.pr8, mColor.pc[9],  x1+262, y1+2, 0, "y:");
 
    int by1 = y1+2;
-   if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mLevelEditor.mWM.mW[1].active = 0;
-   if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
-
+   if (mWidget.mButton(0, x2-10, x2-2,    1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",    d)) mLevelEditor.mWM.mW[1].active = 0;
+   if (mWidget.mButton(0, x2-22, x2-14,   1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "?",    d)) mHelp.help("Status Window");
 
 
 
@@ -744,7 +743,8 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
    int y1 = 0;
    int by1 = y1+4;
    int bts = 10;
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
+
+   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "File", d))
    {
       strcpy (mMenu.menu_string[0],"File"); // PD sub menu
       strcpy (mMenu.menu_string[1],"New");
@@ -772,7 +772,8 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
       al_set_target_backbuffer(mDisplay.display);
    }
    x1 += 44;
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "View"))
+
+   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "View", d))
    {
       strcpy (mMenu.menu_string[0],"View");
       strcpy (mMenu.menu_string[1],"Toggle Fullscreen       F12");
@@ -805,7 +806,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
    }
    x1 += 44;
 
-   if (mWidget.buttont(x1, by1, x1+40, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Lists"))
+   if (mWidget.mButton(0, x1, x1+40,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Lists", d))
    {
       strcpy (mMenu.menu_string[0],"Lists");
       strcpy (mMenu.menu_string[1],"List all Items");
@@ -829,7 +830,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
    x1 += 52;
 
 
-   if (mWidget.buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Advanced"))
+   if (mWidget.mButton(0, x1, x1+64,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Advanced", d))
    {
       strcpy (mMenu.menu_string[0],"Advanced");
       strcpy (mMenu.menu_string[1],"Global Level Tool");
@@ -855,7 +856,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
    }
    x1 += 76;
 
-   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Help"))
+   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Help", d))
    {
       strcpy (mMenu.menu_string[0],"Help");
       strcpy (mMenu.menu_string[1],"Level Editor Basics");
@@ -875,7 +876,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
    if (mLevelEditor.mode == 4) sprintf(msg, "Mode:Object Viewer");
    if (mLevelEditor.mode == 9) sprintf(msg, "Mode:Tile Helper");
 
-   if (mWidget.buttont(x1, by1, x1+140, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
+   if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
    {
       strcpy (mMenu.menu_string[0],msg);
       strcpy (mMenu.menu_string[1],"Mode:Main Edit");
@@ -884,7 +885,7 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
       strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
       strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
       strcpy (mMenu.menu_string[6],"end");
-      int ret = mMenu.tmenu(1, x1+4, by1-1);
+      int ret = mMenu.tmenu(1, x1+19, by1-1);
       if (ret == 1) mLevelEditor.set_mode(1);
       if (ret == 2) mLevelEditor.set_mode(2);
       if (ret == 3) mLevelEditor.set_mode(3);

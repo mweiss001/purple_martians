@@ -482,14 +482,14 @@ void mwDemoRecord::draw_timeline_time_box(float xc, int y1, int y2, int y_offset
       int y = y2;
       al_draw_line(xc, y, xc, y-y_offset, mColor.pc[color], 1);
       y-=y_offset;
-      mWidget.mButton(5, xc, -1, 1, y, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, m1, 1);
+      mWidget.mButton(5, xc, 0, 1, y, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, m1, 1);
    }
    if (y_offset > 0)
    {
       int y = y1;
       al_draw_line(xc, y, xc, y-y_offset, mColor.pc[color], 1);
       y-=(y_offset+bts);
-      mWidget.mButton(5, xc, -1, 1, y, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, m1, 1);
+      mWidget.mButton(5, xc, 0, 1, y, bts,     2, 1, 1, 3,    0, color, 15, 15, -1, m1, 1);
    }
 }
 

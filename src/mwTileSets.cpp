@@ -3158,18 +3158,11 @@ void mwTileSets::save_region_from_edit(ALLEGRO_BITMAP *bmp, int x, int y)
 }
 
 
-
-
 void mwTileSets::adjust_tile_set_color()
 {
-
    // the tileset to be modified will always be consecutive blocks on the tilemap
    int bs = 1008; // start block
    int bl = 16; // length (in blocks)
-
-
-
-
 
    // position of source region in tilemap
    int b2s_x = (bs % 32)*22;
@@ -3204,8 +3197,9 @@ void mwTileSets::adjust_tile_set_color()
       int w = bl*22;
       int h = 22;
 
-      if (mWidget.buttontcb(x,    y, 0, 14, 0,0,0,0, 0,11,15,14, 1,0,0,0, "Load")) load_region_for_edit(b2, b2s_x, b2s_y, b2s_w, b2s_h);
-      if (mWidget.buttontcb(x+60, y, 0, 14, 0,0,0,0, 0,10,15,14, 1,0,0,0, "Save")) save_region_from_edit(b2, b2s_x, b2s_y);
+      if (mWidget.mButton(3, x,    0,   1, y, 12,   1, 0, 3, 3,   0, 15, 11,  11, 0, "Load", 0)) load_region_for_edit(b2, b2s_x, b2s_y, b2s_w, b2s_h);
+      if (mWidget.mButton(3, x+60, 0,   1, y, 12,   1, 0, 3, 3,   0, 15, 10,  10, 0, "Save", 0)) save_region_from_edit(b2, b2s_x, b2s_y);
+
 
       y+=24;
 
@@ -3221,7 +3215,7 @@ void mwTileSets::adjust_tile_set_color()
 
       y+=64;
 
-      if (mWidget.buttontcb(x+200, y, 0, 14, 0,0,0,0, 0,12,15,14, 1,0,0,0, "Detect Unique")) find_unique_colors_and_hues(b2);
+      if (mWidget.mButton(3, x+200, 0,   1, y, 12,   1, 0, 3, 3,   0, 15, 12,  12, 0, "Detect Unique", 0)) find_unique_colors_and_hues(b2);
 
       y+=32;
 
@@ -3246,19 +3240,18 @@ void mwTileSets::adjust_tile_set_color()
       int ya = y+120;
 
       ya+=20;
-      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "HUE+")) modify_selected(b2, 1, 10);
-      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "HUE-")) modify_selected(b2, 1, -10);
+      if (mWidget.mButton(3, x,    0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "HUE+", 0)) modify_selected(b2, 1, 10);
+      if (mWidget.mButton(3, x+80, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "HUE-", 0)) modify_selected(b2, 1, -10);
 
       ya+=16;
-      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "SAT+")) modify_selected(b2, 2, .1);
-      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "SAT-")) modify_selected(b2, 2, -.1);
+      if (mWidget.mButton(3, x,    0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "SAT+", 0)) modify_selected(b2, 2, .1);
+      if (mWidget.mButton(3, x+80, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "SAT-", 0)) modify_selected(b2, 2, -.1);
 
       ya+=16;
-      if (mWidget.buttontcb(x,     ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "LIG+")) modify_selected(b2, 3, .1);
-      if (mWidget.buttontcb(x+80,  ya, 0, 14, 0,0,0,0, 0,15,15,14, 1,0,0,0, "LIG-")) modify_selected(b2, 3, -.1);
+      if (mWidget.mButton(3, x,    0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "LIG+", 0)) modify_selected(b2, 3, .1);
+      if (mWidget.mButton(3, x+80, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "LIG-", 0)) modify_selected(b2, 3, -.1);
 
       ya+=20;
-
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {

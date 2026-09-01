@@ -286,7 +286,7 @@ void mwTileEditor::legacy_color_select(int x1, int y1, int size)
 
    int xc = x1 + (x2-x1)/2;
    int ya = y1+3;
-   mWidget.mButton(5, xc, -1, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Legacy Color Select", 0);
+   mWidget.mButton(5, xc, 0, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Legacy Color Select", 0);
    al_draw_line(x1+o, ya+o+14, x2+o, ya+o+14, sfc, 1);
 
    // grid coordinates
@@ -362,7 +362,7 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
 
    int xc = x1 + (x2-x1)/2;
    int ya = y1+3;
-   mWidget.mButton(5, xc, -1, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Tile Select", 0);
+   mWidget.mButton(5, xc, 0, 1, ya, 12,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Tile Select", 0);
    al_draw_line(x1+o, ya+o+14, x2+o, ya+o+14, sfc, 1);
 
    // grid coordinates
@@ -428,36 +428,36 @@ void mwTileEditor::selection_controls(int x, int y)
 
    int tty = ya; // save tool tip y position to draw later
 
-   mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Selection", 0);
+   mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Selection", 0);
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
 
    char msg[256];
    sprintf(msg, "x:%d y:%d w:%d h:%d", sx1, sy1, sw, sh);
-   mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, msg, 0);
+   mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, msg, 0);
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
 
-   mWidget.mToolTip(5, xc, -1, 1, tty+bts+5, bts,    0,   1, 1, 0,    0, 15, 15,   "CTRL + mouse drag sets new selection", xa, tty-2, xb, tty+20);
+   mWidget.mToolTip(5, xc, 0, 1, tty+bts+5, bts,    0,   1, 1, 0,    0, 15, 15,   "CTRL + mouse drag sets new selection", xa, tty-2, xb, tty+20);
 
 
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Up", 0))    scroll_selection(edit_tile_bitmap,  0, -1);
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Up", 0))    scroll_selection(edit_tile_bitmap,  0, -1);
    ya+= bts+2;
-   if (mWidget.mButton(3, xa, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Left", 0))  scroll_selection(edit_tile_bitmap, -1, 0);
-       mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, "Scroll", 0);
-   if (mWidget.mButton(4, -1, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Right", 0)) scroll_selection(edit_tile_bitmap,  1, 0);
+   if (mWidget.mButton(3, xa, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Left", 0))  scroll_selection(edit_tile_bitmap, -1, 0);
+       mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, "Scroll", 0);
+   if (mWidget.mButton(4, 0, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Right", 0)) scroll_selection(edit_tile_bitmap,  1, 0);
    ya+= bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Down", 0))  scroll_selection(edit_tile_bitmap,  0, 1);
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Down", 0))  scroll_selection(edit_tile_bitmap,  0, 1);
    ya+= bts-1;
 
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
 
-   if (mWidget.mButton(3, xa, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "X", 0))  flip_selection(edit_tile_bitmap,  1,  0);
-       mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, "Mirror", 0);
-   if (mWidget.mButton(4, -1, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Y", 0))  flip_selection(edit_tile_bitmap,  0,  1);
+   if (mWidget.mButton(3, xa, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "X", 0))  flip_selection(edit_tile_bitmap,  1,  0);
+       mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, "Mirror", 0);
+   if (mWidget.mButton(4, 0, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Y", 0))  flip_selection(edit_tile_bitmap,  0,  1);
    ya+= bts-1;
 
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
@@ -466,8 +466,8 @@ void mwTileEditor::selection_controls(int x, int y)
    char rot[256];
    sprintf(rot, "Rotate %2.0f", rotate_degrees);
 
-   if (mWidget.mButton(3, xa, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "-", 0))  rotate_selection(edit_tile_bitmap, -rotate_degrees);
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, rot, 0))
+   if (mWidget.mButton(3, xa, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "-", 0))  rotate_selection(edit_tile_bitmap, -rotate_degrees);
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 14, 15, 15, -1, rot, 0))
    {
       if      (rotate_degrees == 90) rotate_degrees = 45;
       else if (rotate_degrees == 45) rotate_degrees = 30;
@@ -477,7 +477,7 @@ void mwTileEditor::selection_controls(int x, int y)
       else if (rotate_degrees == 10) rotate_degrees = 5;
       else if (rotate_degrees == 5) rotate_degrees = 90;
    }
-   if (mWidget.mButton(4, -1, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "+", 0))  rotate_selection(edit_tile_bitmap, rotate_degrees);
+   if (mWidget.mButton(4, 0, xb, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "+", 0))  rotate_selection(edit_tile_bitmap, rotate_degrees);
    ya+= bts-1;
 
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
@@ -485,7 +485,7 @@ void mwTileEditor::selection_controls(int x, int y)
 
 
    mWidget.mCheckBox(2, 60, xb,  1,ya,bts, -1, paste_mode_alpha, "alpha", 15, 15);
-   if (mWidget.mButton(3, xa+2, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Paste", 0))
+   if (mWidget.mButton(3, xa+2, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Paste", 0))
    {
       // get bitmap of selected area
       fix_sel();
@@ -589,7 +589,7 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    int xa = x1+2;
    int xb = x2-2;
 
-   mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Draw Mode", 0);
+   mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, "Draw Mode", 0);
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
@@ -606,7 +606,7 @@ int mwTileEditor::draw_mode_controls(int x, int y)
    if (draw_mode == 8) sprintf(dmt, "%s", "Filled Ellipse");
    if (draw_mode == 9) sprintf(dmt, "%s", "Replace Color");
 
-   mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, dmt, 0);
+   mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 0, 3, 0, 15, 15, 15, -1, dmt, 0);
    ya+= bts-1;
    al_draw_line(x1+o, ya+o+line_spacing/2, x2+o, ya+o+line_spacing/2, sfc, 1);
    ya+= line_spacing;
@@ -619,23 +619,23 @@ int mwTileEditor::draw_mode_controls(int x, int y)
       ya+= line_spacing;
    }
 
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Point", 0)) draw_mode = 1;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Point", 0)) draw_mode = 1;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Line", 0)) draw_mode = 2;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Line", 0)) draw_mode = 2;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Rectangle", 0)) draw_mode = 3;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Rectangle", 0)) draw_mode = 3;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Circle", 0)) draw_mode = 4;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Circle", 0)) draw_mode = 4;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Ellipse", 0)) draw_mode = 5;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Ellipse", 0)) draw_mode = 5;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Rectangle", 0)) draw_mode = 6;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Rectangle", 0)) draw_mode = 6;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Circle", 0)) draw_mode = 7;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Circle", 0)) draw_mode = 7;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Ellipse", 0)) draw_mode = 8;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Filled Ellipse", 0)) draw_mode = 8;
    ya+=bts+2;
-   if (mWidget.mButton(5, xc, -1, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Replace Color", 0)) draw_mode = 9;
+   if (mWidget.mButton(5, xc, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Replace Color", 0)) draw_mode = 9;
    ya+=bts+2;
    return h;
 }
@@ -879,13 +879,13 @@ void mwTileEditor::edit_tile(int tile)
       int ya = dy1-14;
       int xa = dx2-86;
 
-      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  11, 0, "Load", 0))
+      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  11, 0, "Load", 0))
       {
          tilemap_bitmap = mBitmapTools.load_block_tiles_to_bitmap();
          mBitmapTools.get_tile_from_tilemap(tilemap_bitmap, edit_tile_bitmap, edit_tile_index);
       }
       xa = dx2-42;
-      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Save", 0))
+      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Save", 0))
       {
          mBitmapTools.put_tile_to_tilemap(tilemap_bitmap, edit_tile_bitmap, edit_tile_index);
          mBitmapTools.save_bitmap_to_block_tiles_file(tilemap_bitmap);
@@ -893,10 +893,10 @@ void mwTileEditor::edit_tile(int tile)
       }
 
       xa = dx1+142;
-      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Select Tile", 0)) set_edit_tile(mBitmapTools.select_bitmap());
+      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Select Tile", 0)) set_edit_tile(mBitmapTools.select_bitmap());
 
       xa = dx1+282;
-      if (mWidget.mButton(3, xa, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Copy Tiles", 0)) mBitmapTools.copy_tiles();
+      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Copy Tiles", 0)) mBitmapTools.copy_tiles();
 
       // show all the widgets to the right of the main tile area
       xa = dx2+20;

@@ -979,12 +979,12 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
    // title bar controls
    int by1 = title_bar_rect.y1+2;
-   if (mWidget.buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mLevelEditor.mWM.mW[2].active = 0;
-   if (mWidget.buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
-   if (mWidget.buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Tiles"))   mSelectionWindow.block_on = !mSelectionWindow.block_on;
-   if (mWidget.buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mSelectionWindow.special_on = !mSelectionWindow.special_on;
 
 
+   if (mWidget.mButton(0, x2-10,  x2-2,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mLevelEditor.mWM.mW[2].active = 0;
+   if (mWidget.mButton(0, x2-22,  x2-14,    1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "?",        d)) mHelp.help("Selection Window");
+   if (mWidget.mButton(0, x2-153, x2-105,   1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "Tiles",    d)) mSelectionWindow.block_on = !mSelectionWindow.block_on;
+   if (mWidget.mButton(0, x2-90,  x2-34,    1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "Special",  d)) mSelectionWindow.special_on = !mSelectionWindow.special_on;
 
 
    if (mSelectionWindow.special_on)
@@ -1003,10 +1003,11 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
       // special title bar controls
       by1 = special_title_bar_rect.y1+2;
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.special_on = 0;
-      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+
+      if (mWidget.mButton(0, x2-10,  x2-2,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.special_on = 0;
+      if (mWidget.mButton(0, x2-41,  x2-33,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
          if (++mSelectionWindow.special_array_cur_lines > mSelectionWindow.special_array_num_lines) mSelectionWindow.special_array_cur_lines = mSelectionWindow.special_array_num_lines;
-      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+      if (mWidget.mButton(0, x2-25,  x2-17,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
          if (--mSelectionWindow.special_array_cur_lines < 1 )
          {
             mSelectionWindow.special_array_cur_lines++;
@@ -1106,31 +1107,27 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
       // block title bar controls
       by1 = block_title_bar_rect.y1+2;
 
-      if (mWidget.buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mSelectionWindow.block_on = 0;
 
+
+      if (mWidget.mButton(0, x2-10,  x2-2,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.block_on = 0;
+      if (mWidget.mButton(0, x2-41,  x2-33,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
+      {
+         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
+         mSelectionWindow.fill_block_array();
+      }
+      if (mWidget.mButton(0, x2-25,  x2-17,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
+      {
+         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 0;
+         mSelectionWindow.fill_block_array();
+      }
 
       int x3 = x1 + 60;
-
       for (int i=0; i<32; i++)
          if (tileSetGroups[i].display_tile)
          {
             if (mWidget.mButtonTile(x3, by1-1, 10, tileSetGroups[i].display_tile, tileSetGroups[i].visible, d)) mSelectionWindow.fill_block_array();
             x3+=11;
          }
-
-      // all on
-      if (mWidget.buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-      {
-         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
-         mSelectionWindow.fill_block_array();
-      }
-
-      // all off
-      if (mWidget.buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-      {
-         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 0;
-         mSelectionWindow.fill_block_array();
-      }
 
       // draw blocks
       for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)

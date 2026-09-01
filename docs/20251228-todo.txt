@@ -11,6 +11,9 @@ how about only 2 numbers when only one player?
 or maybe all the time
 
 
+demo record button in settings does nothing
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -354,6 +357,113 @@ int mwWidget::buttontcb
 now just 18
 9 remote control
 9 tilesets adjust color
+
+
+2026-08-31 18:54:35
+done and gone!!!
+
+   int buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
+3 instances..done
+
+I can't believe I have no option for text justification in buttons
+I need to add it...
+just add 20 to text type
+
+
+
+2026-08-31 19:35:28
+
+I want to get rid of all old widget types....
+
+32  button
+155 buttont
+24  buttont_nb
+
+
+      if (mWidget.mButton(0, x7, x7+60,   1, ya, 18,    1, 2, 0, 1,   10, 10, 15, 0, 0, "Cancel",    0)) quit = 1;
+
+   if (mWidget.mButton(0, xb-30, xb,   1, y1, 8,    1, 2, 0, 1,   c, c, 15, 0, 0, "Set",    d)) rt_start_frame = mLoop.frame_num;
+
+   if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mLevelEditor.mWM.mW[1].active = 0;
+   if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
+
+   if (mWidget.mButton(0, x2-10, x2-2,   1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",    d)) mLevelEditor.mWM.mW[1].active = 0;
+
+   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "File",    d))
+
+//   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
+
+
+2026-08-31 21:10:07
+113 buttont
+
+      if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "",   d)) 
+
+
+2026-09-01 04:20:22
+98 buttont
+
+2026-09-01 04:39:24
+85 buttont
+
+
+I am thinking about adding padding to auto x sizes based on text width
+I have so many calls, I am afraid of breaking things
+
+what would be the most elegant
+
+   // 3  abs xa,         width from text length, xb used to pad text length
+   // 4  abs xb,         width from text length, xa used to pad text length
+   // 5  centered on xa, width from text length, xb used to pad text length
+
+or I could just do this with modes 6, 7, 8
+yes...do that
+
+no, do it right...
+
+going through all widgets...done...
+
+I dont think I even used mode 6...
+
+2026-09-01 06:13:42
+85 buttont all in settings...
+
+   if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
+
+
+   if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Show now",   0))
+
+
+2026-09-01 07:15:17
+54 buttont
+
+
+2026-09-01 07:46:29
+43 buttont
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

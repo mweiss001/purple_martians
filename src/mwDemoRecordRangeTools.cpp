@@ -181,17 +181,16 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    char m1[64];
 
    al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "Start:%s", gettf(rt_start_frame, m1));
-   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,c,15, 0,  1,0,0,d, "Set")) rt_start_frame = mLoop.frame_num;
+   if (mWidget.mButton(0, xb-30, xb,   1, y1, 8,    1, 2, 0, 1,   c, c, 15, 0, 0, "Set",    d)) rt_start_frame = mLoop.frame_num;
 
    y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
 
    al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "End  :%s", gettf(rt_end_frame, m1));
-   if (mWidget.buttont(xb-30, y1, xb, 10,  0,0,0,0,  0,c,15, 0,  1,0,0,d, "Set")) rt_end_frame = mLoop.frame_num;
+   if (mWidget.mButton(0, xb-30, xb,   1, y1, 8,    1, 2, 0, 1,   c, c, 15, 0, 0, "Set",    d)) rt_end_frame = mLoop.frame_num;
 
    y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
 
    al_draw_textf(mFont.pr8, mColor.pc[15], xa, y1, 0, "Range Player:%d", rt_player);
-
    y1+=10; al_draw_line(x1, y1, x2, y1, mColor.pc[c], 1); y1+=2;
 
    // rect for player menu

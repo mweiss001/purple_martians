@@ -194,13 +194,13 @@ void mwLoadSelectionDialog::draw_file_select(mwWindow w)
    int xa1 = x1 + mWM.mW[1].rect.w * 1 / 3;
    int xa2 = x1 + mWM.mW[1].rect.w * 2 / 3;
 
-   if (mWidget.mButton(5,xa1,-1,  1,ya,12,  0,  1,3,1,  c+192,c,15, 15,0, "Select", d))
+   if (mWidget.mButton(5,xa1,0,  1,ya,12,  0,  1,3,1,  c+192,c,15, 15,0, "Select", d))
    {
       quit = 1;
       retval = 1;
    }
 
-   if (mWidget.mButton(5,xa2,-1,  1,ya,12,  0,  1,3,1,  c+192,c,15, 15,0, "Cancel", d))
+   if (mWidget.mButton(5,xa2,0,  1,ya,12,  0,  1,3,1,  c+192,c,15, 15,0, "Cancel", d))
    {
       quit = 1;
       retval = 0;

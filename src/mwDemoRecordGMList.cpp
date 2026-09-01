@@ -778,19 +778,19 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
 
       int x7 = xa;
       int x8 = x7 + bp + 8*4;
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-100")) f-=100;
-      x7 = x8 + bs; x8 = x7 + bp + 8*3;
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-10")) f-=10;
-      x7 = x8 + bs; x8 = x7 + bp + 8*2;
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-1")) f--;
 
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "-100",    0)) f-=100;
+      x7 = x8 + bs; x8 = x7 + bp + 8*3;
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "-10",     0)) f-=10;
+      x7 = x8 + bs; x8 = x7 + bp + 8*2;
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "-1",      0)) f-=1;
 
       x8 = x2 - 2;  x7 = x8 - (bp + 8*4);
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+100")) f+=100;
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "+100",    0)) f+=100;
       x8 = x7 - bs; x7 = x8 - (bp + 8*3);
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+10")) f+=10;
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "+10",     0)) f+=10;
       x8 = x7 - bs; x7 = x8 - (bp + 8*2);
-      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+1")) f++;
+      if (mWidget.mButton(0, x7, x8,   1, ya, 14,    1, 2, 0, 1,    c, c, 15, 0, 0, "+1",      0)) f+=1;
 
       ya+=16;
       mWidget.mSliderInt(0, xa, x2-2,  1, ya, 14,  2, 2, 1, 1,  c, c, 15, 15, 15,0, 0,  f, mDemoMode.last_frame+1000, 0, 1, "", 0, 0);
@@ -816,7 +816,7 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          ya+=2;
          al_draw_text( mFont.pr8, mColor.pc[15], xa+2, ya, 0, "Player Name:");
          ya-=2;
-         if (mWidget.mButton(3, xa+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, name, 0))
+         if (mWidget.mButton(3, xa+98, 0,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, name, 0))
          {
             if (mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[pp].name, 8)) mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
             refresh();
@@ -843,7 +843,8 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
 
       int sp = 45;
       x7 = xa + sp;
-      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "Reload"))
+
+      if (mWidget.mButton(0, x7, x7+60,   1, ya, 18,    1, 2, 0, 1,    6, 6, 15, 0, 0, "Reload",    0))
       {
          f = mGameMoves.arr[gi][0];
          t = mGameMoves.arr[gi][1];
@@ -851,7 +852,8 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          v = mGameMoves.arr[gi][3];
       }
       x7 += 60 + sp;
-      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Commit"))
+
+      if (mWidget.mButton(0, x7, x7+60,   1, ya, 18,    1, 2, 0, 1,    14, 14, 15, 0, 0, "Commit",    0))
       {
          mGameMoves.arr[gi][0] = f;
 
@@ -872,12 +874,10 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          quit = 1;
       }
       x7 += 60 + sp;
-      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Cancel")) quit = 1;
-
+      if (mWidget.mButton(0, x7, x7+60,   1, ya, 18,    1, 2, 0, 1,   10, 10, 15, 0, 0, "Cancel",    0)) quit = 1;
 
       // to hide remnants when height is bigger, erase area below
       al_draw_filled_rectangle(x1+1, ya+21, x2-1, ya+40, mColor.pc[0]);
-
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {

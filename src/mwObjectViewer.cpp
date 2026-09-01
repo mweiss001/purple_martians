@@ -556,7 +556,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       // draw blank button frame
       mWidget.mButton(0, xa, xb,   1, ya, bts-2,   0, 2, 0, 0,   13, 15, 15,  0, 0, "", 1);
       al_draw_text( mFont.pr8, mColor.pc[15], xa+4, ya+3, 0, "Lift Name:");
-      if (mWidget.mButton(3, xa+84, -1,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLift.cur[lift].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLift.cur[lift].lift_name, sizeof(mLift.cur[lift].lift_name));
+      if (mWidget.mButton(3, xa+84, 0,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLift.cur[lift].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLift.cur[lift].lift_name, sizeof(mLift.cur[lift].lift_name));
 
 
 

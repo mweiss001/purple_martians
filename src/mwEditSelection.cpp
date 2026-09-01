@@ -781,7 +781,8 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
       sprintf(msg, "Paste Selection");
    }
 
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, msg))
+
+   if (mWidget.mButton(0, x3, x4,   1, yfb, bts-2,    1, 2, 0, 1,   col, col, 15, 0, 0, msg,    d))
    {
       if (copy_mode) copy_mode = 0;
       else
@@ -791,7 +792,9 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
          draw_fsel();
       }
    }
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
+   yfb+=bts;
+
+   if (mWidget.mButton(0, x3, x4,   1, yfb, bts-2,    1, 2, 0, 1,   9, 9, 15, 0, 0, "Move Selection",    d))
    {
       copy_mode = 2;
       fill_ft_variables_from_selection(0);
@@ -799,29 +802,30 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
       do_clear();
       al_set_target_backbuffer(mDisplay.display);
    }
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear Selection"))
+   yfb+=bts;
+   if (mWidget.mButton(0, x3, x4,   1, yfb, bts-2,    1, 2, 0, 1,   9, 9, 15, 0, 0, "Clear Selection",    d))
    {
       do_clear();
       al_set_target_backbuffer(mDisplay.display);
    }
-
+   yfb+=bts;
 
    yfb+=bts/2; // spacing between groups
-
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Save To Disk")) fill_ft_variables_from_selection(1);
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Load From Disk"))
+   if (mWidget.mButton(0, x3, x4,   1, yfb, bts-2,    1, 2, 0, 1,   6, 6, 15, 0, 0, "Save To Disk",    d)) fill_ft_variables_from_selection(1);
+   yfb+=bts;
+   if (mWidget.mButton(0, x3, x4,   1, yfb, bts-2,    1, 2, 0, 1,   6, 6, 15, 0, 0, "Load From Disk",    d))
    {
-      if (load_selection_prompt())
-      {
-         copy_mode = 1;
-      }
+      if (load_selection_prompt()) copy_mode = 1;
    }
+   yfb+=bts;
+
+
    if (mEditorMain.draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
       int tn = mEditorMain.draw_item_num & PM_BTILE_TILENUM_MASK;
       bts = 24;
-      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
+      if (mWidget.mButtonTile3(0, x3, x4, 1, yfb, bts-2,    0, 2, 0, 21,   7, 0, 15, 0, 0,  x3+12, yfb+1, 20, tn, "     Fill", d))
       {
          for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
             for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++)
@@ -829,7 +833,8 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
-      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
+      yfb+=bts;
+      if (mWidget.mButtonTile3(0, x3, x4, 1, yfb, bts-2,    0, 2, 0, 21,   7, 0, 15, 0, 0,  x3+12, yfb+1, 20, tn, "     Frame", d))
       {
          for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
          {
@@ -844,8 +849,10 @@ int mwEditSelection::draw_buttons(int x3, int x4, int yfb, int d)
          mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
+      yfb+=bts;
       brf_mode ? col=10 : col=7;
-      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,col,15,0, 1,1,1,d, "     Floodfill")) brf_mode = !brf_mode;
+      if (mWidget.mButtonTile3(0, x3, x4, 1, yfb, bts-2,    0, 2, 0, 21,   col, 0, 15, 0, 0,  x3+12, yfb+1, 20, tn, "     Floodfill", d)) brf_mode = !brf_mode;
+      yfb+=bts;
    }
    return yfb;
 }
@@ -942,7 +949,9 @@ void mwEditSelection::draw(mwRect<int> &rect, int d, int have_focus)
    mMiscFnx.titlex("Edit Selection", 15, 13, rect.x1, rect.x2, rect.y1+1);
 
    int by1 = rect.y1+3;
-   if (mWidget.buttont(rect.x2-12, by1, rect.x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
+
+   if (mWidget.mButton(0, rect.x2-12, rect.x2-4,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",    d)) mHelp.help("Edit Selection");
+
 
    mEditSelection.show_pointer_text(rect.x1+1, rect.x2-1, rect.y1+20, mLevelEditor.mWM.mouse_on_window);
 

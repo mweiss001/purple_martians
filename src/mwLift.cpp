@@ -430,17 +430,17 @@ int mwLift::get_new_lift_step(int lift, int step)
       int c3 = 15; // highlight color
       int bts = 14;
       int ya = sty+2+bts;
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Move", 0))
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Move", 0))
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          set_size_from_previous_step(lift, step);
          if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Time", 0))  quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Prox", 0))  quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Event", 0)) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Send Event", 0))     quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
-      if (mWidget.mButton(5, xc, -1, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Done", 0))           quit = 99;
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Time", 0))  quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Prox", 0))  quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Event", 0)) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Send Event", 0))     quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Done", 0))           quit = 99;
    } // end of while (!quit)
    return quit;
 }
@@ -628,39 +628,24 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    int c1 = 9;
 
    // step details text header button
-   int sd = 10; // color
+   sprintf(msg, "Step %d - Unkown",  s);
    switch (stp[l][s].type & 31)
    {
-      case 1: // move and resize
-         sprintf(msg, "Step:%d - Move and Resize", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
-      case 2: // wait time
-         sprintf(msg, "Step:%d - Wait For Timer", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
-      case 3: // wait prox
-         sprintf(msg, "Step:%d - Wait For Player Proximity", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
-      case 4: // end step
-         sprintf(msg, "Step:%d - Ending Step", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
-      case 5: // wait event
-         sprintf(msg, "Step:%d - Wait For Event", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
-      case 6: // send event
-         sprintf(msg, "Step:%d - Send Event", s);
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
-      break;
+      case 1:  sprintf(msg, "Step %d - Move and Resize",  s);  break;
+      case 2:  sprintf(msg, "Step %d - Wait For Timer",   s);  break;
+      case 3:  sprintf(msg, "Step %d - Wait For Player",  s);  break;
+      case 4:  sprintf(msg, "Step %d - Ending Step",      s);  break;
+      case 5:  sprintf(msg, "Step %d - Wait For Event",   s);  break;
+      case 6:  sprintf(msg, "Step %d - Send Event",       s);  break;
    }
+   mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, msg,   d);
+   ya+=bts;
 
    // default buttons
    int col = (stp[l][s].type >> 28) & 15;
    sprintf(msg, "Step Color:%d", col);
-   mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0, col, 15, 0,   1,0,1,d, msg);
+   mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   col, 0, 15, 0, 0, msg,   d);
+   ya+=bts;
 
    mWidget.colsel(xa, ya, xb, bts, 8,l,s,0,  0,15,13,14,   0,0,1,d); // lift step color
 
@@ -680,11 +665,6 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    switch (stp[l][s].type & 31)
    {
       case 1: // move and resize
-      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 1000, 1, 1, "Speed:");
-      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].w,   1600, 20, 1, "Width:");
-      // mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
-
-
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  1, d); ya+=bts+1;
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  1, d); ya+=bts+1;
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", 1, d); ya+=bts+1;
@@ -693,24 +673,21 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 
       break;
       case 2: // wait time
-         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 2000, 1, 1,  1, 10, "Timer:",  1, d); ya+=bts+1;
 
       break;
       case 3: // wait prox
-         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 200, 1, 1,  1, 10, "Distance:",  1, d); ya+=bts+1;
       break;
       case 4: // end step
          mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
       break;
       case 5: // wait trigger
-         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  1, d); ya+=bts+1;
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
+         if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Set Trigger",   d)) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
+         ya+=bts;
       break;
       case 6: // send trigger
-         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  1, d); ya+=bts+1;
       break;
    }

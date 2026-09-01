@@ -310,9 +310,12 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
       int ey = by+-3*bts; // erase y1
       int by1 = ey;
 
-      mWidget.buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
-      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
-      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
+      mWidget.mButton(    0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Edit Message",   0);
+      by1+=bts;
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   11, 0, 15, 0, 0, "OK",   0)) { quit = 1; bad = 0; }
+      by1+=bts;
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Cancel",   0)) { quit = 1; bad = 1; }
+      by1+=bts;
 
 
 //      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, mColor.pc[0]);

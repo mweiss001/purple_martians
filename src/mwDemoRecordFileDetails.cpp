@@ -66,9 +66,10 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    al_draw_text(mFont.pr8, mColor.pc[15], w.rect.XCenter(), ya+2, ALLEGRO_ALIGN_CENTER, al_get_path_filename(al_create_path(last_loaded_demo_file)));
    ya+=bts;
 
-   if (mWidget.buttont(xa,     ya, xa+48,  bts,  0,0,0,0,  0,c,15,0,  1,0,0,d, "Load")) load_demo_record(1);
-   if (mWidget.buttont(xa+50,  ya, xa+116, bts,  0,0,0,0,  0,c,15,0,  1,0,0,d, "Reload")) reload();
-   if (mWidget.buttont(xa+118, ya, xb,     bts,  0,0,0,0,  0,c,15,0,  1,0,1,d, "Refresh")) refresh();
+   if (mWidget.mButton(0, xa,     xa+48,   1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Load",    d)) load_demo_record(1);
+   if (mWidget.mButton(0, xa+50,  xa+116,  1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Reload",  d)) reload();
+   if (mWidget.mButton(0, xa+118, xb,      1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Refresh", d)) refresh();
+   ya+=bts;
 
    ya+=4;
 
@@ -84,7 +85,8 @@ void mwDemoRecord::draw_file_details(mwWindow w)
    ya+=12;
 
    c = 4;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (overwrite current)"))
+
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Save (overwrite current)",    d))
    {
       int old_frame = mLoop.frame_num;
       mGameMoves.save_gm(last_loaded_demo_file, 0);
@@ -92,7 +94,8 @@ void mwDemoRecord::draw_file_details(mwWindow w)
       mLoop.frame_num = old_frame;
       refresh();
    }
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (auto new name)"))
+   ya+=bts;
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Save (auto new name)",    d))
    {
       int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_make_fn("new copy", 0);
@@ -100,7 +103,8 @@ void mwDemoRecord::draw_file_details(mwWindow w)
       mLoop.frame_num = old_frame;
       refresh();
    }
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,d, "Save (prompt for name)"))
+   ya+=bts;
+   if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,    c, c, 15, 0, 0, "Save (prompt for name)",    d))
    {
       int old_frame = mLoop.frame_num;
       mGameMoves.save_gm_file_select();
@@ -109,3 +113,9 @@ void mwDemoRecord::draw_file_details(mwWindow w)
       refresh();
    }
 }
+
+
+
+
+
+
