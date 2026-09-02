@@ -183,8 +183,7 @@ void mwWidget::draw_widget_text(int x1, int y1, int x2, int y2, int color, int l
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    char msg[80];
    int y2 = y1+bts-2;
@@ -199,51 +198,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       press = 1;
    }
 
-
-   if (bn == 4)
-   {
-      if (mItem.item[num][8] == 0) sprintf(msg, "disabled");
-      if (mItem.item[num][8] == 1) sprintf(msg, "Set Desination Item (%d)", mItem.item[num][9]);
-      if (press)
-      {
-         if (mItem.item[num][8] == 1) // Set Linked Item
-         {
-             int i = mMiscFnx.get_item(2, 1, num );
-             if (i > -1) mItem.item[num][9] = i;
-         }
-      }
-   }
-
-   if (bn == 7)
-   {
-      int frame_size = mItem.get_frame_size(num);
-
-      sprintf(msg, "Frame Size:%d", frame_size);
-      if (press)
-      {
-              if (frame_size == 0)  frame_size = 1;
-         else if (frame_size == 1)  frame_size = 2;
-         else if (frame_size == 2)  frame_size = 4;
-         else if (frame_size == 4)  frame_size = 12;
-         else if (frame_size == 12) frame_size = 0;
-
-         mItem.set_frame_size(num, frame_size);
-
-      }
-   }
-
-
-
-   if (bn == 11)
-   {
-      sprintf(msg, "Set Initial Direction");// trakbot direction
-      if (press)
-      {
-         if (++mEnemy.Ei[num][5] > 7) mEnemy.Ei[num][5] = 0;
-         mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
-      }
-      if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
-   }
 
    if (bn == 13)
    {
@@ -277,24 +231,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
          mEnemy.Ei[num][6] = seek_ans;
       }
    }
-
-   if (bn == 49) // door type
-   {
-      if (press)
-      {
-         mItem.item[num][8] = !mItem.item[num][8];
-         // check for bad link
-         int link = mItem.item[num][9];
-         if (mItem.item[link][0] != 1) // link is not door
-         {
-            mItem.item[num][9] = num;  // link to self
-            mItem.item[num][11] = 1;   // trigger with up
-         }
-      }
-      if (mItem.item[num][8] == 0) sprintf(msg, "Door Type:Exit Only");
-      if (mItem.item[num][8] == 1) sprintf(msg, "Door Type:Normal   ");
-   }
-
 
 
    if (bn == 57)
@@ -354,18 +290,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
          {
             mHelp.help("Lift Viewer");
          }
-      }
-   }
-
-   if (bn == 77)
-   {
-      if (mItem.item[num][12] == 0) sprintf(msg, "Type:Fuse Timer");
-      if (mItem.item[num][12] == 1) sprintf(msg, "Type:Remote Detonator");
-      if (press)
-      {
-         mItem.item[num][12] = !mItem.item[num][12];
-         if (mItem.item[num][12]) mItem.item[num][1] = 537;
-         else mItem.item[num][1] = 464;
       }
    }
 
@@ -451,7 +375,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
       rb = rb << 14; // shift bits into place
       mItem.item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
       mItem.item[num][2] |= rb; // merge
-
 
    }
 
@@ -789,62 +712,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-   if (bn == 501)
-   {
-      if (num == -1) sprintf(msg, "#");       // show row header
-      else           sprintf(msg, "%d", num); // show step num
-   }
-   if (bn == 502)
-   {
-      if (num == -1) sprintf(msg, "Type");  // show row header
-      if (num == 0)  sprintf(msg, "----");
-      if (num == 1)  sprintf(msg, "Move");
-      if (num == 2)  sprintf(msg, "Wait");
-      if (num == 3)  sprintf(msg, "Wait");
-      if (num == 4)  sprintf(msg, "End ");
-      if (num == 5)  sprintf(msg, "Wait");
-      if (num == 6)  sprintf(msg, "Send");
-   }
-   if (bn == 503)
-   {
-      int l = type;
-      int s = obt;
-      int v = mLift.stp[l][s].val;
-
-      if (num == -1) sprintf(msg, "Details");  // show row header
-      if (num == 0)  sprintf(msg, "blank");
-      if (num == 1)  sprintf(msg, "and Resize [speed:%d]", v);
-      if (num == 2)  sprintf(msg, "for Timer:%d", v);
-      if (num == 3)  sprintf(msg, "for Player prox:%d", v);
-      if (num == 5)  sprintf(msg, "for Event:%d", v);
-      if (num == 6)  sprintf(msg, "Event:%d", v);
-      if (num == 4)
-      {
-                     sprintf(msg, "Step - undefined val");
-         if (v == 0) sprintf(msg, "Step - Loop to Start");
-         if (v == 1) sprintf(msg, "Step - Warp to Start");
-         if (v == 2) sprintf(msg, "Step - Freeze Here");
-      }
-   }
-   if (bn == 504)
-   {
-      sprintf(msg, "Name:%s", mLift.cur[num].lift_name); // edit lift name
-      if (press) return 1;
-   }
-   if (bn == 505) // lift step end step mode
-   {
-                                         sprintf(msg, "Undefined value");
-      if (mLift.stp[num][type].val == 0) sprintf(msg, "Loop to Start");
-      if (mLift.stp[num][type].val == 1) sprintf(msg, "Warp to Start");
-      if (mLift.stp[num][type].val == 2) sprintf(msg, "Freeze Here  ");
-      if (press) if (++mLift.stp[num][type].val > 2) mLift.stp[num][type].val = 0; // lift step end step mode
-   }
-   if (bn == 506)
-   {
-      if (num == -1) sprintf(msg, "C");       // show row header
-      else           sprintf(msg, "%d", num); // show num
-   }
-
 
    draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
    draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
@@ -939,43 +806,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts, int bn, int num, int type
    return retval;
 }
 
-
-// displays a text string, and returns 1 if pressed
-int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
-{
-   int y2 = y1+bts-2;
-   int ret = 0;
-   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      ret = 1;
-   }
-   if (q6) y1+=bts;
-   return ret;
-}
-
-
-
-
-
-
-
-// displays a text string, and returns 1 if pressed but doesn't block
-int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
-{
-   int y2 = y1+bts-2;
-   int ret = 0;
-
-   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
-
-   if ((!q7) && (mInput.mouse_b[1][2]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) ret = 1;
-
-   if (q6) y1+=bts;
-   return ret;
-}
 
 
 
@@ -1279,6 +1109,90 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// wrapper that increments ya by bts
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+{
+   bool ret = mButtonPD(xType, xa, xb, 1, ya, bts-2,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var, disable_input);
+   ya+= bts;
+   return ret;
+}
+
+
+// calls mDropDown with predefined list
+// returns true if changed
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+
+{
+   std::vector<struct listItem> listItems;
+   bool valid_type = 0;
+
+   if (type == 505) // lift end step mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,   "Loop to Start"  },
+         {  1,   "Warp to Start" },
+         {  2,   "Freeze Here" }
+      };
+   }
+
+   if (type == 7)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Frame Size:0"  },
+         {  1,    "Frame Size:1"  },
+         {  2,    "Frame Size:2"  },
+         {  4,    "Frame Size:4"  },
+         {  12,   "Frame Size:12" }
+      };
+   }
+
+
+
+
+   if (valid_type) return mDropDown(xType, xa, xb, yType, ya, yb,  r, text_just, backgroundType, bcol, fcol, hcol, listItems, var, disable_input);
+   return 0;
+}
 
 
 
@@ -2189,6 +2103,67 @@ bool mwWidget::mButton(int xType, int xa, int xb, int &ya, int bts, int r, int b
 
 
 
+bool mwWidget::mButtonNB(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
+{
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      if (c != -1) al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+   // 0 = no text
+   // 1 = normal
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+
+   // text justify
+   int tj = 0;
+   if (textType > 20)
+   {
+      tj = 1;
+      textType-=20;
+   }
+
+   if (textType)
+   {
+      int c = tcol;
+      if (highlight     && ((textType == 2) || (textType == 4))) c = hcol;
+      if (mouseOnButton && ((textType == 3) || (textType == 4))) c = hcol;
+      draw_widget_text(x1, y1, x2, y2, c, tj, txt);
+   }
+
+   if (mouseOnButton && (mInput.mouse_b[1][2])) return true;
+
+
+   return false;
+}
+
+
+
+
+
+
+
+
 bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
 {
    int x1, y1, x2, y2;
@@ -2242,6 +2217,8 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       return true;
    }
+
+
    return false;
 }
 

@@ -1503,14 +1503,11 @@ void mwSettings::page_transitions(void)
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
 
-   int ds = 140;
-   int os = 8;
-
-   if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Fastest"))    { mScreen.transition_num_steps = 1;   mScreen.transition_delay = 1;  }    ya +=os;
-   if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0,  4,15, 0,  1,0,1,0, "Hasty"))      { mScreen.transition_num_steps = 60;  mScreen.transition_delay = 4;  }    ya +=os;
-   if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0,  8,15, 0,  1,0,1,0, "Default"))    { mScreen.transition_num_steps = 80;  mScreen.transition_delay = 8;  }    ya +=os;
-   if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 13,15, 0,  1,0,1,0, "Relaxed"))    { mScreen.transition_num_steps = 120; mScreen.transition_delay = 12; }    ya +=os;
-   if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 11,15, 0,  1,0,1,0, "Lazy"))       { mScreen.transition_num_steps = 160; mScreen.transition_delay = 16; }
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mScreen.transition_num_steps = 1;    mScreen.transition_delay = 1;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mScreen.transition_num_steps = 60;   mScreen.transition_delay = 4;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mScreen.transition_num_steps = 80;   mScreen.transition_delay = 8;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mScreen.transition_num_steps = 120;  mScreen.transition_delay = 12;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mScreen.transition_num_steps = 180;  mScreen.transition_delay = 16;  }
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 }
@@ -1617,7 +1614,7 @@ void mwSettings::page_viewport(void)
 
       ya+=4;
 
-      if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Reset all to defaults",   0))
       {
          mScreen.viewport_mode = 1;
          mScreen.viewport_show_hyst = 0;
@@ -1678,7 +1675,7 @@ void mwSettings::page_overlay(void)
    al_draw_rectangle(x1, y3, x2, y4, mColor.pc[11], 1);
    bts = 20;
    mWidget.mStepSliderInt(0, xb-180, xb,  1, ya, bts-2,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  number_of_debug_overlay_modes, 4, 2, 1, 1, 0, "Active modes:", 0, 0);// ya+=bts+4;
-   if (mWidget.buttont(xa, ya, xa+180, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults")) reset_overlay_settings();
+   if (mWidget.mButton(0, xa, xa+180,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Reset to Defaults",   0)) reset_overlay_settings();
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 }
 
@@ -1715,9 +1712,7 @@ void mwSettings::page_double(void)
    char msg[80];
    if (mDisplay.saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", mDisplay.display_transform_double);
    else                                              sprintf(msg, "Current Mode: %d [Static]", mDisplay.display_transform_double);
-   mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,6,tc, 0,  1,0,1,0, msg);
-
-
+   mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   6, 0, 15, 0, 0, msg,  1);
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -1730,7 +1725,9 @@ void mwSettings::page_double(void)
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
    ya+=12 + line_spacing;
 
-   if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) mDisplay.set_saved_display_transform(0);
+
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   fc, 0, tc, 0, 0, "Set to Auto Mode",  0)) mDisplay.set_saved_display_transform(0);
+
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -1755,18 +1752,16 @@ void mwSettings::page_double(void)
 
    xa = xa+200;
    xb = cfp_x2 - 30;
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) mDisplay.set_saved_display_transform(newval);
 
+   if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   e, 0, 15, 0, 0, "Set New Value Now",  0)) mDisplay.set_saved_display_transform(newval);
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
    ya +=2;
 
-
-   if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Reset all to defaults",  0))
    {
       mDisplay.display_transform_double_max = 3;
       mDisplay.set_saved_display_transform(0);
@@ -1877,8 +1872,6 @@ void mwSettings::page_speed(void)
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "time resets the speed to 40fps."); ya+=8;
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
-
-
 }
 
 
@@ -1906,30 +1899,21 @@ void mwSettings::page_info(void)
    ya +=8;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars"))                         mDisplay.show_var_sizes();
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mLoop.local_hostname);
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))       mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.stilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'"))     mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_stilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.stilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.M_stilemap));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))       mDisplay.show_pixel_format(al_get_display_format(mDisplay.display));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))                mDisplay.show_display_flags(al_get_display_flags(mDisplay.display));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))              mDisplay.show_display_options();
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))           mDisplay.show_display_orienation();
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate"))                  printf("refresh rate:%d\n", al_get_display_refresh_rate(mDisplay.display));
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mDisplay.show_fullscreen_modes();
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mDisplay.show_display_adapters();
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mwCodeStats::run();
-
-   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show RAND_MAX"))                     printf("RAND_MAX: %i\n", RAND_MAX);
-
-
-
-
-
-
-
-
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show vars",   0)) mDisplay.show_var_sizes();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "hostname",   0)) printf("Local hostname:%s\n", mLoop.local_hostname);
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show bitmap flags 'tilemap'",     0)) mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.stilemap));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show bitmap flags 'M_tilemap'",   0)) mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_stilemap));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show pixel format 'tilemap'",     0)) mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.stilemap));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show pixel format 'M_tilemap'",   0)) mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.M_stilemap));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show pixel format 'display'",     0)) mDisplay.show_pixel_format(al_get_display_format(mDisplay.display));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show display flags",              0)) mDisplay.show_display_flags(al_get_display_flags(mDisplay.display));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show display options",            0)) mDisplay.show_display_options();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show display orientation",        0)) mDisplay.show_display_orientation();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show refresh rate",               0)) printf("refresh rate:%d\n", al_get_display_refresh_rate(mDisplay.display));
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show fullscreen modes",           0)) mDisplay.show_fullscreen_modes();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show display adapters",           0)) mDisplay.show_display_adapters();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show code statistics",            0)) mwCodeStats::run();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show RAND_MAX",                   0)) printf("RAND_MAX: %i\n", RAND_MAX);
 }
 
 
@@ -1955,14 +1939,8 @@ int mwSettings::page_log(void)
    if (log_group == 1) sprintf(msg, "Logging Group: Network");
    if (log_group == 2) sprintf(msg, "Logging Group: Profile");
    if (log_group == 3) sprintf(msg, "Logging Group: Other");
-
-
-   if (mWidget.buttont(xa-2, ya, xa+200,  16,  0,0,0,0, 0,12,15,0,  1,1,0,0, msg)) if (++log_group > 3) log_group = 1;
-
-   if (mWidget.buttont(xb-70, ya, xb,  16,  0,0,0,0, 0,12,15,0,  1,0,0,0, "All Off")) mLog.clear_all_log_actions();
-
-
-
+   if (mWidget.mButton(0, xa-1,  xa+200,  1, ya, 14,    1, 2, 0, 1,   12, 0, 15, 0, 0, msg,   0)) if (++log_group > 3) log_group = 1;
+   if (mWidget.mButton(0, xb-70, xb,      1, ya, 14,    1, 2, 0, 1,   12, 0, 15, 0, 0, "All Off",   0)) mLog.clear_all_log_actions();
 
    ya += line_spacing + 16;
 
@@ -2002,9 +1980,10 @@ int mwSettings::page_log(void)
    // draw text description and buttons
    al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "log to file");
    ya = bf1y4-5;
-   if (mWidget.buttont(bfxb,    ya, bfxb+56,  12,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+
+   if (mWidget.mButton(0, bfxb, bfxb+56,   1, ya, 10,    1, 2, 0, 1,   c+bco, 0, 15, 0, 0, "All On",   0))
       for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action |= LOG_ACTION_LOG;
-   if (mWidget.buttont(bfxb+62, ya, bfxb+126, 12,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+   if (mWidget.mButton(0, bfxb+62, bfxb+126,   1, ya, 10,    1, 2, 0, 1,   c+bco, 0, 15, 0, 0, "All Off",   0))
       for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
 
 
@@ -2028,9 +2007,10 @@ int mwSettings::page_log(void)
    // draw text and buttons
    al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "print to console");
    ya = bf2y4-5;
-   if (mWidget.buttont(bfxb,    ya, bfxb+56,  12, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+
+   if (mWidget.mButton(0, bfxb, bfxb+56,   1, ya, 10,    1, 2, 0, 1,   c+bco, 0, 15, 0, 0, "All On",   0))
       for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action |= LOG_ACTION_PRINT;
-   if (mWidget.buttont(bfxb+62, ya, bfxb+126, 12, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+   if (mWidget.mButton(0, bfxb+62, bfxb+126,   1, ya, 10,    1, 2, 0, 1,   c+bco, 0, 15, 0, 0, "All Off",   0))
       for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
 
 
@@ -2050,20 +2030,20 @@ int mwSettings::page_log(void)
 
    if (log_group == 2)
    {
-      if (mWidget.buttont(xa+40, ya, xb-40, 16,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
+      if (mWidget.mButton(0, xa+40, xb-40,   ya, 16,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Open Most Recent Profile Graph",   0)) mLog.run_profile_graph(0);
       ya += 4;
-      if (mWidget.buttont(xa+40, ya, xb-40, 16,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
+      if (mWidget.mButton(0, xa+40, xb-40,   ya, 16,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Select and Open Profile Graph",    0)) mLog.run_profile_graph(1);
    }
    else
    {
-      if (mWidget.buttont(xa+20, ya, xb-20, 16,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
-      ya+=4;
-      if (mWidget.buttont(xa+20, ya, xb-20, 16,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
+      if (mWidget.mButton(0, xa+20, xb-20,   ya, 16,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Open Most Recent Log In Log File Viewer",   0)) mLog.log_file_viewer(2);
+      ya += 4;
+      if (mWidget.mButton(0, xa+20, xb-20,   ya, 16,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Select And Open Log In Log File Viewer",    0)) mLog.log_file_viewer(1);
    }
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa+80, ya, xb-80, 16,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, 16,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Start Single Player Game",    0))
    {
       mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
       mLoop.quit_action = 3; // settings
@@ -2074,7 +2054,8 @@ int mwSettings::page_log(void)
 
    ya +=  line_spacing;//+=  mLoop.pct_y8;
    xb = xa+180;
-   if (mWidget.buttont(xa+20, ya, xb, 16,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
+
+   if (mWidget.mButton(0, xa+20, xb,   1, ya, 14,    1, 2, 0, 1,   9, 0, 15, 0, 0, "Host Network Game",    0))
    {
       mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
       mLoop.quit_action = 3; // settings
@@ -2084,7 +2065,7 @@ int mwSettings::page_log(void)
    }
    xa = xa+200;
    xb = cfp_x2 - 30;
-   if (mWidget.buttont(xa, ya, xb, 16,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
+   if (mWidget.mButton(0, xa, xb,   ya, 16,    1, 2, 0, 1,   8, 0, 15, 0, 0, "Join Network Game",    0))
    {
       mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
       mLoop.quit_action = 3; // settings
@@ -2114,9 +2095,10 @@ void mwSettings::page_misc(void)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa, ya, xa+120, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Spline adjust")) mLogo.spline_adjust();
-   if (mWidget.buttont(xa+130, ya, xa+250, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Spline reset")) mLogo.initialize();
-   if (mWidget.buttont(xa+260, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Spline test")) mLogo.spline_test();
+   if (mWidget.mButton(0, xa,     xa+120,   1, ya, bts-2,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Spline adjust",   0)) mLogo.spline_adjust();
+   if (mWidget.mButton(0, xa+130, xa+250,   1, ya, bts-2,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Spline reset",    0)) mLogo.initialize();
+   if (mWidget.mButton(0, xa+260, xa+370,   1, ya, bts-2,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Spline test",     0)) mLogo.spline_test();
+   ya += bts;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -2137,7 +2119,8 @@ void mwSettings::page_misc(void)
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa+200, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Dump Level Data")) mLevel.dump_level_data();
+
+   if (mWidget.mButton(0, xa+200,  xa+370,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Dump Level Data",   0)) mLevel.dump_level_data();
 
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);

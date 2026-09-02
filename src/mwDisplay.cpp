@@ -554,7 +554,7 @@ void mwDisplay::show_display_options(void)
    printf("ALLEGRO_DISPLAY_OPTIONS_COUNT:%d\n",  al_get_display_option(display, ALLEGRO_DISPLAY_OPTIONS_COUNT));
 }
 
-void mwDisplay::show_display_orienation(void)
+void mwDisplay::show_display_orientation(void)
 {
    int dor = al_get_display_orientation(display);
    if (dor ==  0) printf("ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN\n");

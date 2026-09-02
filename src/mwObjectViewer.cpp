@@ -819,7 +819,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][2],        10,      0.5,     0.01,     0.01,      0.1,      "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        10,      0.5,     0.01,     0.01,      0.1,      "Y-Speed:");
             ya+=4; // spacer
-            mWidget.button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
+            if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Initial Direction",   0))
+            {
+               mEnemy.Ei[num][5]++;
+               if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
+               mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+            }
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][7],    6+64, 6,  "Drop Mode:Off", "Drop Mode:On ");
             ya+=4; // spacer
@@ -883,11 +888,26 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 1: // door
             mWidget.buttonp(   xa, ya, xb, bts, 22,0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mWidget.button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][8],        12, 12,  "Door Type:Exit Only",    "Door Type:Normal   ");
             if (mItem.item[n][8]) // regular door (not exit only)
             {
+               // check for bad link
+               // int link = mItem.item[num][9];
+               // if (mItem.item[link][0] != 1) // link is not door
+               // {
+               //    mItem.item[num][9] = num;  // link to self
+               //    mItem.item[num][11] = 1;   // trigger with up
+               // }
+
                ya+=4; // spacer
-               mWidget.button( xa, ya, xb, bts,  4,n,0,0,  0,11,15,0, 1,0,1,d); // set linked item
+               char msg[80];
+               sprintf(msg, "Set Destination Item (%d)", mItem.item[num][9]);
+               if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, msg,   0))
+               {
+                  int i = mMiscFnx.get_item(2, 1, num );
+                  if (i > -1) mItem.item[num][9] = i;
+               }
+
                mWidget.buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][11]); // door entry type
                mWidget.buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]);  // move type
                mWidget.buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
@@ -976,7 +996,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 8: // bomb
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mWidget.button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
+            if (mItem.item[num][12]) mItem.item[num][1] = 537;
+            else mItem.item[num][1] = 464;
+
             if (!mItem.item[n][12])
                { mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 2000, 1, 1,  1, 10, "Time:", 1, d); ya+=bts+1; }
             ya+=4; // spacer
@@ -1007,7 +1030,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
             ya+=4; // spacer
-            mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,3,15,0,   1,0,1,d); // Set Message Frame
+            int frame_size = mItem.get_frame_size(num);
+            if (mWidget.mButtonPD(0, xa, xb,  ya, bts,  2, 2, 3, 3, 3, 15, 1, 7, frame_size, d)) mItem.set_frame_size(num, frame_size);
+
+
             ya+=4; // spacer
             mWidget.colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
             mWidget.colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select

@@ -118,8 +118,6 @@ void mwLoop::remote_control_loop()
 
 
 
-
-
    int cs = 16; // control spacing
    int btw = 12, bth = 12; // button size
    int btc = 15+96; // button color
@@ -131,9 +129,16 @@ void mwLoop::remote_control_loop()
 
    int gfc = 10; // group frame color
    if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,gfc,15,0, 1,0,1,0, mPlayer.syn[0].server_force_client_offset, "Force Client Offset", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_force_client_offset, 0);
-   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
+
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
+
+
+//   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
-   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
+//   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
+   if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, +0.005);
+
+
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Offset (ms)");
    al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
 
@@ -148,9 +153,17 @@ void mwLoop::remote_control_loop()
    int inc = 1;
    if (mInput.CTRL()) inc = 10;
 
-   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -inc);
+
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -inc);
+
+
+
+//   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -inc);
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
-   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, +inc);
+//   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, +inc);
+   if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, +inc);
+
+
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Shot Damage");
    al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
 
@@ -170,25 +183,44 @@ void mwLoop::remote_control_loop()
    b2x = cx +52;
 
    gfc = 8; // group frame color
-   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
+//   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
+
+
+
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
-   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
+//   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
+   if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
+
+
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "zlib compression level");
    al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
 
    cy+=20;
 
+
+
    gfc = 14; // group frame color
-   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, -1);
+//   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, -1);
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, -1);
+
+
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
-   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, 1);
+//   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, 1);
+   if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, 1);
+
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "number of extra packets");
    al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
 
+
+
    cy+=cs-2;
-   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, -100);
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, -100);
+
+//   if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, -100);
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
-   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, 100);
+//   if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, 100);
+   if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, 100);
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "extra packet size");
    al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
 

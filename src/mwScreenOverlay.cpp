@@ -854,35 +854,34 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
 
 
       ya = csy1+2;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
-      if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
       al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "force client offset:%d", mPlayer.syn[0].server_force_client_offset);
 
 
       ya += bth+1;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) mPlayer.syn[0].client_chase_offset -= 0.005;
-      if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) mPlayer.syn[0].client_chase_offset += 0.005;
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mPlayer.syn[0].client_chase_offset -= 0.005;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mPlayer.syn[0].client_chase_offset += 0.005;
       al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "client offset:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
 
 
       ya += bth+1;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if (--mNetgame.zlib_cmp < 0) mNetgame.zlib_cmp = 0;
-      if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.zlib_cmp > 9) mNetgame.zlib_cmp = 9;
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) if (--mNetgame.zlib_cmp < 0) mNetgame.zlib_cmp = 0;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) if (++mNetgame.zlib_cmp > 9) mNetgame.zlib_cmp = 9;
       al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "zlib compression:%d", mNetgame.zlib_cmp);
 
       int inc = 1;
       if (mInput.CTRL()) inc = 10;
 
       ya += bth+1;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if ((mNetgame.srv_exp_num-=inc) < 0)   mNetgame.srv_exp_num = 0;
-      if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if ((mNetgame.srv_exp_num+=inc) > 200) mNetgame.srv_exp_num = 200;
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) if ((mNetgame.srv_exp_num-=inc) < 0)   mNetgame.srv_exp_num = 0;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) if ((mNetgame.srv_exp_num+=inc) > 200) mNetgame.srv_exp_num = 200;
       al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "extra packets num:%d", mNetgame.srv_exp_num);
 
       ya += bth+1;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if ((mNetgame.srv_exp_siz-=100) < 0) mNetgame.srv_exp_siz = 0;
-      if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if ((mNetgame.srv_exp_siz+=100) > 1000) mNetgame.srv_exp_siz = 1000;
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) if ((mNetgame.srv_exp_siz-=100) < 0) mNetgame.srv_exp_siz = 0;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) if ((mNetgame.srv_exp_siz+=100) > 1000) mNetgame.srv_exp_siz = 1000;
       al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "extra packets size:%d", mNetgame.srv_exp_siz);
-
 
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_sbutt", al_get_time() - t1);
    }
@@ -1025,9 +1024,11 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 
       int ya = csy5 + 2;
 
-      if (mPlayer.syn[0].server_force_client_offset)
+//      if (mPlayer.syn[0].server_force_client_offset)
+
+      if (0)
       {
-         mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "Server");
+         mWidget.mButton(0, csx1+23, csx2-23,  1, ya, 14,    1, 2, 0, 1,   color, 0, 15, 0, 0, "Server",   1);
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mPlayer.syn[0].client_chase_offset*1000);
       }
       else
@@ -1035,12 +1036,14 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
          // non blocking buttons!
          float inc = 0.001;
          if (mInput.CTRL()) inc = 0.01;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+16, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+
+         if (mWidget.mButtonNB(0, csx1+2, csx1+18,  1, ya, 14,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0))
          {
             if (mNetgame.client_chase_offset_mode == 1) mNetgame.client_chase_offset_auto_offset -= inc; // auto mode - adjust offset from ping
             if (mNetgame.client_chase_offset_mode == 0) mNetgame.client_chase_offset -= inc; // manual mode - adjust offset directly
          }
-         if (mWidget.buttont_nb(csx2-16-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+
+         if (mWidget.mButtonNB(0, csx2-16-4, csx2-2,  1, ya, 14,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0))
          {
             if (mNetgame.client_chase_offset_mode == 1) mNetgame.client_chase_offset_auto_offset += inc; // auto mode - adjust offset from ping
             if (mNetgame.client_chase_offset_mode == 0) mNetgame.client_chase_offset += inc; // manual mode - adjust offset directly
@@ -1050,7 +1053,10 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
          sprintf(msg, "Manual");
          if (mNetgame.client_chase_offset_mode == 0) sprintf(msg, "Manual");
          if (mNetgame.client_chase_offset_mode == 1) sprintf(msg, "Automatic");
-         if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
+
+         if (mWidget.mButtonNB(0, csx1+23, csx2-23,  1, ya, 14,    1, 2, 0, 1,   color, 0, 15, 0, 0, msg,   0)) ///
+
+         //if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
          {
             if (++mNetgame.client_chase_offset_mode > 1) mNetgame.client_chase_offset_mode = 0;
          }

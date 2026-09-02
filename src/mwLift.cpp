@@ -659,8 +659,6 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ",  "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
    mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",       "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
-
-
    // specific buttons
    switch (stp[l][s].type & 31)
    {
@@ -680,7 +678,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 200, 1, 1,  1, 10, "Distance:",  1, d); ya+=bts+1;
       break;
       case 4: // end step
-         mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
+         mWidget.mButtonPD(0, xa, xb, ya, bts,  2, 2,     c1, c1, c1, 15, 1, 505, stp[l][s].val, d); // lift step end step mode
       break;
       case 5: // wait trigger
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 99, 1, 1,  1, 10, "Event:",  1, d); ya+=bts+1;
@@ -704,6 +702,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d)
 {
    int t = stp[l][s].type & 31;
+   int v = mLift.stp[l][s].val;
    int c = (stp[l][s].type >> 28) & 15;
    if (stp[l][s].type & PM_LIFT_NO_DRAW) c = 0;
    int x1 = xa;
@@ -712,17 +711,44 @@ void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, in
    int x4 = x3 + 42; // third  column (type)   is fixed size
    if (s == -1) // show row headers
    {
-      mWidget.button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // num
-      mWidget.button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // 'C'
-      mWidget.button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // type
-      mWidget.button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // description
+      mWidget.mButton(0, x1, x2-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "#",        1);
+      mWidget.mButton(0, x2, x3-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "C",        1);
+      mWidget.mButton(0, x3, x4-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "Type",     1);
+      mWidget.mButton(0, x4, xb-0, 0, ty1, ty2-2,  1, 2, 0, 21,   rc, 0, 15, 0, 0, "Details",  1);
    }
    else
    {
-      mWidget.button(x1, ty1, x2, ty2-ty1, 501, s, 0, 0,   0,rc,15,0,  1,0,0,d); // num
-      mWidget.button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0,   0, c,15,0,  1,0,0,d); // color
-      mWidget.button(x3, ty1, x4, ty2-ty1, 502, t, 0, 0,   0,rc,15,0,  1,0,0,d); // type
-      mWidget.button(x4, ty1, xb, ty2-ty1, 503, t, l, s,   0,rc,15,0,  1,1,0,d); // description
+      char msg[80];
+
+      sprintf(msg, "%d", s);
+      mWidget.mButton(0, x1, x2-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, msg,   1);
+
+      sprintf(msg, "%d", c);
+      mWidget.mButton(0, x2, x3-2, 0, ty1, ty2-2,  1, 2, 0, 1,   c, 0, 15, 0, 0, msg,   1);
+
+      sprintf(msg, "----");
+      if (t == 1)  sprintf(msg, "Move");
+      if (t == 2)  sprintf(msg, "Wait");
+      if (t == 3)  sprintf(msg, "Wait");
+      if (t == 4)  sprintf(msg, "End ");
+      if (t == 5)  sprintf(msg, "Wait");
+      if (t == 6)  sprintf(msg, "Send");
+      mWidget.mButton(0, x3, x4-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, msg,   1);
+
+      sprintf(msg, "blank");
+      if (t == 1)  sprintf(msg, "and Resize [speed:%d]", v);
+      if (t == 2)  sprintf(msg, "for Timer:%d", v);
+      if (t == 3)  sprintf(msg, "for Player prox:%d", v);
+      if (t == 5)  sprintf(msg, "for Event:%d", v);
+      if (t == 6)  sprintf(msg, "Event:%d", v);
+      if (t == 4)
+      {
+         sprintf(msg, "Step - undefined val");
+         if (v == 0) sprintf(msg, "Step - Loop to Start");
+         if (v == 1) sprintf(msg, "Step - Warp to Start");
+         if (v == 2) sprintf(msg, "Step - Freeze Here");
+      }
+      mWidget.mButton(0, x4, xb, 0, ty1, ty2-2,  1, 2, 0, 21,   rc, 0, 15, 0, 0, msg,   1);
    }
 }
 

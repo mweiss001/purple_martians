@@ -441,8 +441,245 @@ I dont think I even used mode 6...
 2026-09-01 07:46:29
 43 buttont
 
+2026-09-01 12:44:20
+33 buttont
+buttont is done
 
 
+buttont_nb
+14 instances
+done and removed
+2026-09-02 05:13:38
+
+
+now button
+31 instances
+
+these are all custom instances
+
+   if (bn == 505) // lift step end step mode
+   {
+                                         sprintf(msg, "Undefined value");
+      if (mLift.stp[num][type].val == 0) sprintf(msg, "Loop to Start");
+      if (mLift.stp[num][type].val == 1) sprintf(msg, "Warp to Start");
+      if (mLift.stp[num][type].val == 2) sprintf(msg, "Freeze Here  ");
+      if (press) if (++mLift.stp[num][type].val > 2) mLift.stp[num][type].val = 0; // lift step end step mode
+   }
+I think I want to make my own custom drop down using the new signature
+
+
+
+// wrapper that increments ya by bts
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+{
+   bool ret = mButtonPD(xType, xa, xb, 1, ya, bts-2,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var, disable_input);
+   ya+= bts;
+   return ret;
+}
+
+
+// calls mDropDown with predefined list
+// returns true if changed
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+
+{
+   std::vector<struct listItem> listItems;
+   bool valid_type = 0;
+
+   if (type == 505) // lift end step mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,   "Loop to Start"  },
+         {  1,   "Warp to Start" },
+         {  2,   "Freeze Here" }
+      };
+   }
+
+
+   if (valid_type) return mDropDown(xType, xa, xb, yType, ya, yb,  r, text_just, backgroundType, bcol, fcol, hcol, listItems, var, disable_input);
+   return 0;
+}
+
+
+         mWidget.mButtonPD(0, xa, xb, ya, bts,  2, 2,     c1, c1, c1, 15, 1, 505, stp[l][s].val, d); // lift step end step mode
+
+505 is gone...
+
+now these..
+
+      mWidget.button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // num
+      mWidget.button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // 'C'
+      mWidget.button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // type
+      mWidget.button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // description
+
+
+
+   if (bn == 501)
+   {
+      if (num == -1) sprintf(msg, "#");       // show row header
+      else           sprintf(msg, "%d", num); // show step num
+   }
+
+
+
+      if (num == 1)  sprintf(msg, "Move");
+      if (num == 2)  sprintf(msg, "Wait");
+      if (num == 3)  sprintf(msg, "Wait");
+      if (num == 4)  sprintf(msg, "End ");
+      if (num == 5)  sprintf(msg, "Wait");
+      if (num == 6)  sprintf(msg, "Send");
+
+
+
+void mwLift::initialize()
+{
+   strcpy (lift_step_type_name[0], "BAD!");
+   strcpy (lift_step_type_name[1], "Move");
+   strcpy (lift_step_type_name[2], "Wait");
+   strcpy (lift_step_type_name[3], "Prox");
+   strcpy (lift_step_type_name[4], "End ");
+   strcpy (lift_step_type_name[5], "REvt");
+   strcpy (lift_step_type_name[6], "SEvt");
+   clear_lifts();
+}
+
+I now have all lift button in the 500 range removed
+
+now button
+23 instances
+
+   
+   if (bn == 4)
+   {
+      if (mItem.item[num][8] == 0) sprintf(msg, "disabled");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Set Desination Item (%d)", mItem.item[num][9]);
+      if (press)
+      {
+         if (mItem.item[num][8] == 1) // Set Linked Item
+         {
+             int i = mMiscFnx.get_item(2, 1, num );
+             if (i > -1) mItem.item[num][9] = i;
+         }
+      }
+   }
+
+
+
+
+               char msg[80];
+               sprintf(msg, "Set Destination Item (%d)", mItem.item[num][9]);
+               if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, msg,   0))
+               {
+                  int i = mMiscFnx.get_item(2, 1, num );
+                  if (i > -1) mItem.item[num][9] = i;
+               }
+
+
+
+   if (bn == 49) // door type
+   {
+      if (press)
+      {
+         mItem.item[num][8] = !mItem.item[num][8];
+         // check for bad link
+         int link = mItem.item[num][9];
+         if (mItem.item[link][0] != 1) // link is not door
+         {
+            mItem.item[num][9] = num;  // link to self
+            mItem.item[num][11] = 1;   // trigger with up
+         }
+      }
+      if (mItem.item[num][8] == 0) sprintf(msg, "Door Type:Exit Only");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Door Type:Normal   ");
+   }
+
+//            mWidget.button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][8],        12, 12,  "Door Type:Exit Only",    "Door Type:Normal   ");
+
+
+   if (bn == 11)
+   {
+      sprintf(msg, "Set Initial Direction");// trakbot direction
+      if (press)
+      {
+         if (++mEnemy.Ei[num][5] > 7) mEnemy.Ei[num][5] = 0;
+         mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+      }
+      if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
+   }
+
+//            mWidget.button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
+
+            if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Initial Direction",   0))
+            {
+               mEnemy.Ei[num][5]++;
+               if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
+               mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+            }
+
+
+
+
+   if (bn == 7)
+   {
+      int frame_size = mItem.get_frame_size(num);
+
+      sprintf(msg, "Frame Size:%d", frame_size);
+      if (press)
+      {
+              if (frame_size == 0)  frame_size = 1;
+         else if (frame_size == 1)  frame_size = 2;
+         else if (frame_size == 2)  frame_size = 4;
+         else if (frame_size == 4)  frame_size = 12;
+         else if (frame_size == 12) frame_size = 0;
+
+         mItem.set_frame_size(num, frame_size);
+
+      }
+   }
+
+//            mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,3,15,0,   1,0,1,d); // Set Message Frame
+            int frame_size = mItem.get_frame_size(num);
+            if (mWidget.mButtonPD(0, xa, xb,  ya, bts,  2, 2, 3, 3, 3, 15, 1, 7, frame_size, d)) mItem.set_frame_size(num, frame_size);
+
+
+   if (type == 7)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Frame Size:0"  },
+         {  1,    "Frame Size:1"  },
+         {  2,    "Frame Size:2"  },
+         {  4,    "Frame Size:4"  },
+         {  12,   "Frame Size:12" }
+      };
+   }
+
+
+   if (bn == 77)
+   {
+      if (mItem.item[num][12] == 0) sprintf(msg, "Type:Fuse Timer");
+      if (mItem.item[num][12] == 1) sprintf(msg, "Type:Remote Detonator");
+      if (press)
+      {
+         mItem.item[num][12] = !mItem.item[num][12];
+         if (mItem.item[num][12]) mItem.item[num][1] = 537;
+         else mItem.item[num][1] = 464;
+      }
+   }
+
+//            mWidget.button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
+            if (mItem.item[num][12]) mItem.item[num][1] = 537;
+            else mItem.item[num][1] = 464;
+
+
+
+now button
+18 instances
 
 
 

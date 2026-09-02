@@ -76,7 +76,7 @@ class mwDisplay
    void show_pixel_format(int df);
    void show_display_flags(int flags);
    void show_display_options();
-   void show_display_orienation();
+   void show_display_orientation();
    void show_fullscreen_modes();
    void show_var_sizes();
 
