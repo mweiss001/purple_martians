@@ -810,8 +810,13 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          int pp, c;
          mMiscFnx.gma_to_val(mGameMoves.arr[gi][1], mGameMoves.arr[gi][2], mGameMoves.arr[gi][3], pp, c, name);
 
-         int cl = mWidget.colsel(xa, ya, x2-2, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+//         int cl = mWidget.colsel(xa, ya, x2-2, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+
+         int cl = mWidget.mColorSelect(0, xa, x2-2, ya, 16, 1, c, 0, "Player Color", 0);
+
+
          if (cl != -1) v = cl;
+
 
          ya+=2;
          al_draw_text( mFont.pr8, mColor.pc[15], xa+2, ya, 0, "Player Name:");

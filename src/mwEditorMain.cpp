@@ -518,9 +518,7 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
 
    // tile draw mode (tile | flag | both
    al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
-   mWidget.buttonp(x1+122, by1, x1+122+32, 9, 600, 0,0,0,   0,-1,9,0,  0,0,0,d, draw_tile_mode);
-
-
+   mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
 
    // draw vline at middle to separate draw and show controls
    int x3 = x1 + 160; // x middle

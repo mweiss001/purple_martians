@@ -193,19 +193,10 @@ void mwDemoRecord::draw_mainW(mwWindow w)
    ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
 
    bts = 16;
-
-   mWidget.buttonp(xa, ya, xa+200, bts,  701,0,0,0,  0,w.color+128,15,0, 1,0,1,d, background_x_justify);
-   mWidget.buttonp(xa, ya, xa+200, bts,  702,0,0,0,  0,w.color+128,15,0, 1,0,1,d, background_y_justify);
-
-
-
-//   mWidget.buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
-
-
-
-
-
-
+   mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   w.color+128, 0, 15, 0, 0, 1701, background_x_justify, 0, 0, d);
+   ya+=bts;
+   mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   w.color+128, 0, 15, 0, 0, 1702, background_y_justify, 0, 0, d);
+   ya+=bts;
 }
 
 

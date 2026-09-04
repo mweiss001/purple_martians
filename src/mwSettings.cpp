@@ -864,7 +864,7 @@ void mwSettings::page_netgame(void)
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
    al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "Show player name above players head.");
    ya += 8 + line_spacing;
-   mWidget.buttonp(xa, ya, xa+220, bts,  17,0,0,0,  0,12,15,15, 0,0,0,0, mPlayer.loc[0].name_display);
+   mWidget.mButtonCustom(0, xa, xa+220, 1, ya, bts-2, 1, 2, 0, 1,   12, 0, 15, 0, 0, 1017, mPlayer.loc[0].name_display, 0, 0, 0);
 
    ya = nrect.y2 + section_spacing;
 
@@ -1200,7 +1200,7 @@ void mwSettings::page_bottom_msg(int draw_only)
    int xd = 0;
 
    // player display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_player)) reload = 1;
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1010, mBottomMessage.disp_player, 0, 0, draw_only)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1209,14 +1209,14 @@ void mwSettings::page_bottom_msg(int draw_only)
    al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
    ya+=bts;
 
-
    if (mBottomMessage.disp_player) // any mode that has text
    {
-      if (mWidget.buttonp(xa, ya, xb, bts,  14,0,0,0,  0,ticw,15,15, 0,0,1,draw_only, mBottomMessage.disp_player_text_long)) reload = 1;
+      if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1014, mBottomMessage.disp_player_text_long, 0, 0, draw_only)) reload = 1;
+      ya+=bts;
    }
 
    // enemy display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_enemy)) reload = 1;
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1011, mBottomMessage.disp_enemy, 0, 0, draw_only)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1226,7 +1226,7 @@ void mwSettings::page_bottom_msg(int draw_only)
    ya+=bts;
 
    // item display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_item)) reload = 1;
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1012, mBottomMessage.disp_item, 0, 0, draw_only)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1235,10 +1235,8 @@ void mwSettings::page_bottom_msg(int draw_only)
    al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
    ya+=bts;
 
-
-
    // health display line
-   if (mWidget.buttonp(xa, ya, xb, bts,  13,0,0,0,  0,ticw,15,15, 0,0,0,draw_only, mBottomMessage.disp_health)) reload = 1;
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1013, mBottomMessage.disp_health, 0, 0, draw_only)) reload = 1;
    al_set_target_bitmap(etmp);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    xd = 0;
@@ -1567,7 +1565,10 @@ void mwSettings::page_viewport(void)
    ya += line_spacing;
 
 
-   mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mScreen.viewport_mode);
+//   mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mScreen.viewport_mode);
+
+   mWidget.mButtonCustom(0, xa+80, xb-80, 1, ya, bts-2, 1, 2, 0, 1,   8, 0, 15, 0, 0, 1020, mScreen.viewport_mode, 0, 0, 0);
+   ya+=bts;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
    ya -= 2;
@@ -1950,7 +1951,7 @@ int mwSettings::page_log(void)
    // draw the types for this group
    for (int i=0; i<100; i++)
       if (mLog.log_types[i].group == log_group)
-         mWidget.togglec_log(xa, ya, xb, 10, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
+         mWidget.togglec_log(xa, ya, xb, 10, 1,i,tc,fc);
 
    int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
 

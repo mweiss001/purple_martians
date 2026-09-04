@@ -185,6 +185,8 @@ add_executable(pm
         src/mwLoadSelectionDialog.h
         src/mwListBox.cpp
         src/mwListBox.h
+        src/mwWidgetSlider.cpp
+        src/mwWidgetCustom.cpp
 )
 
 

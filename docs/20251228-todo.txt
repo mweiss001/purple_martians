@@ -682,6 +682,508 @@ now button
 18 instances
 
 
+   if (bn == 13)
+   {
+      sprintf(msg, "Main Shape");
+      if (press)
+      {
+         int main_ans = mEnemy.Ei[num][5];
+         if (main_ans == 31) main_ans = 14;
+         else
+         {
+            if (main_ans == 29) main_ans = 31;
+            if (main_ans == 14) main_ans = 29;
+         }
+         mEnemy.Ei[num][5] = main_ans;
+         mEnemy.Ei[num][3] = main_ans;
+         mEnemy.Ei[num][1] = mBitmap.zz[5][main_ans];
+      }
+   }
+
+
+
+
+
+
+
+
+   if (bn == 310) // block 1 select...
+   {
+      int tn = mItem.item[num][10] & PM_BTILE_TILENUM_MASK; // block 1
+      sprintf(msg, "Block 1: %d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][10]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+
+   if (bn == 310)
+   {
+      int tn = mItem.item[num][10];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+
+
+I want to make this work for all 4
+pass var number as v2
+pass block number as v3
+
+done... I think I can remove these
+
+mWidget is over 3000 lines....
+
+lets put slider and stepper and track in its own file
+
+
+now button
+12 instances
+
+
+   if (bn == 318) // blokwalk block select...
+   {
+      int tn = mEnemy.Ei[num][13] & PM_BTILE_TILENUM_MASK;
+      sprintf(msg, "Block:%d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[num][13]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+   if (bn == 318)
+   {
+      int tn = mEnemy.Ei[num][13];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+   }
+
+
+   if (bn == 320) // lift draw single block select...
+   {
+      sprintf(msg, "Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
+   }
+
+   if (bn == 321) // lift draw start block of 3 select...
+   {
+      sprintf(msg, "Start Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
+   }
+
+
+
+   if (bn == 320)
+   {
+      int tn = mLift.cur[num].draw_mode_val1;
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+   }
+
+   if (bn == 321)
+   {
+      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
+      int x = (x2+x1)/2+80;
+      int y = (y2+y1)/2-10;
+      al_draw_filled_rectangle(x-1, y-1, x+61, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn+0], x+0,  y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+1], x+20, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+2], x+40, y, 0);
+   }
+
+
+   if (bn == 94) // orb rotation
+   {
+      // get rb
+      int rb = (mItem.item[num][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(msg, "Change Rotation");
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      mItem.item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      mItem.item[num][2] |= rb; // merge
+
+   }
+
+
+   if (bn == 96) // block damage draw rotation
+   {
+      // get rb
+      int rb = (mItem.item[num][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(msg, "Display Rotation:%d", rb);
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      mItem.item[num][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
+      mItem.item[num][3] |= rb; // merge
+
+
+   }
+
+
+
+   if (bn == 92) // orb mode
+   {
+      if (press) mItem.item[num][6]++;
+      if ((mItem.item[num][6] < 0) || (mItem.item[num][6] > 4)) mItem.item[num][6] = 0;
+      sprintf(msg, "undef");
+      if (mItem.item[num][6] == 0) sprintf(msg, "Mode:Toggle");
+      if (mItem.item[num][6] == 1)
+      {
+         sprintf(msg, "Mode:Stick ON");
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 2)
+      {
+         sprintf(msg, "Mode:Stick OFF");
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 3)
+      {
+         sprintf(msg, "Mode:Timed ON");
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 4)
+      {
+         sprintf(msg, "Mode:Timed OFF");
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+   }
+
+   if (bn == 90) // orb trigger type
+   {
+      if (press)
+      {
+         if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+         }
+      }
+
+      sprintf(msg, "undef");
+
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
+   }
+
+
+
+2026-09-03 03:24:49
+now button
+5 instances
+
+
+   if (bn == 211) // Trigger Field X Lift Alignment
+   {
+      int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      if (C) sprintf(msg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(msg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(msg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift X Align: Field x2 = Lift x2");
+      }
+      if (press)
+      {
+         int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+         int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+         int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+         }
+      }
+   }
+
+
+2026-09-03 03:53:33
+now button
+0 instances! removed
+
+
+buttonp
+34 instances
+buttonpd
+10 instances
+
+basically I want to get rid of all widget with the signature that has q0 to q7
+
+almost all buttonp can fit in custom
+
+
+   if (bn == 10)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Player Display: Text Only");
+      if (var == 2) sprintf(msg,  "Player Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Player Display: Text + Icon");
+   }
+
+   if (bn == 11)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Enemy Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Enemy Display: Text Only");
+      if (var == 2) sprintf(msg,  "Enemy Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Enemy Display: Text + Icon");
+   }
+
+   if (bn == 12)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Item Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Item Display: Text Only");
+      if (var == 2) sprintf(msg,  "Item Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Item Display: Text + Icon");
+   }
+
+   if (bn == 13)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Health Display: Long Text");
+      if (var == 1) sprintf(msg,  "Health Display: Short Text");
+      if (var == 2) sprintf(msg,  "Health Display: Value Only");
+      if (var == 3) sprintf(msg,  "Health Display: Percent Bar");
+   }
+
+   if (bn == 14)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Short Text");
+      if (var == 1) sprintf(msg,  "Player Display: Long Text");
+   }
+
+
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1011, mBottomMessage.disp_enemy, 0, 0, draw_only)) reload = 1;
+
+
+   if (bn == 21)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Stationary");
+      if (var == 1) sprintf(msg,  "Fall");
+   }
+   if (bn == 22)
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var ==  1) sprintf(msg, "Fall");
+      if (var ==  0) sprintf(msg, "Stationary");
+      if (var == -1) sprintf(msg, "Carry");
+      if (var == -2) sprintf(msg, "Carry Through Door");
+   }
+   if (bn == 23) // rocket only
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var == -1) var = 0;
+      if (var ==  1) sprintf(msg,  "Fall");
+      if (var ==  0) sprintf(msg,  "Stationary");
+      if (var == -2) sprintf(msg,  "Ride Through Door");
+   }
+
+
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1021, mItem.item[n][3], 0, 0, d); // stat | fall
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1022, mItem.item[n][3], 0, 0, d); // stat | fall | carry | carry through door
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1023, mItem.item[n][3], 0, 0, d); // stat | fall | ride through door
+
+
+2026-09-03 04:52:51
+buttonp
+15 instances
+
+   if (bn == 701)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "X Centered");
+      if (var == 1) sprintf(msg,  "X Left Justified");
+      if (var == 2) sprintf(msg,  "X Right Justified");
+   }
+
+   if (bn == 702)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "Y Centered");
+      if (var == 1) sprintf(msg,  "Y Top Justified");
+      if (var == 2) sprintf(msg,  "Y Bottom Justified");
+   }
+
+   if (bn == 81)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Boxes:None");
+      if (var == 1) sprintf(msg, "Draw Boxes:Source Only");
+      if (var == 2) sprintf(msg, "Draw Boxes:Destination Only");
+      if (var == 3) sprintf(msg, "Draw Boxes:Both");
+   }
+
+   if (bn == 82)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Static Shape");
+      if (var == 2) sprintf(msg, "Draw Mode:Static Animation");
+      if (var == 3) sprintf(msg, "Draw Mode:Follow Event Timer");
+   }
+
+   
+   if (bn == 83)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Progress Bar");
+   }
+
+   if (bn == 85)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Output Mode:One Time");
+      if (var == 1) sprintf(msg, "Output Mode:Continuous");
+   }
+
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1082, mEnemy.Ei[n][5], 0, 0, d); // draw mode
+ya+=bts; // spacer
+
+
+2026-09-03 04:52:51
+buttonp
+0 instances! - removed
+
+buttonpd
+10 instances
+
+I am going to convert to mButtonPD
+     mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 504, mLift.cur[lift].draw_mode, d); // draw mode
+
+all done!!!
+
+mButtonPD and mButtonCustom are now in the same source file with approx 1000 lines
+52 - mButtonCustom
+11 - mButtonPD auto y
+2  - mButtonPD
+
+2026-09-03 07:06:29
+
+what else to change?
+
+colsel
+11 calls
+
+it is heavily customized for each type
+
+made my own...for simple things it can set the color directly
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

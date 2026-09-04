@@ -300,8 +300,11 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    ya+=+3;
 
    al_draw_text(mFont.pr8, mColor.pc[15], w.rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Change Player Color");
+
    ya+=line_space;
-   int cl = mWidget.colsel(x, ya, x+200, 16,  10,0,0,0,  0,12,15,15,  0,0,1,d);
+
+   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, col, 0, "Player Color", d);
+
    if (cl != -1)
    {
       int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
@@ -353,7 +356,7 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
 
       al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
       ya+=12;
-      int cl = mWidget.colsel(xa, ya, xb, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+      int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, 0, "Player Color", 0);
       if (cl != -1) col = cl;
 
       ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5; // spacer line
@@ -455,9 +458,12 @@ void mwDemoRecord::add_new_section_dialog()
 
          ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6;
 
-         al_draw_textf(mFont.pr8, mColor.pc[mPlayer.syn[player_num].color], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", mPlayer.syn[player_num].color);
+         int col = mPlayer.syn[player_num].color;
+
+
+         al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
          ya+=12;
-         int cl = mWidget.colsel(xa, ya, xb, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+         int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, 0, "Player Color", 0);
          if (cl != -1) mPlayer.syn[player_num].color = cl;
 
          ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5;

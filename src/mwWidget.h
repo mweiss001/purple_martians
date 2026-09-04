@@ -18,23 +18,12 @@ class mwWidget
 
 public:
 
-   int button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
-   bool buttonpd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
-   int buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
-
-
-   int colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
-
 
    int toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
 
    int togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, const char* t, int text_col, int frame_col);
-
-   void togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int ltn, int text_col, int frame_col);
-
 
    int togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
@@ -43,12 +32,24 @@ public:
                int &var, int flag, const char* t, int text_col, int frame_col);
 
 
+
+
+
+   void togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, int text_col, int frame_col);
+
+
+
+
+
+   int mColorSelect(int xType, int xa, int xb, int &ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input);
+   int mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* t, int disable_input);
+
+
+
+
    bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
 
    bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
-
-
-
 
 
 
@@ -63,10 +64,10 @@ public:
 
    bool mButtonNB(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
 
+   bool mButtonCustom(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input);
 
    bool mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight,
                       int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1, int disable_input);
-
 
 
 
@@ -85,9 +86,7 @@ public:
    bool mButtonTile2(int x1, int y1, int size, int tn, const char* t, bool disable_input);
 
 
-
    bool mButtonTile3(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int x1, int y1, int size, int tn, const char* txt, int disable_input);
-
 
 
 
@@ -100,10 +99,6 @@ public:
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int inc, const char *txt);
-
-
-
-
 
 
    void mSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
@@ -150,22 +145,6 @@ public:
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, int update, bool disable_input);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

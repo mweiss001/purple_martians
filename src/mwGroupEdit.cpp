@@ -1020,14 +1020,12 @@ int mwGroupEdit::show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   mWidget.mButton(0, x1+12, x2-12,   1, y1, bts-2,    1, 0, 1, 1,   0, 13, 15, 0, 0, msg,    1);
                   y1+=bts;
 
-
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
                   mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, .1, .01, .1, "v1:", 0, d); y1+=bts;
                   mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, .1, .01, .1, "v2:", 0, d); y1+=bts;
-
-                  mWidget.buttonpd(x1+2,      y1, x3-1, bts, 100,0,0,0,  0, 8,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
+                  mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
 
                   if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))
                   {
