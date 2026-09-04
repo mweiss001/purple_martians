@@ -2803,7 +2803,7 @@ void mwTileSets::modify_tile_set()
 
       // hue
       int old_hlock = h_lock;
-      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, h_lock, "lock", 15, 15);
+      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, h_lock, "lock", 15, 15, 0);
       if ((!h_lock) || (h_lock && !old_hlock)) h_offset = h2-h1; // if not locked, or just became locked
       al_draw_textf(mFont.pr8, mColor.pc[15], xa+246, ya+bts+(20-bts)/2, 0, "offset:%3.2f", h_offset);
       if (mWidget.colorClickSlider(4, xa, ya, xb, bts, h1, h1_hover, h1_hover_val,   c1, changed) && h_lock) h2 = h1 + h_offset;
@@ -2818,7 +2818,7 @@ void mwTileSets::modify_tile_set()
 
       // sat
       int old_slock = s_lock;
-      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, s_lock, "lock", 15, 15);
+      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, s_lock, "lock", 15, 15, 0);
       if ((!s_lock) || (s_lock && !old_slock)) s_offset = s2-s1; // if not locked, or just became locked
       al_draw_textf(mFont.pr8, mColor.pc[15], xa+246, ya+bts+(20-bts)/2, 0, "offset:%3.2f", s_offset);
       if (mWidget.colorClickSlider(5, xa, ya, xb, bts, s1, s1_hover, s1_hover_val,   c1, changed) && s_lock) s2 = s1 + s_offset;
@@ -2832,7 +2832,7 @@ void mwTileSets::modify_tile_set()
 
       // light
       int old_llock = l_lock;
-      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, l_lock, "lock", 15, 15);
+      mWidget.mCheckBox(1, xa+246, xb,  1,ya,bts, -1, l_lock, "lock", 15, 15, 0);
       if ((!l_lock) || (l_lock && !old_llock)) l_offset = l2-l1; // if not locked, or just became locked
       al_draw_textf(mFont.pr8, mColor.pc[15], xa+246, ya+bts+(20-bts)/2, 0, "offset:%3.2f", l_offset);
       if (mWidget.colorClickSlider(6, xa, ya, xb, bts, l1, l1_hover, l1_hover_val,   c1, changed) && l_lock) l2 = l1 + l_offset;

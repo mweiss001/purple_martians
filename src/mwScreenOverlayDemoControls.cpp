@@ -420,7 +420,7 @@ void mwScreen::draw_demo_controls_overlay_pwd_nrd(int fx1, int fx2, int fy1, int
    }
    else
    {
-      mWidget.mCheckBox(1,fx1, 138,  0,y1,y2, pwd_col, demo_controls_pause_when_done, "Pause when done", 15, pwd_col);
+      mWidget.mCheckBox(1,fx1, 138,  0,y1,y2, pwd_col, demo_controls_pause_when_done, "Pause when done", 15, pwd_col, 0);
       if (mDemoMode.play_mode_active == 2 && mWidget.mButton(2,136,fx2,  0,y1,y2,  0,  1,3,3,  nrd_col+192,nrd_col+96,15, 15,0, "Next Random Demo", 0)) mDemoMode.continuous_random_next_level();
    }
 }

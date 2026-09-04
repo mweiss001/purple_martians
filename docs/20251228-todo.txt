@@ -1168,27 +1168,98 @@ made my own...for simple things it can set the color directly
 
 
 
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][6], 0, "Select Door Color", d);
+
+
+   if (bn == 2) sprintf(msg, "Select Text Color");
+   if (bn == 3) sprintf(msg, "Select Frame Color");
+
+
+      if (bn == 2) // text color
+      {
+         int tc=0, fc=0;
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
+         tc = color;
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
+      }
+      if (bn == 3) // frame color
+      {
+         int tc=0, fc=0; // text and frame colors
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
+         fc = color;
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
+      }
 
 
 
+   if (bn == 6) sprintf(msg, "Select Trigger Field Color");
+   if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
+
+      if (bn == 6) mItem.item[num][2] = color;     // trigger color
+      if (bn == 7) mItem.item[num][12] = color;    // block manip color
+
+
+   if (bn == 10) sprintf(msg, "Player Color");
+
+   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, col, 0, "Player Color", d);
+
+
+colset is done!!!
+
+2026-09-03 18:03:59
+
+now all I am left with is toggles
+31 - toggle
+58 - togglec
+1  - togglec_log
+36 - togglf
+2  - togglfc
+
+I have this:
+1 - mButtonToggle
+
+      mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, 0, 1, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
+
+//            mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     14, 0, mItem.item[num][8], 0, 1, "Door Type:Exit Only", "Door Type:Normal", 12, 12, 15, 15, 12, 12, 0);
 
 
 
+do all in object viewer
+
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+
+   mWidget.mButtonToggle(0, x27+1, x57-1,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, viewer_lock, 0, 1, "Unlocked", "Locked", 6, 7, 15, 15, 0, 0, 0);
+
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][11],   4, 4,  "Sticky:Off", "Sticky:On");
+
+toggle is done and removed
+
+
+now togglec
+
+   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input = false);
+
+how many times do I ever use frame? only once?
+
+2026-09-04 05:39:59
+
+start replacing...
 
 
 
+//      mWidget.togglec(cx, ya, cx+80, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
+      mWidget.mCheckBox(0, cx, cx+80, ya, 16, 0, gridlines, "Gridlines", 15, 15, 0);
 
 
+   mWidget.mCheckBox(0, arm_x, arm_x+20, arm_y, 10, 0, record_punch_in_armed, "arm", 15, 15, d);
 
+      mWidget.mCheckBox(0, xa, xa+80, 1, ya, 10, 0,  show_debug, "Debug", tc, tc, disable_input);
 
+2026-09-04 07:19:00
 
-
-
-
-
-
-
-
+14 - togglec
+35 - togglef
+2 - togglefc
 
 
 

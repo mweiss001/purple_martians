@@ -572,18 +572,25 @@ bool mwEditorMain::status_window_mouse_detect(mwRect<int> rect)
 
 
 
+
+void odbt(int d, int xa, int xb, int &ya, int bts, int &var, int col0, int col1,  const char* txt)
+{
+   mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     0, 0, var, 0, 1, txt, txt, col0, col1, 15, 15, 0, 0, d);
+}
+
+
+
+
+
 void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
 {
-
    int fs = 12;   // frame size
    int y = rect.y1+fs; // button y position
 
    int bts = 12;    // button size
 
-   int tc1 = 15;    // text color 1
-   int tc2 = 15;    // text color 2
-   int fc1 = 15+64; // frame color 1
-   int fc2 = 4;     // frame color 2
+   int bc1 = 15+64; // button color 1
+   int bc2 = 4;     // button color 2
 
    int tl=0; // text_lines
    if (filter_mode == 1) tl = 28*bts-bts/2;
@@ -608,9 +615,7 @@ void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
    al_draw_text(mFont.pr8, mColor.pc[15], rect.XCenter(), rect.y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
 
    int by1 = rect.y1+2;
-   mWidget.toggle(rect.x2-10, by1, rect.x2-2, 8, 0,0,0,0, 0,0,0,0, 1,0,0,d, collapsed,  "-", "+", tc1, tc2, -1, -1);
-
-
+   mWidget.mButtonToggle(0, rect.x2-10, rect.x2-2,  by1, 8,    1, 0, 0, 0,     0, 0, collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
 
 
 
@@ -621,53 +626,50 @@ void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
 
 
 
-
-
-
    if (!collapsed)
    {
       if (filter_mode > 2) // add blocks and flags
       {
-         mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, obj_filter[1][1],  "Blocks", "Blocks", tc1, tc2, fc1, fc2);
-         mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, obj_filter[1][2],  "Flags",  "Flags",  tc1, tc2, fc1, fc2);
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][1], bc1, bc2,  "Blocks");
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][2], bc1, bc2,  "Flags");
       }
       if (filter_mode > 1) // add lifts
       {
-         mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2);
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[4][1], bc1, bc2,  "Lifts");
          y+=bts/2;
       }
 
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][1],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][2],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][4],  "BlkWlk", "BlkWlk", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][5],  "Jmpwrm", "Jmpwrm", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][6],  "Flappr", "Flappr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][7],  "VinPod", "VinPod", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2);
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][1], bc1, bc2,  "Bouncr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][2], bc1, bc2,  "Cannon");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][3], bc1, bc2,  "Arcwgn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][4], bc1, bc2,  "BlkWlk");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][5], bc1, bc2,  "Jmpwrn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][6], bc1, bc2,  "Flappr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][7], bc1, bc2,  "VinPod");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][8], bc1, bc2,  "Trakbt");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][9], bc1, bc2,  "Cloner");
 
       y+=bts/2;
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][6],  "Orb",    "Orb",    tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][13], "Timer",  "Timer",  tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][18], "Gate",   "Gate",   tc1, tc2, fc1, fc2);
-      mWidget.toggle(rect.x1+fs, y, rect.x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][19], "Hider",  "Hider",  tc1, tc2, fc1, fc2);
-   }
 
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][1],  bc1, bc2,  "Door");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][2],  bc1, bc2,  "Bonus");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][3],  bc1, bc2,  "Exit");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][4],  bc1, bc2,  "Key");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][5],  bc1, bc2,  "Start");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][6],  bc1, bc2,  "Orb");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][7],  bc1, bc2,  "Mine");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][8],  bc1, bc2,  "Bomb");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][9],  bc1, bc2,  "Triggr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][10], bc1, bc2,  "Messge");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][11], bc1, bc2,  "Rocket");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][13], bc1, bc2,  "Timer");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][14], bc1, bc2,  "Switch");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][15], bc1, bc2,  "Spring");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][16], bc1, bc2,  "Blk Mn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][17], bc1, bc2,  "Blk Dm");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][18], bc1, bc2,  "Gate");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][19], bc1, bc2,  "Hider");
+   }
 
    if (!d && mInput.mouse_b[2][0] && rect.contains(mInput.mouse_x, mInput.mouse_y))
    {

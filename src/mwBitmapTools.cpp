@@ -1397,7 +1397,10 @@ void mwBitmapTools::edit_tile_flags()
 
       // mode button
       ya+=60;
-      mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
+      mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    14, 0, mode, 0, 1, "Mode:Single", "Mode:Multiple", 0, 0, 15, 15, 13, 13, 0);
+
+
+
 
 
       ya += 13;
@@ -1418,7 +1421,8 @@ void mwBitmapTools::edit_tile_flags()
 
       ya += 50;
       // gridlines check box
-      mWidget.togglec(cx, ya, cx+80, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
+      mWidget.mCheckBox(0, cx, cx+80, ya, 16, 0, gridlines, "Gridlines", 15, 15, 0);
+
       ya += 20;
       if (mWidget.mButton(3, cx, 0, 1, ya, 14,   1, 0, 3, 2,       10, 15, 15, 10, 0, "Save", 0))    mBitmap.save_sprit();
 
@@ -1738,8 +1742,7 @@ void mwBitmapTools::copy_tiles()
       // gridlines check box
       int xa = b1r.x1 + 400;
       int ya = b1r.y1 - 20;
-
-      mWidget.togglec(xa, ya, xa+20, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, gridlines, "Grid", 15, 15);
+      mWidget.mCheckBox(0, xa, xa+20, ya, 16, 0, gridlines, "Grid", 15, 15, 0);
 
       // main bitmap -----------------------------------------------------------------------------------------------
       al_draw_bitmap(b1, b1r.x1, b1r.y1, 0);

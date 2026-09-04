@@ -993,9 +993,8 @@ int mwGroupEdit::show_controls(int x, int y, int *ew, int *eh, int hidden, int d
             int sl = (strlen(msg)+2)*4;
             int tx1 = x4 - sl + 3;
             int tx2 = x4 + sl - 1;
-            mWidget.toggle(tx1, y1, tx2, bts, 0,0,0,0, 0,0,0,0, 1,0,0,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 12);
-            mWidget.toggle(x2-12, y1, x2-4, bts, 0,0,0,0, 0,-1,0,0, 1,0,1,d, ge_data[ge_num].collapsed, "-", "+",  15, 15, -1, -1);
-
+            mWidget.mButtonToggle(0, tx1, tx2,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, msg, msg, 12, 12, 15, 15, 0, 0, 0);
+            mWidget.mButtonToggle(0, x2-12, x2-4,  y1, bts,    1, 0, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, 0);
             if (!ge_data[ge_num].collapsed)
             {
                if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9))

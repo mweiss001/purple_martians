@@ -197,11 +197,10 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    mwRect<int> pmrect = mwRect<int>::fromX1Y1WH(w.rect.x1, w.rect.y1+36, w.rect.w, 12);
    if (pmrect.contains(mInput.mouse_x, mInput.mouse_y)) change_player_num_menu(rt_player);
 
-   mWidget.togglec(xa, y1, xa+40, 12,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_player_mode,  "Use Active Player", 15, 15);
+   mWidget.mCheckBox(0, xa, xa+40, y1, 12, 0, rt_player_mode,  "Use Active Player", 15, 15, d);
    if (rt_player_mode) rt_player = mPlayer.active_local_player;
 
-   mWidget.togglec(xa, y1, xa+40, 12,  0,0,0,0,  0,0,0,0, 1,0,1,d, rt_all_players,  "All Players", 15, 15);
-
+   mWidget.mCheckBox(0, xa, xa+40, y1, 12, 0, rt_all_players,  "All Players", 15, 15, d);
 
 
    int bcol = w.color + 192;

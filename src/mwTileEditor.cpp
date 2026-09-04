@@ -484,7 +484,7 @@ void mwTileEditor::selection_controls(int x, int y)
    ya+= line_spacing;
 
 
-   mWidget.mCheckBox(2, 60, xb,  1,ya,bts, -1, paste_mode_alpha, "alpha", 15, 15);
+   mWidget.mCheckBox(2, 60, xb,  1,ya,bts, -1, paste_mode_alpha, "alpha", 15, 15, 0);
    if (mWidget.mButton(3, xa+2, 0, 1, ya, bts,     0, 0, 3, 3, 0, 15, 15, 10, -1, "Paste", 0))
    {
       // get bitmap of selected area

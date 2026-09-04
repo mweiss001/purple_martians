@@ -1386,7 +1386,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
       if (mWidget.mButton(4, 0, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit", 0)) draw_replace(0);
       yfb+=bts;
       yfb+=bsp;
-      mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, replace_preview, "preview", 15, 15);
+      mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, replace_preview, "preview", 15, 15, 0);
    }
    return height;
 }
@@ -1436,7 +1436,7 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    if (mWidget.mButton(4, 0, x4,    1, yfb, bts,  2,2,1,1,  10, 10,   15,  0,0, "Commit", 0)) draw_pattern(0);
    yfb+=(bts+bsp);
 
-   mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, pattern_preview, "preview", 15, 15);
+   mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, pattern_preview, "preview", 15, 15, 0);
 
    mWidget.mStepper(  1, x3,     80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_x, 8, 0, 1, "+X:" );
    mWidget.mStepper(  1, x3+90,  80,    1, yfb, bts,   2, 2,  1, 1,  c1,  c1,  15,  15, 15,   0, pattern_offset_y, 8, 0, 1, "+Y:" );
@@ -1605,10 +1605,10 @@ int mwTileHelper::show_frame_controls(int x1, int x2, int y1, int color, int d)
       sprintf(msg, "Common Tileset:");
    }
    else sprintf(msg, "Common Tileset");
-   mWidget.mCheckBox(3, x3+4, -1,  1, yfb,bts, -1, frame_common_tileset, msg, 15, 15);
+   mWidget.mCheckBox(3, x3+4, -1,  1, yfb,bts, -1, frame_common_tileset, msg, 15, 15, 0);
 
 
-   mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, frame_mode_preview, "preview", 15, 15);
+   mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, frame_mode_preview, "preview", 15, 15, 0);
 
 
    yfb+=(bts+bsp);

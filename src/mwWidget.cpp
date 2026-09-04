@@ -223,44 +223,111 @@ int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb,
 }
 
 
+// toggles the int between v0 and v1 and displays text, text color, and frame color based on value
+// returns true if changed
 
-
-
-
-// toggles the int and displays text, text color, and frame color based on value
-int mwWidget::toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+// wrapper that increments ya by bts
+bool mwWidget::mButtonToggle(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                             int &var, int v0, int v1, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input)
 {
-   char msg[80];
-   int y2 = y1+bts-2;
-   int ret = 0;
-   // is mouse pressed on this button?
-   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      var = ! var;
-   }
-   if (var)
-   {
-       q1 = frame_col1;
-       q2 = text_col1;
-       sprintf(msg, "%s", t1);
-       ret = 1;
-   }
-   else
-   {
-      q1 = frame_col0;
-      q2 = text_col0;
-      sprintf(msg, "%s", t0);
-      ret = 0;
-   }
-   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
-
-   if (q6 == 1) y1+=bts;
+   bool ret = mButtonToggle(xType, xa, xb, 1, ya, bts-2,    r, backgroundType, frameType, textType, hcol, highlight, var, v0, v1, t0, t1, bcol0, bcol1, tcol0, tcol1, fcol0, fcol1, disable_input);
+   ya+= bts;
    return ret;
 }
 
+
+
+bool mwWidget::mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                             int &var, int v0, int v1, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input)
+{
+   bool ret = 0;
+
+   // enforce var is either v0 or v1
+   if ((var != v0) && (var!= v1)) var = v0;
+
+   // get current text
+   char txt[500];
+   sprintf(txt, "%s", t0);
+   int tcol = tcol0;
+   int fcol = fcol0;
+   int bcol = bcol0;
+
+
+   if (var == v0)
+   {
+      sprintf(txt, "%s", t0);
+      tcol = tcol0;
+      fcol = fcol0;
+      bcol = bcol0;
+   }
+
+   if (var == v1)
+   {
+      sprintf(txt, "%s", t1);
+      tcol = tcol1;
+      fcol = fcol1;
+      bcol = bcol1;
+   }
+
+
+
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
+
+   if (mouseOnButton && mInput.mouse_b[1][0])
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      if (var == v0) var = v1;
+      else var = v0;
+      ret = 1;
+   }
+
+
+   if (var == v0)
+   {
+      sprintf(txt, "%s", t0);
+      tcol = tcol0;
+      fcol = fcol0;
+      bcol = bcol0;
+   }
+   else
+   {
+      sprintf(txt, "%s", t1);
+      tcol = tcol1;
+      fcol = fcol1;
+      bcol = bcol1;
+   }
+
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+
+   draw_widget_text(x1, y1,  x2, y2, tcol, textType, txt);
+
+   return ret;
+}
 
 
 
@@ -654,84 +721,6 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
 
 
 
-// toggles the int and displays text, text color, and frame color based on value
-// return true if changed
-bool mwWidget::mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight,
-                             int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1, int disable_input)
-{
-   bool ret = 0;
-
-   // get current text
-   char txt[500];
-   sprintf(txt, "%s", t0);
-   int text_col = text_col0;
-   int frame_col = frame_col0;
-
-   if (var)
-   {
-      sprintf(txt, "%s", t1);
-      text_col = text_col1;
-      frame_col = frame_col1;
-   }
-
-
-
-   int x1, y1, x2, y2;
-   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
-
-   // check if mouse is on button
-   bool mouseOnButton = false;
-   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
-
-   if (mouseOnButton && mInput.mouse_b[1][0])
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      var = ! var;
-      ret = 1;
-   }
-
-
-   if (var)
-   {
-      sprintf(txt, "%s", t1);
-      text_col = text_col1;
-      frame_col = frame_col1;
-   }
-   else
-   {
-      sprintf(txt, "%s", t0);
-      text_col = text_col0;
-      frame_col = frame_col0;
-   }
-
-   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
-
-   // if (backgroundType == 0) ; do nothing
-   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
-   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
-
-
-
-   // 0 = no frame
-   // 1 = static
-   // 2 = highlight with var
-   // 3 = highlight with mouse
-   // 4 = highlight with both
-   if (frameType)
-   {
-      int c = frame_col;
-      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
-      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
-      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
-   }
-
-
-   draw_widget_text(x1, y1,  x2, y2, text_col, textType, txt);
-
-   return ret;
-}
-
-
 
 
 
@@ -956,19 +945,13 @@ bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+// wrapper to increment ya by bts
+bool mwWidget::mCheckBox(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input)
+{
+   bool res = mCheckBox(xType, xa, xb, 1, ya, bts-2, frame_col, var, t, text_col, box_col, disable_input);
+   ya += bts;
+   return res;
+}
 
 
 

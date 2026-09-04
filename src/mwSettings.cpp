@@ -188,7 +188,7 @@ void mwSettings::cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int 
    ya -=7;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, name);
    for (int i=0; i<4; i++)
-      mWidget.togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
+      mWidget.mCheckBox(0, xb-86+(i*24), xb-72+(i*24), 1, ya, bts, 0, overlay_grid[index][i], "", 15, 15, 0);
 }
 
 void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_color)
@@ -340,12 +340,12 @@ void mwSettings::settings_pages_redraw(int disable_input)
 
    int xa = title_xc+46;
    int ya = title_ty;
-   mWidget.togglec(xa, ya, xa+80, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,disable_input, show_advanced, "Advanced", tc, tc);
+   mWidget.mCheckBox(0, xa, xa+80, 1, ya, 10, 0,  show_advanced, "Advanced", tc, tc, disable_input);
 
    if (show_advanced)
    {
       xa += 88;
-      mWidget.togglec(xa, ya, xa+56, 12,  0,0,0,0,  0, 0, 0, 0,  1,0,0,disable_input, show_debug, "Debug", tc, tc);
+      mWidget.mCheckBox(0, xa, xa+80, 1, ya, 10, 0,  show_debug, "Debug", tc, tc, disable_input);
    }
 
    // draw and process tabs
@@ -482,7 +482,10 @@ void mwSettings::page_main(void)
 
 
    int old_mcm = mMain.classic_mode;
-   mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
+//   mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
+
+   mWidget.mButtonToggle(0, xa, xa+220,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, mMain.classic_mode, 0, 1, "Game Mode: Story Mode", "Game Mode: Classic Mode", 13, 9, 15, 15, 0, 0, 0);
+
 
    if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
 
@@ -557,7 +560,8 @@ void mwSettings::page_main(void)
    int x1a = cfp_x1 + 10;
    int x1b = x1a + 60;
    int old_sound_on = mSound.sound_on;
-   mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mSound.sound_on, "Sound", tc, tc);
+   mWidget.mCheckBox(0, x1a, x1b, 1, ya, bts-2, 0,  mSound.sound_on, "Sound", tc, tc, 0);
+
    if ((old_sound_on == 0) && (mSound.sound_on == 1)) mSound.load_sound();
 
    int sc = 13;
@@ -587,7 +591,8 @@ void mwSettings::page_main(void)
    // ---------------------------------------
    x1a = cfp_x1 + 10;
    x1b = x1a + 250;
-   mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mLogo.show_splash_screen, "Show splash screen on startup", tc, tc);
+   mWidget.mCheckBox(0, x1a, x1b, 1, ya, bts-2, 0,  mLogo.show_splash_screen, "Show splash screen on startup", tc, tc, 0);
+
    x1a = x1b + 24+8;
    x1b = x1a + 80;
 
@@ -598,13 +603,14 @@ void mwSettings::page_main(void)
    }
    ya -=2;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+   mWidget.mCheckBox(0, xa, xa+40, 1, ya, bts-2, 0,  mBottomMessage.display_enable, "Show bottom message display", tc, tc, 0);
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.display_enable, "Show bottom message display", tc, 15);
    if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, tc, 0, 0, "Settings",   0)) current_page = 6;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+   mWidget.mCheckBox(0, xa, xa+40, 1, ya, bts-2, 0,  mDemoMode.config_autoplay_enabled, "Autoplay demo when idle", tc, tc, 0);
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mDemoMode.config_autoplay_enabled, "Autoplay demo when idle", tc, 15);
+
    if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, tc, 0, 0, "Settings",   0)) current_page = 5;
 
    ya -=2;
@@ -652,9 +658,7 @@ void mwSettings::page_mode(void)
    xb = cfp_x2 - 40;
 
    int old_mcm = mMain.classic_mode;
-   mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
-//   if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
-
+   mWidget.mButtonToggle(0, xa, xa+220,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, mMain.classic_mode, 0, 1, "Game Mode: Story Mode", "Game Mode: Classic Mode", 13, 9, 15, 15, 0, 0, 0);
    if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
 
 
@@ -874,13 +878,21 @@ void mwSettings::page_netgame(void)
    prect.draw_rectangle(mColor.pc[fc], 1);
    ya += line_spacing;
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
+//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
+
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15, 0);
+
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Do player's shots affect other players?");
 
    ya+=10;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15);
+//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15, 0);
+
+
+
+
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Do player's shots affect themselves?");
 
    ya+=10;
@@ -925,7 +937,7 @@ int mwSettings::page_demo(int disable_input)
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mDemoMode.config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mDemoMode.config_autoplay_enabled, "Autoplay random demo at program start", 15, 15, disable_input);
 
    ya -=4;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -946,14 +958,10 @@ int mwSettings::page_demo(int disable_input)
    }
 
    ya +=6;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", tc, 14);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,disable_input, mGameMoves.server_send_files_to_clients,     "Enable server send files to clients", tc, 14);
-
-
-
-
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mGameMoves.autosave_game_on_level_done,   "Autosave on level done", 15, 15, disable_input);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", 15, 15, disable_input);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mGameMoves.server_send_files_to_clients,  "Enable server send files to clients", 15, 15, disable_input);
 
    ya -=4;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1061,7 +1069,8 @@ void mwSettings::page_bottom_msg(int draw_only)
 
    xa = cfp_x1 + 10;
    xb = xa + 200;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,draw_only, mBottomMessage.display_enable, "Show bottom messages", tc, 15);
+
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mBottomMessage.display_enable, "Show bottom messages", 15, 15, draw_only);
 
    ya+=line_spacing-6;
    xb = cfp_x2 - 10;
@@ -1300,15 +1309,16 @@ void mwSettings::page_bottom_msg(int draw_only)
    xw4 = (xb - xa)/5;
 
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[20], "Key",    tc, 15)) reload = 1;
+
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[20], "Key", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[22], "Door",   tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[22], "Door", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[23], "Exit",   tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[23], "Exit", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[25], "Bomb",   tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[25], "Bomb", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[27], "Coin",   tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[27], "Coin", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
 
    ya += line_spacing+8;
@@ -1317,13 +1327,14 @@ void mwSettings::page_bottom_msg(int draw_only)
    xw4 = (xb - xa)/5;
 
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[26], "Rocket", tc, 15)) reload = 1;
+
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[26], "Rocket", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[21], "Switch", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[21], "Switch", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[12], "Damage", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[12], "Damage", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[28], "Health Bonus",  tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[28], "Health Bonus", tc, 15, draw_only)) reload = 1;
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
 
@@ -1332,32 +1343,29 @@ void mwSettings::page_bottom_msg(int draw_only)
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/3;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[8], "Player Died", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[8], "Player Died", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[7], "Player Quit", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[7], "Player Quit", tc, 15, draw_only)) reload = 1;
    xa += xw4; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[6], "Player Joined", tc, 15)) reload = 1;
-
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[6], "Player Joined", tc, 15, draw_only)) reload = 1;
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
-
 
    ya -= 4;
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/5;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[41], "Player Hurt by Enemy", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[41], "Player Hurt by Enemy", tc, 15, draw_only)) reload = 1;
 
    xa += xw4*3; xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[42], "Enemy Killed", tc, 15)) reload = 1;
-
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[42], "Enemy Killed", tc, 15, draw_only)) reload = 1;
 
    ya += line_spacing+8;
    xa = cfp_x1 + 10;
    xb = cfp_x2 - 10;
    xw4 = (xb - xa)/2;
    xb = xa+xw4-10;
-   if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,draw_only, mBottomMessage.filter_event[40], "Player Hurt by Player", tc, 15)) reload = 1;
+   if (mWidget.mCheckBox(0, xa, xb, 1, ya, bts, 0,  mBottomMessage.filter_event[40], "Player Hurt by Player", tc, 15, draw_only)) reload = 1;
 
 
    ya += 10;
@@ -1795,8 +1803,9 @@ void mwSettings::page_speed(void)
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
+   mWidget.mButtonToggle(0, cfp_x1+100, cfp_x2-100,  ya, bts,    1, 2, 0, 0,     0, 0, mLoop.speed_control_lock, 0, 1, "Speed Control Unlocked", "Speed Control Locked", uc, lc, 15, 15, 0, 0, 0);
 
-   mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Unlocked", "Speed Control Locked", 15, 15, uc, lc);
+
    ya-=2;
 
 

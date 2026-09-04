@@ -450,7 +450,7 @@ void mwObjectViewer::odbf(int d, int xa, int xb, int &ya, int bts, int col, floa
 
 void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int colt, int &var, int col0, int col1,  const char* txt0, const char* txt1)
 {
-   mWidget.toggle(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, var, txt0, txt1, colt, colt, col0, col1);
+   mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     0, 0, var, 0, 1, txt0, txt1, col0, col1, colt, colt, 0, 0, d);
 }
 
 
@@ -499,15 +499,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // --------------------------------------------------
    // --- Common ---------------------------------------
    // --------------------------------------------------
-   int lc = 6; // lock_color;
-   if (viewer_lock) lc = 7;
 
    int by1 = y1+2;
 
    if (mWidget.mButton(0, x2-12, x2-4,   1, by1, 9,     0, 0, 0, 3,    0, 0, 15, 14, 0,   "?", d)) mHelp.help("Viewer Basics");
-
    if (mWidget.mButton(0, xa, x27-1,  1, ya, bts-2,    1, 2, 0, 1,    9, 9, 15, 0, 0, "Prev", d)) mb = 22;
-   mWidget.toggle( x27+1, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
+   mWidget.mButtonToggle(0, x27+1, x57-1,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, viewer_lock, 0, 1, "Unlocked", "Locked", 6, 7, 15, 15, 0, 0, 0);
    if (mWidget.mButton(0, x57+1,   xb,  1, ya, bts-2,    1, 2, 0, 1,    9, 9, 15, 0, 0, "Next", d)) mb = 21;
    ya+=bts;
 
@@ -781,10 +778,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             static int rot = 90;
             static float sca = 1.0;
 
-
             int c = 6;
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, xfrm, "Transform Tools:Off", "Transform Tools:On", 15, 15, c+64, c);
-
+            odbt(d, xa, xb, ya, bts, 15, xfrm,        c+64, c,  "Transform Tools:Off", "Transform Tools:On");
 
             if (xfrm)
             {
@@ -891,7 +886,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 1: // door
             mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1022, mItem.item[n][3], 0, 0, d); // stat | fall | carry | carry through door
             ya+=bts+4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][8],        12, 12,  "Door Type:Exit Only",    "Door Type:Normal   ");
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][8],        12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
             if (mItem.item[n][8]) // regular door (not exit only)
             {
                // check for bad link
@@ -968,16 +963,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 4: // key
             mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1021, mItem.item[n][3], 0, 0, d); // stat | fall
             ya+=bts+4; // spacer
-//            mWidget.buttonpd(   xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
-
-
             mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 102, mItem.item[n][1], d); // key color
-
-
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][12],  7, 7,  "Remove All Blocks", "Remove Only Matching");
          break;
 
          case 5: // start
@@ -986,7 +976,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   11, 0, 15, 0, 0, 1078, mEnemy.Ei[n][6], 0, 0, d); // start mode
             ya+=bts; // spacer
             mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     11, 11, 15, 15, 15,0, 0,   mItem.item[n][7], 9, 0, 1, 1, 0, "Start Index:", 1, d); ya+=bts+1;
-            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][8], "Increase Index Only:OFF", "Increase Index Only:ON", 15, 15, 11, 11);
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][8],  11, 11, "Increase Index Only:OFF", "Increase Index Only:ON");
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 13, "Set Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
             mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][9], 99, 0, 1, 1, 0, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
@@ -1031,7 +1021,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (!mItem.item[n][12])
                { mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][9], 2000, 1, 1,  1, 10, "Time:", 1, d); ya+=bts+1; }
             ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][11],   4, 4,  "Sticky:Off", "Sticky:On");
             ya+=4; // spacer
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  14, 14, 15, 15, 15,0, 0,  mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:", 1, d); ya+=bts+1;
          break;
@@ -1204,10 +1194,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 16: // block manip
          {
             if (odbb(d, xa, xb, ya, bts, 12, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
-
             ya+=4; // spacer
-            if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
-               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][12], 0, "Select Block Manip Field Color", d);
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][2],   15+96, mItem.item[n][12],  "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON");
+            if (mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][12], 0, "Select Block Manip Field Color", d);
             ya+=4; // spacer
             mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   14, 14, 14, 15, 1, 301, mItem.item[n][3], d); // mode
             if (mItem.item[n][3]) // all modes except 0
@@ -1325,7 +1314,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if ((MODE == 4) || (MODE == 5))
             {
                ya+=4; // spacer
-               mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], "Initial State:Show","Initial State:Hide ", 15, 15, p, p);
+               odbt(d, xa, xb, ya, bts, 15, mItem.item[n][2],   p, p,  "Initial State:Show","Initial State:Hide ");
             }
             if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
             {

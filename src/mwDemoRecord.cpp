@@ -183,11 +183,12 @@ void mwDemoRecord::draw_mainW(mwWindow w)
 
    ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
 
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, time_format,          "Time/Frame format", 15, 15);
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_cpu_graph,       "Show cpu graph", 15, 15);
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_player_grid,     "Show player grid", 15, 15);
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_play, "Show windows when playing", 15, 15);
-   mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,d, show_windows_in_rec,  "Show windows when recording", 15, 15);
+   mWidget.mCheckBox(0, xa, xa+40, ya, bts, 0, time_format,          "Time/Frame format", 15, 15, d);
+   mWidget.mCheckBox(0, xa, xa+40, ya, bts, 0, show_cpu_graph,       "Show cpu graph", 15, 15, d);
+   mWidget.mCheckBox(0, xa, xa+40, ya, bts, 0, show_player_grid,     "Show player grid", 15, 15, d);
+   mWidget.mCheckBox(0, xa, xa+40, ya, bts, 0, show_windows_in_play, "Show windows when playing", 15, 15, d);
+   mWidget.mCheckBox(0, xa, xa+40, ya, bts, 0, show_windows_in_rec,  "Show windows when recording", 15, 15, d);
+
 
 
    ya+=4; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[w.color], 1); ya+=6;
@@ -383,14 +384,8 @@ void mwDemoRecord::demo_record()
       if (record && !show_windows_in_rec) show_windows = 0;
       if (show_windows) mWM.cycle_windows(0);
 
-
       // toggle for main window in top left corner
-      int ya = 1;
-      mWidget.togglec(-1, ya, 9, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, mWM.mW[1].active, "", 15, 15);
-
-
-
-
+      mWidget.mCheckBox(0,-2,9,  0,0,9,   0, mWM.mW[1].active, "", 15, 15, 0);
 
       al_flip_display();
 

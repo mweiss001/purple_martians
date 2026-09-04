@@ -22,7 +22,9 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
 
    int arm_x = w.rect.x2-70;
    int arm_y = w.rect.y1+2;
-   mWidget.togglec(arm_x, arm_y, arm_x+20, 10,  0,0,0,0,  0,0,0,0, 1,0,0,d, record_punch_in_armed, "arm", 15, 15);
+
+   mWidget.mCheckBox(0, arm_x, arm_x+20, arm_y, 10, 0, record_punch_in_armed, "arm", 15, 15, d);
+
 
    // draw large time above the title bar
 
