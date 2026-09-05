@@ -13,6 +13,8 @@ mwSound mSound;
 void mwSound::load_sound() // load sound driver and samples
 {
    int err = 0;
+   mute = 0;
+
    if (sound_on)
    {
       if(!al_install_audio())
@@ -73,7 +75,8 @@ void mwSound::load_sound() // load sound driver and samples
 
 
          soundtrack_on = 1;
-         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 256, 8192);
+//         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
          if (pm_theme_stream == NULL)
          {
             printf("Error loading snd/pm.xm ... soundtrack disabled\n");
@@ -113,7 +116,7 @@ void mwSound::set_st_scaler(void)
    mConfig.save_config(PM_CFG_SAVE_SOUND);
 }
 
-void mwSound::start_music(int resume)
+void mwSound::start_sound(int resume)
 {
    if (sound_on)
    {
@@ -122,9 +125,10 @@ void mwSound::start_music(int resume)
 
       // reset sound counters
       for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
-      if ((sound_on) && (soundtrack_on))
+
+      if (soundtrack_on)
       {
-         if (!resume) al_rewind_audio_stream(pm_theme_stream);
+         if (!resume) al_seek_audio_stream_secs(pm_theme_stream, 0);
          al_set_audio_stream_playing(pm_theme_stream, 1);
       }
    }
@@ -134,7 +138,7 @@ void mwSound::stop_sound(void)
 {
    if (sound_on)
    {
-      if (soundtrack_on) al_set_audio_stream_playing(pm_theme_stream, 0);
+      al_set_audio_stream_playing(pm_theme_stream, 0);
       al_set_sample_instance_playing(sid_hiss, 0);
    }
 }

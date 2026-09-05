@@ -206,8 +206,7 @@ void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_col
 }
 
 
-
-void mwSettings::settings_pages_redraw(int disable_input)
+int mwSettings::settings_pages_redraw(int disable_input)
 {
    for (int i=0; i<20; i++) st[i].show = 0; // all off
    for (int i=0; i<9; i++ ) st[i].show = 1; // always on
@@ -383,7 +382,7 @@ void mwSettings::settings_pages_redraw(int disable_input)
    if (current_page == 2)  page_controls();
    if (current_page == 3)  page_controls2();
    if (current_page == 4)  page_netgame();
-   if (current_page == 5)  if (page_demo(disable_input)) return;
+   if (current_page == 5)  if (page_demo(disable_input)) return 1;
    if (current_page == 6)  page_bottom_msg(disable_input);
    if (current_page == 7)  page_level_stats();
    if (current_page == 8)  page_transitions();
@@ -392,8 +391,10 @@ void mwSettings::settings_pages_redraw(int disable_input)
    if (current_page == 12) page_double();
    if (current_page == 13) page_speed();
    if (current_page == 16) page_info();
-   if (current_page == 17) if (page_log()) return;
+   if (current_page == 17) if (page_log()) return 1;
    if (current_page == 18) page_misc();
+
+   return 0;
 
 }
 
@@ -429,7 +430,7 @@ void mwSettings::settings_pages(int set_page)
    int quit = 0;
    while (!quit)
    {
-      settings_pages_redraw(0);
+      if (settings_pages_redraw(0)) return;
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -968,8 +969,6 @@ int mwSettings::page_demo(int disable_input)
 
    //ya -=4;
    al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "'DEMO MODE' overlay opacity");
-
-
 
 
 
@@ -1572,9 +1571,6 @@ void mwSettings::page_viewport(void)
 
    ya += line_spacing;
 
-
-//   mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mScreen.viewport_mode);
-
    mWidget.mButtonCustom(0, xa+80, xb-80, 1, ya, bts-2, 1, 2, 0, 1,   8, 0, 15, 0, 0, 1020, mScreen.viewport_mode, 0, 0, 0);
    ya+=bts;
 
@@ -1584,18 +1580,17 @@ void mwSettings::page_viewport(void)
 
    if (mScreen.viewport_mode)
    {
-      mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_up_down,                  "Move when looking up and down", tc, fc);
-      mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_rocket,                   "Look ahead when riding rocket", tc, fc);
-      mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_player_motion,            "Move with player motion", tc, fc);
-      mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_player_facing_left_right, "Move with direction player is facing", tc, fc);
+
+      mWidget.mCheckBox(0, xa, xb, ya, bts, 0, mScreen.viewport_look_up_down,                 "Move when looking up and down", tc, fc, 0);
+      mWidget.mCheckBox(0, xa, xb, ya, bts, 0, mScreen.viewport_look_rocket,                  "Look ahead when riding rocket", tc, fc, 0);
+      mWidget.mCheckBox(0, xa, xb, ya, bts, 0,mScreen.viewport_look_player_motion,            "Move with player motion", tc, fc, 0);
+      mWidget.mCheckBox(0, xa, xb, ya, bts, 0,mScreen.viewport_look_player_facing_left_right, "Move with direction player is facing", tc, fc, 0);
 
       ya -= 4;
       ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Adjust Hysteresis Area");
       ya-=4;
-      mWidget.togglec(xb-60, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mScreen.viewport_show_hyst, "Show", tc, fc);
-
-      ya +=16;
+      mWidget.mCheckBox(0, xb-60, xb, ya, bts, 0,mScreen.viewport_show_hyst, "Show", tc, fc, 0);
 
       xa = cfp_x1 + 10;
       xb = cfp_x2 - 10;
@@ -1841,7 +1836,7 @@ void mwSettings::page_speed(void)
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
    ya -=4;
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLoop.reset_frame_speed_at_program_start, "Reset Speed to Default at Program Start", tc, tc);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0, mLoop.reset_frame_speed_at_program_start, "Reset Speed to Default at Program Start", tc, tc, 0);
 
    ya -=6;
 
@@ -2028,9 +2023,10 @@ int mwSettings::page_log(void)
    ya+=34;
    xa = cfp_x1 + 36;
    xb = cfp_x2 - 10;
-   mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "save log on level done", 7, fc);
-   mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_quit,    "save log on level quit", 7, fc);
-   mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "save log on program exit", 7, fc);
+
+   mWidget.mCheckBox(0, xa, xb, ya, 10, 0, mLog.autosave_log_on_level_done,    "save log on level done",   7, fc, 0);
+   mWidget.mCheckBox(0, xa, xb, ya, 10, 0, mLog.autosave_log_on_level_quit,    "save log on level quit",   7, fc, 0);
+   mWidget.mCheckBox(0, xa, xb, ya, 10, 0, mLog.autosave_log_on_program_exit,  "save log on program exit", 7, fc, 0);
 
 
    // last section
@@ -2124,8 +2120,10 @@ void mwSettings::page_misc(void)
 
    ya +=4;
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15);
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15);
+
+
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15, 0);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15, 0);
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 

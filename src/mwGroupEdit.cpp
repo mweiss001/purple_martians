@@ -719,8 +719,8 @@ void mwGroupEdit::remove_obj_list_filtered_items(void)
       {
          int type = obj_list[i][0];
          int num = obj_list[i][1];
-         if ((type == 2) && (mEditorMain.obj_filter[type][mItem.item[num][0]] == 0)) remove_obj_list_item(i);
-         if ((type == 3) && (mEditorMain.obj_filter[type][ mEnemy.Ei[num][0]] == 0)) remove_obj_list_item(i);
+         if ((type == 2) && (mEditorMain.obj_filter[type][mItem.item[num][0]][0] == 0)) remove_obj_list_item(i);
+         if ((type == 3) && (mEditorMain.obj_filter[type][ mEnemy.Ei[num][0]][0] == 0)) remove_obj_list_item(i);
       }
 }
 
@@ -1158,8 +1158,8 @@ void mwGroupEdit::add_selection_to_list(int set_filters)
       {
          int typ = obj_list[i][0];
          int num = obj_list[i][1];
-         if (typ == 2) mEditorMain.obj_filter[typ][mItem.item[num][0]] = 1;
-         if (typ == 3) mEditorMain.obj_filter[typ][ mEnemy.Ei[num][0]] = 1;
+         if (typ == 2) mEditorMain.obj_filter[typ][mItem.item[num][0]][0] = 1;
+         if (typ == 3) mEditorMain.obj_filter[typ][ mEnemy.Ei[num][0]][0] = 1;
       }
    }
 }
@@ -1181,7 +1181,7 @@ void mwGroupEdit::process_mouse_on_background(void)
          for (int i=0; i<500; i++)
          {
             int type = mItem.item[i][0];
-            if ((type) && (mEditorMain.obj_filter[2][type])) // filter for this type of item
+            if ((type) && (mEditorMain.obj_filter[2][type][0])) // filter for this type of item
             {
                if ((mLevelEditor.gx == mItem.item[i][4]/20) && (mLevelEditor.gy == mItem.item[i][5]/20)) add_to_obj_list(2, i);
             }
@@ -1190,7 +1190,7 @@ void mwGroupEdit::process_mouse_on_background(void)
          for (int e=0; e<100; e++)
          {
             int type = mEnemy.Ei[e][0];
-            if ((type) && (mEditorMain.obj_filter[3][type])) // filter for this type of enemy
+            if ((type) && (mEditorMain.obj_filter[3][type][0])) // filter for this type of enemy
             {
                if ((mLevelEditor.gx == mEnemy.Ef[e][0]/20) && (mLevelEditor.gy == mEnemy.Ef[e][1]/20)) add_to_obj_list(3, e);
             }
@@ -1303,7 +1303,7 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
    for (int i=0; i<500; i++)
    {
       int type = (mItem.item[i][0]);
-      if ((type) && (mEditorMain.obj_filter[2][type]))
+      if ((type) && (mEditorMain.obj_filter[2][type][0]))
       {
          x = mItem.item[i][4];
          y = mItem.item[i][5];
@@ -1313,7 +1313,7 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
    for (int e=0; e<100; e++)
    {
       int type = (mEnemy.Ei[e][0]);
-      if ((type) && (mEditorMain.obj_filter[3][type]))
+      if ((type) && (mEditorMain.obj_filter[3][type][0]))
       {
          x = mEnemy.Ef[e][0];
          y = mEnemy.Ef[e][1];

@@ -836,8 +836,8 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          al_draw_filled_rectangle(x1, ya, x2, ya+yi, mColor.pc[col+208]);
          al_draw_rectangle(x1, ya, x2, ya+yi, mColor.pc[col], 1);
          ya+=2;
-         mWidget.togglfc(xa,     ya, xa+20,  16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b01, "Other Players", 15, 15);
-         mWidget.togglfc(xa+128, ya, xa+148, 16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b10, "Self", 15, 15);
+         mWidget.mCheckBoxFlag(1, xa,     20,  1,ya,16,0,  p, 0b01, "Other Players", 15, 15, 0);
+         mWidget.mCheckBoxFlag(1, xa+128, 20,  1,ya,16,0,  p, 0b10, "Self", 15, 15, 0);
          mWidget.mStepSliderInt(0, xa+180, x2-2,  1, ya, 14,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  v, 100, -100, 1, 1, 0, "Damage:", 0, 0); ya+=16;
       }
 

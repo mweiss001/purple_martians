@@ -1110,23 +1110,43 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
 
       if (mWidget.mButton(0, x2-10,  x2-2,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.block_on = 0;
+
+
       if (mWidget.mButton(0, x2-41,  x2-33,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
       {
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
          mSelectionWindow.fill_block_array();
       }
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", x2-41, by1, x2-33, by1+8);
+
+
       if (mWidget.mButton(0, x2-25,  x2-17,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
       {
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 0;
          mSelectionWindow.fill_block_array();
       }
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Collapse All", x2-25, by1, x2-17, by1+8);
+
+
 
       int x3 = x1 + 60;
       for (int i=0; i<32; i++)
          if (tileSetGroups[i].display_tile)
          {
             if (mWidget.mButtonTile(x3, by1-1, 10, tileSetGroups[i].display_tile, tileSetGroups[i].visible, d)) mSelectionWindow.fill_block_array();
+
+
+            char msg[256];
+            sprintf(msg, "Toggle %s", tileSetGroups[i].name.c_str());
+
+            mWidget.mToolTip(3, x3,  0,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, msg, x3, by1, x3+10, by1+8);
+
+
             x3+=11;
+
+
+
+
          }
 
       // draw blocks

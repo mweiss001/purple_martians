@@ -10,6 +10,7 @@
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
 #include "mwPlayer.h"
+#include "mwSound.h"
 #include "mwSql.h"
 
 mwGmInfo mGmInfo;
@@ -58,6 +59,8 @@ void mwGmInfo::fill()
 
    // double t0 = al_get_time();
 
+   mSound.mute = 1;
+
    // playback level to fill game_event vector and find level done if exists
    int done = 0;
    while (!done)
@@ -79,6 +82,8 @@ void mwGmInfo::fill()
       // if 10s past last game move and level not done, stop and leave completed = false and last frame as last game move frame
       if (mLoop.frame_num > lastFrame + 400) done = 1;
    }
+
+   mSound.mute = 0;
 
    // restore old control method
    mPlayer.syn[0].control_method = old_mPlayer0_control_method;

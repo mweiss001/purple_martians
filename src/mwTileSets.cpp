@@ -3285,7 +3285,10 @@ void mwTileSets::show_unique_colors(int x, int y)
 
       // check box
       int ya = y;
-      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uc.selected, "", 15, 15)) set_pixel_selection();
+//      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uc.selected, "", 15, 15)) set_pixel_selection();
+      if (mWidget.mCheckBox(0, x-20, x, ya, 10, 0, uc.selected, "", 15, 15, 0)) set_pixel_selection();
+
+
 
       y+=10;
       cc+=(int)uc.points.size();
@@ -3306,7 +3309,8 @@ void mwTileSets::show_unique_colors(int x, int y)
 
       // check box
       int ya = y;
-      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uh.selected, "", 15, 15)) set_pixel_selection();
+//      if (mWidget.togglec(x-20, ya, x, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, uh.selected, "", 15, 15)) set_pixel_selection();
+      if (mWidget.mCheckBox(0, x-20, x, ya, 10, 0, uh.selected, "", 15, 15, 0)) set_pixel_selection();
 
       y+=10;
       cc+=(int)uh.points.size();

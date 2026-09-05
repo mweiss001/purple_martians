@@ -46,7 +46,8 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       }
 
       if (mBottomMessage.display_enable) mBottomMessage.add(ev, x, y, z1, z2, z3, z4); // send event to bmsg add
-      if (mSound.sound_on)
+
+      if ((mSound.sound_on) && (!mSound.mute))
       {
             /*  sample numbers
             0 - player shoots

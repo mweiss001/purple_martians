@@ -84,7 +84,7 @@ void mwLoop::initialize(void)
 }
 
 
-void mwLoop::move_frame(void)
+void mwLoop::move_frame()
 {
    if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
    else
@@ -653,7 +653,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_RESUME)
    {
       mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_RESUME]\n");
-      mSound.start_music(1); // resume theme
+      mSound.start_sound(1); // resume theme
       mScreen.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
@@ -752,7 +752,6 @@ int mwLoop::load_and_setup_level(int level, int type)
       {
          mGameMoves.current_pos = 0;
 
-
          setup_players_after_level_load(1); // type 1 full reset,
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
@@ -775,13 +774,11 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL
 
-      mSound.start_music(0); // rewind and start theme
-
 
       if ((!mDemoMode.play_mode_active) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
-
-//      if ((!mDemoMode.play_mode_active) && (!mDemoRecord.record_mode_active))
       {
+         mSound.start_sound(0); // rewind and start theme
+
          state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
          // add initial special game moves
 

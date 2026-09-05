@@ -270,8 +270,7 @@ void mwTileEditor::edit_tile_redraw(ALLEGRO_BITMAP *t, bool show_selection)
    // gridlines check box
    int xa = dx2+o-190;
    int ya = dy1+o-15;
-   mWidget.togglec(xa, ya, xa+20, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
-}
+   mWidget.mCheckBox(0, xa, xa+20, ya, 16, 0, gridlines, "Gridlines", 15, 15, 0);}
 
 
 void mwTileEditor::legacy_color_select(int x1, int y1, int size)

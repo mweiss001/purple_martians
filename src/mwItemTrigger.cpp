@@ -219,7 +219,6 @@ item[][6]  = trigger field x (2000)
 item[][7]  = trigger field y (2000)
 item[][8]  = trigger field w (2000)
 item[][9]  = trigger field x (2000)
-
 item[][10] = trigger field lift number
 
 item[][11] = CURR ON  pm_event
@@ -251,7 +250,7 @@ void mwItem::proc_trigger(int i)
 {
    int& flags = item[i][3];
 
-   if (flags & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
+   if (flags & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i);
 
    flags &= ~PM_ITEM_TRIGGER_TGON;  // clear toggle ON  trigger flag
    flags &= ~PM_ITEM_TRIGGER_TGOF;  // clear toggle OFF trigger flag
@@ -285,7 +284,7 @@ void mwItem::proc_trigger(int i)
    if   (flags & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
 }
 
-void mwItem::set_item_trigger_location_from_lift(int i, int a20)
+void mwItem::set_item_trigger_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
@@ -326,11 +325,6 @@ void mwItem::set_item_trigger_location_from_lift(int i, int a20)
          if ((!F) && ( L)) item[i][7] = ly2;             // fy1 = ly2
          if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
          if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
-      }
-      if (a20) // align to 20 grid
-      {
-         item[i][6] = mMiscFnx.round20(item[i][6]);
-         item[i][7] = mMiscFnx.round20(item[i][7]);
       }
    }
 }
@@ -379,15 +373,8 @@ void mwItem::detect_trigger_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                flags |= PM_ITEM_TRIGGER_CURR;
-
                mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 4);
-
-
-
             }
-
-
-
          }
    if (flags & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
@@ -405,7 +392,7 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.sprite[991], x, y, 0); // draw item shape in level editor, invisible when game running
-      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
+      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i); // snap to lift here because main function won't be called while in level editor
    }
 
    if ((item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
@@ -586,7 +573,7 @@ item[][3]  = flags
 #define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
 #define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
 #define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
-l
+
 item[][4]  = x pos
 item[][5]  = y pos
 item[][6]  = field x
@@ -600,13 +587,10 @@ item[][15] = damage
 -- unused? 12, 13, 14
 
 
-
-
-
-
 */
 
-void mwItem::set_item_damage_location_from_lift(int i, int a20)
+
+void mwItem::set_item_damage_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
@@ -656,11 +640,6 @@ void mwItem::set_item_damage_location_from_lift(int i, int a20)
             if ((!F) && ( L)) item[i][7] = ly2;              // fy1 = ly2
             if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
             if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
-         }
-         if (a20) // align to 20 grid
-         {
-            item[i][6] = mMiscFnx.round20(item[i][6]);
-            item[i][7] = mMiscFnx.round20(item[i][7]);
          }
       }
    }
@@ -765,7 +744,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.sprite[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
-      if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
+      if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // set this here only when level editor is running
    }
 
    // get dimensions of damage field from item int variables
@@ -1028,7 +1007,7 @@ void mwItem::proc_block_damage(int i)
 
 
 
-   if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
+   if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // follow lift location
 
    proc_item_damage_collisions(i);
 

@@ -37212,6 +37212,1434 @@ done...
 
 
 
+replace more old old slider with new mStepSliderInt
+will probaly need a float version also... 
+
+work on one thing at a time...
+
+do items...
+door..done
+bonus..done 
+I have found a misalignment in stepSlideInt between the text in slider and buttons
+off by one when bts is even
+fixed by changing mButton which added 1 to text drawing...removed
+
+this might break other stuff...check and fix manually if needed
+
+72 instances!
+
+exit..done
+key..done
+start..done
+orb..done
+
+I have a few place where I will need to do something about this:
+
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+
+ya+=4; // spacer
+mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 0, "Continuously Set Event When:",  d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][10], 99, 0, 1,  1, 10, "On:", "-", d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+ya+=4; // spacer
+mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 0, "Set Event When Switching:",  d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "On:", "-", d); ya+=bts+1;
+mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "Off:", "-", d); ya+=bts+1;
+
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+// mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+
+
+mine..done
+bomb..done
+rocket..done
+message..done
+switch..done
+spring...done
+
+timer...
+make creator not prompt for display area, off by default
+if not draw do not display adjustments...done
+timer set and rx events are a little different....done
+
+trigger...done
+block manip..done
+block damage..done
+gate..done
+hider..done
+
+
+all items should be done...
+
+now on to enemies (and I will probably need float version of stepper)
+
+
+making float version
+
+starting with mSliderFloat
+
+how is sliderf non-blocking?
+
+
+
+
+sliderf
+
+         while (mInput.mouse_b[1][0])
+         {
+            var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
+            sprintf(msg, "%s%3.2f", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
+         }
+
+
+float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
+{
+   if (q4)
+   {
+      mLevelEditor.redraw_background();
+      mLevelEditor.mWM.cycle_windows(1);
+   }
+
+
+I think I have fixed it so that msliderInt, msliderInt0, mStepSliderInt, mStepSliderInt0 all have optional background update when adjusting slider...
+
+now back to float
+
+how to make the text on adjust smaller...
+
+use + ++ - --
+
+
+bouncer..done
+cannon..done
+archwag..done
+blkwlk..done
+jumpworm..done
+flapper..done
+crew..done
+trakbot..done
+cloner..done
+vinepod..done
+all enemies done
+
+lifts done
+
+items done
+
+what next?
+group edit
+
+make separate lines for each value..done
+rename from min max to v1, v2..done
+make type a drop down list...done
+rename do it to apply..done
+I think group edit is done
+where else would I want to replace old legacy slider?
+
+level editor is mostly done...
+
+can I clean up the widget mess some?
+
+sliders...
+can I get rid of some legacy ones?
+
+bool mwWidget::sliderf(int x1, int &y1, int x2, int bts, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+3 usages...
+do it...done
+
+void mwWidget::slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+0 usages
+removed...
+
+   bool slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3,
+14 usages...
+now down to 9 and they are all in settings...
+
+this is nice cleaning up all this crap...
+
+2026-08-28 07:32:51
+
+2026-08-28 17:30:37
+I want to try using mTrackInt as non blocking slider
+only one use of mWidget.sliderinb
+
+tried mTrackInt, but it does not do what I wanted
+
+could I just do a normal slider with an update callback?
+
+I send 'update' to slider
+
+if the slider blocks (when mouse pressed)
+draw slider also calls update...
+
+right now it is used for level editor only...
+
+I want to uncomplicate this...
+make mSliderInt not depened on these functions
+
+make sliders and other call update fucntion when blocking....
+
+redid settings to do that...
+
+removed sliderinfb
+
+now modify the float version..done...
+removed sliderfnb
+now fix demo opacity page..done
+now what else can I remove?
+
+widgets is looking much nicer
+
+
+
+mwWidget::buttont
+200 results!!!
+
+what does it do?
+
+
+// displays a text string, and returns 1 if pressed
+int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
+   draw_widget_text(x1, y1,  x2, y2, q2, q5, txt);
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
+
+I could replace with my new mButton...but 200 will take a while
+
+bool mwWidget::mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input)
+
+do a few:
+
+      if (mWidget.buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Clear and Get New Shapes"))
+
+      mWidget.mButton(0, xa, xb,  1, y5, 15,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mBitmap.zz[3][zzindx], 100, 0, 1,  1, 0, "Animation Delay:", 0, 0); y5+=16;
+
+
+how about make a simple obdbb thingy...
+first move the others to widgets...no
+
+go through ov and do all buttont
+now down to 156!
+
+
+
+moving on...
+
+// displays a text string, and returns 1 if pressed
+// auto width based on text length x1 is the center
+// highlight outline when moused over
+int buttontca(
+8 usages
+done and removed
+
+
+
+// no faded frame, just a simple frame that highlights when moused over
+// displays a text string, and returns 1 if pressed
+// auto width based on text length x1 is the center
+// highlight outline when moused over
+int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+35 usages
+      if (mWidget.mButton(3, b1_cx, -1,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  9, 0, "Load", 0)) reload_b1 = 1;
+
+now down to 28...
+
+edit player name is stupidly centered
+made my own custom version...
+
+now test in all places..
+
+   ya+=line_space+2;
+   al_draw_text( mFont.pr8, mColor.pc[15], x, ya, 0, "Player Name:");
+   ya-=2;
+
+   if (mWidget.mButton(3, x+98, -1,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
+   {
+      mMiscFnx.edit_player_name(x+98, ya, p);
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+      refresh();
+   }
+
+
+edit player name is good
+
+now what about edit server name?
+only one instance!!
+
+...gtg
+
+2026-08-29 16:53:07
+
+   if (mWidget.mButton(3, xa+98, -1,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0))
+   {
+      if (mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8)) mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+
+2026-08-31 07:13:46
+I have greatly simplified the edit text stuff...
+player name
+server name
+lift name
+
+now all use:
+mwMiscFnx::edit_string_simple(int x, int y, char * string, int len)
+
+now what else was I doing?
+
+getting rid of 
+int mwWidget::buttontcb
+22 instances left
+9 remote control
+4 edit tile
+9 tilesets adjust color
+
+
+2026-08-31 07:27:55
+
+now just 18
+9 remote control
+9 tilesets adjust color
+
+
+2026-08-31 18:54:35
+done and gone!!!
+
+   int buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
+3 instances..done
+
+I can't believe I have no option for text justification in buttons
+I need to add it...
+just add 20 to text type
+
+
+
+2026-08-31 19:35:28
+
+I want to get rid of all old widget types....
+
+32  button
+155 buttont
+24  buttont_nb
+
+
+      if (mWidget.mButton(0, x7, x7+60,   1, ya, 18,    1, 2, 0, 1,   10, 10, 15, 0, 0, "Cancel",    0)) quit = 1;
+
+   if (mWidget.mButton(0, xb-30, xb,   1, y1, 8,    1, 2, 0, 1,   c, c, 15, 0, 0, "Set",    d)) rt_start_frame = mLoop.frame_num;
+
+   if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mLevelEditor.mWM.mW[1].active = 0;
+   if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
+
+   if (mWidget.mButton(0, x2-10, x2-2,   1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",    d)) mLevelEditor.mWM.mW[1].active = 0;
+
+   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "File",    d))
+
+//   if (mWidget.buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
+
+
+2026-08-31 21:10:07
+113 buttont
+
+      if (mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "",   d)) 
+
+
+2026-09-01 04:20:22
+98 buttont
+
+2026-09-01 04:39:24
+85 buttont
+
+
+I am thinking about adding padding to auto x sizes based on text width
+I have so many calls, I am afraid of breaking things
+
+what would be the most elegant
+
+   // 3  abs xa,         width from text length, xb used to pad text length
+   // 4  abs xb,         width from text length, xa used to pad text length
+   // 5  centered on xa, width from text length, xb used to pad text length
+
+or I could just do this with modes 6, 7, 8
+yes...do that
+
+no, do it right...
+
+going through all widgets...done...
+
+I dont think I even used mode 6...
+
+2026-09-01 06:13:42
+85 buttont all in settings...
+
+   if (mWidget.mButton(0, xb-60, xb,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Help",   0)) mHelp.help("Game Mode");
+
+
+   if (mWidget.mButton(0, x1a, x1b,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Show now",   0))
+
+
+2026-09-01 07:15:17
+54 buttont
+
+
+2026-09-01 07:46:29
+43 buttont
+
+2026-09-01 12:44:20
+33 buttont
+buttont is done
+
+
+buttont_nb
+14 instances
+done and removed
+2026-09-02 05:13:38
+
+
+now button
+31 instances
+
+these are all custom instances
+
+   if (bn == 505) // lift step end step mode
+   {
+                                         sprintf(msg, "Undefined value");
+      if (mLift.stp[num][type].val == 0) sprintf(msg, "Loop to Start");
+      if (mLift.stp[num][type].val == 1) sprintf(msg, "Warp to Start");
+      if (mLift.stp[num][type].val == 2) sprintf(msg, "Freeze Here  ");
+      if (press) if (++mLift.stp[num][type].val > 2) mLift.stp[num][type].val = 0; // lift step end step mode
+   }
+I think I want to make my own custom drop down using the new signature
+
+
+
+// wrapper that increments ya by bts
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+{
+   bool ret = mButtonPD(xType, xa, xb, 1, ya, bts-2,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var, disable_input);
+   ya+= bts;
+   return ret;
+}
+
+
+// calls mDropDown with predefined list
+// returns true if changed
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
+
+{
+   std::vector<struct listItem> listItems;
+   bool valid_type = 0;
+
+   if (type == 505) // lift end step mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,   "Loop to Start"  },
+         {  1,   "Warp to Start" },
+         {  2,   "Freeze Here" }
+      };
+   }
+
+
+   if (valid_type) return mDropDown(xType, xa, xb, yType, ya, yb,  r, text_just, backgroundType, bcol, fcol, hcol, listItems, var, disable_input);
+   return 0;
+}
+
+
+         mWidget.mButtonPD(0, xa, xb, ya, bts,  2, 2,     c1, c1, c1, 15, 1, 505, stp[l][s].val, d); // lift step end step mode
+
+505 is gone...
+
+now these..
+
+      mWidget.button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // num
+      mWidget.button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // 'C'
+      mWidget.button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // type
+      mWidget.button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // description
+
+
+
+   if (bn == 501)
+   {
+      if (num == -1) sprintf(msg, "#");       // show row header
+      else           sprintf(msg, "%d", num); // show step num
+   }
+
+
+
+      if (num == 1)  sprintf(msg, "Move");
+      if (num == 2)  sprintf(msg, "Wait");
+      if (num == 3)  sprintf(msg, "Wait");
+      if (num == 4)  sprintf(msg, "End ");
+      if (num == 5)  sprintf(msg, "Wait");
+      if (num == 6)  sprintf(msg, "Send");
+
+
+
+void mwLift::initialize()
+{
+   strcpy (lift_step_type_name[0], "BAD!");
+   strcpy (lift_step_type_name[1], "Move");
+   strcpy (lift_step_type_name[2], "Wait");
+   strcpy (lift_step_type_name[3], "Prox");
+   strcpy (lift_step_type_name[4], "End ");
+   strcpy (lift_step_type_name[5], "REvt");
+   strcpy (lift_step_type_name[6], "SEvt");
+   clear_lifts();
+}
+
+I now have all lift button in the 500 range removed
+
+now button
+23 instances
+
+   
+   if (bn == 4)
+   {
+      if (mItem.item[num][8] == 0) sprintf(msg, "disabled");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Set Desination Item (%d)", mItem.item[num][9]);
+      if (press)
+      {
+         if (mItem.item[num][8] == 1) // Set Linked Item
+         {
+             int i = mMiscFnx.get_item(2, 1, num );
+             if (i > -1) mItem.item[num][9] = i;
+         }
+      }
+   }
+
+
+
+
+               char msg[80];
+               sprintf(msg, "Set Destination Item (%d)", mItem.item[num][9]);
+               if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, msg,   0))
+               {
+                  int i = mMiscFnx.get_item(2, 1, num );
+                  if (i > -1) mItem.item[num][9] = i;
+               }
+
+
+
+   if (bn == 49) // door type
+   {
+      if (press)
+      {
+         mItem.item[num][8] = !mItem.item[num][8];
+         // check for bad link
+         int link = mItem.item[num][9];
+         if (mItem.item[link][0] != 1) // link is not door
+         {
+            mItem.item[num][9] = num;  // link to self
+            mItem.item[num][11] = 1;   // trigger with up
+         }
+      }
+      if (mItem.item[num][8] == 0) sprintf(msg, "Door Type:Exit Only");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Door Type:Normal   ");
+   }
+
+//            mWidget.button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][8],        12, 12,  "Door Type:Exit Only",    "Door Type:Normal   ");
+
+
+   if (bn == 11)
+   {
+      sprintf(msg, "Set Initial Direction");// trakbot direction
+      if (press)
+      {
+         if (++mEnemy.Ei[num][5] > 7) mEnemy.Ei[num][5] = 0;
+         mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+      }
+      if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
+   }
+
+//            mWidget.button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
+
+            if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Initial Direction",   0))
+            {
+               mEnemy.Ei[num][5]++;
+               if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
+               mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+            }
+
+
+
+
+   if (bn == 7)
+   {
+      int frame_size = mItem.get_frame_size(num);
+
+      sprintf(msg, "Frame Size:%d", frame_size);
+      if (press)
+      {
+              if (frame_size == 0)  frame_size = 1;
+         else if (frame_size == 1)  frame_size = 2;
+         else if (frame_size == 2)  frame_size = 4;
+         else if (frame_size == 4)  frame_size = 12;
+         else if (frame_size == 12) frame_size = 0;
+
+         mItem.set_frame_size(num, frame_size);
+
+      }
+   }
+
+//            mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,3,15,0,   1,0,1,d); // Set Message Frame
+            int frame_size = mItem.get_frame_size(num);
+            if (mWidget.mButtonPD(0, xa, xb,  ya, bts,  2, 2, 3, 3, 3, 15, 1, 7, frame_size, d)) mItem.set_frame_size(num, frame_size);
+
+
+   if (type == 7)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Frame Size:0"  },
+         {  1,    "Frame Size:1"  },
+         {  2,    "Frame Size:2"  },
+         {  4,    "Frame Size:4"  },
+         {  12,   "Frame Size:12" }
+      };
+   }
+
+
+   if (bn == 77)
+   {
+      if (mItem.item[num][12] == 0) sprintf(msg, "Type:Fuse Timer");
+      if (mItem.item[num][12] == 1) sprintf(msg, "Type:Remote Detonator");
+      if (press)
+      {
+         mItem.item[num][12] = !mItem.item[num][12];
+         if (mItem.item[num][12]) mItem.item[num][1] = 537;
+         else mItem.item[num][1] = 464;
+      }
+   }
+
+//            mWidget.button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
+            if (mItem.item[num][12]) mItem.item[num][1] = 537;
+            else mItem.item[num][1] = 464;
+
+
+
+now button
+18 instances
+
+
+   if (bn == 13)
+   {
+      sprintf(msg, "Main Shape");
+      if (press)
+      {
+         int main_ans = mEnemy.Ei[num][5];
+         if (main_ans == 31) main_ans = 14;
+         else
+         {
+            if (main_ans == 29) main_ans = 31;
+            if (main_ans == 14) main_ans = 29;
+         }
+         mEnemy.Ei[num][5] = main_ans;
+         mEnemy.Ei[num][3] = main_ans;
+         mEnemy.Ei[num][1] = mBitmap.zz[5][main_ans];
+      }
+   }
+
+
+
+
+
+
+
+
+   if (bn == 310) // block 1 select...
+   {
+      int tn = mItem.item[num][10] & PM_BTILE_TILENUM_MASK; // block 1
+      sprintf(msg, "Block 1: %d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mItem.item[num][10]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+
+   if (bn == 310)
+   {
+      int tn = mItem.item[num][10];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+
+
+I want to make this work for all 4
+pass var number as v2
+pass block number as v3
+
+done... I think I can remove these
+
+mWidget is over 3000 lines....
+
+lets put slider and stepper and track in its own file
+
+
+now button
+12 instances
+
+
+   if (bn == 318) // blokwalk block select...
+   {
+      int tn = mEnemy.Ei[num][13] & PM_BTILE_TILENUM_MASK;
+      sprintf(msg, "Block:%d", tn);
+      if (press) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[num][13]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc(1);
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
+         }
+      }
+   }
+
+   if (bn == 318)
+   {
+      int tn = mEnemy.Ei[num][13];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+   }
+
+
+   if (bn == 320) // lift draw single block select...
+   {
+      sprintf(msg, "Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
+   }
+
+   if (bn == 321) // lift draw start block of 3 select...
+   {
+      sprintf(msg, "Start Block:%d", mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK);
+      //if (press) mBitmapTools.select_bitmap_from_level(mLift.cur[num].draw_mode_val1);
+      if (press) mLift.cur[num].draw_mode_val1 = mBitmapTools.select_bitmap();
+   }
+
+
+
+   if (bn == 320)
+   {
+      int tn = mLift.cur[num].draw_mode_val1;
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn & PM_BTILE_TILENUM_MASK], x, y, 0);
+   }
+
+   if (bn == 321)
+   {
+      int tn = mLift.cur[num].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
+      int x = (x2+x1)/2+80;
+      int y = (y2+y1)/2-10;
+      al_draw_filled_rectangle(x-1, y-1, x+61, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.tile[tn+0], x+0,  y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+1], x+20, y, 0);
+      al_draw_bitmap(mBitmap.tile[tn+2], x+40, y, 0);
+   }
+
+
+   if (bn == 94) // orb rotation
+   {
+      // get rb
+      int rb = (mItem.item[num][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(msg, "Change Rotation");
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      mItem.item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      mItem.item[num][2] |= rb; // merge
+
+   }
+
+
+   if (bn == 96) // block damage draw rotation
+   {
+      // get rb
+      int rb = (mItem.item[num][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(msg, "Display Rotation:%d", rb);
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      mItem.item[num][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
+      mItem.item[num][3] |= rb; // merge
+
+
+   }
+
+
+
+   if (bn == 92) // orb mode
+   {
+      if (press) mItem.item[num][6]++;
+      if ((mItem.item[num][6] < 0) || (mItem.item[num][6] > 4)) mItem.item[num][6] = 0;
+      sprintf(msg, "undef");
+      if (mItem.item[num][6] == 0) sprintf(msg, "Mode:Toggle");
+      if (mItem.item[num][6] == 1)
+      {
+         sprintf(msg, "Mode:Stick ON");
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 2)
+      {
+         sprintf(msg, "Mode:Stick OFF");
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 3)
+      {
+         sprintf(msg, "Mode:Timed ON");
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (mItem.item[num][6] == 4)
+      {
+         sprintf(msg, "Mode:Timed OFF");
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+   }
+
+   if (bn == 90) // orb trigger type
+   {
+      if (press)
+      {
+         if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+         }
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)
+         {
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+         }
+      }
+
+      sprintf(msg, "undef");
+
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
+   }
+
+
+
+2026-09-03 03:24:49
+now button
+5 instances
+
+
+   if (bn == 211) // Trigger Field X Lift Alignment
+   {
+      int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      if (C) sprintf(msg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(msg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(msg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift X Align: Field x2 = Lift x2");
+      }
+      if (press)
+      {
+         int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+         int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+         int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+         }
+      }
+   }
+
+
+2026-09-03 03:53:33
+now button
+0 instances! removed
+
+
+buttonp
+34 instances
+buttonpd
+10 instances
+
+basically I want to get rid of all widget with the signature that has q0 to q7
+
+almost all buttonp can fit in custom
+
+
+   if (bn == 10)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Player Display: Text Only");
+      if (var == 2) sprintf(msg,  "Player Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Player Display: Text + Icon");
+   }
+
+   if (bn == 11)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Enemy Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Enemy Display: Text Only");
+      if (var == 2) sprintf(msg,  "Enemy Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Enemy Display: Text + Icon");
+   }
+
+   if (bn == 12)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Item Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Item Display: Text Only");
+      if (var == 2) sprintf(msg,  "Item Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Item Display: Text + Icon");
+   }
+
+   if (bn == 13)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Health Display: Long Text");
+      if (var == 1) sprintf(msg,  "Health Display: Short Text");
+      if (var == 2) sprintf(msg,  "Health Display: Value Only");
+      if (var == 3) sprintf(msg,  "Health Display: Percent Bar");
+   }
+
+   if (bn == 14)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Short Text");
+      if (var == 1) sprintf(msg,  "Player Display: Long Text");
+   }
+
+
+   if (mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   ticw, 0, 15, 0, 0, 1011, mBottomMessage.disp_enemy, 0, 0, draw_only)) reload = 1;
+
+
+   if (bn == 21)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Stationary");
+      if (var == 1) sprintf(msg,  "Fall");
+   }
+   if (bn == 22)
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var ==  1) sprintf(msg, "Fall");
+      if (var ==  0) sprintf(msg, "Stationary");
+      if (var == -1) sprintf(msg, "Carry");
+      if (var == -2) sprintf(msg, "Carry Through Door");
+   }
+   if (bn == 23) // rocket only
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var == -1) var = 0;
+      if (var ==  1) sprintf(msg,  "Fall");
+      if (var ==  0) sprintf(msg,  "Stationary");
+      if (var == -2) sprintf(msg,  "Ride Through Door");
+   }
+
+
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1021, mItem.item[n][3], 0, 0, d); // stat | fall
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1022, mItem.item[n][3], 0, 0, d); // stat | fall | carry | carry through door
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1023, mItem.item[n][3], 0, 0, d); // stat | fall | ride through door
+
+
+2026-09-03 04:52:51
+buttonp
+15 instances
+
+   if (bn == 701)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "X Centered");
+      if (var == 1) sprintf(msg,  "X Left Justified");
+      if (var == 2) sprintf(msg,  "X Right Justified");
+   }
+
+   if (bn == 702)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "Y Centered");
+      if (var == 1) sprintf(msg,  "Y Top Justified");
+      if (var == 2) sprintf(msg,  "Y Bottom Justified");
+   }
+
+   if (bn == 81)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Boxes:None");
+      if (var == 1) sprintf(msg, "Draw Boxes:Source Only");
+      if (var == 2) sprintf(msg, "Draw Boxes:Destination Only");
+      if (var == 3) sprintf(msg, "Draw Boxes:Both");
+   }
+
+   if (bn == 82)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Static Shape");
+      if (var == 2) sprintf(msg, "Draw Mode:Static Animation");
+      if (var == 3) sprintf(msg, "Draw Mode:Follow Event Timer");
+   }
+
+   
+   if (bn == 83)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Progress Bar");
+   }
+
+   if (bn == 85)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Output Mode:One Time");
+      if (var == 1) sprintf(msg, "Output Mode:Continuous");
+   }
+
+mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   13, 0, 15, 0, 0, 1082, mEnemy.Ei[n][5], 0, 0, d); // draw mode
+ya+=bts; // spacer
+
+
+2026-09-03 04:52:51
+buttonp
+0 instances! - removed
+
+buttonpd
+10 instances
+
+I am going to convert to mButtonPD
+     mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 504, mLift.cur[lift].draw_mode, d); // draw mode
+
+all done!!!
+
+mButtonPD and mButtonCustom are now in the same source file with approx 1000 lines
+52 - mButtonCustom
+11 - mButtonPD auto y
+2  - mButtonPD
+
+2026-09-03 07:06:29
+
+what else to change?
+
+colsel
+11 calls
+
+it is heavily customized for each type
+
+made my own...for simple things it can set the color directly
+
+
+
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][6], 0, "Select Door Color", d);
+
+
+   if (bn == 2) sprintf(msg, "Select Text Color");
+   if (bn == 3) sprintf(msg, "Select Frame Color");
+
+
+      if (bn == 2) // text color
+      {
+         int tc=0, fc=0;
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
+         tc = color;
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
+      }
+      if (bn == 3) // frame color
+      {
+         int tc=0, fc=0; // text and frame colors
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
+         fc = color;
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
+      }
+
+
+
+   if (bn == 6) sprintf(msg, "Select Trigger Field Color");
+   if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
+
+      if (bn == 6) mItem.item[num][2] = color;     // trigger color
+      if (bn == 7) mItem.item[num][12] = color;    // block manip color
+
+
+   if (bn == 10) sprintf(msg, "Player Color");
+
+   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, col, 0, "Player Color", d);
+
+
+colset is done!!!
+
+2026-09-03 18:03:59
+
+now all I am left with is toggles
+31 - toggle
+58 - togglec
+1  - togglec_log
+36 - togglf
+2  - togglfc
+
+I have this:
+1 - mButtonToggle
+
+      mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    0, 15, 15,     14, 0, mode, 0, 1, "Mode:Single", "Mode:Multiple", 15, 15, 13, 13, 0);
+
+//            mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     14, 0, mItem.item[num][8], 0, 1, "Door Type:Exit Only", "Door Type:Normal", 12, 12, 15, 15, 12, 12, 0);
+
+
+
+do all in object viewer
+
+            odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+
+   mWidget.mButtonToggle(0, x27+1, x57-1,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, viewer_lock, 0, 1, "Unlocked", "Locked", 6, 7, 15, 15, 0, 0, 0);
+
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][11],   4, 4,  "Sticky:Off", "Sticky:On");
+
+toggle is done and removed
+
+
+now togglec
+
+   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input = false);
+
+how many times do I ever use frame? only once?
+
+2026-09-04 05:39:59
+
+start replacing...
+
+
+
+//      mWidget.togglec(cx, ya, cx+80, 16,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, gridlines, "Gridlines", 15, 15);
+      mWidget.mCheckBox(0, cx, cx+80, ya, 16, 0, gridlines, "Gridlines", 15, 15, 0);
+
+
+   mWidget.mCheckBox(0, arm_x, arm_x+20, arm_y, 10, 0, record_punch_in_armed, "arm", 15, 15, d);
+
+      mWidget.mCheckBox(0, xa, xa+80, 1, ya, 10, 0,  show_debug, "Debug", tc, tc, disable_input);
+
+2026-09-04 07:19:00
+
+14 - togglec
+35 - togglef
+2 - togglefc
+
+
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0, , fc, tc, 0);
+
+2026-09-04 16:58:17
+
+0 - togglec..removed
+
+mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 15+dim, 15, 11+dim, 11);
+mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 11+dim, 11, 15+dim, 15, 0, 0, d);
+
+
+mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15, 0, 0, d);
+
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mItem.item[n][2], 15+dim, 15, 0, 0, d);
+            if (mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
+               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][2], 0, "Select Trigger Field Color", d);
+
+0 - togglef..removed
+
+
+bool mwWidget::mCheckBoxFlag(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, int flag, const char* t, int text_col, int box_col, bool disable_input)
+
+
+0 - togglefc..removed
+
+all done!!!!
+2026-09-04 19:16:07
+
+now...
+
+this ya and ya inc stuff
+having an overloaded function to add to ya...
+
+I have been thinking of just adding one more parameter...yinc
+then I could make ya a pointer and inc whenever I want
+
+the only drawback is that I would be forced to always pass an int for ya, not a value
+
+
+
+2026-09-05 04:12:35
+
+demo record button in settings does nothing..fixed
+
+
+
+
+
+
+
+when seeking in demoRecord sound plays
+
+void mwDemoMode::seek_to_frame(const int frame, const int draw)
+
+sound track playing makes a weird sound at start..fixed
+what does it play? pm.xm
+
+saving position and seeking to it does not work...it just keeps running in the background
+
+void mwSound::start_sound(int resume)
+{
+   if (sound_on)
+   {
+      al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+      al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+      // reset sound counters
+      for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
+      if ((sound_on) && (soundtrack_on))
+      {
+
+         al_set_audio_stream_playing(pm_theme_stream, 1);
+         if (resume)
+         {
+            al_rewind_audio_stream(pm_theme_stream);
+            al_seek_audio_stream_secs(pm_theme_stream, theme_position);
+         }
+         else
+         {
+            //al_rewind_audio_stream(pm_theme_stream);
+            al_seek_audio_stream_secs(pm_theme_stream, 0);
+         }
+
+
+      }
+   }
+}
+
+void mwSound::stop_sound(void)
+{
+   if (sound_on)
+   {
+      if (soundtrack_on)
+      {
+         theme_position = al_get_audio_stream_position_secs(pm_theme_stream);
+         printf("stop pos:%f\n", theme_position);
+
+         al_set_audio_stream_playing(pm_theme_stream, 0);
+      }
+
+      al_set_sample_instance_playing(sid_hiss, 0);
+   }
+}
+
+void mwSound::proc_sound()  // called once per frame
+{
+   if (sound_on)
+   {
+      theme_position = al_get_audio_stream_position_secs(pm_theme_stream);
+      printf("running pos:%f\n", theme_position);
+
+
+      if (lit_item) al_set_sample_instance_playing(sid_hiss, 1);
+      else          al_set_sample_instance_playing(sid_hiss, 0);
+      lit_item = 0;
+   }
+}
+
+I think I have "when seeking in demoRecord sound plays" fixed
+
+
+
+when trigger field follows lift in centered mode, it is not nicely centered like block damage
+actually they are both the same and dont work properly, seem to snap to 20?
+it was just rounding when in level editor mode
+I think I have that fixed....
+
+WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
+also in demoRecord
+I want to rethink the whole 3 numbers thing
+how about only 2 numbers when only one player?
+or maybe all the time
+
+for now switch to 2 numbers mode
+
+all collected and total
+
+where is this?
+
+void mwScreen::draw_top_frame(int p)
+{
+      
+      // draw purple coins if the level has any
+      int tpc = mLevel.data[mLevel.play_level].tot_coins;
+      if (tpc)
+      {
+         int ct = mGmInfo.countTotalPurpleCoinsCollected();
+         int cp = mPlayer.syn[p].stat_purple_coins;
+
+         //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+         //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+//         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
+      }
+   }
+
+
+new...
+
+      // draw purple coins if the level has any
+      int tpc = mLevel.data[mLevel.play_level].tot_coins;
+      if (tpc)
+      {
+         int ct = mGmInfo.countTotalPurpleCoinsCollected();
+         // int cp = mPlayer.syn[p].stat_purple_coins;
+
+         //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+         //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+//         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+//         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
+
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", ct, tpc);
+      
+      
+      
+      }
+   }
+
+
+      // draw purple coins if the level has any
+      if (mLevel.data[mLevel.play_level].tot_coins)
+      {
+         mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
+      }      
+
+this should fix it....
+
+
+
+
+make tile draw mode show in all modes, put it on the top tool bar
+in tile helper mode have tile draw mode, or just have it for all level editor modes on the top tool bar
+
+what modes does it make sense for?
+tile helper and edit selection 
+
+mButtonCustom 1600
+mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+..done
+
+
+make toolbar icons in selection window use nice popup tooltip
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

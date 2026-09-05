@@ -15,7 +15,7 @@ class mwSettings
    public:
    void settings_pages(int set_page);
 
-   void settings_pages_redraw(int disable_input);
+   int settings_pages_redraw(int disable_input);
 
 
    struct settings_tab st[20] = {};
@@ -74,7 +74,6 @@ class mwSettings
    int cf_y2;
 
    int cfp_y1;
-
 
 
    void set_all_logging(int v);

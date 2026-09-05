@@ -61,11 +61,36 @@ void mwLevelEditor::init_windows()
    mWM.mW[3].index = 3;
    mWM.mW[3].layer = 2;
    mWM.mW[3].active = 0;
+   mWM.mW[3].draw_mode = 1;
    mWM.mW[3].set_pos(500, 100);
-   mWM.mW[3].set_size(82, 100);
+   mWM.mW[3].set_size(182, 100);
    mWM.mW[3].set_title("Filters");
    mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3].rect, mWM.mW[3].disable_input, mWM.mW[3].have_focus); };
    mWM.mW[3].redrawCallback = []() { mLevelEditor.redraw_callback(); };
+
+
+/*
+   mWM.mW[2].init(2, 1, 800, 300, 329, 200, 15, "Moves", 1, 0, 14, 1);
+
+   void mwWindow::init(int p_index, int p_layer, int p_x, int p_y, int p_w, int p_h, int p_color, const char* p_title, int p_draw_mode, int p_title_text_just, int p_title_bar_hover_highlight, bool p_enable_X_button)
+   {
+      active = 1;
+      color = p_color;
+      index = p_index;
+      layer = p_layer;
+      draw_mode = p_draw_mode;
+      title_text_just = p_title_text_just;
+      hover_highlight = p_title_bar_hover_highlight;
+      enable_X_button = p_enable_X_button;
+
+      set_pos(p_x, p_y);
+      set_size(p_w, p_h);
+      set_title(p_title);
+   }
+*/
+
+
+
 
    mWM.mW[4].index = 4;
    mWM.mW[4].layer = 3;
@@ -220,7 +245,6 @@ int mwLevelEditor::loop(int level)
 
 
    mSelectionWindow.init(); // needs to be called after load sprit and after load_mW
-
 
    active = 1;
 
@@ -539,9 +563,32 @@ int mwLevelEditor::redraw_background()
       mDisplay.proc_scale_factor_change();
 
       mScreen.get_new_background(0);
-      mLift.draw_lifts();
-      mItem.draw_items();
-      mEnemy.draw_enemies();
+
+      // draw lifts
+      if (mEditorMain.obj_filter[4][1][1]) mLift.draw_lifts();
+
+      // draw items
+      for (int i=0; i<500; i++)
+      {
+         int type = mItem.item[i][0];
+         if (type && mEditorMain.obj_filter[2][type][1]) mItem.draw_item(i, 0, 0, 0);
+      }
+      // draw enemies
+      for (int e=0; e<100; e++)
+      {
+         int type = mEnemy.Ei[e][0];
+         if (type && mEditorMain.obj_filter[3][type][1]) mEnemy.draw_enemy(e, 0, 0, 0);
+      }
+
+//      mItem.draw_items();
+//      mEnemy.draw_enemies();
+
+
+
+
+
+
+
 
       if (mode == 1) mEditorMain.draw_level_editor_background_overlays(mWM.mouse_on_window);    // Editor Main
       if (mode == 2) mEditSelection.draw_level_editor_background_overlays(mWM.mouse_on_window); // Edit Selection

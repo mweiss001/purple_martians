@@ -45,15 +45,15 @@ void mwEditSelection::show_pointer_text(int x1, int x2, int y, int mouse_on_wind
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
+      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]][0]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
+      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]][0]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
 
    // count lifts in box
    for (int d=0; d<NUM_LIFTS; d++)
-      if ((mLift.cur[d].active) && (mEditorMain.obj_filter[4][1]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
+      if ((mLift.cur[d].active) && (mEditorMain.obj_filter[4][1][0]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
 
    int sx = mLevelEditor.selection.x1;
@@ -262,14 +262,14 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
       for (int y=0; y<(mLevelEditor.selection.y2-mLevelEditor.selection.y1+1); y++)
          if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mLevelEditor.selection.x1+x >= 0) && (mLevelEditor.selection.x1+x < 100) && (mLevelEditor.selection.y1+y >= 0) && (mLevelEditor.selection.y1+y < 100) )
          {
-            if (mEditorMain.obj_filter[1][1])                                      ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y];                      // get block and flags
-            if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2])) ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
+            if (mEditorMain.obj_filter[1][1][0])                                         ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y];                      // get block and flags
+            if ((!mEditorMain.obj_filter[1][1][0]) && (mEditorMain.obj_filter[1][2][0])) ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
    itemIDTranslations.clear();
    // items
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
+      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]][0]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
          int c = iib++; // destination
 
@@ -307,7 +307,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // enemies
    for (int b=0; b<100; b++) // check for enemies in box
-      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
+      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]][0]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          int c = eib++;
@@ -339,7 +339,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // lifts
    liftIDTranslations.clear();
-   if (mEditorMain.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1][0])
       for (int b=0; b<NUM_LIFTS; b++) // source, if in selection
          if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
@@ -500,7 +500,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
    // lifts
    liftIDTranslations.clear();
-   if (mEditorMain.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1][0])
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
@@ -545,7 +545,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 
    // enemies
    for (b=0; b<100; b++) // iterate enemies in ft
-      if ((ftEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[b][0]])) // if active attempt to copy this enemy
+      if ((ftEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[b][0]][0])) // if active attempt to copy this enemy
       {
          //int copied = 0;
          for (c=0; c<100; c++)
@@ -609,7 +609,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
    itemIDTranslations.clear();
 
    for (b=0; b<500; b++)
-      if ((ftItem.item[b][0]) && (mEditorMain.obj_filter[2][ftItem.item[b][0]]))
+      if ((ftItem.item[b][0]) && (mEditorMain.obj_filter[2][ftItem.item[b][0]][0]))
       {
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
@@ -709,22 +709,22 @@ void mwEditSelection::do_clear(void)
    int y2 = mLevelEditor.selection.y2*20+20;
 
    // blocks
-   if (mEditorMain.obj_filter[1][1])
+   if (mEditorMain.obj_filter[1][1][0])
       for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
          for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++) mLevel.l[x][y]=0;
 
    // items
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0]) && (mEditorMain.obj_filter[2][mItem.item[i][0]]))
+      if ((mItem.item[i][0]) && (mEditorMain.obj_filter[2][mItem.item[i][0]][0]))
          if ((mItem.item[i][4] >= x1) && (mItem.item[i][4] < x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] < y2)) mItem.clear_item(i);
 
    // enemies
    for (int e=0; e<100; e++)
-      if ((mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[e][0]]))
+      if ((mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[e][0]][0]))
          if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2)) mEnemy.clear_enemy(e);
 
    // lifts
-   if (mEditorMain.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1][0])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward because erase_lift changes list order
          if (mLift.cur[l].active)
             if ((mLift.cur[l].x >= x1) && (mLift.cur[l].x < x2) && (mLift.cur[l].y >= y1) && (mLift.cur[l].y < y2)) mLift.erase_lift(l);
@@ -740,14 +740,14 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // both blocks and flags
-      if ((mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2]))
+      if ((mEditorMain.obj_filter[1][1][0]) && (mEditorMain.obj_filter[1][2][0]))
       {
          mLevel.l[x][y] = tn;
          return;
       }
 
       // blocks only
-      if ((mEditorMain.obj_filter[1][1]) && (!mEditorMain.obj_filter[1][2]))
+      if ((mEditorMain.obj_filter[1][1][0]) && (!mEditorMain.obj_filter[1][2][0]))
       {
          mLevel.l[x][y] &= ~PM_BTILE_TILENUM_MASK; // clear lower bits
          int tileNum =  tn & PM_BTILE_TILENUM_MASK;
@@ -756,7 +756,7 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
 
       }
       // flags only
-      if ((!mEditorMain.obj_filter[1][1]) && (mEditorMain.obj_filter[1][2]))
+      if ((!mEditorMain.obj_filter[1][1][0]) && (mEditorMain.obj_filter[1][2][0]))
       {
          mLevel.l[x][y] &= PM_BTILE_TILENUM_MASK; // clear upper bits
          int flags    = tn & ~PM_BTILE_TILENUM_MASK;
@@ -871,7 +871,7 @@ void mwEditSelection::draw_fsel(void)
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
    // draw blocks
-   if (mEditorMain.obj_filter[1][1])
+   if (mEditorMain.obj_filter[1][1][0])
    {
       for (int x=0; x<sw; x++)
          for (int y=0; y<sh; y++)
@@ -880,14 +880,14 @@ void mwEditSelection::draw_fsel(void)
 
    // draw items
    for (int i=0; i<500; i++)
-      if ((ftItem.item[i][0]) && (mEditorMain.obj_filter[2][ftItem.item[i][0]])) ftItem.draw_item(i, 1, ftItem.item[i][4], ftItem.item[i][5]);
+      if ((ftItem.item[i][0]) && (mEditorMain.obj_filter[2][ftItem.item[i][0]][0])) ftItem.draw_item(i, 1, ftItem.item[i][4], ftItem.item[i][5]);
 
    // draw enemies
    for (int e=0; e<100; e++)
-      if ((ftEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[e][0]])) ftEnemy.draw_enemy(e, 0, 0, 0);
+      if ((ftEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][ftEnemy.Ei[e][0]][0])) ftEnemy.draw_enemy(e, 0, 0, 0);
 
    // draw lifts
-   if (mEditorMain.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1][0])
       for (int l=0; l<ft_level_header[5]; l++)
          ftLift.draw_lift(l, mwRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
 }

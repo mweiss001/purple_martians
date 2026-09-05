@@ -1126,19 +1126,34 @@ void mwScreen::draw_top_frame(int p)
       al_draw_textf(mFont.pr8, mColor.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) mPlayer.syn[p].health );
       tdx += 88;
 
-      // draw purple coins if the level has any
-      int tpc = mLevel.data[mLevel.play_level].tot_coins;
-      if (tpc)
-      {
-         int ct = mGmInfo.countTotalPurpleCoinsCollected();
-         int cp = mPlayer.syn[p].stat_purple_coins;
 
-         //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
-         //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+      // draw purple coins if the level has any
+      if (mLevel.data[mLevel.play_level].tot_coins)
+      {
          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
-//         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
-         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
       }
+
+//       // draw purple coins if the level has any
+//       int tpc = mLevel.data[mLevel.play_level].tot_coins;
+//       if (tpc)
+//       {
+//          int ct = mGmInfo.countTotalPurpleCoinsCollected();
+//          // int cp = mPlayer.syn[p].stat_purple_coins;
+//
+//          //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+//          //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+//          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+// //         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+// //         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
+//
+//          al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", ct, tpc);
+//       }
+
+
+
+
+
    }
 
 

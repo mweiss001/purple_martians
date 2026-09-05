@@ -48,7 +48,12 @@ void mwEditorMain::init()
 
    // set all filters on
    for (int i=0; i<5; i++)
-      for (int j=0; j<20; j++) obj_filter[i][j] = 1;
+      for (int j=0; j<20; j++)
+      {
+         obj_filter[i][j][0] = 1;
+         obj_filter[i][j][1] = 1;
+      }
+
 
    collapsed = 0;
    filter_mode = 1;
@@ -519,6 +524,7 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    // tile draw mode (tile | flag | both
    al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
    mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+//   mWidget.mButtonCustom(0, x1+2, x1+34, 1, by1, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
 
    // draw vline at middle to separate draw and show controls
    int x3 = x1 + 160; // x middle
@@ -571,8 +577,6 @@ bool mwEditorMain::status_window_mouse_detect(mwRect<int> rect)
 }
 
 
-
-
 void odbt(int d, int xa, int xb, int &ya, int bts, int &var, int col0, int col1,  const char* txt)
 {
    mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     0, 0, var, 0, 1, txt, txt, col0, col1, 15, 15, 0, 0, d);
@@ -580,6 +584,9 @@ void odbt(int d, int xa, int xb, int &ya, int bts, int &var, int col0, int col1,
 
 
 
+
+
+/*
 
 
 void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
@@ -618,57 +625,54 @@ void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
    mWidget.mButtonToggle(0, rect.x2-10, rect.x2-2,  by1, 8,    1, 0, 0, 0,     0, 0, collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
 
 
-
-
    // detect mouse click before toggles, but don't do anything until after the toggles change
    int refresh_selection = 0;
    if ((filter_mode == 3) && (mEditSelection.copy_mode) && (mInput.mouse_b[1][0])) refresh_selection = 1;
-
 
 
    if (!collapsed)
    {
       if (filter_mode > 2) // add blocks and flags
       {
-         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][1], bc1, bc2,  "Blocks");
-         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][2], bc1, bc2,  "Flags");
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][1][0], bc1, bc2,  "Blocks");
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][2][0], bc1, bc2,  "Flags");
       }
       if (filter_mode > 1) // add lifts
       {
-         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[4][1], bc1, bc2,  "Lifts");
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[4][1][0], bc1, bc2,  "Lifts");
          y+=bts/2;
       }
 
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][1], bc1, bc2,  "Bouncr");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][2], bc1, bc2,  "Cannon");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][3], bc1, bc2,  "Arcwgn");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][4], bc1, bc2,  "BlkWlk");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][5], bc1, bc2,  "Jmpwrn");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][6], bc1, bc2,  "Flappr");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][7], bc1, bc2,  "VinPod");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][8], bc1, bc2,  "Trakbt");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][9], bc1, bc2,  "Cloner");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][1][0], bc1, bc2,  "Bouncr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][2][0], bc1, bc2,  "Cannon");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][3][0], bc1, bc2,  "Arcwgn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][4][0], bc1, bc2,  "BlkWlk");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][5][0], bc1, bc2,  "Jmpwrn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][6][0], bc1, bc2,  "Flappr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][7][0], bc1, bc2,  "VinPod");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][8][0], bc1, bc2,  "Trakbt");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][9][0], bc1, bc2,  "Cloner");
 
       y+=bts/2;
 
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][1],  bc1, bc2,  "Door");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][2],  bc1, bc2,  "Bonus");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][3],  bc1, bc2,  "Exit");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][4],  bc1, bc2,  "Key");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][5],  bc1, bc2,  "Start");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][6],  bc1, bc2,  "Orb");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][7],  bc1, bc2,  "Mine");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][8],  bc1, bc2,  "Bomb");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][9],  bc1, bc2,  "Triggr");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][10], bc1, bc2,  "Messge");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][11], bc1, bc2,  "Rocket");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][13], bc1, bc2,  "Timer");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][14], bc1, bc2,  "Switch");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][15], bc1, bc2,  "Spring");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][16], bc1, bc2,  "Blk Mn");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][17], bc1, bc2,  "Blk Dm");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][18], bc1, bc2,  "Gate");
-      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][19], bc1, bc2,  "Hider");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][1][0],  bc1, bc2,  "Door");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][2][0],  bc1, bc2,  "Bonus");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][3][0],  bc1, bc2,  "Exit");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][4][0],  bc1, bc2,  "Key");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][5][0],  bc1, bc2,  "Start");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][6][0],  bc1, bc2,  "Orb");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][7][0],  bc1, bc2,  "Mine");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][8][0],  bc1, bc2,  "Bomb");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][9][0],  bc1, bc2,  "Triggr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][10][0], bc1, bc2,  "Messge");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][11][0], bc1, bc2,  "Rocket");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][13][0], bc1, bc2,  "Timer");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][14][0], bc1, bc2,  "Switch");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][15][0], bc1, bc2,  "Spring");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][16][0], bc1, bc2,  "Blk Mn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][17][0], bc1, bc2,  "Blk Dm");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][18][0], bc1, bc2,  "Gate");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][19][0], bc1, bc2,  "Hider");
    }
 
    if (!d && mInput.mouse_b[2][0] && rect.contains(mInput.mouse_x, mInput.mouse_y))
@@ -689,28 +693,28 @@ void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
          case 2:
             for (int i=0; i<5; i++)
                for (int j=0; j<20; j++)
-                  mEditorMain.obj_filter[i][j] = 1;
+                  obj_filter[i][j][0] = 1;
             break;
          case 3:
             for (int j=0; j<20; j++)
-               mEditorMain.obj_filter[2][j] = 1;
+               obj_filter[2][j][0] = 1;
             break;
          case 4:
             for (int j=0; j<20; j++)
-               mEditorMain.obj_filter[3][j] = 1;
+               obj_filter[3][j][0] = 1;
             break;
          case 5:
             for (int i=0; i<5; i++)
                for (int j=0; j<20; j++)
-                  mEditorMain.obj_filter[i][j] = 0;
+                  obj_filter[i][j][0] = 0;
             break;
          case 6:
             for (int j=0; j<20; j++)
-               mEditorMain.obj_filter[2][j] = 0;
+               obj_filter[2][j][0] = 0;
             break;
          case 7:
             for (int j=0; j<20; j++)
-               mEditorMain.obj_filter[3][j] = 0;
+               obj_filter[3][j][0] = 0;
             break;
       }
 
@@ -724,8 +728,330 @@ void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
 }
 
 
+*/
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwEditorMain::odbdc(int d, int x, int &y, int bts, int ot, int on, const char* txt)
+{
+   mWidget.mCheckBox(1,x-2,8,  1,y,8,   14, obj_filter[ot][on][0], "", 15, 15, 0);
+   mWidget.mCheckBox(1,x+11,8,  1,y,8,   14, obj_filter[ot][on][1], "", 15, 15, 0);
+   al_draw_text(mFont.pr8, mColor.pc[15], x+26, y, 0, txt);
+   y+=bts;
+}
+
+
+
+void mwEditorMain::draw_filter_window(mwRect<int> &rect, int d, int have_focus)
+{
+   int xa = rect.x1+3;
+//   int xb = rect.x2-2;
+
+   int y1 = rect.y1+14;
+
+   int ya = y1;
+
+   int bts = 10;
+
+
+
+   //
+   // int tl=0; // text_lines
+   // if (filter_mode == 1) tl = 28*bts-bts/2;
+   // if (filter_mode == 2) tl = 30*bts-bts;
+   // if (filter_mode == 3) tl = 32*bts-bts;
+   //
+   // if (collapsed) tl = -bts+2;
+
+//   int y2 = rect.y1+tl+fs*2-2; // pre calc
+
+   // adjust size
+//   rect.setX1Y1X2Y2(rect.x1, rect.y1, rect.x2, y2);
+
+   // erase background
+//   rect.draw_filled_rectangle(mColor.pc[0]);
+
+   // // draw frame around filter buttons
+   // int ci = 16; // color inc
+   // for (int q=0; q<fs; q++)
+   //    rect.draw_rectangle(mColor.pc[12+32+(q*ci)], 1, -q);
+
+//   al_draw_text(mFont.pr8, mColor.pc[15], rect.XCenter(), rect.y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
+
+
+//   int by1 = rect.y1+2;
+//   mWidget.mButtonToggle(0, rect.x2-10, rect.x2-2,  by1, 8,    1, 0, 0, 0,     0, 0, collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
+
+   // detect mouse click before toggles, but don't do anything until after the toggles change
+   int refresh_selection = 0;
+   if ((mLevelEditor.mode == 2) && (!d) && (rect.contains(mInput.mouse_x, mInput.mouse_y)) && (mInput.mouse_b[1][0])) refresh_selection = 1;
+
+
+
+   if (!collapsed)
+   {
+      ya+=1;
+
+
+
+      if (filter_mode > 2) // add blocks and flags
+      {
+         odbdc(d, xa, ya, bts, 1, 1, "Blocks");
+         odbdc(d, xa, ya, bts, 1, 2, "Flags");
+         ya+=bts/2;
+      }
+      if (filter_mode > 1) // add lifts
+      {
+         odbdc(d, xa, ya, bts, 4, 1, "Lifts");
+         ya+=bts/2;
+      }
+
+      odbdc(d, xa, ya, bts, 3, 1, "Bouncer");
+      odbdc(d, xa, ya, bts, 3, 2, "Cannon");
+      odbdc(d, xa, ya, bts, 3, 3, "ArchWagon");
+      odbdc(d, xa, ya, bts, 3, 4, "BlockWalker");
+      odbdc(d, xa, ya, bts, 3, 5, "JumpWorm");
+      odbdc(d, xa, ya, bts, 3, 6, "Flapper");
+      odbdc(d, xa, ya, bts, 3, 7, "VinePod");
+      odbdc(d, xa, ya, bts, 3, 8, "TrakBot");
+      odbdc(d, xa, ya, bts, 3, 9, "Cloner");
+
+      ya+=bts/2;
+
+      odbdc(d, xa, ya, bts, 2,  1, "Door");
+      odbdc(d, xa, ya, bts, 2,  2, "Bonus");
+      odbdc(d, xa, ya, bts, 2,  3, "Exit");
+      odbdc(d, xa, ya, bts, 2,  4, "Key");
+      odbdc(d, xa, ya, bts, 2,  5, "Start");
+      odbdc(d, xa, ya, bts, 2,  6, "Orb");
+      odbdc(d, xa, ya, bts, 2,  7, "Mine");
+      odbdc(d, xa, ya, bts, 2,  8, "Bomb");
+      odbdc(d, xa, ya, bts, 2,  9, "Trigger");
+      odbdc(d, xa, ya, bts, 2, 10, "Message");
+      odbdc(d, xa, ya, bts, 2, 11, "Rocket");
+      odbdc(d, xa, ya, bts, 2, 13, "Timer");
+      odbdc(d, xa, ya, bts, 2, 14, "Switch");
+      odbdc(d, xa, ya, bts, 2, 15, "Sproingy");
+      odbdc(d, xa, ya, bts, 2, 16, "Block Manip");
+      odbdc(d, xa, ya, bts, 2, 17, "Block Damage");
+      odbdc(d, xa, ya, bts, 2, 18, "Gate");
+      odbdc(d, xa, ya, bts, 2, 19, "Hider");
+
+
+      // column rects
+      float cby1 = y1;
+      float cby2 = ya;
+
+      // edit column
+      float ecbx1 = xa-0.5;
+      float ecbx2 = ecbx1 + 11;
+
+      // view column
+      float vcbx1 = xa+12.5;
+      float vcbx2 = vcbx1 + 11;
+
+      // draw columns
+      al_draw_rectangle(ecbx1, cby1, ecbx2, cby2, mColor.Orange, 1);
+      al_draw_rectangle(vcbx1, cby1, vcbx2, cby2, mColor.Taan, 1);
+
+      // view legend
+      float vx1 = vcbx2;// + mLoop.pct_x;
+      float vx2 = vx1 + 87;
+      float vy1 = cby2 + 2;// + mLoop.pct_y;
+      float vy2 = vy1 + 11;
+      // draw the view legend rect
+      al_draw_rectangle(vx1, vy1, vx2, vy2, mColor.Taan, 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], vx1+2, vy1+2, 0, "View");
+      al_draw_line(vx1+36, vy1, vx1+36, vy2, mColor.Taan, 1);
+
+      if (mWidget.mButton(3, vx1+40, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
+      {
+         for (int i=0; i<5; i++)
+            for (int j=0; j<20; j++)
+               obj_filter[i][j][1] = 1;
+      }
+
+      al_draw_line(vx1+58, vy1, vx1+58, vy2, mColor.Taan, 1);
+
+      if (mWidget.mButton(3, vx1+62, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
+      {
+         for (int i=0; i<5; i++)
+            for (int j=0; j<20; j++)
+               obj_filter[i][j][1] = 0;
+      }
+
+      // view connector lines
+      float vcx1 = (vcbx1 + vcbx2) / 2;
+      float vcy1 = (vy1 + vy2) / 2;
+      al_draw_line(vcx1, cby2, vcx1, vcy1, mColor.Taan, 1);
+      al_draw_line(vcx1, vcy1, vx1, vcy1, mColor.Taan, 1);
+
+
+      // edit legend
+      float ex1 = ecbx2;// + mLoop.pct_x;
+      float ex2 = ex1 + 87;
+      float ey1 = cby2 + 16;// + mLoop.pct_y;
+      float ey2 = ey1 + 11;
+      // draw the edit legend rect
+      al_draw_rectangle(ex1, ey1, ex2, ey2, mColor.Orange, 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], ex1+2, ey1+2, 0, "Edit");
+
+      al_draw_line(ex1+36, ey1, ex1+36, ey2, mColor.Orange, 1);
+
+      if (mWidget.mButton(3, ex1+40, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
+      {
+         for (int i=0; i<5; i++)
+            for (int j=0; j<20; j++)
+               obj_filter[i][j][0] = 1;
+      }
+
+
+
+      al_draw_line(ex1+58, ey1, ex1+58, ey2, mColor.Orange, 1);
+
+      if (mWidget.mButton(3, ex1+62, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
+      {
+         for (int i=0; i<5; i++)
+            for (int j=0; j<20; j++)
+               obj_filter[i][j][0] = 0;
+      }
+
+
+      // edit connector lines
+      float ecx1 = (ecbx1 + ecbx2) / 2;
+      float ecy1 = (ey1 + ey2) / 2;
+      al_draw_line(ecx1, cby2, ecx1, ecy1, mColor.Orange, 1);
+      al_draw_line(ecx1, ecy1, ex1, ecy1, mColor.Orange, 1);
+
+
+
+
+/*
+
+      if (filter_mode > 2) // add blocks and flags
+      {
+         odbdc(d, rect.x1+fs, y, 1, 1, "Blocks");
+
+         y+=10;
+
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][1][0], bc1, bc2,  "Blocks");
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[1][2][0], bc1, bc2,  "Flags");
+      }
+      if (filter_mode > 1) // add lifts
+      {
+         odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[4][1][0], bc1, bc2,  "Lifts");
+         y+=bts/2;
+      }
+
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][1][0], bc1, bc2,  "Bouncr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][2][0], bc1, bc2,  "Cannon");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][3][0], bc1, bc2,  "Arcwgn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][4][0], bc1, bc2,  "BlkWlk");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][5][0], bc1, bc2,  "Jmpwrn");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][6][0], bc1, bc2,  "Flappr");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][7][0], bc1, bc2,  "VinPod");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][8][0], bc1, bc2,  "Trakbt");
+      odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[3][9][0], bc1, bc2,  "Cloner");
+      //
+      // y+=bts/2;
+      //
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][1][0],  bc1, bc2,  "Door");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][2][0],  bc1, bc2,  "Bonus");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][3][0],  bc1, bc2,  "Exit");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][4][0],  bc1, bc2,  "Key");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][5][0],  bc1, bc2,  "Start");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][6][0],  bc1, bc2,  "Orb");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][7][0],  bc1, bc2,  "Mine");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][8][0],  bc1, bc2,  "Bomb");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][9][0],  bc1, bc2,  "Triggr");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][10][0], bc1, bc2,  "Messge");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][11][0], bc1, bc2,  "Rocket");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][13][0], bc1, bc2,  "Timer");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][14][0], bc1, bc2,  "Switch");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][15][0], bc1, bc2,  "Spring");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][16][0], bc1, bc2,  "Blk Mn");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][17][0], bc1, bc2,  "Blk Dm");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][18][0], bc1, bc2,  "Gate");
+      // odbt(d, rect.x1+fs, rect.x2-fs,  y,  bts, obj_filter[2][19][0], bc1, bc2,  "Hider");
+
+*/
+
+   }
+
+   //
+   // if (!d && mInput.mouse_b[2][0] && rect.contains(mInput.mouse_x, mInput.mouse_y))
+   // {
+   //    refresh_selection = 1;
+   //
+   //    sprintf(mMenu.menu_string[0],"Filters");
+   //    sprintf(mMenu.menu_string[1],"---------------");
+   //    sprintf(mMenu.menu_string[2],"All On");
+   //    sprintf(mMenu.menu_string[3],"All Items On");
+   //    sprintf(mMenu.menu_string[4],"All Enemies On");
+   //    sprintf(mMenu.menu_string[5],"All Off");
+   //    sprintf(mMenu.menu_string[6],"All Items Off");
+   //    sprintf(mMenu.menu_string[7],"All Enemies Off");
+   //    sprintf(mMenu.menu_string[8],"end");
+   //    switch (mMenu.pmenu(6, 13, -20, 2))
+   //    {
+   //       case 2:
+   //          for (int i=0; i<5; i++)
+   //             for (int j=0; j<20; j++)
+   //                obj_filter[i][j][0] = 1;
+   //          break;
+   //       case 3:
+   //          for (int j=0; j<20; j++)
+   //             obj_filter[2][j][0] = 1;
+   //          break;
+   //       case 4:
+   //          for (int j=0; j<20; j++)
+   //             obj_filter[3][j][0] = 1;
+   //          break;
+   //       case 5:
+   //          for (int i=0; i<5; i++)
+   //             for (int j=0; j<20; j++)
+   //                obj_filter[i][j][0] = 0;
+   //          break;
+   //       case 6:
+   //          for (int j=0; j<20; j++)
+   //             obj_filter[2][j][0] = 0;
+   //          break;
+   //       case 7:
+   //          for (int j=0; j<20; j++)
+   //             obj_filter[3][j][0] = 0;
+   //          break;
+   //    }
+   //
+   //    if ((mEditorMain.filter_mode == 3) && (mEditSelection.copy_mode))
+   //    {
+   //       mEditSelection.fill_ft_variables_from_selection(0);
+   //       mEditSelection.draw_fsel();
+   //    }
+   // }
+
+
+
+   if (refresh_selection) mEditSelection.draw_fsel();
+
+
+   // adjust size
+   rect.setX1Y1X2Y2(rect.x1, rect.y1, rect.x2, ya+29+ mLoop.pct_y);
+
+
+
+}
 
 
 
@@ -897,7 +1223,15 @@ void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
 
    bts = 12;
    int yt = by1-2;
-   if (mLevelEditor.mWM.mW[7].active) mWidget.mSliderInt(0, x1, x1+80,  1, yt, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
+
+   if (mLevelEditor.mode == 4) mWidget.mSliderInt(0, x1, x1+80,  1, yt, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
+
+   if ((mLevelEditor.mode == 1) || (mLevelEditor.mode == 2) || (mLevelEditor.mode == 9))
+   {
+      al_draw_textf(mFont.pr8, mColor.pc[15],  x1, yt+2, 0, "Tile Draw Mode:");
+      mWidget.mButtonCustom(0, x1+120, x1+120+32, 1, yt+2, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+   }
+
 
    // status display in the lower right border
    int y2 = mDisplay.SCREEN_H-BORDER_WIDTH+3;

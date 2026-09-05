@@ -2,46 +2,63 @@
 
 #include "pm.h"
 #include "mwWidget.h"
-#include "mwWindow.h"
-#include "mwWindowManager.h"
-#include "mwDisplay.h"
-#include "mwBitmapTools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwColor.h"
-#include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwMiscFnx.h"
-#include "mwHelp.h"
-#include "mwBottomMessage.h"
-#include "mwConfig.h"
-#include "mwDemoMode.h"
 #include "mwLevelEditor.h"
-#include "mwLoop.h"
-#include "mwObjectViewer.h"
-#include "mwScreen.h"
 #include "mwSettings.h"
+#include "mwLog.h"
 
 
 mwWidget mWidget;
 
-// #define SLIDER_BAR_WIDTH 3
-
-
 /*
 
-q0 =
-q1 = frame color   (if -1 do not draw frame)
-q2 = text color    (use white 99% of time)
-q3 = slider color  (use white 99% of time)
-q4 = redraw mode   (1 for most, 0 for simple proc_control and flip only) // only for mouse button hold on slider bar
-q5 = text justify  (0-center 1-left...buttons only)
-q6 - increment y1 with bts
-q7 - (0-normal) (1-don't process mouse b1 press)
+// xType
+// 0  abs xa, abs xb
+// 1  abs xa, xb is width
+// 2  abs xb, xa is width
+// 3  abs xa,         width from text length, xb used to pad text length
+// 4  abs xb,         width from text length, xa used to pad text length
+// 5  centered on xa, width from text length, xb used to pad text length
+
+
+
+// yType
+// 0  abs ya, abs yb
+// 1  abs ya, yb is height
+// 2  abs yb, ya is height
+// 5  abs center ya, yb height (y1, y2 are set from yb height)
+
+// backgroundType
+// 0 = do nothing
+// 1 = solid color
+// 2 = legacy faded button frame
+
+// frameType
+// 0 = no frame
+// 1 = static
+// 2 = highlight with var
+// 3 = highlight with mouse
+// 4 = highlight with both
+
+
+// textType
+// 0  = no text
+// 1  = centered
+// 2  = centered highlight with var
+// 3  = centered highlight with mouse
+// 4  = centered highlight with both
+// 21 = left justified
+// 22 = left justified highlight with var
+// 23 = left justified highlight with mouse
+// 24 = left justified highlight with both
+
+
+
 
 
 20220601
@@ -78,7 +95,6 @@ colsel 6
 -------------
 520
 
-
 20260829
 
    6  x mSliderFloat
@@ -93,16 +109,6 @@ colsel 6
    26 x mwObjectViewer::odb0
    34 x mwObjectViewer::odbf
    10 x mwObjectViewer::odbt
-
-
-
-
-
-
-
-
-
-
 
 
 */
@@ -223,6 +229,97 @@ int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb,
 }
 
 
+
+
+
+
+
+
+
+
+
+
+// wrapper that increments ya by bts
+bool mwWidget::mButtonToggleFlag(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                                 int &var, int flag, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input)
+{
+   bool ret = mButtonToggleFlag(xType, xa, xb, 1, ya, bts-2,    r, backgroundType, frameType, textType, hcol, highlight,
+                                var, flag, t0, t1, bcol0, bcol1, tcol0, tcol1, fcol0, fcol1, disable_input);
+   ya+= bts;
+   return ret;
+}
+
+// toggles the flag and displays the corresponding string
+// returns true if changed
+bool mwWidget::mButtonToggleFlag(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                             int &var, int flag, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input)
+{
+   bool ret = 0;
+
+   // get current text
+   char txt[500];
+   sprintf(txt, "%s", t0);
+   int tcol = tcol0;
+   int fcol = fcol0;
+   int bcol = bcol0;
+
+   if (var & flag)
+   {
+      sprintf(txt, "%s", t1);
+      tcol = tcol1;
+      fcol = fcol1;
+      bcol = bcol1;
+   }
+
+
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, txt, x1, y1, x2, y2);
+
+   // check if mouse is on button
+   bool mouseOnButton = false;
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && mInput.mouse_b[1][0])
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      var ^= flag;
+      ret = 1;
+   }
+
+   // if (backgroundType == 0) ; do nothing
+   if (backgroundType == 1) al_draw_filled_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[bcol]); // solid color
+   if (backgroundType == 2) draw_widget_area(x1, y1, x2, y2, bcol); // draw button frame
+
+
+   // 0 = no frame
+   // 1 = static
+   // 2 = highlight with var
+   // 3 = highlight with mouse
+   // 4 = highlight with both
+   if (frameType)
+   {
+      int c = fcol;
+      if (highlight     && ((frameType == 2) || (frameType == 4))) c = hcol;
+      if (mouseOnButton && ((frameType == 3) || (frameType == 4))) c = hcol;
+      al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[c], 1);
+   }
+
+   draw_widget_text(x1, y1,  x2, y2, tcol, textType, txt);
+
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // toggles the int between v0 and v1 and displays text, text color, and frame color based on value
 // returns true if changed
 
@@ -332,78 +429,6 @@ bool mwWidget::mButtonToggle(int xType, int xa, int xb, int yType, int ya, int y
 
 
 
-
-
-
-// toggles the int and displays text, text color, and frame color based on value  -- check box style
-int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int &var, const char* t, int text_col, int frame_col)
-{
-   int y2 = y1+bts-2;
-   int press = 0;
-
-   /*
-   // debug show mouse detection area
-   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-*/
-
-   // is mouse pressed on this button?
-   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      var = ! var;
-      press = 1;
-   }
-
-
-   float my1 = y1;
-   float my2 = y2;
-
-   // get y center of button
-   float myc = my1 + (my2-my1)/2;
-
-   float rs = 6; // check box size
-   float ry1 = myc - rs/2;
-   float ry2 = ry1 + rs;
-   float rx1 = x1 + 4;
-   float rx2 = rx1 + rs;
-
-   // text pos
-   float mtx = rx2+6;
-   float mty = myc-4;
-
-   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[q1], 1);
-
-
-   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[frame_col]);
-   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[frame_col], 1);
-
-   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
-
-   if (q6 == 1) y1+=bts;
-   return press;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // double toggle check box flag -- custom for log types only
 void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, int text_col, int frame_col)
 {
@@ -421,7 +446,6 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, in
    // checkbox 2
    int cb2_x1 = cb1_x2 + cbs + 2;
    int cb2_x2 = cb2_x1 + cbs;
-
 
    // draw checkboxes
    if (mLog.log_types[ltn].action & LOG_ACTION_LOG)   al_draw_filled_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col]);
@@ -467,32 +491,36 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, in
 
 
 
-
-
-
-
-
-
-// toggles the flag and displays text, text color, and frame color based on value  -- check box style
-int mwWidget::togglfc(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int &var, int flag, const char* t, int text_col, int frame_col)
+// wrapper to increment ya by bts
+bool mwWidget::mCheckBoxFlag(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, int flag, const char* t, int text_col, int box_col, bool disable_input)
 {
-   int y2 = y1+bts-2;
-   int press = 0;
+   bool res = mCheckBoxFlag(xType, xa, xb, 1, ya, bts-2, frame_col, var, flag, t, text_col, box_col, disable_input);
+   ya += bts;
+   return res;
+}
 
-   // debug show mouse detection area
-//   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
-//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+// toggles the flag  -- check box style
+bool mwWidget::mCheckBoxFlag(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, int flag, const char* t, int text_col, int box_col, bool disable_input)
+{
+   bool changed = 0;
 
+   int x1, y1, x2, y2;
+   xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
 
-   // is mouse pressed on this button?
-   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
+   // check if mouse is on button
+   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      var ^= flag;
-      press = 1;
-   }
+      // debug show mouse detection area
+      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
+      // is mouse pressed on this button?
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         var ^= flag;
+         changed = 1;
+      }
+   }
 
    float my1 = y1;
    float my2 = y2;
@@ -510,62 +538,16 @@ int mwWidget::togglfc(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    float mtx = rx2+6;
    float mty = myc-4;
 
-   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[q1], 1);
+   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
 
-
-   if (var & flag) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[frame_col]);
-   else            al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[frame_col], 1);
+   if (var & flag) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
 
    al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 
-   if (q6 == 1) y1+=bts;
-   return press;
+   return changed;
+
 }
-
-
-
-
-
-
-// toggle the flag and displays the corresponding string
-// returns the value of the flag
-int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
-{
-   char msg[80];
-
-   int ret = 0;
-   int y2 = y1+bts-2;
-
-   // is mouse pressed on this button?
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      var ^= flag;
-   }
-   if (var & flag)
-   {
-       q1 = frame_col1;
-       q2 = text_col1;
-       sprintf(msg, "%s", t1);
-       ret = 1;
-   }
-   else
-   {
-      q1 = frame_col0;
-      q2 = text_col0;
-      sprintf(msg, "%s", t0);
-      ret = 0;
-   }
-   draw_widget_area(x1, y1, x2, y2, q1); // draw button frame
-   draw_widget_text(x1, y1,  x2, y2, q2, q5, msg);
-   if (q6 == 1) y1+=bts;
-   return ret;
-}
-
-
-
-
 
 
 
@@ -718,8 +700,6 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
       draw_widget_text(x1, y1+1, x2, y2, tcol, textType, txt);
    }
 }
-
-
 
 
 
@@ -965,20 +945,6 @@ bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, t, x1, y1, x2, y2);
 
-   // check if mouse is on button
-   if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-      // debug show mouse detection area
-      //al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-
-      // is mouse pressed on this button?
-      if (mInput.mouse_b[1][0])
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-         var = !var;
-         changed = 1;
-      }
-   }
 
    float my1 = y1;
    float my2 = y2;
@@ -992,14 +958,35 @@ bool mwWidget::mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, i
    float rx1 = x1 + 4;
    float rx2 = rx1 + rs;
 
-   // text pos
-   float mtx = rx2+6;
-   float mty = myc-4;
+   int mouse_on_button = 0;
 
-   if (frame_col>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[frame_col], 1);
+   // check if mouse is on button
+   if ((!disable_input) && (mInput.mouse_x > rx1) && (mInput.mouse_x < rx2) && (mInput.mouse_y > ry1) && (mInput.mouse_y < ry2))
+   {
+      mouse_on_button = 1;
+      if (mInput.mouse_b[1][0])
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+         var = !var;
+         changed = 1;
+      }
+   }
+
 
    if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[box_col]);
    else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[box_col], 1);
+
+   if (frame_col > 0)
+   {
+      float a = 1;
+      if (mouse_on_button) al_draw_rectangle(rx1-a, ry1-a, rx2+a, ry2+a, mColor.pc[frame_col], 1);
+      else al_draw_rectangle(rx1-a, ry1-a, rx2+a, ry2+a, mColor.pc[0], 1);
+   }
+
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-4;
 
    al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 
@@ -1124,16 +1111,16 @@ bool mwWidget::mButtonTile3(int xType, int xa, int xb, int yType, int ya, int yb
 
    int x2 = x1 + size;
    int y2 = y1 + size;
-   al_draw_filled_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.Black); // erase tile and frame
 
+
+   // erase tile background
+   al_draw_filled_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.Black);
    // draw tile
    al_draw_scaled_bitmap(mBitmap.tile[tn], 0, 0, 20, 20, x1, y1, size, size, 0);
 
    return ret;
 
 }
-
-
 
 
 
@@ -1188,8 +1175,6 @@ void mwWidget::drawWidgetSmallText(int x1, int y1, int x2, int y2, int color, in
    if (left_justified) al_draw_text(mFont.pixl, mColor.pc[color], x1+4, yt, 0, msg);
    else                al_draw_text(mFont.pixl, mColor.pc[color], xt, yt, ALLEGRO_ALIGN_CENTER, msg);
 }
-
-
 
 
 bool mwWidget::mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt)
@@ -1407,9 +1392,6 @@ bool mwWidget::colorClickSlider(int type, float x1, float &y1, float x2, float b
 }
 
 
-
-
-
 void mwWidget::updateCall(int update)
 {
    if (update == 0)
@@ -1427,7 +1409,3 @@ void mwWidget::updateCall(int update)
       mSettings.settings_pages_redraw(1);
    }
 }
-
-
-
-

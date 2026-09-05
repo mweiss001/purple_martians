@@ -739,32 +739,30 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][17],      400,        2,        1,        1,       10,      "Extend Time:");
             odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][9],       400,        0,        1,        1,       10,      "Pause:");
             ya+=4; // spacer
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 15+dim, 15, 11+dim, 11);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 11+dim, 11, 15+dim, 15, 0, 0, d);
+
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_FIRE_SHOT)
             odbf(d, xa, xb, ya, bts, 11, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  2, mEnemy.Ei[n][19],       99,        0,        1,        1,       10,      "Output Event:", "OFF");
             ya+=4; // spacer
 
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path" ,                            14+dim, 14, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF" , "Invincible At Rest:ON ",  14+dim, 14, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 14+dim, 14, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF"  , "Invincible Moving:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
 
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
             odb0(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][18],       99,        0,        1,        1,       10,      "Event Trigger:", "OFF");
             ya+=4; // spacer
-
-            mWidget.togglf(     xa, ya, xb, bts,  0,0,0,0,  0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
             {
                if (odbb(d, xa, xb, ya, bts, 14, "Set Internal Trigger Box")) mMiscFnx.get_block_range("Trigger Box", mEnemy.Ei[n][11], mEnemy.Ei[n][12], mEnemy.Ei[n][13], mEnemy.Ei[n][14], 2);
             }
-
             ya+=4; // spacer
-
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ", 15+dim, 15, 3+dim, 3);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
             {
                odbf(d, xa, xb, ya, bts,  3, mEnemy.Ef[n][6],        8,         1,      0.1,      0.1,        1,      "Control Point Scale:");
@@ -992,7 +990,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   8, 0, 15, 0, 0, 92, n, 0, 0, d); // mode
             ya+=bts; // spacer
             if (mItem.item[n][6] == 0)                                                           // only show initial state for toggle mode
-               mWidget.togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
+               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15, 0, 0, d);
+
             if ((mItem.item[n][6] == 3) || (mItem.item[n][6] == 4))                                    // only show timer for mode 3 and 4
                { mWidget.mStepSliderInt(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     8, 8, 15, 15, 15,0, 0,   mItem.item[n][7], 400, 0, 1, 1, 10, "Time:", 1, d); ya+=bts+1; }
             ya+=4; // spacer
@@ -1029,13 +1028,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case 10: // message
          {
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15, 0, 0, d);
             ya+=4; // spacer
             if (!(mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
             {
                mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:", 1, d); ya+=bts+1;
                ya+=4; // spacer
-               mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
+               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15, 0, 0, d);
                ya+=4; // spacer
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
@@ -1088,10 +1087,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=bts+4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0100 , "Blue:OFF",  "Blue:ON",   15+dim, 15, 12+dim, 12);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b1000 , "Purple:OFF","Purple:ON", 15+dim, 15, 8+dim, 8);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0001, "Green:OFF",  "Green:ON",   9+dim,  9, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0010, "Red:OFF",    "Red:ON",    10+dim, 10, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0100, "Blue:OFF",   "Blue:ON",   12+dim, 12, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15, 0, 0, d);
             set_switch_tile(n);
          break;
          case 15: // sproingy
@@ -1155,21 +1154,18 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][7], 1990, 0, 1,  1, 10, "y:", 1, d); ya+=bts+1;
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][8], 1990, 0, 1,  1, 10, "w:", 1, d); ya+=bts+1;
             mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  q, q, 15, 15, 15,0, 0,  mItem.item[n][9], 1990, 0, 1,  1, 10, "h:", 1, d); ya+=bts+1;
-
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
-            if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mItem.item[n][2], 15+dim, 15, 0, 0, d);
+            if (mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
                mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][2], 0, "Select Trigger Field Color", d);
-
-
             ya+=4; // spacer
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 15+dim, 15, 9+dim, 9);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 9+dim, 9, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 9+dim, 9, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 9+dim, 9, 15+dim, 15, 0, 0, d);
             ya+=4; // spacer
-
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 0, "Continuously Set Event When:",  d); ya+=bts+1;
             mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][11], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
             mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  11, 11, 15, 15, 15,0, 0,  mItem.item[n][12], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
@@ -1177,9 +1173,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mButton(        0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 0, "Set Event When Switching:",  d); ya+=bts+1;
             mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][13], 99, 0, 1,  1, 10, "On:",  "-", 1, d); ya+=bts+1;
             mWidget.mStepSliderInt0(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mItem.item[n][14], 99, 0, 1,  1, 10, "Off:", "-", 1, d); ya+=bts+1;
-
             ya+=4; // spacer
-            if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+            if (mItem.item[n][3] & PM_ITEM_TRIGGER_LIFT_ON)
             {
                mWidget.mSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1, "Lift Number:", 1, d); ya+=bts+1;
                mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   6, 0, 15, 0, 0, 211, n, 0, 0, d); // X Alignment
@@ -1256,7 +1252,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (MODE == 3) mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
             ya+=4; // spacer
             if (MODE == 1) // toggle
-               mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
+               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", p+dim, p, 15+dim, 15, 0, 0, d);
+
+
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
@@ -1264,21 +1262,28 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mWidget.mStepSliderInt0(0, xa, xb,   1, ya, bts-1,   2, 2, 1, 1,     13, 13, 15, 15, 15,0, 0,   mItem.item[n][1], 99, 0, 1, 1, 10, "Event Trigger:", "OFF", 1, d); ya+=bts+1;
             }
             ya+=4; // spacer
-            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON",        15+dim, 15, 10+dim, 10))
-               if (!mWidget.togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON",   15+dim, 15, 10+dim, 10))
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            if (mItem.item[n][3] & PM_ITEM_DAMAGE_PLAYER)
+            {
+               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+               if (!(mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))
                {
-                  mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:", 1, d); ya+=bts+1;
+                  mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  10, 10, 15, 15, 15,0, 0,  mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:", 1, d);
+                  ya+=bts+1;
                }
-
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON",        15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON",          15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON",  15+dim, 15, 10+dim, 10);
+            }
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
             ya+=4; // spacer
-            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ",          15+dim, 15, 6+dim, 6))
+            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+            if (mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_ON)
             {
                mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  6, 6, 15, 15, 15,0, 0,  mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:", 1, d); ya+=bts+1;
-               if (!mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ",          15+dim, 15, 6+dim, 6))
+
+               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+               if (!(mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_MS))
                {
                   mWidget.mButtonCustom(0, xa, xb, 1, ya, bts-2, 1, 2, 0, 1,   6, 0, 15, 0, 0, 411, n, 0, 0, d); // X Alignment
                   ya+=bts;
@@ -1610,7 +1615,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          int type = mEnemy.Ei[e][0];
 
          // check to see if we can set this object to be the current object
-         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[3][type]))
+         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[3][type][0]))
          {
             // set this enemy to current object
             obt = 3;
@@ -1735,7 +1740,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          int iy = mItem.item[b][5];
          int type = mItem.item[b][0];
          // check to see if we can set this object to be the current object
-         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[2][type]))
+         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[2][type][0]))
          {
             // set this item to current object
             obt = 2;
@@ -1815,7 +1820,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
    // --  detect if mouse pointer is on lift
    // -----------------------------------------------------------
    mouse_on_lift = 0;
-   if (mEditorMain.obj_filter[4][1])
+   if (mEditorMain.obj_filter[4][1][0])
    {
       // no lock...check all lifts and steps
       if ((!mInput.key[MAP_LOCK_KEY][0]) && (!viewer_lock))

@@ -20,7 +20,13 @@ class mwSound
    int sound_on = 1;
    int soundtrack_on = 1;
 
-   void start_music(int resume);
+   bool mute = false;
+
+   double theme_position;
+
+
+
+   void start_sound(int resume);
    void stop_sound();
    void proc_sound();
    void load_sound();

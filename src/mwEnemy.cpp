@@ -203,7 +203,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 
 
 
-void mwEnemy::draw_enemies(void)
+void mwEnemy::draw_enemies()
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int e=0; e<100; e++)

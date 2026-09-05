@@ -37,8 +37,6 @@ void mwDemoRecord::init()
    mWM.mW[2].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[2].drawFunction = [this]() { mDemoRecord.draw_GMList(mWM.mW[2]); };
 
-
-
    mWM.mW[3].init(3, 2, 500, 100, 320, 58, 8, "Transport Controls", 1, 1, 12, 1);
    mWM.mW[3].redrawCallback = []() { mDemoRecord.redraw_callback(); };
    mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
@@ -162,7 +160,6 @@ void mwDemoRecord::draw_mainW(mwWindow w)
    int ya = w.rect.y1+14;
    int d = w.disable_input;
    int bts = 12;
-
 
    for (int i=2; i<8; i++)
       mWidget.mCheckBox(0, xa, xb,  1, ya + (i-2)*bts, bts, 0, mDemoRecord.mWM.mW[i].active, mDemoRecord.mWM.mW[i].title, 15, 15, d);

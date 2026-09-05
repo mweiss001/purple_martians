@@ -9,7 +9,6 @@ struct listItem
 };
 
 
-
 class mwWidget
 {
    private:
@@ -18,28 +17,29 @@ class mwWidget
 
 public:
 
+   void togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, int text_col, int frame_col);
+
+
+
+
 
    bool mButtonToggle(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
                      int &var, int v0, int v1, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input);
-
    bool mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
                      int &var, int v0, int v1, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input);
 
 
+   bool mButtonToggleFlag(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                          int &var, int flag, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input);
+   bool mButtonToggleFlag(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
+                          int &var, int flag, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input);
 
 
-   int togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                  int &var, const char* t, int text_col, int frame_col);
+   bool mCheckBoxFlag(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, int flag, const char* t, int text_col, int box_col, bool disable_input);
+   bool mCheckBoxFlag(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, int flag, const char* t, int text_col, int box_col, bool disable_input);
 
-   int togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                  int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
-
-   int togglfc(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-               int &var, int flag, const char* t, int text_col, int frame_col);
-
-
-   void togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, int text_col, int frame_col);
-
+   bool mCheckBox(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
+   bool mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
 
 
 
@@ -48,11 +48,9 @@ public:
    int mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* t, int disable_input);
 
 
-
-
    bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
-
    bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
+
 
 
 
@@ -60,22 +58,18 @@ public:
 
    mwRect<int> xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt);
 
-
-   bool mButton(mwRect<int> rect, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
-   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
    bool mButton(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
-
+   bool mButton(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
+   bool mButton(mwRect<int> rect, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
    bool mButtonNB(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
-
    bool mButtonCustom(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input);
+
+
 
 
    bool mButtonSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt);
    void drawWidgetSmallText(int x1, int y1, int x2, int y2, int color, int left_justified, const char* msg);
 
-
-   bool          mCheckBox(int xType, int xa, int xb, int &ya, int bts, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
-   bool          mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
 
 
    void mCheckBoxSmallText(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col);
@@ -159,8 +153,6 @@ public:
    void mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, bool rollOver);
    void mDropDownDrawMain(mwRect<int> f, int r, std::string text, int textJust, int btype, int bcol, int fcol, bool crop);
    bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
-
-
 
    bool mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt);
 

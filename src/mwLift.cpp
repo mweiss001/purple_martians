@@ -652,17 +652,15 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    mLift.stp[l][s].type &= 0b00001111111111111111111111111111; // clear old color
    mLift.stp[l][s].type |= cf; // merge color with type
 
-
-
-   int dim = 32;
+   int dim = 48;
    int c2 = 14;
    int c3 = 15;
 
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",             "Hide Lift",            c3, c3+dim, c2, c2+dim);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF",  "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ",  "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ",  "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
-   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",       "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_NO_DRAW,       "Draw Lift",             "Hide Lift",              c2, c2+dim, c3, c3+dim, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_PLAYER,  "Solid for Player:OFF",  "Solid for Player:ON ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_ENEMY,   "Solid for Enemy:OFF ",  "Solid for Enemy:ON  ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_ITEM,    "Solid for Item:OFF  ",  "Solid for Item:ON   ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_HIDE_LINES,    "Draw Lift Lines",       "Hide Lift Lines",        c2, c2+dim, c3, c3+dim, 0, 0, 0);
 
    // specific buttons
    switch (stp[l][s].type & 31)

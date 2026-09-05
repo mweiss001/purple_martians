@@ -642,6 +642,12 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (v1 == 2) sprintf(msg, "Tile");
       if (v1 == 3) sprintf(msg, "Flag");
 
+//      al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
+
+
+
+
+
    }
 
    if (type == 1701)
