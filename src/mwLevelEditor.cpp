@@ -58,20 +58,15 @@ void mwLevelEditor::init_windows()
    mWM.mW[2].drawFunction = [this]() { mSelectionWindow.draw(mWM.mW[2].rect, mWM.mW[2].disable_input, mWM.mW[2].have_focus); };
    mWM.mW[2].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[3].index = 3;
-   mWM.mW[3].layer = 2;
-   mWM.mW[3].active = 0;
-   mWM.mW[3].draw_mode = 1;
-   mWM.mW[3].set_pos(500, 100);
-   mWM.mW[3].set_size(182, 100);
-   mWM.mW[3].set_title("Filters");
-   mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3].rect, mWM.mW[3].disable_input, mWM.mW[3].have_focus); };
+
+
+   mWM.mW[3].init(3, 2, 500, 100, 116, 100, 6, "Filters", 1, 0, 14, 0);
+   mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3]); };
    mWM.mW[3].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
 
-/*
-   mWM.mW[2].init(2, 1, 800, 300, 329, 200, 15, "Moves", 1, 0, 14, 1);
 
+   /*
    void mwWindow::init(int p_index, int p_layer, int p_x, int p_y, int p_w, int p_h, int p_color, const char* p_title, int p_draw_mode, int p_title_text_just, int p_title_bar_hover_highlight, bool p_enable_X_button)
    {
       active = 1;

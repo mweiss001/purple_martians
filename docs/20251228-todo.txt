@@ -16,58 +16,6 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-when lift is huge in level editor, can't see or edit anything below it...
-- have a disable draw lifts control??
-
-could I change the filters to have edit, draw, copy etc?
-
-this would require redoing filter...do it
-
-
-   int obj_filter[5][20];
-
-add another dimension to array
-
-int obj_filter[5][20][2];
-
-0 = edit
-1 = draw (or maybe view?)
-
-
-
-done
-
-now redo the window to have label and 2 check boxes
-
-
-what is the max text char for names?
-I currently use 6, but 8 would be nicer
-
-I like the way the log settings look
-
-do that
-
-check boxes first
-
-I could even do a common widget for both..no..log uses flags...
-
-2026-09-05 10:41:35
-new filter window is coming nicely
-before I make it look pretty, make it work
-
-it seems to be working...
-I do not have the view functionality yet...do it with lifts to start
-I have all those working!!!
-
-2026-09-05 11:12:47
-
-I should commit and go visit kaileb and my parents
-
-
-
-
-
-
 
 
 

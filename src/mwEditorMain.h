@@ -1,6 +1,7 @@
 #ifndef PM_MWEDITORMAIN
 #define PM_MWEDITORMAIN
 #include "mwRect.h"
+#include "mwWindow.h"
 
 class mwEditorMain
 {
@@ -40,7 +41,10 @@ public:
 
    void odbdc(int d, int x, int &y, int bts, int ot, int on, const char* txt);
 
-   void draw_filter_window(mwRect<int> &rect, int d, int have_focus);
+   void draw_filter_window(mwWindow &w);
+
+
+
 
    void draw_level_editor_background_overlays(int mouse_on_window);
 

@@ -38630,6 +38630,76 @@ make toolbar icons in selection window use nice popup tooltip
 
 
 
+when lift is huge in level editor, can't see or edit anything below it...
+- have a disable draw lifts control??
+
+could I change the filters to have edit, draw, copy etc?
+
+this would require redoing filter...do it
+
+
+   int obj_filter[5][20];
+
+add another dimension to array
+
+int obj_filter[5][20][2];
+
+0 = edit
+1 = draw (or maybe view?)
+
+
+
+done
+
+now redo the window to have label and 2 check boxes
+
+
+what is the max text char for names?
+I currently use 6, but 8 would be nicer
+
+I like the way the log settings look
+
+do that
+
+check boxes first
+
+I could even do a common widget for both..no..log uses flags...
+
+2026-09-05 10:41:35
+new filter window is coming nicely
+before I make it look pretty, make it work
+
+it seems to be working...
+I do not have the view functionality yet...do it with lifts to start
+I have all those working!!!
+
+2026-09-05 11:12:47
+
+I should commit and go visit kaileb and my parents
+
+
+2026-09-06 06:26:17
+
+make title left just
+
+how about if closed, put a link to open it in title bar
+
+why do I not pass window to draw function?
+   mWM.mW[3].drawFunction = [this]() { mDemoRecord.draw_transport_controls(mWM.mW[3]); };
+   mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3].rect, mWM.mW[3].disable_input, mWM.mW[3].have_focus); };
+
+2026-09-06 07:57:36
+I think I am done with Filters...
+I left the old collapse behaviour instead of closing and have a restore button on title bar.. its fine the way it is
+menu has been removed
+
+now I am going to clean up and commit..
+
+then I was thinking aof cleaning up more level editor windows, like edit selection
+
+
+
+
 
 
 
