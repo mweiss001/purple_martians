@@ -760,8 +760,10 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
 
 
 
-void mwEditorMain::process_menu_bar(mwRect<int> &rect, int d, int have_focus)
+void mwEditorMain::process_menu_bar(mwWindow &w)
 {
+   int d = w.disable_input;
+
    char msg[1024];
    al_set_target_backbuffer(mDisplay.display);
 

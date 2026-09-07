@@ -38695,7 +38695,118 @@ menu has been removed
 
 now I am going to clean up and commit..
 
-then I was thinking aof cleaning up more level editor windows, like edit selection
+then I was thinking of cleaning up more level editor windows, like edit selection
+2026-09-06 16:16:35
+
+done
+
+2026-09-07 05:11:28
+
+now working on group edit
+
+list
+
+mGroupEdit.draw_list(mWM.mW[5].rect, mWM.mW[5].disable_input, mWM.mW[5].have_focus); };
+   show_obj_list(rect.x1, rect.y1, &ew, &eh, d);
+      int x2 = draw_list_items(x1, y1, ni);
+
+
+
+mGroupEdit.draw_list(mWM.mW[5].rect, mWM.mW[5].disable_input, mWM.mW[5].have_focus); };
+change to use window..done
+
+integrated 'show_obj_list' into 'draw_list' then removed...done
+change draw_list_items(x1, y1, qni) to return nothing, pass it y2 and ni wich it will set...
+
+done and looking better
+
+why would I want to hide selection?
+actually it changes the way things are added to the list
+when not shown clicking on items adds them
+when shown clicking sets selection rectangle
+
+I think group edit list is done
+maybe I could change drag swap to drag insert and slide...
+2026-09-07 06:41:28
+
+
+moving on to group edit controls
+
+mGroupEdit.draw_controls(mWM.mW[6].rect, mWM.mW[6].disable_input, mWM.mW[6].have_focus); };
+   mGroupEdit.show_controls(rect.x1, rect.y1+20, &ew, &eh, hidden, d);
+change to use window...
+
+2026-09-07 07:37:05
+
+I think I am done with group edit controls also...
+
+next top menu
+mEditorMain.process_menu_bar(mWM.mW[8].rect, mWM.mW[8].disable_input, mWM.mW[8].have_focus)
+2026-09-07 07:46:36
+
+next tile helper..done
+mTileHelper.draw(mWM.mW[9].rect, mWM.mW[9].disable_input, mWM.mW[9].have_focus); };
+
+
+next object viewer
+mObjectViewer.draw(mWM.mW[7].rect, mWM.mW[7].disable_input, mWM.mW[7].have_focus); };
+window title
+
+I might want to redo the whole title bar and item enemy number thing
+make it all live in the titlebar....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

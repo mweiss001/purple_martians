@@ -33,7 +33,7 @@ public:
 
    void draw_status_window(mwRect<int> &rect, int draw_only, int have_focus);
 
-   void process_menu_bar(mwRect<int> &rect, int d, int have_focus);
+   void process_menu_bar(mwWindow &w);
 
    int collapsed;
    int filter_mode;

@@ -4,6 +4,7 @@
 
 #define NUM_OBJ 600
 #include "mwRect.h"
+#include "mwWindow.h"
 
 
 // structure for predefined control things that can be group edited
@@ -53,18 +54,19 @@ class mwGroupEdit
 
    void object_initial_position_random(int typ, int num);
 
-   int draw_list_items(int x1, int y1, int ni);
-   void show_obj_list(int x, int y, int *ew, int *eh, int draw_only);
+
 
    void set_var(int gvt, int gvn, int num, float val);
    float get_var(int gvt, int gvn, int num);
 
-   int show_controls(int x, int y, int *ew, int *eh, int hidden, int draw_only);
    void add_selection_to_list(int set_filters);
    void process_mouse_on_background();
 
-   void draw_list(mwRect<int> &rect, int draw_only, int have_focus);
-   void draw_controls(mwRect<int> &rect, int draw_only, int have_focus);
+   void draw_list(mwWindow & w);
+   void draw_list_items(int x1, int y1, int &x2, int &y2, int &ni);
+
+   int show_controls(int x, int y, int w, int &h, int draw_only);
+   void draw_controls(mwWindow & w);
 
    void draw_level_editor_background_overlays(int mouse_on_window);
 

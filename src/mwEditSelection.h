@@ -4,6 +4,7 @@
 #include "mwItem.h"
 #include "mwLevel.h"
 #include "mwLift.h"
+#include "mwWindow.h"
 
 #define SEL_SIZE 384800
 
@@ -63,15 +64,14 @@ class mwEditSelection
 
    void draw_fsel();
 
-   int draw_buttons(int x3, int x4, int yfb, int draw_only);
+   void draw_buttons(int x3, int x4, int &ya, int draw_only);
 
-
-   void draw(mwRect<int> &rect, int d, int have_focus);
+   void draw(mwWindow &w);
 
    void draw_level_editor_background_overlays(int mouse_on_window);
 
 
-   void show_pointer_text(int x1, int x2, int y, int mouse_on_window);
+   void show_selection_details(int x1, int x2, int &y, int color);
    void process_mouse_on_background();
 
 };

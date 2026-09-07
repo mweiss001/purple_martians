@@ -31,10 +31,7 @@ void mwObjectViewer::init()
 }
 
 
-
-
 #define MAP_LOCK_KEY ALLEGRO_KEY_Z
-
 
 
 
@@ -165,14 +162,14 @@ void mwObjectViewer::set_switch_tile(int i)
 }
 
 
-void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
+
+
+void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 {
-   char msg[1024];
    int type=0;
    if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = mEnemy.Ei[num][0];
 
-//   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[10], 1);  // outline entire window
 
    int xc = (x1+x2)/2;
    int yt = y1+14;
@@ -187,7 +184,6 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
    // default number of legend lines and colors
    num_legend_lines = 3;
 
-
    legend_color[0] = 7;   // legend color
    legend_color[1] = 13;  // location color
    legend_color[2] = 14;  // yellow
@@ -195,32 +191,32 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
    legend_color[4] = 0;   // unused
    legend_color[5] = 0;   // unused
 
-   legend_highlight == 1 ? legend_color[1] = mColor.flash_color : legend_color[1] = 13;
+   legend_line_highlight == 1 ? legend_color[1] = mColor.flash_color : legend_color[1] = 13;
 
 
    // title bar
-   msg[0] = 0;
-   if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
-   if (obt == 3) sprintf(msg, "Enemy Viewer [%d]", num);
-   if (obt == 4) sprintf(msg, "Lift Viewer [%d]", num);
+   window_title[0] = 0;
+   if (obt == 2) sprintf(window_title, "Item Viewer [%d]", num);
+   if (obt == 3) sprintf(window_title, "Enemy Viewer [%d]", num);
+   if (obt == 4) sprintf(window_title, "Lift Viewer [%d]", num);
 
-   for (int x=0; x<15; x++)
-      al_draw_line(x1, y1+x, x2, y1+x, mColor.pc[13+(x*16)], 1);
-   al_draw_text(mFont.pr8, mColor.pc[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  msg);
+   // for (int x=0; x<15; x++)
+   //    al_draw_line(x1, y1+x, x2, y1+x, mColor.pc[13+(x*16)], 1);
+   // al_draw_text(mFont.pr8, mColor.pc[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  window_title);
 
 
    if (obt == 4)  // lifts
    {
       num_legend_lines = 0;
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
       al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, mLift.get_num_lifts());
    }
    if (obt == 3)  // enemies
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
       mEnemy.draw_enemy(num, 1, xc-92, yt+1);
-      sprintf(msg,"%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
-      al_draw_text(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, msg);
+//      sprintf(window_title,"%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
+      al_draw_textf(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, "%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
       switch (type)
       {
          case 1:
@@ -230,12 +226,12 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
          case 2: // cannon
             sprintf(lmsg[1],"Cannon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 3: // archwagon
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 4:
             num_legend_lines = 2;
@@ -250,28 +246,28 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
-            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
          case 7: // vinepod
          {
             sprintf(lmsg[1],"Vinepod Location");
             sprintf(lmsg[2],"Extended Position");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
             int legend_count = 3;
             if (mEnemy.Ei[num][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
             {
                sprintf(lmsg[legend_count],"Trigger Box");
-               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 14;
+               legend_line_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 14;
                legend_count++;
             }
             if (mEnemy.Ei[num][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
             {
                sprintf(lmsg[legend_count],"Control Point 1");
-               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 6;
+               legend_line_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 6;
                legend_count++;
                sprintf(lmsg[legend_count],"Control Point 2");
-               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 7;
+               legend_line_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 7;
                legend_count++;
             }
             num_legend_lines = legend_count;
@@ -280,29 +276,30 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
          case 8: // trakbot
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 9: // cloner
             num_legend_lines = 4;
             sprintf(lmsg[1],"Cloner Location");
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 11;
-            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 11;
+            legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
       }
    }
    if (obt == 2)  // items
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
       mItem.draw_item(num, 1, xc-94, yt+1);
-      sprintf(msg,"%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
-      al_draw_text(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, msg);
+//      sprintf(window_title,"%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
+
+      al_draw_textf(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, "%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
       switch (type)
       {
          case 1: // door
          {
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
             if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -336,7 +333,7 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
          case 4: // key
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 5:
              num_legend_lines = 2;
@@ -353,54 +350,54 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
          case 8:
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 9: // trigger
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 10:
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 11:
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 13:
             sprintf(lmsg[1],"Timer Location");
             sprintf(lmsg[2],"Display Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 14: // switch
             sprintf(lmsg[1],"Switch Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 15:
             sprintf(lmsg[1],"Sproingy Location");
             sprintf(lmsg[2],"Jump Height");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 16: // block manip
             num_legend_lines = 3;
             sprintf(lmsg[1],"Block Manip Location");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 12;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 12;
             sprintf(lmsg[2],"Manip Field");
             if (mItem.item[num][3] == 4)
             {
                num_legend_lines = 4;
                sprintf(lmsg[3],"Source Field");
-               legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 11;
+               legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 11;
             }
          break;
          case 17: // block damage
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 18:
              num_legend_lines = 2;
@@ -409,20 +406,17 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int legend_highlig
          case 19: // hider
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Hidden Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-
 
       } // end of switch case
    }  // end of items
 
-   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[13], 1);  // outline entire window
-
    if (num_legend_lines > 0)
    {
       al_draw_text(mFont.pr8, mColor.pc[legend_color[0]], xc, y2-37 + (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-1, mColor.pc[13], 1); // big frame
-      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-28+ (4-num_legend_lines)*8, mColor.pc[13], 1); // top frame
+      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-1, mColor.pc[color], 1); // big frame
+      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-28+ (4-num_legend_lines)*8, mColor.pc[color], 1); // top frame
    }
 
    for (int x=1; x<num_legend_lines; x++)// draw text lines
@@ -463,11 +457,6 @@ bool mwObjectViewer::odbb(int d, int xa, int xb, int &ya, int bts, int col, cons
 
 
 
-
-
-
-
-
 void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
    int n = num;
@@ -482,7 +471,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // button x position
    int xa = x1+1;
    int xb = x2-1;
-   int ya = y1+38;
+   int ya = y1+38+mLoop.pct_y;
    // split into thirds
    int x13 = xa + 1 * (xb-xa) / 3; // 1/3
    int x23 = xa + 2 * (xb-xa) / 3; // 2/3
@@ -1590,7 +1579,6 @@ void mwObjectViewer::ov_process_mouse_on_background()
    mouse_on_bmb = 0;
    mouse_on_bms = 0;
 
-
    mouse_on_item_sec_ul = 0;
    mouse_on_item_sec_lr = 0;
 
@@ -2327,6 +2315,7 @@ void mwObjectViewer::ov_process_keypress()
    } // end of switch (mb)
 }
 
+
 void mwObjectViewer::object_viewer(int o, int n)
 {
    obt = o;
@@ -2336,14 +2325,15 @@ void mwObjectViewer::object_viewer(int o, int n)
 }
 
 
-void mwObjectViewer::draw(mwRect<int> & rect, int d, int have_focus)
+void mwObjectViewer::draw(mwWindow & w)
 {
-   // erase background
-   rect.draw_filled_rectangle(mColor.pc[0]);
    ov_check_if_valid();
    ov_get_size();
-   ov_title(rect.x1, rect.x2, rect.y1, rect.y2, mObjectViewer.legend_line);
-   ov_draw_buttons(rect.x1, rect.y1, rect.x2, rect.y2, d);
+   ov_title(w.rect.x1, w.rect.x2, w.rect.y1, w.rect.y2, w.color);
+
+   w.set_title(window_title);
+
+   ov_draw_buttons(w.rect.x1, w.rect.y1, w.rect.x2, w.rect.y2, w.disable_input);
 }
 
 void mwObjectViewer::draw_level_editor_background_overlays(int mouse_on_window)
@@ -2357,12 +2347,12 @@ void mwObjectViewer::draw_level_editor_background_overlays(int mouse_on_window)
    }
 
    // if mouse on legend line, show highlight
-   legend_line = 0;
+   legend_line_highlight = 0;
    int y1_legend = mLevelEditor.mWM.mW[7].rect.y2 - 34 + (5-num_legend_lines)*8; // legend pos
    int y2_legend = y1_legend + (num_legend_lines-1)*8;
    if ((mInput.mouse_x > mLevelEditor.mWM.mW[7].rect.x1) && (mInput.mouse_x < mLevelEditor.mWM.mW[7].rect.x2) && (mInput.mouse_y > y1_legend) && (mInput.mouse_y < y2_legend)) // is mouse on legend
-      legend_line = ((mInput.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
+      legend_line_highlight = ((mInput.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
 
-   ov_draw_overlays(legend_line);
+   ov_draw_overlays(legend_line_highlight);
 }
 

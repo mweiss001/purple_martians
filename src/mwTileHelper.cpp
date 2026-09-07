@@ -1813,46 +1813,17 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
 }
 
 
-void mwTileHelper::draw(mwRect<int> &rect, int d, int have_focus)
+void mwTileHelper::draw(mwWindow & w)
 {
-   // erase background
-   rect.draw_filled_rectangle(mColor.pc[0]);
+   int d = w.disable_input;
+   int x1 = w.rect.x1;
+   int x2 = w.rect.x2;
+   int y1 = w.rect.y1;
 
-   mMiscFnx.titlex("Tile Helper", 15, 13, rect.x1, rect.x2, rect.y1+1);
-   if (mWidget.mButton(0, rect.x2-12, rect.x2-4,   1, rect.y1+3, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",    d)) mHelp.help("Tile Helper");
-
-   int ys = mTileHelper.draw_buttons(rect.x1+1, rect.x2-1, rect.y1+20, d);
-
-   rect.setHeight(ys-rect.y1+4);
-
-   int fc = 13+64;
-   if (have_focus) fc = 13;
-
-   al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[fc], 1); // frame entire window
+   if (mWidget.mButton(0, x2-12, x2-4,   1, y1+3, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",   d)) mHelp.help("Tile Helper");
+   int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+20, d);
+   w.rect.setHeight(ys-y1+4);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void mwTileHelper::find_connected(int x, int y, int group)

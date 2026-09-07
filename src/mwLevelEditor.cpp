@@ -58,93 +58,34 @@ void mwLevelEditor::init_windows()
    mWM.mW[2].drawFunction = [this]() { mSelectionWindow.draw(mWM.mW[2].rect, mWM.mW[2].disable_input, mWM.mW[2].have_focus); };
    mWM.mW[2].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-
-
    mWM.mW[3].init(3, 2, 500, 100, 116, 100, 6, "Filters", 1, 0, 14, 0);
    mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3]); };
    mWM.mW[3].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-
-
-   /*
-   void mwWindow::init(int p_index, int p_layer, int p_x, int p_y, int p_w, int p_h, int p_color, const char* p_title, int p_draw_mode, int p_title_text_just, int p_title_bar_hover_highlight, bool p_enable_X_button)
-   {
-      active = 1;
-      color = p_color;
-      index = p_index;
-      layer = p_layer;
-      draw_mode = p_draw_mode;
-      title_text_just = p_title_text_just;
-      hover_highlight = p_title_bar_hover_highlight;
-      enable_X_button = p_enable_X_button;
-
-      set_pos(p_x, p_y);
-      set_size(p_w, p_h);
-      set_title(p_title);
-   }
-*/
-
-
-
-
-   mWM.mW[4].index = 4;
-   mWM.mW[4].layer = 3;
-   mWM.mW[4].active = 0;
-   mWM.mW[4].set_pos(700, 100);
-   mWM.mW[4].set_size(160, 250);
-   mWM.mW[4].set_title("Edit Selection");
-   mWM.mW[4].drawFunction = [this]() { mEditSelection.draw(mWM.mW[4].rect, mWM.mW[4].disable_input, mWM.mW[4].have_focus); };
+   mWM.mW[4].init(4, 3, 700, 100, 160, 250, 6, "Edit Selection", 1, 1, 14, 0);
+   mWM.mW[4].drawFunction = [this]() { mEditSelection.draw(mWM.mW[4]); };
    mWM.mW[4].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[5].index = 5;
-   mWM.mW[5].layer = 4;
-   mWM.mW[5].active = 0;
-   mWM.mW[5].set_pos(400, 400);
-   mWM.mW[5].set_size(160, 269);
-   mWM.mW[5].set_title("Group Edit List");
-   mWM.mW[5].drawFunction = [this]() { mGroupEdit.draw_list(mWM.mW[5].rect, mWM.mW[5].disable_input, mWM.mW[5].have_focus); };
+   mWM.mW[5].init(4, 3, 400, 400, 160, 29, 12, "Group Edit List", 1, 1, 13, 0);
+   mWM.mW[5].drawFunction = [this]() { mGroupEdit.draw_list(mWM.mW[5]); };
    mWM.mW[5].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[6].index = 6;
-   mWM.mW[6].layer = 5;
-   mWM.mW[6].active = 0;
-   mWM.mW[6].set_pos(600, 60);
-   mWM.mW[6].set_size(100, 100);
-   mWM.mW[6].set_title("Group Edit Controls");
-   mWM.mW[6].drawFunction = [this]() { mGroupEdit.draw_controls(mWM.mW[6].rect, mWM.mW[6].disable_input, mWM.mW[6].have_focus); };
+   mWM.mW[6].init(6, 5, 600, 60, 320, 100, 12, "Group Edit Controls", 1, 1, 13, 0);
+   mWM.mW[6].drawFunction = [this]() { mGroupEdit.draw_controls(mWM.mW[6]); };
    mWM.mW[6].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[7].index = 7;
-   mWM.mW[7].layer = 6;
-   mWM.mW[7].active = 0;
-   mWM.mW[7].set_pos(200, 60);
-   mWM.mW[7].set_size(300, 300);
-   mWM.mW[7].set_title("Object Viewer");
-   mWM.mW[7].drawFunction = [this]() { mObjectViewer.draw(mWM.mW[7].rect, mWM.mW[7].disable_input, mWM.mW[7].have_focus); };
+   mWM.mW[7].init(6, 5, 200, 60, 300, 300, 13, "Object Viewer", 1, 1, 13, 0);
+   mWM.mW[7].drawFunction = [this]() { mObjectViewer.draw(mWM.mW[7]); };
    mWM.mW[7].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[8].index = 8;
-   mWM.mW[8].layer = 7;
-   mWM.mW[8].active = 1;
-   mWM.mW[8].set_pos(0, 0);
-   mWM.mW[8].set_size(mDisplay.SCREEN_W, BORDER_WIDTH);
-   mWM.mW[8].set_title("Level Editor Top Menu");
+   mWM.mW[8].init(7, 6, 0, 0, mDisplay.SCREEN_W, BORDER_WIDTH, 0, "Level Editor Top Menu", 0, 0, 0, 0);
    mWM.mW[8].moveable = 0;
-   mWM.mW[8].drawFunction = [this]() { mEditorMain.process_menu_bar(mWM.mW[8].rect, mWM.mW[8].disable_input, mWM.mW[8].have_focus); };
+   mWM.mW[8].drawFunction = [this]() { mEditorMain.process_menu_bar(mWM.mW[8]); };
    mWM.mW[8].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[9].index = 9;
-   mWM.mW[9].layer = 8;
-   mWM.mW[9].active = 0;
-   mWM.mW[9].set_pos(100, 300);
-   mWM.mW[9].set_size(320, 328);
-   mWM.mW[9].set_title("Tile Helper");
-   mWM.mW[9].drawFunction = [this]() { mTileHelper.draw(mWM.mW[9].rect, mWM.mW[9].disable_input, mWM.mW[9].have_focus); };
+   mWM.mW[9].init(8, 7, 100, 300, 320, 328, 13, "Tile Helper", 1, 0, 13, 0);
+   mWM.mW[9].drawFunction = [this]() { mTileHelper.draw(mWM.mW[9]); };
    mWM.mW[9].redrawCallback = []() { mLevelEditor.redraw_callback(); };
-
-
-
-
 }
 
 void mwLevelEditor::set_mode(int new_mode)

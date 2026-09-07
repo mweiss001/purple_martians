@@ -768,135 +768,6 @@ void mwGroupEdit::object_initial_position_random(int typ, int num)
    else printf("could not find empty space for object\n");
 }
 
-int mwGroupEdit::draw_list_items(int x1, int y1, int ni)
-{
-   int xt = x1; // to keep track of pos as we expand in the x axis
-   if (ni == 0)
-   {
-      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "<empty>");
-      xt+=56;
-   }
-   else
-   {
-      // column headers
-      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, " #");  xt+=24;
-      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "S");   xt+=16;
-      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "num"); xt+=32;
-      for (int ge_num=0; ge_num<100; ge_num++)
-         if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
-         {
-            al_draw_textf(mFont.pr8, mColor.pc[15], xt, y1, 0, "%.4s", ge_data[ge_num].snam);
-            xt+=40;
-         }
-
-      // rows
-      for (int i=0; i<NUM_OBJ; i++)
-         if (obj_list[i][0])
-         {
-            y1+=8;
-            int type = obj_list[i][0];
-            int num = obj_list[i][1];
-            int col = 15;
-            if (obj_list[i][2]) col = mColor.flash_color;
-
-            xt = x1; // to keep track of pos as we expand in the x axis
-
-            al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
-
-            int tn = 0;
-            if (type == 2) tn = mItem.item_tile[mItem.item[num][0]];
-            if (type == 3) tn = mEnemy.enemy_tile[mEnemy.Ei[num][0]];
-            al_draw_scaled_bitmap(mBitmap.sprite[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
-
-            al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
-
-            // valid variables
-            for (int ge_num=0; ge_num<100; ge_num++)
-               if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
-                  {
-                     int vt = ge_data[ge_num].vartyp;
-                     int vn = ge_data[ge_num].varnum;
-
-                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][vn]);
-                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
-                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
-                     //if (vt == 5) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][2]);
-
-                     if (vt == 7)  // vinepod flag
-                     {
-                        if (mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
-                        else                         al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
-                     }
-
-                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
-                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
-
-                     xt+=40;
-                  }
-         }
-   }
-   return xt;
-}
-
-void mwGroupEdit::show_obj_list(int x, int y, int *ew, int *eh, int d)
-{
-   // find number of items in list
-   int ni = 0;
-   for (int i=0; i<NUM_OBJ; i++)
-      if (obj_list[i][0]) ni++;
-
-   int fs = 12;
-   int y1 = y + fs;
-
-   int x1 = x+fs;
-
-   int yf1 = y;
-   int yf2 = y + (ni+1)*8 + fs*2;
-   int x2 = draw_list_items(x1, y1, ni);
-   if (x2 < x1+180) x2=x1+180; // minimum size
-
-   *ew = (x2+fs) - x ; // actual width
-   *eh = yf2 - y;      // actual height
-
-   // draw frame around list
-   int ci = 16; //color inc
-   for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1-fs+q, yf1+q, x2+fs-q, yf2-q, mColor.pc[12+32+(q*ci)], 1);
-   al_draw_text(mFont.pr8, mColor.pc[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "Group Edit Object List");
-//   al_draw_textf(mFont.pr8, mColor.pc[15], x2-24, yf1+2,                    0, "%2d", ni);
-   if ((!d) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yf1) && (mInput.mouse_y < yf2)) // detect if mouse is on list
-   {
-      for (int o=0; o<NUM_OBJ; o++) obj_list[o][2] = 0; // clear all highlights
-      int mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
-      if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
-      if (mpl != -1)                                    // mouse is on valid list item
-      {
-         obj_list[mpl][2] = 1;                          // mark this item as highlighted
-         al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mColor.pc[10], 1); // draw rectangle around list item
-         if (mInput.mouse_b[1][0])
-         {
-            if (mInput.SHFT()) // remove item from list
-            {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-               remove_obj_list_item(mpl);
-            }
-            else // keep mouse for drag swap
-            {
-               int old_mpl = mpl;
-               while (mInput.mouse_b[1][0])
-               {
-                  mLevelEditor.redraw_callback();
-                  mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;      // get raw list item
-                  if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
-                  if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mColor.pc[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
-               }
-               if (mpl != -1) swap_obj_list_items(old_mpl, mpl); // if mouse is on valid list item, do the swap
-            } // mouse b1 held
-         } // mInput.mouse_b[1][0] pressed
-      } // mouse on valid list item
-   } // mouse on obj list
-}
-
 
 
 
@@ -928,213 +799,6 @@ float mwGroupEdit::get_var(int gvt, int gvn, int num)
 
 
 
-int mwGroupEdit::show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
-{
-   char msg[1024];
-   int nc = 0; // number of valid controls
-   int by = y; // running y pos
-   int bts = 16;
-
-   int width = 320; // fixed width
-
-   int y_spacing = 2; // spacing between groups
-
-   // find number of items in list
-   int ni = 0;
-   for (int i=0; i<NUM_OBJ; i++)
-      if (obj_list[i][0]) ni++;
-
-   if (ni)
-   {
-      set_valid_controls();
-
-      for (int ge_num=0; ge_num<100; ge_num++)
-         if (ge_data[ge_num].valid)
-         {
-            nc++;
-            int gvt = ge_data[ge_num].vartyp;
-            int gvn = ge_data[ge_num].varnum;
-
-            // get height
-            int height = 2 + bts;
-            if (!ge_data[ge_num].collapsed)
-            {
-               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9)) height += bts * 4;
-               else height += bts;
-            }
-
-
-            // make rect for control widget
-            mwRect<int> rect = mwRect<int>::fromX1Y1WH(x+1, by, width, height);
-
-
-            // detect mouse
-            int mouse_detect = 0;
-            if (rect.contains(mInput.mouse_x, mInput.mouse_y)) mouse_detect = 1;
-
-            // set color
-            int fcol = 13;
-            if (mouse_detect) fcol = 10;
-
-            // clear and frame
-            rect.draw_filled_rectangle(mColor.pc[fcol+208]);
-            rect.draw_rectangle(mColor.pc[fcol], 1);
-
-            int x1 = rect.x1;
-            int x2 = rect.x2;
-            int x3 = x2 - 60;
-            int x4 = x1 + 160;
-            int y1 = rect.y1+2;
-
-
-
-            sprintf(msg, "%s", ge_data[ge_num].name);
-            //adjust button size to text
-            int sl = (strlen(msg)+2)*4;
-            int tx1 = x4 - sl + 3;
-            int tx2 = x4 + sl - 1;
-            mWidget.mButtonToggle(0, tx1, tx2,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, msg, msg, 12, 12, 15, 15, 0, 0, 0);
-            mWidget.mButtonToggle(0, x2-12, x2-4,  y1, bts,    1, 0, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, 0);
-            if (!ge_data[ge_num].collapsed)
-            {
-               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9))
-               {
-                  // find min max and average
-                  float mins = 9999;
-                  float maxs = -9999;
-                  float tally = 0;
-
-                  for (int i=0; i<NUM_OBJ; i++)
-                     if (obj_list[i][0])
-                     {
-                        float val = get_var(gvt, gvn, obj_list[i][1]);
-                        if (val < mins) mins = val;
-                        if (val > maxs) maxs = val;
-                        tally += val;
-                     }
-                  float avg = tally / (float) ni;
-
-                  //sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  sprintf(msg, "min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  mWidget.mButton(0, x1+12, x2-12,   1, y1, bts-2,    1, 0, 1, 1,   0, 13, 15, 0, 0, msg,    1);
-                  y1+=bts;
-
-                  float mna = ge_data[ge_num].min_allowed;
-                  float mxa = ge_data[ge_num].max_allowed;
-
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, .1, .01, .1, "v1:", 0, d); y1+=bts;
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, .1, .01, .1, "v2:", 0, d); y1+=bts;
-                  mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
-
-                  if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))
-                  {
-                     float mn = ge_data[ge_num].adj_min;
-                     float mx = ge_data[ge_num].adj_max;
-                     if (ge_data[ge_num].adj_mode == 0) // randomize
-                     {
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
-                     }
-                     if (ge_data[ge_num].adj_mode == 1) // increment
-                     {
-                        float inc = (mx-mn)/ni;
-                        float val = mn;
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                           {
-                              set_var(gvt, gvn, obj_list[i][1], val);
-                              val += inc;
-                           }
-                     }
-                     if (ge_data[ge_num].adj_mode == 2) // set all to min
-                     {
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], mn);
-                     }
-                     if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
-                     {
-                        float val = get_var(gvt, gvn, obj_list[0][1]);
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], val);
-                     }
-
-
-                  } // end of Apply!
-               } // end of types 2, 3, 4
-               else if (gvt == 5) // initial direction
-               {
-                  if (mWidget.mButton(0, x1+10, x4-30,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Random", d))
-                  {
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int num = obj_list[i][1];
-                           mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
-                        }
-                  }
-                  if (mWidget.mButton(0, x4-28, x2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Aim at Start Block", d))
-                  {
-                     int sbx = 0, sby = 0; // start block x and y
-                     for (int c=0; c<500; c++)
-                        if (mItem.item[c][0] == 5)
-                        {
-                           sbx = mItem.item[c][4];
-                           sby = mItem.item[c][5];
-                        }
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int num = obj_list[i][1];
-                           mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
-                        }
-                  } // end of aim at start block
-               } // end of type 5
-               else if (gvt == 6) // initial position
-               {
-                  if (mWidget.mButton(0, x1+10, x2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Randomize Position Within Selection", d))
-                  {
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int typ = obj_list[i][0];
-                           int num = obj_list[i][1];
-                           object_initial_position_random(typ, num);
-                        }
-                  }
-               }
-
-               else if (gvt == 7) // vinepod flags
-               {
-                  int fx3 = x1 + 100;
-                  int fx4 = x1 + 200;
-                  if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
-                  if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
-                  if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                     {
-                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
-                        else                             mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
-                     }
-               }
-
-
-            } // end of not collapsed
-            by+=height+y_spacing;
-         } // end of valid ge_num
-   } // end of more than 0 items in list
-
-   *ew = width + 2;
-   *eh = by-y-y_spacing + 22;
-
-   return nc;
-}
 
 void mwGroupEdit::add_selection_to_list(int set_filters)
 {
@@ -1205,19 +869,146 @@ void mwGroupEdit::process_mouse_on_background(void)
 }
 
 
-void mwGroupEdit::draw_list(mwRect<int> & rect, int d, int have_focus)
+
+
+
+
+
+void mwGroupEdit::draw_list_items(int x1, int y1, int &x2, int &y2, int &ni)
 {
-   // erase background
-   rect.draw_filled_rectangle(mColor.pc[0]);
+   // find number of items in list
+   for (int i=0; i<NUM_OBJ; i++) if (obj_list[i][0]) ni++;
 
+   // running xpos
+   int xt = x1;
+
+
+   if (ni == 0) al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "<empty>");
+   else
+   {
+      // column headers
+      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, " #");  xt+=24;
+      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "S");   xt+=16;
+      al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "num"); xt+=32;
+      for (int ge_num=0; ge_num<100; ge_num++)
+         if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
+         {
+            al_draw_textf(mFont.pr8, mColor.pc[15], xt, y1, 0, "%.4s", ge_data[ge_num].snam);
+            xt+=40;
+         }
+
+      // rows
+      for (int i=0; i<NUM_OBJ; i++)
+         if (obj_list[i][0])
+         {
+            y1+=8;
+            int type = obj_list[i][0];
+            int num = obj_list[i][1];
+            int col = 15;
+            if (obj_list[i][2]) col = mColor.flash_color;
+
+            xt = x1; // reset running x pos
+
+            al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
+
+            int tn = 0;
+            if (type == 2) tn = mItem.item_tile[mItem.item[num][0]];
+            if (type == 3) tn = mEnemy.enemy_tile[mEnemy.Ei[num][0]];
+            al_draw_scaled_bitmap(mBitmap.sprite[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
+
+            al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
+
+            // valid variables
+            for (int ge_num=0; ge_num<100; ge_num++)
+               if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
+                  {
+                     int vt = ge_data[ge_num].vartyp;
+                     int vn = ge_data[ge_num].varnum;
+
+                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][vn]);
+                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
+                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
+
+                     if (vt == 7)  // vinepod flag
+                     {
+                        if (mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
+                        else                         al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
+                     }
+
+                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
+                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
+
+                     xt+=40;
+                  }
+            // check for max xpos
+            if (xt > x2) x2 = xt;
+         }
+   }
+   y2 = y1 + 8;
+   if (x2 < x1+180) x2=x1+180; // minimum width
+}
+
+
+
+void mwGroupEdit::draw_list(mwWindow & w)
+{
    remove_obj_list_filtered_items();
-   int ew, eh;
-   show_obj_list(rect.x1, rect.y1, &ew, &eh, d);
-   rect.setWidth(ew);
-   rect.setHeight(eh);
+
+   int d = w.disable_input;
+   int x1 = w.rect.x1;
+   int y1 = w.rect.y1+14;
+   int x2 = x1;
+   int y2;
+   int ni = 0;
+
+   draw_list_items(x1, y1, x2, y2, ni);
+   w.rect.setWidth(x2 - x1);
+   w.rect.setHeight(y2 - y1 + 15);
+
+   // detect mouse on list
+   if ((!d) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      for (int o=0; o<NUM_OBJ; o++) obj_list[o][2] = 0; // clear all highlights
+      int mpl = ((mInput.mouse_y - y1)/8)-1;            // get hovered list item
+      if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
+      if (mpl != -1)                                    // mouse is on valid list item
+      {
+         obj_list[mpl][2] = 1;                          // mark item as highlighted
+         al_draw_rectangle(x1+1, y1+(mpl+1)*8, x2-1, y1+(mpl+2)*8, mColor.pc[10], 1); // highlight hovered item
+         if (mInput.mouse_b[1][0])
+         {
+
+            // remove item from list
+            if (mInput.SHFT())
+            {
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+               remove_obj_list_item(mpl);
+            }
+
+            // mouse drag item swap
+            else
+            {
+               int old_mpl = mpl;
+               while (mInput.mouse_b[1][0])
+               {
+                  mLevelEditor.redraw_callback();
+                  mpl = ((mInput.mouse_y - y1)/8)-1;            // get hovered list item
+                  if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
+                  if (mpl != -1) al_draw_rectangle(x1+1, y1+(mpl+1)*8, x2-1, y1+(mpl+2)*8, mColor.pc[10], 1); // highlight hovered item
+               }
+               if (mpl != -1) swap_obj_list_items(old_mpl, mpl); // if mouse is on valid list item, do the swap
+            }
+         }
+      }
+   }
 
 
-   if (!d && mInput.mouse_b[2][0] && rect.contains(mInput.mouse_x, mInput.mouse_y))
+
+
+
+
+
+   if (!d && mInput.mouse_b[2][0] && w.rect.contains(mInput.mouse_x, mInput.mouse_y))
    {
       sprintf(mMenu.menu_string[0],"Group Edit Object List");
       sprintf(mMenu.menu_string[1],"----------------------");
@@ -1250,44 +1041,237 @@ void mwGroupEdit::draw_list(mwRect<int> & rect, int d, int have_focus)
          }
       }
    }
-
-
-
-
-
-
-
-
 }
 
 
 
-void mwGroupEdit::draw_controls(mwRect<int> & rect, int d, int have_focus)
+
+int mwGroupEdit::show_controls(int x, int y, int w, int &h, int d)
 {
-   // erase background
-   rect.draw_filled_rectangle(mColor.pc[0]);
+   char msg[1024];
+   int nc = 0; // number of valid controls
+   int by = y; // running y pos
+   int bts = 16;
 
-   int hidden = 0; // always show
-   int ew, eh;
-   mGroupEdit.show_controls(rect.x1, rect.y1+20, &ew, &eh, hidden, d);
+   int y_spacing = 2; // spacing between groups
 
-   rect.setWidth(ew);
-   rect.setHeight(eh);
+   // find number of items in list
+   int ni = 0;
+   for (int i=0; i<NUM_OBJ; i++)
+      if (obj_list[i][0]) ni++;
 
-   if (!hidden)
+   if (ni)
    {
-      mMiscFnx.titlex("Group Edit Controls", 15, 13, rect.x1, rect.x2, rect.y1+1);
-      int by1 = rect.y1+3;
-      int bxp = rect.x2-12;
-      if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?", d)) mHelp.help("Group Edit");
-      int fc = 13;
-      //if (have_focus) fc = 10;
-      al_draw_rectangle(rect.x1, rect.y1, rect.x2, rect.y2, mColor.pc[fc], 1); // frame entire window
-      bxp -= 16;
-      if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "+", d)) mGroupEdit.expand_all_controls();
-      bxp -= 16;
-      if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "-", d)) mGroupEdit.collapse_all_controls();
-   }
+      set_valid_controls();
+
+      for (int ge_num=0; ge_num<100; ge_num++)
+         if (ge_data[ge_num].valid)
+         {
+            nc++;
+            int gvt = ge_data[ge_num].vartyp;
+            int gvn = ge_data[ge_num].varnum;
+
+            // get height
+            int height = 2 + bts;
+            if (!ge_data[ge_num].collapsed)
+            {
+               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9)) height += bts * 4;
+               else height += bts;
+            }
+
+            // make rect for control widget
+            mwRect<int> rect = mwRect<int>::fromX1Y1WH(x+2, by, w-5, height);
+
+            // detect mouse
+            int mouse_detect = 0;
+            if (rect.contains(mInput.mouse_x, mInput.mouse_y)) mouse_detect = 1;
+
+            // set color
+            int fcol = 13;
+            if (mouse_detect) fcol = 10;
+
+            // clear and frame
+            rect.draw_filled_rectangle(mColor.pc[fcol+208]);
+            rect.draw_rectangle(mColor.pc[fcol], 1);
+
+            int x1 = rect.x1;
+            int x2 = rect.x2;
+            int x3 = x2 - 60;
+            int x4 = x1 + 160;
+            int y1 = rect.y1+2;
+
+            // old dumb version
+            // sprintf(msg, "%s", ge_data[ge_num].name);
+            // //adjust button size to text
+            // int sl = (strlen(msg)+2)*4;
+            // int tx1 = x4 - sl + 3;
+            // int tx2 = x4 + sl - 1;
+            // mWidget.mButtonToggle(0, tx1, tx2,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, msg, msg, 12, 12, 15, 15, 0, 0, d);
+
+            // better using new auto width
+            // mWidget.mButtonToggle(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, ge_data[ge_num].name, ge_data[ge_num].name, 12, 12, 15, 15, 0, 0, d);
+
+            // plain button with no toggle
+            mWidget.mButton(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 1,     12, 0, 15, 0, 0, ge_data[ge_num].name, d);
+            mWidget.mButtonToggle(0, x2-12, x2-4,  y1, bts,    1, 0, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
+            if (!ge_data[ge_num].collapsed)
+            {
+               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9))
+               {
+                  // find min max and average
+                  float mins = 9999;
+                  float maxs = -9999;
+                  float tally = 0;
+
+                  for (int i=0; i<NUM_OBJ; i++)
+                     if (obj_list[i][0])
+                     {
+                        float val = get_var(gvt, gvn, obj_list[i][1]);
+                        if (val < mins) mins = val;
+                        if (val > maxs) maxs = val;
+                        tally += val;
+                     }
+                  float avg = tally / (float) ni;
+
+                  //sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+                  sprintf(msg, "min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+                  mWidget.mButton(0, x1+12, x2-12,   1, y1, bts-2,    1, 0, 1, 1,   0, 13, 15, 0, 0, msg,    d);
+                  y1+=bts;
+
+                  float mna = ge_data[ge_num].min_allowed;
+                  float mxa = ge_data[ge_num].max_allowed;
+
+                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, .1, .01, .1, "v1:", 0, d); y1+=bts;
+                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, .1, .01, .1, "v2:", 0, d); y1+=bts;
+                  mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
+
+                  if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))
+                  {
+                     float mn = ge_data[ge_num].adj_min;
+                     float mx = ge_data[ge_num].adj_max;
+                     if (ge_data[ge_num].adj_mode == 0) // randomize
+                     {
+                        for (int i=0; i<NUM_OBJ; i++)
+                           if (obj_list[i][0])
+                              set_var(gvt, gvn, obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
+                     }
+                     if (ge_data[ge_num].adj_mode == 1) // increment
+                     {
+                        float inc = (mx-mn)/ni;
+                        float val = mn;
+                        for (int i=0; i<NUM_OBJ; i++)
+                           if (obj_list[i][0])
+                           {
+                              set_var(gvt, gvn, obj_list[i][1], val);
+                              val += inc;
+                           }
+                     }
+                     if (ge_data[ge_num].adj_mode == 2) // set all to min
+                     {
+                        for (int i=0; i<NUM_OBJ; i++)
+                           if (obj_list[i][0])
+                              set_var(gvt, gvn, obj_list[i][1], mn);
+                     }
+                     if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
+                     {
+                        float val = get_var(gvt, gvn, obj_list[0][1]);
+                        for (int i=0; i<NUM_OBJ; i++)
+                           if (obj_list[i][0])
+                              set_var(gvt, gvn, obj_list[i][1], val);
+                     }
+
+
+                  } // end of Apply!
+               } // end of types 2, 3, 4
+               else if (gvt == 5) // initial direction
+               {
+                  if (mWidget.mButton(0, x1+10, x4-30,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Random", d))
+                  {
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (obj_list[i][0])
+                        {
+                           int num = obj_list[i][1];
+                           mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
+                        }
+                  }
+                  if (mWidget.mButton(0, x4-28, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Aim at Start Block", d))
+                  {
+                     int sbx = 0, sby = 0; // start block x and y
+                     for (int c=0; c<500; c++)
+                        if (mItem.item[c][0] == 5)
+                        {
+                           sbx = mItem.item[c][4];
+                           sby = mItem.item[c][5];
+                        }
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (obj_list[i][0])
+                        {
+                           int num = obj_list[i][1];
+                           mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
+                        }
+                  } // end of aim at start block
+               } // end of type 5
+               else if (gvt == 6) // initial position
+               {
+                  if (mWidget.mButton(0, x1+10, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Randomize Position Within Selection", d))
+                  {
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (obj_list[i][0])
+                        {
+                           int typ = obj_list[i][0];
+                           int num = obj_list[i][1];
+                           object_initial_position_random(typ, num);
+                        }
+                  }
+               }
+
+               else if (gvt == 7) // vinepod flags
+               {
+                  int fx3 = x1 + 100;
+                  int fx4 = x1 + 200;
+                  if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                  if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+                  if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     {
+                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+                        else                             mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                     }
+               }
+
+            } // end of not collapsed
+            by+=height+y_spacing;
+         } // end of valid ge_num
+
+      h = by-y-y_spacing + 16;
+   } // end of more than 0 items in list
+   else h = 12;
+   return nc;
+}
+
+
+
+
+void mwGroupEdit::draw_controls(mwWindow & w)
+{
+   int d = w.disable_input;
+
+   int by1 = w.rect.y1+3;
+   int bxp = w.rect.x2-12;
+   if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?", d)) mHelp.help("Group Edit");
+   bxp -= 16;
+   if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "+", d)) mGroupEdit.expand_all_controls();
+   bxp -= 16;
+   if (mWidget.mButton(0, bxp, bxp+8,   1, by1, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "-", d)) mGroupEdit.collapse_all_controls();
+
+   int h;
+   mGroupEdit.show_controls(w.rect.x1, w.rect.y1+14, w.rect.w, h, d);
+   w.rect.setHeight(h);
+
 }
 
 

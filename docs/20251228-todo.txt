@@ -19,48 +19,6 @@ TO DO
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 here is a big one...
 
 redo the overworld level to rearrange the levels once again
@@ -280,7 +238,6 @@ I need some sub areas:
 what if i had a mode where player could control movement of lift with direction key?
 
 
-
 add to settings:
 - prompt to save when quitting level editor..done
 - make backup when saving level..done
@@ -314,6 +271,7 @@ help screens
 - at the start of level editor, mention only available in classic mode
 - redo section of block selection
 - fix ref to tile helper
+
 
 
 

@@ -1,6 +1,7 @@
 #ifndef PM_MWOBJECTVIEWER_H
 #define PM_MWOBJECTVIEWER_H
 #include "mwRect.h"
+#include "mwWindow.h"
 
 class mwObjectViewer
 {
@@ -16,14 +17,12 @@ public:
    int num;
    int mb;
    int viewer_lock;
-   int legend_line;
+   int legend_line_highlight;
    int num_legend_lines;
    int pop_msg_viewer_pos;
    int snap;
 
-
-
-
+   char window_title[1024];
 
 
    int mouse_on_obj = 0;
@@ -59,27 +58,10 @@ public:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    int create_obj(int obt, int type, int num);
    void ov_get_size();
    void set_switch_tile(int i);
-   void ov_title(int x1, int x2, int y1, int y2, int legend_highlight);
+   void ov_title(int x1, int x2, int y1, int y2, int color);
 
 
    void odbi(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt);
@@ -112,7 +94,7 @@ public:
 
    void object_viewer(int obt, int num);
 
-   void draw(mwRect<int> &rect, int draw_only, int have_focus);
+   void draw(mwWindow & w);
 
    void draw_level_editor_background_overlays(int mouse_on_window);
 
