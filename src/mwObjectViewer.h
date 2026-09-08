@@ -22,9 +22,6 @@ public:
    int pop_msg_viewer_pos;
    int snap;
 
-   char window_title[1024];
-
-
    int mouse_on_obj = 0;
 
    // vinepod only

@@ -38755,6 +38755,63 @@ window title
 I might want to redo the whole title bar and item enemy number thing
 make it all live in the titlebar....
 
+What do I want it to look like?
+
+Lift#:[] 
+Item#:[]
+Enemy#:[]
+
+then
+desc x of x
+
+
+how about top left corner full size tile
+then to the right, name and under that x of x
+
+then object type and number
+Object type: Enemy | Item | Lift
+Object number: 
+ 
+I am looking at my window class and I think I would like to make the title bar height adjustable
+now it is fixed at 11
+   
+added:   
+int title_bar_height = 11;
+
+it might be nice to make all ov's the same width
+
+
+2026-09-08 07:33:01
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
 
 
 

@@ -88,7 +88,7 @@ void mwWindow::process_mouse()
    {
       // title bar rect
       mwRect<int> title_bar_rect = rect;
-      title_bar_rect.setHeight(11);
+      title_bar_rect.setHeight(title_bar_height);
 
       // size adjust rect
       mwRect<int> size_adj_rect = rect;
@@ -153,7 +153,7 @@ void mwWindow::draw(int draw_only)
    if (draw_mode == 1)
    {
       // clear, frame, title
-      rect.clear_frame_title(mColor.pc[color+224], mColor.pc[color], mColor.White, 12, title_text_just, mFont.pr8, title);
+      rect.clear_frame_title(mColor.pc[color+224], mColor.pc[color], mColor.White, title_bar_height, title_text_just, mFont.pr8, title);
 
       // show the X button
       if (enable_X_button && mWidget.mButton(1, rect.x2-10, 8,   1, rect.y1, 12,  0,0,0,3,  0,0,15,hover_highlight,   0, "X", disable_input)) active = 0;
@@ -165,18 +165,21 @@ void mwWindow::draw(int draw_only)
       {
          // title bar rect
          mwRect<int> title_bar_rect = rect;
-         title_bar_rect.setHeight(12);
+         title_bar_rect.setHeight(title_bar_height);
+
 
          // highlight title bar frame if hovered
          if (moveable && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y)) title_bar_rect.draw_rectangle(mColor.pc[hover_highlight], 1);
 
-         // size adjust rect
-         mwRect<int> size_adj_rect = rect;
-         size_adj_rect.setWH_adj_X1Y1(10, 10);
+         if (resizable)
+         {
+            // size adjust rect
+            mwRect<int> size_adj_rect = rect;
+            size_adj_rect.setWH_adj_X1Y1(10, 10);
 
-         // highlight size adjust triangle if hovered
-         if (resizable && size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y)) al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[hover_highlight]);
-
+            // highlight size adjust triangle if hovered
+            if (size_adj_rect.contains(mInput.mouse_x, mInput.mouse_y)) al_draw_filled_triangle(rect.x2-10, rect.y2, rect.x2, rect.y2, rect.x2, rect.y2-10, mColor.pc[hover_highlight]);
+         }
       }
    }
 

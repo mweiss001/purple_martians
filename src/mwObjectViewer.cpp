@@ -101,6 +101,9 @@ void mwObjectViewer::ov_get_size()
 
    if (obt == 3) w = 300; // all enemies
 
+
+   w = 300;
+
    if ((obt == 3) && (type == 9 )) w = 320; // cloner
 
 
@@ -166,13 +169,15 @@ void mwObjectViewer::set_switch_tile(int i)
 
 void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 {
+//   char msg[1024];
+
    int type=0;
    if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = mEnemy.Ei[num][0];
 
 
    int xc = (x1+x2)/2;
-   int yt = y1+14;
+//   int yt = y1+14;
 
    // legend line text
    char lmsg[6][80];
@@ -195,10 +200,16 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
 
    // title bar
-   window_title[0] = 0;
-   if (obt == 2) sprintf(window_title, "Item Viewer [%d]", num);
-   if (obt == 3) sprintf(window_title, "Enemy Viewer [%d]", num);
-   if (obt == 4) sprintf(window_title, "Lift Viewer [%d]", num);
+//   window_title[0] = 0;
+   // if (obt == 2) sprintf(window_title, "Item Viewer [%d]", num);
+   // if (obt == 3) sprintf(window_title, "Enemy Viewer [%d]", num);
+   // if (obt == 4) sprintf(window_title, "Lift Viewer [%d]", num);
+
+
+//   if (obt == 2) sprintf(window_title, "Item#:%d", num);
+//   if (obt == 3) sprintf(window_title, "Enemy#:%d", num);
+//   if (obt == 4) sprintf(window_title, "Lift#:%d", num);
+
 
    // for (int x=0; x<15; x++)
    //    al_draw_line(x1, y1+x, x2, y1+x, mColor.pc[13+(x*16)], 1);
@@ -208,15 +219,51 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
    if (obt == 4)  // lifts
    {
       num_legend_lines = 0;
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
-      al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, mLift.get_num_lifts());
+//      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
+//      sprintf(window_title, "Lift:%d [%d of %d]", num, num+1, mLift.get_num_lifts());
+//      al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, msg);
+
+      //      sprintf(window_title, "%s %s", window_title, msg);
+
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+4, y1+3,  0, "Lift");
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+4, y1+12, 0, "%d of %d", num+1, mLift.get_num_lifts());
+
+      // al_draw_textf(mFont.pr8, mColor.pc[13], x1+104, y1+3,   0, "Object:Lift");
+      // al_draw_textf(mFont.pr8, mColor.pc[13], x1+104, y1+12,  0, "Lift Number:%d", num);
+
+
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+104, y1+3,  0, "Lift Number:%d", num);
+
+
+
    }
    if (obt == 3)  // enemies
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
-      mEnemy.draw_enemy(num, 1, xc-92, yt+1);
-//      sprintf(window_title,"%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
-      al_draw_textf(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, "%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
+
+      // sprintf(window_title, "Enemy:%d  %s %d of %d", num, mEnemy.enemy_name[type][0], num - mEnemy.e_first_num[type] + 1 ,mEnemy.e_num_of_type[type]);
+
+//      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
+//      mEnemy.draw_enemy(num, 1, xc-92, yt+1);
+
+//      sprintf(msg, "%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
+//      sprintf(msg, "%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
+//      //      al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, msg);
+//      al_draw_rectangle(x1, yt, xc+94, yt+22, mColor.pc[color], 1);
+
+      mEnemy.draw_enemy(num, 1, x1+1, y1+1);
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+24, y1+3,  0, "%s", mEnemy.enemy_name[type][0]);
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+24, y1+12, 0, "%d of %d", num - mEnemy.e_first_num[type] + 1, mEnemy.e_num_of_type[type]);
+
+//      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+3,   0, "Object:Enemy");
+//      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+12,  0, "Number:%d", num);
+
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+3,  0, "Enemy Number:%d", num);
+
+
+      //   if (obt == 4) sprintf(window_title, "Lift#:%d", num);
+
+
+      //      sprintf(window_title, "%s - %s", window_title, msg);
       switch (type)
       {
          case 1:
@@ -290,11 +337,24 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
    }
    if (obt == 2)  // items
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
-      mItem.draw_item(num, 1, xc-94, yt+1);
-//      sprintf(window_title,"%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
+      // al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[color], 1);
+      // mItem.draw_item(num, 1, xc-94, yt+1);
+      // sprintf(msg, "%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
+      // al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, msg);
+      // sprintf(window_title, "%s %s", window_title, msg);
 
-      al_draw_textf(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, "%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
+      mItem.draw_item(num, 1, x1+1, y1+1);
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+24, y1+3,  0, "%s", mItem.item_name[type]);
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+24, y1+12, 0, "%d of %d", num - mItem.item_first_num[type] + 1, mItem.item_num_of_type[type]);
+
+//      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+3,   0, "Object:Item");
+//      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+12,  0, "Number:%d", num);
+
+      al_draw_textf(mFont.pr8, mColor.pc[13], x1+124, y1+3,  0, "Item Number:%d", num);
+
+
+
+
       switch (type)
       {
          case 1: // door
@@ -2330,9 +2390,6 @@ void mwObjectViewer::draw(mwWindow & w)
    ov_check_if_valid();
    ov_get_size();
    ov_title(w.rect.x1, w.rect.x2, w.rect.y1, w.rect.y2, w.color);
-
-   w.set_title(window_title);
-
    ov_draw_buttons(w.rect.x1, w.rect.y1, w.rect.x2, w.rect.y2, w.disable_input);
 }
 

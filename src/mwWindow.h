@@ -32,6 +32,8 @@ class mwWindow
    int moveable;
    int moving;
 
+   int title_bar_height = 12;
+
    mwWindow(); // default constructor
    void set_title(const char*);
    void set_pos(int, int);
