@@ -103,7 +103,7 @@ class mwItem
    void proc_key_block_range(int i, int action);
    void proc_switch_collision(int p, int i);
    void proc_switch_block_range(int i, int action);
-
+   void set_switch_tile(int i);
 
    // hider
    void proc_hider(int i);

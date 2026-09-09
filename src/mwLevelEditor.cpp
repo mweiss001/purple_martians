@@ -74,10 +74,12 @@ void mwLevelEditor::init_windows()
    mWM.mW[6].drawFunction = [this]() { mGroupEdit.draw_controls(mWM.mW[6]); };
    mWM.mW[6].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[7].init(6, 5, 200, 60, 300, 300, 13, "", 1, 0, 13, 0); // Object Viewer
-   mWM.mW[7].title_bar_height = 22;
+   mWM.mW[7].init(6, 5, 200, 60, 300, 300, 13, "Viewer", 1, 1, 13, 0); // Object Viewer
+//   mWM.mW[7].title_bar_height = 22;
    mWM.mW[7].drawFunction = [this]() { mObjectViewer.draw(mWM.mW[7]); };
    mWM.mW[7].redrawCallback = []() { mLevelEditor.redraw_callback(); };
+
+
 
    mWM.mW[8].init(7, 6, 0, 0, mDisplay.SCREEN_W, BORDER_WIDTH, 0, "Level Editor Top Menu", 0, 0, 0, 0);
    mWM.mW[8].moveable = 0;

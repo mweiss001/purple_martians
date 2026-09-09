@@ -234,3 +234,43 @@ void mwItem::proc_switch_block_range(int i, int action)
    }
 }
 
+
+void mwItem::set_switch_tile(int i)
+{
+   int b = 96; // base
+   int nc = 0; // number of colors
+   int c[4] = {0};
+
+   if (item[i][10] & 0b0001) { c[nc] = 9;  nc++;} // green
+   if (item[i][10] & 0b0010) { c[nc] = 10; nc++;} // red
+   if (item[i][10] & 0b0100) { c[nc] = 12; nc++;} // blue
+   if (item[i][10] & 0b1000) { c[nc] = 8;  nc++;} // purple
+
+   // no colors selected
+   if (nc == 0) mItem.item[i][1] = b;                     // white
+
+   // one color selected
+   if ((nc == 1) && (c[0] == 9))  item[i][1] = b+1; // green
+   if ((nc == 1) && (c[0] == 10)) item[i][1] = b+2; // red
+   if ((nc == 1) && (c[0] == 12)) item[i][1] = b+3; // blue
+   if ((nc == 1) && (c[0] == 8))  item[i][1] = b+4; // purple
+
+   // two colors selected
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 10)) item[i][1] = b+5;  // green red
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 12)) item[i][1] = b+6;  // green blue
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 8))  item[i][1] = b+7;  // green purple
+   if ((nc == 2) && (c[0] == 10) && (c[1] == 12)) item[i][1] = b+8;  // red blue
+   if ((nc == 2) && (c[0] == 10) && (c[1] == 8))  item[i][1] = b+9;  // red purple
+   if ((nc == 2) && (c[0] == 12) && (c[1] == 8))  item[i][1] = b+10; // blue purple
+
+   // three colors selected
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 12)) item[i][1] = b+11;  // green red  blue
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 8))  item[i][1] = b+12;  // green red  purple
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 12) && (c[2] == 8))  item[i][1] = b+13;  // green blue purple
+   if ((nc == 3) && (c[0] == 10) && (c[1] == 12) && (c[2] == 8))  item[i][1] = b+14;  // red   blue purple
+
+   // four colors selected
+   if (nc == 4) item[i][1] = b+15;  // green red blue purple
+
+}
+

@@ -24,6 +24,9 @@ public:
 
    int mouse_on_obj = 0;
 
+   char window_title[1024];
+
+
    // vinepod only
    int mouse_on_vpodx = 0;
    int mouse_on_vpod1 = 0;
@@ -54,11 +57,11 @@ public:
 
 
 
-
    int create_obj(int obt, int type, int num);
-   void ov_get_size();
-   void set_switch_tile(int i);
+
    void ov_title(int x1, int x2, int y1, int y2, int color);
+
+   void ov_set_width(mwWindow & w);
 
 
    void odbi(int d, int xa, int xb, int &ya, int bts, int col, int &var, int ul, int ll, int sl_inc, int st1_inc, int st2_inc, const char* txt);

@@ -18,6 +18,44 @@ TO DO
 
 
 
+filters
+
+make section lines overwrite button group rectangles
+
+
+leave off view buttons for blocks and flags, they do nothing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 here is a big one...
 
