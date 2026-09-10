@@ -619,17 +619,26 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
 
       ya+=4;
 
+
+      int ly1 = 0;
+      int ly2 = 0;
+      int ly3 = 0;
+      int ly4 = 0;
+
+
       if (filter_mode > 2) // add blocks and flags
       {
          odbdc(d, xa, ya, bts, 1, 1, "Blocks");
          odbdc(d, xa, ya, bts, 1, 2, "Flags");
          al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+         ly1 = ya+1;
          ya+=4;
       }
       if (filter_mode > 1) // add lifts
       {
          odbdc(d, xa, ya, bts, 4, 1, "Lifts");
          al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+         ly2 = ya+1;
          ya+=4;
       }
 
@@ -643,6 +652,7 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       odbdc(d, xa, ya, bts, 3, 8, "TrakBot");
       odbdc(d, xa, ya, bts, 3, 9, "Cloner");
       al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+      ly3 = ya+1;
       ya+=4;
 
       odbdc(d, xa, ya, bts, 2,  1, "Door");
@@ -664,6 +674,7 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       odbdc(d, xa, ya, bts, 2, 18, "Gate");
       odbdc(d, xa, ya, bts, 2, 19, "Hider");
       al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+      ly4 = ya+1;
       ya+=4;
 
       // column rects
@@ -681,6 +692,10 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       // draw column rects
       al_draw_rectangle(ecbx1, cby1, ecbx2, cby2, mColor.pc[ec], 1);
       al_draw_rectangle(vcbx1, cby1, vcbx2, cby2, mColor.pc[vc], 1);
+
+
+
+
 
       // view legend
       float vx1 = vcbx2;// + mLoop.pct_x;
@@ -712,6 +727,13 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       al_draw_line(vcx1, cby2, vcx1, vcy1, mColor.pc[vc], 1);
       al_draw_line(vcx1, vcy1, vx1, vcy1, mColor.pc[vc], 1);
 
+
+
+
+
+
+
+
       // edit legend
       float ex1 = ecbx2;// + mLoop.pct_x;
       float ex2 = ex1 + 87;
@@ -740,6 +762,13 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       float ecy1 = (ey1 + ey2) / 2;
       al_draw_line(ecx1, cby2, ecx1, ecy1, mColor.pc[ec], 1);
       al_draw_line(ecx1, ecy1, ex1, ecy1, mColor.pc[ec], 1);
+
+      // redraw section divider lines to overwrite group rectangles and lines
+      if (ly1) al_draw_line(x1, ly1, x2, ly1, mColor.pc[c], 1);
+      if (ly2) al_draw_line(x1, ly2, x2, ly2, mColor.pc[c], 1);
+      if (ly3) al_draw_line(x1, ly3, x2, ly3, mColor.pc[c], 1);
+      if (ly4) al_draw_line(x1, ly4, x2, ly4, mColor.pc[c], 1);
+
 
       ya+=28;
 

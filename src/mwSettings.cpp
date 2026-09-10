@@ -1571,8 +1571,7 @@ void mwSettings::page_viewport(void)
 
    ya += line_spacing;
 
-   mWidget.mButtonCustom(0, xa+80, xb-80, 1, ya, bts-2, 1, 2, 0, 1,   8, 0, 15, 0, 0, 1020, mScreen.viewport_mode, 0, 0, 0);
-   ya+=bts;
+   mWidget.mButtonCustom(0, xa+80, xb-80, ya, bts, 1, 2, 0, 1,   8, 0, 15, 0, 0, 1020, mScreen.viewport_mode, 0, 0, 0);
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
    ya -= 2;

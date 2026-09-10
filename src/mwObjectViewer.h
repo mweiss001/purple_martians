@@ -71,6 +71,7 @@ public:
 
    bool odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt);
 
+   bool odbc(int d, int xa, int xb, int &ya, int bts, int bcol, int tcol, int type, int& v1, int v2, int v3);
 
 
 

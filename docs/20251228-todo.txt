@@ -18,44 +18,6 @@ TO DO
 
 
 
-filters
-
-make section lines overwrite button group rectangles
-
-
-leave off view buttons for blocks and flags, they do nothing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 here is a big one...
 
@@ -273,6 +235,11 @@ I need some sub areas:
 - button to load, save, etc
 
 
+
+
+
+
+
 what if i had a mode where player could control movement of lift with direction key?
 
 
@@ -287,6 +254,43 @@ add to settings:
 
 Widgets
 ---------------
+move the widget helpers into widgets
+
+is object viewer as clean as it could be?
+
+I want to replace some custom buttons with 3 items with PD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

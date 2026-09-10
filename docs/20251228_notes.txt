@@ -38855,6 +38855,24 @@ object viewer done??...yes
 commit...
 
 
+made ya inc version of  mButtonCustom
+
+made ov version 
+bool mwObjectViewer::odbc(int d, int xa, int xb, int &ya, int bts, int bcol, int tcol, int type, int& v1, int v2, int v3)
+{
+   return mWidget.mButtonCustom(0, xa, xb, ya, bts, 1, 2, 0, 1,   bcol, 0, tcol, 0, 0, type, v1, v2, v3, d);
+}
+
+went through all ov buttons and changed all to obxx versions
+
+I would still like to do the same for mButtonPD
+
+Then see if some custom buttons might be better off with PD versions
+
+Then maybe change obxx to also have ya inc as parameter to clean up so many spacer things...
+
+
+2026-09-10 07:21:40
 
 
 

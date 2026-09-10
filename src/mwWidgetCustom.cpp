@@ -16,6 +16,14 @@
 
 
 
+// wrapper to increment ya by bts
+bool mwWidget::mButtonCustom(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input)
+{
+   bool res = mButtonCustom(xType, xa, xb, 1, ya, bts-2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, type, v1, v2, v3, disable_input);
+   ya += bts;
+   return res;
+}
+
 bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input)
 {
    int x1, y1, x2, y2;
