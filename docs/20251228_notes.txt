@@ -38871,8 +38871,134 @@ Then see if some custom buttons might be better off with PD versions
 
 Then maybe change obxx to also have ya inc as parameter to clean up so many spacer things...
 
-
 2026-09-10 07:21:40
+
+
+2026-09-11 04:31:18
+
+did the same for mButtonPD
+also I have 30 calls to 
+mWidget.mButtonToggleFlag
+done
+
+
+2026-09-11 05:26:17
+now look at what might be better as PD instead of Custom
+erase background for bouncer ans buttons..done
+re-arranged Custom in numerical order
+draw boxes and mode on cloner..done
+
+door
+entry type
+exit link show
+done
+
+   if (type == 1053) // door move type
+   {
+      if (pressed) v1++;
+      if ((v1 < 1) || (v1 > 2)) v1 = 1;
+      if (v1 == 1) sprintf(msg, "Move Type:Instant");
+      if (v1 == 2) sprintf(msg, "Move Type:Travel ");
+   }
+make toggle
+cant. its 1 2 not 0 1
+
+
+
+what about stat fall?
+start mode...done
+
+
+timer draw mode
+
+   if (type == 1083)
+   {
+      if (pressed) v1++;
+      if ((v1 < 0) || (v1 > 1)) v1 = 0;
+      if (v1 == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (v1 == 1) sprintf(msg, "Draw Mode:Progress Bar");
+   }
+
+make toggle..done
+timer output mode..done
+
+
+
+fix door travel type from 12 to 01
+mItem.item[n][7]
+with glt find all ranges
+done...
+
+now can I do the same for bonus?
+
+      if (v1 == 1) sprintf(msg, "Type: Health Bonus");
+      if (v1 == 3) sprintf(msg, "Type: Purple Coin");
+
+there are many places in code that I would need to change
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
+               
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

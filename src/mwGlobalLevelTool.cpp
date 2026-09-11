@@ -264,6 +264,24 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
+      // for (int y=0; y<500; y++)
+      //    if (mItem.item[y][0] == 1) // door
+      //    {
+      //       if (mItem.item[y][8])
+      //       {
+      //          if (mItem.item[y][7] == 0)  printf("l:%d 0 \n", le[x]);
+      //          if (mItem.item[y][7] > 2)  printf("l:%d >2 \n", le[x]);
+      //
+      //          mItem.item[y][7]--;
+      //
+      //
+      //       }
+      //
+      //    }
+
+
+
+
 /*
 
       // clear new lift struct
@@ -336,7 +354,6 @@ void mwGlobalLevelTool::execute(void)
       if (var == 2) sprintf(msg, "Checkpoint Common");
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
-
 
       if (0)
       {

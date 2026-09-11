@@ -188,8 +188,8 @@ void mwItem::proc_door_collision(int p, int i)
 
                int instant_move = 0;
 
-               if (item[i][7] == 1) instant_move = 1; // 1 = force instant
-               if (item[i][7] == 2) instant_move = 0; // 2 = force move
+               if (item[i][7] == 0) instant_move = 1; // 1 = force instant
+               if (item[i][7] == 1) instant_move = 0; // 2 = force move
 
                if (mPlayer.is_player_riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
 

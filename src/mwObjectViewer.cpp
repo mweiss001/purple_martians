@@ -1133,6 +1133,19 @@ void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int colt, int
    mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     0, 0, var, 0, 1, txt0, txt1, col0, col1, colt, colt, 0, 0, d);
 }
 
+
+
+void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int &var, int bitflag, const char* txt0, const char* txt1, int bcol0, int bcol1, int tcol0, int tcol1)
+{
+//   mWidget.mButtonToggle(0, xa, xb,  ya, bts,    1, 2, 0, 0,     0, 0, var, 0, 1, txt0, txt1, col0, col1, colt, colt, 0, 0, d);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, var, bitflag,  txt0, txt1, bcol0, bcol1, tcol0, tcol1, 0, 0, d);
+
+}
+
+
+
+
+
 bool mwObjectViewer::odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt)
 {
    return mWidget.mButton(0,xa,xb,  ya,bts,   0,2,3,1,   col,col,15,15,0,  txt, d);
@@ -1142,6 +1155,13 @@ bool mwObjectViewer::odbc(int d, int xa, int xb, int &ya, int bts, int bcol, int
 {
    return mWidget.mButtonCustom(0, xa, xb, ya, bts, 1, 2, 0, 1,   bcol, 0, tcol, 0, 0, type, v1, v2, v3, d);
 }
+
+bool mwObjectViewer::odbp(int d, int xa, int xb, int &ya, int bts, int col, int type, int& v1)
+{
+   return mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2, col, col, col, 15, 1, type, v1, d);
+}
+
+
 
 
 
@@ -1162,7 +1182,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // button x position
    int xa = x1+1;
    int xb = x2-1;
-   int ya = y1+38+mLoop.pct_y;
+   int ya = y1+38;
    // split into thirds
    int x13 = xa + 1 * (xb-xa) / 3; // 1/3
    int x23 = xa + 2 * (xb-xa) / 3; // 2/3
@@ -1206,17 +1226,14 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    {
       int lift = n;
       int step = mLift.cur[n].current_step;
-
-      mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 500, mLift.cur[lift].mode, d);      // lift mode
-      mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 504, mLift.cur[lift].draw_mode, d); // draw mode
-
+      odbp(d, xa, xb, ya, bts, 13, 500, mLift.cur[lift].mode); // lift mode
+      odbp(d, xa, xb, ya, bts, 13, 504, mLift.cur[lift].draw_mode); // draw mode
       if (mLift.cur[lift].draw_mode == 10) // single block
       {
          ya+=4;
          odbc(d, xa, xb, ya, bts, 8, 15, 320, n, 0, 0); // set single block
          ya+=4;
       }
-
       if (( mLift.cur[lift].draw_mode == 11) || (mLift.cur[lift].draw_mode == 12)) // 3 block platform or column
       {
          ya+=4;
@@ -1227,10 +1244,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       if (mLift.cur[lift].mode)
          odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");
 
-
       mWidget.mButton(0, xa, xb,   1, ya, bts-2,   0, 2, 0, 21,   13, 15, 15,  0, 0, "Lift Name:", 1);
       if (mWidget.mButton(3, xa+84, 0,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLift.cur[lift].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLift.cur[lift].lift_name, sizeof(mLift.cur[lift].lift_name));
-
 
       ya+=bts;
 
@@ -1299,9 +1314,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 12, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
             ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 8, 9, 13, n, 0, 0); // main shape
+            odbc(d, xa, xb, ya, bts, 8, 9, 1313, n, 5, 0); // main shape
             ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 8, 9, 14, n, 0, 0); // seek shape
+            odbc(d, xa, xb, ya, bts, 8, 9, 1313, n, 6, 0); // seek shape
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
             odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
@@ -1408,30 +1423,27 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][17],      400,        2,        1,        1,       10,      "Extend Time:");
             odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][9],       400,        0,        1,        1,       10,      "Pause:");
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 11+dim, 11, 15+dim, 15, 0, 0, d);
-
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 11+dim, 11, 15+dim, 15);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_FIRE_SHOT)
             odbf(d, xa, xb, ya, bts, 11, mEnemy.Ef[n][7],        20,      0.8,      0.1,      0.1,        1,      "Shot Speed:");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  2, mEnemy.Ei[n][19],       99,        0,        1,        1,       10,      "Output Event:", "OFF");
             ya+=4; // spacer
-
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path" ,                            14+dim, 14, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF" , "Invincible At Rest:ON ",  14+dim, 14, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 14+dim, 14, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF"  , "Invincible Moving:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
-
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path" ,                            14+dim, 14, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF" , "Invincible At Rest:ON ",  14+dim, 14, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 14+dim, 14, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF"  , "Invincible Moving:ON ",   14+dim, 14, 15+dim, 15);
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
             odb0(d, xa, xb, ya, bts, 13, mEnemy.Ei[n][18],       99,        0,        1,        1,       10,      "Event Trigger:", "OFF");
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ",   14+dim, 14, 15+dim, 15);
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
             {
                if (odbb(d, xa, xb, ya, bts, 14, "Set Internal Trigger Box")) mMiscFnx.get_block_range("Trigger Box", mEnemy.Ei[n][11], mEnemy.Ei[n][12], mEnemy.Ei[n][13], mEnemy.Ei[n][14], 2);
             }
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ",   14+dim, 14, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ",   3+dim, 3, 15+dim, 15 );
             if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
             {
                odbf(d, xa, xb, ya, bts,  3, mEnemy.Ef[n][6],        8,         1,      0.1,      0.1,        1,      "Control Point Scale:");
@@ -1444,14 +1456,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             static int xfrm = 1;
             static int rot = 90;
             static float sca = 1.0;
-
             int c = 6;
             odbt(d, xa, xb, ya, bts, 15, xfrm,        c+64, c,  "Transform Tools:Off", "Transform Tools:On");
-
             if (xfrm)
             {
                ya+=2; // spacer
-
                int xh = 70;
                if (odbb(d, xa, xa+xh-2, ya, bts, c, "Rotate")) mEnemy.vinepod_rotate(n, mEnemy.deg_to_rad(rot));
                ya-=bts;
@@ -1461,9 +1470,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                ya-=bts;
                odbf(d, xa+xh+2, xb, ya, bts-1,  c, sca,                     10,    0.01,     0.01,      0.1,       1,      "");
                ya+=1; // spacer
-
                xh = (xb-xa)/2;
-
                if (odbb(d, xa, xa+xh-2, ya, bts, c, "Mirror X")) mEnemy.vinepod_mirror_x(n);
                ya-=bts;
                if (odbb(d, xa+xh+2, xb, ya, bts, c, "Mirror Y")) mEnemy.vinepod_mirror_y(n);
@@ -1478,11 +1485,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][2],        10,      0.5,     0.01,     0.01,      0.1,      "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mEnemy.Ef[n][3],        10,      0.5,     0.01,     0.01,      0.1,      "Y-Speed:");
             ya+=4; // spacer
-            if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Initial Direction",   0))
+            if (odbb(d, xa, xb, ya, bts, 12, "Initial Direction"))
             {
-               mEnemy.Ei[num][5]++;
-               if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
-               mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
+               mEnemy.Ei[n][5]++;
+               if ((mEnemy.Ei[n][5] < 0) || (mEnemy.Ei[n][5] > 7)) mEnemy.Ei[n][5] = 0; // enforce limits
+               mEnemy.set_trakbot_mode(num, mEnemy.Ei[n][5]);
             }
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mEnemy.Ei[n][7],    6+64, 6,  "Drop Mode:Off", "Drop Mode:On ");
@@ -1508,8 +1515,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (odbb(d, xa, xb, ya, bts, 11, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", mEnemy.Ei[n][15], mEnemy.Ei[n][16], mEnemy.Ei[n][19], mEnemy.Ei[n][20], 1);
             if (odbb(d, xa, xb, ya, bts, 10, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
             ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 13, 15, 1081, mEnemy.Ei[n][4], 0, 0); // show boxes
-            odbc(d, xa, xb, ya, bts, 13, 15, 1082, mEnemy.Ei[n][5], 0, 0); // draw mode
+            odbp(d, xa, xb, ya, bts, 13, 1081, mEnemy.Ei[n][4]); // show boxes
+            odbp(d, xa, xb, ya, bts, 13, 1082, mEnemy.Ei[n][5]); // draw mode
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts,  4, mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
             odbf(d, xa, xb, ya, bts,  4, mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
@@ -1561,17 +1568,17 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                ya+=4; // spacer
                char msg[80];
                sprintf(msg, "Set Destination Item (%d)", mItem.item[num][9]);
-               if (mWidget.mButton(0, xa, xb,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, msg,   0))
+               if (odbb(d, xa, xb, ya, bts, 11, msg))
                {
                   int i = mMiscFnx.get_item(2, 1, num );
                   if (i > -1) mItem.item[num][9] = i;
                }
-               odbc(d, xa, xb, ya, bts, 11, 15, 1050, mItem.item[n][11], 0, 0); // door entry type
-               odbc(d, xa, xb, ya, bts, 11, 15, 1053, mItem.item[n][7], 0, 0); // move type
-               odbc(d, xa, xb, ya, bts, 11, 15, 1051, mItem.item[n][12], 0, 0); // exit link show
+               odbp(d, xa, xb, ya, bts, 11, 1050, mItem.item[n][11]); // door entry type
+               odbt(d, xa, xb, ya, bts,  15, mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
+               odbp(d, xa, xb, ya, bts, 11, 1051, mItem.item[n][12]); // exit link show
             }
             ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 13, 15, 1052, mItem.item[n][1], 0, 0); // cycle draw type
+            odbp(d, xa, xb, ya, bts, 13, 1052, mItem.item[n][1]); // draw type
             mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][6], 0, "Select Door Color", d);
             if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mItem.change_linked_door_color_and_draw_type(n);
          break;
@@ -1605,7 +1612,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 4: // key
             odbc(d, xa, xb, ya, bts, 13, 15, 1021, mItem.item[n][3], 0, 0); // stat | fall
             ya+=4; // spacer
-            mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   13, 13, 13, 15, 1, 102, mItem.item[n][1], d); // key color
+            odbp(d, xa, xb, ya, bts, 13, 102, mItem.item[n][1]); // key color
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
@@ -1615,7 +1622,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 5: // start
             odbc(d, xa, xb, ya, bts, 13, 15, 1022, mItem.item[n][3], 0, 0); // stat | fall | carry | carry through door
             ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 11, 15, 1078, mItem.item[n][6], 0, 0); // start mode
+            odbp(d, xa, xb, ya, bts, 11, 1078, mItem.item[n][6]); // start mode
             odbi(d, xa, xb, ya, bts, 11, mItem.item[n][7], 9, 0, 1,  1, 0, "Start Index:");
             odbt(d, xa, xb, ya, bts, 15, mItem.item[n][8],  11, 11, "Increase Index Only:OFF", "Increase Index Only:ON");
             ya+=4; // spacer
@@ -1632,7 +1639,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             odbc(d, xa, xb, ya, bts, 8, 15, 92, n, 0, 0); // mode
             if (mItem.item[n][6] == 0)                                                           // only show initial state for toggle mode
-               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15, 0, 0, d);
+               odbt(d, xa, xb, ya, bts,  mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
             if ((mItem.item[n][6] == 3) || (mItem.item[n][6] == 4))                              // only show timer for mode 3 and 4
                odbi(d, xa, xb, ya, bts, 8, mItem.item[n][7], 400, 0, 1,  1, 10, "Time:");
             ya+=4; // spacer
@@ -1669,13 +1676,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case 10: // message
          {
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
             ya+=4; // spacer
             if (!(mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
             {
                odbi(d, xa, xb, ya, bts, 8, mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:");
                ya+=4; // spacer
-               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15, 0, 0, d);
+               odbt(d, xa, xb, ya, bts,  mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15);
                ya+=4; // spacer
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                odb0(d, xa, xb, ya, bts,  13, mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
@@ -1689,8 +1696,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
 
             ya+=4; // spacer
+
             int frame_size = mItem.get_frame_size(num);
-            if (mWidget.mButtonPD(0, xa, xb,  ya, bts,  2, 2, 3, 3, 3, 15, 1, 7, frame_size, d)) mItem.set_frame_size(num, frame_size);
+            if (odbp(d, xa, xb, ya, bts, 3, 7, frame_size)) mItem.set_frame_size(num, frame_size);
 
             ya+=4; // spacer
 
@@ -1728,10 +1736,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0001, "Green:OFF",  "Green:ON",   9+dim,  9, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0010, "Red:OFF",    "Red:ON",    10+dim, 10, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b0100, "Blue:OFF",   "Blue:ON",   12+dim, 12, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][10], 0b0001, "Green:OFF",  "Green:ON",   9+dim,  9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][10], 0b0010, "Red:OFF",    "Red:ON",    10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][10], 0b0100, "Blue:OFF",   "Blue:ON",   12+dim, 12, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15);
             mItem.set_switch_tile(n);
          break;
          case 15: // sproingy
@@ -1744,11 +1752,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
             mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
-
-
             int q = 11;
             if (mItem.item[n][2]) q = 10;
-            odbc(d, xa, xb, ya, bts, q, 15, 1083, mItem.item[n][2], 0, 0); // draw mode
+            odbt(d, xa, xb, ya, bts,  15, mItem.item[n][2], q, q, "Draw Mode:Hidden", "Draw Mode:Progress Bar");
             if (mItem.item[n][2])
             {
                if (odbb(d, xa, xb, ya, bts, q, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mItem.item[n][6], mItem.item[n][7], mItem.item[n][8], mItem.item[n][9], 1);
@@ -1761,21 +1767,21 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odb0(d, xa, xb, ya, bts,  q, mItem.item[n][10],  1000, 0, 1,   1, 10, "Timer 1:", "Off");
             if (mItem.item[n][10])
             {
-               mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   q, q, q, 15, 1, 160, t1_mode, d); // timer mode
+               odbp(d, xa, xb, ya, bts, q, 160, t1_mode); // timer mode
                if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
                odb0(d, xa, xb, ya, bts, q, mItem.item[n][12],  99, 0, 1,   1, 0, "Input Event:", "Off");
                odb0(d, xa, xb, ya, bts, q, mItem.item[n][13],  99, 0, 1,   1, 0, "Output Event:", "Off");
-               odbc(d, xa, xb, ya, bts, q, 15, 1085, t1_op_mode, 0, 0); // output mode
+               odbt(d, xa, xb, ya, bts,  15, t1_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
             }
             ya+=4; q = 14; // spacer
             odb0(d, xa, xb, ya, bts,  q, mItem.item[n][11],  1000, 0, 1,   1, 10, "Timer 2:", "Off");
             if (mItem.item[n][11])
             {
-               mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   q, q, q, 15, 1, 160, t2_mode, d); // timer mode
+               odbp(d, xa, xb, ya, bts, q, 160, t2_mode); // timer mode
                if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t2_mode);
                odb0(d, xa, xb, ya, bts, q, mItem.item[n][14],  99, 0, 1,   1, 0, "Input Event:", "Off");
                odb0(d, xa, xb, ya, bts, q, mItem.item[n][15],  99, 0, 1,   1, 0, "Output Event:", "Off");
-               odbc(d, xa, xb, ya, bts, q, 15, 1085, t2_op_mode, 0, 0); // output mode
+               odbt(d, xa, xb, ya, bts,  15, t2_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
             }
             state = 1;
             time = mItem.item[n][10]; // always start with full t1_timer
@@ -1793,15 +1799,15 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mItem.item[n][2], 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mItem.item[n][2], 15+dim, 15);
             if (mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
                mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][2], 0, "Select Trigger Field Color", d);
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 9+dim, 9, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 9+dim, 9, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 9+dim, 9, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15) ;
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 9+dim, 9, 15+dim, 15 );
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 9+dim, 9, 15+dim, 15 );
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 9+dim, 9, 15+dim, 15 );
             ya+=4; // spacer
             odbb(1, xa, xb, ya, bts, 11, "Continuously Set Event When:");
             odb0(d, xa, xb, ya, bts, 11, mItem.item[n][11], 99, 0, 1,  1, 0,  "On:",  "-");
@@ -1811,12 +1817,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odb0(d, xa, xb, ya, bts, 12, mItem.item[n][13], 99, 0, 1,  1, 0,  "On:",  "-");
             odb0(d, xa, xb, ya, bts, 12, mItem.item[n][14], 99, 0, 1,  1, 0,  "Off:", "-");
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts,  mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
             if (mItem.item[n][3] & PM_ITEM_TRIGGER_LIFT_ON)
             {
                odbi(d, xa, xb, ya, bts, 6, mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
-               odbc(d, xa, xb, ya, bts, 6, 15, 211, n, 0, 0); // X Alignment
-               odbc(d, xa, xb, ya, bts, 6, 15, 212, n, 0, 0); // Y Alignment
+               odbc(d, xa, xb, ya, bts, 6, 15, 401, n, 0, 0); // X Alignment
+               odbc(d, xa, xb, ya, bts, 6, 15, 402, n, 0, 0); // Y Alignment
             }
          }
          break;
@@ -1829,7 +1835,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbt(d, xa, xb, ya, bts, 15, mItem.item[n][2],   15+96, mItem.item[n][12],  "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON");
             if (mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mItem.item[n][12], 0, "Select Block Manip Field Color", d);
             ya+=4; // spacer
-            mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   14, 14, 14, 15, 1, 301, mItem.item[n][3], d); // mode
+            odbp(d, xa, xb, ya, bts, 14, 301, mItem.item[n][3]); // mode
             if (mItem.item[n][3]) // all modes except 0
             {
                ya+=2; // spacer
@@ -1875,20 +1881,18 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
             ya+=4; // spacer
-            mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   8, 8, 8, 15, 1, 404, mItem.item[n][2], d); // draw type
+            odbp(d, xa, xb, ya, bts, 8, 404, mItem.item[n][2]); // draw type
             ya+=4; // spacer
             odbc(d, xa, xb, ya, bts, 8, 15, 96, n, 0, 0); // draw rotation
             ya+=4; // spacer
-            q=7; // mode color
-            mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   q, q, q, 15, 1, 402, mItem.item[n][11], d); // mode
+            odbp(d, xa, xb, ya, bts, 7, 402, mItem.item[n][11]); // mode
             int MODE = mItem.item[n][11];
             if (MODE == 0) mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
             if (MODE == 2) mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
             if (MODE == 3) mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
             ya+=4; // spacer
             if (MODE == 1) // toggle
-               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", q+dim, q, 15+dim, 15, 0, 0, d);
-
+               odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", q+dim, q, 15+dim, 15);
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
@@ -1896,22 +1900,22 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                odb0(d, xa, xb, ya, bts,  13, mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
             }
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON", 10+dim, 10, 15+dim, 15);
             if (mItem.item[n][3] & PM_ITEM_DAMAGE_PLAYER)
             {
-               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+               odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15);
                if (!(mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))  odbi(d, xa, xb, ya, bts, 10, mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:");
             }
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON", 10+dim, 10, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON", 10+dim, 10, 15+dim, 15);
             ya+=4; // spacer
-            mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
             if (mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_ON)
             {
                odbi(d, xa, xb, ya, bts, 6, mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
-               mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ", 6+dim, 6, 15+dim, 15, 0, 0, d);
+               odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ", 6+dim, 6, 15+dim, 15);
                if (!(mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_MS))
                {
                   odbc(d, xa, xb, ya, bts, 6, 15, 411, n, 0, 0); // X Alignment
@@ -1935,8 +1939,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
 
             ya+=4; // spacer
-            int p=7; // mode color
-            mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2,   p, p, p, 15, 1, 403, mItem.item[n][3], d); // hider mode
+            q=7; // mode color
+            odbp(d, xa, xb, ya, bts, q, 403, mItem.item[n][3]); // hider mode
+
             int MODE = mItem.item[n][3];
             if (MODE == 0) mItem.item[num][2] = 0;
             if (MODE == 1) mItem.item[num][2] = 1;
@@ -1944,8 +1949,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (MODE == 3) mItem.item[num][2] = 1;
             if ((MODE == 4) || (MODE == 5))
             {
-               ya+=4; // spacer
-               odbt(d, xa, xb, ya, bts, 15, mItem.item[n][2],   p, p,  "Initial State:Show","Initial State:Hide ");
+               odbt(d, xa, xb, ya, bts, 15, mItem.item[n][2],   q, q,  "Initial State:Show","Initial State:Hide ");
             }
             if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
             {
