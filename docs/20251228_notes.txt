@@ -38937,16 +38937,175 @@ now can I do the same for bonus?
 there are many places in code that I would need to change
 
 
+2026-09-12 04:32:08
+
+moved stat | fall ... to pd
+
+do bonus...
+
+new
+0 health
+1 purple coin
+
+if (mItem.item[y][6] == 1) mItem.item[y][6] = 0; 
+if (mItem.item[y][6] == 3) mItem.item[y][6] = 1;
+
+do it fool!!
+
+I think I have all levels playing back properly...
+
+I think I have everything done in ov that I want to do....
+
+2026-09-12 05:20:22
+
+
+change this custom button to toggle
+
+
+
+   if (type == 1020)
+   {
+      if (pressed) v1++;
+      if ((v1 < 0) || (v1 > 1)) v1 = 0;
+      if (v1 == 0) sprintf(msg,  "Centered Mode");
+      if (v1 == 1) sprintf(msg,  "Hysteresis Mode");
+   }
+
+   mWidget.mButtonCustom(0, xa+80, xb-80, ya, bts, 1, 2, 0, 1,   8, 0, 15, 0, 0, 1020, mScreen.viewport_mode, 0, 0, 0);
+
+   mWidget.mButtonToggle(0, xa+80, xb-80,  ya, bts,     0, 2, 0, 0,    0, 0, mScreen.viewport_mode, 0, 1, "Centered Mode", "Hysteresis Mode", 8, 8, 15, 15, 0, 0, 0);
+
+
+
+done...
+
+can I do orb mode from custom to PD?
+
+old:
+
+odbc(d, xa, xb, ya, bts, 8, 15, 92, n, 0, 0); // mode
+
+   if (type == 92) // orb mode
+   {
+      if (pressed) mItem.item[v1][6]++;
+      if ((mItem.item[v1][6] < 0) || (mItem.item[v1][6] > 4)) mItem.item[v1][6] = 0;
+      sprintf(msg, "undef");
+      if (mItem.item[v1][6] == 0) sprintf(msg, "Mode:Toggle");
+      if (mItem.item[v1][6] == 1)
+      {
+         sprintf(msg, "Mode:Stick ON");
+         mItem.item[v1][2] &= ~PM_ITEM_ORB_STATE; // set state OFF
+      }
+      if (mItem.item[v1][6] == 2)
+      {
+         sprintf(msg, "Mode:Stick OFF");
+         mItem.item[v1][2] |= PM_ITEM_ORB_STATE; // set state ON
+      }
+      if (mItem.item[v1][6] == 3)
+      {
+         sprintf(msg, "Mode:Timed ON");
+         mItem.item[v1][2] &= ~PM_ITEM_ORB_STATE; // set state OFF
+      }
+      if (mItem.item[v1][6] == 4)
+      {
+         sprintf(msg, "Mode:Timed OFF");
+         mItem.item[v1][2] |= PM_ITEM_ORB_STATE; // set state ON
+      }
+   }
+
+new:
+
+            odbp(d, xa, xb, ya, bts, 8, 92, mItem.item[n][6]); // mode
+            int MODE = mItem.item[n][6];
+            if ((MODE == 1) || (MODE == 3)) mItem.item[n][2] &= ~PM_ITEM_ORB_STATE; // MODE:Stick On  or MODE:Timed On  - set initial state OFF
+            if ((MODE == 2) || (MODE == 4)) mItem.item[n][2] |=  PM_ITEM_ORB_STATE; // MODE:Stick Off or MODE:Timed Off - set initial state ON
+            if (MODE == 0) // only show initial state for toggle mode
+               odbt(d, xa, xb, ya, bts,  mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
+            if ((MODE == 3) || (MODE == 4)) // only show timer for mode 3 and 4
+               odbi(d, xa, xb, ya, bts, 8, mItem.item[n][7], 400, 0, 1,  1, 10, "Time:");
+
+   if (type == 92) // orb mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,   "Mode:Toggle"  },
+         {  1,   "Mode:Stick ON"  },
+         {  2,   "Mode:Stick OFF"  },
+         {  3,   "Mode:Timed ON"  },
+         {  4,   "Mode:Timed OFF" }
+      };
 
 
 
 
+done:
+
+what about orb trigger type?
+
+old:
+
+odbc(d, xa, xb, ya, bts, 12, 15, 90, n, 0, 0); // orb trigger type
+
+   if (type == 90) // orb trigger type
+   {
+      if (pressed)
+      {
+         if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         {
+            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+         }
+         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)
+         {
+            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+         }
+         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)
+         {
+            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+         }
+         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)
+         {
+            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+         }
+      }
+
+      sprintf(msg, "undef");
+
+      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
+
+   }
+
+it uses flags, so the answer is no....
+
+2026-09-12 05:50:56
 
 
+now what?
+add up calls to widgets
 
+71 mwObjectViewer::odbi
+45 mwObjectViewer::odb0
+34 mwObjectViewer::odbf
+26 mwObjectViewer::odbt
+30 mwObjectViewer::odbt
+42 mwObjectViewer::odbb
+16 mwObjectViewer::odbc
+27 mwObjectViewer::odbp
 
+who cares...move on
 
+I think I am completely done with widgets...
 
+2026-09-12 06:01:44
+
+what was I doing with tilesets when I increased tiles to 2000?
 
 
 

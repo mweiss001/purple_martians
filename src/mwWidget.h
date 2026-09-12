@@ -20,9 +20,6 @@ public:
    void togglec_log(int x1, int &y1, int x2, int bts, int q6, int ltn, int text_col, int frame_col);
 
 
-
-
-
    bool mButtonToggle(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
                      int &var, int v0, int v1, const char* t0, const char* t1, int bcol0, int bcol1, int tcol0, int tcol1, int fcol0, int fcol1, int disable_input);
    bool mButtonToggle(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int hcol, int highlight,
@@ -42,20 +39,11 @@ public:
    bool mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
 
 
-
-
    int mColorSelect(int xType, int xa, int xb, int &ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input);
    int mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* t, int disable_input);
 
 
-   bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
-   bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
-
-
-
-
    void xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2);
-
    mwRect<int> xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt);
 
    bool mButton(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, const char* txt, int disable_input);
@@ -65,10 +53,11 @@ public:
 
 
 
+   bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
+   bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
 
    bool mButtonCustom(int xType, int xa, int xb, int &ya, int bts, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input);
    bool mButtonCustom(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, int hcol, int highlight, int type, int &v1, int v2, int v3, int disable_input);
-
 
 
 
@@ -130,7 +119,6 @@ public:
    void updateCall(int update);
 
 
-
    void mStepSliderFloat(int xType, int xa, int xb, int yType, int ya, int yb,
                          int r, int backgroundType, int frameType, int textType,
                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
@@ -145,7 +133,6 @@ public:
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, const char *txt2, int update, bool disable_input);
-
 
 
    bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &

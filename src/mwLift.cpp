@@ -588,9 +588,6 @@ void mwLift::step_popup_menu(int lift, int step)
          sprintf(mMenu.menu_string[8],"Apply Color to All");
          sprintf(mMenu.menu_string[9],"Apply Flags to All");
 
-
-
-
          sprintf(mMenu.menu_string[10],"end");
          switch (mMenu.pmenu(6, 13, -20, 2))
          {
@@ -764,8 +761,6 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
    int xb = x2-fs;
    int ya = y+fs;
 
-
-
    // draw title step
    draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, -1, 13, d); a++;
 
@@ -775,8 +770,6 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
       int color = 13;
       if (step == current_step) color = 10;
       draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, step, color, d); a++;
-
-
    }
 
    // show outline around highlighted step

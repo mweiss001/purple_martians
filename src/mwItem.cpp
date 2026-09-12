@@ -183,7 +183,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 
 int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((item[i][6] == 3) && (mLoop.frame_num > 0)) // purple coin
+   if ((item[i][6] == 1) && (mLoop.frame_num > 0)) // purple coin
    {
       if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) return 1; // purple coin custom draw when game running
       if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) return 1;
@@ -552,7 +552,7 @@ void mwItem::proc_item_collision(int p, int i)
 void mwItem::proc_bonus_collision(int p, int i)
 {
    int bonus_type = item[i][6];
-   if (bonus_type == 1) // health bonus
+   if (bonus_type == 0) // health bonus
    {
       if (mPlayer.syn[p].health < 100)
       {
@@ -562,10 +562,9 @@ void mwItem::proc_bonus_collision(int p, int i)
          mGameEvent.add(28, 0, 0, p, 0, item[i][1], item[i][7]);
       }
    }
-   if (bonus_type == 3) // purple coin!!!
+   if (bonus_type == 1) // purple coin!!!
    {
       item[i][0] = 0;
-//      if (!mLoop.ff_state) mLevel.level_data_purple_coins_collected++;
       mPlayer.syn[p].stat_purple_coins++;
       mGameEvent.add(27, 0, 0, p, 0, 0, 0);
    }

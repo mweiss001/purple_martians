@@ -197,7 +197,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
          for (int c=0; c<500; c++)
-            if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+            if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 1)) mItem.draw_purple_coin_screen_direct(c);
          ds_add(i);
       }
 

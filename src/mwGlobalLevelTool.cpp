@@ -263,23 +263,27 @@ void mwGlobalLevelTool::execute(void)
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
 
-
-      // for (int y=0; y<500; y++)
-      //    if (mItem.item[y][0] == 1) // door
-      //    {
-      //       if (mItem.item[y][8])
-      //       {
-      //          if (mItem.item[y][7] == 0)  printf("l:%d 0 \n", le[x]);
-      //          if (mItem.item[y][7] > 2)  printf("l:%d >2 \n", le[x]);
-      //
-      //          mItem.item[y][7]--;
-      //
-      //
-      //       }
-      //
-      //    }
-
-
+//
+//       for (int y=0; y<500; y++)
+//          if (mItem.item[y][0] == 2) // bonus
+//          {
+// //            if (mItem.item[y][6] != 3 && mItem.item[y][6] != 1)  printf("l:%d !=13 \n", le[x]);
+//
+//               if (mItem.item[y][6] == 1) mItem.item[y][6] = 0;
+//               if (mItem.item[y][6] == 3) mItem.item[y][6] = 1;
+//
+//             // {
+//             //    if (mItem.item[y][7] == 0)  printf("l:%d 0 \n", le[x]);
+//             //    if (mItem.item[y][7] > 2)  printf("l:%d >2 \n", le[x]);
+//             //
+//             //    mItem.item[y][7]--;
+//             //
+//             //
+//             // }
+//
+//          }
+//
+//
 
 
 /*

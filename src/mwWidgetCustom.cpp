@@ -77,7 +77,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (o == 3)
       {
          t = mEnemy.Ei[n][0];
-         sprintf(msg,"%s Help", (const char *)mEnemy.enemy_name[t][0]);
+         sprintf(msg,"%s Help", mEnemy.enemy_name[t][0]);
       }
       if (o == 4) sprintf(msg,"Lift Help");
 
@@ -122,6 +122,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       }
    }
 
+
    if (type == 90) // orb trigger type
    {
       if (pressed)
@@ -155,38 +156,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
       if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
 
-
    }
-
-
-   if (type == 92) // orb mode
-   {
-      if (pressed) mItem.item[v1][6]++;
-      if ((mItem.item[v1][6] < 0) || (mItem.item[v1][6] > 4)) mItem.item[v1][6] = 0;
-      sprintf(msg, "undef");
-      if (mItem.item[v1][6] == 0) sprintf(msg, "Mode:Toggle");
-      if (mItem.item[v1][6] == 1)
-      {
-         sprintf(msg, "Mode:Stick ON");
-         mItem.item[v1][2] &= ~PM_ITEM_ORB_STATE;
-      }
-      if (mItem.item[v1][6] == 2)
-      {
-         sprintf(msg, "Mode:Stick OFF");
-         mItem.item[v1][2] |= PM_ITEM_ORB_STATE;
-      }
-      if (mItem.item[v1][6] == 3)
-      {
-         sprintf(msg, "Mode:Timed ON");
-         mItem.item[v1][2] &= ~PM_ITEM_ORB_STATE;
-      }
-      if (mItem.item[v1][6] == 4)
-      {
-         sprintf(msg, "Mode:Timed OFF");
-         mItem.item[v1][2] |= PM_ITEM_ORB_STATE;
-      }
-   }
-
 
    if (type == 94) // orb rotation
    {
@@ -200,17 +170,13 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       mItem.item[v1][2] |= rb; // merge
    }
 
-
    if (type == 96) // block damage draw rotation
    {
       // get rb
       int rb = (mItem.item[v1][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
-
       if (pressed) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
-
       sprintf(msg, "Draw Rotation:%d", rb);
-
       // set rb
       rb = rb << 14; // shift bits into place
       mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
@@ -218,24 +184,15 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    }
 
 
-
-
-
-   if (type == 310)
+   if (type == 310) // block manip block 1, 2, 3, 4
    {
-
       int tn = mItem.item[v1][v2] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block %d: %-4d", v3, tn);
-
       int tx1 = (x2+x1)/2+60;
       int ty1 = (y2+y1)/2-10;
-
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
-
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-
       if (pressed) mBitmapTools.select_bitmap_from_level(mItem.item[v1][v2]);
-
       if (mouseOnButton)
       {
          int mpow_jnk = 0;
@@ -250,20 +207,15 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    }
 
 
-   if (type == 318)
+   if (type == 318) // block walker block
    {
       int tn = mEnemy.Ei[v1][13] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
-
       int tx1 = (x2+x1)/2+60;
       int ty1 = (y2+y1)/2-10;
-
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
-
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-
       if (pressed) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[v1][13]);
-
       if (mouseOnButton)
       {
          int mpow_jnk = 0;
@@ -278,7 +230,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    }
 
 
-   if (type == 320)
+   if (type == 320) // lift draw set single block
    {
       int tn = mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
@@ -289,7 +241,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (pressed) mBitmapTools.select_bitmap_from_level(mLift.cur[v1].draw_mode_val1);
    }
 
-   if (type == 321)
+   if (type == 321) // lift draw set start block
    {
       int tn = mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Start Block:%d", tn);
@@ -301,11 +253,6 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       al_draw_bitmap(mBitmap.tile[tn+2], tx1+40, ty1, 0);
       if (pressed) mBitmapTools.select_bitmap_from_level(mLift.cur[v1].draw_mode_val1);
    }
-
-
-
-
-
 
 
    if (type == 401) // Trigger Field X Lift Alignment
@@ -515,8 +462,6 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    }
 
 
-
-
    if (type == 1010)
    {
       if (pressed) v1++;
@@ -565,7 +510,6 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (v1 == 1) sprintf(msg,  "Player Display: Long Text");
    }
 
-   
    if (type == 1017)
    {
       if (pressed) v1++;
@@ -575,51 +519,6 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (v1 == 2) sprintf(msg,  "Always");
    }
 
-
-   if (type == 1020)
-   {
-      if (pressed) v1++;
-      if ((v1 < 0) || (v1 > 1)) v1 = 0;
-      if (v1 == 0) sprintf(msg,  "Centered Mode");
-      if (v1 == 1) sprintf(msg,  "Hysteresis Mode");
-   }
-
-
-   
-   if (type == 1021)
-   {
-      if (pressed) v1++;
-      if ((v1 < 0) || (v1 > 1)) v1 = 0;
-      if (v1 == 0) sprintf(msg,  "Stationary");
-      if (v1 == 1) sprintf(msg,  "Fall");
-   }
-   if (type == 1022)
-   {
-      if (pressed) v1++;
-      if ((v1 < -2) || (v1 > 1)) v1 = -2;
-      if (v1 ==  1) sprintf(msg, "Fall");
-      if (v1 ==  0) sprintf(msg, "Stationary");
-      if (v1 == -1) sprintf(msg, "Carry");
-      if (v1 == -2) sprintf(msg, "Carry Through Door");
-   }
-   if (type == 1023) // rocket only
-   {
-      if (pressed) v1++;
-      if ((v1 < -2) || (v1 > 1)) v1 = -2;
-      if (v1 == -1) v1 = 0;
-      if (v1 ==  1) sprintf(msg,  "Fall");
-      if (v1 ==  0) sprintf(msg,  "Stationary");
-      if (v1 == -2) sprintf(msg,  "Ride Through Door");
-   }
-
-   if (type == 1101)
-   {
-      if (pressed) v1++;
-      if ((v1 < 1) || (v1 > 3)) v1 = 1;
-      if (v1 == 2) v1 = 3; // no free man anymore, skip to the next
-      if (v1 == 1) sprintf(msg, "Type: Health Bonus");
-      if (v1 == 3) sprintf(msg, "Type: Purple Coin");
-   }
 
    if (type == 1313)
    {
@@ -707,7 +606,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
 
 
-// wrapper that increments ya by bts
+// wrapper to increment ya by bts
 bool mwWidget::mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input)
 {
    bool ret = mButtonPD(xType, xa, xb, 1, ya, bts-2,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var, disable_input);
@@ -733,6 +632,20 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
          {  2,    "Frame Size:2"  },
          {  4,    "Frame Size:4"  },
          {  12,   "Frame Size:12" }
+      };
+   }
+
+
+   if (type == 92) // orb mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,   "Mode:Toggle"  },
+         {  1,   "Mode:Stick ON"  },
+         {  2,   "Mode:Stick OFF"  },
+         {  3,   "Mode:Timed ON"  },
+         {  4,   "Mode:Timed OFF" }
       };
    }
 
@@ -766,16 +679,8 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       if (var == 1040) col = 11;
       if (var == 1041) col = 13;
       if (var == 1042) col = 8;
-
       bcol = fcol = hcol = col;
-
    }
-
-
-
-
-
-
 
    if (type == 160) // timer mode
    {
@@ -822,7 +727,6 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
    }
 
 
-
    if (type == 403) // hider mode
    {
       valid_type = 1;
@@ -837,7 +741,7 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       };
    }
 
-   if (type == 404)
+   if (type == 404) // damage draw type
    {
       valid_type = 1;
       listItems =
@@ -898,9 +802,6 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       };
    }
 
-
-
-
    if (type == 505) // lift end step mode
    {
       valid_type = 1;
@@ -912,13 +813,39 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       };
    }
 
+   if (type == 1021)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Stationary"  },
+         {  1,    "Fall" }
+      };
+   }
 
 
+   if (type == 1022)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Stationary"  },
+         {  1,    "Fall" },
+         {  -1,   "Carry" },
+         {  -2,   "Carry Through Door" }
+      };
+   }
 
-
-
-
-
+   if (type == 1023)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Stationary"  },
+         {  1,    "Fall" },
+         {  -2,   "Ride Through Door" }
+      };
+   }
 
    if (type == 1050)
    {
@@ -967,11 +894,6 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       };
    }
 
-
-
-
-
-
    if (type == 1081)
    {
       valid_type = 1;
@@ -999,18 +921,5 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
    if (valid_type) return mDropDown(xType, xa, xb, yType, ya, yb,  r, text_just, backgroundType, bcol, fcol, hcol, listItems, var, disable_input);
    return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

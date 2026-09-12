@@ -344,7 +344,7 @@ void mwEnemy::enemy_deathcount(int e)
             mItem.item[c][1] = Ei[e][24];  // flower shape
             mItem.item[c][2] = 1; // draw mode normal
             mItem.item[c][3] = -1; // carryable
-            mItem.item[c][6] = 1; // bonus type 1 - health
+            mItem.item[c][6] = 0; // bonus type 0 - health
             mItem.item[c][7] = Ei[e][25];  //  life
             mItem.item[c][8] = 0;
             mItem.item[c][14] = 800; // time to live

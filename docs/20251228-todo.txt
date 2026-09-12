@@ -15,6 +15,24 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+what was I doing with tilesets when I increased tiles to 2000?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -237,9 +255,6 @@ I need some sub areas:
 
 
 
-
-
-
 what if i had a mode where player could control movement of lift with direction key?
 
 
@@ -251,42 +266,8 @@ add to settings:
 - debug keyboard shortcuts
 
 
-
 Widgets
 ---------------
-move the widget helpers into widgets
-
-is object viewer as clean as it could be?
-
-I want to replace some custom buttons with 3 items with PD
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -313,9 +294,6 @@ help screens
 - at the start of level editor, mention only available in classic mode
 - redo section of block selection
 - fix ref to tile helper
-
-
-
 
 
 to finish client_status:
