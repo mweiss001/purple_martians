@@ -447,7 +447,7 @@ void mwLevelEditor::process_keypress()
 {
    if (mode == 4) mObjectViewer.ov_process_keypress();
 
-   if (mInput.key[ALLEGRO_KEY_H][0]) set_mode(9);
+   if (mInput.key[ALLEGRO_KEY_H][0]) set_mode(9); // tile Helper
    if (mInput.key[ALLEGRO_KEY_Q][3]) mBitmapTools.copy_tiles();
    if (mInput.key[ALLEGRO_KEY_F][3]) mBitmapTools.edit_tile_flags();
    if (mInput.key[ALLEGRO_KEY_E][3])
@@ -455,6 +455,15 @@ void mwLevelEditor::process_keypress()
       mwTileEditor te;
       te.edit_tile(0);
    }
+
+   if (mInput.key[ALLEGRO_KEY_T][3])
+   {
+      mEditorMain.show_template_overlays = !mEditorMain.show_template_overlays;
+      mBitmap.rebuild_bitmaps();
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
 
 
    while (mInput.key[ALLEGRO_KEY_ESCAPE][0])
@@ -600,6 +609,31 @@ void mwLevelEditor::save_mW()
       fwrite(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fwrite(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
 
+      fwrite(&mTileHelper.add_del,                    sizeof(mTileHelper.add_del),                    1, fp);
+      fwrite(&mTileHelper.match,                      sizeof(mTileHelper.match),                      1, fp);
+      fwrite(&mTileHelper.group,                      sizeof(mTileHelper.group),                      1, fp);
+      fwrite(&mTileHelper.mark_overlay,               sizeof(mTileHelper.mark_overlay),               1, fp);
+
+      fwrite(&mTileHelper.replace_mode,               sizeof(mTileHelper.replace_mode),               1, fp);
+      fwrite(&mTileHelper.replace_preview,            sizeof(mTileHelper.replace_preview),            1, fp);
+
+      fwrite(&mTileHelper.frame_mode_width,           sizeof(mTileHelper.frame_mode_width),           1, fp);
+      fwrite(&mTileHelper.frame_mode_preview,         sizeof(mTileHelper.frame_mode_preview),         1, fp);
+      fwrite(&mTileHelper.frames_detected,            sizeof(mTileHelper.frames_detected),            1, fp);
+      fwrite(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
+      fwrite(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
+
+
+
+
+
+
+
+      fwrite(&mTileSets.currentTileSet.startIndex,    sizeof(mTileSets.currentTileSet.startIndex),    1, fp);
+
+      fwrite(&mTileHelper.thl,                        sizeof(mTileHelper.thl),                        1, fp);
+
+
 
 
 
@@ -647,6 +681,27 @@ bool mwLevelEditor::load_mW()
       fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
 
+
+
+      fread(&mTileHelper.add_del,                    sizeof(mTileHelper.add_del),                    1, fp);
+      fread(&mTileHelper.match,                      sizeof(mTileHelper.match),                      1, fp);
+      fread(&mTileHelper.group,                      sizeof(mTileHelper.group),                      1, fp);
+      fread(&mTileHelper.mark_overlay,               sizeof(mTileHelper.mark_overlay),               1, fp);
+      fread(&mTileHelper.replace_mode,               sizeof(mTileHelper.replace_mode),               1, fp);
+      fread(&mTileHelper.replace_preview,            sizeof(mTileHelper.replace_preview),            1, fp);
+
+      fread(&mTileHelper.frame_mode_width,           sizeof(mTileHelper.frame_mode_width),           1, fp);
+      fread(&mTileHelper.frame_mode_preview,         sizeof(mTileHelper.frame_mode_preview),         1, fp);
+      fread(&mTileHelper.frames_detected,            sizeof(mTileHelper.frames_detected),            1, fp);
+      fread(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
+      fread(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
+
+
+      int temp;
+      fread(&temp,                                   sizeof(temp),                                   1, fp); // mTileSets.currentTileSet.startIndex
+      mTileSets.findTileSetContainingIndex(mTileSets.currentTileSet, temp);
+
+      fread(&mTileHelper.thl,                        sizeof(mTileHelper.thl),                        1, fp);
 
 
 

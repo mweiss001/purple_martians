@@ -2,9 +2,13 @@
 
 #include "pm.h"
 #include "mwBitmap.h"
+
+#include "mwBitmapTools.h"
 #include "mwFont.h"
 #include "mwBottomMessage.h"
 #include "mwDisplay.h"
+#include "mwEditorMain.h"
+#include "mwEditSelection.h"
 #include "mwVisualLevel.h"
 #include "mwLogo.h"
 #include "mwScreen.h"
@@ -209,6 +213,20 @@ void mwBitmap::rebuild_bitmaps()
 
    mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
+
+   if (mEditorMain.show_template_overlays)
+   {
+      int t = 1418; // template tilest
+      int d = 1508; // 1st  tileset to overlay
+      for (int i=0; i<90; i++) // 90 tiles
+         for (int j=0; j<6; j++) // 6 tilesets
+         {
+            al_set_target_bitmap(mBitmap.tile[d+j*90+i]);
+            al_draw_bitmap(mBitmap.tile[t+i], 0, 0, 0);
+         }
+   }
+
+
 }
 
 

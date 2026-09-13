@@ -15,12 +15,14 @@ class mwTileHelper
 
 
    int replace_helper_48_frame(struct tileSet ts, int lv, int type);
-   int replace_helper_24_frame(struct tileSet ts, int lv, int type);
+   int replace_helper_90_frame(struct tileSet ts, int lv, int type);
    int replace_helper_16_frame(struct tileSet ts, int lv, int type);
 
-   int replace_helper_48(int tile);
-   int replace_helper_16(int tile, bool inner);
-   int replace_helper_8(int tile);
+
+   int replace_helper_90(struct tileSet ts);
+   int replace_helper_48(struct tileSet ts);
+   int replace_helper_16(struct tileSet ts);
+   int replace_helper_8(struct tileSet ts);
    int replace_helper_pattern(int x, int y);
 
    void invert_marks();
@@ -65,12 +67,9 @@ class mwTileHelper
    void draw_level_editor_background_overlays(int mouse_on_window);
 
 
-
    void process_mouse_on_background();
 
-
    std::vector<frameFill> frameFills;
-
 
 
    int c, l, r, t, b, tl, tr, bl, br;
@@ -91,13 +90,11 @@ class mwTileHelper
    int frame_mode_preview;
    int frames_detected;
    int frame_sections;
-
    int frame_common_tileset;
 
 
-
-   int replace_preview;
    int replace_mode;
+   int replace_preview;
 
 
    int test_junk;

@@ -28,25 +28,13 @@ void mwTileSets::init()
    strcpy(type_name[8],  "Rainbow");
    strcpy(type_name[9],  "Girder Frame");
    strcpy(type_name[16], "16 Tileset");
-   strcpy(type_name[24], "24 Tileset");
    strcpy(type_name[48], "48 Tileset");
    strcpy(type_name[90], "90 Tileset");
-
 
 
    constructEmptySet();
    ts.name              = "none";
    tileSets.push_back(ts);
-
-
-   construct48( 1024, 1024, "Purple Pipes");
-   construct48( 1072, 1072, "Red Pipes");
-   construct48( 1120, 1120, "Green Pipes");
-   construct48( 1168, 1168, "Blue Pipes");
-   construct48( 1216, 1216, "Purple Bricks");
-
-
-
 
    construct90(1418, 1418+3, "Template");
    construct90(1508, 1508+3, "Alien Dark");
@@ -56,6 +44,11 @@ void mwTileSets::init()
    construct90(1868, 1868+3, "Military");
    construct90(1958, 1958+3, "Space");
 
+   construct48( 1024, 1024, "Purple Pipes");
+   construct48( 1072, 1072, "Red Pipes");
+   construct48( 1120, 1120, "Green Pipes");
+   construct48( 1168, 1168, "Blue Pipes");
+   construct48( 1216, 1216, "Purple Bricks");
 
 
    construct16( 832, 832, "Wires");
@@ -106,7 +99,6 @@ void mwTileSets::init()
 
 
 
-
    // 2x3 double vlines (columns)
    construct6(  512, "gold brick");
    construct6(  518, "orange vent");
@@ -125,8 +117,7 @@ void mwTileSets::init()
    // for (auto ts : tileSets) printf("%s %d - %d\n", ts.name.c_str(), ts.startIndex, ts.endIndex);
 
 
-//   findTileSetContainingIndex(currentTileSet, 832); // wires
-   findTileSetContainingIndex(currentTileSet, 256); // purple pipes
+   findTileSetContainingName(currentTileSet, "Purple Pipes"); // purple pipes
 
 
 }
@@ -223,7 +214,7 @@ void mwTileSets::construct90(int i, int d, std::string name)
    ts.VLineB          = i + 21;
 
    ts.OuterCornerTL   = i + 6;
-   ts.OuterCornerTR   = i + 7;
+   ts.OuterCornerTR   = i + 8;
    ts.OuterCornerBL   = i + 18;
    ts.OuterCornerBR   = i + 20;
 
@@ -343,66 +334,6 @@ void mwTileSets::construct48(int i, int d, std::string name)
 }
 
 
-/*
-
-// new 24 tileset
-void mwTileSets::construct24(int i, int d, std::string name)
-{
-   constructEmptySet();
-
-   ts.name            = name;
-   ts.startIndex      = i;
-   ts.endIndex        = i+23;
-   ts.displayIndex    = d;
-   ts.tileSetType     = 24;
-   ts.Single          = i+1;
-   ts.SolidFill       = i;
-
-   ts.HLineL          = i + 2;
-   ts.HLineM          = i + 3;
-   ts.HLineR          = i + 4;
-   ts.VLineT          = i + 5;
-   ts.VLineM          = i + 6;
-   ts.VLineB          = i + 7;
-
-   ts.OuterCornerTL   = i + 8;
-   ts.OuterCornerTR   = i + 9;
-   ts.OuterCornerBL   = i + 10;
-   ts.OuterCornerBR   = i + 11;
-   ts.OuterEdgeL      = i + 12;
-   ts.OuterEdgeR      = i + 13;
-   ts.OuterEdgeT      = i + 14;
-   ts.OuterEdgeB      = i + 15;
-
-   ts.FrameCornerTL   = i + 16;
-   ts.FrameCornerTR   = i + 17;
-   ts.FrameCornerBL   = i + 18;
-   ts.FrameCornerBR   = i + 19;
-
-   ts.FrameEdgeL      = i + 13;
-   ts.FrameEdgeT      = i + 15;
-   ts.FrameEdgeR      = i + 12;
-   ts.FrameEdgeB      = i + 14;
-
-   ts.InnerCornerTL   = i + 16;
-   ts.InnerCornerTR   = i + 17;
-   ts.InnerCornerBL   = i + 18;
-   ts.InnerCornerBR   = i + 19;
-
-   ts.InnerEdgeR      = i + 20;
-   ts.InnerEdgeB      = i + 21;
-   ts.InnerEdgeL      = i + 22;
-   ts.InnerEdgeT      = i + 23;
-
-   tileSets.push_back(ts);
-}
-
-
-*/
-
-
-
-// new 16 tileset
 void mwTileSets::construct16(int i, int d, std::string name)
 {
    constructEmptySet();

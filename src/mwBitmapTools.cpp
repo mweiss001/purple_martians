@@ -2187,9 +2187,3 @@ void mwBitmapTools::clear_tile_range(int d, int r)
    al_destroy_bitmap(b1);
 }
 
-
-
-
-
-
-

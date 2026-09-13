@@ -232,6 +232,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       }
       if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
 
+
       if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
          if (--highlight < 0) highlight = 0;
@@ -245,12 +246,13 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
 
 
-      if (menu_num == 1)
+      if (menu_num == 1) // classic mode
       {
          // shortcut keys
          if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
          if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
          if (mInput.key[ALLEGRO_KEY_D][0])                                    return 66; // demo record
+         if (mInput.key[ALLEGRO_KEY_H][0]&& mInput.SHFT() && mInput.CTRL())   return 8; // help
       }
       if (menu_num == 2)
       {

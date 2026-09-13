@@ -151,8 +151,6 @@ open in gimp
 image->scale image
 export
 
-
-
 in code:
 
 void mwBitmapTools::copy_tiles()
@@ -163,9 +161,6 @@ void mwBitmapTools::copy_tiles()
 then run copy tiles
 
 then change default flags
-
-
-
 
 
 2026-09-12 06:17:06
@@ -201,7 +196,6 @@ mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_E_Alt
 now get them into the block selection
 
 done
-
 
 maybe I could have a way to see if edges match nicely or not
 how?
@@ -269,7 +263,6 @@ I
 
 I need to make a permanent place for them in my tileset
 
-
 could I overlay template in level editor?
 
 
@@ -287,7 +280,6 @@ that equals 80
 If there are blanks (tileset missing certain blocks) just leave the spaces empty
 
 last tile: 2047 - 80 = 2067
-
 
 tasks:
 make template 20 scale also..done
@@ -309,18 +301,7 @@ I want optional gridlines in block selection
 and rectangle around selected tile
 done...
 
-now what?
-
-
-I want to make a new tileset that has 90 tiles...really?..I thought 48 was stretching it...
-7*90 = 360 tiles
-
-I want to be able to view tilesets wider in selection window
-
-the last industrial was only 24
-
-
-I think I want to new 90's to supercede the old 24's
+I want to new 90's to supercede the old 24's
 
 there were only 4-24's (plus template)
 now I want to add space and military for 7 total
@@ -348,267 +329,15 @@ Official Names
 1868 Military
 1958 Space
 
-
-made 90 tileset
-
-made template instance
-
-
-now what?
-it is detected in tile helper automatically
-
-in
-void mwTileSets::drawRect(bool preview)
-
-changed this:
-
-   if ((ts.tileSetType == 24) || (ts.tileSetType == 90)) // 24 tilesets
-seems to work well...
-
-what else can I change?
-should I change all tile references?
-
-then only ones I have left are on dark...
-and there are a lot..
-
-all tile refs have been moved
-some levels might not look so pretty anymore...
-
-
-removed these:
-
-   construct24( 672, 673, "Template");
-   construct24( 704, 713, "Ice Machine");
-   construct24( 736, 737, "Tan Platform");
-   construct24( 768, 776, "Alien Machine");
-   construct24( 800, 809, "Alien Dark");
-
-actually I don't have any 24's left at all now...
-
-tile helper will need some tweaking to add new tilesets to groups
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I need to display the 90's nicely in Selection Window
+should they each have their own group?
+- remove industrial group and make 7 new ones...done
+
+A_Tileset_1.png",     bs,    6, 4);
+A_Tileset_2.png",     bs+24, 6, 4);
+A_Tileset_3.png",     bs+48, 6, 4);
+A_Tileset_Alt.png",   bs+72, 6, 1);
+A_Props.png",         bs+78, 3, 4);
+
+made it fit into 6 lines...
 

@@ -10,6 +10,8 @@ class mwBitmap
    void create_bitmaps();
    void rebuild_bitmaps();
 
+
+
    int load_tiles();
 
    void save_sprit();

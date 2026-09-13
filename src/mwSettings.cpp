@@ -1420,8 +1420,6 @@ void mwSettings::page_level_stats(void)
    int bts = 16;
 
    mWidget.mButton(0, xa+100, xb-100,   1, ya, bts-2,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Show All Stats",   0);
-
-//   mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Stats");
    if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
    {
       ya+=line_spacing+8;
@@ -1430,12 +1428,9 @@ void mwSettings::page_level_stats(void)
    else
    {
       ya+=bts+4;
-      if (mWidget.mCheckBox(6, xc, 10, 1, ya, bts, 0, mLevel.level_stats_show_level_number, "Show level numbers with names", 15, 15, 0)) mLevel.level_stats_bmp_msg_type = 0;
+      if (mWidget.mCheckBox(5, xc, 10, 1, ya, bts, 0, mLevel.level_stats_show_level_number, "Show level numbers with names", 15, 15, 0)) mLevel.level_stats_bmp_msg_type = 0;
       ya +=8;
       ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-      // al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", 0);
-      // ya +=8;
-      //ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
       if (show_advanced)
       {

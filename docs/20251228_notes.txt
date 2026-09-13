@@ -39097,6 +39097,423 @@ I was going to have many more options for tiles especially in the industrial set
 
 
 
+2026-09-12 06:17:06
+
+in 2026-07-15 increased block tiles to 2048 from 1024
+I want to make more use of industrial tileset, especially E
+
+source of tiles:
+Industrial_Tileset_1E.png 6x4 - main
+Industrial_Tileset_2E.png 6x4 - with 45 degree
+Industrial_Tileset_3E.png 6x4 - skinny columns
+Industrial_Tileset_E_Alternatives.png 6x1 - alt tiles
+Industrial_Props_1E.png 3x4 - alt props
+
+I want to get all these block into the selection and see how they fit together
+
+for now, copy them in the same layout as the original
+
+1E then 2E then 3E then props all in h layout will take 21x4
+
+then 6x1 at the end?
+
+I have a width of 32, this should all fit nicely
+
+6+6+6+3+6 = 27 even with single space between...
+
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_1E_20_cubic.png", 1600, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_2E_20_cubic.png", 1607, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_3E_20_cubic.png", 1614, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Props_1E_20_cubic.png", 1621, 3, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_E_Alternatives_20_cubic.png", 1625, 6, 1);
+
+now get them into the block selection
+
+done
+
+
+maybe I could have a way to see if edges match nicely or not
+how?
+
+or maybe have some predefined patterns saved in sel...
+
+
+how many tiles do I have in E?
+6x24 = 72 + 12 + 6 = 90
+are any of them doubles?
+
+what other tileset is nice like this
+B is also vewwy nice
+
+
+A 'dark grey'
+1 2 3 (72)
+12 props
+
+
+B 'blue pipes with orange'
+1 2 3 (72)
+12 props
+
+
+C 'brown wooden with purple highlight'
+1 2 3 (72)
+12 props
+
+
+D 'ice blocks with lime green'
+1 2 3 (72)
+6 alt
+
+E 'ice blocks'
+1 2 3 (72)
+12 props
+6 alt
+
+F 'lime green and purple'
+1 2 3 (72)
+6 alt
+
+H 'Military'
+1 2 3 (72)
+12 props
+6 alt
+
+I 'Space'
+1 2 3 (72)
+12 props
+2 alt
+
+
+Made folders for all these
+
+Which ones will I use?
+
+A
+B
+C
+E
+H
+I
+
+I need to make a permanent place for them in my tileset
+
+could I overlay template in level editor?
+
+
+2026-09-12 11:45:04
+
+I want to serially lay out these tileset
+
+1-24
+2-24
+3-24
+alt-6
+props 12
+that equals 80
+
+If there are blanks (tileset missing certain blocks) just leave the spaces empty
+
+last tile: 2047 - 80 = 2067
+
+
+tasks:
+make template 20 scale also..done
+make function to copy tiles...done
+make function to show group...done
+
+I have from 1418 to 2047 used with:
+
+1418 0-Template
+1508 A-Dark Grey
+1598 B-blue pipes with orange
+1688 C-brown wood with purple
+1778 E-ice with red wires
+1868 H-military
+1958 I-space
+        
+
+I want optional gridlines in block selection
+and rectangle around selected tile
+done...
+
+now what?
+
+I want to make a new tileset that has 90 tiles...really?..I thought 48 was stretching it...
+7*90 = 360 tiles
+
+I want to be able to view tilesets wider in selection window
+
+the last industrial was only 24
+
+
+I think I want to new 90's to supercede the old 24's
+
+there were only 4-24's (plus template)
+now I want to add space and military for 7 total
+I just double checked and I really don't think I want to use D or F
+
+so I should be good to lock in these tilesets in their current positions
+
+1418 0-Template
+1508 A-Dark Grey
+1598 B-blue pipes with orange
+1688 C-brown wood with purple
+1778 E-ice with red wires
+1868 H-military
+1958 I-space
+
+Then make a new tileset type with 90 tiles
+
+Official Names
+--------------
+1418 Template
+1508 Alien Dark
+1598 Alien Machine
+1688 Alien Wood
+1778 Alien Ice
+1868 Military
+1958 Space
+
+
+made 90 tileset
+
+made template instance
+
+now what?
+it is detected in tile helper automatically
+
+in
+void mwTileSets::drawRect(bool preview)
+
+changed this:
+
+   if ((ts.tileSetType == 24) || (ts.tileSetType == 90)) // 24 tilesets
+seems to work well...
+
+what else can I change?
+should I change all tile references?
+
+then only ones I have left are on dark...
+and there are a lot..
+
+all tile refs have been moved
+some levels might not look so pretty anymore...
+
+
+removed these:
+
+   construct24( 672, 673, "Template");
+   construct24( 704, 713, "Ice Machine");
+   construct24( 736, 737, "Tan Platform");
+   construct24( 768, 776, "Alien Machine");
+   construct24( 800, 809, "Alien Dark");
+
+actually I don't have any 24's left at all now...
+
+tile helper will need some tweaking to add new tilesets to groups
+
+2026-09-13 06:49:19
+fixed lots in tile helper... 
+
+frame 48 tests well
+do frame 90
+
+replace_helper_90_frame
+works and uses tileset named blocks instead of numerical offsets...
+
+I want to do the same for:
+replace_helper_90(int tile)
+
+change the call...pass current tileset..done
+
+do same for 
+int mwTileHelper::replace_helper_48(int tile)
+int mwTileHelper::replace_helper_16(int tile)
+int mwTileHelper::replace_helper_8(int tile)
+those are all done
+change replace_helper_16_frame to use tileset names instead of numerical offsets
+done...
+
+2026-09-13 09:20:22
+now what?
+is anything else broken?
+
+I need to display the 90's nicely in Selection Window
+should they each have their own group?
+- remove industrial group and make 7 new ones...done
+
+all 90s have props, but only some have alt blocks
+
+16
+32
+48
+64
+80
+96
+
+could fit in 6 lines
+
+A_Tileset_1.png",     bs,    6, 4);
+A_Tileset_2.png",     bs+24, 6, 4);
+A_Tileset_3.png",     bs+48, 6, 4);
+A_Tileset_Alt.png",   bs+72, 6, 1);
+A_Props.png",         bs+78, 3, 4);
+
+
+made it fit into 6 lines...
+
+2026-09-13 10:07:50
+
+now what?
+
+titlebar of block selection...
+- could be 1 pixel taller, or make tileSet groups 1 pixel smaller
+- could have a group for basic tiles also
+done...
+
+2026-09-13 10:48:17
+
+I am done with integrating the new 90 tilesets for now...
+
+fix some levels that I made look bad:
+
+level 15...done
+had to redo demo 33.3
+
+16 done
+32 done
+lev 33 made nice fancy cloner things
+
+2026-09-13 12:33:52
+the tiles that I just imported have alpha and I do not want that
+
+
+
+
+
+I still think I might want to find tile edges that match
+for just my 90 set
+how and what data is needed to record that
+each tile has 4 edges
+U L R D
+I would need to keep track of vertical matches like:
+vmatch t1(up) t2 (down) 
+suppose I have a tile
+It will have a value for up
+search the list for any tiles with down that match
+there will only be 90 tiles
+each one can have 4 ints for each face
+this assumes that they will excatly match or not at all
+if I had a table of matches
+tile
+face
+tile
+face
+goodliness
+
+instead can I have overlay of template?
+-----
+how can I overlay template?
+what if I do it directly on raw tiles?
+need a way to turn it on and off
+where will I use it?
+level editor edit main  
+added var to editor main and toggle in status toolbar
+when running rebuild biutmaps, they all get overlaid
+2026-09-13 15:42:20
+this was much easier to implement
+
+next?
+
+
+
+help...
+
+
+I need 32 block as example of solid
+
+104-110 76-79
+
+564-566
+
+old:
+<ms128129130131132133134135136137138139140141142143160161162163
+
+new:
+<ms914915916104105106107108109110076077078079564565566608608610
+
+empty
+<ms000007008009010011012013014015165165165165165165165165165165
+<ms072073074075011012013014015018019000000000000000000000000000
+
+
+semi solid
+<ms032033034035036037038039165165165165165165165165165165165165
+
+<ms898899900000000000000000000000000000000000000000000000000000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -233,6 +233,10 @@ void mwLoop::game_menu(void)
             return;
          }
 
+
+
+
+
          if ((top_menu_sel >= 100) && (top_menu_sel < 200)) // right pressed on menu item
          {
             top_menu_sel -= 100;

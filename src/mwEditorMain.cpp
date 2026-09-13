@@ -521,9 +521,22 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    // second line with controls
    by1 = y3+1;
 
-   // tile draw mode (tile | flag | both
-   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
-   mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+   // // tile draw mode (tile | flag | both
+   // al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
+   // mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+
+
+   // force showing of template overlay toggle
+   if (mWidget.mCheckBox(1, x1+2, 50, 1, by1-1, 9, -1, show_template_overlays, "template", color, 15, d))
+   {
+      mBitmap.rebuild_bitmaps();
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+
+
+
 
    // draw vline at middle to separate draw and show controls
    int x3 = x1 + 160; // x middle
@@ -548,6 +561,10 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
       mScreen.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
+
+
+
+
 
    // draw item area
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y4, 0, "Draw Item   ");
@@ -726,11 +743,6 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
       float vcy1 = (vy1 + vy2) / 2;
       al_draw_line(vcx1, cby2, vcx1, vcy1, mColor.pc[vc], 1);
       al_draw_line(vcx1, vcy1, vx1, vcy1, mColor.pc[vc], 1);
-
-
-
-
-
 
 
 

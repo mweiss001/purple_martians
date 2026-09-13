@@ -10,33 +10,36 @@ D - demo record
 
 
 
-
-
 Level Editor
 ------------
 
-in mwWindowManager.cpp -> process_keypress()
-
-Q - copy tiles
-E - tile editor
-
-also this is where you can enable or disable the level editor save on quit dialog
+in mLevelEditor.process_keypress()
 
 
+   if (mInput.key[ALLEGRO_KEY_H][0]) set_mode(9); 
+   if (mInput.key[ALLEGRO_KEY_Q][3]) mBitmapTools.copy_tiles();
+   if (mInput.key[ALLEGRO_KEY_F][3]) mBitmapTools.edit_tile_flags();
+   if (mInput.key[ALLEGRO_KEY_E][3])
+   {
+      mwTileEditor te;
+      te.edit_tile(0);
+   }
+
+   if (mInput.key[ALLEGRO_KEY_T][3])
+   {
+      mEditorMain.show_template_overlays = !mEditorMain.show_template_overlays;
+      mBitmap.rebuild_bitmaps();
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
 
 
 
 Copy Tiles
 ----------
-
 in mwBitmapTools -> copy_tiles()
-
 C - count tiles
-S - modify tileset
-
-
-
-
+S - used for many custom things, manually set in code
 
 
 

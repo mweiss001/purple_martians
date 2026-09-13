@@ -135,9 +135,10 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 
 - levels are started from the overworld hub
 
-- levels are locked until the previous level is completed
-
 - when a level is completed, you return to the overworld hub
+
+- levels are unlocked as you progress
+
 
 
 <l12>Classic Mode:
@@ -328,7 +329,7 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 <a19> Bounces, seeks and shoots deadly cannonballs.
 
 
-<l13>    Podzilla
+<l13>    VinePod
 <a15> Pops up and shoots when you trigger it.
 
 
@@ -344,7 +345,7 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 <a56> Turns into a solid block when shot.
 
 
-<l13>    Jumpworm
+<l13>    JumpWorm
 <a47> Inches along the floor and jumps.
 
 
@@ -470,10 +471,7 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 <l15>and bombs and rockets have no effect on them.
 
 
-<ms128129130131132133134135136137138139140141142143160161162163
-
-
-<ms576577578579580608609610611612640641642643644165165165165165
+<ms914915916104105106107108109110076077078079564565566608608610
 <l15>___________________________________________________________________________
 
 <l04>Empty Blocks
@@ -481,7 +479,7 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 Empty space!
 
 
-<ms000007008009010011012013014015165165165165165165165165165165
+<ms072073074075011012013014015018019000000000000000000000000000
 <l15>___________________________________________________________________________
 
 <l04>SemiSolid Blocks
@@ -491,7 +489,7 @@ Player and enemies can jump through from below.
 Bullets pass through in all directions.
 
 
-<ms032033034035036037038039165165165165165165165165165165165165
+<ms898899900000000000000000000000000000000000000000000000000000
 <l15>___________________________________________________________________________
 
 <l04>Breakable Blocks
@@ -499,7 +497,7 @@ Bullets pass through in all directions.
 Shoot these blocks to break them. (Enemy's bullets will break them too.)
 
 
-<ms096097098099100165165165165165165165165165165165165165165165
+<ms158000148000000000000000000000000000000000000000000000000000
 <l15>___________________________________________________________________________
 
 <l04>Bombable Block
@@ -507,7 +505,7 @@ Shoot these blocks to break them. (Enemy's bullets will break them too.)
 Bombs and rockets will destroy these blocks.
 
 
-<ms064065066165165165165165165165165165165165165165165165165165
+<ms064065066067000000000000000000000000000000000000000000000000
 
 
 <section>Netgame
@@ -790,6 +788,10 @@ Bombs and rockets will destroy these blocks.
 
 
 <section>Level Editor Basics
+
+
+
+<c15>Level Editor is only available in Classic Mode
 
 
 <c10>______________________________________________________
@@ -3885,20 +3887,29 @@ purplemartians.org/history.html
 <c15>(Also Free, Not To Mention, Unencumbered by Patents)
 <c08>_______________________________________________________________________
 
+<c11>Mega 8-bit Pixel Pack by Super Icon 
+<c15>various tilesets
+
+<c11>Industrial Tileset by Atomic Realm Assets 
+<c15>various tilesets
+
+<c11>ZapSplat Sound Effects
+<c15>various sound effects
+
 <c11>SaucerBB.ttf
-<c15> copyright 2012 & 2016 Nate Piekos for Blambot Fonts
-<c15> license: free for non-profit use
-<c15> Font used for main logo and titles
+<c15>copyright 2012 & 2016 Nate Piekos for Blambot Fonts
+<c15>license: free for non-profit use
+<c15>Font used for main logo and titles
 
 <c11>Pristine.ttf
-<c15> copyright 2021 Damien Guard
-<c15> license: free with notification and credit
-<c15> 8x8 system font used for most text
+<c15>copyright 2021 Damien Guard
+<c15>license: free with notification and credit
+<c15>8x8 system font used for most text
 
 <c11>Achafont.ttf
-<c15> 'A Charming Font' by Gem Fonts
-<c15> license: free
-<c15> Font used for small letters on author's name
+<c15>'A Charming Font' by Gem Fonts
+<c15>license: free
+<c15>Font used for small letters on author's name
 
 <c11>PixelGosub.ttf
 <c15> by Pixel Sagas (Neale Davidson)

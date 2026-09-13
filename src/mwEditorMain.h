@@ -24,6 +24,10 @@ public:
    int show_flag_details;
    int show_non_default_blocks;
 
+   int show_template_overlays;
+
+
+
    int show_tile_overlays;
 
    int status_window_has_mouse;

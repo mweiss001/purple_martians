@@ -15,30 +15,15 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-make copy tiles main bitmap scroll down and up
+- level editor show filter in editor main also
+
+- in edit selection floodfill, I think tile and flags setting are not respected
 
 
+- when changing levels in level editor do not keep th selection
 
 
-what was I doing with tilesets when I increased tiles to 2000?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- clean up the status window toggles
 
 
 
@@ -234,73 +219,46 @@ redid blocks and lifts on 21 long one
 
 
 
-
-
-
-
-
-
-
-
 --------------------------------------------------
 tiles and tilesets
 --------------------------------------------------
 
+- do more custom draw modes with 90 tileset rect draw
 
-I want to make my own custom file dialogs
+- make more tile helper frame presets...
 
-especially for load, I want to see what I am loading, visually
-
-I need some sub areas:
-
-- what folder to look in
-- what files to show
-- list of files found
-- display preview for files
-- button to load, save, etc
+- make the 90 tileset replace draw take more advantage of all the extra tiles
 
 
 
-
-what if i had a mode where player could control movement of lift with direction key?
-
+--------------------------------------------------
+settings
+--------------------------------------------------
 
 add to settings:
 - prompt to save when quitting level editor..done
 - make backup when saving level..done
 - make backup when saving tilemaps..done
 - show level numbers in stats..done
-- debug keyboard shortcuts
+- debug keyboard shortcuts (documented in docs/HOWTO/Keyboard Shortcuts.txt)
 
 
 Widgets
 ---------------
 
 
-
-
-
-
-
-Tilesets
-------------
-give credit to where I got some tilesets
-
-
-Tile helper
------------
-
-make more presets...
-
-
 help screens
 ----------------
-- give credit to where I got some tilesets
-- fix references to bombable blocks, breakable, switchable
+- fix references to bombable blocks, breakable, switchable...done
+- at the start of level editor, mention only available in classic mode...done
+- give credit to where I got tilesets and sound effects...done
+
+
 - add description for status window controls
-- at the start of level editor, mention only available in classic mode
-- redo section of block selection
-- fix ref to tile helper
+
+- get a new pic for lift
+- redo tile helper
+- redo block selection
 
 
 to finish client_status:
@@ -394,8 +352,7 @@ how big is it? settings.pm is 8K
 why am i scared of 8K? I do server client file transfer all the time
 
 
-
-
+make copy tiles main bitmap scroll down and up if taller than screen height
 
 
 
@@ -461,6 +418,22 @@ I think I can kill all on server pmh...
 all I really need to do is get the latest version on pmh...i think...
 
 
+
+I want to make my own custom file dialogs
+especially for load, I want to see what I am loading, visually
+I need some sub areas:
+- what folder to look in
+- what files to show
+- list of files found
+- display preview for files
+- button to load, save, etc
+
+
+
+
+
+
+what if i had a mode where player could control movement of lift with direction key?
 
 
 

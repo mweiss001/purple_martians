@@ -33,17 +33,7 @@ class mwBitmapTools
    void redraw_grid(mwRect<int> tile_grid_rect, mwRect<int> selection_rect, int gridlines, int mode, int selected_index);
    void edit_tile_flags();
 
-
-
-
-
    void draw_flag_rects_multiple_th(int x, int y);
-
-
-
-
-
-
 
 
    private:
@@ -58,6 +48,8 @@ class mwBitmapTools
    void move_tiles_and_refs(int s, int d, int r);
 
    void clear_tile_range(int d, int r);
+
+
 
    void fill_player_tile();
 

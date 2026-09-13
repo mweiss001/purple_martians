@@ -578,6 +578,11 @@ bool mwWidget::mCheckBoxFlag(int xType, int xa, int xb, int yType, int ya, int y
 
 
 
+// 5  centered on xa, width from text length, xb used to pad text length
+
+
+
+
 // yType
 // 0  abs ya, abs yb
 // 1  abs ya, yb is height
@@ -638,13 +643,14 @@ void mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, co
    }
 
 
-
    if (xType == 6) // abs center xa,  auto text width with xb padding added to text length
    {
+
+      mInput.m_err("xyHelper MODE 6  --  I thought this was unused!!!!!!");
+
       printf("xyHelper MODE 6  --  I thought this was unused!!!!!!\n");
-
+      // it is not!!! 20260913 found usage in setting stats...replaced with 5 it is identical...
       tl += xb; // text length
-
       x1 = xa - tl/2;
       x2 = xa + tl/2;
    }

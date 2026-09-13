@@ -34,9 +34,20 @@ void mwSelectionWindow::setupTileSetGroups()
    }
 
    i=0;
+
+   tileSetGroups[i].name = "Basic";
+   tileSetGroups[i].display_tile = 23;
+   tileSetGroups[i].visible = 1;
+
+
+   i++;
    tileSetGroups[i].name = "Platforms";
    tileSetGroups[i].display_tile = 609;
    tileSetGroups[i].visible = 1;
+
+
+
+
 
    i++;
    tileSetGroups[i].name = "Columns";
@@ -48,12 +59,6 @@ void mwSelectionWindow::setupTileSetGroups()
    tileSetGroups[i].name = "Extended";
    tileSetGroups[i].display_tile = 1024;
    tileSetGroups[i].visible = 0;
-
-
-   i++;
-   tileSetGroups[i].name = "Industrial";
-   tileSetGroups[i].display_tile = 776;
-   tileSetGroups[i].visible = 1;
 
    i++;
    tileSetGroups[i].name = "Wires"; // and 24
@@ -78,8 +83,44 @@ void mwSelectionWindow::setupTileSetGroups()
 
    i++;
    tileSetGroups[i].name = "Rare";
-   tileSetGroups[i].display_tile = 712;
+   tileSetGroups[i].display_tile = 504;
    tileSetGroups[i].visible = 0;
+
+
+   i++;
+   tileSetGroups[i].name = "Template";
+   tileSetGroups[i].display_tile = 1418+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Alien Dark";
+   tileSetGroups[i].display_tile = 1508+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Alien Machine";
+   tileSetGroups[i].display_tile = 1598+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Alien Wood";
+   tileSetGroups[i].display_tile = 1688+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Alien Ice";
+   tileSetGroups[i].display_tile = 1778+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Military";
+   tileSetGroups[i].display_tile = 1868+3;
+   tileSetGroups[i].visible = 1;
+
+   i++;
+   tileSetGroups[i].name = "Space";
+   tileSetGroups[i].display_tile = 1958+3;
+   tileSetGroups[i].visible = 1;
 
 
 /*
@@ -221,9 +262,7 @@ void mwSelectionWindow::fill_block_array()
    // to keep track of the last inserted position
    lasty = 0;
 
-
-   set_block_set_main_blocks(x, y);
-
+   if (isTileSetGroupVisible("Basic")) { set_block_set_main_blocks(x, y);  }
 
    if (isTileSetGroupVisible("Platforms"))
    {
@@ -290,22 +329,12 @@ void mwSelectionWindow::fill_block_array()
       set_block_extended(1168,x, y);  // Blue Pipes
    }
 
-   if (isTileSetGroupVisible("Industrial"))
-   {
-      set_block_set_24(672, x, y);  // Template
-      set_block_set_24(704, x, y);  // Ice
-      set_block_set_24(736, x, y);  // Tan
-      set_block_set_24(768, x, y);  // alien machine
-      set_block_set_24(800, x, y);  // alien dark
-
-   }
-
    if (isTileSetGroupVisible("Wires")) // and 24 industrial
    {
       // normal 16 4x4, but with extra custom tiles at the end
       if (x>11) { x=0; y+=4; } // need 5 empty columns, or start new row
       int t = 832;
-      set_block_set_16_4x4(t, x, y);
+      set_block_set_16(t, x, y);
       block_set_set(t+16, x, y+0); // volt meter H
       block_set_set(t+17, x, y+1); // current meter H
       block_set_set(t+18, x, y+2); // current meter V
@@ -315,13 +344,13 @@ void mwSelectionWindow::fill_block_array()
 
    if (isTileSetGroupVisible("Blocks"))
    {
-      set_block_set_16_4x4(1008, x, y); // Purple Platform Blocks
-      set_block_set_16_4x4(992,  x, y); // Fat fuzzy pipes
+      set_block_set_16(1008, x, y); // Purple Platform Blocks
+      set_block_set_16(992,  x, y); // Fat fuzzy pipes
 
       // grey slate bricks
       // normal 16 4x4, but with extra custom tiles at the end
       if (x>11) { x=0; y+=4; } // need 5 empty columns, or start new row
-      set_block_set_16_4x4(880, x, y);
+      set_block_set_16(880, x, y);
       block_set_set(855, x, y+0); // vline t
       block_set_set(856, x, y+1); // vline m
       block_set_set(857, x, y+2); // vline b
@@ -331,46 +360,40 @@ void mwSelectionWindow::fill_block_array()
 
    if (isTileSetGroupVisible("Screen"))
    {
-      set_block_set_16_4x4(928,  x, y); // wrought iron grate
-      set_block_set_16_4x4(896,  x, y); // semi-solid screens
+      set_block_set_16(928,  x, y); // wrought iron grate
+      set_block_set_16(896,  x, y); // semi-solid screens
    }
 
 
    if (isTileSetGroupVisible("Dirt"))
    {
-      set_block_set_16_4x4(912,  x, y); // Brown dirt and grass
-      set_block_set_16_4x4(864,  x, y); // Red Dirt and Grass
-      set_block_set_16_4x4(944,  x, y); // Red Dirt
-      set_block_set_16_4x4(976,  x, y); // Grey Rock
+      set_block_set_16(912,  x, y); // Brown dirt and grass
+      set_block_set_16(864,  x, y); // Red Dirt and Grass
+      set_block_set_16(944,  x, y); // Red Dirt
+      set_block_set_16(976,  x, y); // Grey Rock
    }
 
 
    if (isTileSetGroupVisible("Rare"))
    {
-      // set_block_set_16_4x4(960,  x, y); // Brown Bricks
-      // set_block_set_rainbow(496, x, y); // Rainbow
-
-
-      set_block_set_test(1418, x, y); // template
-//      set_block_set_test(1508, x, y); // dark grey
-      set_block_set_test(1598, x, y); // blue pipe
-//      set_block_set_test(1688, x, y); // brown wood
-      set_block_set_test(1778, x, y); // ice
-//      set_block_set_test(1868, x, y); // military
-//      set_block_set_test(1958, x, y); // space
-
-
-
-
-
-
-
+      set_block_set_16(960,  x, y); // Brown Bricks
+      set_block_set_rainbow(496, x, y); // Rainbow
    }
 
+   if (isTileSetGroupVisible("Template"))      {  set_block_set_90(1418, x, y);  }
+   if (isTileSetGroupVisible("Alien Dark"))    {  set_block_set_90(1508, x, y);  }
+   if (isTileSetGroupVisible("Alien Machine")) {  set_block_set_90(1598, x, y);  }
+   if (isTileSetGroupVisible("Alien Wood"))    {  set_block_set_90(1688, x, y);  }
+   if (isTileSetGroupVisible("Alien Ice"))     {  set_block_set_90(1778, x, y);  }
+   if (isTileSetGroupVisible("Military"))      {  set_block_set_90(1868, x, y);  }
+   if (isTileSetGroupVisible("Space"))         {  set_block_set_90(1958, x, y);  }
+
+//   block_array_num_lines = lasty + 1;
+
+   if (lasty) block_array_num_lines = lasty + 1;
+   else block_array_num_lines = 0;
 
 
-
-   block_array_num_lines = lasty + 1;
 }
 
 void mwSelectionWindow::block_set_set(int t, int x, int y)
@@ -553,7 +576,7 @@ void mwSelectionWindow::set_block_set_1x4(int t, int &x, int &y)
 
 
 // 16 tiles on 4 lines 4x4 - used for most 16 block tilesets
-void mwSelectionWindow::set_block_set_16_4x4(int t, int &x, int &y)
+void mwSelectionWindow::set_block_set_16(int t, int &x, int &y)
 {
    // check at the start
    if (x>12) { x=0; y+=4; }
@@ -588,114 +611,89 @@ void mwSelectionWindow::set_block_set_16_4x4(int t, int &x, int &y)
 
 
 
-void mwSelectionWindow::set_block_set_test(int t, int &x, int &y)
+void mwSelectionWindow::set_block_set_90(int t, int &x, int &y)
 {
    // check at the start
    if (x>0) { x=0; y+=2; }
 
+
+   // 1st 6x4
+   int tt = t;
    for (int yy=0; yy<4; yy++)
       for (int xx=0; xx<6; xx++)
       {
-         block_set_set(t,   x+xx, y+yy);
-         t++;
+         block_set_set(tt,   x+xx, y+yy);
+         tt++;
       }
+   x+=6;
 
-   x+=7;
-
+   // 2nd 6x4
+   tt = t + 24;
    for (int yy=0; yy<4; yy++)
       for (int xx=0; xx<6; xx++)
       {
-         block_set_set(t,   x+xx, y+yy);
-         t++;
+         block_set_set(tt,   x+xx, y+yy);
+         tt++;
       }
+   x+=6;
 
-   y+=4;
-   x=0;
-
-   for (int yy=0; yy<4; yy++)
-      for (int xx=0; xx<6; xx++)
-      {
-         block_set_set(t,   x+xx, y+yy);
-         t++;
-      }
-
-   x+=7;
-
-   for (int yy=0; yy<3; yy++)
-      for (int xx=0; xx<2; xx++)
-      {
-         block_set_set(t,   x+xx, y+yy);
-         t++;
-      }
-
-   x+=3;
-
+   // 3x4 props
+   tt = t + 78;
    for (int yy=0; yy<4; yy++)
       for (int xx=0; xx<3; xx++)
       {
-         block_set_set(t,   x+xx, y+yy);
-         t++;
+         block_set_set(tt,   x+xx, y+yy);
+         tt++;
+      }
+   x+=3;
+
+   // 1x6 alt
+   tt = t+72;
+   for (int yy=0; yy<6; yy++)
+      {
+         block_set_set(tt,   x, y+yy);
+         tt++;
       }
 
-
-
-
-   //
-   //
-   // y+=4;
-   // x=0;
-   //
-   //
-   // for (x=0; x<16; x++)
-   //    for (int yy=0; yy<4; yy++)
-   //    {
-   //       block_set_set(t+12+yy*32+x,     x, y+yy);
-   //    }
-
+   // go down 4 rows
    y+=4;
    x=0;
 
+   // // 3rd 6x4
+   // tt = t + 48;
+   // for (int yy=0; yy<4; yy++)
+   //    for (int xx=0; xx<6; xx++)
+   //    {
+   //       block_set_set(tt,   x+xx, y+yy);
+   //       tt++;
+   //    }
+   //y+=4;
+   //x=0;
 
 
-}
+   // 3rd 6x4 part 1
+   tt = t + 48;
+   for (int yy=0; yy<2; yy++)
+      for (int xx=0; xx<6; xx++)
+      {
+         block_set_set(tt,   x+xx, y+yy);
+         tt++;
+      }
 
+   x+=6;
 
-
-
-
-void mwSelectionWindow::set_block_set_24(int t, int &x, int &y)
-{
-   // check at the start
-   if (x>0) { x=0; y+=2; }
-
-   block_set_set(t+8,  x+0, y+0); // tl corner
-   block_set_set(t+9,  x+1, y+0); // tr corner
-   block_set_set(t+0,  x+2, y+0); // middle cross
-   block_set_set(t+2,  x+3, y+0); // hline l
-   block_set_set(t+3,  x+4, y+0); // hline m
-   block_set_set(t+4,  x+5, y+0); // hline r
-   block_set_set(t+12, x+6, y+0); // tee tl
-   block_set_set(t+14, x+7, y+0); // tee tr
-
-   block_set_set(t+10, x+0, y+1); // ll corner
-   block_set_set(t+11, x+1, y+1); // lr corner
-   block_set_set(t+1,  x+2, y+1); // standalone single
-   block_set_set(t+5,  x+3, y+1); // vline t
-   block_set_set(t+6,  x+4, y+1); // vline m
-   block_set_set(t+7,  x+5, y+1); // vline b
-   block_set_set(t+15, x+6, y+1); // tee ll
-   block_set_set(t+13, x+7, y+1); // tee lr
-
-   block_set_set(t+16, x+8,  y+0);
-   block_set_set(t+17, x+9,  y+0);
-   block_set_set(t+18, x+8,  y+1);
-   block_set_set(t+19, x+9,  y+1);
-   block_set_set(t+20, x+10, y+0);
-   block_set_set(t+21, x+11, y+0);
-   block_set_set(t+22, x+10, y+1);
-   block_set_set(t+23, x+11, y+1);
+   // 3rd 6x4 part 2
+   tt = t + 60;
+   for (int yy=0; yy<2; yy++)
+      for (int xx=0; xx<6; xx++)
+      {
+         block_set_set(tt,   x+xx, y+yy);
+         tt++;
+      }
 
    y+=2;
+   x=0;
+
 }
 
 
@@ -1031,7 +1029,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
    if (mSelectionWindow.special_on) yc += select_window_special_height;
 
    // set block y positions
-   int select_window_block_height = mSelectionWindow.block_array_num_lines*20 + 13;
+   int select_window_block_height = mSelectionWindow.block_array_num_lines*20 + 14;
    int select_window_block_y1 = yc;
    int select_window_block_y2 = select_window_block_y1 + select_window_block_height;
    if (mSelectionWindow.block_on) yc += select_window_block_height;
@@ -1140,7 +1138,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
                // draw text area
                text_area_rect.draw_filled_rectangle(mColor.pc[0]);
                text_area_rect.draw_rectangle(mColor.pc[color], 1);
-               al_draw_line(x1, text_area_rect.y1 + 12, x2, text_area_rect.y1 + 11, mColor.pc[color], 1);
+               al_draw_line(x1, text_area_rect.y1 + 12, x2, text_area_rect.y1 + 12, mColor.pc[color], 1);
                al_draw_text(mFont.pr8, mColor.pc[9], x1+2, text_area_rect.y1+2, 0, "Description ");
                al_draw_multiline_text(mFont.pr8, mColor.pc[15], x1+2, select_window_text_y+12, 800, 0, 0, desc.c_str());
 
@@ -1185,19 +1183,19 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
    if (mSelectionWindow.block_on)
    {
-      // make rect for special title bar
-      mwRect<int> block_title_bar_rect = mwRect<int>::fromX1Y1X2Y2(x1, select_window_block_y1, x2, select_window_block_y1+11);
+      // make rect for title bar
+      mwRect<int> block_title_bar_rect = mwRect<int>::fromX1Y1X2Y2(x1, select_window_block_y1, x2, select_window_block_y1+12);
 
-      // special title bar background color
+      // title bar background color
       block_title_bar_rect.draw_filled_rectangle(mColor.pc[color+192]);
 
-      // special title bar frame
+      // title bar frame
       block_title_bar_rect.draw_rectangle(mColor.pc[color], 1);
 
-      // special title bar title
+      // title bar title
       al_draw_textf(mFont.pr8, mColor.pc[9],  block_title_bar_rect.x1+2,   block_title_bar_rect.y1+2, 0, "Tiles");
 
-      // block title bar controls
+      // title bar controls
       by1 = block_title_bar_rect.y1+2;
 
 
@@ -1212,7 +1210,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
          mSelectionWindow.fill_block_array();
       }
-      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", ttx, by1, ttx-8, by1+8);
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", ttx, by1, ttx+8, by1+8);
 
 
 
@@ -1234,9 +1232,6 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
 
 
-
-
-
       int x3 = x1 + 60;
       for (int i=0; i<32; i++)
          if (tileSetGroups[i].display_tile)
@@ -1248,10 +1243,15 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
             x3+=11;
          }
 
+
+      // make rect for block area
+      mwRect<int> block_area_rect = mwRect<int>::fromX1Y1X2Y2(x1, select_window_block_y1+13, x2, select_window_block_y2-1);
+
+
       // draw blocks
       for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)
       {
-         int y5 = select_window_block_y1+12+(y*20);
+         int y5 = block_area_rect.y1+(y*20);
          for (int x=0; x<16; x++)
          {
             int x5 = x1+x*20+1;
@@ -1262,11 +1262,8 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
 
 
 
-
       if (!d)
       {
-         // make rect for block area
-         mwRect<int> block_area_rect = mwRect<int>::fromX1Y1X2Y2(x1, select_window_block_y1+12, x2, select_window_block_y2-1);
 
          // is mouse on block area?
          int mx, my;
@@ -1279,10 +1276,9 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
             if (gridline_size)
             {
                int mpx = x1+(mx/20)*20;
-               int mpy = select_window_block_y1+12+(my/20)*20;
+               int mpy = block_area_rect.y1+(my/20)*20;
                al_draw_rectangle(mpx+1, mpy, mpx+21, mpy+20, mColor.Red, gridline_size-1);
             }
-
 
 
             int syt = select_window_text_y;
@@ -1296,7 +1292,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
             // draw text area
             text_area_rect.draw_filled_rectangle(mColor.pc[0]);
             text_area_rect.draw_rectangle(mColor.pc[color], 1);
-            al_draw_line(x1, text_area_rect.y1 + 12, x2, text_area_rect.y1 + 11, mColor.pc[color], 1);
+            al_draw_line(x1, text_area_rect.y1+12, x2, text_area_rect.y1+12, mColor.pc[color], 1);
             al_draw_text(mFont.pr8, mColor.pc[9], x1+2, text_area_rect.y1+2, 0, "Description ");
 
             // draw text for this block
