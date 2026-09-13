@@ -15,7 +15,14 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+make copy tiles main bitmap scroll down and up
+
+
+
+
 what was I doing with tilesets when I increased tiles to 2000?
+
+
 
 
 

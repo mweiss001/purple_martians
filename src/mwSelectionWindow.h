@@ -53,6 +53,8 @@ public:
    bool block_on;
    bool special_on;
 
+   int gridline_size;
+
    int block_array_num_lines;  // number of lines
 
    int special_array_num_lines = 4;  // number of lines
@@ -82,6 +84,9 @@ private:
    void set_block_set_24(int t, int &x, int &y);
    void set_block_set_16_4x4(int t, int &x, int &y);
    void set_block_set_16_2x8(int t, int x, int y);
+
+
+   void set_block_set_test(int t, int &x, int &y);
 
 
    void set_block_set_2x3(int t, int &x, int &y);

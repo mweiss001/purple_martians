@@ -206,7 +206,7 @@ void mwSelectionWindow::init()
 
 
 
-void mwSelectionWindow::fill_block_array(void)
+void mwSelectionWindow::fill_block_array()
 {
    // erase all
    block_array_num_lines = 0;
@@ -347,8 +347,24 @@ void mwSelectionWindow::fill_block_array(void)
 
    if (isTileSetGroupVisible("Rare"))
    {
-      set_block_set_16_4x4(960,  x, y); // Brown Bricks
-      set_block_set_rainbow(496, x, y); // Rainbow
+      // set_block_set_16_4x4(960,  x, y); // Brown Bricks
+      // set_block_set_rainbow(496, x, y); // Rainbow
+
+
+      set_block_set_test(1418, x, y); // template
+//      set_block_set_test(1508, x, y); // dark grey
+      set_block_set_test(1598, x, y); // blue pipe
+//      set_block_set_test(1688, x, y); // brown wood
+      set_block_set_test(1778, x, y); // ice
+//      set_block_set_test(1868, x, y); // military
+//      set_block_set_test(1958, x, y); // space
+
+
+
+
+
+
+
    }
 
 
@@ -569,6 +585,83 @@ void mwSelectionWindow::set_block_set_16_4x4(int t, int &x, int &y)
       }
    x+=4;
 }
+
+
+
+void mwSelectionWindow::set_block_set_test(int t, int &x, int &y)
+{
+   // check at the start
+   if (x>0) { x=0; y+=2; }
+
+   for (int yy=0; yy<4; yy++)
+      for (int xx=0; xx<6; xx++)
+      {
+         block_set_set(t,   x+xx, y+yy);
+         t++;
+      }
+
+   x+=7;
+
+   for (int yy=0; yy<4; yy++)
+      for (int xx=0; xx<6; xx++)
+      {
+         block_set_set(t,   x+xx, y+yy);
+         t++;
+      }
+
+   y+=4;
+   x=0;
+
+   for (int yy=0; yy<4; yy++)
+      for (int xx=0; xx<6; xx++)
+      {
+         block_set_set(t,   x+xx, y+yy);
+         t++;
+      }
+
+   x+=7;
+
+   for (int yy=0; yy<3; yy++)
+      for (int xx=0; xx<2; xx++)
+      {
+         block_set_set(t,   x+xx, y+yy);
+         t++;
+      }
+
+   x+=3;
+
+   for (int yy=0; yy<4; yy++)
+      for (int xx=0; xx<3; xx++)
+      {
+         block_set_set(t,   x+xx, y+yy);
+         t++;
+      }
+
+
+
+
+   //
+   //
+   // y+=4;
+   // x=0;
+   //
+   //
+   // for (x=0; x<16; x++)
+   //    for (int yy=0; yy<4; yy++)
+   //    {
+   //       block_set_set(t+12+yy*32+x,     x, y+yy);
+   //    }
+
+   y+=4;
+   x=0;
+
+
+
+}
+
+
+
+
 
 void mwSelectionWindow::set_block_set_24(int t, int &x, int &y)
 {
@@ -1108,24 +1201,39 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
       by1 = block_title_bar_rect.y1+2;
 
 
+      int ttx = x2-10;
 
-      if (mWidget.mButton(0, x2-10,  x2-2,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.block_on = 0;
+      if (mWidget.mButton(0, ttx,  ttx+8,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.block_on = 0;
 
 
-      if (mWidget.mButton(0, x2-41,  x2-33,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
+      ttx = x2-41;
+      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
       {
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
          mSelectionWindow.fill_block_array();
       }
-      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", x2-41, by1, x2-33, by1+8);
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", ttx, by1, ttx-8, by1+8);
 
 
-      if (mWidget.mButton(0, x2-25,  x2-17,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
+
+      ttx = x2-25;
+      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
       {
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 0;
          mSelectionWindow.fill_block_array();
       }
-      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Collapse All", x2-25, by1, x2-17, by1+8);
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Collapse All", ttx, by1, ttx+8, by1+8);
+
+
+      ttx = x2-59;
+      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "#",        d))
+      {
+         if (++gridline_size>2) gridline_size = 0;
+      }
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Gridlines", ttx, by1, ttx+8, by1+8);
+
+
+
 
 
 
@@ -1134,25 +1242,26 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
          if (tileSetGroups[i].display_tile)
          {
             if (mWidget.mButtonTile(x3, by1-1, 10, tileSetGroups[i].display_tile, tileSetGroups[i].visible, d)) mSelectionWindow.fill_block_array();
-
-
             char msg[256];
             sprintf(msg, "Toggle %s", tileSetGroups[i].name.c_str());
-
             mWidget.mToolTip(3, x3,  0,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, msg, x3, by1, x3+10, by1+8);
-
-
             x3+=11;
-
-
-
-
          }
 
       // draw blocks
       for (int y=0; y<mSelectionWindow.block_array_num_lines; y++)
+      {
+         int y5 = select_window_block_y1+12+(y*20);
          for (int x=0; x<16; x++)
-            al_draw_bitmap(mBitmap.tile[mSelectionWindow.block_array[y][x] & PM_BTILE_TILENUM_MASK], x1+x*20+1, select_window_block_y1+12+(y*20), 0 );
+         {
+            int x5 = x1+x*20+1;
+            al_draw_bitmap(mBitmap.tile[mSelectionWindow.block_array[y][x] & PM_BTILE_TILENUM_MASK], x5, y5, 0 );
+            if (gridline_size) al_draw_rectangle(x5, y5, x5+20, y5+20, mColor.White, gridline_size-1);
+         }
+      }
+
+
+
 
       if (!d)
       {
@@ -1164,6 +1273,17 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
          if (block_area_rect.contains(mInput.mouse_x, mInput.mouse_y, mx, my))
          {
             int ret = mSelectionWindow.block_array[my/20][mx/20];
+
+
+
+            if (gridline_size)
+            {
+               int mpx = x1+(mx/20)*20;
+               int mpy = select_window_block_y1+12+(my/20)*20;
+               al_draw_rectangle(mpx+1, mpy, mpx+21, mpy+20, mColor.Red, gridline_size-1);
+            }
+
+
 
             int syt = select_window_text_y;
             int tl = 3; // text lines
@@ -1202,74 +1322,4 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
    // do the main title bar highlight here so that other things will not draw over the bottom line
    if ((have_focus) && title_bar_rect.contains(mInput.mouse_x, mInput.mouse_y)) title_bar_rect.draw_rectangle(mColor.pc[14], 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-/*
- *
- *
- *
-
-
-
-
-   int syb = select_window_block_y1;
-
-
-      int vx = (mInput.mouse_x-x1)/20; // column
-      if (vx < 0) vx = 0;
-      if (vx > 15) vx = 15;
-
-      int syt = select_window_text_y;
-
-
-      // check for mouse on block window
-      if ( (mSelectionWindow.block_on) && (mInput.mouse_y > 14 + syb) && (mInput.mouse_y < 14 + syb + mSelectionWindow.block_array_num_lines * 20))
-      {
-         int vy = (mInput.mouse_y-syb-14)/20; // row
-         int ret = mSelectionWindow.block_array[vy][vx];
-
-         int tl = 6; // text lines
-         int syt2 = syt+19+(8*tl);
-         if (mEditorMain.show_flag_details) syt2 += 140;
-
-         al_draw_filled_rectangle(x1, syt, x2, syt2, mColor.pc[0]); // erase
-         al_draw_rectangle(x1, syt, x2, syt2, mColor.pc[9], 1);     // frame
-         al_draw_rectangle(x1, syt, x2, syt+12, mColor.pc[9], 1); // title and frame
-         al_draw_text(mFont.pr8, mColor.pc[9], x1+2, syt+2,  0, "Description");
-
-
-
-         // draw text for this block
-         char msg[1024];
-         mEditorMain.get_text_description_of_block_based_on_flags(ret, msg);
-         al_draw_text (mFont.pr8, mColor.pc[15], x1+2, syt+14, 0, "---------------------");
-         al_draw_textf(mFont.pr8, mColor.pc[15], x1+2, syt+22, 0, "Block %d - %s ", ret & PM_BTILE_TILENUM_MASK, msg);
-         al_draw_text (mFont.pr8, mColor.pc[15], x1+2, syt+30, 0, "---------------------");
-
-         int junk;
-         if (mEditorMain.show_flag_details) mBitmapTools.draw_flags(x1+4, syt+38, ret, junk, 1, 0, 1);
-
-         if ((mInput.mouse_b[1][0]) || (mInput.mouse_b[2][0]))
-         {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-            mEditorMain.draw_item_type = 1;
-            mEditorMain.draw_item_num = ret;
-         }
-      }
-
-
-*/
-
-
-
-
 

@@ -57,7 +57,7 @@ class mwBitmapTools
    void copy_tile_range(int s, int d, int r);
    void move_tiles_and_refs(int s, int d, int r);
 
-
+   void clear_tile_range(int d, int r);
 
    void fill_player_tile();
 

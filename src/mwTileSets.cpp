@@ -30,6 +30,8 @@ void mwTileSets::init()
    strcpy(type_name[16], "16 Tileset");
    strcpy(type_name[24], "24 Tileset");
    strcpy(type_name[48], "48 Tileset");
+   strcpy(type_name[90], "90 Tileset");
+
 
 
    constructEmptySet();
@@ -45,11 +47,16 @@ void mwTileSets::init()
 
 
 
-   construct24( 672, 673, "Template");
-   construct24( 704, 713, "Ice Machine");
-   construct24( 736, 737, "Tan Platform");
-   construct24( 768, 776, "Alien Machine");
-   construct24( 800, 809, "Alien Dark");
+
+   construct90(1418, 1418+3, "Template");
+   construct90(1508, 1508+3, "Alien Dark");
+   construct90(1598, 1598+3, "Alien Machine");
+   construct90(1688, 1688+3, "Alien Wood");
+   construct90(1778, 1778+3, "Alien Ice");
+   construct90(1868, 1868+3, "Military");
+   construct90(1958, 1958+3, "Space");
+
+
 
    construct16( 832, 832, "Wires");
    construct16( 880, 881, "White Bricks");
@@ -120,7 +127,6 @@ void mwTileSets::init()
 
 //   findTileSetContainingIndex(currentTileSet, 832); // wires
    findTileSetContainingIndex(currentTileSet, 256); // purple pipes
-
 
 
 }
@@ -197,9 +203,59 @@ void mwTileSets::constructEmptySet()
 }
 
 
+void mwTileSets::construct90(int i, int d, std::string name)
+{
+   constructEmptySet();
+
+   ts.name            = name;
+   ts.startIndex      = i;
+   ts.endIndex        = i+89;
+   ts.displayIndex    = d;
+   ts.tileSetType     = 90;
+   ts.Single          = i+3;
+   ts.SolidFill       = i+13;
+
+   ts.HLineL          = i + 0;
+   ts.HLineM          = i + 1;
+   ts.HLineR          = i + 2;
+   ts.VLineT          = i + 9;
+   ts.VLineM          = i + 15;
+   ts.VLineB          = i + 21;
+
+   ts.OuterCornerTL   = i + 6;
+   ts.OuterCornerTR   = i + 7;
+   ts.OuterCornerBL   = i + 18;
+   ts.OuterCornerBR   = i + 20;
+
+   ts.OuterEdgeL      = i + 12;
+   ts.OuterEdgeR      = i + 14;
+   ts.OuterEdgeT      = i + 7;
+   ts.OuterEdgeB      = i + 19;
+
+   ts.FrameCornerTL   = i + 4;
+   ts.FrameCornerTR   = i + 5;
+   ts.FrameCornerBL   = i + 10;
+   ts.FrameCornerBR   = i + 11;
+
+   ts.FrameEdgeL      = i + 14;
+   ts.FrameEdgeT      = i + 19;
+   ts.FrameEdgeR      = i + 12;
+   ts.FrameEdgeB      = i + 7;
+
+   ts.InnerCornerTL   = i + 4;
+   ts.InnerCornerTR   = i + 5;
+   ts.InnerCornerBL   = i + 10;
+   ts.InnerCornerBR   = i + 11;
+
+   ts.InnerEdgeR      = i + 16;
+   ts.InnerEdgeB      = i + 17;
+   ts.InnerEdgeL      = i + 22;
+   ts.InnerEdgeT      = i + 23;
+   tileSets.push_back(ts);
+}
 
 
-// new 48
+
 void mwTileSets::construct48(int i, int d, std::string name)
 {
    constructEmptySet();
@@ -287,10 +343,7 @@ void mwTileSets::construct48(int i, int d, std::string name)
 }
 
 
-
-
-
-
+/*
 
 // new 24 tileset
 void mwTileSets::construct24(int i, int d, std::string name)
@@ -343,6 +396,9 @@ void mwTileSets::construct24(int i, int d, std::string name)
 
    tileSets.push_back(ts);
 }
+
+
+*/
 
 
 
@@ -912,7 +968,51 @@ void mwTileSets::drawRect(bool preview)
    }
 
 
-   if (ts.tileSetType == 24) // 24 tilesets
+
+
+   if (ts.tileSetType == 48) // 48 tilesets
+   {
+      mMiscFnx.enforce_limits_with_rollover(altDrawRectMode, 0, 6);
+      if (altDrawRectMode == 0)
+      {
+         altTextLine1 = "Frame - Outer";
+         drawRectHelper(-1, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+      }
+      if (altDrawRectMode == 1)
+      {
+         altTextLine1 = "Frame - Single";
+         drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+      }
+      if (altDrawRectMode == 2)
+      {
+         altTextLine1 = "Frame - Inner";
+         drawRectHelper(-1, ts.InnerEdgeT, ts.InnerEdgeB, ts.InnerEdgeL, ts.InnerEdgeR, ts.InnerCornerTL, ts.InnerCornerTR, ts.InnerCornerBL, ts.InnerCornerBR, preview);
+      }
+      if (altDrawRectMode == 3)
+      {
+         altTextLine1 = "Rectangle - Solid";
+         drawRectHelper(ts.SolidFill, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
+      }
+      if (altDrawRectMode == 4)
+      {
+         altTextLine1 = "Rectangle - Solid Alt";
+         drawRectHelper(ts.FrameCross, ts.FrameEdgeBTee, ts.FrameEdgeTTee, ts.FrameEdgeLTee,  ts.FrameEdgeRTee, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
+      }
+
+      if (altDrawRectMode == 5)
+      {
+         altTextLine1 = "Rectangle - Horizontal Lines";
+         drawRectHelperHline(ts, preview);
+      }
+      if (altDrawRectMode == 6)
+      {
+         altTextLine1 = "Rectangle - Vertical Lines";
+         drawRectHelperVline(ts, preview);
+      }
+   }
+
+
+   if (ts.tileSetType == 90) // 90 tilesets
    {
       mMiscFnx.enforce_limits_with_rollover(altDrawRectMode, 0, 6);
 
@@ -962,51 +1062,6 @@ void mwTileSets::drawRect(bool preview)
    }
 
 
-
-
-   if (ts.tileSetType == 48) // 48 tilesets
-   {
-      mMiscFnx.enforce_limits_with_rollover(altDrawRectMode, 0, 6);
-      if (altDrawRectMode == 0)
-      {
-         altTextLine1 = "Frame - Outer";
-         drawRectHelper(-1, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
-      }
-      if (altDrawRectMode == 1)
-      {
-         altTextLine1 = "Frame - Single";
-         drawRectHelper(-1, ts.FrameEdgeT, ts.FrameEdgeB, ts.FrameEdgeL, ts.FrameEdgeR, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
-      }
-      if (altDrawRectMode == 2)
-      {
-         altTextLine1 = "Frame - Inner";
-         drawRectHelper(-1, ts.InnerEdgeT, ts.InnerEdgeB, ts.InnerEdgeL, ts.InnerEdgeR, ts.InnerCornerTL, ts.InnerCornerTR, ts.InnerCornerBL, ts.InnerCornerBR, preview);
-      }
-      if (altDrawRectMode == 3)
-      {
-         altTextLine1 = "Rectangle - Solid";
-         drawRectHelper(ts.SolidFill, ts.OuterEdgeT, ts.OuterEdgeB, ts.OuterEdgeL, ts.OuterEdgeR, ts.OuterCornerTL, ts.OuterCornerTR, ts.OuterCornerBL, ts.OuterCornerBR, preview);
-      }
-      if (altDrawRectMode == 4)
-      {
-         altTextLine1 = "Rectangle - Solid Alt";
-         drawRectHelper(ts.FrameCross, ts.FrameEdgeBTee, ts.FrameEdgeTTee, ts.FrameEdgeLTee,  ts.FrameEdgeRTee, ts.FrameCornerTL, ts.FrameCornerTR, ts.FrameCornerBL, ts.FrameCornerBR, preview);
-      }
-
-      if (altDrawRectMode == 5)
-      {
-         altTextLine1 = "Rectangle - Horizontal Lines";
-         drawRectHelperHline(ts, preview);
-      }
-      if (altDrawRectMode == 6)
-      {
-         altTextLine1 = "Rectangle - Vertical Lines";
-         drawRectHelperVline(ts, preview);
-      }
-
-   }
-
-
    if (ts.tileSetType == 0) // none
    {
       altTextLine1 = "Rectangle - Single Tile Fill";
@@ -1044,13 +1099,6 @@ bool mwTileSets::compareTile(int rb, int cb, int set)
    }
    return false;
 }
-
-
-
-
-
-
-
 
 
 
@@ -1701,74 +1749,40 @@ void mwTileSets::create_tileset_solid(int bs, int tile, float h1, float h2, floa
 }
 
 
-void mwTileSets::create_tileset_from_24_atomic(int bs)
+
+
+void mwTileSets::copy_tiles_from_tilemap(const char* filename, int bs, int w, int h)
 {
-   // load mega 8 bit tileset to copy from
-   char b2_fn[100];
-   char b2_fn2[100];
-   //sprintf(b2_fn2, "bitmaps/Template_Tileset.png");      // pink
-   //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1A.png"); // dark grey
-   //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1B.png"); // blue orange
-//   sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1C.png"); // brown and purple
-   //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1D.png"); // light blue and green
-   sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1E.png"); // light blue and orange
-   //sprintf(b2_fn2, "bitmaps/Industrial_Tileset_1F.png"); // green blue pink
-
-
-
-
+   char b2_fn[500];
 
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
-   ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(b2_fn2);
+   ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(filename);
    sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname2));
    ALLEGRO_BITMAP *b2 = nullptr;
-
    b2 = al_load_bitmap(b2_fn);
-
    if (!b2)
    {
-      mInput.m_err("Load Error");
+      printf("Could not load %s\n", b2_fn);
       return;
    }
 
    // load block tiles from file to bitmap, so we can modify it
    ALLEGRO_BITMAP *b1 = mBitmapTools.load_block_tiles_to_bitmap();
+   if (!b1)
+   {
+      mInput.m_err("Load Error - block tiles");
+      return;
+   }
+
    al_set_target_bitmap(b1);
+
    int s=bs;
-
-   s = bs +  0;  al_draw_bitmap_region(b2, 20,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // middle
-   s = bs +  1;  al_draw_bitmap_region(b2, 60,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // single
-
-   s = bs +  2;  al_draw_bitmap_region(b2,  0,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline l
-   s = bs +  3;  al_draw_bitmap_region(b2, 20,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline m
-   s = bs +  4;  al_draw_bitmap_region(b2, 40,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // hline r
-
-   s = bs +  5;  al_draw_bitmap_region(b2, 60,  20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline t
-   s = bs +  6;  al_draw_bitmap_region(b2, 60,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline m
-   s = bs +  7;  al_draw_bitmap_region(b2, 60,  60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // vline b
-
-   s = bs +  8;  al_draw_bitmap_region(b2,  0,  20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tl
-   s = bs +  9;  al_draw_bitmap_region(b2, 40,  20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // tr
-   s = bs + 10;  al_draw_bitmap_region(b2,  0,  60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // bl
-   s = bs + 11;  al_draw_bitmap_region(b2, 40,  60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // br
-
-   s = bs + 12;  al_draw_bitmap_region(b2,  0,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // l
-   s = bs + 13;  al_draw_bitmap_region(b2, 40,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // r
-   s = bs + 14;  al_draw_bitmap_region(b2, 20,  20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // t
-   s = bs + 15;  al_draw_bitmap_region(b2, 20,  60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // b
-
-   s = bs + 16;  al_draw_bitmap_region(b2, 80,   0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner br
-   s = bs + 17;  al_draw_bitmap_region(b2, 100,  0, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner bl
-   s = bs + 18;  al_draw_bitmap_region(b2, 80,  20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner tr
-   s = bs + 19;  al_draw_bitmap_region(b2, 100, 20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner tl
-
-   s = bs + 20;  al_draw_bitmap_region(b2, 80,  40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner br
-   s = bs + 21;  al_draw_bitmap_region(b2, 100, 40, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner bl
-   s = bs + 22;  al_draw_bitmap_region(b2, 80,  60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner tr
-   s = bs + 23;  al_draw_bitmap_region(b2, 100, 60, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0); // inner tl
-
-
-
+   for (int y=0; y<h; y++)
+      for (int x=0; x<w; x++)
+      {
+         al_draw_bitmap_region(b2, x*20,  y*20, 20, 20, (s % 32)*22+1, (s / 32)*22+1, 0);
+         s++;
+      }
 
    // save modified block tiles bitmap to file
    mBitmapTools.save_bitmap_to_block_tiles_file(b1);
@@ -1776,14 +1790,9 @@ void mwTileSets::create_tileset_from_24_atomic(int bs)
    al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
 
-
-
-
-
-
-
-
 }
+
+
 
 
 void mwTileSets::create_tileset_from_16_mega(int bs, int b2_x, int b2_y)

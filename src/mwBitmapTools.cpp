@@ -1398,11 +1398,6 @@ void mwBitmapTools::edit_tile_flags()
       // mode button
       ya+=60;
       mWidget.mButtonToggle(3, cx, 0,  1, ya, 12,     0, 0, 3, 2,    14, 0, mode, 0, 1, "Mode:Single", "Mode:Multiple", 0, 0, 15, 15, 13, 13, 0);
-
-
-
-
-
       ya += 13;
 
       // mode text description
@@ -1768,7 +1763,9 @@ void mwBitmapTools::copy_tiles()
       draw_tilecount_overlays(b1r.x1, b1r.y1);
 
       //draw_flags_overlays(b1_x, b1_y, PM_BTILE_SHOW_SELECT_WIN);
-//      draw_flags_overlays(b1_x, b1_y, PM_BTILE_SOLID_PLAYER);
+      //draw_flags_overlays(b1r.x1, b1r.y1, PM_BTILE_SOLID_PLAYER);
+
+
 
 /*
 #define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
@@ -1967,6 +1964,85 @@ void mwBitmapTools::copy_tiles()
          //move_tiles_and_refs(192, 1216, 48); // purple blocks
 
 
+
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_1E_20_cubic.png", 1600, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_2E_20_cubic.png", 1607, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_3E_20_cubic.png", 1614, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Props_1E_20_cubic.png", 1621, 3, 4);
+         //mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_E_Alternatives_20_cubic.png", 1624, 6, 1);
+
+
+//         clear_tile_range(1920, 256);
+//         clear_tile_range(1792, 90);
+
+
+         // int bs = 1418;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/0 - templates/0_Template_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/0 - templates/0_Template_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/0 - templates/0_Template_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/0 - templates/0_Template_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/0 - templates/0_Template_Props.png",         bs+78, 3, 4);
+         //
+         // bs +=90;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/A - dark grey/A_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/A - dark grey/A_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/A - dark grey/A_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/A - dark grey/A_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/A - dark grey/A_Props.png",         bs+78, 3, 4);
+         //
+         // bs +=90;
+         // printf("bs:%d\n", bs);
+         //
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/B - blue pipes with orange/B_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/B - blue pipes with orange/B_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/B - blue pipes with orange/B_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/B - blue pipes with orange/B_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/B - blue pipes with orange/B_Props.png",         bs+78, 3, 4);
+         //
+         // bs +=90;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/C - brown wood with purple/C_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/C - brown wood with purple/C_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/C - brown wood with purple/C_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/C - brown wood with purple/C_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/C - brown wood with purple/C_Props.png",         bs+78, 3, 4);
+         //
+         //
+         // bs += 90;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/E - ice with red wires/E_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/E - ice with red wires/E_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/E - ice with red wires/E_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/E - ice with red wires/E_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/E - ice with red wires/E_Props.png",         bs+78, 3, 4);
+         //
+         // bs += 90;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/H - military/H_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/H - military/H_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/H - military/H_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/H - military/H_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/H - military/H_Props.png",         bs+78, 3, 4);
+         //
+         // bs += 90;
+         // printf("bs:%d\n", bs);
+         // clear_tile_range(bs, 90);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/I - space/I_Tileset_1.png",     bs,    6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/I - space/I_Tileset_2.png",     bs+24, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/I - space/I_Tileset_3.png",     bs+48, 6, 4);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/I - space/I_Tileset_Alt.png",   bs+72, 6, 1);
+         // mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/my picks Industrial Tileset_20_scale/I - space/I_Props.png",         bs+78, 3, 4);
+         //
+
+
 //         mGlobalLevelTool.changeTileNumberRange(672, 640, 3);
 //         mGlobalLevelTool.changeTileNumberRange(640, 672, 3);
 
@@ -1985,6 +2061,8 @@ void mwBitmapTools::copy_tiles()
 //         mTileSets.modify_tile_set(); // for extended pipe tilesets
 //         mTileSets.adjust_tile_set_color();
 //         mTileSets.create_tileset_extended2(192); this is the very custom purple brick
+
+
 
       }
 
@@ -2064,8 +2142,6 @@ void mwBitmapTools::copy_tiles()
 
 
 
-
-
 void mwBitmapTools::move_tiles_and_refs(int s, int d, int r)
 {
    copy_tile_range(s, d, r);
@@ -2074,19 +2150,15 @@ void mwBitmapTools::move_tiles_and_refs(int s, int d, int r)
 
 
 
-
 void copy_tile(ALLEGRO_BITMAP *b, int s, int d)
 {
    int sx = (s % 32)*22+1;
    int sy = (s / 32)*22+1;
-
    int dx = (d % 32)*22+1;
    int dy = (d / 32)*22+1;
-
    al_set_target_bitmap(b);
    al_draw_bitmap_region(b, sx, sy, 20, 20, dx, dy, 0);
 }
-
 
 
 
@@ -2094,12 +2166,30 @@ void mwBitmapTools::copy_tile_range(int s, int d, int r)
 {
    ALLEGRO_BITMAP *b1 = load_block_tiles_to_bitmap();
    if (!b1) return;
-
    for (int i=0; i<r; i++) copy_tile(b1, s+i, d+i);
-
    save_bitmap_to_block_tiles_file(b1);
-
    al_destroy_bitmap(b1);
-
 }
+
+
+void mwBitmapTools::clear_tile_range(int d, int r)
+{
+   ALLEGRO_BITMAP *b1 = load_block_tiles_to_bitmap();
+   if (!b1) return;
+   al_set_target_bitmap(b1);
+   for (int i=0; i<r; i++)
+   {
+      int dx = ((d+i) % 32)*22+1;
+      int dy = ((d+i) / 32)*22+1;
+      al_draw_filled_rectangle(dx, dy, dx+20, dy+20, mColor.Black);
+   }
+   save_bitmap_to_block_tiles_file(b1);
+   al_destroy_bitmap(b1);
+}
+
+
+
+
+
+
 

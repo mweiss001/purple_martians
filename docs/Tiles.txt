@@ -24,20 +24,7 @@ flags
 I have 6 extra bits
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-I have been making a lots of changed recently.
-
+I have been making a lots of changes recently.
 
 
 -------------------
@@ -55,6 +42,7 @@ They are used for:
 - drawing tile lines and rects in level editor
 - replacing tiles in tile helper
 - determining if a tile should be removed with a colored keys
+
 
 
 
@@ -144,19 +132,15 @@ from this tileset I used:
 red and grey beams
 grey bricks set (one of my favorite)
 
+
 20260330 purchased 'Industrial Tileset' for $8.99.
 from this tileset I used:
 Industrial Tileset 1 
 Industrial Tileset 1B
 
-
-
-
-Castle Dungeon Tileset but did not use anything
-
+where did I get deep dungeon tileset? no idea
 
 how do I get a tileset into my game?
-
 
 I think I need to resize nicely in gimp first
 
@@ -166,6 +150,8 @@ I want to resize to 20x20 or 120x80
 open in gimp
 image->scale image
 export
+
+
 
 in code:
 
@@ -177,6 +163,392 @@ void mwBitmapTools::copy_tiles()
 then run copy tiles
 
 then change default flags
+
+
+
+
+
+2026-09-12 06:17:06
+
+in 2026-07-15 increased block tiles to 2048 from 1024
+I want to make more use of industrial tileset, especially E
+
+source of tiles:
+Industrial_Tileset_1E.png 6x4 - main
+Industrial_Tileset_2E.png 6x4 - with 45 degree
+Industrial_Tileset_3E.png 6x4 - skinny columns
+Industrial_Tileset_E_Alternatives.png 6x1 - alt tiles
+Industrial_Props_1E.png 3x4 - alt props
+
+I want to get all these block into the selection and see how they fit together
+
+for now, copy them in the same layout as the original
+
+1E then 2E then 3E then props all in h layout will take 21x4
+
+then 6x1 at the end?
+
+I have a width of 32, this should all fit nicely
+
+6+6+6+3+6 = 27 even with single space between...
+
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_1E_20_cubic.png", 1600, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_2E_20_cubic.png", 1607, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_3E_20_cubic.png", 1614, 6, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Props_1E_20_cubic.png", 1621, 3, 4);
+mTileSets.copy_tiles_from_tilemap("C:/Users/m/Desktop/E/Industrial_Tileset_E_Alternatives_20_cubic.png", 1625, 6, 1);
+
+now get them into the block selection
+
+done
+
+
+maybe I could have a way to see if edges match nicely or not
+how?
+
+or maybe have some predefined patterns saved in sel...
+
+
+how many tiles do I have in E?
+6x24 = 72 + 12 + 6 = 90
+are any of them doubles?
+
+what other tileset is nice like this
+B is also vewwy nice
+
+
+A 'dark grey'
+1 2 3 (72)
+12 props
+
+
+B 'blue pipes with orange'
+1 2 3 (72)
+12 props
+
+
+C 'brown wooden with purple highlight'
+1 2 3 (72)
+12 props
+
+
+D 'ice blocks with lime green'
+1 2 3 (72)
+6 alt
+
+E 'ice blocks'
+1 2 3 (72)
+12 props
+6 alt
+
+F 'lime green and purple'
+1 2 3 (72)
+6 alt
+
+H 'Military'
+1 2 3 (72)
+12 props
+6 alt
+
+I 'Space'
+1 2 3 (72)
+12 props
+2 alt
+
+
+Made folders for all these
+
+Which ones will I use?
+
+A
+B
+C
+E
+H
+I
+
+I need to make a permanent place for them in my tileset
+
+
+could I overlay template in level editor?
+
+
+2026-09-12 11:45:04
+
+I want to serially lay out these tileset
+
+1-24
+2-24
+3-24
+alt-6
+props 12
+that equals 80
+
+If there are blanks (tileset missing certain blocks) just leave the spaces empty
+
+last tile: 2047 - 80 = 2067
+
+
+tasks:
+make template 20 scale also..done
+make function to copy tiles...done
+make function to show group...done
+
+I have from 1418 to 2047 used with:
+
+1418 0-Template
+1508 A-Dark Grey
+1598 B-blue pipes with orange
+1688 C-brown wood with purple
+1778 E-ice with red wires
+1868 H-military
+1958 I-space
+        
+
+I want optional gridlines in block selection
+and rectangle around selected tile
+done...
+
+now what?
+
+
+I want to make a new tileset that has 90 tiles...really?..I thought 48 was stretching it...
+7*90 = 360 tiles
+
+I want to be able to view tilesets wider in selection window
+
+the last industrial was only 24
+
+
+I think I want to new 90's to supercede the old 24's
+
+there were only 4-24's (plus template)
+now I want to add space and military for 7 total
+I just double checked and I really don't think I want to use D or F
+
+so I should be good to lock in these tilesets in their current positions
+
+1418 0-Template
+1508 A-Dark Grey
+1598 B-blue pipes with orange
+1688 C-brown wood with purple
+1778 E-ice with red wires
+1868 H-military
+1958 I-space
+
+Then make a new tileset type with 90 tiles
+
+Official Names
+--------------
+1418 Template
+1508 Alien Dark
+1598 Alien Machine
+1688 Alien Wood
+1778 Alien Ice
+1868 Military
+1958 Space
+
+
+made 90 tileset
+
+made template instance
+
+
+now what?
+it is detected in tile helper automatically
+
+in
+void mwTileSets::drawRect(bool preview)
+
+changed this:
+
+   if ((ts.tileSetType == 24) || (ts.tileSetType == 90)) // 24 tilesets
+seems to work well...
+
+what else can I change?
+should I change all tile references?
+
+then only ones I have left are on dark...
+and there are a lot..
+
+all tile refs have been moved
+some levels might not look so pretty anymore...
+
+
+removed these:
+
+   construct24( 672, 673, "Template");
+   construct24( 704, 713, "Ice Machine");
+   construct24( 736, 737, "Tan Platform");
+   construct24( 768, 776, "Alien Machine");
+   construct24( 800, 809, "Alien Dark");
+
+actually I don't have any 24's left at all now...
+
+tile helper will need some tweaking to add new tilesets to groups
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -61,7 +61,6 @@ void mwTileHelper::init()
 
 
 
-
 std::vector<struct listItem> listItemPresets =
 {
   {  0, "presets"                     },
@@ -485,8 +484,6 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
    }
    return fb;
 }
-
-
 
 
 
@@ -1820,8 +1817,8 @@ void mwTileHelper::draw(mwWindow & w)
    int x2 = w.rect.x2;
    int y1 = w.rect.y1;
 
-   if (mWidget.mButton(0, x2-12, x2-4,   1, y1+3, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",   d)) mHelp.help("Tile Helper");
-   int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+20, d);
+   if (mWidget.mButton(0, x2-12, x2-4,   1, y1+2, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",   d)) mHelp.help("Tile Helper");
+   int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+19, d);
    w.rect.setHeight(ys-y1+4);
 }
 

@@ -26326,7 +26326,6 @@ now what was I doing?
 fixing tiles and I had got up to level 9
 
 
-
 I really like my new blocks, can I do more?
 
 
@@ -26346,7 +26345,6 @@ made a new tileset at 800
 
 
 industrial tilesets 3I 3L 31 ???
-
 
 1l
 
@@ -26376,16 +26374,12 @@ draw as solid
 when pasting in edit selection, even if flags are not set they still get overwritten...fixed
 
 
-
-
 I want to figure out the tileset I got from atomic
 
 
 how can I patch them in better
 
 they do not have a center as far as I can tell 
-
-
 
 
 the first 4 are corners br bl tr tl
@@ -26403,7 +26397,6 @@ I already have solid
 just add inner...
 
 I have it kind of working
-
 
 
 
@@ -27697,17 +27690,6 @@ I want to move the rainbows...they take 16 tiles..they are now all in a row
 rename blocks to tiles in selection window
 
 
-
-
-
-
-
-
-
-
-
-
-
 what if I try to shoehorn it into the extended set...
 
 How can I classify each corner of a tile?
@@ -27727,6 +27709,8 @@ deep dungeon is 6x4 tiles 192x128 (32x32)
 
 
 2026-06-27 05:31:00
+
+
 
 
 I am working on converting deep dungeon to extended tileset
@@ -39106,474 +39090,9 @@ I think I am completely done with widgets...
 2026-09-12 06:01:44
 
 what was I doing with tilesets when I increased tiles to 2000?
+that was back in 2026-07-15
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-           
-               
-               
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I was going to have many more options for tiles especially in the industrial set
 
 
 

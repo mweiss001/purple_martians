@@ -148,13 +148,8 @@ class mwTileSets
    void construct9(int i, std::string name);
 
    void construct16(int i, int d, std::string name);
-   void construct24(int i, int d, std::string name);
    void construct48(int i, int d, std::string name);
-
-
-
-
-
+   void construct90(int i, int d, std::string name);
 
    void create_tileset_solid(int bs, int tile, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
    void create_tileset_frame(int bs, float h1, float h2, float s1, float s2, float l1, float l2, int steps, float round);
@@ -162,13 +157,9 @@ class mwTileSets
 
    public:
 
-
-
-
    void create_tileset_extended2(int bs);
    void create_tileset_from_16_mega(int bs, int mbx, int mby);
-   void create_tileset_from_24_atomic(int bs);
-
+   void copy_tiles_from_tilemap(const char* filename, int bs, int w, int h);
    void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);
 
    private:
@@ -192,7 +183,7 @@ class mwTileSets
 public:
 
 
-   char type_name[50][40];
+   char type_name[100][40];
 
 
    struct tileSet currentTileSet;

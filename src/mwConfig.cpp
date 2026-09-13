@@ -60,8 +60,6 @@ void mwConfig::save_config(int type)
 
 
 
-
-
       if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
       {
          asci(SCREEN, mDisplay.disp_x_wind)

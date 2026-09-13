@@ -86,7 +86,7 @@ void mwLevelEditor::init_windows()
    mWM.mW[8].drawFunction = [this]() { mEditorMain.process_menu_bar(mWM.mW[8]); };
    mWM.mW[8].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[9].init(8, 7, 100, 300, 320, 328, 13, "Tile Helper", 1, 0, 13, 0);
+   mWM.mW[9].init(8, 7, 100, 300, 320, 328, 13, "Tile Helper", 1, 1, 13, 0);
    mWM.mW[9].drawFunction = [this]() { mTileHelper.draw(mWM.mW[9]); };
    mWM.mW[9].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 }
@@ -583,6 +583,8 @@ void mwLevelEditor::save_mW()
       fwrite(&tileSetGroupsVisible,                   sizeof(tileSetGroupsVisible),                   1, fp);
 
 
+      fwrite(&mSelectionWindow.gridline_size,         sizeof(mSelectionWindow.gridline_size),         1, fp);
+
 
       fwrite(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fwrite(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
@@ -597,6 +599,10 @@ void mwLevelEditor::save_mW()
       fwrite(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
       fwrite(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fwrite(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+
+
+
+
       fclose(fp);
    }
    else printf("error saving levelEditorWindowGeometry.pm\n");
@@ -625,6 +631,9 @@ bool mwLevelEditor::load_mW()
 
       fread(&tileSetGroupsVisible,                   sizeof(tileSetGroupsVisible),                   1, fp);
 
+      fread(&mSelectionWindow.gridline_size,         sizeof(mSelectionWindow.gridline_size),         1, fp);
+
+
       fread(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fread(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
       fread(&mEditorMain.draw_tile_mode,             sizeof(mEditorMain.draw_tile_mode),             1, fp);
@@ -637,6 +646,9 @@ bool mwLevelEditor::load_mW()
       fread(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
       fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+
+
+
 
 
       fclose(fp);
