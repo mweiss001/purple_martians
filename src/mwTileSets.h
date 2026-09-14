@@ -214,7 +214,7 @@ public:
    void drawRect(bool preview);
 
 
-   bool compareTile(int rb, int cb, int set);
+//   bool compareTile(int rb, int cb, int set);
 
    void modify_tile_set();
 

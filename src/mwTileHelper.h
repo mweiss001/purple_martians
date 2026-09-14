@@ -7,23 +7,52 @@
 class mwTileHelper
 {
    public:
-   mwTileHelper();
 
+   mwTileHelper();
    void init();
 
-   void clearFrameFills(int preset = 0);
+   void draw(mwWindow & w);
+   void draw_level_editor_background_overlays(int mouse_on_window);
+   void process_mouse_on_background();
 
+   int thl[100][100];
+
+   int add_del;
+   int match;
+   int group;
+   int mark_overlay;
+
+   int replace_preview;
+   int replace_mode;
+
+   int frame_mode_preview;
+   int frame_mode_width;
+   int frames_detected;
+   int frame_sections;
+   int frame_common_tileset;
+
+   int pattern_preview;
+   int pattern_offset_x;
+   int pattern_offset_y;
+
+
+
+   private:
+
+
+   void clearFrameFills(int preset = 0);
 
    int replace_helper_48_frame(struct tileSet ts, int lv, int type);
    int replace_helper_90_frame(struct tileSet ts, int lv, int type);
    int replace_helper_16_frame(struct tileSet ts, int lv, int type);
 
-
    int replace_helper_90(struct tileSet ts);
    int replace_helper_48(struct tileSet ts);
    int replace_helper_16(struct tileSet ts);
    int replace_helper_8(struct tileSet ts);
+
    int replace_helper_pattern(int x, int y);
+
 
    void invert_marks();
 
@@ -33,6 +62,7 @@ class mwTileHelper
    void find_connected(int x, int y, int group);
    bool test4(int v1, int v2, int v3, int v4, int lv, int t1, int t2, int t3, int t4);
 
+   bool compareTile(int rb, int cb, int set);
 
 
    void draw_frame_fill(struct frameFill f, bool preview);
@@ -40,65 +70,31 @@ class mwTileHelper
    void draw_replace(bool preview);
    void draw_pattern(bool preview);
 
-
    void tileSetWidget(int x, int y, int tile, struct tileSet &target, bool &clicked, int d);
-
    int tileSetSelectWidget(int x1, int y1, int x2, int pad_height, int color, struct tileSet &target, const char * txt, bool &clicked, int d);
-
    bool get_tileset(int x, int y, struct tileSet &ts, const char *txt);
-
    bool tileSetWidget(int x, int y, int size, struct tileSet &ts, const char *txt, int d);
+
 
 
    int show_selection_controls(int x1, int x2, int y1, int color, int d);
    int show_replace_controls(  int x1, int x2, int y1, int color, int d);
    int show_pattern_controls(  int x1, int x2, int y1, int color, int d);
    int show_tileset_controls(  int x1, int x2, int y1, int color, int d);
-
    int show_frame_controls(    int x1, int x2, int y1, int color, int d);
    void show_frame_control_line(int x1, int x2, int y1, int y2, int index, int d);
 
-
-
    int draw_buttons(int x3, int x4, int yfb, int d);
 
-   void draw(mwWindow & w);
-
-   void draw_level_editor_background_overlays(int mouse_on_window);
-
-
-   void process_mouse_on_background();
-
-   std::vector<frameFill> frameFills;
-
-
-   int c, l, r, t, b, tl, tr, bl, br;
-
-   int thl[100][100];
-
-   int add_del;
-   int match;
-   int group;
-   int mark_overlay;
-
-   int pattern_offset_x;
-   int pattern_offset_y;
-   int pattern_preview;
-
-
-   int frame_mode_width;
-   int frame_mode_preview;
-   int frames_detected;
-   int frame_sections;
-   int frame_common_tileset;
-
-
-   int replace_mode;
-   int replace_preview;
 
 
    int test_junk;
-
+   int c, l, r, t, b, tl, tr, bl, br;
+   std::vector<frameFill> frameFills;
+   std::vector<struct listItem> listItems90Frame;
+   std::vector<struct listItem> listItems48Frame;
+   std::vector<struct listItem> listItems16Frame;
+   std::vector<struct listItem> listItemPresets;
 
 
 };

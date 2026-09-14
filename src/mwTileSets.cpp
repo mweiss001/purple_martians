@@ -1003,35 +1003,7 @@ void mwTileSets::drawRect(bool preview)
             drawTile(x, y, drawItemNum, drawItemFlags, drawTileMode, preview);
 
    }
-
-
-
-
 }
-
-
-
-// from tile helper
-// do tiles match exactly, or are they part of the same set?
-bool mwTileSets::compareTile(int rb, int cb, int set)
-{
-
-   // remove flags for comparison
-   int r = rb & PM_BTILE_TILENUM_MASK;
-   int c = cb & PM_BTILE_TILENUM_MASK;
-
-   // exact match
-   if (r == c) return true;
-
-   if (set) // check if both belong to same set
-   {
-      for (const auto& s : tileSets)
-         if (r >= s.startIndex && r <= s.endIndex && c >= s.startIndex && c <= s.endIndex) return true;
-   }
-   return false;
-}
-
-
 
 
 

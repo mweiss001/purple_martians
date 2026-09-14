@@ -15,15 +15,32 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-- level editor show filter in editor main also
 
-- in edit selection floodfill, I think tile and flags setting are not respected
+- level editor show filter in editor main also
+- make filter have a toggle in top toolbar to hide show
+- make things in top toolbar auto arrange
+
+
+
 
 
 - when changing levels in level editor do not keep th selection
 
+- in tile helper, make toolbar toggles to show window sections like patterns
+
+
+
 
 - clean up the status window toggles
+- move back to tiles window and use template button
+ or just use hot key 'T'
+- make tool tips for ndf, ovr, flags
+ 
+ 
+
+
+
+
 
 
 

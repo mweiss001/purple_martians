@@ -37,41 +37,32 @@ class mwEditSelection
    ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
    int copy_mode;
-   int brf_mode;
-//   int sw;
-//   int sh;
 
    void clear_ft_variables();
 
    std::vector<liftIDTranslation> liftIDTranslations{};
-
    std::vector<itemIDTranslation> itemIDTranslations{};
 
-
-
    int load_selection(const char* filename);
-
    int load_selection_prompt();
 
    void fill_ft_variables_from_selection(int save_to_disk);
    void sel_to_ft(char * b);
    void ft_to_sel(char * b);
 
-   void do_floodfill(int x, int y, int flood_block);
    void do_copy(int qx1, int qy1);
    void do_clear();
    void set_block_with_flag_filters(int x, int y, int tn);
 
    void draw_fsel();
 
-   void draw_buttons(int x3, int x4, int &ya, int draw_only);
 
    void draw(mwWindow &w);
+   void draw_buttons(int x1, int x2, int &ya, int draw_only);
+   void show_details(int x1, int x2, int &ya, int color);
+
 
    void draw_level_editor_background_overlays(int mouse_on_window);
-
-
-   void show_selection_details(int x1, int x2, int &y, int color);
    void process_mouse_on_background();
 
 };

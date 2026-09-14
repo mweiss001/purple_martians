@@ -58,30 +58,66 @@ void mwTileHelper::init()
       for (int y=0; y<100; y++) thl[x][y] = 0;
 
    clearFrameFills();
+
+
+   listItems90Frame =
+   {
+      {  0, "Do Nothing"  },
+      {  1, "Erase (blank)" },
+      { 30, "Outer" },
+      { 31, "Outer Alt 1" },
+      { 32, "Outer Alt 2" },
+      { 20, "Fill"  },
+      { 40, "Inner" },
+      { 41, "Inner Alt" }
+   };
+
+   listItems48Frame =
+   {
+      {  0, "Do Nothing"  },
+      {  1, "Erase (blank)" },
+      { 10, "Single"  },
+      { 30, "Outer" },
+      { 20, "Fill"  },
+      { 40, "Inner" },
+      { 31, "Outer Alt" },
+      { 21, "Fill Alt"  },
+      { 41, "Inner Alt" }
+   };
+
+   listItems16Frame =
+   {
+      {  0, "Do Nothing"  },
+      {  1, "Erase (blank)" },
+      { 10, "Single Width" },
+      { 31, "Outer" },
+      { 21, "Fill"  },
+      { 41, "Inner" },
+      { 42, "Inner Reversed Corners" },
+      { 43, "Inner Single Corners" }
+   };
+
+   listItemPresets =
+   {
+      {  0, "presets"                     },
+      {  1, "90 2 Outer Inner"            },
+      {  2, "90 3 Outer Fill Inner"       },
+      {  40, "48 2 Outer Inner"           },
+      {  41, "48 3 Outer Fill Inner"      },
+      {  42, "48 2 Outer Inner Alt"       },
+      {  43, "48 3 Outer Fill Inner Alt"  },
+      {  44, "48 3 Outer Fill Fill"       },
+
+      {  3, "Purple Bricks"               }
+   };
+
+
 }
 
-
-
-std::vector<struct listItem> listItemPresets =
-{
-  {  0, "presets"                     },
-  {  1, "90 2 Outer Inner"            },
-  {  2, "90 3 Outer Fill Inner"       },
-
-  {  40, "48 2 Outer Inner"           },
-  {  41, "48 3 Outer Fill Inner"      },
-  {  42, "48 2 Outer Inner Alt"       },
-  {  43, "48 3 Outer Fill Inner Alt"  },
-  {  44, "48 3 Outer Fill Fill"       },
-
-  {  3, "Purple Bricks"               }
-
-};
 
 void mwTileHelper::clearFrameFills(int preset)
 {
    frameFills.clear();
-
 
    // create 32
    for (int i=0; i<32; i++)
@@ -379,24 +415,6 @@ int mwTileHelper::replace_helper_8(struct tileSet ts)
 
 
 
-// tests if all 4 conditions are met
-// if any test fails return false
-bool mwTileHelper::test4(int v1, int v2, int v3, int v4, int lv, int t1, int t2, int t3, int t4)
-{
-   if (t1 == 0 && !(v1 <  lv)) return false;
-   if (t1 == 1 && !(v1 >= lv)) return false;
-
-   if (t2 == 0 && !(v2 <  lv)) return false;
-   if (t2 == 1 && !(v2 >= lv)) return false;
-
-   if (t3 == 0 && !(v3 <  lv)) return false;
-   if (t3 == 1 && !(v3 >= lv)) return false;
-
-   if (t4 == 0 && !(v4 <  lv)) return false;
-   if (t4 == 1 && !(v4 >= lv)) return false;
-
-   return true;
-}
 
 
 
@@ -407,20 +425,6 @@ bool mwTileHelper::test4(int v1, int v2, int v3, int v4, int lv, int t1, int t2,
 
 
 
-
-
-
-std::vector<struct listItem> listItems90Frame =
-{
-   {  0, "Do Nothing"  },
-   {  1, "Erase (blank)" },
-   { 30, "Outer" },
-   { 31, "Outer Alt 1" },
-   { 32, "Outer Alt 2" },
-   { 20, "Fill"  },
-   { 40, "Inner" },
-   { 41, "Inner Alt" }
-};
 
 int mwTileHelper::replace_helper_90_frame(struct tileSet ts, int lv, int type)
 {
@@ -525,19 +529,6 @@ int mwTileHelper::replace_helper_90_frame(struct tileSet ts, int lv, int type)
    return fb;
 }
 
-
-std::vector<struct listItem> listItems48Frame =
-{
-   {  0, "Do Nothing"  },
-   {  1, "Erase (blank)" },
-   { 10, "Single"  },
-   { 30, "Outer" },
-   { 20, "Fill"  },
-   { 40, "Inner" },
-   { 31, "Outer Alt" },
-   { 21, "Fill Alt"  },
-   { 41, "Inner Alt" }
-};
 
 
 int mwTileHelper::replace_helper_48_frame(struct tileSet ts, int lv, int type)
@@ -679,17 +670,6 @@ int mwTileHelper::replace_helper_48_frame(struct tileSet ts, int lv, int type)
 
 
 
-std::vector<struct listItem> listItems16Frame =
-{
-   {  0, "Do Nothing"  },
-   {  1, "Erase (blank)" },
-   { 10, "Single Width" },
-   { 31, "Outer" },
-   { 21, "Fill"  },
-   { 41, "Inner" },
-   { 42, "Inner Reversed Corners" },
-   { 43, "Inner Single Corners" }
-};
 
 
 int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
@@ -814,11 +794,24 @@ int mwTileHelper::replace_helper_16_frame(struct tileSet ts, int lv, int type)
 
 
 
+// tests if all 4 conditions are met
+// if any test fails return false
+bool mwTileHelper::test4(int v1, int v2, int v3, int v4, int lv, int t1, int t2, int t3, int t4)
+{
+   if (t1 == 0 && !(v1 <  lv)) return false;
+   if (t1 == 1 && !(v1 >= lv)) return false;
 
+   if (t2 == 0 && !(v2 <  lv)) return false;
+   if (t2 == 1 && !(v2 >= lv)) return false;
 
+   if (t3 == 0 && !(v3 <  lv)) return false;
+   if (t3 == 1 && !(v3 >= lv)) return false;
 
+   if (t4 == 0 && !(v4 <  lv)) return false;
+   if (t4 == 1 && !(v4 >= lv)) return false;
 
-
+   return true;
+}
 
 
 
@@ -930,7 +923,6 @@ void mwTileHelper::draw_replace(bool preview)
             }
    }
 
-
    if (!preview)
    {
       mScreen.init_level_background();
@@ -961,26 +953,20 @@ int mwTileHelper::replace_helper_pattern(int x, int y)
 
 
 
-void mwTileHelper::remove_bound()
-{
-   for (int a=0; a<100; a++)
-      for (int b=0; b<100; b++)
-         if (thl[a][b])
-         {
-            find_adjacent(a, b);
-            // if block is bound on all 8 sides in selection, remove from level
-            if (l && r && t && b && tl && tr && bl && br) mLevel.l[a][b] = 0;
 
 
-         }
 
-   // de-select if removed
-   for (int a=0; a<100; a++)
-      for (int b=0; b<100; b++)
-         if (thl[a][b] && !mLevel.l[a][b]) thl[a][b] = 0;
 
-   mScreen.init_level_background();
-}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1053,26 +1039,30 @@ void mwTileHelper::invert_marks()
    {
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++) if (thl[a][b] == i) thl[a][b] = nv;
-
       nv++;
    }
 }
 
 
+// not used
+void mwTileHelper::remove_bound()
+{
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++)
+         if (thl[a][b])
+         {
+            find_adjacent(a, b);
+            // if block is bound on all 8 sides in selection, remove from level
+            if (l && r && t && b && tl && tr && bl && br) mLevel.l[a][b] = 0;
+         }
 
+   // de-select if removed
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++)
+         if (thl[a][b] && !mLevel.l[a][b]) thl[a][b] = 0;
 
-
-
-
-
-
-
-
-
-
-
-
-
+   mScreen.init_level_background();
+}
 
 
 // increments value if bound
@@ -1105,8 +1095,6 @@ void mwTileHelper::find_bound(int max_lev)
    }
    frames_detected = lev;
 }
-
-
 
 
 
@@ -1167,7 +1155,6 @@ void mwTileHelper::tileSetWidget(int x, int y, int tile, struct tileSet &target,
 }
 
 
-
 int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, int color, struct tileSet &target, const char * txt, bool &clicked, int d)
 {
    int bts = 16;
@@ -1183,14 +1170,12 @@ int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, in
    int xt = 0;
    int xts=23;
 
-
    tileSetWidget(x1+xt++*xts, yfb, 1024, target, clicked, d); // purple pipes
    tileSetWidget(x1+xt++*xts, yfb, 1072, target, clicked, d); // red pipes
    tileSetWidget(x1+xt++*xts, yfb, 1120, target, clicked, d); // green pipes
    tileSetWidget(x1+xt++*xts, yfb, 1168, target, clicked, d); // blue pipes
    tileSetWidget(x1+xt++*xts, yfb, 1216, target, clicked, d); // purple bricks
    xt++;
-
 
    tileSetWidget(x1+xt++*xts, yfb, 1418, target, clicked, d); // template
    tileSetWidget(x1+xt++*xts, yfb, 1508, target, clicked, d); // dark
@@ -1220,6 +1205,63 @@ int mwTileHelper::tileSetSelectWidget(int x1, int y1, int x2, int pad_height, in
 
    return height;
 }
+
+
+
+
+
+// blocking function to select a tileset
+// returns true if tileset was clicked
+bool mwTileHelper::get_tileset(int x1, int y1, struct tileSet &ts, const char *txt)
+{
+   int x2 = x1 + 408;
+   while (1)
+   {
+      mEventQueue.proc(1);
+      al_flip_display();
+
+      bool clicked = false;
+      tileSetSelectWidget(x1, y1, x2, 0, 10, ts, txt, clicked, 0);
+      if (clicked) return true;
+      if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) return false;
+   }
+   return false;
+}
+
+
+// display tileset and allow changing if clicked
+// shows displayIndex tile from passed tileset
+// also shows tooltip if hovered
+// if clicked, calls 'get_tileset' to prompt for a new tileset
+// returns true if changed
+// used by frame controls
+// - show and change current tileset
+// - show and change tileset for each frame fill
+bool mwTileHelper::tileSetWidget(int x, int y, int size, struct tileSet &ts, const char *txt, int d)
+{
+   if (strlen(txt))
+   {
+      int txo = size + 4;
+      int tyo = (size-8) / 2;
+      al_draw_text(mFont.pr8, mColor.pc[15], x+txo, y+tyo, 0, txt);
+   }
+
+   if (mWidget.mButtonTile2(x, y, size, ts.displayIndex, ts.name.c_str(), d))
+   {
+      if (get_tileset(x, y, ts, "Choose a Tile Set")) return true;
+   }
+   return false;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1470,52 +1512,6 @@ int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d
 
    return height;
 }
-
-
-
-// blocking function to select a tileset
-// returns true if tileset was clicked
-bool mwTileHelper::get_tileset(int x1, int y1, struct tileSet &ts, const char *txt)
-{
-   int x2 = x1 + 408;
-   while (1)
-   {
-      mEventQueue.proc(1);
-      al_flip_display();
-
-      bool clicked = false;
-      tileSetSelectWidget(x1, y1, x2, 0, 10, ts, txt, clicked, 0);
-      if (clicked) return true;
-      if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) return false;
-   }
-   return false;
-}
-
-
-// display tileset and allow changing if clicked
-// shows displayIndex tile from passed tileset
-// also shows tooltip if hovered
-// if clicked, calls 'get_tileset' to prompt for a new tileset
-// returns true if changed
-// used by frame controls
-// - show and change current tileset
-// - show and change tileset for each frame fill
-bool mwTileHelper::tileSetWidget(int x, int y, int size, struct tileSet &ts, const char *txt, int d)
-{
-   if (strlen(txt))
-   {
-      int txo = size + 4;
-      int tyo = (size-8) / 2;
-      al_draw_text(mFont.pr8, mColor.pc[15], x+txo, y+tyo, 0, txt);
-   }
-
-   if (mWidget.mButtonTile2(x, y, size, ts.displayIndex, ts.name.c_str(), d))
-   {
-      if (get_tileset(x, y, ts, "Choose a Tile Set")) return true;
-   }
-   return false;
-}
-
 
 
 
@@ -1790,6 +1786,32 @@ void mwTileHelper::draw(mwWindow & w)
 }
 
 
+
+// do tiles match exactly, or are they part of the same set?
+bool mwTileHelper::compareTile(int rb, int cb, int set)
+{
+   int r = rb;
+   int c = cb;
+
+   if (mEditorMain.draw_tile_mode == 2) // tile only
+   {
+      // remove flags for comparison
+      r = rb & PM_BTILE_TILENUM_MASK;
+      c = cb & PM_BTILE_TILENUM_MASK;
+   }
+
+   // exact match
+   if (r == c) return true;
+
+   if (set) // check if both belong to same set
+   {
+      for (const auto& s : mTileSets.tileSets)
+         if (r >= s.startIndex && r <= s.endIndex && c >= s.startIndex && c <= s.endIndex) return true;
+   }
+   return false;
+}
+
+
 void mwTileHelper::find_connected(int x, int y, int group)
 {
    int rb = mLevel.l[x][y];  // block num to match
@@ -1804,22 +1826,22 @@ void mwTileHelper::find_connected(int x, int y, int group)
          for (int b=0; b<100; b++)
             if (thl[a][b] == -1) // iterate already marked
             {
-               if ((a > 0) && (mTileSets.compareTile(rb, mLevel.l[a-1][b], group))) // look left
+               if ((a > 0) && (compareTile(rb, mLevel.l[a-1][b], group))) // look left
                {
                   if (thl[a-1][b] != -1) found++; // found unmarked
                   thl[a-1][b] = -1; // mark it
                }
-               if ((b > 0) && (mTileSets.compareTile(rb, mLevel.l[a][b-1], group))) // look up
+               if ((b > 0) && (compareTile(rb, mLevel.l[a][b-1], group))) // look up
                {
                   if (thl[a][b-1] != -1) found++; // found unmarked
                   thl[a][b-1] = -1; // mark it
                }
-               if ((a < 99) && (mTileSets.compareTile(rb, mLevel.l[a+1][b], group))) // look right
+               if ((a < 99) && (compareTile(rb, mLevel.l[a+1][b], group))) // look right
                {
                   if (thl[a+1][b] != -1) found++; // found unmarked
                   thl[a+1][b] = -1; // mark it
                }
-               if ((b < 99) && (mTileSets.compareTile(rb, mLevel.l[a][b+1], group))) // look down
+               if ((b < 99) && (compareTile(rb, mLevel.l[a][b+1], group))) // look down
                {
                   if (thl[a][b+1] != -1) found++; // found unmarked
                   thl[a][b+1] = -1; // mark it
@@ -1851,7 +1873,7 @@ void mwTileHelper::process_mouse_on_background(void)
       {
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
-               if (mTileSets.compareTile(mLevel.l[mLevelEditor.gx][mLevelEditor.gy], mLevel.l[x][y], group)) thl[x][y] = add_del;
+               if (compareTile(mLevel.l[mLevelEditor.gx][mLevelEditor.gy], mLevel.l[x][y], group)) thl[x][y] = add_del;
       }
    }
 
