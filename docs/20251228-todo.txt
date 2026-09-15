@@ -30,7 +30,6 @@ TO DO
 
 
 
-
 - clean up the status window toggles
 - move back to tiles window and use template button
  or just use hot key 'T'
@@ -245,6 +244,9 @@ tiles and tilesets
 - make more tile helper frame presets...
 
 - make the 90 tileset replace draw take more advantage of all the extra tiles
+replace_helper_90(struct tileSet ts)...done
+replace_helper_90_frame(struct tileSet ts, int lv, int type)...to do
+
 
 
 

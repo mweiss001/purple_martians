@@ -223,10 +223,15 @@ void mwTileSets::construct90(int i, int d, std::string name)
    ts.OuterEdgeT      = i + 7;
    ts.OuterEdgeB      = i + 19;
 
-   ts.FrameCornerTL   = i + 4;
-   ts.FrameCornerTR   = i + 5;
-   ts.FrameCornerBL   = i + 10;
-   ts.FrameCornerBR   = i + 11;
+   // ts.FrameCornerTL   = i + 4;
+   // ts.FrameCornerTR   = i + 5;
+   // ts.FrameCornerBL   = i + 10;
+   // ts.FrameCornerBR   = i + 11;
+
+   ts.FrameCornerTR   = i + 34;
+   ts.FrameCornerTL   = i + 35;
+   ts.FrameCornerBL   = i + 40;
+   ts.FrameCornerBR   = i + 41;
 
    ts.FrameEdgeL      = i + 14;
    ts.FrameEdgeT      = i + 19;
@@ -242,6 +247,26 @@ void mwTileSets::construct90(int i, int d, std::string name)
    ts.InnerEdgeB      = i + 17;
    ts.InnerEdgeL      = i + 22;
    ts.InnerEdgeT      = i + 23;
+
+   ts.FrameCross        = i + 42;
+
+   ts.OuterCornerTLTeeL = i + 30;
+   ts.OuterCornerTRTeeR = i + 31;
+   ts.FrameEdgeBTee     = i + 45;
+
+   ts.OuterCornerBLTeeL = i + 36;
+   ts.OuterCornerBRTeeR = i + 37;
+   ts.FrameEdgeTTee     = i + 46;
+
+   ts.OuterCornerTLTeeT = i + 32;
+   ts.OuterCornerBLTeeB = i + 38;
+   ts.FrameEdgeLTee     = i + 44;
+
+   ts.OuterCornerTRTeeT = i + 33;
+   ts.OuterCornerBRTeeB = i + 39;
+   ts.FrameEdgeRTee     = i + 43;
+
+
    tileSets.push_back(ts);
 }
 

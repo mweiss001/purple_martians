@@ -39612,7 +39612,96 @@ done... now edit selection is much leaner...
 
 
 
+2026-09-14 18:20:48
 
+tile helper replace 90
+
+find more blocks to use
+
+
+
+
+
+      // all corner notches (full cross)
+      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
+
+
+1460 of 1418  + 42
+
+
+1463 top open only 45
+
+
+tl only 1458 = 40
+
+1452 34
+
+1448 = 30
+
+54 = 36
+
+30 31 32 33
+
+36 37 38 39
+
+
+61 62 44 45
+
+
+now I want to name them:
+
+I think they should be:
+
+   ts.FrameCornerTL   = i + 4;
+   ts.FrameCornerTR   = i + 5;
+   ts.FrameCornerBL   = i + 10;
+   ts.FrameCornerBR   = i + 11;
+
+but they are already used:
+
+   ts.InnerCornerTL   = i + 4;
+   ts.InnerCornerTR   = i + 5;
+   ts.InnerCornerBL   = i + 10;
+   ts.InnerCornerBR   = i + 11;
+
+try it:
+
+   // ts.FrameCornerTL   = i + 4;
+   // ts.FrameCornerTR   = i + 5;
+   // ts.FrameCornerBL   = i + 10;
+   // ts.FrameCornerBR   = i + 11;
+
+   ts.FrameCornerTR   = i + 34;
+   ts.FrameCornerTL   = i + 35;
+   ts.FrameCornerBL   = i + 40;
+   ts.FrameCornerBR   = i + 41;
+
+      if ((tr == 0) && (tl == 0) &&              (br == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
+      if ((tr == 0) && (tl == 0) && (bl == 0)              && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
+      if (             (tl == 0) && (bl == 0) && (br == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
+      if ((tr == 0)              && (bl == 0) && (br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+
+
+      // if ((tr == 0) && (tl == 0) &&              (br == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.startIndex + 40; // blocks on tr
+      // if ((tr == 0) && (tl == 0) && (bl == 0)              && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.startIndex + 41; // blocks on tl
+      // if (             (tl == 0) && (bl == 0) && (br == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.startIndex + 34; // blocks on bl
+      // if ((tr == 0)              && (bl == 0) && (br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.startIndex + 35; // blocks on br
+
+
+
+this is much better:
+
+      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
+      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
+      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
+      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+
+
+2026-09-15 07:14:28
+
+I think I have the 90 tileset replace thing working great!!!
+
+now working on the frame version
 
 
 
