@@ -1111,6 +1111,7 @@ void mwScreen::draw_top_frame(int p)
    if (mLevel.play_level != 1) // don't show for overworld
    {
 
+      // get time from either frame_num or level_done_frame
       char tmr[80];
       if (mPlayer.syn[0].level_done_mode) mMiscFnx.chrms(mPlayer.syn[0].level_done_frame, tmr);
       else  mMiscFnx.chrms(mLoop.frame_num, tmr);
@@ -1118,7 +1119,7 @@ void mwScreen::draw_top_frame(int p)
 
       if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mEnemy.num_enemy); // special case for narrow screens
       else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, tmr, mEnemy.num_enemy);
-      al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+1,  0, msg);
       tdx += strlen(msg)*8;
 
       // draw health bar
@@ -1127,11 +1128,17 @@ void mwScreen::draw_top_frame(int p)
       tdx += 88;
 
 
+
       // draw purple coins if the level has any
       if (mLevel.data[mLevel.play_level].tot_coins)
       {
          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
          al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
+
+         // mBitmap.spin_shape(197, tdx+5, tdy-5, 0, 0, 19, 19, 0.5, 0.5, 60);
+         // al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+1, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
+
+
       }
 
 //       // draw purple coins if the level has any

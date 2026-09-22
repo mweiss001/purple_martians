@@ -36,15 +36,12 @@ mwEditorMain::mwEditorMain() { init(); }
 
 void mwEditorMain::init()
 {
-
    draw_item_type = 1;
    draw_item_num  = 0;
-
 
    show_flag_details = 1;
    show_non_default_blocks = 1;
    show_tile_overlays = 1;
-
 
    // set all filters on
    for (int i=0; i<5; i++)
@@ -54,15 +51,8 @@ void mwEditorMain::init()
          obj_filter[i][j][1] = 1;
       }
 
-
-   collapsed = 0;
    filter_mode = 1;
-
-
-
-
 }
-
 
 
 
@@ -617,9 +607,6 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    int vc = 12;  // view color
    int bts = 10; // button height
 
-   // collapse button in title bar
-   mWidget.mButtonToggle(0, x2-10, x2-2,  1, w.rect.y1+2, 8,    1, 0, 0, 0,     0, 0, collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
-
    // y position below title bar
    int y1 = w.rect.y1+14;
 
@@ -630,161 +617,158 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    int refresh_selection = 0;
    if ((mLevelEditor.mode == 2) && (!d) && (w.rect.contains(mInput.mouse_x, mInput.mouse_y)) && (mInput.mouse_b[1][0])) refresh_selection = 1;
 
-   if (!collapsed)
+   int xa = x1+3;
+
+   ya+=4;
+
+   int ly1 = 0;
+   int ly2 = 0;
+   int ly3 = 0;
+   int ly4 = 0;
+
+
+   if (filter_mode > 2) // add blocks and flags
    {
-      int xa = x1+3;
-
-      ya+=4;
-
-
-      int ly1 = 0;
-      int ly2 = 0;
-      int ly3 = 0;
-      int ly4 = 0;
-
-
-      if (filter_mode > 2) // add blocks and flags
-      {
-         odbdc(d, xa, ya, bts, 1, 1, "Blocks");
-         odbdc(d, xa, ya, bts, 1, 2, "Flags");
-         al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-         ly1 = ya+1;
-         ya+=4;
-      }
-      if (filter_mode > 1) // add lifts
-      {
-         odbdc(d, xa, ya, bts, 4, 1, "Lifts");
-         al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-         ly2 = ya+1;
-         ya+=4;
-      }
-
-      odbdc(d, xa, ya, bts, 3, 1, "Bouncer");
-      odbdc(d, xa, ya, bts, 3, 2, "Cannon");
-      odbdc(d, xa, ya, bts, 3, 3, "ArchWagon");
-      odbdc(d, xa, ya, bts, 3, 4, "BlockWalk");
-      odbdc(d, xa, ya, bts, 3, 5, "JumpWorm");
-      odbdc(d, xa, ya, bts, 3, 6, "Flapper");
-      odbdc(d, xa, ya, bts, 3, 7, "VinePod");
-      odbdc(d, xa, ya, bts, 3, 8, "TrakBot");
-      odbdc(d, xa, ya, bts, 3, 9, "Cloner");
+      odbdc(d, xa, ya, bts, 1, 1, "Blocks");
+      odbdc(d, xa, ya, bts, 1, 2, "Flags");
       al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-      ly3 = ya+1;
+      ly1 = ya+1;
       ya+=4;
-
-      odbdc(d, xa, ya, bts, 2,  1, "Door");
-      odbdc(d, xa, ya, bts, 2,  2, "Bonus");
-      odbdc(d, xa, ya, bts, 2,  3, "Exit");
-      odbdc(d, xa, ya, bts, 2,  4, "Key");
-      odbdc(d, xa, ya, bts, 2,  5, "Start");
-      odbdc(d, xa, ya, bts, 2,  6, "Orb");
-      odbdc(d, xa, ya, bts, 2,  7, "Mine");
-      odbdc(d, xa, ya, bts, 2,  8, "Bomb");
-      odbdc(d, xa, ya, bts, 2,  9, "Trigger");
-      odbdc(d, xa, ya, bts, 2, 10, "Message");
-      odbdc(d, xa, ya, bts, 2, 11, "Rocket");
-      odbdc(d, xa, ya, bts, 2, 13, "Timer");
-      odbdc(d, xa, ya, bts, 2, 14, "Switch");
-      odbdc(d, xa, ya, bts, 2, 15, "Sproingy");
-      odbdc(d, xa, ya, bts, 2, 16, "Blk Manip");
-      odbdc(d, xa, ya, bts, 2, 17, "Blk Damage");
-      odbdc(d, xa, ya, bts, 2, 18, "Gate");
-      odbdc(d, xa, ya, bts, 2, 19, "Hider");
-      al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-      ly4 = ya+1;
-      ya+=4;
-
-      // column rects
-      float cby1 = y1+1;
-      float cby2 = ya-5;
-
-      // edit column
-      float ecbx1 = xa-0.5;
-      float ecbx2 = ecbx1 + 11;
-
-      // view column
-      float vcbx1 = xa+12.5;
-      float vcbx2 = vcbx1 + 11;
-
-      // draw column rects
-      al_draw_rectangle(ecbx1, cby1, ecbx2, cby2, mColor.pc[ec], 1);
-      al_draw_rectangle(vcbx1, cby1, vcbx2, cby2, mColor.pc[vc], 1);
-
-
-
-
-
-      // view legend
-      float vx1 = vcbx2;// + mLoop.pct_x;
-      float vx2 = vx1 + 87;
-      float vy1 = cby2 + 5;// + mLoop.pct_y;
-      float vy2 = vy1 + 11;
-
-      // draw the view legend rect, text abd on and off buttons
-      al_draw_rectangle(vx1, vy1, vx2, vy2, mColor.pc[vc], 1);
-      al_draw_text(mFont.pr8, mColor.pc[15], vx1+2, vy1+2, 0, "View");
-      al_draw_line(vx1+36, vy1, vx1+36, vy2, mColor.pc[vc], 1);
-      if (mWidget.mButton(3, vx1+40, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
-      {
-         for (int i=0; i<5; i++)
-            for (int j=0; j<20; j++)
-               obj_filter[i][j][1] = 1;
-      }
-      al_draw_line(vx1+58, vy1, vx1+58, vy2, mColor.pc[vc], 1);
-      if (mWidget.mButton(3, vx1+62, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
-      {
-         for (int i=0; i<5; i++)
-            for (int j=0; j<20; j++)
-               obj_filter[i][j][1] = 0;
-      }
-
-      // view connector lines
-      float vcx1 = (vcbx1 + vcbx2) / 2;
-      float vcy1 = (vy1 + vy2) / 2;
-      al_draw_line(vcx1, cby2, vcx1, vcy1, mColor.pc[vc], 1);
-      al_draw_line(vcx1, vcy1, vx1, vcy1, mColor.pc[vc], 1);
-
-
-
-      // edit legend
-      float ex1 = ecbx2;// + mLoop.pct_x;
-      float ex2 = ex1 + 87;
-      float ey1 = cby2 + 19;// + mLoop.pct_y;
-      float ey2 = ey1 + 11;
-      // draw the edit legend rect, text abd on and off buttons
-      al_draw_rectangle(ex1, ey1, ex2, ey2, mColor.pc[ec], 1);
-      al_draw_text(mFont.pr8, mColor.pc[15], ex1+2, ey1+2, 0, "Edit");
-      al_draw_line(ex1+36, ey1, ex1+36, ey2, mColor.pc[ec], 1);
-      if (mWidget.mButton(3, ex1+40, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
-      {
-         for (int i=0; i<5; i++)
-            for (int j=0; j<20; j++)
-               obj_filter[i][j][0] = 1;
-      }
-      al_draw_line(ex1+58, ey1, ex1+58, ey2, mColor.pc[ec], 1);
-      if (mWidget.mButton(3, ex1+62, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
-      {
-         for (int i=0; i<5; i++)
-            for (int j=0; j<20; j++)
-               obj_filter[i][j][0] = 0;
-      }
-
-      // edit connector lines
-      float ecx1 = (ecbx1 + ecbx2) / 2;
-      float ecy1 = (ey1 + ey2) / 2;
-      al_draw_line(ecx1, cby2, ecx1, ecy1, mColor.pc[ec], 1);
-      al_draw_line(ecx1, ecy1, ex1, ecy1, mColor.pc[ec], 1);
-
-      // redraw section divider lines to overwrite group rectangles and lines
-      if (ly1) al_draw_line(x1, ly1, x2, ly1, mColor.pc[c], 1);
-      if (ly2) al_draw_line(x1, ly2, x2, ly2, mColor.pc[c], 1);
-      if (ly3) al_draw_line(x1, ly3, x2, ly3, mColor.pc[c], 1);
-      if (ly4) al_draw_line(x1, ly4, x2, ly4, mColor.pc[c], 1);
-
-
-      ya+=28;
-
    }
+   if (filter_mode > 1) // add lifts
+   {
+      odbdc(d, xa, ya, bts, 4, 1, "Lifts");
+      al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+      ly2 = ya+1;
+      ya+=4;
+   }
+
+   odbdc(d, xa, ya, bts, 3, 1, "Bouncer");
+   odbdc(d, xa, ya, bts, 3, 2, "Cannon");
+   odbdc(d, xa, ya, bts, 3, 3, "ArchWagon");
+   odbdc(d, xa, ya, bts, 3, 4, "BlockWalk");
+   odbdc(d, xa, ya, bts, 3, 5, "JumpWorm");
+   odbdc(d, xa, ya, bts, 3, 6, "Flapper");
+   odbdc(d, xa, ya, bts, 3, 7, "VinePod");
+   odbdc(d, xa, ya, bts, 3, 8, "TrakBot");
+   odbdc(d, xa, ya, bts, 3, 9, "Cloner");
+   al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+   ly3 = ya+1;
+   ya+=4;
+
+   odbdc(d, xa, ya, bts, 2,  1, "Door");
+   odbdc(d, xa, ya, bts, 2,  2, "Bonus");
+   odbdc(d, xa, ya, bts, 2,  3, "Exit");
+   odbdc(d, xa, ya, bts, 2,  4, "Key");
+   odbdc(d, xa, ya, bts, 2,  5, "Start");
+   odbdc(d, xa, ya, bts, 2,  6, "Orb");
+   odbdc(d, xa, ya, bts, 2,  7, "Mine");
+   odbdc(d, xa, ya, bts, 2,  8, "Bomb");
+   odbdc(d, xa, ya, bts, 2,  9, "Trigger");
+   odbdc(d, xa, ya, bts, 2, 10, "Message");
+   odbdc(d, xa, ya, bts, 2, 11, "Rocket");
+   odbdc(d, xa, ya, bts, 2, 13, "Timer");
+   odbdc(d, xa, ya, bts, 2, 14, "Switch");
+   odbdc(d, xa, ya, bts, 2, 15, "Sproingy");
+   odbdc(d, xa, ya, bts, 2, 16, "Blk Manip");
+   odbdc(d, xa, ya, bts, 2, 17, "Blk Damage");
+   odbdc(d, xa, ya, bts, 2, 18, "Gate");
+   odbdc(d, xa, ya, bts, 2, 19, "Hider");
+   al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+   ly4 = ya+1;
+   ya+=4;
+
+   // column rects
+   float cby1 = y1+1;
+   float cby2 = ya-5;
+
+   // edit column
+   float ecbx1 = xa-0.5;
+   float ecbx2 = ecbx1 + 11;
+
+   // view column
+   float vcbx1 = xa+12.5;
+   float vcbx2 = vcbx1 + 11;
+
+   // draw column rects
+   al_draw_rectangle(ecbx1, cby1, ecbx2, cby2, mColor.pc[ec], 1);
+   al_draw_rectangle(vcbx1, cby1, vcbx2, cby2, mColor.pc[vc], 1);
+
+
+
+
+
+   // view legend
+   float vx1 = vcbx2;// + mLoop.pct_x;
+   float vx2 = vx1 + 87;
+   float vy1 = cby2 + 5;// + mLoop.pct_y;
+   float vy2 = vy1 + 11;
+
+   // draw the view legend rect, text abd on and off buttons
+   al_draw_rectangle(vx1, vy1, vx2, vy2, mColor.pc[vc], 1);
+   al_draw_text(mFont.pr8, mColor.pc[15], vx1+2, vy1+2, 0, "View");
+   al_draw_line(vx1+36, vy1, vx1+36, vy2, mColor.pc[vc], 1);
+   if (mWidget.mButton(3, vx1+40, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
+   {
+      for (int i=0; i<5; i++)
+         for (int j=0; j<20; j++)
+            obj_filter[i][j][1] = 1;
+   }
+   al_draw_line(vx1+58, vy1, vx1+58, vy2, mColor.pc[vc], 1);
+   if (mWidget.mButton(3, vx1+62, -7,  1, vy1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
+   {
+      for (int i=0; i<5; i++)
+         for (int j=0; j<20; j++)
+            obj_filter[i][j][1] = 0;
+   }
+
+   // view connector lines
+   float vcx1 = (vcbx1 + vcbx2) / 2;
+   float vcy1 = (vy1 + vy2) / 2;
+   al_draw_line(vcx1, cby2, vcx1, vcy1, mColor.pc[vc], 1);
+   al_draw_line(vcx1, vcy1, vx1, vcy1, mColor.pc[vc], 1);
+
+
+
+   // edit legend
+   float ex1 = ecbx2;// + mLoop.pct_x;
+   float ex2 = ex1 + 87;
+   float ey1 = cby2 + 19;// + mLoop.pct_y;
+   float ey2 = ey1 + 11;
+   // draw the edit legend rect, text abd on and off buttons
+   al_draw_rectangle(ex1, ey1, ex2, ey2, mColor.pc[ec], 1);
+   al_draw_text(mFont.pr8, mColor.pc[15], ex1+2, ey1+2, 0, "Edit");
+   al_draw_line(ex1+36, ey1, ex1+36, ey2, mColor.pc[ec], 1);
+   if (mWidget.mButton(3, ex1+40, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "On", d))
+   {
+      for (int i=0; i<5; i++)
+         for (int j=0; j<20; j++)
+            obj_filter[i][j][0] = 1;
+   }
+   al_draw_line(ex1+58, ey1, ex1+58, ey2, mColor.pc[ec], 1);
+   if (mWidget.mButton(3, ex1+62, -7,  1, ey1+2, 8,    1, 0, 0, 3,   0, 0, 15, 10, 0, "Off", d))
+   {
+      for (int i=0; i<5; i++)
+         for (int j=0; j<20; j++)
+            obj_filter[i][j][0] = 0;
+   }
+
+   // edit connector lines
+   float ecx1 = (ecbx1 + ecbx2) / 2;
+   float ecy1 = (ey1 + ey2) / 2;
+   al_draw_line(ecx1, cby2, ecx1, ecy1, mColor.pc[ec], 1);
+   al_draw_line(ecx1, ecy1, ex1, ecy1, mColor.pc[ec], 1);
+
+   // redraw section divider lines to overwrite group rectangles and lines
+   if (ly1) al_draw_line(x1, ly1, x2, ly1, mColor.pc[c], 1);
+   if (ly2) al_draw_line(x1, ly2, x2, ly2, mColor.pc[c], 1);
+   if (ly3) al_draw_line(x1, ly3, x2, ly3, mColor.pc[c], 1);
+   if (ly4) al_draw_line(x1, ly4, x2, ly4, mColor.pc[c], 1);
+
+
+   ya+=28;
+
+
 
    // do the delayed refresh
    if (refresh_selection) mEditSelection.draw_fsel();
@@ -798,35 +782,31 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
 
 
 
-
-
-
 void mwEditorMain::process_menu_bar(mwWindow &w)
 {
    int d = w.disable_input;
 
-   char msg[1024];
    al_set_target_backbuffer(mDisplay.display);
 
    mLevelEditor.mWM.mW[8].set_pos(0, 0);
    mLevelEditor.mWM.mW[8].set_size(mDisplay.SCREEN_W, BORDER_WIDTH);
 
    int x1 = BORDER_WIDTH;
-   int y1 = 0;
-   int by1 = y1+4;
+   int by1 = 1;
    int bts = 10;
 
-   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "File", d))
+   int tl = 4;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "File", d))
    {
-      strcpy (mMenu.menu_string[0],"File"); // PD sub menu
-      strcpy (mMenu.menu_string[1],"New");
-      strcpy (mMenu.menu_string[2],"Load");
-      strcpy (mMenu.menu_string[3],"Reload");
-      strcpy (mMenu.menu_string[4],"Save");
-      strcpy (mMenu.menu_string[5],"Save As");
-      strcpy (mMenu.menu_string[6],"Exit");
-      strcpy (mMenu.menu_string[7],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
+      strcpy(mMenu.menu_string[0],"File"); // PD sub menu
+      strcpy(mMenu.menu_string[1],"New");
+      strcpy(mMenu.menu_string[2],"Load");
+      strcpy(mMenu.menu_string[3],"Reload");
+      strcpy(mMenu.menu_string[4],"Save");
+      strcpy(mMenu.menu_string[5],"Save As");
+      strcpy(mMenu.menu_string[6],"Exit");
+      strcpy(mMenu.menu_string[7],"end");
+      int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1)
       {
          if (al_show_native_message_box(mDisplay.display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
@@ -843,27 +823,28 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 6) mLevelEditor.active = 0;
       al_set_target_backbuffer(mDisplay.display);
    }
-   x1 += 44;
+   x1+=(tl*8)+12;
 
-   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "View", d))
+   tl = 4;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "View", d))
    {
-      strcpy (mMenu.menu_string[0],"View");
-      strcpy (mMenu.menu_string[1],"Toggle Fullscreen       F12");
-      strcpy (mMenu.menu_string[2],"Zoom Out                 F5");
-      strcpy (mMenu.menu_string[3],"Zoom In                  F6");
-      strcpy (mMenu.menu_string[4],"Reset Zoom            F5+F6");
-      strcpy (mMenu.menu_string[5],"Zoom Fit Level Vertical   ");
-      sprintf(mMenu.menu_string[6],"Text Double:Auto");
-      sprintf(mMenu.menu_string[7],"Text Double:1");
-      sprintf(mMenu.menu_string[8],"Text Double:2");
-      sprintf(mMenu.menu_string[9],"Text Double:3");
+      strcpy(mMenu.menu_string[0],"View");
+      strcpy(mMenu.menu_string[1],"Toggle Fullscreen       F12");
+      strcpy(mMenu.menu_string[2],"Zoom Out                 F5");
+      strcpy(mMenu.menu_string[3],"Zoom In                  F6");
+      strcpy(mMenu.menu_string[4],"Reset Zoom            F5+F6");
+      strcpy(mMenu.menu_string[5],"Zoom Fit Level Vertical   ");
+      strcpy(mMenu.menu_string[6],"Text Double:Auto");
+      strcpy(mMenu.menu_string[7],"Text Double:1");
+      strcpy(mMenu.menu_string[8],"Text Double:2");
+      strcpy(mMenu.menu_string[9],"Text Double:3");
 
       if (mLoop.autosave_level_editor_state) sprintf(mMenu.menu_string[10],"Autosave State:ON ");
       else                                   sprintf(mMenu.menu_string[10],"Autosave State:OFF");
       sprintf(mMenu.menu_string[11],"Reset State");
 
       strcpy (mMenu.menu_string[12],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
+      int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1) mDisplay.toggle_fullscreen();
       if (ret == 2) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
       if (ret == 3) mDisplay.set_scale_factor(mDisplay.scale_factor * 1.1, 0);
@@ -876,20 +857,22 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 10) mLoop.autosave_level_editor_state = ! mLoop.autosave_level_editor_state;
       if (ret == 11) { mLevelEditor.init_windows(); mLevelEditor.save_mW(); }
    }
-   x1 += 44;
+   x1+=(tl*8)+12;
 
-   if (mWidget.mButton(0, x1, x1+40,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Lists", d))
+
+   tl = 5;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Lists", d))
    {
-      strcpy (mMenu.menu_string[0],"Lists");
-      strcpy (mMenu.menu_string[1],"List all Items");
-      strcpy (mMenu.menu_string[2],"List all Enemies");
-      strcpy (mMenu.menu_string[3],"List all Lifts");
-      strcpy (mMenu.menu_string[4],"List all pmsg");
-      strcpy (mMenu.menu_string[5],"List all Events");
-      strcpy (mMenu.menu_string[6],"Level Check");
-      strcpy (mMenu.menu_string[7],"Show Level Data");
-      strcpy (mMenu.menu_string[8],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
+      strcpy(mMenu.menu_string[0],"Lists");
+      strcpy(mMenu.menu_string[1],"List all Items");
+      strcpy(mMenu.menu_string[2],"List all Enemies");
+      strcpy(mMenu.menu_string[3],"List all Lifts");
+      strcpy(mMenu.menu_string[4],"List all pmsg");
+      strcpy(mMenu.menu_string[5],"List all Events");
+      strcpy(mMenu.menu_string[6],"Level Check");
+      strcpy(mMenu.menu_string[7],"Show Level Data");
+      strcpy(mMenu.menu_string[8],"end");
+      int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1) mItem.show_all_items();
       if (ret == 2) mEnemy.show_all_enemies();
       if (ret == 3) mLift.show_all_lifts();
@@ -897,22 +880,22 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 5) mTriggerEvent.show_all_events();
       if (ret == 6) mLevel.level_check();
       if (ret == 7) mLevel.show_level_data(40, 40, 1);
-
    }
-   x1 += 52;
+   x1+=(tl*8)+12;
 
 
-   if (mWidget.mButton(0, x1, x1+64,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Advanced", d))
+   tl = 8;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Advanced", d))
    {
-      strcpy (mMenu.menu_string[0],"Advanced");
-      strcpy (mMenu.menu_string[1],"Global Level Tool");
-      strcpy (mMenu.menu_string[2],"Level Viewer!");
-      strcpy (mMenu.menu_string[3],"Animation Sequence Editor");
-      strcpy (mMenu.menu_string[4],"Copy Tiles");
-      strcpy (mMenu.menu_string[5],"Tile Editor");
-      strcpy (mMenu.menu_string[6],"Default Flag Editor");
-      strcpy (mMenu.menu_string[7],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
+      strcpy(mMenu.menu_string[0],"Advanced");
+      strcpy(mMenu.menu_string[1],"Global Level Tool");
+      strcpy(mMenu.menu_string[2],"Level Viewer!");
+      strcpy(mMenu.menu_string[3],"Animation Sequence Editor");
+      strcpy(mMenu.menu_string[4],"Copy Tiles");
+      strcpy(mMenu.menu_string[5],"Tile Editor");
+      strcpy(mMenu.menu_string[6],"Default Flag Editor");
+      strcpy(mMenu.menu_string[7],"end");
+      int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1) mGlobalLevelTool.execute();
       if (ret == 2) mVisualLevel.level_viewer();
       if (ret == 3) mBitmapTools.animation_sequence_editor();
@@ -923,60 +906,86 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
          te.edit_tile(0);
       }
       if (ret == 6) mBitmapTools.edit_tile_flags();
-
-
    }
-   x1 += 76;
+   x1+=(tl*8)+12;
 
-   if (mWidget.mButton(0, x1, x1+32,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, "Help", d))
+
+   tl = 4;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Help", d))
    {
-      strcpy (mMenu.menu_string[0],"Help");
-      strcpy (mMenu.menu_string[1],"Level Editor Basics");
-      strcpy (mMenu.menu_string[2],"Credits");
-      strcpy (mMenu.menu_string[3],"end");
-      int ret = mMenu.tmenu(1, x1, by1-1);
+      strcpy(mMenu.menu_string[0],"Help");
+      strcpy(mMenu.menu_string[1],"Level Editor Basics");
+      strcpy(mMenu.menu_string[2],"Credits");
+      strcpy(mMenu.menu_string[3],"end");
+      int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1) mHelp.help("Level Editor Basics");
       if (ret == 2) mHelp.help("Credits");
    }
-   x1 += 44;
+   x1+=(tl*8)+12;
 
-   x1+= 12;
 
-   if (mLevelEditor.mode == 1) sprintf(msg, "Mode:Main Edit");
-   if (mLevelEditor.mode == 2) sprintf(msg, "Mode:Edit Selection");
-   if (mLevelEditor.mode == 3) sprintf(msg, "Mode:Group Edit");
-   if (mLevelEditor.mode == 4) sprintf(msg, "Mode:Object Viewer");
-   if (mLevelEditor.mode == 9) sprintf(msg, "Mode:Tile Helper");
 
-   if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
+   if (!mLevelEditor.mWM.mW[3].active)
    {
-      strcpy (mMenu.menu_string[0],msg);
-      strcpy (mMenu.menu_string[1],"Mode:Main Edit");
-      strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
-      strcpy (mMenu.menu_string[3],"Mode:Group Edit");
-      strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
-      strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
-      strcpy (mMenu.menu_string[6],"end");
-      int ret = mMenu.tmenu(1, x1+19, by1-1);
-      if (ret == 1) mLevelEditor.set_mode(1);
-      if (ret == 2) mLevelEditor.set_mode(2);
-      if (ret == 3) mLevelEditor.set_mode(3);
-      if (ret == 4) mLevelEditor.set_mode(4);
-      if (ret == 5) mLevelEditor.set_mode(9);
+      tl = 7;
+      if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Filters", d)) mLevelEditor.mWM.mW[3].active = 1;
+      x1+=(tl*8)+12;
    }
 
-   x1+=180;
 
-   bts = 12;
-   int yt = by1-2;
 
-   if (mLevelEditor.mode == 4) mWidget.mSliderInt(0, x1, x1+80,  1, yt, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
+   std::vector<struct listItem> listItems;
+   listItems =
+   {
+      {  1,    "Mode:Main Edit"  },
+      {  2,    "Mode:Edit Selection"  },
+      {  3,    "Mode:Group Edit"  },
+      {  4,    "Mode:Object Viewer"  },
+      {  9,    "Mode:Tile Helper" }
+   };
+   if (mWidget.mDropDown(0, x1, x1+182, 1, by1, bts,  0, 0, 3, 0, 15, 15, listItems, mLevelEditor.mode, d)) mLevelEditor.set_mode(mLevelEditor.mode);
+
+   //
+   // if (mLevelEditor.mode == 1) sprintf(msg, "Mode:Main Edit");
+   // if (mLevelEditor.mode == 2) sprintf(msg, "Mode:Edit Selection");
+   // if (mLevelEditor.mode == 3) sprintf(msg, "Mode:Group Edit");
+   // if (mLevelEditor.mode == 4) sprintf(msg, "Mode:Object Viewer");
+   // if (mLevelEditor.mode == 9) sprintf(msg, "Mode:Tile Helper");
+   //
+   // if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
+   // {
+   //    strcpy (mMenu.menu_string[0],msg);
+   //    strcpy (mMenu.menu_string[1],"Mode:Main Edit");
+   //    strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
+   //    strcpy (mMenu.menu_string[3],"Mode:Group Edit");
+   //    strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
+   //    strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
+   //    strcpy (mMenu.menu_string[6],"end");
+   //    int ret = mMenu.tmenu(1, x1+19, by1-1);
+   //    if (ret == 1) mLevelEditor.set_mode(1);
+   //    if (ret == 2) mLevelEditor.set_mode(2);
+   //    if (ret == 3) mLevelEditor.set_mode(3);
+   //    if (ret == 4) mLevelEditor.set_mode(4);
+   //    if (ret == 5) mLevelEditor.set_mode(9);
+   // }
+
+
+   x1+=190;
+
+//   if (mLevelEditor.mode == 4) mWidget.mSliderInt(0, x1, x1+80,  1, by1-1, bts,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
+
+   if (mLevelEditor.mode == 4) mWidget.mStepSliderInt(0, x1, x1+96,  1, by1, bts,  0, 1, 1, 1,  0, 12, 12, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, 1, 0, "Snap:", 0, d);
+
 
    if ((mLevelEditor.mode == 1) || (mLevelEditor.mode == 2) || (mLevelEditor.mode == 9))
    {
-      al_draw_textf(mFont.pr8, mColor.pc[15],  x1, yt+2, 0, "Tile Draw Mode:");
-      mWidget.mButtonCustom(0, x1+120, x1+120+32, 1, yt+2, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+      al_draw_textf(mFont.pr8, mColor.pc[15],  x1, by1+1, 0, "Tile Draw Mode:");
+      mWidget.mButtonCustom(0, x1+120, x1+120+32, 1, by1+1, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
    }
+
+
+
+
 
 
    // status display in the lower right border

@@ -39,7 +39,6 @@ public:
 
    void process_menu_bar(mwWindow &w);
 
-   int collapsed;
    int filter_mode;
    int obj_filter[5][20][2];
 

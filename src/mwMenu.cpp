@@ -278,7 +278,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
 
 int mwMenu::tmenu(int menu_pos, int x1, int y1)
-// level editor main menu
+// used only for level editor main menu
 {
    int pc = mPlayer.syn[mPlayer.active_local_player].color;
 
@@ -307,8 +307,7 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
       // draw menu title
       int mt = strlen(menu_string[0])*8;
-      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, mColor.pc[pc+128]);
-      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, mColor.pc[15], 1);
+      al_draw_rectangle(x1-2, y1, x1+mt+2, y1+yh, mColor.pc[15], 1);
       al_draw_text(mFont.pr8, mColor.pc[15], x1, y1+1, 0, menu_string[0]);
 
       // erase menu background
@@ -338,24 +337,16 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
       if (highlight < 1) highlight = 0;
       if (highlight > last_list_item-1) highlight = 0;
 
-
-      if (mInput.mouse_b[1][0])
-      {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         selection = highlight;
-      }
-
-      if (mInput.mouse_b[2][0])
-      {
-         while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
-         selection = 0;
-      }
+      if (mInput.mouse_b[1][3]) selection = highlight;
+      if (mInput.mouse_b[2][3]) selection = 0;
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
+         // wait until escape is released before proceeding
          while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          selection = 0; // default position for back
       }
+
 
    }
    return selection;

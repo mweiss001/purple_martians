@@ -147,8 +147,14 @@ void mwScreen::draw_screen_frame(void)
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
 
+   // for (int x=0; x<BORDER_WIDTH; x++)
+   //    al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + (x * 16)], 1);
+
    for (int x=0; x<BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + 64 + (x * 16)], 1);
+
+
+
 
 //   for (int x=0; x<BORDER_WIDTH; x++)
 //      al_draw_rounded_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, 8, 8, mColor.pc[c + (x * 16)], 1);
@@ -264,7 +270,7 @@ void mwScreen::set_level_display_region_xy(void)
    }
    else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
    {
-      // if this is active, dont do any others
+      // if this is active, don't do any others
       if ((viewport_look_rocket) && (mPlayer.is_player_riding_rocket(p)))
       {
          level_display_region_x += mPlayer.syn[p].xinc * 1.8;
@@ -294,28 +300,38 @@ void mwScreen::set_level_display_region_xy(void)
          }
       }
 
-
-      // maximum incs
+      // maximum xinc
       float mxi = 6;
+      mxi = 2;
+
+      // clamp to max xinc
       if (level_display_region_xinc > mxi)  level_display_region_xinc = mxi;
       if (level_display_region_xinc < -mxi) level_display_region_xinc = -mxi;
 
+
+      // maximum yinc
       float myi = 12;
+      myi = 2;
+
+      // increase max yinc if moving up fast, like jumping on spring
       if (pvy < -8) myi = abs(pvy) * 1.5;
+
+      // clamp to max yinc
       if (level_display_region_yinc > myi)  level_display_region_yinc = myi;
       if (level_display_region_yinc < -myi) level_display_region_yinc = -myi;
+
 
       // inc decays
       if ((viewport_look_player_facing_left_right == 0) || (ldr_xmn_h) || (ldr_xmx_h))
       {
-         if (pvx == 0) level_display_region_xinc *= 0.9; // decay when not moving
-         if ((level_display_region_xinc > 0) && (pvx < 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
-         if ((level_display_region_xinc < 0) && (pvx > 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
+         if (pvx == 0)                                     level_display_region_xinc *= 0.9; // decay when not moving
+         if ((pvx < 0) && (level_display_region_xinc > 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
+         if ((pvx > 0) && (level_display_region_xinc < 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
       }
 
-      if (pvy == 0) level_display_region_yinc *= 0.9; // decay when not moving
-      if ((level_display_region_yinc > 0) && (pvy < 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
-      if ((level_display_region_yinc < 0) && (pvy > 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
+      if (pvy == 0)                                     level_display_region_yinc *= 0.9; // decay when not moving
+      if ((pvy < 0) && (level_display_region_yinc > 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
+      if ((pvy > 0) && (level_display_region_yinc < 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
 
 
       // apply x and y increments
@@ -324,10 +340,10 @@ void mwScreen::set_level_display_region_xy(void)
 
 
 
-
       // get hyst variables
       float x_size = w * viewport_x_div/2;
       float y_size = h * viewport_y_div/2;
+
 
       // adjust to hyst borders
       float re = px - w/2 - x_size; // right edge
@@ -359,7 +375,6 @@ void mwScreen::set_level_display_region_xy(void)
          ldr_ymn_h = 1;
       }
    }
-
 
 
 

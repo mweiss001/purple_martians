@@ -35,7 +35,7 @@
 
 #define NUM_ANS 256
 #define NUM_PLAYERS 8
-#define BORDER_WIDTH 14
+#define BORDER_WIDTH 12
 #define NUM_LIFTS 40
 
 #define STATE_SIZE 113344

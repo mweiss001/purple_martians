@@ -401,7 +401,6 @@ int mwTileHelper::replace_helper_48(struct tileSet ts)
    }
 
 
-
    if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // solid except for left
    {
       if ((tr == 1) && (br == 1)) fb = ts.OuterEdgeL;        // solid to tr and br
@@ -433,16 +432,11 @@ int mwTileHelper::replace_helper_48(struct tileSet ts)
       if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
    }
 
-
-
-
    // single block line corners
    if ((l == 0) && (r == 1) && (t == 0) && (b == 1) && (br == 0)) fb = ts.FrameCornerTL; // top left corner
    if ((l == 1) && (r == 0) && (t == 0) && (b == 1) && (bl == 0)) fb = ts.FrameCornerTR; // top right corner
    if ((l == 0) && (r == 1) && (t == 1) && (b == 0) && (tr == 0)) fb = ts.FrameCornerBL; // bottom left corner
    if ((l == 1) && (r == 0) && (t == 1) && (b == 0) && (tl == 0)) fb = ts.FrameCornerBR; // bottom right corner
-
-
 
 
    if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM; // vertical through line
@@ -467,7 +461,7 @@ int mwTileHelper::replace_helper_16(struct tileSet ts)
 
    if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
    if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner0
    if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
 
    if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
@@ -485,7 +479,6 @@ int mwTileHelper::replace_helper_16(struct tileSet ts)
 
    return fb;
 }
-
 
 
 // for rainbows only
@@ -510,7 +503,6 @@ int mwTileHelper::replace_helper_8(struct tileSet ts)
    if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameEdgeL; // bottom end line
    if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.FrameEdgeT; // left end line
    if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameEdgeL; // top end line
-
 
    return fb;
 }
@@ -578,14 +570,28 @@ int mwTileHelper::replace_helper_90_frame(struct tileSet ts, int lv, int type)
 
          if (type == 32) // outer edge alt 2
          {
-            octl = ts.InnerCornerBL;
-            octr = ts.InnerCornerBR;
-            ocbl = ts.FrameCornerTL;
-            ocbr = ts.FrameCornerTR;
-            icbr = ts.FrameCornerTL;
-            icbl = ts.FrameCornerTR;
-            ictr = ts.InnerCornerBL;
-            ictl = ts.InnerCornerBR;
+            // octl = ts.InnerCornerBL;
+            // octr = ts.InnerCornerBR;
+            // ocbl = ts.FrameCornerTL;
+            // ocbr = ts.FrameCornerTR;
+
+            // octl = ts.InnerCornerBL;
+            // octr = ts.InnerCornerBR;
+            // ocbl = ts.InnerCornerTL;
+            // ocbr = ts.InnerCornerTR;
+
+
+            octl = ts.InnerCornerBR;
+            octr = ts.InnerCornerBL;
+            ocbl = ts.InnerCornerTR;
+            ocbr = ts.InnerCornerTL;
+
+
+
+            // icbr = 134; //ts.FrameCornerTL;
+            // icbl = ts.FrameCornerTR;
+            // ictr = ts.InnerCornerBL;
+            // ictl = ts.InnerCornerBR;
          }
       }
    }
@@ -602,9 +608,6 @@ int mwTileHelper::replace_helper_90_frame(struct tileSet ts, int lv, int type)
       octr = ts.InnerCornerTR;
       ocbl = ts.InnerCornerBL;
       ocbr = ts.InnerCornerBR;
-
-
-
 
       oel =  ts.OuterEdgeR;
       oer =  ts.OuterEdgeL;

@@ -775,15 +775,15 @@ void mwEditSelection::show_details(int x1, int x2, int &ya, int fc)
       lib = ft_level_header[5];
    }
    int xc = (x1+x2)/2;
-   al_draw_line(x1, ya, x2, ya, mColor.pc[fc], 1);
-   al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[fc], 1);
+   al_draw_line(x1-1, ya,    x2+1, ya, mColor.pc[fc], 1);
+   al_draw_line(x1-1, ya+11, x2+1, ya+11, mColor.pc[fc], 1);
    al_draw_text( mFont.pr8, mColor.pc[15], xc, ya+2,  ALLEGRO_ALIGN_CENTER, "Selection Details");
    ya+=11;
-   al_draw_line(x1, ya+19, x2, ya+19, mColor.pc[fc], 1);
+   al_draw_line(x1-1, ya+19, x2+1, ya+19, mColor.pc[fc], 1);
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya+2,  ALLEGRO_ALIGN_CENTER, "x:%-2d    y:%-2d", sx, sy);
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya+10, ALLEGRO_ALIGN_CENTER, "w:%-2d    h:%-2d", sw, sh);
    ya+=19;
-   al_draw_line(x1, ya+27, x2, ya+27, mColor.pc[fc], 1);
+   al_draw_line(x1-1, ya+27, x2+1, ya+27, mColor.pc[fc], 1);
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya+2,   ALLEGRO_ALIGN_CENTER, "%d Enemies", eib);
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya+10,  ALLEGRO_ALIGN_CENTER, "%d Items",   iib);
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya+18,  ALLEGRO_ALIGN_CENTER, "%d Lifts",   lib);

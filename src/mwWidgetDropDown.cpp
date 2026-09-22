@@ -49,6 +49,7 @@ void mwWidget::mDropDownSetPrevItem(std::vector<listItem> listItems, int & var, 
 // draws the main control
 // if crop = 1, then text will be chopped, rect width will be exact
 // if crop = 0, rect width will be adjusted to fit entire text
+
 void mwWidget::mDropDownDrawMain(mwRect<int> f, int r, std::string text, int text_just, int btype, int bcol, int fcol, bool crop)
 {
    // triangle width, height
@@ -82,7 +83,7 @@ void mwWidget::mDropDownDrawMain(mwRect<int> f, int r, std::string text, int tex
       if (text_width > box_width)
       {
          box_width = text_width + pad; // text width + pad
-//         x2 = x1 + box_width;
+         //         x2 = x1 + box_width;
          f.setWidth(box_width);
       }
    }
@@ -108,16 +109,21 @@ void mwWidget::mDropDownDrawMain(mwRect<int> f, int r, std::string text, int tex
    // draw background
    if (btype == 0) al_draw_filled_rectangle(f.x1-1, f.y1-1, f.x2+1, f.y2+1, mColor.pc[0]); // draw nothing
    if (btype == 1) al_draw_filled_rounded_rectangle(f.x1, f.y1, f.x2, f.y2, r, r, mColor.pc[bcol]); // solid color
-   if (btype == 2) draw_widget_area(f.x1, f.y1, f.x2, f.y2, bcol); // draw button frame
+   if (btype == 2) draw_widget_area(f.x1, f.y1, f.x2, f.y2, bcol); // draw classic button frame
+
+   bool frame_draw = true;
+   if ((btype == 3) && (crop)) frame_draw = false;
+   if (frame_draw)
+   {
+      // draw frame
+      al_draw_rounded_rectangle(f.x1, f.y1, f.x2, f.y2, r, r, mColor.pc[fcol], 1);
+      // draw triangle
+      al_draw_filled_triangle(tr_x1, tr_y1,   tr_x1+tr_w, tr_y1,  tr_x1+tr_w/2, tr_y1+tr_h,    mColor.pc[15]);
+   }
 
 
 
 
-   // draw frame
-   al_draw_rounded_rectangle(f.x1, f.y1, f.x2, f.y2, r, r, mColor.pc[fcol], 1);
-
-   // draw triangle
-   al_draw_filled_triangle(tr_x1, tr_y1,   tr_x1+tr_w, tr_y1,  tr_x1+tr_w/2, tr_y1+tr_h,    mColor.pc[15]);
 
    // draw line to mark edge of triangle area
    //al_draw_line(x3, f.y1,    x3, f.y2,    mColor.pc[15], 1);
@@ -129,7 +135,6 @@ void mwWidget::mDropDownDrawMain(mwRect<int> f, int r, std::string text, int tex
    mMiscFnx.mw_draw_text(15, text_x1, text_y1, text_just, text);
 
 }
-
 
 /* mDropDown widget
 shows current value and allows change by selecting from drop down list
@@ -157,8 +162,11 @@ on hover, widget area is expanded to fix entire text value
 on hover, arrow keys UP, DOWN, increment and decrement var
 
 
-btype = 0 - single color background
-btype = 1 - regular faded color frame
+btype = 0 - black color background
+btype = 1 - single color background
+btype = 2 - regular faded color frame
+btype = 3 - do not draw background, only draw frame if hovered
+
 bcol - background color
 
 fcol - frame color
@@ -180,14 +188,14 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
    for (const auto& li : listItems)
       if (li.value == var) text = li.text.c_str();
 
-   mDropDownDrawMain(f, r, text, tjust, btype, bcol, fcol, 1);
-
-   if (d) return false; // input disabled
-
    // check if mouse is on widget
-   if (f.contains(mInput.mouse_x, mInput.mouse_y))
+   bool mouse_on_widget = false;
+   if ((!d) && (f.contains(mInput.mouse_x, mInput.mouse_y))) mouse_on_widget = true;
+
+   if (!mouse_on_widget) mDropDownDrawMain(f, r, text, tjust, btype, bcol, fcol, 1); // draw collapsed version
+   else
    {
-      mDropDownDrawMain(f, r, text, tjust, btype, bcol, hcol, 0);
+      mDropDownDrawMain(f, r, text, tjust, btype, bcol, hcol, 0); // draw expanded version
 
       if (mInput.key[ALLEGRO_KEY_UP][0])
       {
@@ -323,5 +331,6 @@ bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, i
          } // end of blocking loop
       } // end of mouse click on widget
    } // end of mouse on widget
+
    return false;
 }

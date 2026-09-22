@@ -58,7 +58,7 @@ void mwLevelEditor::init_windows()
    mWM.mW[2].drawFunction = [this]() { mSelectionWindow.draw(mWM.mW[2].rect, mWM.mW[2].disable_input, mWM.mW[2].have_focus); };
    mWM.mW[2].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[3].init(3, 2, 500, 100, 116, 100, 6, "Filters", 1, 0, 14, 0);
+   mWM.mW[3].init(3, 2, 500, 100, 116, 100, 6, "Filters", 1, 0, 14, 1);
    mWM.mW[3].drawFunction = [this]() { mEditorMain.draw_filter_window(mWM.mW[3]); };
    mWM.mW[3].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
@@ -75,11 +75,8 @@ void mwLevelEditor::init_windows()
    mWM.mW[6].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
    mWM.mW[7].init(6, 5, 200, 60, 300, 300, 13, "Viewer", 1, 1, 13, 0); // Object Viewer
-//   mWM.mW[7].title_bar_height = 22;
    mWM.mW[7].drawFunction = [this]() { mObjectViewer.draw(mWM.mW[7]); };
    mWM.mW[7].redrawCallback = []() { mLevelEditor.redraw_callback(); };
-
-
 
    mWM.mW[8].init(7, 6, 0, 0, mDisplay.SCREEN_W, BORDER_WIDTH, 0, "Level Editor Top Menu", 0, 0, 0, 0);
    mWM.mW[8].moveable = 0;
@@ -99,7 +96,8 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 1; // status
       mWM.mW[2].active = 1; // select
-      mWM.mW[3].active = 0; // filter
+//      mWM.mW[3].active = 0; // filter
+      mEditorMain.filter_mode = 3;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -111,7 +109,7 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-      mWM.mW[3].active = 1; // filter
+//      mWM.mW[3].active = 1; // filter
       mEditorMain.filter_mode = 3;
       mWM.mW[4].active = 1; // selection edit
       mWM.mW[5].active = 0; // ge list
@@ -123,7 +121,7 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-      mWM.mW[3].active = 1; // filter
+//      mWM.mW[3].active = 1; // filter
       mEditorMain.filter_mode = 1;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 1; // ge list
@@ -135,7 +133,7 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-      mWM.mW[3].active = 1; // filter
+//      mWM.mW[3].active = 1; // filter
       mEditorMain.filter_mode = 2;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
@@ -147,7 +145,7 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-      mWM.mW[3].active = 0; // filter
+//      mWM.mW[3].active = 0; // filter
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -441,8 +439,6 @@ void mwLevelEditor::get_mouse_position_on_background()
 }
 
 
-
-
 void mwLevelEditor::process_keypress()
 {
    if (mode == 4) mObjectViewer.ov_process_keypress();
@@ -667,7 +663,6 @@ bool mwLevelEditor::load_mW()
 
       fread(&mSelectionWindow.gridline_size,         sizeof(mSelectionWindow.gridline_size),         1, fp);
 
-
       fread(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fread(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
       fread(&mEditorMain.draw_tile_mode,             sizeof(mEditorMain.draw_tile_mode),             1, fp);
@@ -680,8 +675,6 @@ bool mwLevelEditor::load_mW()
       fread(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
       fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
       fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
-
-
 
       fread(&mTileHelper.add_del,                    sizeof(mTileHelper.add_del),                    1, fp);
       fread(&mTileHelper.match,                      sizeof(mTileHelper.match),                      1, fp);
@@ -696,14 +689,11 @@ bool mwLevelEditor::load_mW()
       fread(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
       fread(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
 
-
       int temp;
       fread(&temp,                                   sizeof(temp),                                   1, fp); // mTileSets.currentTileSet.startIndex
       mTileSets.findTileSetContainingIndex(mTileSets.currentTileSet, temp);
 
       fread(&mTileHelper.thl,                        sizeof(mTileHelper.thl),                        1, fp);
-
-
 
 
       fclose(fp);
@@ -727,14 +717,4 @@ bool mwLevelEditor::load_mW()
    printf("error loading levelEditorWindowGeometry.pm -- using defaults\n");
    return false;
 }
-
-
-
-
-
-
-
-
-
-
 
