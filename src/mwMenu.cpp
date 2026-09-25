@@ -354,7 +354,6 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
 
 
-
 int mwMenu::pmenu(int type, int bg_color, int y_offset, int default_selection)
 {
    init_pmenu(type);
@@ -362,11 +361,23 @@ int mwMenu::pmenu(int type, int bg_color, int y_offset, int default_selection)
    int highlight = default_selection;
    int selection = 999;
    int last_list_item;
-   int c, b;
 
    int kx = mInput.mouse_x;
    if (kx < 100) kx = 100;
    if (kx > mDisplay.SCREEN_W-100) kx = mDisplay.SCREEN_W-100;
+
+
+   // run through the menu to get height and width
+   int max_strlen = 0;
+   int c = 0;
+   while (strcmp(menu_string[c],"end") != 0)
+   {
+      int sl = strlen(menu_string[c]);
+      if (sl > max_strlen) max_strlen = sl;
+      c++;
+   }
+   int w = max_strlen * 8;
+   int h = c * 8;
 
    int up = 0;
    int ky = mInput.mouse_y+y_offset;
@@ -374,48 +385,43 @@ int mwMenu::pmenu(int type, int bg_color, int y_offset, int default_selection)
    if (type == 6) if (ky > mDisplay.SCREEN_H -  60) up=1; // lift step menu
    if (type == 5) if (ky > mDisplay.SCREEN_H -  80) up=1; // generic menu
 
+
+
    if (!up) // normal version
    {
       do   // until selection is made
       {
-         al_rest(0.02);
-         int max_strlen = 0;
-         int w = 0;
+         // frame and color entire background
          if (bg_color != 0)
          {
-            c = 0;
-            // run through the menu to get height and width
-            while (strcmp(menu_string[c],"end") != 0)
-            {
-               int sl = strlen(menu_string[c]);
-               if (sl > max_strlen) max_strlen = sl;
-               c++;
-            }
-            w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, mColor.pc[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, mColor.pc[bg_color], 1);  // frame entire menu
+            al_draw_filled_rectangle(kx-w/2-2, ky-2, kx+w/2+2, ky+h+1, mColor.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w/2-2, ky-2, kx+w/2+2, ky+h+1, mColor.pc[bg_color], 1);  // frame entire menu
          }
+
+         // draw the menu items
          c = 0;
          while (strcmp(menu_string[c],"end") != 0)
          {
-            b = 9 + 96;
-            if (c == 0) b = 9;
-            if (c == highlight) b=9;
+            int text_color = 9 + 96;
+            if ((c == 0) || (c == highlight)) text_color = 9;
 
-            int sl = strlen(menu_string[c]);
-            if (sl > max_strlen) max_strlen = sl;
-            w = sl*4;
-
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, mColor.pc[0]);
-            al_draw_text(mFont.pr8, mColor.pc[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
+            // erase text background
+            if (bg_color == 0)
+            {
+               int sw = strlen(menu_string[c]) * 4 + 4;
+               al_draw_filled_rectangle(kx-sw, ky+(c*8), kx+sw, ky+(c*8)+8, mColor.pc[0]);
+               if (c==0) al_draw_filled_rectangle(kx-sw, ky-2, kx+sw, ky+(c*8)+8, mColor.pc[0]);
+            }
+            al_draw_text(mFont.pr8, mColor.pc[text_color], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
             c++;
          }
          last_list_item = c-1;
+
          al_flip_display();
          mEventQueue.proc(1);
          highlight = default_selection;
-         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
-            if ( (mInput.mouse_y > ky ) && (mInput.mouse_y < ky + ((last_list_item+1)*8)) )
+
+         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) && (mInput.mouse_y > ky ) && (mInput.mouse_y < ky + ((last_list_item+1)*8)) )
                highlight = (mInput.mouse_y-ky) / 8;
          if (!(mInput.mouse_b[2][0])) selection = highlight; // mouse b2 released
 
@@ -426,48 +432,35 @@ int mwMenu::pmenu(int type, int bg_color, int y_offset, int default_selection)
       if (type == 5) ky += 18; // generic menu
       else ky = mInput.mouse_y+12; // to put mouse on default button
 
-
       if (ky > mDisplay.SCREEN_H) ky = mDisplay.SCREEN_H;
       do   // until selection is made
       {
-         al_rest(0.02);
-         int max_strlen = 0;
-         int w = 0;
+         // frame and color entire background
          if (bg_color != 0)
          {
-            c = 0;
-            // run through the menu to get height and width
-            while (strcmp(menu_string[c],"end") != 0)
-            {
-               int sl = strlen(menu_string[c]);
-               if (sl > max_strlen) max_strlen = sl;
-               c++;
-            }
-            w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, mColor.pc[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, mColor.pc[bg_color], 1);     // frame entire menu
+            al_draw_filled_rectangle(kx-w/2, ky+9, kx+w/2, ky-c*8+6, mColor.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w/2, ky+9, kx+w/2, ky-c*8+6, mColor.pc[bg_color], 1);     // frame entire menu
          }
 
+         // draw the menu items
          c = 0;
          while (strcmp(menu_string[c],"end") != 0)
          {
-            b = 9+96;
-            if (c == 0) b = 9;
-            if (c == highlight) b=9;
-            int w = strlen(menu_string[c])*4;
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, mColor.pc[0]);
-            al_draw_text(mFont.pr8, mColor.pc[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
+            int text_color = 9 + 96;
+            if ((c == 0) || (c == highlight)) text_color = 9;
+
+            int sw = strlen(menu_string[c])*4 + 4;
+            if (bg_color == 0) al_draw_filled_rectangle(kx-sw, ky-(c*8), kx+sw, ky-(c*8)+8, mColor.pc[0]);
+            al_draw_text(mFont.pr8, mColor.pc[text_color], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
             c++;
          }
          last_list_item = c-1;
 
          al_flip_display();
          mEventQueue.proc(1);
-
-         //show_mouse(screen);
          highlight = default_selection;
-         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
-            if ( (mInput.mouse_y < ky ) && (mInput.mouse_y > ky - ((last_list_item+1)*8) ) )
+
+         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) && (mInput.mouse_y < ky ) && (mInput.mouse_y > ky - ((last_list_item+1)*8) ) )
                highlight = (ky-mInput.mouse_y+8) / 8;
          if (!(mInput.mouse_b[2][0])) selection = highlight; // mouse b2 released
 

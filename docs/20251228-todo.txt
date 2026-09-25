@@ -4,10 +4,7 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-
 do something about viewport
-
-
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -21,26 +18,19 @@ TO DO
 
 
 
+Tilesets
+take more advantage of all the extra tiles in 90 tileset
+there are many places to do this:
+
+- replace tools in tilehelper
+make more options to do alt blocks, especially with single lines
+
+   int replace_mode_alt;
 
 
 
 
 
-
-
-
-
-- when changing levels in level editor do not keep th selection
-
-- in tile helper, make toolbar toggles to show window sections like patterns
-
-
-- clean up the status window toggles
-- move back to tiles window and use template button
- or just use hot key 'T'
-- make tool tips for ndf, ovr, flags
- 
- 
 
 
 
@@ -232,14 +222,6 @@ redid blocks and lifts on 21 long one
 
 
 
-
-
-
-
-
-
-
-
 --------------------------------------------------
 tiles and tilesets
 --------------------------------------------------
@@ -254,7 +236,6 @@ replace_helper_90_frame(struct tileSet ts, int lv, int type)...to do
 
 
 
-
 --------------------------------------------------
 settings
 --------------------------------------------------
@@ -265,6 +246,13 @@ add to settings:
 - make backup when saving tilemaps..done
 - show level numbers in stats..done
 - debug keyboard shortcuts (documented in docs/HOWTO/Keyboard Shortcuts.txt)
+
+
+
+
+
+
+
 
 
 Widgets

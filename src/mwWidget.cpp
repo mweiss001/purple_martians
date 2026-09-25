@@ -25,8 +25,6 @@ mwWidget mWidget;
 // 4  abs xb,         width from text length, xa used to pad text length
 // 5  centered on xa, width from text length, xb used to pad text length
 
-
-
 // yType
 // 0  abs ya, abs yb
 // 1  abs ya, yb is height
@@ -45,7 +43,6 @@ mwWidget mWidget;
 // 3 = highlight with mouse
 // 4 = highlight with both
 
-
 // textType
 // 0  = no text
 // 1  = centered
@@ -56,6 +53,32 @@ mwWidget mWidget;
 // 22 = left justified highlight with var
 // 23 = left justified highlight with mouse
 // 24 = left justified highlight with both
+
+#define PM_WIDGET_BACKGROUND_NONE     0
+#define PM_WIDGET_BACKGROUND_SOLID    1
+#define PM_WIDGET_BACKGROUND_FADED    2
+
+#define PM_WIDGET_FRAME_NONE             0
+#define PM_WIDGET_FRAME_STATIC           1
+#define PM_WIDGET_FRAME_HIGHLIGHT_VAR    2
+#define PM_WIDGET_FRAME_HIGHLIGHT_MOUSE  3
+#define PM_WIDGET_FRAME_HIGHLIGHT_BOTH   4
+
+#define PM_WIDGET_TEXT_NONE                      0
+#define PM_WIDGET_TEXT_CENTERED                  1
+#define PM_WIDGET_TEXT_CENTERED_HIGHLIGHT_VAR    2
+#define PM_WIDGET_TEXT_CENTERED_HIGHLIGHT_MOUSE  3
+#define PM_WIDGET_TEXT_CENTERED_HIGHLIGHT_BOTH   4
+#define PM_WIDGET_TEXT_LEFT_JUST                 21
+#define PM_WIDGET_TEXT_LEFT_JUST_HIGHLIGHT_VAR   22
+#define PM_WIDGET_TEXT_LEFT_JUST_HIGHLIGHT_MOUSE 23
+#define PM_WIDGET_TEXT_LEFT_JUST_HIGHLIGHT_BOTH  24
+
+
+
+
+
+
 
 
 
@@ -679,15 +702,15 @@ mwRect<int> mwWidget::xyHelper(int xType, int xa, int xb, int yType, int ya, int
 
 
 
-bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt)
+bool mwWidget::mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frameType, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt)
 {
-   bool ret = mCheckBox(xType, xa, xb, yType, ya, yb, frame_col, var, t, text_col, box_col, disable_input);
-   if (!disable_input) mToolTip(xType, xa+12, (strlen(tt) + 1)*8+6, yType, ya, yb,  0,   1,0,1,   0,15,15, tt, xa+2, ya, xa+10, ya+9);
+   bool ret = mCheckBox(xType, xa, xb, yType, ya, yb, -1, var, t, text_col, box_col, disable_input);
+   if (!disable_input) mToolTip(xType, xa+12, (strlen(tt) + 1)*8+6, yType, ya, yb,  0,   1,frameType,1,   0,15,15, tt, xa+2, ya, xa+10, ya+9);
    return ret;
 }
 
-
-void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2)
+bool mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType,
+                        int textType, int bcol, int fcol, int tcol, const char *txt, int tx1, int ty1, int tx2, int ty2)
 {
    //al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.Red, 1); // debug show trigger area
 
@@ -704,7 +727,10 @@ void mwWidget::mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, in
       if (frameType) al_draw_rounded_rectangle(x1, y1, x2, y2, r, r, mColor.pc[fcol], 1);
 
       draw_widget_text(x1, y1+1, x2, y2, tcol, textType, txt);
+      return true;
    }
+
+   return false;
 }
 
 

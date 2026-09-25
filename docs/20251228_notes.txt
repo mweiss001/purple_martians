@@ -39825,6 +39825,245 @@ now re-arrange things in top frame
 commit
 
 
+level editor top frame:
+- can I make mode select less wide (based on text length) 
+- can I make tile draw mode narrower (lose tile)
+
+
+how about just 4 char wide (TILE FLAG BOTH)
+then have a mouse over that displays tile draw mode
+done and looks good
+
+
+now what can I do for mode?
+- only show text, do not preface with MODE:
+- show with nice frame
+- when hovered show drop down?
+
+
+finish level editor top frame...what is left?
+fix spacing between elements..done
+
+fix frane and colors
+
+all should have frame color same as border and white hovered
+background is invisible
+all should have round 1
+
+
+I think I am done...copy all unused code to notes
+
+   // char msg[256];
+   // if (mLevelEditor.mode == 1) sprintf(msg, "Mode:Main Edit");
+   // if (mLevelEditor.mode == 2) sprintf(msg, "Mode:Edit Selection");
+   // if (mLevelEditor.mode == 3) sprintf(msg, "Mode:Group Edit");
+   // if (mLevelEditor.mode == 4) sprintf(msg, "Mode:Object Viewer");
+   // if (mLevelEditor.mode == 9) sprintf(msg, "Mode:Tile Helper");
+   //
+   // if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
+   // {
+   //    strcpy (mMenu.menu_string[0],msg);
+   //    strcpy (mMenu.menu_string[1],"Mode:Main Edit");
+   //    strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
+   //    strcpy (mMenu.menu_string[3],"Mode:Group Edit");
+   //    strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
+   //    strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
+   //    strcpy (mMenu.menu_string[6],"end");
+   //    int ret = mMenu.tmenu(1, x1+19, by1-1);
+   //    if (ret == 1) mLevelEditor.set_mode(1);
+   //    if (ret == 2) mLevelEditor.set_mode(2);
+   //    if (ret == 3) mLevelEditor.set_mode(3);
+   //    if (ret == 4) mLevelEditor.set_mode(4);
+   //    if (ret == 5) mLevelEditor.set_mode(9);
+   // }
+
+   // char msg[256];
+   // if (mLevelEditor.mode == 1) sprintf(msg, "Main Editor");
+   // if (mLevelEditor.mode == 2) sprintf(msg, "Edit Selection");
+   // if (mLevelEditor.mode == 3) sprintf(msg, "Group Edit");
+   // if (mLevelEditor.mode == 4) sprintf(msg, "Object Viewer");
+   // if (mLevelEditor.mode == 9) sprintf(msg, "Tile Helper");
+
+   // if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
+   // {
+   //    strcpy (mMenu.menu_string[0],msg);
+   //    strcpy (mMenu.menu_string[1],"Main Edit");
+   //    strcpy (mMenu.menu_string[2],"Edit Selection");
+   //    strcpy (mMenu.menu_string[3],"Group Edit");
+   //    strcpy (mMenu.menu_string[4],"Object Viewer");
+   //    strcpy (mMenu.menu_string[5],"Tile Helper");
+   //    strcpy (mMenu.menu_string[6],"end");
+   //    int ret = mMenu.tmenu(1, x1+19, by1-1);
+   //    if (ret == 1) mLevelEditor.set_mode(1);
+   //    if (ret == 2) mLevelEditor.set_mode(2);
+   //    if (ret == 3) mLevelEditor.set_mode(3);
+   //    if (ret == 4) mLevelEditor.set_mode(4);
+   //    if (ret == 5) mLevelEditor.set_mode(9);
+   //  }
+   // x1+=190;
+
+
+   // std::vector<struct listItem> listItems;
+   // listItems =
+   // {
+   //    {  1,    "Mode:Main Edit"  },
+   //    {  2,    "Mode:Edit Selection"  },
+   //    {  3,    "Mode:Group Edit"  },
+   //    {  4,    "Mode:Object Viewer"  },
+   //    {  9,    "Mode:Tile Helper" }
+   // };
+   // if (mWidget.mDropDown(0, x1, x1+182, 1, by1, bts,  0, 0, 3, 0, 15, 15, listItems, mLevelEditor.mode, d)) mLevelEditor.set_mode(mLevelEditor.mode);
+   // x1+=200;
+
+
+   // if ((mLevelEditor.mode == 1) || (mLevelEditor.mode == 2) || (mLevelEditor.mode == 9))
+   // {
+   //    al_draw_textf(mFont.pr8, mColor.pc[15],  x1+40, by1+1, 0, "Draw Mode:");
+   //    mWidget.mButtonCustom(0, x1+120, x1+120+32, 1, by1+1, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+   // }
+   // x1+=190;
+
+//   x1+=190;
+
+
+   // if (!mLevelEditor.mWM.mW[3].active)
+   // {
+   //    tl = 7;
+   //    if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Filters", d)) mLevelEditor.mWM.mW[3].active = 1;
+   //    x1+=(tl*8)+12;
+   // }
+
+
+
+
+Move template to tile select toobar and make it a single letter T...done
+current:
+
+   // force showing of template overlay toggle
+   if (mWidget.mCheckBox(1, x1+2, 50, 1, by1-1, 9, -1, show_template_overlays, "template", color, 15, d))
+   {
+      mBitmap.rebuild_bitmaps();
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+
+- make tool tips for ndf, ovr, flags
+
+2026-09-24 18:52:09
+
+filters catches mouse when another window is dragged over it..fixed
+
+
+
+- filter mode 1,2,3 is that even needed?..no, removed...
+could I use mode 3 for all?
+3 all
+2 no blocks
+1 no blocks or lifts
+
+
+
+
+- when changing levels in level editor do not keep th selection
+actually there are a few things I should clear when changing levels...
+where will I patch this in?
+
+when calling bool mwLevelEditor::load_mW() ??
+
+last_level_num_edit
+
+int mwLevelEditor::loop(int level)
+{
+
+   mLoop.level_editor_running = 1;
+   al_show_mouse_cursor(mDisplay.display);
+   mEventQueue.reset_fps_timer();
+
+   // setup windows and load passed level
+   init(level);
+
+   last_level_num_edit = 0;
+
+   if (mLoop.autosave_level_editor_state)
+   {
+      if (load_mW())
+      {
+         set_mode(mode);
+         selection.setX1Y1X2Y2(selection.x1, selection.y1, selection.x2, selection.y2);
+      }
+   }
+
+   // if autosave off, or load fails, or load level != current level
+   if (last_level_num_edit != level)
+   {
+      set_mode(1);
+
+RIGHT HERE!!!!
+
+
+   }
+
+
+also when load level in level editor
+
+      strcpy(mMenu.menu_string[0],"File"); // PD sub menu
+      strcpy(mMenu.menu_string[1],"New");
+      strcpy(mMenu.menu_string[2],"Load");
+      strcpy(mMenu.menu_string[3],"Reload");
+      strcpy(mMenu.menu_string[4],"Save");
+      strcpy(mMenu.menu_string[5],"Save As");
+      strcpy(mMenu.menu_string[6],"Exit");
+      strcpy(mMenu.menu_string[7],"end");
+      int ret = mMenu.tmenu(1, x1+2, by1);
+      if (ret == 1)
+      {
+         if (al_show_native_message_box(mDisplay.display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+         {
+            mLevel.zero_level_data();
+            mLevel.save_level_prompt();
+         }
+         mLevel.load_level(mLevel.last_level_loaded, 0, 0);
+         mLevelEditor.reset_variables_on_level_change();
+      }
+      if (ret == 2)
+      {
+         mVisualLevel.visual_level_select(400);
+         mLevelEditor.reset_variables_on_level_change();
+      }
+
+      if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
+
+done
+
+
+- in tile helper, make toolbar toggles to show window sections like patterns
+
+bool show_pattern_tools;
+bool show_frame_tools;
+
+title left just
+
+controls in toolbar...
+
+
+size of commit button is inconsistant...
+frame controls 16
+pattern controls 18
+replace control 16
+fixed
+
+inconsistant spelling of Tile Sets and Tilesets...go with Tilesets..fixed
+
+
+
+
+
+
+
+
+
+
 
 
 

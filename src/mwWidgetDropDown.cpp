@@ -180,13 +180,16 @@ tjust = 1 - text center
 
 bool mwWidget::mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d)
 {
-   // get mRect from parameters
-   mwRect<int> f = xyHelper(xType, xa, xb, yType, ya, yb, "");
 
    // find the listItem that matches var
    std::string text = "invalid";
    for (const auto& li : listItems)
       if (li.value == var) text = li.text.c_str();
+
+   // get mRect from parameters
+   mwRect<int> f = xyHelper(xType, xa, xb, yType, ya, yb, text.c_str());
+
+
 
    // check if mouse is on widget
    bool mouse_on_widget = false;

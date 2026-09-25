@@ -39,15 +39,10 @@ public:
 
    void process_menu_bar(mwWindow &w);
 
-   int filter_mode;
+
    int obj_filter[5][20][2];
-
    void odbdc(int d, int x, int &y, int bts, int ot, int on, const char* txt);
-
    void draw_filter_window(mwWindow &w);
-
-
-
 
    void draw_level_editor_background_overlays(int mouse_on_window);
 

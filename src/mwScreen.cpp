@@ -143,7 +143,7 @@ void mwScreen::transition_cutscene(int i, int f)
    }
 }
 
-void mwScreen::draw_screen_frame(void)
+void mwScreen::draw_screen_frame()
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
 

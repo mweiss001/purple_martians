@@ -32,13 +32,13 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
    int tbh = 14; // title bar height
 
    int tbx = x1+120;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_mono, "m", 15, 15, d, "mono color");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, 0, gm_list_mono, "m", 15, 15, d, "mono color");
 
    tbx-=30;
-   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_all, "a", 15, 15, d, "all players")) load_lnk_arr();
+   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, 0, gm_list_all, "a", 15, 15, d, "all players")) load_lnk_arr();
 
    tbx-=30;
-   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, gm_list_simple, "s", 15, 15, d, "simple")) load_lnk_arr();
+   if (mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya-1, 10, 0, 0, gm_list_simple, "s", 15, 15, d, "simple")) load_lnk_arr();
 
 
 

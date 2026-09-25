@@ -3,6 +3,7 @@
 #include "mwBitmap.h"
 #include "mwBitmapTools.h"
 #include "mwColor.h"
+#include "mwDisplay.h"
 #include "mwEditorMain.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
@@ -13,6 +14,7 @@
 #include "mwLift.h"
 #include "mwLoop.h"
 #include "mwObjectViewer.h"
+#include "mwScreen.h"
 #include "mwTileSets.h"
 #include "mwWidget.h"
 #include "mwWindowManager.h"
@@ -1198,23 +1200,12 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
       // title bar controls
       by1 = block_title_bar_rect.y1+2;
 
+      int x_spacing = 12; // + mLoop.pct_x;
 
       int ttx = x2-10;
-
       if (mWidget.mButton(0, ttx,  ttx+8,      1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "X",        d)) mSelectionWindow.block_on = 0;
 
-
-      ttx = x2-41;
-      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
-      {
-         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
-         mSelectionWindow.fill_block_array();
-      }
-      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", ttx, by1, ttx+8, by1+8);
-
-
-
-      ttx = x2-25;
+      ttx -= x_spacing;
       if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "-",        d))
       {
          for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 0;
@@ -1222,14 +1213,30 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
       }
       mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Collapse All", ttx, by1, ttx+8, by1+8);
 
+      ttx -= x_spacing;
+      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "+",        d))
+      {
+         for (int i=0; i<32; i++) if (tileSetGroups[i].display_tile) tileSetGroups[i].visible = 1;
+         mSelectionWindow.fill_block_array();
+      }
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Expand All", ttx, by1, ttx+8, by1+8);
 
-      ttx = x2-59;
+      ttx -= x_spacing;
       if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "#",        d))
       {
          if (++gridline_size>2) gridline_size = 0;
       }
       mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Gridlines", ttx, by1, ttx+8, by1+8);
 
+      ttx -= x_spacing;
+      if (mWidget.mButton(0, ttx,  ttx+8,     1, by1, 9,    0, 0, 0, 1,   0, 0, 9, 0, 0, "T",        d))
+      {
+         mEditorMain.show_template_overlays = !mEditorMain.show_template_overlays;
+         mBitmap.rebuild_bitmaps();
+         mScreen.init_level_background();
+         al_set_target_backbuffer(mDisplay.display);
+      }
+      mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Template", ttx, by1, ttx+8, by1+8);
 
 
       int x3 = x1 + 60;

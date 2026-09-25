@@ -47,6 +47,9 @@ class mwLevelEditor
 
    void redraw_callback();
 
+   void reset_variables_on_level_change();
+
+
 
    void save_mW();
 

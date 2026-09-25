@@ -23,17 +23,17 @@ void mwDemoRecord::draw_timeline(mwWindow w)
    int tbx = w.rect.x2-60;
    int cb_spacing = 30;
 
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_level_done_color,    "l", 15, 15, d, "level done");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0,    timeline_level_done_color, "l", 15, 15, d, "level done");
    tbx-=cb_spacing;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_show_player_icons,   "i", 15, 15, d, "icons");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0,   timeline_show_player_icons, "i", 15, 15, d, "icons");
    tbx-=cb_spacing;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_purple_coins_color,  "p", 15, 15, d, "purple coins");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0,  timeline_purple_coins_color, "p", 15, 15, d, "purple coins");
    tbx-=cb_spacing;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_enemy_hit_color,     "h", 15, 15, d, "hits");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0,     timeline_enemy_hit_color, "h", 15, 15, d, "hits");
    tbx-=cb_spacing;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, timeline_player_deaths_color, "d", 15, 15, d, "deaths");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0, timeline_player_deaths_color, "d", 15, 15, d, "deaths");
    tbx-=cb_spacing;
-   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, time_format,                  "t", 15, 15, d, "time format");
+   mWidget.mCheckBoxWithToolTip(1, tbx, 10, 1, ya, 10, 0, 0,                  time_format, "t", 15, 15, d, "time format");
 
    if (timeline_purple_coins_color) timeline_purple_coins_color = 8;
    if (timeline_enemy_hit_color) timeline_enemy_hit_color = 14;

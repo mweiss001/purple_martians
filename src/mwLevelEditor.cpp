@@ -83,7 +83,7 @@ void mwLevelEditor::init_windows()
    mWM.mW[8].drawFunction = [this]() { mEditorMain.process_menu_bar(mWM.mW[8]); };
    mWM.mW[8].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 
-   mWM.mW[9].init(8, 7, 100, 300, 320, 328, 13, "Tile Helper", 1, 1, 13, 0);
+   mWM.mW[9].init(8, 7, 100, 300, 320, 328, 13, "Tile Helper", 1, 0, 13, 0);
    mWM.mW[9].drawFunction = [this]() { mTileHelper.draw(mWM.mW[9]); };
    mWM.mW[9].redrawCallback = []() { mLevelEditor.redraw_callback(); };
 }
@@ -96,8 +96,6 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 1; // status
       mWM.mW[2].active = 1; // select
-//      mWM.mW[3].active = 0; // filter
-      mEditorMain.filter_mode = 3;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -109,8 +107,6 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-//      mWM.mW[3].active = 1; // filter
-      mEditorMain.filter_mode = 3;
       mWM.mW[4].active = 1; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -121,8 +117,6 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-//      mWM.mW[3].active = 1; // filter
-      mEditorMain.filter_mode = 1;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 1; // ge list
       mWM.mW[6].active = 1; // ge controls
@@ -133,8 +127,6 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-//      mWM.mW[3].active = 1; // filter
-      mEditorMain.filter_mode = 2;
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -145,7 +137,6 @@ void mwLevelEditor::set_mode(int new_mode)
    {
       mWM.mW[1].active = 0; // status
       mWM.mW[2].active = 0; // select
-//      mWM.mW[3].active = 0; // filter
       mWM.mW[4].active = 0; // selection edit
       mWM.mW[5].active = 0; // ge list
       mWM.mW[6].active = 0; // ge controls
@@ -178,7 +169,13 @@ int mwLevelEditor::loop(int level)
    }
 
    // if autosave off, or load fails, or load level != current level
-   if (last_level_num_edit != level) set_mode(1);
+   if (last_level_num_edit != level)
+   {
+      reset_variables_on_level_change();
+      set_mode(1);
+
+   }
+
 
 
    mSelectionWindow.init(); // needs to be called after load sprit and after load_mW
@@ -572,7 +569,6 @@ void mwLevelEditor::save_mW()
    int tileSetGroupsVisible[32];
    for (int i = 0; i < 32; i++) tileSetGroupsVisible[i] = mSelectionWindow.tileSetGroups[i].visible;
 
-
    FILE *fp = fopen("data/levelEditorWindowGeometry.pm", "wb");
    if (fp)
    {
@@ -587,9 +583,7 @@ void mwLevelEditor::save_mW()
 
       fwrite(&tileSetGroupsVisible,                   sizeof(tileSetGroupsVisible),                   1, fp);
 
-
       fwrite(&mSelectionWindow.gridline_size,         sizeof(mSelectionWindow.gridline_size),         1, fp);
-
 
       fwrite(&mEditorMain.draw_item_type,             sizeof(mEditorMain.draw_item_type),             1, fp);
       fwrite(&mEditorMain.draw_item_num,              sizeof(mEditorMain.draw_item_num),              1, fp);
@@ -619,19 +613,9 @@ void mwLevelEditor::save_mW()
       fwrite(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
       fwrite(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
 
-
-
-
-
-
-
       fwrite(&mTileSets.currentTileSet.startIndex,    sizeof(mTileSets.currentTileSet.startIndex),    1, fp);
 
       fwrite(&mTileHelper.thl,                        sizeof(mTileHelper.thl),                        1, fp);
-
-
-
-
 
       fclose(fp);
    }
@@ -706,8 +690,7 @@ bool mwLevelEditor::load_mW()
          mWM.mW[i].layer  = w[i].layer;
       }
 
-
-      for (int i = 0; i < 32; i++) mSelectionWindow.tileSetGroups[i].visible = tileSetGroupsVisible[i];
+      for (int i=0; i<32; i++) mSelectionWindow.tileSetGroups[i].visible = tileSetGroupsVisible[i];
 
 
       // delete after loading so that if it crashes after loading, the next time it runs will be a clean slate
@@ -718,3 +701,18 @@ bool mwLevelEditor::load_mW()
    return false;
 }
 
+void mwLevelEditor::reset_variables_on_level_change()
+{
+   // clear all tile helper marks
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++) mTileHelper.thl[x][y] = 0;
+
+   mEditorMain.draw_item_type = 1;
+   mEditorMain.draw_item_num = 1;
+
+   mObjectViewer.obt = 0;
+   mObjectViewer.num = 0;
+
+   mGroupEdit.clear_obj_list();
+
+}

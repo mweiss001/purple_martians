@@ -20,6 +20,7 @@
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
 #include "mwObjectViewer.h"
+#include "mwPlayer.h"
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
@@ -50,10 +51,7 @@ void mwEditorMain::init()
          obj_filter[i][j][0] = 1;
          obj_filter[i][j][1] = 1;
       }
-
-   filter_mode = 1;
 }
-
 
 
 
@@ -72,16 +70,10 @@ char* mwEditorMain::get_text_description_of_block_based_on_flags(int flags, char
 
 void mwEditorMain::show_draw_item_cursor(void)
 {
-   int x = mLevelEditor.gx;
-   int y = mLevelEditor.gy;
-
-
-//   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "point_item_type:%d  gx:%d  gy:%d", mWM.mW[1].point_item_type, mWM.gx, mWM.gy);
-
-
-
    if (point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
+      int x = mLevelEditor.gx;
+      int y = mLevelEditor.gy;
       int type = draw_item_type;
       int num  = draw_item_num;
       switch (type)
@@ -201,8 +193,11 @@ void mwEditorMain::find_point_item(void)
              ob++;
          }
       }
-   //al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "mouse is on: %d objects", ob);
-   //for (int a=0; a<ob; a++) al_draw_textf(mFont.pr8, mColor.pc[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
+
+   //int dx = mLevelEditor.mWM.mW[1].rect.x1;
+   //int dy = mLevelEditor.mWM.mW[1].rect.y1;
+   //al_draw_textf(mFont.pr8, mColor.pc[15], dx, dy-30, 0, "mouse is on: %d objects", ob);
+   //for (int a=0; a<ob; a++) al_draw_textf(mFont.pr8, mColor.pc[15], dx, dy-38-a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
 
    // which one is the winner?
    if (ob)
@@ -212,14 +207,9 @@ void mwEditorMain::find_point_item(void)
       int of = mm / ss;                 // convert to offset into ob array
       point_item_type = mo[of][0];
       point_item_num  = mo[of][1];
-      //al_draw_textf(mFont.pr8, mColor.pc[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
+      //al_draw_textf(mFont.pr8, mColor.pc[11], dx, dy-20, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
    }
-
-//   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "point_item_type:%d  gx:%d  gy:%d", mWM.mW[1].point_item_type, mWM.gx, mWM.gy);
-
-
-
-
+   //al_draw_textf(mFont.pr8, mColor.pc[15], dx, dy-10, 0, "point_item_type:%d  gx:%d  gy:%d", point_item_type, mLevelEditor.gx, mLevelEditor.gy);
 }
 
 void mwEditorMain::process_mouse_on_background(void)
@@ -281,7 +271,7 @@ void mwEditorMain::process_mouse_on_background(void)
 
             if (type == 7) // vinepod
             {
-               for (int i=3; i<13; i+=2) // all spline and trigger x y also
+               for (int i=3; i<13; i+=2) // move all spline and trigger x y also
                {
                   mEnemy.Ei[c][i+0] = mEnemy.Ei[din][i+0] + ofx;
                   mEnemy.Ei[c][i+1] = mEnemy.Ei[din][i+1] + ofy;
@@ -335,38 +325,32 @@ void mwEditorMain::process_mouse_on_background(void)
    } // end of mInput.mouse_b[1][0]
    if (mInput.mouse_b[2][0])
    {
+      strcpy(mMenu.menu_string[2], "");
+      strcpy(mMenu.menu_string[3], "");
+      strcpy(mMenu.menu_string[4], "");
+
       switch (point_item_type)
       {
          case 1:
-            sprintf(mMenu.menu_string[2], "Copy Block    ");
-            sprintf(mMenu.menu_string[3], "              ");
-            sprintf(mMenu.menu_string[4], "                ");
+            sprintf(mMenu.menu_string[2], "Copy Block");
          break;
          case 2:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  mItem.item_name[mItem.item[point_item_num][0]]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  mItem.item_name[mItem.item[point_item_num][0]]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", mItem.item_name[mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[2], "Copy %s",   mItem.item_name[mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[3], "View %s",   mItem.item_name[mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[4], "Delete %s", mItem.item_name[mItem.item[point_item_num][0]]);
          break;
          case 3:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", (const char *)mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[2], "Copy %s",   mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[3], "View %s",   mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[4], "Delete %s", mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
          break;
          case 4:
-            sprintf(mMenu.menu_string[2], "              ");
             sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[point_item_num].lift_name);
             sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[point_item_num].lift_name);
          break;
-
-         default:
-            sprintf(mMenu.menu_string[2], "              ");
-            sprintf(mMenu.menu_string[3], "              ");
-            sprintf(mMenu.menu_string[4], "                ");
-         break;
-
       }
 
-      switch (mMenu.pmenu(2, 0, -20, 2))
+      switch (mMenu.pmenu(2, mPlayer.syn[mPlayer.active_local_player].color, -20, 2))
       {
          case 2:  // copy
             if (point_item_type > 0 && point_item_type < 4)
@@ -511,46 +495,40 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    // second line with controls
    by1 = y3+1;
 
-   // // tile draw mode (tile | flag | both
-   // al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
-   // mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
-
-
-   // force showing of template overlay toggle
-   if (mWidget.mCheckBox(1, x1+2, 50, 1, by1-1, 9, -1, show_template_overlays, "template", color, 15, d))
-   {
-      mBitmap.rebuild_bitmaps();
-      mScreen.init_level_background();
-      al_set_target_backbuffer(mDisplay.display);
-   }
-
-
-
+   // tile draw mode (tile | flag | both
+   al_draw_textf(mFont.pr8, mColor.pc[9],  x1+2, by1, 0, "Tile Draw Mode:");
+   mWidget.mButtonCustom(0, x1+122, x1+122+32, 1, by1, 7,   1, 0, 0, 1,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
 
 
    // draw vline at middle to separate draw and show controls
    int x3 = x1 + 160; // x middle
    al_draw_line(x3, y3-1, x3, y4-1, mColor.pc[color], 1);
-   x3+=2;
 
-   // show flags toggle
+
+
+
+   // tile overlay toggle
+   x3=x2-44;
+   if (mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, by1-2, 11, 1, -1, show_tile_overlays, "ovr", 9, 15, d, "show tile overlays"))
+   {
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+   // non default blocks toggle
+   x3-=48;
+   if (mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, by1-2, 11, 1, -1, show_non_default_blocks, "ndf", 9, 15, d, "mark non-default blocks"))
+   {
+      mScreen.init_level_background();
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+   // flags toggle
+   x3=x1+162;
    mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, show_flag_details, "flags", color, 15, d);
-   x3+=64;
 
-   // show non default blocks toggle
-   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, show_non_default_blocks, "ndf", color, 15, d))
-   {
-      mScreen.init_level_background();
-      al_set_target_backbuffer(mDisplay.display);
-   }
-   x3+=48;
 
-   // force showing of tile overlay toggle
-   if (mWidget.mCheckBox(1, x3, 50, 1, by1-1, 9, -1, show_tile_overlays, "ovr", color, 15, d))
-   {
-      mScreen.init_level_background();
-      al_set_target_backbuffer(mDisplay.display);
-   }
+
 
 
 
@@ -590,8 +568,8 @@ bool mwEditorMain::status_window_mouse_detect(mwRect<int> rect)
 // helper function for draw_filter_window, draws 2 check boxes and a line of text
 void mwEditorMain::odbdc(int d, int x, int &y, int bts, int ot, int on, const char* txt)
 {
-   mWidget.mCheckBox(1,x-2, 8,    1,y,bts-2,   14, obj_filter[ot][on][0], "", 15, 15, 0);
-   mWidget.mCheckBox(1,x+11,8,    1,y,bts-2,   14, obj_filter[ot][on][1], "", 15, 15, 0);
+   mWidget.mCheckBox(1,x-2, 8,    1,y,bts-2,   14, obj_filter[ot][on][0], "", 15, 15, d);
+   mWidget.mCheckBox(1,x+11,8,    1,y,bts-2,   14, obj_filter[ot][on][1], "", 15, 15, d);
    al_draw_text(mFont.pr8, mColor.pc[15], x+26, y, 0, txt);
    y+=bts;
 }
@@ -603,6 +581,9 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    int x1 = w.rect.x1;
    int x2 = w.rect.x2;
 
+   int xa = x1+3;
+
+
    int ec = 10;  // edit color
    int vc = 12;  // view color
    int bts = 10; // button height
@@ -613,36 +594,24 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    // running y position
    int ya = y1-2;
 
-   // detect mouse click before toggles, but don't actually do anything until after toggles are processed
+   // detect mouse click before toggles, but don't actually do anything until after all toggles are processed
    int refresh_selection = 0;
    if ((mLevelEditor.mode == 2) && (!d) && (w.rect.contains(mInput.mouse_x, mInput.mouse_y)) && (mInput.mouse_b[1][0])) refresh_selection = 1;
 
-   int xa = x1+3;
+
 
    ya+=4;
+   odbdc(d, xa, ya, bts, 1, 1, "Blocks");
+   odbdc(d, xa, ya, bts, 1, 2, "Flags");
+   al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+   int ly1 = ya+1;
 
-   int ly1 = 0;
-   int ly2 = 0;
-   int ly3 = 0;
-   int ly4 = 0;
+   ya+=4;
+   odbdc(d, xa, ya, bts, 4, 1, "Lifts");
+   al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
+   int ly2 = ya+1;
 
-
-   if (filter_mode > 2) // add blocks and flags
-   {
-      odbdc(d, xa, ya, bts, 1, 1, "Blocks");
-      odbdc(d, xa, ya, bts, 1, 2, "Flags");
-      al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-      ly1 = ya+1;
-      ya+=4;
-   }
-   if (filter_mode > 1) // add lifts
-   {
-      odbdc(d, xa, ya, bts, 4, 1, "Lifts");
-      al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-      ly2 = ya+1;
-      ya+=4;
-   }
-
+   ya+=4;
    odbdc(d, xa, ya, bts, 3, 1, "Bouncer");
    odbdc(d, xa, ya, bts, 3, 2, "Cannon");
    odbdc(d, xa, ya, bts, 3, 3, "ArchWagon");
@@ -653,7 +622,7 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    odbdc(d, xa, ya, bts, 3, 8, "TrakBot");
    odbdc(d, xa, ya, bts, 3, 9, "Cloner");
    al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-   ly3 = ya+1;
+   int ly3 = ya+1;
    ya+=4;
 
    odbdc(d, xa, ya, bts, 2,  1, "Door");
@@ -675,7 +644,7 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    odbdc(d, xa, ya, bts, 2, 18, "Gate");
    odbdc(d, xa, ya, bts, 2, 19, "Hider");
    al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);
-   ly4 = ya+1;
+   int ly4 = ya+1;
    ya+=4;
 
    // column rects
@@ -781,10 +750,12 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
 
 
 
-
 void mwEditorMain::process_menu_bar(mwWindow &w)
 {
    int d = w.disable_input;
+
+   int c = mPlayer.syn[mPlayer.active_local_player].color;
+
 
    al_set_target_backbuffer(mDisplay.display);
 
@@ -794,6 +765,10 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
    int x1 = BORDER_WIDTH;
    int by1 = 1;
    int bts = 10;
+
+   int x_spacing = 12;
+
+
 
    int tl = 4;
    if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "File", d))
@@ -815,15 +790,21 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
             mLevel.save_level_prompt();
          }
          mLevel.load_level(mLevel.last_level_loaded, 0, 0);
+         mLevelEditor.reset_variables_on_level_change();
       }
-      if (ret == 2) mVisualLevel.visual_level_select(400);
+      if (ret == 2)
+      {
+         mVisualLevel.visual_level_select(400);
+         mLevelEditor.reset_variables_on_level_change();
+      }
+
       if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
       if (ret == 4) mLevel.save_level(mLevel.last_level_loaded);
       if (ret == 5) mLevel.save_level_prompt();
       if (ret == 6) mLevelEditor.active = 0;
       al_set_target_backbuffer(mDisplay.display);
    }
-   x1+=(tl*8)+12;
+   x1+=(tl*8)+x_spacing;
 
    tl = 4;
    if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "View", d))
@@ -857,7 +838,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 10) mLoop.autosave_level_editor_state = ! mLoop.autosave_level_editor_state;
       if (ret == 11) { mLevelEditor.init_windows(); mLevelEditor.save_mW(); }
    }
-   x1+=(tl*8)+12;
+   x1+=(tl*8)+x_spacing;
 
 
    tl = 5;
@@ -881,7 +862,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 6) mLevel.level_check();
       if (ret == 7) mLevel.show_level_data(40, 40, 1);
    }
-   x1+=(tl*8)+12;
+   x1+=(tl*8)+x_spacing;
 
 
    tl = 8;
@@ -907,7 +888,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       }
       if (ret == 6) mBitmapTools.edit_tile_flags();
    }
-   x1+=(tl*8)+12;
+   x1+=(tl*8)+x_spacing;
 
 
    tl = 4;
@@ -921,68 +902,51 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 1) mHelp.help("Level Editor Basics");
       if (ret == 2) mHelp.help("Credits");
    }
-   x1+=(tl*8)+12;
+   x1+=(tl*8)+x_spacing;
+
+   x1+=x_spacing;
 
 
 
-   if (!mLevelEditor.mWM.mW[3].active)
+   char msg[256];
+   if (mLevelEditor.mode == 1) sprintf(msg, "Main Editor");
+   if (mLevelEditor.mode == 2) sprintf(msg, "Edit Selection");
+   if (mLevelEditor.mode == 3) sprintf(msg, "Group Edit");
+   if (mLevelEditor.mode == 4) sprintf(msg, "Object Viewer");
+   if (mLevelEditor.mode == 9) sprintf(msg, "Tile Helper");
+   int mtl = strlen(msg)*8+26;
+
+   std::vector<struct listItem> listItems =
    {
-      tl = 7;
-      if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "Filters", d)) mLevelEditor.mWM.mW[3].active = 1;
-      x1+=(tl*8)+12;
-   }
-
-
-
-   std::vector<struct listItem> listItems;
-   listItems =
-   {
-      {  1,    "Mode:Main Edit"  },
-      {  2,    "Mode:Edit Selection"  },
-      {  3,    "Mode:Group Edit"  },
-      {  4,    "Mode:Object Viewer"  },
-      {  9,    "Mode:Tile Helper" }
+      {  1,    "Main Editor"  },
+      {  2,    "Edit Selection"  },
+      {  3,    "Group Edit"  },
+      {  4,    "Object Viewer"  },
+      {  9,    "Tile Helper" }
    };
-   if (mWidget.mDropDown(0, x1, x1+182, 1, by1, bts,  0, 0, 3, 0, 15, 15, listItems, mLevelEditor.mode, d)) mLevelEditor.set_mode(mLevelEditor.mode);
 
-   //
-   // if (mLevelEditor.mode == 1) sprintf(msg, "Mode:Main Edit");
-   // if (mLevelEditor.mode == 2) sprintf(msg, "Mode:Edit Selection");
-   // if (mLevelEditor.mode == 3) sprintf(msg, "Mode:Group Edit");
-   // if (mLevelEditor.mode == 4) sprintf(msg, "Mode:Object Viewer");
-   // if (mLevelEditor.mode == 9) sprintf(msg, "Mode:Tile Helper");
-   //
-   // if (mWidget.mButton(0, x1, x1+150,   1, by1, bts-2,    0, 0, 0, 1,   0, 0, 15, 0, 0, msg, d))
-   // {
-   //    strcpy (mMenu.menu_string[0],msg);
-   //    strcpy (mMenu.menu_string[1],"Mode:Main Edit");
-   //    strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
-   //    strcpy (mMenu.menu_string[3],"Mode:Group Edit");
-   //    strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
-   //    strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
-   //    strcpy (mMenu.menu_string[6],"end");
-   //    int ret = mMenu.tmenu(1, x1+19, by1-1);
-   //    if (ret == 1) mLevelEditor.set_mode(1);
-   //    if (ret == 2) mLevelEditor.set_mode(2);
-   //    if (ret == 3) mLevelEditor.set_mode(3);
-   //    if (ret == 4) mLevelEditor.set_mode(4);
-   //    if (ret == 5) mLevelEditor.set_mode(9);
-   // }
+   if (mWidget.mDropDown(0, x1, x1+mtl,   1, by1,   bts,   1, 1, 3, 0, c, 15, listItems, mLevelEditor.mode, d)) mLevelEditor.set_mode(mLevelEditor.mode);
+   if (!mWidget.mToolTip(5, x1+mtl/2, 0,  1, by1+11, 10,   1, 1, 1, 1,   0,     15, 15, "Set Mode", x1, by1, x1+mtl, by1+12))
+      al_draw_rounded_rectangle(x1, by1, x1+mtl-18, by1+bts, 1, 1, mColor.pc[c], 1);
+   x1+=mtl+x_spacing-4;
 
 
-   x1+=190;
-
-//   if (mLevelEditor.mode == 4) mWidget.mSliderInt(0, x1, x1+80,  1, by1-1, bts,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, "Snap:", 0, d);
-
-   if (mLevelEditor.mode == 4) mWidget.mStepSliderInt(0, x1, x1+96,  1, by1, bts,  0, 1, 1, 1,  0, 12, 12, 15, 15,0, 0,  mObjectViewer.snap, 20, 1, 1, 1, 0, "Snap:", 0, d);
-
+   if (mLevelEditor.mode == 4)
+   {
+      mWidget.mStepSliderInt(0, x1, x1+96,  1, by1, bts,  0, 1, 3, 1,  c+160, c, 15, 15, 15, 0, 0,  mObjectViewer.snap, 20, 1, 1, 1, 0, "Snap:", 0, d);
+      x1+=96+x_spacing+12;
+   }
 
    if ((mLevelEditor.mode == 1) || (mLevelEditor.mode == 2) || (mLevelEditor.mode == 9))
    {
-      al_draw_textf(mFont.pr8, mColor.pc[15],  x1, by1+1, 0, "Tile Draw Mode:");
-      mWidget.mButtonCustom(0, x1+120, x1+120+32, 1, by1+1, 7,   1, 0, 0, 21,   0, 0, 15, 0, 0, 1600, draw_tile_mode, 0, 0, d);
+      mWidget.mButtonCustom(0, x1, x1+40,     1, by1,    10,   1, 0, 3, 1,   0, c,  15, 15, 0, 1600, draw_tile_mode, 0, 0, d);
+      mWidget.mToolTip(     5, x1+20,  0,     1, by1+11, 10,   1, 1, 1, 1,   0, 15, 15, "Tile Draw Mode", x1, by1, x1+32, by1+12);
+      x1+=52+x_spacing;
    }
 
+   tl = 7;
+   if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    1, 0, 3, 1,   0, c, 15, 15, 0, "Filters", d)) mLevelEditor.mWM.mW[3].active = !mLevelEditor.mWM.mW[3].active;
+   x1+=(tl*8)+x_spacing;
 
 
 

@@ -13,6 +13,7 @@
 #include "mwColor.h"
 #include "mwMiscFnx.h"
 #include "mwDisplay.h"
+#include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
@@ -231,6 +232,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          {
             mItem.sort_item(1);
             mEnemy.sort_enemy();
+            //mLevelEditor.reset_variables_on_level_change();
          }
 
          level_check();

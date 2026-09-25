@@ -578,6 +578,11 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
 
 
+
+
+
+
+
    // 0 = no text
    // 1 = normal
    // 2 = highlight with var
@@ -602,6 +607,32 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
    return pressed;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

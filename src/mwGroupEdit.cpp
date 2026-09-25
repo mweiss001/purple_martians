@@ -666,17 +666,17 @@ void mwGroupEdit::set_valid_controls(void)
 }
 
 
-void mwGroupEdit::clear_obj_list(void)
+void mwGroupEdit::clear_obj_list()
 {
    for (int o=0; o<NUM_OBJ; o++) obj_list[o][0] = 0;
 }
 
-void mwGroupEdit::collapse_all_controls(void)
+void mwGroupEdit::collapse_all_controls()
 {
    for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 1;
 }
 
-void mwGroupEdit::expand_all_controls(void)
+void mwGroupEdit::expand_all_controls()
 {
    for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 0;
 }

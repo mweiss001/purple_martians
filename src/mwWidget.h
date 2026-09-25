@@ -138,7 +138,8 @@ public:
    bool colorClickSlider(int type, float x1, float &y1, float x2, float bts, float &val, bool &hover, float &hover_val, ALLEGRO_COLOR c, bool &
                          changed_flag, bool display_only = false);
 
-   void mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType, int textType, int bcol, int fcol, int tcol, const char* txt, int tx1, int ty1, int tx2, int ty2);
+   bool mToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int r, int backgroundType, int frameType,
+                 int textType, int bcol, int fcol, int tcol, const char *txt, int tx1, int ty1, int tx2, int ty2);
 
 
    void mDropDownSetNextItem(std::vector<listItem> listItems, int & var, bool rollOver);
@@ -146,8 +147,7 @@ public:
    void mDropDownDrawMain(mwRect<int> f, int r, std::string text, int textJust, int btype, int bcol, int fcol, bool crop);
    bool mDropDown(int xType, int xa, int xb, int yType, int ya, int yb, int r, int tjust, int btype, int bcol, int fcol, int hcol, std::vector<listItem> listItems, int & var, int d);
 
-   bool mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt);
-
+   bool mCheckBoxWithToolTip(int xType, int xa, int xb, int yType, int ya, int yb, int frameType, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input, const char* tt);
 
 
 };

@@ -41,6 +41,7 @@ void mwTileHelper::init()
    mark_overlay = 1;
 
    replace_mode = 0;
+   replace_mode_alt = 0;
    replace_preview = 0;
 
    pattern_offset_x = 0;
@@ -206,85 +207,193 @@ void mwTileHelper::clearFrameFills(int preset)
 }
 
 
+
 int mwTileHelper::replace_helper_90(struct tileSet ts)
 {
    int fb = ts.SolidFill; // default middle tile
 
-   // open on all 8 - orphan single block
-   if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
-
-
-   if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
-   if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
-   if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
-
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
-   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
-   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
-   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
-
-   if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM;  // vertical through line
-   if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineM;  // horizontal through line
-
-   if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = ts.HLineR;  // right end line
-   if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.VLineB;  // bottom end line
-   if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineL;  // left end line
-   if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.VLineT;  // top end line
-
-
-
-   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
+   if (replace_mode_alt == 0)
    {
-      if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
-      if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
-      if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
-   }
-   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
-   {
-      if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
-      if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
-      if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
-   }
-   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
-   {
-      if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
-      if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
-      if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
-   }
-   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
-   {
-      if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
-      if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
-      if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
-   }
-   if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
-   if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
-   if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
-   if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+      fb = ts.SolidFill; // default middle tile
 
-   // this gets a few more inner corners
-   if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
-   {
-      // single corner open
-      if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
-      if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
-      if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
-      if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
 
-      // 2 adjacent corners open
-      if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
-      if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
-      if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
-      if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
+      // open on all 8 - orphan single block
+      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
 
-      // all corner notches (full cross)
-      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
 
+      if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
+      if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
+
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
+
+      if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM;  // vertical through line
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineM;  // horizontal through line
+
+      if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = ts.HLineR;  // right end line
+      if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.VLineB;  // bottom end line
+      if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineL;  // left end line
+      if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.VLineT;  // top end line
+
+
+
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
+      {
+         if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
+         if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
+         if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
+      }
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
+      {
+         if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
+         if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
+         if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
+      }
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
+      {
+         if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
+         if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
+         if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
+      }
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
+      {
+         if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
+         if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
+         if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
+      }
+      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
+      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
+      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
+      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+
+      // this gets a few more inner corners
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
+      {
+         // single corner open
+         if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
+         if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
+
+         // 2 adjacent corners open
+         if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
+         if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
+
+         // all corner notches (full cross)
+         if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
+
+      }
    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   if (replace_mode_alt == 2)
+   {
+      fb = ts.SolidFill; // default middle tile
+
+
+      // open on all 8 - orphan single block
+      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
+
+
+      if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
+      if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
+
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
+
+      if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM;  // vertical through line
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineM;  // horizontal through line
+
+      if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = ts.HLineR;  // right end line
+      if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.VLineB;  // bottom end line
+      if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineL;  // left end line
+      if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.VLineT;  // top end line
+
+
+
+      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
+      {
+         if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
+         if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
+         if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
+      }
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
+      {
+         if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
+         if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
+         if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
+      }
+      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
+      {
+         if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
+         if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
+         if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
+      }
+      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
+      {
+         if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
+         if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
+         if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
+      }
+      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
+      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
+      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
+      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+
+      // this gets a few more inner corners
+      if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
+      {
+         // single corner open
+         if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
+         if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
+
+         // 2 adjacent corners open
+         if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
+         if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
+         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
+         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
+
+         // all corner notches (full cross)
+         if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
+
+      }
+   }
+
+
+
+
+
+
+
+
 
   /*
-
 
 
    if (mLoop.pct_x % 2)
@@ -1371,7 +1480,7 @@ bool mwTileHelper::tileSetWidget(int x, int y, int size, struct tileSet &ts, con
 
    if (mWidget.mButtonTile2(x, y, size, ts.displayIndex, ts.name.c_str(), d))
    {
-      if (get_tileset(x, y, ts, "Choose a Tile Set")) return true;
+      if (get_tileset(x, y, ts, "Choose a Tileset")) return true;
    }
    return false;
 }
@@ -1485,7 +1594,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    int bts = 16; // button height
    int bsp = 1; // button spacing
 
-   int height = 48;
+   int height = 68;
    //height += mLoop.pct_y;
    if (replace_mode == 2) height+=162;
    int y2 = y1 + height;
@@ -1509,6 +1618,20 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    if (replace_mode == 3) sprintf(msg, "Translate Tileset");
    if (mWidget.mButton(1, x3, 170,    1, yfb+2, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode++;
    if (replace_mode > 3) replace_mode = 0;
+
+
+   if (replace_mode == 0 && mTileSets.currentTileSet.tileSetType == 90)
+   {
+      sprintf(msg, "invalid");
+      if (replace_mode_alt == 0) sprintf(msg, "Alt 0");
+      if (replace_mode_alt == 1) sprintf(msg, "Alt 1");
+      if (mWidget.mButton(1, x3, 170,    1, yfb+22, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode_alt++;
+      if (replace_mode_alt > 1) replace_mode_alt = 0;
+
+
+
+   }
+
 
    int tx = x3+176;
 
@@ -1538,7 +1661,7 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
 
 int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d)
 {
-   int bts = 18; // button height
+   int bts = 16; // button height
    int bsp = 3; // button spacing
 
    // pattern vars
@@ -1549,7 +1672,7 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
    int bw = bx2 - bx1;
    int bh = by2 - by1;
 
-   int height = 83 + bh*20;
+   int height = 78 + bh*20;
    //height += mLoop.pct_y;
 
    int y2 = y1 + height;
@@ -1619,10 +1742,10 @@ int mwTileHelper::show_tileset_controls(int x1, int x2, int y1, int color, int d
    int pad_height = 39;
 
    bool clicked = false;
-   int yfb = y1 - pad_height + tileSetSelectWidget(x1, y1, x2, pad_height, color, mTileSets.currentTileSet, "Tile Sets", clicked, d);
+   int yfb = y1 - pad_height + tileSetSelectWidget(x1, y1, x2, pad_height, color, mTileSets.currentTileSet, "Tilesets", clicked, d);
 
    char msg[256];
-   sprintf(msg, " Current Tile Set: %s ", mTileSets.currentTileSet.name.c_str());
+   sprintf(msg, " Current Tileset: %s ", mTileSets.currentTileSet.name.c_str());
    mWidget.mButton(5, (x1+x2)/2-3, 0,    1, yfb, bts,    2,2,1,1,   color,color,15,0,  0,msg, 0);
 
    yfb+=(bts+2);
@@ -1885,8 +2008,9 @@ int mwTileHelper::draw_buttons(int x1, int x2, int y, int d)
    y += ss + show_selection_controls(x1, x2, y, 12, d);
    y += ss + show_replace_controls(  x1, x2, y,  9, d);
    y += ss + show_tileset_controls(  x1, x2, y,  8, d);
-//   y += ss + show_pattern_controls(  x1, x2, y,  6, d);
-   y += ss + show_frame_controls(    x1, x2, y,  9, d);
+   if (show_pattern_tools) y += ss + show_pattern_controls(  x1, x2, y,  6, d);
+   if (show_frame_tools) y += ss + show_frame_controls(      x1, x2, y,  9, d);
+
 
    y -= ss; // remove last section spacing
 
@@ -1904,6 +2028,14 @@ void mwTileHelper::draw(mwWindow & w)
    int y1 = w.rect.y1;
 
    if (mWidget.mButton(0, x2-12, x2-4,   1, y1+2, 9,    0, 0, 0, 1,   0, 0, 15, 0, 0, "?",   d)) mHelp.help("Tile Helper");
+
+   int x3 = x2-98;
+   mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, y1, 12, 1, -1, show_pattern_tools, "pattern", 15, 15, d, "show pattern tools");
+
+   x3-=80;
+   mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, y1, 12, 1, -1, show_frame_tools, "frame", 15, 15, d, "show frame tools");
+
+
    int ys = mTileHelper.draw_buttons(x1+1, x2-1, y1+19, d);
    w.rect.setHeight(ys-y1+4);
 }
