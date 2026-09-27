@@ -584,7 +584,22 @@ item[][10] = lift number
 item[][11] = mode
 item[][15] = damage
 
+
 -- unused? 12, 13, 14
+15 is the tagged by cloner thing
+
+I should move 15 to 12....
+
+
+
+
+
+
+
+
+
+
+
 
 
 */
@@ -746,15 +761,8 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
       al_draw_bitmap(mBitmap.sprite[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // set this here only when level editor is running
    }
-
    // get dimensions of damage field from item int variables
-//   mRect<float> f(item[i][6], item[i][7], item[i][8], item[i][9]);
-
-
    mwRect<float> f = mwRect<float>::fromX1Y1WH(item[i][6], item[i][7], item[i][8], item[i][9]);
-
-
-
 
    // if mirroring geometry from lift, get more accurate values (or maybe more current?), then round them
    if ((FLAGS & PM_ITEM_DAMAGE_LIFT_ON) && (FLAGS & PM_ITEM_DAMAGE_LIFT_MS))
@@ -765,7 +773,6 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    }
 
    f.set_clipping_rectangle();
-
 
    int draw_mode = item[i][2];
 
@@ -1005,18 +1012,13 @@ void mwItem::proc_block_damage(int i)
    int trig = mTriggerEvent.event[et];  // is the trigger event set?
    if (et == 0) trig = 0;               // if event is zero, ignore
 
-
-
    if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // follow lift location
 
    proc_item_damage_collisions(i);
 
    int mode = item[i][11];
-
    if (mode == 0) flags |= PM_ITEM_DAMAGE_CURR;             // current damage always set
-
    if ((mode == 1) && (trig)) flags ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
-
    if (mode == 2) // damage on unless triggered
    {
       if (trig) flags &= ~PM_ITEM_DAMAGE_CURR; // damage off
@@ -1028,6 +1030,7 @@ void mwItem::proc_block_damage(int i)
       else      flags &= ~PM_ITEM_DAMAGE_CURR; // damage off
    }
 }
+
 
 
 /*

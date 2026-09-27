@@ -794,7 +794,10 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       }
       if (ret == 2)
       {
-         mVisualLevel.visual_level_select(400);
+
+         mLevel.load_level_prompt_for_filename();
+
+         //mVisualLevel.visual_level_select(400);
          mLevelEditor.reset_variables_on_level_change();
       }
 

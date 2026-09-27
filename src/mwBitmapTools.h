@@ -69,13 +69,11 @@ class mwBitmapTools
    void draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b, int index);
 
 
+   void draw_tilecount_overlay(int x1, int y1, int b1_y_offset, int tile, int extended);
+   void draw_tilecount_overlays(int x1, int y1, int b1_y_offset, int th);
 
-   void draw_tilecount_overlays(int x1, int y1);
-   void draw_tilecount_overlay(int x1, int y1, int tile, int extended);
-
-
-   void draw_flags_overlay(int x1, int y1, int tile, int flags);
-   void draw_flags_overlays(int x1, int y1, int flags);
+   void draw_flags_overlay(int x1, int y1, int b1_y_offset, int tile, int flags);
+   void draw_flags_overlays(int x1, int y1, int flags, int b1_y_offset, int th);
 
 
 

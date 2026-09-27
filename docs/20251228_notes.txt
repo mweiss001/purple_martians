@@ -40060,6 +40060,405 @@ inconsistant spelling of Tile Sets and Tilesets...go with Tilesets..fixed
 
 
 
+2026-09-26 04:21:11
+
+today I want to make some alt replace options for 90 tileset
+
+specifically for single lines
+
+
+
+
+make copy tiles bitmap scrollable (also select tile)
+
+// used by tile editor only to choose new tile from 'tile' tilemap
+int mwBitmapTools::select_bitmap()
+{
+   int y_offset = 0;
+   int quit = 0;
+   while (!quit)
+   {
+      mEventQueue.proc(1);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(mFont.pr8, mColor.pc[15], 644, 28, 0, "Select a Tile with b1");
+      al_draw_text(mFont.pr8, mColor.pc[15], 644, 38, 0, "b2 or ESC to exit      ");
+
+      // how many tiles will fill vertically in the screen space available?
+      int th = mDisplay.SCREEN_H / 20;
+      if (th > 64) th = 64;
+
+      // draw 32 x th bitmaps
+      for (int y = 0; y < th; y++)
+         for (int x = 0; x < 32; x++)
+            al_draw_bitmap(mBitmap.tile[x+((y + y_offset)*32)],x*20, y*20, 0);
+
+      al_draw_rectangle(0.5, 0.5, 640.5, th*20+0.5, mColor.pc[13], 1);
+      for (int x=0; x<=32; x++) al_draw_line(x*20,     0, x*20,  th*20, mColor.pc[15+128], 0);
+      for (int y=0; y<=th; y++) al_draw_line(0,     y*20,  640,  y*20, mColor.pc[15+128], 0);
+            
+      if (mInput.mouse_x < 640)
+      {
+         if (mInput.mouse_y < 10)
+         {
+            if (--y_offset < 0) y_offset = 0;
+            al_rest(0.02);
+         }
+         else if (mInput.mouse_y > th*20)
+         {
+            int max = 64 - th;
+            if (++y_offset > max) y_offset = max;
+            al_rest(0.02);
+         }
+         else if (mInput.mouse_y < th*20)
+         {
+            int pointer = (mInput.mouse_x/20) + ((mInput.mouse_y/20)+y_offset) * 32;
+            int x = 642;
+            int y = 1;
+            al_draw_rectangle(                      x,     y,     x+128, y+24, mColor.pc[13], 1);
+            al_draw_bitmap(mBitmap.tile[pointer],   x+2,   y+2,   0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], x+26,  y+8,   0, "pointer %-2d", pointer );
+            if (mInput.mouse_b[1][3]) return pointer;
+         }
+      }
+      if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) quit = 1;
+   }
+   return 0;
+}
+
+
+
+
+
+it is more complex for copy tiles
+I think I want a rect for bitmap and another rect for visible portion of bitmap
+
+   mwRect<int> b1r = mwRect<int>::fromX1Y1WH(4, 26, 704, 704);
+   mwRect<int> b1rv = mwRect<int>::fromX1Y1WH(4, 26, 704, 704);
+
+I think I have this working for copy tiles
+
+what about with other tileset like sprite?
+cant assume 64 for tilemap height...fixed
+
+
+2026-09-26 06:25:21
+
+back to 90 tilesets
+
+template starts at 1418
+
+hline
+0 1 2
+1477 1480 1471
+59, 62, 53
+
+vline
+9, 15, 21 
+1470, 1473, 1476
+52, 55, 58
+
+cross
+1483 - 59
+
+outer corners
+TL 1468 50
+TR 1469 51
+BL 1474 56 
+BR 1475 57
+
+
+what if I made alts for many different things?
+
+
+alt1 - middle tile 
+alt2 - vline
+alt3 - hline
+alt4 - full cross (all sides and no diagonals)
+alt5 - frame corners
+
+alt6 - h frame tees
+alt7 - v frame tees
+
+I want to show the tileset with offsets so I can refer to it:
+turns out I am not done with fixing copy bitmap....
+overlays will need offsets...done
+also flag overlays done
+
+next alt???
+
+
+
+
+2026-09-26 14:15:23
+
+made lev007 look way better
+
+
+
+how can I load a level with non standard filename?
+think....
+
+make a function that returns a level filename
+
+make the load function take a filename
+
+right now it takes and int and make a filenane internally
+
+
+28 calls to:
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+
+I will need to make this call a wrapper
+
+there is no meta data saved with level
+
+the only way I have to tell the level number is the filename
+
+should I do metadata, like I do with .gm
+
+what would I want?
+
+level number
+level name
+
+sounds complicated
+why?
+
+just beacuse I can't get level number from filename?
+
+did it!
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+{
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   return load_level_filename(lf, load_only, fail_silently);
+
+}
+
+int mwLevel::load_level_filename(const char* filename, int load_only, int fail_silently)
+{
+   //printf("mwLevel::load_level_filename(%s)\n", filename);
+   char msg[1024];
+   FILE *fp = fopen(filename, "rb");
+   if (!fp)
+   {
+      sprintf(msg, "Error opening %s", filename);
+      if (!fail_silently) mInput.m_err(msg);
+      return 0;
+   }
+   else  // file open !
+   {
+      // read the compressed data
+      char cmp[PML_SIZE];
+      fread(cmp, sizeof(cmp), 1, fp);
+      fclose(fp);
+
+      // decompress cmp to pml
+      char pml[PML_SIZE];
+      uLongf destLen = sizeof(pml);
+      uncompress((Bytef*)pml, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
+
+
+      // copy to game variables
+      zero_level_data();
+      pml_to_var(pml);
+
+
+      // get the level number from the filename
+      // search filename for the string 'level' followed by three digits
+      std::string fn(filename);
+
+      int search_pos = 0;
+      int level_num = 0;
+      int done = 0;
+      while (!done)
+      {
+         // find the substring
+         size_t foundPos = fn.find("level", search_pos);
+
+         // check if the substring was found
+         if (foundPos != std::string::npos)
+         {
+            //printf("substring found at:%d\n", (int) foundPos);
+
+            // convert next 3 char to int
+            int num = atoi(fn.substr(foundPos+5, 3).c_str());
+
+            if (num)
+            {
+               level_num = num;
+               done = 1;
+            }
+            else search_pos +=5;
+         }
+         else
+         {
+            printf("error extracting level number from filename:%s\n", filename);
+            return 0;
+         }
+      }
+
+
+
+
+
+      prev_level_loaded = last_level_loaded;
+      last_level_loaded = level_num;
+      valid_level_loaded = 0;
+      resume_allowed = 0;
+
+      if (!load_only)
+      {
+
+         if (level_num == 1)
+         {
+            set_overworld_barriers();
+            // if (!level_icons_loaded) load_level_icons();
+         }
+
+
+now make a function that returns a level filename
+
+
+
+level 20
+
+I keep getting to a part where I break the demo
+its very strange
+cloner (enemy 0) stops making things
+when I change lowest bd from single to separate..
+
+8:03 works
+
+made a copy of item 9, stuck it off to the side
+demo breaks
+delete item, demo works...why?
+
+is it tagged as something the cloner created?
+
+
+where it that anyway?
+
+item 15 (1000+enemy num)
+
+that is also used by block damage
+
+how am I going to fix this?
+
+what other problems could this be causing?
+
+
+I think this is how it used to be:
+[17] - Block Damage
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field h (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
+
+
+but now 12, 13, 14 are not used
+I should move damage to 12...
+
+first test that theory by zeroing all 12, 13, 14 and seeing if demos play back
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

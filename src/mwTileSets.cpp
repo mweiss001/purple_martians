@@ -223,11 +223,6 @@ void mwTileSets::construct90(int i, int d, std::string name)
    ts.OuterEdgeT      = i + 7;
    ts.OuterEdgeB      = i + 19;
 
-   // ts.FrameCornerTL   = i + 4;
-   // ts.FrameCornerTR   = i + 5;
-   // ts.FrameCornerBL   = i + 10;
-   // ts.FrameCornerBR   = i + 11;
-
    ts.FrameCornerTR   = i + 34;
    ts.FrameCornerTL   = i + 35;
    ts.FrameCornerBL   = i + 40;

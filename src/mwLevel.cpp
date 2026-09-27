@@ -173,24 +173,15 @@ void mwLevel::var_to_pml(char * b) // for save level
 }
 
 
-int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+
+int mwLevel::load_level_filename(const char* filename, int load_only, int fail_silently)
 {
+   //printf("mwLevel::load_level_filename(%s)\n", filename);
    char msg[1024];
-   zero_level_data();
-
-   prev_level_loaded = last_level_loaded;
-   last_level_loaded = level_num;
-   valid_level_loaded = 0;
-   resume_allowed = 0;
-
-   char lf[255];
-   sprintf(lf, "levels/level%03d.pml", level_num);
-   //printf("loading: %s\n", lf);
-
-   FILE *fp = fopen(lf, "rb");
+   FILE *fp = fopen(filename, "rb");
    if (!fp)
    {
-      sprintf(msg, "Error opening %s", lf);
+      sprintf(msg, "Error opening %s", filename);
       if (!fail_silently) mInput.m_err(msg);
       return 0;
    }
@@ -206,8 +197,54 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
       uLongf destLen = sizeof(pml);
       uncompress((Bytef*)pml, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
 
+
       // copy to game variables
+      zero_level_data();
       pml_to_var(pml);
+
+
+      // get the level number from the filename
+      // search filename for the string 'level' followed by three digits
+      std::string fn(filename);
+
+      int search_pos = 0;
+      int level_num = 0;
+      int done = 0;
+      while (!done)
+      {
+         // find the substring
+         size_t foundPos = fn.find("level", search_pos);
+
+         // check if the substring was found
+         if (foundPos != std::string::npos)
+         {
+            //printf("substring found at:%d\n", (int) foundPos);
+
+            // convert next 3 char to int
+            int num = atoi(fn.substr(foundPos+5, 3).c_str());
+
+            if (num)
+            {
+               level_num = num;
+               done = 1;
+            }
+            else search_pos +=5;
+         }
+         else
+         {
+            printf("error extracting level number from filename:%s\n", filename);
+            return 0;
+         }
+      }
+
+
+
+
+
+      prev_level_loaded = last_level_loaded;
+      last_level_loaded = level_num;
+      valid_level_loaded = 0;
+      resume_allowed = 0;
 
       if (!load_only)
       {
@@ -252,13 +289,20 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
    }
 }
 
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+{
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   return load_level_filename(lf, load_only, fail_silently);
+
+}
+
 void mwLevel::save_level(int level_num)
 {
-
    char lf[255];
    sprintf(lf, "levels/level%03d.pml", level_num);
    //printf("saving: %s\n", lf);
-
 
    if (make_backup_on_save_level)
    {
@@ -302,7 +346,24 @@ void mwLevel::save_level(int level_num)
    fclose(fp);
 }
 
-int mwLevel::load_level_prompt(void)
+
+int mwLevel::load_level_prompt_for_filename()
+{
+   char lf[256];
+   sprintf(lf,"levels\\");
+   if (mMiscFnx.mw_file_select("Load Selection", lf, ".pml", 0))
+   {
+      return load_level_filename(lf, 0, 0);
+   }
+   return 0; // user pressed cancel
+}
+
+
+
+
+
+
+int mwLevel::load_level_prompt()
 {
    char lf[256];
    sprintf(lf,"levels\\");
@@ -320,6 +381,9 @@ int mwLevel::load_level_prompt(void)
    }
    return 0; // user pressed cancel
 }
+
+
+
 
 int mwLevel::save_level_prompt(void)
 {

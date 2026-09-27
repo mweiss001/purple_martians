@@ -226,6 +226,9 @@ item[][5] = y pos
 item[][14] = time to live
 item[][15] = tag with cloner item id
 
+
+
+
 // type specific
 
 [1] - door
@@ -264,11 +267,6 @@ item[][12] matching keyed blocks only
 item[][6] mode
 item[][7] start index
 item[][8] no backsies
-
-
-
-
-
 
 
 
@@ -362,6 +360,9 @@ item[][12] = t1 val
 item[][13] = count
 item[][14] = t2 val
 item[][15] = damage
+
+
+
 
 [18] - gate
 item[][6] level num

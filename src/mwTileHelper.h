@@ -28,6 +28,19 @@ class mwTileHelper
    int replace_mode_alt;
 
 
+   int replace_mode_alt1;
+   int replace_mode_alt2;
+   int replace_mode_alt3;
+   int replace_mode_alt4;
+   int replace_mode_alt5;
+
+   int replace_mode_alt6;
+   int replace_mode_alt7;
+   int replace_mode_alt8;
+
+
+
+
    int frame_mode_preview;
    int frame_mode_width;
    int frames_detected;

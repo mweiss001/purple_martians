@@ -507,41 +507,55 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
 
 
 
-// used by tile editor to choose new tile
+// used by tile editor only to choose new tile from 'tile' tilemap
 int mwBitmapTools::select_bitmap()
 {
+   int y_offset = 0;
    int quit = 0;
    while (!quit)
    {
       mEventQueue.proc(1);
-
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
       al_draw_text(mFont.pr8, mColor.pc[15], 644, 28, 0, "Select a Tile with b1");
       al_draw_text(mFont.pr8, mColor.pc[15], 644, 38, 0, "b2 or ESC to exit      ");
 
-      // draw 32x64 bitmaps
-      for (int y = 0; y < 64; y++)
+      // how many tiles will fill vertically in the screen space available?
+      int th = mDisplay.SCREEN_H / 20;
+      if (th > 64) th = 64;
+
+      // draw 32 x th bitmaps
+      for (int y = 0; y < th; y++)
          for (int x = 0; x < 32; x++)
-            al_draw_bitmap(mBitmap.tile[x+(y*32)],x*20, y*20, 0);
-      al_draw_rectangle(0.5, 0.5, 640.5, 1280.5, mColor.pc[13], 1);
+            al_draw_bitmap(mBitmap.tile[x+((y + y_offset)*32)],x*20, y*20, 0);
 
-      for (int x=0; x<=32; x++) al_draw_line(x*20,     0, x*20,  1280, mColor.pc[15+128], 0);
-      for (int y=0; y<=64; y++) al_draw_line(0,     y*20,  640,  y*20, mColor.pc[15+128], 0);
+      al_draw_rectangle(0.5, 0.5, 640.5, th*20+0.5, mColor.pc[13], 1);
+      for (int x=0; x<=32; x++) al_draw_line(x*20,     0, x*20,  th*20, mColor.pc[15+128], 0);
+      for (int y=0; y<=th; y++) al_draw_line(0,     y*20,  640,  y*20, mColor.pc[15+128], 0);
 
-      if ((mInput.mouse_x < 640) && (mInput.mouse_y < 1280))
+      if (mInput.mouse_x < 640)
       {
-         int pointer = (mInput.mouse_x/20) + (mInput.mouse_y/20) * 32 ;
-
-         int x = 642;
-         int y = 1;
-
-         al_draw_rectangle(                      x,     y,     x+128, y+24, mColor.pc[13], 1);
-         al_draw_bitmap(mBitmap.tile[pointer],   x+2,   y+2,   0);
-         al_draw_textf(mFont.pr8, mColor.pc[13], x+26,  y+8,   0, "pointer %-2d", pointer );
-
-
-         if (mInput.mouse_b[1][3]) return pointer;
+         if (mInput.mouse_y < 10)
+         {
+            if (--y_offset < 0) y_offset = 0;
+            al_rest(0.02);
+         }
+         else if (mInput.mouse_y > th*20)
+         {
+            int max = 64 - th;
+            if (++y_offset > max) y_offset = max;
+            al_rest(0.02);
+         }
+         else if (mInput.mouse_y < th*20)
+         {
+            int pointer = (mInput.mouse_x/20) + ((mInput.mouse_y/20)+y_offset) * 32;
+            int x = 642;
+            int y = 1;
+            al_draw_rectangle(                      x,     y,     x+128, y+24, mColor.pc[13], 1);
+            al_draw_bitmap(mBitmap.tile[pointer],   x+2,   y+2,   0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], x+26,  y+8,   0, "pointer %-2d", pointer );
+            if (mInput.mouse_b[1][3]) return pointer;
+         }
       }
       if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) quit = 1;
    }
@@ -554,8 +568,7 @@ int mwBitmapTools::select_bitmap()
 
 
 
-
-// used by animation_sequence_editor() only to choose a single bitmaps
+// used by animation_sequence_editor() only to choose a single bitmaps from 'sprite' tilemap
 int mwBitmapTools::select_bitmap_ans()
 {
    int quit = 0;
@@ -791,15 +804,6 @@ void mwBitmapTools::animation_sequence_editor()
       }
    }
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1467,8 +1471,7 @@ void mwBitmapTools::draw_gridlines_and_frame(mwRect<int>r, int fd, int fc, int f
 }
 
 
-
-void mwBitmapTools::draw_tilecount_overlay(int x1, int y1, int tile, int extended)
+void mwBitmapTools::draw_tilecount_overlay(int x1, int y1, int b1_y_offset, int tile, int extended)
 {
    char msg[80];
    int t = tile & PM_BTILE_TILENUM_MASK;
@@ -1482,8 +1485,8 @@ void mwBitmapTools::draw_tilecount_overlay(int x1, int y1, int tile, int extende
       int y = t / 32;
 
       // get display position
-      int ty = y1+y*22+4;
-      int tx = x1+x*22+4;
+      int ty = y1 + (y-b1_y_offset) * 22+4;
+      int tx = x1 + x*22+4;
 
       if (!extended)
       {
@@ -1503,19 +1506,34 @@ void mwBitmapTools::draw_tilecount_overlay(int x1, int y1, int tile, int extende
             }
       }
    }
+
+   // // show tileset numbers overlay for dev use
+   // if (0)
+   // {
+   //    // get x and y from tile number
+   //    int x = t % 32;
+   //    int y = t / 32;
+   //
+   //    // get display position
+   //    int ty = y1 + (y-b1_y_offset) * 22+4;
+   //    int tx = x1 + x*22+8;
+   //
+   //    al_draw_filled_rectangle(tx-1, ty+3, tx+8, ty+10, mColor.Black);
+   //    al_draw_textf(mFont.pixl, mColor.pc[15], tx, ty, 0, "%d", t-1418);
+   // }
+
 }
 
 
-void mwBitmapTools::draw_tilecount_overlays(int x1, int y1)
+void mwBitmapTools::draw_tilecount_overlays(int x1, int y1, int b1_y_offset, int b1_th)
 {
    for (int x=0; x<32; x++)
-      for (int y=0; y<64; y++)
-         draw_tilecount_overlay(x1, y1, y*32+x, 0);
+      for (int y=0; y<b1_th; y++)
+         draw_tilecount_overlay(x1, y1, b1_y_offset, (y+b1_y_offset)*32+x, 0);
 }
 
 
-
-void mwBitmapTools::draw_flags_overlay(int x1, int y1, int tile, int flags)
+void mwBitmapTools::draw_flags_overlay(int x1, int y1, int b1_y_offset, int tile, int flags)
 {
    char msg[80];
    int t = tile & PM_BTILE_TILENUM_MASK;
@@ -1526,7 +1544,7 @@ void mwBitmapTools::draw_flags_overlay(int x1, int y1, int tile, int flags)
       int x = t % 32;
       int y = t / 32;
       // get display position
-      int ty = y1+y*22+4;
+      int ty = y1 + (y-b1_y_offset) * 22+4;
       int tx = x1+x*22+4;
       sprintf(msg, "%s", "!");
       mMiscFnx.drawTextOnClearedBackground(tx, ty, msg, 15);
@@ -1534,13 +1552,12 @@ void mwBitmapTools::draw_flags_overlay(int x1, int y1, int tile, int flags)
 }
 
 
-void mwBitmapTools::draw_flags_overlays(int x1, int y1, int flags)
+void mwBitmapTools::draw_flags_overlays(int x1, int y1, int flags, int b1_y_offset, int th)
 {
    for (int x=0; x<32; x++)
-      for (int y=0; y<64; y++)
-         draw_flags_overlay(x1, y1, y*32+x, flags);
+      for (int y=0; y<th; y++)
+         draw_flags_overlay(x1, y1, b1_y_offset, (y+b1_y_offset)*32+x, flags);
 }
-
 
 void mwBitmapTools::draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b, int index)
 {
@@ -1550,7 +1567,6 @@ void mwBitmapTools::draw_mouse_pointer_button(int x2, int y2, ALLEGRO_BITMAP *b,
    al_draw_textf(mFont.pr8, mColor.pc[15], r.x1+26, r.y1+3,  0, "index:%d", index);
    al_draw_textf(mFont.pr8, mColor.pc[15], r.x1+26, r.y1+12, 0, "b2 to copy");
 }
-
 
 
 
@@ -1577,11 +1593,17 @@ void mwBitmapTools::copy_tiles()
    ALLEGRO_BITMAP *b1 = nullptr;
    int reload_b1 = 2;
 
-
+   // b1 bitmap rest
    mwRect<int> b1r = mwRect<int>::fromX1Y1WH(4, 26, 704, 704);
-   int b1_tw{};
+   int b1_tw{}; // tile grid width
+   int b1_th{}; // tile grid height
+
+   // b1 view rect
+   mwRect<int> b1rv = mwRect<int>::fromX1Y1WH(4, 26, 704, 704);
 
    int b1_mouse_tile_pointer = -1;
+
+   int b1_y_offset = 0;
 
 
    // second bitmap ------------------
@@ -1600,6 +1622,9 @@ void mwBitmapTools::copy_tiles()
 
    int b2_pad = 1; // my tilesets have a padding of 1
    int b2_ts = 20 + b2_pad*2;
+
+
+
 
    int quit = 0;
    while (!quit)
@@ -1648,6 +1673,8 @@ void mwBitmapTools::copy_tiles()
          {
             b1r.setWH(al_get_bitmap_width(b1), al_get_bitmap_height(b1));
             b1_tw = b1r.w/22; // tile grid width
+            b1_th = b1r.h/22; // tile grid height
+
          }
          reload_b1 = 0;
       }
@@ -1712,21 +1739,13 @@ void mwBitmapTools::copy_tiles()
 
 
 
-
-
       mEventQueue.proc(1);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
 
-
-
-      // // draw b2_pointer button
-
-//      mRect<int> dir = mRect<int>::fromX2Y2WH(b1r.x2-114, b1r.y1-2, 116, 22);
-
+      // draw b2_pointer button
       mwRect<int> dir = mwRect<int>::fromX2Y2WH(b1r.x1+704-114, b1r.y1-2, 116, 22);
-
       al_set_target_backbuffer(mDisplay.display);
       dir.draw_rounded_rectangle(2, 2, mColor.pc[13], 1);
       al_draw_bitmap(qtmp, dir.x1+2, dir.y1+1, 0);
@@ -1740,7 +1759,25 @@ void mwBitmapTools::copy_tiles()
       mWidget.mCheckBox(0, xa, xa+20, ya, 16, 0, gridlines, "Grid", 15, 15, 0);
 
       // main bitmap -----------------------------------------------------------------------------------------------
-      al_draw_bitmap(b1, b1r.x1, b1r.y1, 0);
+
+      // how many tiles will fill vertically in the screen space available?
+      int th = (mDisplay.SCREEN_H-26) / 22;
+
+
+      if (th > b1_th) th = b1_th;
+
+      // set view rect height
+      b1rv.setHeight(th*22);
+
+
+      // enforce y offset limits
+      int b1_y_offset_max = b1_th - th;
+      if (b1_y_offset < 0) b1_y_offset = 0;
+      if (b1_y_offset > b1_y_offset_max) b1_y_offset = b1_y_offset_max;
+
+      // draw main bitmap
+      al_draw_bitmap_region(b1, 0, b1_y_offset*22, b1rv.w, b1rv.h, b1rv.x1, b1rv.y1, 0);
+
 
       // draw top controls, starting from left
       int b1_cx = b1r.x1;
@@ -1758,13 +1795,12 @@ void mwBitmapTools::copy_tiles()
       al_destroy_path(ap1);
 
 
-      draw_gridlines_and_frame(b1r, 1, 15+64, 1, gridlines, 15+128, 0, 22);
 
-      draw_tilecount_overlays(b1r.x1, b1r.y1);
+      draw_gridlines_and_frame(b1rv, 1, 15+64, 1, gridlines, 15+128, 0, 22);
 
-      //draw_flags_overlays(b1_x, b1_y, PM_BTILE_SHOW_SELECT_WIN);
-      //draw_flags_overlays(b1r.x1, b1r.y1, PM_BTILE_SOLID_PLAYER);
+      draw_tilecount_overlays(b1r.x1, b1r.y1, b1_y_offset, th);
 
+      //draw_flags_overlays(b1r.x1, b1r.y1, PM_BTILE_SOLID_PLAYER, b1_y_offset, th);
 
 
 /*
@@ -1793,43 +1829,57 @@ void mwBitmapTools::copy_tiles()
 
       b1_mouse_tile_pointer = -1;
 
-      if (b1r.contains(mInput.mouse_x, mInput.mouse_y))
+      if (b1rv.contains(mInput.mouse_x, mInput.mouse_y))
       {
-         draw_gridlines_and_frame(b1r, 1, 15+64, 1, gridlines, 15+64, 0, 22);
+
+         if (mInput.mouse_y < b1rv.y1+10)
+         {
+            if (--b1_y_offset < 0) b1_y_offset = 0;
+            al_rest(0.02);
+         }
+         else if (mInput.mouse_y > b1rv.y2-10)
+         {
+            if (++b1_y_offset > b1_y_offset_max) b1_y_offset = b1_y_offset_max;
+            al_rest(0.02);
+         }
+
+         draw_gridlines_and_frame(b1rv, 1, 15+64, 1, gridlines, 15+64, 0, 22);
 
          // what tile is mouse pointing at?
          int mx = (mInput.mouse_x-b1r.x1)/22;
          int my = (mInput.mouse_y-b1r.y1)/22;
-         b1_mouse_tile_pointer = mx + my * b1_tw;
+         b1_mouse_tile_pointer = mx + (my+b1_y_offset) * b1_tw;
 
          // mouse pointer offset relative to bitmap
          int bp_x1 = mx*22+1;
          int bp_y1 = my*22+1;
+
+         // actual y pos into b1 bitmap taking y_offset into account
+         int bp_y1_o = bp_y1 + b1_y_offset*22;
+
 
          // outline tile that mouse is pointing at
          int mx1 = b1r.x1 + bp_x1 - 1;
          int my1 = b1r.y1 + bp_y1 - 1;
          al_draw_rectangle(mx1, my1, mx1+22, my1+22, mColor.pc[10], 0);
 
-         draw_tilecount_overlay(b1r.x1, b1r.y1, b1_mouse_tile_pointer, 1);
+         draw_tilecount_overlay(b1r.x1, b1r.y1, b1_y_offset, b1_mouse_tile_pointer, 1);
 
          // copy tile to qtmp2
          al_set_target_bitmap(qtmp2);
          al_clear_to_color(al_map_rgb(0, 0, 0));
-         al_draw_bitmap_region(b1, bp_x1, bp_y1, 20, 20, 0, 0, 0);
+         al_draw_bitmap_region(b1, bp_x1, bp_y1_o, 20, 20, 0, 0, 0);
          al_set_target_backbuffer(mDisplay.display);
 
          // draw b1 pointer button
-         draw_mouse_pointer_button(b1r.x1+704, b1r.y1-2, qtmp2, b1_mouse_tile_pointer);
-
+         draw_mouse_pointer_button(b1rv.x2, b1rv.y1-2, qtmp2, b1_mouse_tile_pointer);
 
          if (mInput.mouse_b[1][0])
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             al_set_target_bitmap(b1);
-            //al_draw_filled_rectangle(bp_x1,   bp_y1,   bp_x1+20, bp_y1+20, mColor.pc[0]);   // erase
-            al_draw_filled_rectangle(bp_x1-1, bp_y1-1, bp_x1+21, bp_y1+21, mColor.pc[0]);     // erase
-            al_draw_bitmap(qtmp, bp_x1, bp_y1, 0);                                            // draw new tile
+            al_draw_filled_rectangle(bp_x1-1, bp_y1_o-1, bp_x1+21, bp_y1_o+21, mColor.pc[0]);   // erase
+            al_draw_bitmap(qtmp, bp_x1, bp_y1_o, 0);                                            // draw new tile
             al_set_target_backbuffer(mDisplay.display);
          }
          if (mInput.mouse_b[2][0])
@@ -1837,18 +1887,11 @@ void mwBitmapTools::copy_tiles()
             while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
             al_set_target_bitmap(qtmp);
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap_region(b1, bp_x1, bp_y1, 20, 20, 0, 0, 0);
+            al_draw_bitmap_region(b1, bp_x1, bp_y1_o, 20, 20, 0, 0, 0);
             al_set_target_backbuffer(mDisplay.display);
          }
          al_draw_textf(mFont.pr8, mColor.pc[13], dir.x1+26, dir.y1+12, 0, "b1 to paste"); // only show this line if mouse on main grid
       }
-
-
-
-
-
-
-
 
 
 

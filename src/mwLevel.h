@@ -60,8 +60,17 @@ class mwLevel
    int get_next_level(int lev, int max_lev, int wrap);
    int get_prev_level(int lev, int max_lev, int wrap);
 
+
+   int load_level_prompt_for_filename();
+   int load_level_filename(const char* filename, int load_only, int fail_silently);
+
    int load_level(int level_to_load, int load_only, int fail_silently);
    void save_level(int level_to_save);
+
+
+
+
+
 
    int load_level_prompt();
    int save_level_prompt();
