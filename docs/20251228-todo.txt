@@ -6,6 +6,8 @@ BUGS!!
 
 do something about viewport
 
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -17,10 +19,32 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+test in linux
+
+powering up scat....
+
+scat is 142
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Make much more complex tile replace controls
+show each alt and what it does
+can I even click on the screen to change alt modes?
 
 
 

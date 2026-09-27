@@ -52,9 +52,7 @@ void mwItem::initialize(void)
    strcpy(item_name[PM_ITEM_TYPE_TRIGGR], "Trigger");
    strcpy(item_name[PM_ITEM_TYPE_MSG],    "Message");
    strcpy(item_name[PM_ITEM_TYPE_ROCKET], "Rocket");
-
    strcpy(item_name[12], "undef");
-
    strcpy(item_name[PM_ITEM_TYPE_TIMER],  "Timer");
    strcpy(item_name[PM_ITEM_TYPE_SWITCH], "Switch");
    strcpy(item_name[PM_ITEM_TYPE_SPRING], "Sproingy");
@@ -76,24 +74,14 @@ void mwItem::initialize(void)
    item_tile[PM_ITEM_TYPE_TRIGGR] = 991;
    item_tile[PM_ITEM_TYPE_MSG]    = 256;
    item_tile[PM_ITEM_TYPE_ROCKET] = 249;
-
-   item_tile[12] = 825;
-
+   item_tile[12] = 825; // not used
    item_tile[PM_ITEM_TYPE_TIMER] = 987;
    item_tile[PM_ITEM_TYPE_SWITCH] = 745;
    item_tile[PM_ITEM_TYPE_SPRING] = 237;
    item_tile[PM_ITEM_TYPE_BLKMNP] = 989;
    item_tile[PM_ITEM_TYPE_BLKDMG] = 988;
-
-
-//   item_tile[PM_ITEM_TYPE_HIDER]  = 940;
-//   item_tile[PM_ITEM_TYPE_GATE]   = 476;
-
    item_tile[PM_ITEM_TYPE_HIDER]  = 476;
    item_tile[PM_ITEM_TYPE_GATE]   = 135;
-
-
-
 
 }
 
@@ -110,7 +98,6 @@ int mwItem::item_secondary67(int type)
    if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
    return 0;
 }
-
 
 int mwItem::item_secondary67_hires(int type)
 {
@@ -167,9 +154,6 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
 
 
-
-
-
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
 
@@ -222,20 +206,15 @@ void mwItem::move_items()
          if (type == PM_ITEM_TYPE_HIDER)    proc_hider(i);
          if (type == PM_ITEM_TYPE_LIT_BOMB) proc_lit_bomb(i);
          if (type == PM_ITEM_TYPE_LIT_RCKT) proc_lit_rocket(i);
-
-
          if (type == PM_ITEM_TYPE_START)    proc_start(i);
-
-
 
 
          // check for time to live
          if ((type != PM_ITEM_TYPE_TRIGGR) &&
              (type != PM_ITEM_TYPE_TIMER) &&
              (type != PM_ITEM_TYPE_BLKMNP) &&
-             (type != PM_ITEM_TYPE_LIT_BOMB) &&
-             (type != PM_ITEM_TYPE_BLKDMG))
-
+             (type != PM_ITEM_TYPE_BLKDMG) &&
+             (type != PM_ITEM_TYPE_LIT_BOMB))
          {
             int ttl = item[i][14];
             if (ttl)
@@ -300,7 +279,6 @@ void mwItem::move_items()
 
                   x = itemf[i][0];
                   y = itemf[i][1];
-
 
                   // moving right and hit wall
                   if ((itemf[i][2] > 0) && (mSolid.is_right_solid(x,y, 1, 3)))
@@ -498,52 +476,55 @@ void mwItem::proc_player_carry(int p)
 
 
 
+
 void mwItem::proc_item_collision(int p, int i)
 {
-   // make it so any item other than bonus has higher priority
+   int type = item[i][0];
+
+   // any item other than bonus has higher priority
    // if carrying bonus, it will be dropped and new item will be carried
    int already_carrying = 0;
    if (mPlayer.syn[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((item[mPlayer.syn[p].carry_item][0] == 2) && (item[i][0] != 2)) // carried item is bonus and new item is not bonus
+      if ((item[mPlayer.syn[p].carry_item][0] == 2) && (type != 2)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
    // check if player can carry item
-   if ( (!already_carrying) &&    // not carrying item already
-         (item[i][3]<0) &&  // item is carryable
-         (mPlayer.syn[p].fire) )      // fire pressed
+   if ( (!already_carrying) &&     // not carrying item already
+         (item[i][3]<0) &&         // item is carryable
+         (mPlayer.syn[p].fire) )   // fire pressed
    {
       // check to see if another player is already carrying this item
       int other_player_carrying = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
          if ((mPlayer.syn[op].active) && (!mPlayer.syn[op].paused) && (mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
-       // allow carry
-       if ((other_player_carrying == 0) ||             // if no other player is carrying
-          (item[i][0] == PM_ITEM_TYPE_LIT_RCKT))       // allow multiple player carry for rocket
+
+      // allow carry
+       if ((!other_player_carrying) ||         // if no other player is carrying
+          (type == PM_ITEM_TYPE_LIT_RCKT))     // allow multiple player carry for rocket
           mPlayer.syn[p].carry_item = i+1;
    }
 
-
+   // mark for deno record
    if (mPlayer.syn[p].carry_item) mDemoRecord.mark_player_carry(p);
 
 
-   int t = item[i][0];
-   if (t == PM_ITEM_TYPE_DOOR)    proc_door_collision(p, i);
-   if (t == PM_ITEM_TYPE_BONUS)   proc_bonus_collision(p, i);
-   if (t == PM_ITEM_TYPE_EXIT)    proc_exit_collision(p, i);
-   if (t == PM_ITEM_TYPE_KEY)     proc_key_collision(p, i);
-   if (t == PM_ITEM_TYPE_START)   proc_start_collision(p, i);
-   if (t == PM_ITEM_TYPE_ORB)     proc_orb_collision(p, i);
-   if (t == PM_ITEM_TYPE_MINE)    proc_mine_collision(p, i);
-   if (t == PM_ITEM_TYPE_BOMB)    proc_bomb_collision(p, i);
-   if (t == PM_ITEM_TYPE_MSG)     proc_pmsg_collision(i);
-   if (t == PM_ITEM_TYPE_ROCKET)  proc_rocket_collision(p, i);
-   if (t == PM_ITEM_TYPE_SWITCH)  proc_switch_collision(p, i);
-   if (t == PM_ITEM_TYPE_SPRING)  proc_sproingy_collision(p, i);
-   if (t == PM_ITEM_TYPE_GATE)    proc_gate_collision(p, i);
-
+   // proc item collision
+   if (type == PM_ITEM_TYPE_DOOR)    proc_door_collision(p, i);
+   if (type == PM_ITEM_TYPE_BONUS)   proc_bonus_collision(p, i);
+   if (type == PM_ITEM_TYPE_EXIT)    proc_exit_collision(p, i);
+   if (type == PM_ITEM_TYPE_KEY)     proc_key_collision(p, i);
+   if (type == PM_ITEM_TYPE_START)   proc_start_collision(p, i);
+   if (type == PM_ITEM_TYPE_ORB)     proc_orb_collision(p, i);
+   if (type == PM_ITEM_TYPE_MINE)    proc_mine_collision(p, i);
+   if (type == PM_ITEM_TYPE_BOMB)    proc_bomb_collision(p, i);
+   if (type == PM_ITEM_TYPE_MSG)     proc_pmsg_collision(i);
+   if (type == PM_ITEM_TYPE_ROCKET)  proc_rocket_collision(p, i);
+   if (type == PM_ITEM_TYPE_SWITCH)  proc_switch_collision(p, i);
+   if (type == PM_ITEM_TYPE_SPRING)  proc_sproingy_collision(p, i);
+   if (type == PM_ITEM_TYPE_GATE)    proc_gate_collision(p, i);
 
 }
 
@@ -551,8 +532,7 @@ void mwItem::proc_item_collision(int p, int i)
 
 void mwItem::proc_bonus_collision(int p, int i)
 {
-   int bonus_type = item[i][6];
-   if (bonus_type == 0) // health bonus
+   if (item[i][6] == 0) // health bonus
    {
       if (mPlayer.syn[p].health < 100)
       {
@@ -562,7 +542,7 @@ void mwItem::proc_bonus_collision(int p, int i)
          mGameEvent.add(28, 0, 0, p, 0, item[i][1], item[i][7]);
       }
    }
-   if (bonus_type == 1) // purple coin!!!
+   if (item[i][6] == 1) // purple coin
    {
       item[i][0] = 0;
       mPlayer.syn[p].stat_purple_coins++;
@@ -577,7 +557,6 @@ void mwItem::proc_mine_collision(int p, int i)
 }
 
 
-
 void mwItem::proc_sproingy_collision(int p, int i)
 {
    float px = mPlayer.syn[p].x;
@@ -586,12 +565,46 @@ void mwItem::proc_sproingy_collision(int p, int i)
    float x2 = itemf[i][0] + 10;
    float y1 = itemf[i][1] - 16;
    float y2 = itemf[i][1] - 8;
-
-   if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) &&
-        (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump held
+   if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) && (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump pressed
    {
-      mGameEvent.add(24, 0, 0, p, i, 0, 0);
       mPlayer.syn[p].yinc = 0 - (float) item[i][7] / 7.1;
+      mGameEvent.add(24, 0, 0, p, i, 0, 0);
    }
 }
+
+
+
+float mwItem::get_sproingy_jump_height(int num)
+{
+   float t1 = mItem.item[num][7] / 7.1;
+   float t2 = -15; // jump starts not at zero, but at almost one block height off ground
+
+   while (t1 > 0)
+   {
+      t2 += t1;  // distance moved this time period
+      t1 -= 0.2; // minus slow gravity
+   }
+   return t2;
+}
+
+// used for calculating sproinginess from jump height
+// used only for map move of sproingy jump height
+// misses some numbers
+// 1933 = 197
+// 1934 = 199
+int mwItem::get_sp(float jh)
+{
+   float t1 = 0;
+   float t2 = 0;
+   while (t1 < (jh - 15))
+   {
+      t1 += t2;
+      t2 += 0.2;
+   }
+   return (int) round(t2*7.1);
+}
+
+
+
+
 

@@ -314,7 +314,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
          case 15: // sproingy
          {
             (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-            int y = mMiscFnx.get_sproingy_jump_height(num);
+            int y = mItem.get_sproingy_jump_height(num);
             mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
          }
          break;
@@ -560,7 +560,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
       {
          int x1 = mItem.item[num][4];
          int y1 = mItem.item[num][5];
-         int y2 = y1 - mMiscFnx.get_sproingy_jump_height(num);
+         int y2 = y1 - mItem.get_sproingy_jump_height(num);
          if ((mLevelEditor.hx>x1+msn) && (mLevelEditor.hx<x1+msp) && (mLevelEditor.hy>y2+msn) && (mLevelEditor.hy<y2+msp))
          {
             mouse_on_sp = 1;
@@ -906,7 +906,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          {
             float y0 = mItem.item[num][5]+10;
             float fy = mLevelEditor.hy;
-            mItem.item[num][7] = mMiscFnx.get_sp(y0-fy);
+            mItem.item[num][7] = mItem.get_sp(y0-fy);
 
             // bounds check
             if (mItem.item[num][7] < 40) mItem.item[num][7] = 40;
@@ -1225,7 +1225,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int step = mLift.cur[n].current_step;
       odbp(d, xa, xb, ya, bts, 13, 500, mLift.cur[n].mode); // lift mode
       odbp(d, xa, xb, ya, bts, 13, 504, mLift.cur[n].draw_mode); // draw mode
-      if (mLift.cur[n].draw_mode == 10) // single block
+      if ((mLift.cur[n].draw_mode == 10) || (mLift.cur[n].draw_mode == 13)) // single block or tileset
       {
          ya+=4;
          odbc(d, xa, xb, ya, bts, 8, 15, 320, n, 0, 0); // set single block
@@ -1237,6 +1237,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          odbc(d, xa, xb, ya, bts, 8, 15, 321, n, 0, 0); // set start block
          ya+=4;
       }
+
+
+
 
       if (mLift.cur[n].mode)
          odbi(d, xa, xb, ya, bts, 12, mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");

@@ -39,8 +39,6 @@ cd ~/dev/purple_martians
 
 
 
-
-
 # this is needed to allow php to see database file and to make apache 'downloads/' alias work 
 chmod o+x /home/m
 

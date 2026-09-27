@@ -61,20 +61,15 @@ class mwLevel
    int get_prev_level(int lev, int max_lev, int wrap);
 
 
-   int load_level_prompt_for_filename();
-   int load_level_filename(const char* filename, int load_only, int fail_silently);
+   int load_level_file_dialog();
+   int load_level_visual_select();
+   int load_level_by_number(int level_to_load, int load_only, int fail_silently);
+   int load_level(const char* filename, int load_only, int fail_silently);
 
-   int load_level(int level_to_load, int load_only, int fail_silently);
+
+
    void save_level(int level_to_save);
-
-
-
-
-
-
-   int load_level_prompt();
    int save_level_prompt();
-
 
    void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 

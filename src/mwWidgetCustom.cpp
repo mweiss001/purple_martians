@@ -829,7 +829,9 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
          {  3,   "Draw Mode:Plain Rect" },
          {  10,  "Draw Mode:Single Block" },
          {  11,  "Draw Mode:3 Block Platform" },
-         {  12,  "Draw Mode:3 Block Column" }
+         {  12,  "Draw Mode:3 Block Column" },
+         {  13,  "Draw Mode:Tileset" }
+
       };
    }
 

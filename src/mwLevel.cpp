@@ -36,7 +36,7 @@ void mwLevel::set_start_level(int s)
    if (s > 399) s = 399;
    play_level = start_level = s;
 
-   load_level(s, 0, 0);
+   load_level_by_number(s, 0, 0);
 
    resume_allowed = 0;
    mConfig.save_config(PM_CFG_SAVE_START_LEVEL);
@@ -174,7 +174,42 @@ void mwLevel::var_to_pml(char * b) // for save level
 
 
 
-int mwLevel::load_level_filename(const char* filename, int load_only, int fail_silently)
+
+
+
+
+
+
+
+int mwLevel::load_level_visual_select()
+{
+   int ret = mVisualLevel.visual_level_select(400);
+   mLevelEditor.reset_variables_on_level_change();
+   return ret;
+}
+
+
+int mwLevel::load_level_file_dialog()
+{
+   char filename[256];
+   sprintf(filename,"levels\\");
+   if (mMiscFnx.mw_file_select("Load Level", filename, ".pml", 0))
+   {
+      int ret = load_level(filename, 0, 0);
+      mLevelEditor.reset_variables_on_level_change();
+      return ret;
+   }
+   return 0; // user pressed cancel
+}
+
+int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silently)
+{
+   char filename[255];
+   sprintf(filename, "levels/level%03d.pml", level_num);
+   return load_level(filename, load_only, fail_silently);
+}
+
+int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
    //printf("mwLevel::load_level_filename(%s)\n", filename);
    char msg[1024];
@@ -290,25 +325,17 @@ int mwLevel::load_level_filename(const char* filename, int load_only, int fail_s
 }
 
 
-int mwLevel::load_level(int level_num, int load_only, int fail_silently)
-{
-   char lf[255];
-   sprintf(lf, "levels/level%03d.pml", level_num);
-   return load_level_filename(lf, load_only, fail_silently);
 
-}
 
 void mwLevel::save_level(int level_num)
 {
-   char lf[255];
-   sprintf(lf, "levels/level%03d.pml", level_num);
-   //printf("saving: %s\n", lf);
+   char filename[255];
+   sprintf(filename, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", filename);
 
    if (make_backup_on_save_level)
    {
       // rename existing file as backup
-
-      char of[255];
 
       // get timestamp
       char timestamp[256];
@@ -316,12 +343,15 @@ void mwLevel::save_level(int level_num)
       struct tm *timenow = localtime(&now);
       strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      sprintf(of, "levels/level%03d_%s.pml", level_num, timestamp);
+      char backup_filename[255];
+      sprintf(backup_filename, "levels/level%03d_%s.pml", level_num, timestamp);
 
       // std::rename returns 0 on success
-      if (std::rename(lf, of) == 0) printf("File [%s] renamed successfully!\n", of);
-      else                          printf("Error renaming file [%s]\n", of);
+      if (std::rename(filename, backup_filename) == 0) printf("File [%s] renamed successfully!\n", backup_filename);
+      else                                             printf("Error renaming file [%s]\n", backup_filename);
    }
+
+
 
    last_level_loaded = level_num;
    level_check();
@@ -341,46 +371,11 @@ void mwLevel::save_level(int level_num)
    int cmp_size = destLen;
 
    // write cmp to file
-   FILE *fp = fopen(lf,"wb");
+   FILE *fp = fopen(filename,"wb");
    fwrite(cmp, cmp_size, 1, fp);
    fclose(fp);
 }
 
-
-int mwLevel::load_level_prompt_for_filename()
-{
-   char lf[256];
-   sprintf(lf,"levels\\");
-   if (mMiscFnx.mw_file_select("Load Selection", lf, ".pml", 0))
-   {
-      return load_level_filename(lf, 0, 0);
-   }
-   return 0; // user pressed cancel
-}
-
-
-
-
-
-
-int mwLevel::load_level_prompt()
-{
-   char lf[256];
-   sprintf(lf,"levels\\");
-   if (mMiscFnx.mw_file_select("Load Selection", lf, ".pml", 0))
-   {
-      int len = strlen(lf);
-      char g[10];
-      g[0] = lf[len-7];
-      g[1] = lf[len-6];
-      g[2] = lf[len-5];
-      g[3] = 0;
-      int num = atoi(g);
-      load_level(num, 0, 0);
-      return 1;
-   }
-   return 0; // user pressed cancel
-}
 
 
 

@@ -422,35 +422,14 @@ item[][9] = trigger field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
-item[][13] = copy x
-item[][14] = copy y
-
-
-I an thinking about adding a few more block
-
-I could have a mode where I cycle though a list of block
+item[][13] = copy x or block 3
+item[][14] = copy y or block 4
 
 mode 3 toggle
 mode 4 copy
-
 mode 5 cycle 3
 mode 6 cycle 4
-
 mode 7 cycle and don't loop, one way only
-I could reuse the variables 13 and 14
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 */
 
@@ -582,25 +561,7 @@ item[][8]  = field w
 item[][9]  = field h
 item[][10] = lift number
 item[][11] = mode
-item[][15] = damage
-
-
--- unused? 12, 13, 14
-15 is the tagged by cloner thing
-
-I should move 15 to 12....
-
-
-
-
-
-
-
-
-
-
-
-
+item[][12] = damage
 
 */
 
@@ -690,14 +651,14 @@ void mwItem::proc_item_damage_collisions(int i)
                }
                else
                {
-                  float ha = (float)item[i][15]/100; // health adjust
+                  float ha = (float)item[i][12]/100; // health adjust
                   mPlayer.syn[p].health -= ha;
 
                   if (ha > 0) // lose health
                   {
                      int damage_type = 1; // default
                      if (item[i][2] == 2) damage_type = 2;
-                     mGameEvent.add(11, 0, 0, p, damage_type, 0, item[i][15]); // only do damage event when taking health
+                     mGameEvent.add(11, 0, 0, p, damage_type, 0, item[i][12]); // only do damage event when taking health
                   }
                   else // gain health
                   {

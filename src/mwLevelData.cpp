@@ -29,7 +29,7 @@ void mwLevel::reset_level_data(void)
    clear_data();
    save_data();
    level_stats_bmp_msg_type = 0;        // to force recreation
-   load_level(mLevel.play_level, 0, 0); // reload play level
+   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
 void mwLevel::unlock_all_levels(void)
@@ -43,7 +43,7 @@ void mwLevel::unlock_all_levels(void)
    for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
    level_stats_bmp_msg_type = 0;        // to force recreation
-   load_level(mLevel.play_level, 0, 0); // reload play level
+   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
 /*
@@ -708,7 +708,7 @@ void mwLevel::clear_data()
    for(int i=0; i<16; i++) area_locks[i] = 1; // set all locks
    area_locks[13] = 0; // basic training area unlocked
 
-   load_level(1, 1, 0); // load overworld level to set overworld barriers
+   load_level_by_number(1, 1, 0); // load overworld level to set overworld barriers
    fill_area_array();
 
    mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
@@ -757,7 +757,7 @@ void mwLevel::clear_data()
 
    // load all levels to get purple coin counts, and update status color and text
    for (int p=0; p<100; p++)
-      if (mLevel.load_level(p, 1, 1))
+      if (mLevel.load_level_by_number(p, 1, 1))
       {
          update_level_status(p);
 

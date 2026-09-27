@@ -50,6 +50,9 @@ class mwLevelEditor
    void reset_variables_on_level_change();
 
 
+   int exit_level_editor_dialog();
+
+
 
    void save_mW();
 

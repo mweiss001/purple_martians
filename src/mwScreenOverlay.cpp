@@ -1128,7 +1128,6 @@ void mwScreen::draw_top_frame(int p)
       tdx += 88;
 
 
-
       // draw purple coins if the level has any
       if (mLevel.data[mLevel.play_level].tot_coins)
       {

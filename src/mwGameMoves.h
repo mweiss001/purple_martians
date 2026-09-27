@@ -75,7 +75,10 @@ public:
    bool parse_header_line(const char* buf);
    int load_demo_level(int lev);
    int load_gm_file_select();
+
    int load_gm(const char *sfname, bool fillGmInfo = true);
+
+
    void add_gm_to_db(const char *fname);
    void create_gm_session_link(int session_id);
    void create_gm_session_links();

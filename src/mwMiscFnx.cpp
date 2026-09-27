@@ -19,6 +19,7 @@
 #include "mwPlayer.h"
 #include "mwConfig.h"
 #include "mwLevelEditor.h"
+#include "mwTileSets.h"
 
 
 mwMiscFnx mMiscFnx;
@@ -342,93 +343,6 @@ int mwMiscFnx::get_tag_text2(char *str, char *res, char *res1, int show)
 
 
 
-
-
-int mwMiscFnx::exit_level_editor_dialog(void)
-{
-   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-
-   al_set_target_backbuffer(mDisplay.display);
-   al_show_mouse_cursor(mDisplay.display);
-
-   int quit = 0;
-   int ret = 0;
-
-   int w = 200, h = 100;
-   int x = (mDisplay.SCREEN_W - w) /2;
-   int y = (mDisplay.SCREEN_H - h) /2;
-
-   int xc = x+w/2;
-   int xa = xc-84;
-   int xb = xc+84;
-   int bts = 16;
-
-   while (!quit)
-   {
-      al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[10+128+64]);
-
-      for (int a=0; a<10; a++)
-         al_draw_rounded_rectangle(x+a, y+a, x+w-a, y+h-a, 1, 1, mColor.pc[10+a*16], 1);
-      al_draw_text(mFont.pr8, mColor.pc[15], xc, y+14, ALLEGRO_ALIGN_CENTER, "Exit Level Editor?");
-
-      int bc = 15;
-
-      int by1 = y+30;
-
-      if (ret == 0) bc = 10;
-      else bc = 15;
-      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Save and Exit",   0))  { quit = 1; ret = 0; }
-      by1+=bts;
-      if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
-
-      by1+=4;
-
-      if (ret == 1) bc = 10;
-      else bc = 15;
-      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Exit Without Saving",   0))  { quit = 1; ret = 1; }
-      by1+=bts;
-      if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
-
-      by1+=4;
-
-      if (ret == 2) bc = 10;
-      else bc = 15;
-      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Cancel",   0))  { quit = 1; ret = 2; }
-      by1+=bts;
-      if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
-
-
-      mEventQueue.proc(1);
-      al_flip_display();
-
-      if (mInput.key[ALLEGRO_KEY_DOWN][0])
-      {
-         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc(1);
-         if (++ret > 2) ret = 2;
-      }
-
-      if (mInput.key[ALLEGRO_KEY_UP][0])
-      {
-         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc(1);
-         if (--ret < 0) ret = 0;
-      }
-      if (mInput.key[ALLEGRO_KEY_ENTER][0])
-      {
-         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
-         quit = 1;
-      }
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-      {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-         ret = 2; // cancel
-         quit = 1;
-      }
-   }
-   //printf("ret:%d\n", ret);
-   return ret;
-}
-
-
 void mwMiscFnx::draw_block_non_default_flags(int tn, int x, int y)
 {
    int c = tn & PM_BTILE_TILENUM_MASK;
@@ -700,51 +614,6 @@ void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * nam
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-float mwMiscFnx::get_sproingy_jump_height(int num)
-{
-   float t1 = mItem.item[num][7] / 7.1;
-   float t2 = -15; // jump starts not at zero, but at almost one block height off ground
-
-   while (t1 > 0)
-   {
-      t2 += t1;  // distance moved this time period
-      t1 -= 0.2; // minus slow gravity
-   }
-   return t2;
-}
-
-
-// used for calculating sproinginess from jump height
-// used only for map move of sproingy jump height
-// misses some numbers
-// 1933 = 197
-// 1934 = 199
-int mwMiscFnx::get_sp(float jh)
-{
-   float t1 = 0;
-   float t2 = 0;
-   while (t1 < (jh - 15))
-   {
-      t1 += t2;
-      t2 += 0.2;
-   }
-   return (int) round(t2*7.1);
-}
 
 
 
@@ -1325,7 +1194,95 @@ void mwMiscFnx::fill_rect_with_3_tile_column(mwRect<float> r, int tile_base)
 }
 
 
+void mwMiscFnx::fill_rect_with_tileset(mwRect<float> r, int tile_base)
+{
+   int i = tile_base & PM_BTILE_TILENUM_MASK;
+   int m = i;
+   int tl = i;
+   int tr = i;
+   int bl = i;
+   int br = i;
+   int el = i;
+   int er = i;
+   int et = i;
+   int eb = i;
 
+   // find tileset that tile belongs to
+   struct tileSet ts;
+   if (mTileSets.findTileSetContainingIndex(ts, tile_base))
+   {
+      if ((ts.tileSetType == 16) || (ts.tileSetType == 48) || (ts.tileSetType == 90))
+      {
+         tl = ts.OuterCornerTL;
+         tr = ts.OuterCornerTR;
+         bl = ts.OuterCornerBL;
+         br = ts.OuterCornerBR;
+
+         el = ts.OuterEdgeL;
+         er = ts.OuterEdgeR;
+         et = ts.OuterEdgeT;
+         eb = ts.OuterEdgeB;
+         m = ts.SolidFill;
+      }
+      if (ts.tileSetType == 90) m = ts.startIndex + 47; // IT?
+   }
+
+   r.round();
+
+   mwRect<float> tlq = mwRect<float>::fromX1Y1WH(r.x1,         r.y1,         r.w/2, r.h/2); // tl quarter
+   mwRect<float> trq = mwRect<float>::fromX1Y1WH(r.XCenter(),  r.y1,         r.w/2, r.h/2); // tr quarter
+   mwRect<float> blq = mwRect<float>::fromX1Y1WH(r.x1,         r.YCenter(),  r.w/2, r.h/2); // bl quarter
+   mwRect<float> brq = mwRect<float>::fromX1Y1WH(r.XCenter(),  r.YCenter(),  r.w/2, r.h/2); // br quarter
+
+   // top left quarter
+   tlq.set_clipping_rectangle();
+   for (int hx=tlq.x1; hx<tlq.x2; hx+=20)
+      for (int hy=tlq.y1; hy<tlq.y2; hy+=20)
+      {
+         int tile = m;    // default middle
+         if (hy == tlq.y1) tile = et; // top
+         if (hx == tlq.x1) tile = el; // left
+         if (hy == tlq.y1 && hx == tlq.x1) tile = tl; // tl
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
+      }
+
+   // top right quarter
+   trq.set_clipping_rectangle();
+   for (int hx=trq.x2-20; hx>trq.x1-20; hx-=20)
+      for (int hy=trq.y1; hy<trq.y2; hy+=20)
+      {
+         int tile = m;    // default middle
+         if (hy == trq.y1) tile = et; // top
+         if (hx == trq.x2-20) tile = er; // right
+         if (hy == trq.y1 && hx == trq.x2-20) tile = tr; // tr
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
+      }
+
+   // bottom left quarter
+   blq.set_clipping_rectangle();
+   for (int hx=blq.x1; hx<blq.x2; hx+=20)
+      for (int hy=blq.y2-20; hy>blq.y1-20; hy-=20)
+      {
+         int tile = m;    // default middle
+         if (hy == blq.y2-20) tile = eb; // bottom
+         if (hx == blq.x1) tile = el; // left
+         if (hy == blq.y2-20 && hx == blq.x1) tile = bl; // bl
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
+      }
+
+   // bottom right quarter
+   brq.set_clipping_rectangle();
+   for (int hx=brq.x2-20; hx>brq.x1-20; hx-=20)
+      for (int hy=brq.y2-20; hy>brq.y1-20; hy-=20)
+      {
+         int tile = m;    // default middle
+         if (hy == brq.y2-20) tile = eb; // bottom
+         if (hx == brq.x2-20) tile = er; // right
+         if (hy == brq.y2-20 && hx == brq.x2-20) tile = br; // br
+         al_draw_bitmap(mBitmap.tile[tile], hx, hy, 0);
+      }
+   al_reset_clipping_rectangle();
+}
 
 
 

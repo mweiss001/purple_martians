@@ -42,6 +42,7 @@
 
 #include "mwMain.h"
 #include "mwConfig.h"
+#include "mwGameEvent.h"
 #include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
@@ -724,7 +725,7 @@ void mwLoop::proc_program_state(void)
 */
 int mwLoop::load_and_setup_level(int level, int type)
 {
-   if (!mLevel.load_level(level, 0, 0)) return 0;
+   if (!mLevel.load_level_by_number(level, 0, 0)) return 0;
    else
    {
       if (type != 4) mGameMoves.new_level(); // do not reset game moves in demo mode
@@ -774,6 +775,9 @@ int mwLoop::load_and_setup_level(int level, int type)
       mBottomMessage.initialize();
       mTriggerEvent.initialize();
       mShot.clear_shots();
+      mGameEvent.game_events.clear();
+
+
       frame_num = 0;
 
       if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL

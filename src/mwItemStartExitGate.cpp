@@ -273,7 +273,7 @@ void mwItem::proc_gate_collision(int p, int i)
    {
       //printf("debug set level complete \n");
       mLevel.add_play_data_record(lev, 2);
-      mLevel.load_level(1, 0, 0);
+      mLevel.load_level_by_number(1, 0, 0);
    }
 
    int status = mLevel.data[lev].status;

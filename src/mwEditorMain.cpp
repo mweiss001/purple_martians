@@ -403,13 +403,9 @@ void mwEditorMain::process_mouse_on_background(void)
             mLevel.zero_level_data();
             mLevel.save_level_prompt();
          }
-         mLevel.load_level(mLevel.last_level_loaded, 0, 1); // blind load
+         mLevel.load_level_by_number(mLevel.last_level_loaded, 0, 1); // blind load
          break;
-         case 13: // load level
-            mLevel.load_level_prompt();
-            mEnemy.sort_enemy();
-            mItem.sort_item(1);
-         break;
+         case 13: mLevel.load_level_visual_select(); break; // load level
          case 14: mLevel.save_level(mLevel.last_level_loaded); break; // save level
          case 15: mLevelEditor.active = 0; break; // save and exit
          case 16: mHelp.help("Level Editor Basics"); break;// help
@@ -769,18 +765,18 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
    int x_spacing = 12;
 
 
-
    int tl = 4;
    if (mWidget.mButton(0, x1, x1+(tl*8)+4,   1, by1, bts,    0, 0, 3, 1,   0, -1, 15, 15, 0, "File", d))
    {
       strcpy(mMenu.menu_string[0],"File"); // PD sub menu
       strcpy(mMenu.menu_string[1],"New");
-      strcpy(mMenu.menu_string[2],"Load");
-      strcpy(mMenu.menu_string[3],"Reload");
-      strcpy(mMenu.menu_string[4],"Save");
-      strcpy(mMenu.menu_string[5],"Save As");
-      strcpy(mMenu.menu_string[6],"Exit");
-      strcpy(mMenu.menu_string[7],"end");
+      strcpy(mMenu.menu_string[2],"Load (Visual)");
+      strcpy(mMenu.menu_string[3],"Load (Filename)");
+      strcpy(mMenu.menu_string[4],"Reload");
+      strcpy(mMenu.menu_string[5],"Save");
+      strcpy(mMenu.menu_string[6],"Save As");
+      strcpy(mMenu.menu_string[7],"Exit");
+      strcpy(mMenu.menu_string[8],"end");
       int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1)
       {
@@ -789,22 +785,15 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
             mLevel.zero_level_data();
             mLevel.save_level_prompt();
          }
-         mLevel.load_level(mLevel.last_level_loaded, 0, 0);
+         mLevel.load_level_by_number(mLevel.last_level_loaded, 0, 0);
          mLevelEditor.reset_variables_on_level_change();
       }
-      if (ret == 2)
-      {
-
-         mLevel.load_level_prompt_for_filename();
-
-         //mVisualLevel.visual_level_select(400);
-         mLevelEditor.reset_variables_on_level_change();
-      }
-
-      if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
-      if (ret == 4) mLevel.save_level(mLevel.last_level_loaded);
-      if (ret == 5) mLevel.save_level_prompt();
-      if (ret == 6) mLevelEditor.active = 0;
+      if (ret == 2) mLevel.load_level_visual_select();
+      if (ret == 3) mLevel.load_level_file_dialog();
+      if (ret == 4) mLevel.load_level_by_number(mLevel.last_level_loaded, 0, 0);
+      if (ret == 5) mLevel.save_level(mLevel.last_level_loaded);
+      if (ret == 6) mLevel.save_level_prompt();
+      if (ret == 7) mLevelEditor.active = 0;
       al_set_target_backbuffer(mDisplay.display);
    }
    x1+=(tl*8)+x_spacing;

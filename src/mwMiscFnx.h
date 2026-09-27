@@ -6,12 +6,8 @@ class mwMiscFnx
 {
    public:
 
-
-
-
    // use this so I do not have to send a char when I want to return one
    char tmp_return_40[40];
-
 
    template <typename T> T map_range(T value, T fromLow, T fromHigh, T toLow, T toHigh)
    {
@@ -19,12 +15,6 @@ class mwMiscFnx
    }
 
 
-
-
-
-
-
-   int exit_level_editor_dialog();
    int mw_file_select(const char * title, char * fn, const char * ext, int save);
 
    void chop_first_x_char(char *str, int n);
@@ -34,9 +24,6 @@ class mwMiscFnx
 
    std::string timestamp(const char* format);
 
-//   std::string timestamp2(constexpr std::string_view fmt);
-
-
    std::string timestamp_UTC_ISO8601();
    int find_duration(const char* d1, const char* d2);
 
@@ -45,17 +32,9 @@ class mwMiscFnx
    void mw_draw_text(int color, int x, int y, int flags, std::string text);
    void mw_draw_text(int color, int x, int y, int flags, const char * text);
 
-
-
    char* chrms(int time, char* ft);
-//   char* chrsi(int num, char* ft);
 
    char * chrmhd(int time, char* ft);
-
-
-//   void draw_time_text_box(int xc, int y1, int y2, int f, int format, int ypos, int color);
-
-
 
    int round20(int val);
 
@@ -89,20 +68,15 @@ class mwMiscFnx
    void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name);
 
 
-   float get_sproingy_jump_height(int num);
-   int get_sp(float jh);
-
    int get_block_range(const char *txt, int &x1, int &y1, int &x2, int &y2, int type);
    int getxy(const char *txt, int obj_type, int sub_type, int num);
    int get_item(int obj_type, int sub_type, int num);
 
 
    void fill_rect_with_1_tile(mwRect<float> r, int tile);
-
    void fill_rect_with_3_tile_platform(mwRect<float> r, int tile);
    void fill_rect_with_3_tile_column(mwRect<float> r, int tile);
-
-
+   void fill_rect_with_tileset(mwRect<float> r, int tile_base);
 
 
 
@@ -111,13 +85,10 @@ class mwMiscFnx
    void titlex(const char *txt, int tc, int fc, int x1, int x2, int y);
    void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
 
-
    void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
 
    void show_cursor_simple(char *f, int cursor_pos, int x, int y, int cursor_color, int restore);
    bool edit_string_simple(int x, int y, char * string, int len);
-
-
 
 };
 extern mwMiscFnx mMiscFnx;

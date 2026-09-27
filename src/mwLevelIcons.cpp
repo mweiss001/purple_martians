@@ -41,7 +41,7 @@ void mwLevelIcons::create()
 
 
    for (int level=0; level<max_level; level++)
-      if (mLevel.load_level(level, 0, 1))
+      if (mLevel.load_level_by_number(level, 0, 1))
       {
          // draw level
          al_set_target_bitmap(tmp);
@@ -72,7 +72,7 @@ void mwLevelIcons::create()
    // do level 1
    // this has to be last, because gates drawn on this level require level_icons created above
    int level = 1;
-   if (mLevel.load_level(level, 0, 1))
+   if (mLevel.load_level_by_number(level, 0, 1))
    {
       al_set_target_bitmap(tmp);
       mScreen.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0);

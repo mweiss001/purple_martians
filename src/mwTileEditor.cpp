@@ -892,7 +892,17 @@ void mwTileEditor::edit_tile(int tile)
       }
 
       xa = dx1+142;
-      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Select Tile", 0)) set_edit_tile(mBitmapTools.select_bitmap());
+      if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Select Tile", 0))
+      {
+         int tn = edit_tile_index;
+         if (mBitmapTools.select_bitmap(tn))
+         {
+            edit_tile_index = tn;
+            mBitmapTools.get_tile_from_tilemap(tilemap_bitmap, edit_tile_bitmap, edit_tile_index);
+         }
+      }
+
+
 
       xa = dx1+282;
       if (mWidget.mButton(3, xa, 0,   1, ya, 12,   1, 0, 3, 3,   0, 15, 15,  10, 0, "Copy Tiles", 0)) mBitmapTools.copy_tiles();

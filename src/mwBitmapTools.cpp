@@ -441,17 +441,21 @@ void mwBitmapTools::combine_tile(void)
 }
 
 
-
-
-
 // gets block with flags from level
-// used by widget button to get new tile for block manip and block walker
-// now used in tile helper also
+// used by widget mButtonCustom:
+//  - block manip
+//  - block walker
+//  - lift
+//
+// used by tileHelper
+
 
 
 void mwBitmapTools::select_bitmap_from_level(int &tn)
 {
    int quit = 0;
+   int swx1 = 20;
+
    while (!quit)
    {
       mLevelEditor.redraw_background(0);
@@ -461,27 +465,24 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
       int local_point_item_type = 1;
       int local_point_item_num = mLevel.l[mLevelEditor.gx][mLevelEditor.gy];
 
-      int swx1 = 200;
-      int swy1 = 200;
-
-      int swx2 = swx1 + 144;
-      int swy2 = swy1 + 32;  // above flags
+      int swx2 = swx1 + 160;  // + mLoop.pct_x;
+      int swy1 = 20; // 1st section 'Choose block'
+      int swy2 = swy1 + 31; // + mLoop.pct_y;  // 2nd 3rd section 'flags'
+      int swy3 = swy2 + 173; // + mLoop.pct_y;      // 3rd section 'Press T'
+      int swy4 = swy3 + 23; // + mLoop.pct_y;      // 3rd section 'Press M'
+      int swy5 = swy4 + 11; // + mLoop.pct_y;  // end
 
       // erase background and frame
-      int swy3 = swy2 + 174; // below flags
-      // swy3 += mLoop.pct_y;
+      al_draw_filled_rectangle(              swx1-2, swy1-2,  swx2+2, swy5+2, mColor.pc[0]);
+      al_draw_rectangle(                     swx1-2, swy1-2,  swx2+2, swy5+2, mColor.pc[13], 1);
 
-      al_draw_filled_rectangle(              swx1-2, swy1-2,  swx2+2, swy3, mColor.pc[0]);
-      al_draw_rectangle(                     swx1-2, swy1-2,  swx2+2, swy3, mColor.pc[13], 1);
-
-      // view item area
       al_draw_rectangle(                     swx1,    swy1,   swx2,   swy2, mColor.pc[9], 1);
-      al_draw_text(mFont.pr8, mColor.pc[15], swx1+24, swy1+2, 0, "Choose Block");
-      mEditorMain.show_item_info(           swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
+      al_draw_text(mFont.pr8, mColor.pc[15], swx1+24, swy1+2, 0, "Choose from Level");
+      mEditorMain.show_item_info(            swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
 
       // flags section
       int ftx = swx1+11;
-      int fty = swy1+35;
+      int fty = swy2+3;
       int ys = 10; // y spacing
       draw_flag_text(ftx+4, fty, ys, 15);
 
@@ -490,6 +491,16 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
       int frx = ftx-frw-2;        // flag rectangle x
       int fry = fty - (frh/2)+4;  // flag rectangle y
       draw_flag_rects(local_point_item_num, frx, fry, frw, frh, ys);
+
+
+      al_draw_rectangle(                     swx1,  swy3,   swx2,  swy4-2, mColor.pc[9], 1);
+      int swxc = (swx1 + swx2)/2;
+      al_draw_text(mFont.pr8, mColor.pc[15], swxc,  swy3+2,  1, "Press 'T' to");
+      al_draw_text(mFont.pr8, mColor.pc[15], swxc,  swy3+12, 1, "Choose From Tilemap");
+
+      al_draw_rectangle(                     swx1,  swy4,   swx2,  swy5, mColor.pc[9], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], swxc,  swy4+2,  1, "Press 'M' to Move");
+
 
       if (mInput.mouse_b[1][0])
       {
@@ -502,36 +513,67 @@ void mwBitmapTools::select_bitmap_from_level(int &tn)
          while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
+
+      if (mInput.key[ALLEGRO_KEY_T][3])
+      {
+         select_bitmap(tn);
+         quit = 1;
+      }
+
+      if (mInput.key[ALLEGRO_KEY_M][3])
+      {
+         if (swx1 == 20) swx1 = 200;
+         else swx1 = 20;
+      }
    }
 }
 
 
-
-// used by tile editor only to choose new tile from 'tile' tilemap
-int mwBitmapTools::select_bitmap()
+// used by tile editor only to select a 'tile' index
+int mwBitmapTools::select_bitmap(int &tile)
 {
    int y_offset = 0;
    int quit = 0;
+   int swx1 = 20;
+
+
    while (!quit)
    {
       mEventQueue.proc(1);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(mFont.pr8, mColor.pc[15], 644, 28, 0, "Select a Tile with b1");
-      al_draw_text(mFont.pr8, mColor.pc[15], 644, 38, 0, "b2 or ESC to exit      ");
 
       // how many tiles will fill vertically in the screen space available?
-      int th = mDisplay.SCREEN_H / 20;
+      int th = (mDisplay.SCREEN_H-10) / 20;
       if (th > 64) th = 64;
 
       // draw 32 x th bitmaps
-      for (int y = 0; y < th; y++)
-         for (int x = 0; x < 32; x++)
+      for (int y=0; y<th; y++)
+         for (int x=0; x<32; x++)
             al_draw_bitmap(mBitmap.tile[x+((y + y_offset)*32)],x*20, y*20, 0);
 
       al_draw_rectangle(0.5, 0.5, 640.5, th*20+0.5, mColor.pc[13], 1);
       for (int x=0; x<=32; x++) al_draw_line(x*20,     0, x*20,  th*20, mColor.pc[15+128], 0);
       for (int y=0; y<=th; y++) al_draw_line(0,     y*20,  640,  y*20, mColor.pc[15+128], 0);
+
+      int swx2 = swx1 + 188 + mLoop.pct_x;
+      int swy1 = 20; // 1st section 'Choose block'
+      int swy2 = swy1 + 38 + mLoop.pct_y;
+
+      // erase background and frame
+      al_draw_filled_rectangle(              swx1-2, swy1-2,  swx2+2, swy2+2, mColor.pc[0]);
+      al_draw_rectangle(                     swx1-2, swy1-2,  swx2+2, swy2+2, mColor.pc[13], 1);
+
+      al_draw_rectangle(                     swx1,    swy1,   swx2,   swy2, mColor.pc[9], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], swx1+34, swy1+2,  0, "Select with b1");
+      al_draw_text(mFont.pr8, mColor.pc[15], swx1+34, swy1+11, 0, "b2 or ESC to cancel");
+      al_draw_text(mFont.pr8, mColor.pc[15], swx1+34, swy1+20, 0, "M to Move");
+
+      if (mInput.key[ALLEGRO_KEY_M][3])
+      {
+         if (swx1 == 20) swx1 = 200;
+         else swx1 = 20;
+      }
 
       if (mInput.mouse_x < 640)
       {
@@ -548,13 +590,11 @@ int mwBitmapTools::select_bitmap()
          }
          else if (mInput.mouse_y < th*20)
          {
-            int pointer = (mInput.mouse_x/20) + ((mInput.mouse_y/20)+y_offset) * 32;
-            int x = 642;
-            int y = 1;
-            al_draw_rectangle(                      x,     y,     x+128, y+24, mColor.pc[13], 1);
-            al_draw_bitmap(mBitmap.tile[pointer],   x+2,   y+2,   0);
-            al_draw_textf(mFont.pr8, mColor.pc[13], x+26,  y+8,   0, "pointer %-2d", pointer );
-            if (mInput.mouse_b[1][3]) return pointer;
+            tile = (mInput.mouse_x/20) + ((mInput.mouse_y/20)+y_offset) * 32;
+            al_draw_bitmap(mBitmap.tile[tile],      swx1+8, swy1+4,   0);
+            al_draw_rectangle(                      swx1+6, swy1+2, swx1+30, swy1+26, mColor.pc[13], 1);
+            al_draw_textf(mFont.pr8, mColor.pc[13], swx1+18, swy1+28,  1, "%-2d", tile );
+            if (mInput.mouse_b[1][3]) return 1;
          }
       }
       if ((mInput.key[ALLEGRO_KEY_ESCAPE][3]) || (mInput.mouse_b[2][3])) quit = 1;

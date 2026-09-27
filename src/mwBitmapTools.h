@@ -5,13 +5,14 @@
 class mwBitmapTools
 {
    public:
-   void select_bitmap_from_level(int& tn);
+
    void animation_sequence_editor();
    void draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow);
 
    void copy_tiles();
 
-   int select_bitmap();
+   int select_bitmap(int &tile);
+   void select_bitmap_from_level(int& tn);
 
    void get_tile_from_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, int tile);
    void put_tile_to_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, int tile);

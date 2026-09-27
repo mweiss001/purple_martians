@@ -1361,8 +1361,10 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
    status = 2;
 
 
+
    // does this run every time? no
    if (fillGmInfo) mGmInfo.fill();
+
 
 
    // why do this with every load? was it a temporary thing?

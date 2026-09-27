@@ -46,3 +46,12 @@ S - used for many custom things, manually set in code
 
 
 
+Visual Level Select
+-------------------
+if (mInput.key[ALLEGRO_KEY_END][3]) // start level editor
+{
+   mLevel.set_start_level(selected_level);
+   quit = 3;
+}
+
+

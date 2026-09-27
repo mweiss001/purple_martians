@@ -50,7 +50,7 @@ void mwGlobalLevelTool::countTiles()
    // iterate array of found levels
    for (int i=0; i<num_levs; i++)
    {
-      mLevel.load_level(le[i], 1, 1);
+      mLevel.load_level_by_number(le[i], 1, 1);
 
       if (1)
       {
@@ -167,7 +167,7 @@ void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int 
    // iterate array of found levels
    for (int i=0; i<num_levs; i++)
    {
-      mLevel.load_level(le[i], 1, 1);
+      mLevel.load_level_by_number(le[i], 1, 1);
 
       for (int r=0; r<range; r++)
          changeBlockNumber(oldNumber+r, newNumber+r);
@@ -177,8 +177,6 @@ void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int 
    }
    mLevel.set_start_level(old_start_level);
 }
-
-
 
 
 
@@ -261,13 +259,18 @@ void mwGlobalLevelTool::execute(void)
       mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, (x+1)*100 / num_levs);
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
-      mLevel.load_level(le[x], 1, 1);
+      mLevel.load_level_by_number(le[x], 1, 1);
 
-//
-//       for (int y=0; y<500; y++)
-//          if (mItem.item[y][0] == 2) // bonus
-//          {
-// //            if (mItem.item[y][6] != 3 && mItem.item[y][6] != 1)  printf("l:%d !=13 \n", le[x]);
+
+       // for (int y=0; y<500; y++)
+       //    if (mItem.item[y][0] == 17) // block damage
+       //    {
+       //       mItem.item[y][12] = mItem.item[y][15];
+       //       mItem.item[y][15] = 0;
+       //    }
+
+
+      // //            if (mItem.item[y][6] != 3 && mItem.item[y][6] != 1)  printf("l:%d !=13 \n", le[x]);
 //
 //               if (mItem.item[y][6] == 1) mItem.item[y][6] = 0;
 //               if (mItem.item[y][6] == 3) mItem.item[y][6] = 1;

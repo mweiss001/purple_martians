@@ -965,6 +965,7 @@ void mwLift::draw_lift(int l, mwRect<float> lr)
          al_draw_text(f, mColor.pc[tc], lr.XCenter(), lr.YCenter() - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
       }
 
+
       // single block
       if (draw_mode == 10) mMiscFnx.fill_rect_with_1_tile(lr, cur[l].draw_mode_val1);
 
@@ -974,7 +975,8 @@ void mwLift::draw_lift(int l, mwRect<float> lr)
       // 3 block column
       if (draw_mode == 12) mMiscFnx.fill_rect_with_3_tile_column(lr, cur[l].draw_mode_val1);
 
-
+      // tileset
+      if (draw_mode == 13) mMiscFnx.fill_rect_with_tileset(lr, cur[l].draw_mode_val1);
 
 
       if (mLoop.level_editor_running)

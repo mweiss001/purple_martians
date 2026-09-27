@@ -23,14 +23,31 @@
 #include "mwTileEditor.h"
 #include "mwTileHelper.h"
 #include "mwTileSets.h"
+#include "mwWidget.h"
 
 mwLevelEditor mLevelEditor;
 
 void mwLevelEditor::init(int level)
 {
+
+   // to keep track of whether a level was successfully loaded
+   int level_loaded = 0;
+
+   // if passed level 0 (which should not exist) prompt for level to load
+   if (level == 0) level_loaded = mLevel.load_level_file_dialog(); // prompt for level
+
+   // otherwise try to load passed level num
+   else level_loaded = mLevel.load_level_by_number(level, 0, 0);
+
+   // if that fails, prompt for level to load
+   if (level_loaded == 0) level_loaded = mLevel.load_level_file_dialog(); // prompt for level
+
+   // if a level is not loaded after all that, just quit
+   if (level_loaded == 0) return;
+
+
+
    selection.setXYWH(0,0,0,0);
-   if (level) mLevel.load_level(level, 0, 0); // load passed level
-   else mLevel.load_level_prompt();           // prompt for level
    mEnemy.sort_enemy();
    mItem.sort_item(1);
    mInput.initialize();
@@ -466,7 +483,7 @@ void mwLevelEditor::process_keypress()
    }
    if (mEditorMain.level_editor_quit_confirmation_dialog && active == 0)
    {
-      int ret = mMiscFnx.exit_level_editor_dialog();
+      int ret = exit_level_editor_dialog();
       if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
       if (ret == 2) active = 1; // cancel
    }
@@ -716,3 +733,100 @@ void mwLevelEditor::reset_variables_on_level_change()
    mGroupEdit.clear_obj_list();
 
 }
+
+
+
+
+
+
+int mwLevelEditor::exit_level_editor_dialog()
+{
+   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+
+   al_set_target_backbuffer(mDisplay.display);
+   al_show_mouse_cursor(mDisplay.display);
+
+   int quit = 0;
+   int ret = 0;
+
+   int w = 200, h = 100;
+   int x = (mDisplay.SCREEN_W - w) /2;
+   int y = (mDisplay.SCREEN_H - h) /2;
+
+   int xc = x+w/2;
+   int xa = xc-84;
+   int xb = xc+84;
+   int bts = 16;
+
+   while (!quit)
+   {
+      al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[10+128+64]);
+
+      for (int a=0; a<10; a++)
+         al_draw_rounded_rectangle(x+a, y+a, x+w-a, y+h-a, 1, 1, mColor.pc[10+a*16], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, y+14, ALLEGRO_ALIGN_CENTER, "Exit Level Editor?");
+
+      int bc = 15;
+
+      int by1 = y+30;
+
+      if (ret == 0) bc = 10;
+      else bc = 15;
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Save and Exit",   0))  { quit = 1; ret = 0; }
+      by1+=bts;
+      if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
+
+      by1+=4;
+
+      if (ret == 1) bc = 10;
+      else bc = 15;
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Exit Without Saving",   0))  { quit = 1; ret = 1; }
+      by1+=bts;
+      if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
+
+      by1+=4;
+
+      if (ret == 2) bc = 10;
+      else bc = 15;
+      if (mWidget.mButton(0, xa, xb,   1, by1, bts-2,    1, 2, 0, 1,   bc, 0, 15, 0, 0, "Cancel",   0))  { quit = 1; ret = 2; }
+      by1+=bts;
+      if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
+
+
+      mEventQueue.proc(1);
+      al_flip_display();
+
+      if (mInput.key[ALLEGRO_KEY_DOWN][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc(1);
+         if (++ret > 2) ret = 2;
+      }
+
+      if (mInput.key[ALLEGRO_KEY_UP][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc(1);
+         if (--ret < 0) ret = 0;
+      }
+      if (mInput.key[ALLEGRO_KEY_ENTER][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         ret = 2; // cancel
+         quit = 1;
+      }
+   }
+   //printf("ret:%d\n", ret);
+   return ret;
+}
+
+
+
+
+
+
+
+

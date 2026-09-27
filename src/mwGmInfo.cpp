@@ -95,6 +95,7 @@ void mwGmInfo::fill()
    findDeaths();
    findPurpleCoins();
    findEnemyHits();
+
 }
 
 

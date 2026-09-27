@@ -40369,6 +40369,204 @@ but now 12, 13, 14 are not used
 I should move damage to 12...
 
 first test that theory by zeroing all 12, 13, 14 and seeing if demos play back
+they do
+now copy 15 to 12 and erase 15
+
+this is done!!!
+
+one other thing...
+
+block manip uses 14...but I think I don't check expiry for that
+trigger also
+
+timer uses 14 and 15
+but 15 is used as an event and would never be over 1000
+
+
+
+
+
+load level in level editor
+
+I should make separate menu items
+load from filename
+load visually
+
+
+
+mVisualLevel.visual_level_select(400);
+
+where are the places where I load level manually?
+
+2 in editor top menu:
+
+      if (ret == 2)
+      {
+         mVisualLevel.visual_level_select(400);
+         mLevelEditor.reset_variables_on_level_change();
+      }
+
+      if (ret == 3)
+      {
+         mLevel.load_level_prompt_for_filename();
+         mLevelEditor.reset_variables_on_level_change();
+      }
+
+1 in pop menu
+
+         case 13: // load level
+            mVisualLevel.visual_level_select(400);
+            mLevelEditor.reset_variables_on_level_change();
+         break;
+
+1 at start if no valid level
+
+
+I now have these 3 functions:
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+int mwLevel::load_level_prompt_for_filename()
+int mwLevel::load_level_filename(const char* filename, int load_only, int fail_silently)
+
+rename:
+
+
+int mwLevel::load_level_visual_select()
+{
+   int ret = mVisualLevel.visual_level_select(400);
+   mLevelEditor.reset_variables_on_level_change();
+   return ret;
+}
+
+
+int mwLevel::load_level_file_dialog()
+{
+   char filename[256];
+   sprintf(filename,"levels\\");
+   if (mMiscFnx.mw_file_select("Load Level", filename, ".pml", 0))
+   {
+      int ret = load_level_filename(filename, 0, 0);
+      mLevelEditor.reset_variables_on_level_change();
+      return ret;
+   }
+   return 0; // user pressed cancel
+}
+
+
+this is what I have decided on:
+
+int load_level_file_dialog();
+int load_level_visual_select();
+int load_level_by_number(int level_to_load, int load_only, int fail_silently);
+int load_level(const char* filename, int load_only, int fail_silently);
+
+
+
+
+
+
+
+
+
+
+
+purple coin counter in top frame is wrong again...why!!!
+test, reproduce and refine...
+
+level 39...
+play normally ok
+demo starts with all coins got..
+
+
+      // draw purple coins if the level has any
+      if (mLevel.data[mLevel.play_level].tot_coins)
+      {
+         mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
+
+
+int mwGmInfo::countTotalPurpleCoinsCollected()
+{
+   coinsCollected = 0;
+   for (auto& gm : mGameEvent.game_events)
+      if (gm.ev == 27) coinsCollected++;
+   return coinsCollected;
+}
+
+should I reset this somewhere?
+
+int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
+
+   int load_gm(const char *sfname, bool fillGmInfo = true);
+
+
+there are 11 calls to load_gm
+
+I need to make some of them not fill gm?
+or just reset events?
+
+go to my specific case:
+
+start demo from menu
+
+added this
+      mGameEvent.game_events.clear();
+in 
+int mwLoop::load_and_setup_level(int level, int type)
+
+      initialize_graphs();
+      mNetgame.reset_states();
+      mInput.initialize();
+      mBottomMessage.initialize();
+      mTriggerEvent.initialize();
+      mShot.clear_shots();
+      mGameEvent.game_events.clear();
+
+
+
+make block selection be able to select from tilemap, not level (or both!)
+used by:
+block manip,
+block walker,
+lift,
+tile helper
+
+I am going to repurpose this:
+int mwBitmapTools::select_bitmap(int &tile)
+
+I can call it from 'select_bitmap_from_level' !!!
+looking good...
+
+now can I do a nice window in the 2nd one like the first? yes!!!
+
+2026-09-27 09:43:07
+
+
+can I do lift draw modes for rects that are bigger than 1 line each dir
+they will use tilesets
+
+      // 3 block platform
+      if (draw_mode == 11) mMiscFnx.fill_rect_with_3_tile_platform(lr, cur[l].draw_mode_val1);
+
+make a new mode 13 'Tileset'
+
+how do I find tileset from tile?
+
+select tilset from lift tileset?
+
+2026-09-27 11:09:42
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

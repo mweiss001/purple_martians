@@ -39,6 +39,12 @@ class mwItem
    void proc_bonus_collision(int p, int i);
    void proc_mine_collision(int p, int i);
    void proc_sproingy_collision(int p, int i);
+   float get_sproingy_jump_height(int num);
+   int get_sp(float jh);
+
+
+
+
 
    // mwItemStartExitGate
    int draw_start(int i, int x, int y, int shape);
@@ -245,11 +251,9 @@ item[][12] draw lines always, never, only when touched
 
 
 [2] - bonus
-item[][6] bonus type
-1 - Health
-2 - Free Man
-3 - Purple Coin
+item[][6] bonus type (0 - Health   1 - Purple Coin)
 item[][7] health bonus
+
 
 [3] - exit
 item[][8] exit with x enemies left
@@ -270,8 +274,34 @@ item[][8] no backsies
 
 
 
-
 [6] - orb
+item[][6]  = MODE
+item[][7]  = timer val
+item[][8]  = time count
+item[][9]  =
+item[][10] = STATE ON  pm_event
+item[][11] = STATE OFF pm_event
+item[][12] = TGON pm_event
+item[][13] = TGOF pm_event
+
+#define PM_ITEM_ORB_STATE       0b0000000000000001
+#define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
+#define PM_ITEM_ORB_TGON        0b0000000000000100
+#define PM_ITEM_ORB_TGOF        0b0000000000001000
+
+#define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
+#define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
+#define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
+
+
+
+
+
+
+
+
 
 
 [7] - mine
@@ -317,10 +347,42 @@ item[][8]  max speed
 item[][9]  accel
 item[][10] rocket rotation (scaled by 10)
 
-
 [12] not used
 
-[13] timer
+
+[13] - timer
+item[][2]  = draw_mode 0 = Off 1 = progress bar
+item[][3]  = flags
+item[][4]  = x
+item[][5]  = y
+
+item[][6]  = display x
+item[][7]  = display y
+item[][8]  = display w
+item[][9]  = display h
+
+item[][10] = t1 reset val
+item[][11] = t2 reset val
+item[][12] = t1 i/p event
+item[][13] = t1 o/p event
+item[][14] = t2 i/p event
+item[][15] = t2 o/p event
+                                              00000000        00000000
+                                      00000000        00000000
+#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
+#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
+#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
+#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
+#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
+
+
+
+
+
+
+
+
 
 [14]  - switch
 item[][6]  block range x
@@ -345,8 +407,8 @@ item[][9]  = trigger field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
-
-
+item[][13] = copy x or block 3
+item[][14] = copy y or block 4
 
 
 [17] - Block Damage
@@ -356,11 +418,7 @@ item[][8]  = field w (2000)
 item[][9]  = field h (2000)
 item[][10] = lift number
 item[][11] = mode
-item[][12] = t1 val
-item[][13] = count
-item[][14] = t2 val
-item[][15] = damage
-
+item[][12] = damage
 
 
 

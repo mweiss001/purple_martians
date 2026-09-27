@@ -45,7 +45,7 @@ void mwVisualLevel::show_big_lev(int level, const char * text, int x, int y, int
    al_draw_rectangle(1000, y+24, 1279, y+303+ts, mColor.pc[color], 1 );
    al_draw_rectangle(1001, y+25, 1278, y+302+ts, mColor.pc[color], 1 );
 
-   if (mLevel.load_level(level, 0, 1))
+   if (mLevel.load_level_by_number(level, 0, 1))
    {
       al_set_target_backbuffer(mDisplay.display);
       mScreen.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0);
@@ -117,7 +117,7 @@ void mwVisualLevel::compare_curr(int sel)
 
    // load every level
    for (int x=0; x<num_levs; x++)
-      if (mLevel.load_level(le[x], 1, 1))
+      if (mLevel.load_level_by_number(le[x], 1, 1))
       {
          int sb1 = 0, sb2 = 0, sbm = 0;
          for (int a=0; a<100; a++)
@@ -203,7 +203,7 @@ void mwVisualLevel::compare_all(void)
 
    // load every level (outer loop)
    for (int x=0; x<num_levs; x++)
-      if (mLevel.load_level(le[x], 1, 1))
+      if (mLevel.load_level_by_number(le[x], 1, 1))
       {
 
          al_set_target_backbuffer(mDisplay.display);
@@ -227,7 +227,7 @@ void mwVisualLevel::compare_all(void)
 
          // load every level (inner loop)
          for (int x1=0; x1<num_levs; x1++)
-            if (mLevel.load_level(le[x1], 1, 1))
+            if (mLevel.load_level_by_number(le[x1], 1, 1))
             {
 
                al_set_target_backbuffer(mDisplay.display);
@@ -288,7 +288,7 @@ void mwVisualLevel::lev_draw(int full, int sel, int cur)
          {
             int level = my*20 + mx;
             int col = 11;
-            if (!mLevel.load_level(level, 0, 1)) col = 10;
+            if (!mLevel.load_level_by_number(level, 0, 1)) col = 10;
             if (mLevel.valid_level_loaded) mScreen.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(mFont.pr8, mColor.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
@@ -381,7 +381,7 @@ void mwVisualLevel::level_viewer(void)
       if (mInput.key[ALLEGRO_KEY_S][0])
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
-         if (mLevel.load_level(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         if (mLevel.load_level_by_number(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
          redraw = 1;
@@ -399,7 +399,7 @@ void mwVisualLevel::level_viewer(void)
          if (mInput.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (mLevel.load_level(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (mLevel.load_level_by_number(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
             while (mInput.mouse_b[1][0]) mEventQueue.proc_menu();
@@ -410,8 +410,8 @@ void mwVisualLevel::level_viewer(void)
             while (mInput.mouse_b[2][0]) mEventQueue.proc_menu();
             if ((cur != 0) && (sel !=0) && (cur != sel))
             {
-               if (mLevel.load_level(cur, 0, 1) == 1) // cur exists
-                  if (mLevel.load_level(sel, 0, 1) == 0) // sel does not exist
+               if (mLevel.load_level_by_number(cur, 0, 1) == 1) // cur exists
+                  if (mLevel.load_level_by_number(sel, 0, 1) == 0) // sel does not exist
                   {
                      sprintf(msg, "Level:%d to Level:%d ?", cur, sel);
                      if (al_show_native_message_box(mDisplay.display,
@@ -420,7 +420,7 @@ void mwVisualLevel::level_viewer(void)
                      {
                         char lf[256];
 
-                        mLevel.load_level(cur, 0, 1);           // load current level
+                        mLevel.load_level_by_number(cur, 0, 1);           // load current level
                         mLevel.save_level(sel);              // save as new level
 
                         sprintf(lf, "levels/level%03d.pml", cur); // make filename for old
@@ -491,7 +491,7 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
-   if (mLevel.load_level(cur, 0, 1))
+   if (mLevel.load_level_by_number(cur, 0, 1))
    {
       mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
       int ty1 = mLevel.show_level_data(x1+2, y2+32+24, 0);
