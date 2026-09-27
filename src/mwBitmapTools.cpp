@@ -60,7 +60,7 @@ void mwBitmapTools::mw_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
       struct tm *timenow = localtime(&now);
       strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      char backup_filename[255];
+      char backup_filename[1024];
       sprintf(backup_filename, "%s_%s.bak", filename, timestamp);
 
       if (std::rename(filename, backup_filename) == 0)

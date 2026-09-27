@@ -452,8 +452,7 @@ void mwDemoRecord::draw_timeline_section_text(mwRect<int> rect, int gmInfo_index
       float txty2 = txty1 + txtys + 5;
       float txty3 = txty2 + txtys + 5;
 
-
-      char msg[256];
+      char msg[1024];
       sprintf(msg, "%s - %s - [%s]" , text_index, text_player_num, text_player_name);
       al_draw_text(mFont.pixl, mColor.pc[15], txtx, txty1, 0, msg);
 

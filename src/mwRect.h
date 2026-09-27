@@ -284,7 +284,7 @@ public:
       T t_x = x1+4;
       if (t_just == 1) t_x = XCenter();
       T t_y = y1 + (size-8)/2;
-      al_draw_textf(font, t_color, t_x, t_y, t_just, text.c_str());
+      al_draw_text(font, t_color, t_x, t_y, t_just, text.c_str());
    }
 
 

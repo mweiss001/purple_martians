@@ -343,7 +343,7 @@ void mwLevel::save_level(int level_num)
       struct tm *timenow = localtime(&now);
       strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      char backup_filename[255];
+      char backup_filename[1024];
       sprintf(backup_filename, "levels/level%03d_%s.pml", level_num, timestamp);
 
       // std::rename returns 0 on success

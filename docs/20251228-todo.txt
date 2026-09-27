@@ -22,18 +22,42 @@ TO DO
 test in linux
 
 powering up scat....
-
 scat is 142
 
+reclone and ran
+level editor looks nice...
+all demos run...
 
+src/mwBitmapTools.cpp: In member function ‘void mwBitmapTools::mw_save_bitmap(const char*, ALLEGRO_BITMAP*)’:
+src/mwBitmapTools.cpp:64:36: warning: ‘%s’ directive writing up to 255 bytes into a region of size 254 [-Wformat-overflow=]
+   64 |       sprintf(backup_filename, "%s_%s.bak", filename, timestamp);
+      |                                    ^~                 ~~~~~~~~~
+src/mwBitmapTools.cpp:64:14: note: ‘sprintf’ output 6 or more bytes (assuming 261) into a destination of size 255
+   64 |       sprintf(backup_filename, "%s_%s.bak", filename, timestamp);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+g++ -std=c++20 -Wall -c src/mwDemoRecordTimeline.cpp -o o/src/mwDemoRecordTimeline.o
+src/mwDemoRecordTimeline.cpp: In member function ‘void mwDemoRecord::draw_timeline_section_text(mwRect<int>, int)’:
+src/mwDemoRecordTimeline.cpp:457:23: warning: ‘ - ’ directive writing 3 bytes into a region of size between 1 and 256 [-Wformat-overflow=]
+  457 |       sprintf(msg, "%s - %s - [%s]" , text_index, text_player_num, text_player_name);
+      |                       ^~~
+src/mwDemoRecordTimeline.cpp:457:14: note: ‘sprintf’ output between 9 and 774 bytes into a destination of size 256
+  457 |       sprintf(msg, "%s - %s - [%s]" , text_index, text_player_num, text_player_name);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/mwDemoRecordTimeline.cpp:465:23: warning: ‘ - ’ directive writing 3 bytes into a region of size between 1 and 256 [-Wformat-overflow=]
+  465 |       sprintf(msg, "%s - %s" , text_lmf, text_ne);
+      |                       ^~~
+src/mwDemoRecordTimeline.cpp:465:14: note: ‘sprintf’ output between 4 and 514 bytes into a destination of size 256
+  465 |       sprintf(msg, "%s - %s" , text_lmf, text_ne);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
-
-
-
-
+src/mwLevel.cpp: In member function ‘void mwLevel::save_level(int)’:
+src/mwLevel.cpp:347:50: warning: ‘%s’ directive writing up to 255 bytes into a region of size between 231 and 239 [-Wformat-overflow=]
+  347 |       sprintf(backup_filename, "levels/level%03d_%s.pml", level_num, timestamp);
+      |                                                  ^~                  ~~~~~~~~~
+src/mwLevel.cpp:347:14: note: ‘sprintf’ output between 21 and 284 bytes into a destination of size 255
+  347 |       sprintf(backup_filename, "levels/level%03d_%s.pml", level_num, timestamp);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
