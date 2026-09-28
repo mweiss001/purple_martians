@@ -164,6 +164,20 @@ class mwTileSets
 
    private:
 
+   void draw_tile_on_tilemap(ALLEGRO_BITMAP *tile, ALLEGRO_BITMAP *tilemap, int index);
+   bool colors_equal(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2);
+   void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj);
+
+
+   ALLEGRO_BITMAP * create_bitmap10_and_fill(ALLEGRO_BITMAP *tilemap, int sx, int sy);
+   void prepare_tile_for_drawing(ALLEGRO_BITMAP *tile);
+   void draw_tile_from_quarters(int index, ALLEGRO_BITMAP *tilemap, ALLEGRO_BITMAP *tl, ALLEGRO_BITMAP *tr, ALLEGRO_BITMAP *br, ALLEGRO_BITMAP *bl);
+
+
+
+
+
+
    void fill_step_color_array(float h1, float h2, float s1, float s2, float l1, float l2, int steps);
    ALLEGRO_COLOR step_color_array[20];
    int step_color_array_size;
@@ -207,10 +221,17 @@ public:
    bool findTileSetContainingName(struct tileSet &t, std::string n);
    bool findTileSetContainingIndex(struct tileSet &t, int tileIndex);
    void drawTile(int x, int y, int tileNum, int drawItemFlags, int drawTileMode, bool preview);
-   void drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview);
+
+
+   void drawRectHelper(int s, int t, int b, int l, int r, int tl, int tr, int bl, int br, bool preview, std::string text);
    void drawRectHelperPattern(struct tileSet ts, bool preview);
-   void drawRectHelperHline(struct tileSet ts, bool preview);
-   void drawRectHelperVline(struct tileSet ts, bool preview);
+
+
+   void drawRectHelperHline(int l, int m, int r, bool preview, std::string text);
+   void drawRectHelperVline(int t, int m, int b, bool preview, std::string text);
+   void drawRectHelperHline7(int l0, int l1, int l2, int m, int r2, int r1, int r0, bool preview, std::string text);
+   void drawRectHelperHline9(int l0, int l1, int l2, int l3, int m, int r3, int r2, int r1, int r0, bool preview, std::string text);
+
    void drawRect(bool preview);
 
 

@@ -971,7 +971,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
 
 void mwEditorMain::draw_level_editor_background_overlays(int mouse_on_window)
 {
-   if (!mouse_on_window) mEditorMain.show_draw_item_cursor();
+   if (!mouse_on_window) show_draw_item_cursor();
 }
 
 

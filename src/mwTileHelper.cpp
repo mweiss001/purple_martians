@@ -212,66 +212,317 @@ int mwTileHelper::replace_helper_90(struct tileSet ts)
 {
    int fb = ts.SolidFill; // default middle tile
 
-   if (replace_mode_alt == 99)
+   // if (replace_mode_alt == 99) //original
+   // {
+   //    fb = ts.SolidFill; // default middle tile
+   //
+   //
+   //    // open on all 8 - orphan single block
+   //    if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
+   //
+   //
+   //    if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
+   //    if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
+   //    if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
+   //    if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
+   //
+   //    if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
+   //    if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
+   //    if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
+   //    if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
+   //
+   //    if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM;  // vertical through line
+   //    if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineM;  // horizontal through line
+   //
+   //    if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = ts.HLineR;  // right end line
+   //    if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.VLineB;  // bottom end line
+   //    if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineL;  // left end line
+   //    if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.VLineT;  // top end line
+   //
+   //
+   //
+   //    if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
+   //    {
+   //       if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
+   //       if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
+   //       if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
+   //    }
+   //    if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
+   //    {
+   //       if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
+   //       if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
+   //       if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
+   //    }
+   //    if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
+   //    {
+   //       if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
+   //       if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
+   //       if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
+   //    }
+   //    if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
+   //    {
+   //       if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
+   //       if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
+   //       if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
+   //    }
+   //    if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
+   //    if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
+   //    if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
+   //    if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+   //
+   //    // this gets a few more inner corners
+   //    if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
+   //    {
+   //       // single corner open
+   //       if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
+   //       if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
+   //       if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
+   //       if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
+   //
+   //       // 2 adjacent corners open
+   //       if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
+   //       if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
+   //       if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
+   //       if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
+   //
+   //       // all corner notches (full cross)
+   //       if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
+   //
+   //    }
+   // }
+   //
+   //
+   //
+   //
+
+
+   if (replace_mode_alt1 == 0) fb = ts.SolidFill;       // default middle tile
+   if (replace_mode_alt1 == 1) fb = ts.startIndex + 42; // 4 dots
+   if (replace_mode_alt1 == 2) fb = ts.startIndex + 47; // IL
+   if (replace_mode_alt1 == 3) fb = ts.startIndex + 65; // yellow cross
+
+
+   // open on all 8 - orphan single block
+   if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
+
+
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) // solid outer tl corner
    {
-      fb = ts.SolidFill; // default middle tile
-
-
-      // open on all 8 - orphan single block
-      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
-
-
-      if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
-      if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
-
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
-
-      if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) fb = ts.VLineM;  // vertical through line
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineM;  // horizontal through line
-
-      if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) fb = ts.HLineR;  // right end line
-      if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) fb = ts.VLineB;  // bottom end line
-      if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) fb = ts.HLineL;  // left end line
-      if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) fb = ts.VLineT;  // top end line
+      if (replace_mode_alt8 == 0) fb = ts.OuterCornerTL; // 6
+      if (replace_mode_alt8 == 1) fb = ts.startIndex + 35;
+   }
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) // solid outer tr corner
+   {
+      if (replace_mode_alt8 == 0) fb = ts.OuterCornerTR; // 8
+      if (replace_mode_alt8 == 1) fb = ts.startIndex + 34;
+   }
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) // solid outer bl corner
+   {
+      if (replace_mode_alt8 == 0) fb = ts.OuterCornerBL; // 18
+      if (replace_mode_alt8 == 1) fb = ts.startIndex + 40;
+   }
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) // solid outer br corner
+   {
+      if (replace_mode_alt8 == 0) fb = ts.OuterCornerBR; // 20
+      if (replace_mode_alt8 == 1) fb = ts.startIndex + 41;
+   }
 
 
 
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // left vertical tee
+   {
+      if (replace_mode_alt9 == 0) fb = ts.OuterEdgeL; // 12
+      if (replace_mode_alt9 == 1) fb = ts.startIndex + 44;
+   }
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // right vertical tee
+   {
+      if (replace_mode_alt9 == 0) fb = ts.OuterEdgeR; // 14
+      if (replace_mode_alt9 == 1) fb = ts.startIndex + 43;
+   }
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // top horizontal tee
+   {
+      if (replace_mode_alt9 == 0) fb = ts.OuterEdgeT; // 7
+      if (replace_mode_alt9 == 1) fb = ts.startIndex + 45;
+   }
+   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // bottom horizontal tee
+   {
+      if (replace_mode_alt9 == 0) fb = ts.OuterEdgeB; // 19
+      if (replace_mode_alt9 == 1) fb = ts.startIndex + 46;
+   }
+
+
+   // vertical lines
+   if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) // vline top
+   {
+      if (replace_mode_alt2 == 0) fb = ts.VLineT;
+      if (replace_mode_alt2 == 1) fb = ts.startIndex + 52;
+      if (replace_mode_alt2 == 2) fb = ts.startIndex + 49;
+      if (replace_mode_alt2 == 3) fb = ts.startIndex + 81;
+      if (replace_mode_alt2 == 4) fb = ts.startIndex + 82;
+   }
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) // vline middle
+   {
+      if (replace_mode_alt2 == 0) fb = ts.VLineM;
+      if (replace_mode_alt2 == 1) fb = ts.startIndex + 55;
+      if (replace_mode_alt2 == 2) fb = ts.startIndex + 55;
+      if (replace_mode_alt2 == 3) fb = ts.startIndex + 84;
+      if (replace_mode_alt2 == 4) fb = ts.startIndex + 85;
+   }
+   if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) // vline bottom
+   {
+      if (replace_mode_alt2 == 0) fb = ts.VLineB;
+      if (replace_mode_alt2 == 1) fb = ts.startIndex + 58;
+      if (replace_mode_alt2 == 2) fb = ts.startIndex + 61;
+      if (replace_mode_alt2 == 3) fb = ts.startIndex + 87;
+      if (replace_mode_alt2 == 4) fb = ts.startIndex + 88;
+   }
+
+   // horizontal lines
+   if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) // hline left
+   {
+      if (replace_mode_alt3 == 0) fb = ts.HLineL;
+      if (replace_mode_alt3 == 1) fb = ts.startIndex + 59;
+      if (replace_mode_alt3 == 2) fb = ts.startIndex + 26;
+   }
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) // hline middle
+   {
+      if (replace_mode_alt3 == 0) fb = ts.HLineM;
+      if (replace_mode_alt3 == 1) fb = ts.startIndex + 62;
+      if (replace_mode_alt3 == 2) fb = ts.startIndex + 27;
+   }
+   if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) // hline right
+   {
+      if (replace_mode_alt3 == 0) fb = ts.HLineR;
+      if (replace_mode_alt3 == 1) fb = ts.startIndex + 53;
+      if (replace_mode_alt3 == 2) fb = ts.startIndex + 28;
+   }
+
+
+
+   // frame corners
+   // these have blocks on 2 adjacent sides only, and no diagonal block in between them
+   // --------------------------------------------------------------------------------------------
+   if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) // FrameCornerTL - blocks on br
+   {
+      if (replace_mode_alt5 == 0) fb = ts.FrameCornerTL;
+      if (replace_mode_alt5 == 1) fb = ts.startIndex + 50;
+   }
+   if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) // FrameCornerTR - blocks on bl
+   {
+      if (replace_mode_alt5 == 0) fb = ts.FrameCornerTR;
+      if (replace_mode_alt5 == 1) fb = ts.startIndex + 51;
+   }
+   if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) // FrameCornerBR - blocks on tl
+   {
+      if (replace_mode_alt5 == 0) fb = ts.FrameCornerBR;
+      if (replace_mode_alt5 == 1) fb = ts.startIndex + 57;
+   }
+   if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) // FrameCornerBL - blocks on tr
+   {
+      if (replace_mode_alt5 == 0) fb = ts.FrameCornerBL;
+      if (replace_mode_alt5 == 1) fb = ts.startIndex + 56;
+   }
+
+
+
+   // only one side open (4 cases)
+   // --------------------------------------------------------------------------------------------------
+   if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // only top side open
+   {
+      if ((bl == 0) && (br == 1)) // open to bl and solid to br
       {
-         if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
-         if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
-         if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerTLTeeL; // 30 solid top line, bl dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeBTee;     // 45 solid top line, bl and br dots
       }
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
+      if ((bl == 1) && (br == 0)) // solid to bl and open to br
       {
-         if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
-         if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
-         if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerTRTeeR; // 31 solid top line, br dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeBTee;     // 45 solid top line, bl and br dots
       }
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
+      if ((bl == 0) && (br == 0)) // open to bl and br
       {
-         if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
-         if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
-         if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
+         if (replace_mode_alt6 == 0) fb = ts.FrameEdgeBTee;   // 45 solid top line, bl and br dots
+         if (replace_mode_alt6 == 1) fb = ts.startIndex + 1;  // pink hline through
+         if (replace_mode_alt6 == 2) fb = ts.startIndex + 48; // yellow T down
+         if (replace_mode_alt6 == 3) fb = ts.startIndex + 62; // yellow hline through
       }
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
-      {
-         if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
-         if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
-         if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
-      }
-      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
-      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
-      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
-      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
+   }
 
-      // this gets a few more inner corners
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
+   if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // only bottom side open
+   {
+      if ((tl == 0) && (tr == 1))  // open to tl and solid to tr
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerBLTeeL; // 36 solid bottom line, tl dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeTTee;     // 46 solid bottom line, tl and tr dots
+      }
+      if ((tl == 1) && (tr == 0)) // solid to tl and open to tr
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerBRTeeR; // 37 solid bottom line, tr dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeTTee;     // 46 solid bottom line, tl and tr dots
+      }
+      if ((tl == 0) && (tr == 0)) // open to tl and tr
+      {
+         if (replace_mode_alt6 == 0) fb = ts.FrameEdgeTTee;   // 46 solid bottom line, tl and tr dots
+         if (replace_mode_alt6 == 1) fb = ts.startIndex + 1;  // pink hline through
+         if (replace_mode_alt6 == 2) fb = ts.startIndex + 60; // yellow T up
+         if (replace_mode_alt6 == 3) fb = ts.startIndex + 62; // yellow hline through
+      }
+   }
+
+
+   if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // only left side open
+   {
+      if ((tr == 0) && (br == 1)) // open to tr and solid to br
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerTLTeeT; // 32 solid left line, tr dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeLTee;     // 44 solid left line, tr and br dots
+      }
+      if ((tr == 1) && (br == 0)) // solid to tr and open to br
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerBLTeeB; // 38 solid left line, tl dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeLTee;     // 44 solid left line, tr and br dots
+      }
+
+      if ((tr == 0) && (br == 0)) // open to tr and br
+      {
+         if (replace_mode_alt7 == 0) fb = ts.FrameEdgeLTee;    // 44 solid left line, tr and br dots
+         if (replace_mode_alt7 == 1) fb = ts.startIndex + 15;  // pink vline through
+         if (replace_mode_alt7 == 2) fb = ts.startIndex + 56;  // yellow T right -- not good
+         if (replace_mode_alt7 == 3) fb = ts.startIndex + 55;  // yellow vline through
+         if (replace_mode_alt7 == 4) fb = ts.startIndex + 54;  // yellow cross
+         if (replace_mode_alt7 == 5) fb = ts.startIndex + 65;  // yellow cross
+      }
+   }
+   if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // only right side open
+   {
+      if ((tl == 0) && (bl == 1)) // open to tl and solid to bl
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerTRTeeT; // 33 solid right line, tl dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeRTee;     // 43 solid right line, tl and bl dots
+      }
+      if ((tl == 1) && (bl == 0)) // solid to tl and open to bl
+      {
+         if (replace_mode_alt0 == 0) fb = ts.OuterCornerBRTeeB; // 39 solid right line, bl dot
+         if (replace_mode_alt0 == 1) fb = ts.FrameEdgeRTee;     // 43 solid right line, tl and bl dots
+         //if (replace_mode_alt0 == 2) fb = 134;
+      }
+      if ((tl == 0) && (bl == 0)) // open to tl and bl
+      {
+         if (replace_mode_alt7 == 0) fb = ts.FrameEdgeRTee;    // 43 solid right line, tl and bl dots
+         if (replace_mode_alt7 == 1) fb = ts.startIndex + 15;  // pink vline through
+         if (replace_mode_alt7 == 2) fb = ts.startIndex + 57;  // yellow T left -- not good
+         if (replace_mode_alt7 == 3) fb = ts.startIndex + 55;  // yellow vline through
+         if (replace_mode_alt7 == 4) fb = ts.startIndex + 54;  // yellow cross
+         if (replace_mode_alt7 == 5) fb = ts.startIndex + 65;  // yellow cross
+      }
+   }
+
+
+   // this gets a few more inner corners
+   if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
+   {
+      if (replace_mode_alt0 == 1) fb = ts.FrameCross; // 42
+      else
       {
          // single corner open
          if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
@@ -285,308 +536,18 @@ int mwTileHelper::replace_helper_90(struct tileSet ts)
          if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
          if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
 
-         // all corner notches (full cross)
-         if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
+      }
 
+      // all corner notches - no diagonals (full cross)
+      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0))
+      {
+         if (replace_mode_alt4 == 0) fb = ts.FrameCross; // 42
+         if (replace_mode_alt4 == 1) fb = ts.startIndex + 48;
+         if (replace_mode_alt4 == 2) fb = ts.startIndex + 54;
+         if (replace_mode_alt4 == 3) fb = ts.startIndex + 60;
+         if (replace_mode_alt4 == 4) fb = ts.startIndex + 65;
       }
    }
-
-
-
-
-
-
-
-   if (replace_mode_alt == 0)
-   {
-      if (replace_mode_alt1 == 0) fb = ts.SolidFill; // default middle tile
-      if (replace_mode_alt1 == 1) fb = ts.startIndex + 65; // cross
-      if (replace_mode_alt1 == 2) fb = ts.startIndex + 47; // IL
-
-
-
-      // open on all 8 - orphan single block
-      if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0) && (l == 0) && (r == 0) && (t == 0) && (b == 0)) fb = ts.Single;
-
-
-
-
-
-      if ((l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterCornerTL; // top left corner
-      if ((l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.OuterCornerTR; // top right corner
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterCornerBL; // bottom left corner
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.OuterCornerBR; // bottom right corner
-
-
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) fb = ts.OuterEdgeL; // left vertical tee
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) fb = ts.OuterEdgeR; // right vertical tee
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) fb = ts.OuterEdgeT; // top horizontal tee
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) fb = ts.OuterEdgeB; // bottom horizontal tee
-
-
-
-
-
-      // vertical lines
-      if ((l == 0) && (r == 0) && (t == 0) && (b == 1)) // vline top
-      {
-         if (replace_mode_alt2 == 0) fb = ts.VLineT;
-         if (replace_mode_alt2 == 1) fb = ts.startIndex + 52;
-         if (replace_mode_alt2 == 2) fb = ts.startIndex + 49;
-         if (replace_mode_alt2 == 3) fb = ts.startIndex + 81;
-         if (replace_mode_alt2 == 4) fb = ts.startIndex + 82;
-      }
-      if ((l == 0) && (r == 0) && (t == 1) && (b == 1)) // vline middle
-      {
-         if (replace_mode_alt2 == 0) fb = ts.VLineM;
-         if (replace_mode_alt2 == 1) fb = ts.startIndex + 55;
-         if (replace_mode_alt2 == 2) fb = ts.startIndex + 55;
-         if (replace_mode_alt2 == 3) fb = ts.startIndex + 84;
-         if (replace_mode_alt2 == 4) fb = ts.startIndex + 85;
-      }
-      if ((l == 0) && (r == 0) && (t == 1) && (b == 0)) // vline bottom
-      {
-         if (replace_mode_alt2 == 0) fb = ts.VLineB;
-         if (replace_mode_alt2 == 1) fb = ts.startIndex + 58;
-         if (replace_mode_alt2 == 2) fb = ts.startIndex + 61;
-         if (replace_mode_alt2 == 3) fb = ts.startIndex + 87;
-         if (replace_mode_alt2 == 4) fb = ts.startIndex + 88;
-      }
-
-      // horizontal lines
-      if ((l == 0) && (r == 1) && (t == 0) && (b == 0)) // hline left
-      {
-         if (replace_mode_alt3 == 0) fb = ts.HLineL;
-         if (replace_mode_alt3 == 1) fb = ts.startIndex + 59;
-         if (replace_mode_alt3 == 2) fb = ts.startIndex + 26;
-      }
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 0)) // hline middle
-      {
-         if (replace_mode_alt3 == 0) fb = ts.HLineM;
-         if (replace_mode_alt3 == 1) fb = ts.startIndex + 62;
-         if (replace_mode_alt3 == 2) fb = ts.startIndex + 27;
-      }
-      if ((l == 1) && (r == 0) && (t == 0) && (b == 0)) // hline right
-      {
-         if (replace_mode_alt3 == 0) fb = ts.HLineR;
-         if (replace_mode_alt3 == 1) fb = ts.startIndex + 53;
-         if (replace_mode_alt3 == 2) fb = ts.startIndex + 28;
-      }
-
-
-      // frame corners
-      // these have blocks on 2 adjacent sides only, and no diagonal block in between them
-      // --------------------------------------------------------------------------------------------
-      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) // FrameCornerTL - blocks on br
-      {
-         if (replace_mode_alt5 == 0) fb = ts.FrameCornerTL;
-         if (replace_mode_alt5 == 1) fb = ts.startIndex + 50;
-      }
-      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) // FrameCornerTR - blocks on bl
-      {
-         if (replace_mode_alt5 == 0) fb = ts.FrameCornerTR;
-         if (replace_mode_alt5 == 1) fb = ts.startIndex + 51;
-      }
-      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) // FrameCornerBR - blocks on tl
-      {
-         if (replace_mode_alt5 == 0) fb = ts.FrameCornerBR;
-         if (replace_mode_alt5 == 1) fb = ts.startIndex + 57;
-      }
-      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) // FrameCornerBL - blocks on tr
-      {
-         if (replace_mode_alt5 == 0) fb = ts.FrameCornerBL;
-         if (replace_mode_alt5 == 1) fb = ts.startIndex + 56;
-      }
-
-
-
-      // only one side open (4 cases)
-      // --------------------------------------------------------------------------------------------------
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // only top side open
-      {
-         if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
-         if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
-         if ((bl == 0) && (br == 0)) // open to bl and br
-         {
-            if (replace_mode_alt6 == 0) fb = ts.FrameEdgeBTee;   // 45 pink
-            if (replace_mode_alt6 == 1) fb = ts.startIndex + 1;  // pink hline through
-            if (replace_mode_alt6 == 2) fb = ts.startIndex + 48; // yellow T down
-            if (replace_mode_alt6 == 3) fb = ts.startIndex + 62; // yellow hline through
-         }
-      }
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // only bottom side open
-      {
-         if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
-         if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
-         if ((tl == 0) && (tr == 0)) // open to tl and tr
-         {
-            if (replace_mode_alt6 == 0) fb = ts.FrameEdgeTTee;   // 46 pink
-            if (replace_mode_alt6 == 1) fb = ts.startIndex + 1;  // pink hline through
-            if (replace_mode_alt6 == 2) fb = ts.startIndex + 60; // yellow T up
-            if (replace_mode_alt6 == 3) fb = ts.startIndex + 62; // yellow hline through
-         }
-      }
-
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // only left side open
-      {
-         if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
-         if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
-         if ((tr == 0) && (br == 0)) // open to tr and br
-         {
-            if (replace_mode_alt7 == 0) fb = ts.FrameEdgeLTee;    // 44 pink
-            if (replace_mode_alt7 == 1) fb = ts.startIndex + 15;  // pink vline through
-            if (replace_mode_alt7 == 2) fb = ts.startIndex + 56;  // yellow T right -- not good
-            if (replace_mode_alt7 == 3) fb = ts.startIndex + 55;  // yellow vline through
-            if (replace_mode_alt7 == 4) fb = ts.startIndex + 54;  // yellow cross
-            if (replace_mode_alt7 == 5) fb = ts.startIndex + 65;  // yellow cross
-         }
-      }
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // only right side open
-      {
-         if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
-         if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
-         if ((tl == 0) && (bl == 0)) // open to tl and bl
-         {
-            if (replace_mode_alt7 == 0) fb = ts.FrameEdgeRTee;    // 43 pink
-            if (replace_mode_alt7 == 1) fb = ts.startIndex + 15;  // pink vline through
-            if (replace_mode_alt7 == 2) fb = ts.startIndex + 57;  // yellow T left -- not good
-            if (replace_mode_alt7 == 3) fb = ts.startIndex + 55;  // yellow vline through
-            if (replace_mode_alt7 == 4) fb = ts.startIndex + 54;  // yellow cross
-            if (replace_mode_alt7 == 5) fb = ts.startIndex + 65;  // yellow cross
-         }
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.startIndex + 50; // FrameCornerTL - blocks on br
-//      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.startIndex + 51; // FrameCornerTR - blocks on bl
-//      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.startIndex + 57; // FrameCornerBR - blocks on tl
-//      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.startIndex + 56; // FrameCornerBL - blocks on tr
-
-
-
-      // this gets a few more inner corners
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
-      {
-         // single corner open
-         if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
-         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
-         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
-         if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
-
-         // 2 adjacent corners open
-         if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
-         if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
-         if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
-         if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
-
-
-         // all corner notches - no diagonals (full cross)
-         if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0))
-         {
-            if (replace_mode_alt4 == 0) fb = ts.FrameCross; // 42
-            if (replace_mode_alt4 == 1) fb = ts.startIndex + 48;
-            if (replace_mode_alt4 == 2) fb = ts.startIndex + 54;
-            if (replace_mode_alt4 == 3) fb = ts.startIndex + 60;
-            if (replace_mode_alt4 == 4) fb = ts.startIndex + 65;
-         }
-
-
-
-
-
-
-      }
-   }
-
-
-
-
-
-
-
-
-
-  /*
-
-
-   if (mLoop.pct_x % 2)
-   {
-
-      if ((l == 1) && (r == 1) && (t == 0) && (b == 1)) // sides solid except for top
-      {
-         if ((bl == 0) && (br == 1)) fb = ts.OuterCornerTLTeeL; // open to bl and solid to br
-         if ((bl == 1) && (br == 0)) fb = ts.OuterCornerTRTeeR; // solid to bl and open to br
-         if ((bl == 0) && (br == 0)) fb = ts.FrameEdgeBTee;     // open to bl and br
-      }
-
-      if ((l == 1) && (r == 1) && (t == 1) && (b == 0)) // sides solid except for bottom
-      {
-         if ((tl == 0) && (tr == 1)) fb = ts.OuterCornerBLTeeL;  // open to tl and solid to tr
-         if ((tl == 1) && (tr == 0)) fb = ts.OuterCornerBRTeeR;  // solid to tl and open to tr
-         if ((tl == 0) && (tr == 0)) fb = ts.FrameEdgeTTee;      // open to tl and tr
-      }
-
-      if ((l == 0) && (r == 1) && (t == 1) && (b == 1)) // sides solid except for left
-      {
-         if ((tr == 0) && (br == 1)) fb = ts.OuterCornerTLTeeT; // open to tr and solid to br
-         if ((tr == 1) && (br == 0)) fb = ts.OuterCornerBLTeeB; // solid to tr and open to br
-         if ((tr == 0) && (br == 0)) fb = ts.FrameEdgeLTee;     // open to tr and br
-      }
-
-      if ((l == 1) && (r == 0) && (t == 1) && (b == 1)) // sides solid except for right
-      {
-         if ((tl == 0) && (bl == 1)) fb = ts.OuterCornerTRTeeT; // open to tl and solid to bl
-         if ((tl == 1) && (bl == 0)) fb = ts.OuterCornerBRTeeB; // solid to tl and open to bl
-         if ((tl == 0) && (bl == 0)) fb = ts.FrameEdgeRTee;     // open to tl and bl
-      }
-
-      if ((tr == 0) && (l == 0) && (r == 1) && (t == 1) && (b == 0)) fb = ts.FrameCornerBL; // blocks on tr
-      if ((tl == 0) && (l == 1) && (r == 0) && (t == 1) && (b == 0)) fb = ts.FrameCornerBR; // blocks on tl
-      if ((bl == 0) && (l == 1) && (r == 0) && (t == 0) && (b == 1)) fb = ts.FrameCornerTR; // blocks on bl
-      if ((br == 0) && (l == 0) && (r == 1) && (t == 0) && (b == 1)) fb = ts.FrameCornerTL; // blocks on br
-   }
-
-
-
-      if (mLoop.pct_y % 2)
-      {
-
-         // this gets a few more inner corners
-         if ((l == 1) && (r == 1) && (t == 1) && (b == 1)) // blocks on all sides t b l r
-         {
-            // single corner open
-            if ((tr == 1) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerCornerTL; // only br open
-            if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 1)) fb = ts.InnerCornerTR; // only bl open
-            if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBL; // only tr open
-            if ((tr == 1) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerCornerBR; // only tl open
-
-            // 2 adjacent corners open
-            if ((tr == 1) && (tl == 0) && (bl == 0) && (br == 1)) fb = ts.InnerEdgeR; // tl and bl open
-            if ((tr == 0) && (tl == 0) && (bl == 1) && (br == 1)) fb = ts.InnerEdgeB; // tr and tl open
-            if ((tr == 0) && (tl == 1) && (bl == 1) && (br == 0)) fb = ts.InnerEdgeL; // tr and br open
-            if ((tr == 1) && (tl == 1) && (bl == 0) && (br == 0)) fb = ts.InnerEdgeT; // br and bl open
-
-            // all corner notches (full cross)
-            if ((tr == 0) && (tl == 0) && (bl == 0) && (br == 0)) fb = ts.FrameCross; // no diagonals
-
-         }
-      }
-
-
-*/
-
 
    return fb;
 }
@@ -1719,9 +1680,11 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
    int bts = 16; // button height
    int bsp = 1; // button spacing
 
-   int height = 68;
+   int height = 48;
    //height += mLoop.pct_y;
    if (replace_mode == 2) height+=162;
+   if (replace_mode == 0) height+=80;
+
    int y2 = y1 + height;
 
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[color+208]); // background color
@@ -1735,55 +1698,23 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
 
    yfb+=bsp;
 
-   char msg[80];
-   sprintf(msg, "invalid");
-   if (replace_mode == 0) sprintf(msg, "Use Current Tileset");
-   if (replace_mode == 1) sprintf(msg, "Use Specific Tile");
-   if (replace_mode == 2) sprintf(msg, "Change Flags Only");
-   if (replace_mode == 3) sprintf(msg, "Translate Tileset");
-   if (mWidget.mButton(1, x3, 170,    1, yfb+2, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode++;
-   if (replace_mode > 3) replace_mode = 0;
+   std::vector<struct listItem> rm =
+   {
+      {  0,    "Use Current Tileset"  },
+      {  1,    "Use Specific Tile"  },
+      {  2,    "Change Flags Only"  },
+      {  3,    "Translate Tileset"  }
+   };
+   mWidget.mDropDown(1, x3, 178,  1, yfb+2, bts, 1, 1, 2, color, color, 15, rm, replace_mode, d);
 
 
 
-//   if (mInput.key[ALLEGRO_KEY_0][3] && ++replace_mode_alt > 1) replace_mode_alt = 0;
-
-   if (mInput.key[ALLEGRO_KEY_1][3] && ++replace_mode_alt1 > 2) replace_mode_alt1 = 0;
-   if (mInput.key[ALLEGRO_KEY_2][3] && ++replace_mode_alt2 > 4) replace_mode_alt2 = 0;
-   if (mInput.key[ALLEGRO_KEY_3][3] && ++replace_mode_alt3 > 2) replace_mode_alt3 = 0;
-   if (mInput.key[ALLEGRO_KEY_4][3] && ++replace_mode_alt4 > 4) replace_mode_alt4 = 0;
-   if (mInput.key[ALLEGRO_KEY_5][3] && ++replace_mode_alt5 > 1) replace_mode_alt5 = 0;
-
-   if (mInput.key[ALLEGRO_KEY_6][3] && ++replace_mode_alt6 > 3) replace_mode_alt6 = 0;
-   if (mInput.key[ALLEGRO_KEY_7][3] && ++replace_mode_alt7 > 5) replace_mode_alt7 = 0;
-   if (mInput.key[ALLEGRO_KEY_8][3] && ++replace_mode_alt8 > 1) replace_mode_alt8 = 0;
-
-
-   al_draw_text(mFont.pr8, mColor.pc[15], x3, yfb+22, 0, "1 2 3 4 5 6 7 8");
-   al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb+30, 0, "%d %d %d %d %d %d %d %d", replace_mode_alt1, replace_mode_alt2, replace_mode_alt3, replace_mode_alt4, replace_mode_alt5, replace_mode_alt6, replace_mode_alt7, replace_mode_alt8);
-
-
-
-
-
-   // if (replace_mode == 0 && mTileSets.currentTileSet.tileSetType == 90)
-   // {
-   //    sprintf(msg, "invalid");
-   //    if (replace_mode_alt == 0) sprintf(msg, "Alt 0");
-   //    if (replace_mode_alt == 1) sprintf(msg, "Alt 1");
-   //    if (mWidget.mButton(1, x3, 170,    1, yfb+22, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode_alt++;
-   //    if (replace_mode_alt > 1) replace_mode_alt = 0;
-   // }
-
-
-
-
-
-   int tx = x3+176;
+   int tx = x3+182;
 
    if ((replace_mode == 0) || (replace_mode == 3)) mWidget.mButtonTile2(tx, yfb, 22, mTileSets.currentTileSet.displayIndex, mTileSets.currentTileSet.name.c_str(), d);
    if (replace_mode == 1) // single tile
    {
+      char msg[80];
       int tile = mEditorMain.draw_item_num;
       mEditorMain.get_text_description_of_block_based_on_flags(tile, msg);
       if (mWidget.mButtonTile2(tx, yfb, 22, tile & PM_BTILE_TILENUM_MASK, msg, d)) mBitmapTools.select_bitmap_from_level(mEditorMain.draw_item_num);
@@ -1797,6 +1728,74 @@ int mwTileHelper::show_replace_controls(int x1, int x2, int y1, int color, int d
       yfb+=bsp;
       mWidget.mCheckBox(4, -1, x4-8,  1, yfb,bts, -1, replace_preview, "preview", 15, 15, 0);
    }
+
+
+   if (replace_mode == 0)
+   {
+      // cycle alt modes with number keys
+      if (mInput.key[ALLEGRO_KEY_1][3] && ++replace_mode_alt1 > 3) replace_mode_alt1 = 0;
+      if (mInput.key[ALLEGRO_KEY_2][3] && ++replace_mode_alt2 > 4) replace_mode_alt2 = 0;
+      if (mInput.key[ALLEGRO_KEY_3][3] && ++replace_mode_alt3 > 2) replace_mode_alt3 = 0;
+      if (mInput.key[ALLEGRO_KEY_4][3] && ++replace_mode_alt4 > 4) replace_mode_alt4 = 0;
+      if (mInput.key[ALLEGRO_KEY_5][3] && ++replace_mode_alt5 > 1) replace_mode_alt5 = 0;
+      if (mInput.key[ALLEGRO_KEY_6][3] && ++replace_mode_alt6 > 3) replace_mode_alt6 = 0;
+      if (mInput.key[ALLEGRO_KEY_7][3] && ++replace_mode_alt7 > 5) replace_mode_alt7 = 0;
+      if (mInput.key[ALLEGRO_KEY_8][3] && ++replace_mode_alt8 > 1) replace_mode_alt8 = 0;
+      if (mInput.key[ALLEGRO_KEY_9][3] && ++replace_mode_alt9 > 1) replace_mode_alt9 = 0;
+      if (mInput.key[ALLEGRO_KEY_0][3] && ++replace_mode_alt0 > 1) replace_mode_alt0 = 0;
+
+      // replace_mode_alt1 = replace_mode_alt9 = replace_mode_alt8 = replace_mode_alt0;
+
+      replace_mode_alt9 = replace_mode_alt8 = replace_mode_alt0;
+
+//      if (replace_mode_alt0 == 1) replace_mode_alt1 = 1;
+
+
+
+
+      // show alt modes
+      yfb+=4;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "1 - %d - middle",         replace_mode_alt1); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "2 - %d - vline",          replace_mode_alt2); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "3 - %d - hline",          replace_mode_alt3); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "4 - %d - cross",          replace_mode_alt4); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "5 - %d - frame corners",  replace_mode_alt5); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "6 - %d - h frame tees",   replace_mode_alt6); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "7 - %d - v frame tees",   replace_mode_alt7); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "8 - %d - solid corners",  replace_mode_alt8); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "9 - %d - solid edges",    replace_mode_alt9); yfb+=8;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb, 0, "0 - %d - inner corners",  replace_mode_alt0); yfb+=8;
+
+
+
+
+
+
+//   al_draw_text(mFont.pr8, mColor.pc[15], x3, yfb+22, 0, "1 2 3 4 5 6 7 8");
+//   al_draw_textf(mFont.pr8, mColor.pc[15], x3, yfb+30, 0, "%d %d %d %d %d %d %d %d", replace_mode_alt1, replace_mode_alt2, replace_mode_alt3, replace_mode_alt4, replace_mode_alt5, replace_mode_alt6, replace_mode_alt7, replace_mode_alt8);
+
+   // if (replace_mode == 0 && mTileSets.currentTileSet.tileSetType == 90)
+   // {
+   //    sprintf(msg, "invalid");
+   //    if (replace_mode_alt == 0) sprintf(msg, "Alt 0");
+   //    if (replace_mode_alt == 1) sprintf(msg, "Alt 1");
+   //    if (mWidget.mButton(1, x3, 170,    1, yfb+22, bts,  2,2,1,1,  color, color,  15,   0,0, msg, 0)) replace_mode_alt++;
+   //    if (replace_mode_alt > 1) replace_mode_alt = 0;
+   // }
+
+   }
+
+
+
+
+
+
+
+
+
+
+
+
    return height;
 }
 

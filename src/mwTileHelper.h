@@ -33,11 +33,11 @@ class mwTileHelper
    int replace_mode_alt3;
    int replace_mode_alt4;
    int replace_mode_alt5;
-
    int replace_mode_alt6;
    int replace_mode_alt7;
    int replace_mode_alt8;
-
+   int replace_mode_alt9;
+   int replace_mode_alt0;
 
 
 
