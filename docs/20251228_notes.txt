@@ -40628,6 +40628,94 @@ I am quite happy with how the 90 tilesets has turned out
 I should use it some places
 
 
+add to the preview controls for 90 tilesets 
+start by adding more hline and vline modes
+
+done...
+
+I want some very custom hlines
+I have a lot of tiles
+
+62 63   64 53
+
+62 63 66   [1]    68 64 53
+
+62 63 69   [70]    71 64 53
+
+
+   void drawRectHelperHline7(int l0, int l1, int l2, int m, int r2, int r1, int r0, bool preview);
+
+59 [62] 63 66 [1] 68 64 [62] 53
+
+
+7 versions
+59 63 66 [1] 68 64 53
+59 63 69 [7] 71 64 53
+
+62 63 66 [1] 68 64 62
+62 63 69 [7] 71 64 62
+
+
+9 versions
+59 [62] 63 66 [1] 68 64 [62] 53
+59 [62] 63 69 [7] 71 64 [62] 53
+
+2026-09-27 17:38:29
+
+this is so goddamn amazing!!!
+
+now what?
+try doing the same with frames
+maybe have 2 keys to change hline and vline
+too complicated
+
+working on level 35
+2026-09-27 19:55:55
+
+2026-09-29 06:18:12
+level 35 done...
+
+save tilehelper section controls toggles...done
+
+
+
+
+
+in visual level select, if level001 is hovered, it tries to save and gives error?...why?
+vls redraws every frame, and this includes loading level...change this
+only if 
+   int selected_level = mLevel.start_level;
+
+this is better... but why does level001 get saved?
+
+
+         show_cur_vs(selected_level, sel_x, 70, sel_size, fc);
+
+
+   if (mLevel.load_level_by_number(cur, 0, 1))
+
+
+         if (level_num == 1)
+         {
+            set_overworld_barriers();
+            // if (!level_icons_loaded) load_level_icons();
+         }
+
+
+void mwLevel::save_level(int level_num)
+{
+   char filename[255];
+   sprintf(filename, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", filename);
+
+   if (make_backup_on_save_level && level_num != 1)
+   {
+
+
+
+
+
+
 
 
 

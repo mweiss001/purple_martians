@@ -53,6 +53,9 @@ void mwTileHelper::init()
    frame_common_tileset = 1;
    frame_mode_preview = 0;
 
+   show_pattern_tools = 1;
+   show_frame_tools = 1;
+
 
    // clear all marks
    for (int x=0; x<100; x++)

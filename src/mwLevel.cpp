@@ -304,7 +304,6 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
          {
             mItem.sort_item(1);
             mEnemy.sort_enemy();
-            //mLevelEditor.reset_variables_on_level_change();
          }
 
          level_check();
@@ -333,7 +332,8 @@ void mwLevel::save_level(int level_num)
    sprintf(filename, "levels/level%03d.pml", level_num);
    //printf("saving: %s\n", filename);
 
-   if (make_backup_on_save_level)
+
+   if (make_backup_on_save_level && level_num != 1)
    {
       // rename existing file as backup
 

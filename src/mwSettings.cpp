@@ -1942,12 +1942,24 @@ int mwSettings::page_log(void)
    ya += line_spacing + 16;
 
 
+
+
+   mLog.init_log_types();
+
+
+
    int bfy1 = ya-1; // ypos at top of checkbox rectangles
 
    // draw the types for this group
    for (int i=0; i<100; i++)
       if (mLog.log_types[i].group == log_group)
+      {
          mWidget.togglec_log(xa, ya, xb, 10, 1,i,tc,fc);
+
+         printf("draw log tog:%d \n", i);
+
+      }
+
 
    int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
 

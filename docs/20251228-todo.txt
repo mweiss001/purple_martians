@@ -7,8 +7,30 @@ BUGS!!
 do something about viewport
 
 
-
 when client exits level, stays on same level and keys are frozen
+this needs to be fixed!!!
+
+
+logging in settings does not work...
+
+
+   mLog.init_log_types();
+
+are getting overwritten???
+
+
+
+
+
+in filters, when all view off, can't select block to view item
+cannot reproduce??
+
+
+
+
+
+
+
 
 
 ------------------------------------------------------------------------------
@@ -25,14 +47,24 @@ TO DO
 
 
 
+
+
+
+
 Tilesets
 --------
+
+
+
 take more advantage of all the extra tiles in 90 tileset
 there are many places to do this:
 
 Make much more complex tile replace controls
 show each alt and what it does
 can I even click on the screen to change alt modes?
+
+
+
 
 - replace tools in tilehelper
 make more options to do alt blocks, especially with single lines
@@ -42,59 +74,6 @@ make more options to do alt blocks, especially with single lines
 replace mode alt for other tilesets?
 wires has options
 pipes also, can be solid middle or cross
-
-add to the preview controls for 90 tilesets 
-start by adding more hline and vline modes
-
-done...
-
-I want some very custom hlines
-I have a lot of tiles
-
-
-
-62 63   64 53
-
-
-
-
-62 63 66   [1]    68 64 53
-
-62 63 69   [70]    71 64 53
-
-
-   void drawRectHelperHline7(int l0, int l1, int l2, int m, int r2, int r1, int r0, bool preview);
-
-
-
-
-59 [62] 63 66 [1] 68 64 [62] 53
-
-
-7 versions
-59 63 66 [1] 68 64 53
-59 63 69 [7] 71 64 53
-
-62 63 66 [1] 68 64 62
-62 63 69 [7] 71 64 62
-
-
-9 versions
-59 [62] 63 66 [1] 68 64 [62] 53
-59 [62] 63 69 [7] 71 64 [62] 53
-
-2026-09-27 17:38:29
-
-this is so goddamn amazing!!!
-
-now what?
-try doing the same with frames
-maybe have 2 keys to change hline and vline
-too complicated
-
-working on level 35
-2026-09-27 19:55:55
-
 
 
 

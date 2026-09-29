@@ -27,7 +27,6 @@ class mwTileHelper
 
    int replace_mode_alt;
 
-
    int replace_mode_alt1;
    int replace_mode_alt2;
    int replace_mode_alt3;
@@ -39,8 +38,6 @@ class mwTileHelper
    int replace_mode_alt9;
    int replace_mode_alt0;
 
-
-
    int frame_mode_preview;
    int frame_mode_width;
    int frames_detected;
@@ -51,10 +48,8 @@ class mwTileHelper
    int pattern_offset_x;
    int pattern_offset_y;
 
-
-   int show_pattern_tools = 1;
-   int show_frame_tools = 1;
-
+   int show_pattern_tools;
+   int show_frame_tools;
 
    private:
 

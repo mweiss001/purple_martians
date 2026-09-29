@@ -18,15 +18,15 @@ mwLog mLog;
 
 mwLog::mwLog()
 {
-   // init_log_types(); // now only done when recreating settings.pm
+   init_log_types(); // now only done when recreating settings.pm
    erase_log();
    erase_log_net();
    erase_log_status();
 }
 
-void mwLog::init_log_types(void)
+void mwLog::init_log_types()
 {
-   //printf("init log types\n");
+   printf("init log types\n");
    int i;
    for (i=0; i<100; i++)
    {

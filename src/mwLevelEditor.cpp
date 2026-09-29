@@ -629,6 +629,9 @@ void mwLevelEditor::save_mW()
       fwrite(&mTileHelper.frames_detected,            sizeof(mTileHelper.frames_detected),            1, fp);
       fwrite(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
       fwrite(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
+      fwrite(&mTileHelper.show_pattern_tools,         sizeof(mTileHelper.show_pattern_tools),         1, fp);
+      fwrite(&mTileHelper.show_frame_tools,           sizeof(mTileHelper.show_frame_tools),           1, fp);
+
 
       fwrite(&mTileSets.currentTileSet.startIndex,    sizeof(mTileSets.currentTileSet.startIndex),    1, fp);
 
@@ -689,6 +692,13 @@ bool mwLevelEditor::load_mW()
       fread(&mTileHelper.frames_detected,            sizeof(mTileHelper.frames_detected),            1, fp);
       fread(&mTileHelper.frame_sections,             sizeof(mTileHelper.frame_sections),             1, fp);
       fread(&mTileHelper.frame_common_tileset,       sizeof(mTileHelper.frame_common_tileset),       1, fp);
+
+      fread(&mTileHelper.show_pattern_tools,         sizeof(mTileHelper.show_pattern_tools),         1, fp);
+      fread(&mTileHelper.show_frame_tools,           sizeof(mTileHelper.show_frame_tools),           1, fp);
+
+
+
+
 
       int temp;
       fread(&temp,                                   sizeof(temp),                                   1, fp); // mTileSets.currentTileSet.startIndex
