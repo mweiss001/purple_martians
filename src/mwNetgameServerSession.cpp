@@ -13,7 +13,7 @@
 
 void mwNetgame::session_close(int p, int er)
 {
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
    char endreason[256];
    if (er == 0) sprintf(endreason, "unknown");
    if (er == 1) sprintf(endreason, "server_full");
@@ -29,7 +29,7 @@ void mwNetgame::session_close(int p, int er)
 // this is called every frame from server_control() to check and clean up active sessions
 void mwNetgame::session_check_active()
 {
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
       if ((mPlayer.loc[p].session_id) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }
@@ -66,11 +66,12 @@ void mwNetgame::session_check_active_in_db()
 
 void mwNetgame::session_flush_active_at_server_exit()
 {
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
       if (mPlayer.loc[p].session_id)
          session_close(p, 8);
 }
+
 
 
 // server can complete level also, but 'sessions' do not apply for server
@@ -79,7 +80,7 @@ void mwNetgame::session_flush_active_at_server_exit()
 void mwNetgame::session_save_active_at_level_done()
 {
    // printf("frame:%d - session_save_active_at_level_done() level:%d  ffs:%d  )\n ", mLoop.frame_num, mLevel.play_level, mLoop.ff_state);
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
       if (mPlayer.loc[p].session_id)
       {
@@ -92,7 +93,7 @@ void mwNetgame::session_save_active_at_level_done()
 
 void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
 {
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
    // get timestamp
    std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
@@ -136,7 +137,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
 // if passed nullptr for endreason, session is still open
 void mwNetgame::session_update(int p, char * m_endreason)
 {
-   if (!mLog.log_types[LOG_NET_session].action) return;
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
    int sid = mPlayer.loc[p].session_id;
    if (!sid)

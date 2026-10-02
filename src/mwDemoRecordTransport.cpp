@@ -213,7 +213,7 @@ void mwDemoRecord::draw_transport_controls_seek(mwRect<int> rect, int d)
 }
 
 
-void mwDemoRecord::stop_transport(void)
+void mwDemoRecord::stop_transport()
 {
    if (play)
    {

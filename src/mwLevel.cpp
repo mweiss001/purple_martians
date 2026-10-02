@@ -25,7 +25,7 @@
 
 mwLevel mLevel;
 
-void mwLevel::set_start_level(void)
+void mwLevel::set_start_level()
 {
    set_start_level(start_level);
 }
@@ -380,7 +380,7 @@ void mwLevel::save_level(int level_num)
 
 
 
-int mwLevel::save_level_prompt(void)
+int mwLevel::save_level_prompt()
 {
    int num = last_level_loaded;
 
@@ -427,7 +427,7 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
    else return ey_pos;
 }
 
-void mwLevel::zero_level_data(void)
+void mwLevel::zero_level_data()
 {
    for (int c=0; c<100; c++)    // blocks
       for (int x=0; x<100; x++)
@@ -456,7 +456,7 @@ void mwLevel::zero_level_data(void)
    }
 }
 
-void mwLevel::level_check(void)
+void mwLevel::level_check()
 {
    int lev = last_level_loaded;
 

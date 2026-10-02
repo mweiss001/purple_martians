@@ -11,7 +11,7 @@
 #include "mwMenu.h"
 #include "mwWidget.h"
 
-void mwDemoRecord::proc_file_details_menu(void)
+void mwDemoRecord::proc_file_details_menu()
 {
    if (mInput.mouse_b[2][0])
    {

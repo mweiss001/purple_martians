@@ -152,7 +152,7 @@ void mwCodeStats::fill_stat_struct(struct code_stat &cs)
 //           lines, comment_only, code_only, code_and_comment, blanks, comment_only + code_only + code_and_comment + blanks);
 }
 
-void mwCodeStats::run(void)
+void mwCodeStats::run()
 {
    char msg[1024];
    struct code_stat cs[200] = {};

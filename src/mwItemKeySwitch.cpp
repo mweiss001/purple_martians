@@ -37,7 +37,7 @@ void mwItem::proc_hider(int i)
 
 
 
-void mwItem::erase_hider_areas(void)
+void mwItem::erase_hider_areas()
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)

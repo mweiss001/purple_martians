@@ -312,11 +312,33 @@ void mwEnemy::move_enemies()
 
    if (mLog.log_types[LOG_TMR_move_enem].action) // build log entry
    {
-      mLog.add_tmr(LOG_TMR_move_enem, "");
+      std::string tmp;
       for (int i=0; i<100; i++)
          if (tmr_tally[i][1] > 0)
-            mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
-      mLog.log_append_text(LOG_TMR_move_enem, "\n");
+         {
+            char m[256];
+            sprintf(m, " m-%s:[%0.4f]", enemy_name[i][1], tmr_tally[i][1]*1000);
+            tmp += m;
+         }
+      tmp += "\n";
+      mLog.add_tmr(LOG_TMR_move_enem, tmp.c_str());
+
+
+
+//            mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+//      mLog.log_append_text(LOG_TMR_move_enem, "\n");
+
+
+
+      // mLog.add_tmr(LOG_TMR_move_enem, "");
+      //  for (int i=0; i<100; i++)
+      //     if (tmr_tally[i][1] > 0)
+      //        mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+      //  mLog.log_append_text(LOG_TMR_move_enem, "\n");
+
+
+
+
    }
 }
 

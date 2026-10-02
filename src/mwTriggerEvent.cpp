@@ -26,7 +26,7 @@ mwTriggerEvent::mwTriggerEvent()
    initialize();
 }
 
-void mwTriggerEvent::initialize(void)
+void mwTriggerEvent::initialize()
 {
    for (int x=0; x<1000; x++) event[x] = 0;
 }
@@ -64,7 +64,7 @@ void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, in
 }
 
 
-void mwTriggerEvent::show_all_events(void)
+void mwTriggerEvent::show_all_events()
 {
    int x = 0, y = 20;
    al_set_target_backbuffer(mDisplay.display);
@@ -227,7 +227,7 @@ int mwTriggerEvent::get_unused_pm_event_extended(int clt[][5], int clt_last)
 }
 
 // only checks objects
-int mwTriggerEvent::get_unused_pm_event(void)
+int mwTriggerEvent::get_unused_pm_event()
 {
    int ev = 1; // don't ever use event 0
    int done = 0;

@@ -104,7 +104,7 @@ void mwBitmapTools::get_tile_from_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, 
 
 
 
-void mwBitmapTools::fill_player_tile(void)
+void mwBitmapTools::fill_player_tile()
 {
    //printf("fill player bitmap\n");
    int a, b, x, y;
@@ -324,7 +324,7 @@ void mwBitmapTools::color_shift(ALLEGRO_BITMAP *b, int sc, int cs)
 }
 
 
-void mwBitmapTools::colorize_tile(void)
+void mwBitmapTools::colorize_tile()
 {
    ALLEGRO_BITMAP *switch_tiles[32];
    for (int d=0; d<32; d++) switch_tiles[d] = al_create_bitmap(20, 20);
@@ -416,7 +416,7 @@ void mwBitmapTools::colorize_tile(void)
 
 }
 
-void mwBitmapTools::combine_tile(void)
+void mwBitmapTools::combine_tile()
 {
    // show tilemap before
    al_set_target_backbuffer(mDisplay.display);

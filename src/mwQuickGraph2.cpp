@@ -122,7 +122,7 @@ void mwQuickGraph2::change_range(float new_min, float new_max)
 }
 
 
-void mwQuickGraph2::autorange(void)
+void mwQuickGraph2::autorange()
 {
    if (type == 9) // overlay cpu
    {
@@ -163,7 +163,7 @@ void mwQuickGraph2::autorange(void)
 }
 
 
-void mwQuickGraph2::new_entry_pos(void)
+void mwQuickGraph2::new_entry_pos()
 {
    last_entry_pos = entry_pos;
    if (++entry_pos > width) entry_pos = 0;
@@ -210,7 +210,7 @@ void mwQuickGraph2::add_data(int s, float d, int erase_only)
    }
 }
 
-void mwQuickGraph2::draw_graph(void)
+void mwQuickGraph2::draw_graph()
 {
 
    int x1 = 0;         // start

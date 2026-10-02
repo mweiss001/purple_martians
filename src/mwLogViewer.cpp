@@ -140,19 +140,19 @@ int mwLog::log_file_viewer(int type)
    int i=0;
 
    // always on
-   i = LOG_NET;                 tags[i][0] = 1; tags[i][1] = 15; // network
-   i = LOG_NET_ending_stats;    tags[i][0] = 1; tags[i][1] = 15; // ending stats
+   i = LOG_NET;                  tags[i][0] = 1; tags[i][1] = 15; // network
+   i = LOG_NET_ENDING_STATS;     tags[i][0] = 1; tags[i][1] = 15; // ending stats
 
-   i = LOG_NET_bandwidth;       tags[i][0] = 0; tags[i][1] = 15; tags[i][3] = 66; sprintf(ctags[i], "band"); // bandwidth    (B) [CS]
-   i = LOG_NET_stdf;            tags[i][0] = 1; tags[i][1] = 13; tags[i][3] = 88; sprintf(ctags[i], "stdf"); // stdf         (X) [CS]
-   i = LOG_NET_stdf_packets;    tags[i][0] = 0; tags[i][1] = 1;  tags[i][3] = 80; sprintf(ctags[i], "stdp"); // stdf piece   (P) [CS]
-   i = LOG_NET_stak;            tags[i][0] = 0; tags[i][1] = 6;  tags[i][3] = 75; sprintf(ctags[i], "stak"); // stak         (K) [S]
-   i = LOG_NET_dif_apply;       tags[i][0] = 0; tags[i][1] = 7;  tags[i][3] = 68; sprintf(ctags[i], "difa"); // dif applied  (D) [C]
-   i = LOG_NET_cdat;            tags[i][0] = 1; tags[i][1] = 3;  tags[i][3] = 67; sprintf(ctags[i], "cdat"); // cdat         (C) [CS]
-   i = LOG_NET_timer_adjust;    tags[i][0] = 1; tags[i][1] = 6;  tags[i][3] = 84; sprintf(ctags[i], "tmaj"); // timer adjust (T) [C]
-   i = LOG_NET_client_ping;     tags[i][0] = 1; tags[i][1] = 14; tags[i][3] = 78; sprintf(ctags[i], "cpng"); // client ping  (N) [C]
+   i = LOG_NET_BANDWIDTH;        tags[i][0] = 0; tags[i][1] = 15; tags[i][3] = 66; sprintf(ctags[i], "band"); // bandwidth    (B) [CS]
+   i = LOG_NET_DIF_TRX;          tags[i][0] = 1; tags[i][1] = 13; tags[i][3] = 88; sprintf(ctags[i], "stdf"); // stdf         (X) [CS]
+   i = LOG_NET_DIF_TRX_PACKET;   tags[i][0] = 0; tags[i][1] = 1;  tags[i][3] = 80; sprintf(ctags[i], "stdp"); // stdf piece   (P) [CS]
+   i = LOG_NET_DIF_ACK;          tags[i][0] = 0; tags[i][1] = 6;  tags[i][3] = 75; sprintf(ctags[i], "stak"); // stak         (K) [S]
+   i = LOG_NET_DIF_APPLY;        tags[i][0] = 0; tags[i][1] = 7;  tags[i][3] = 68; sprintf(ctags[i], "difa"); // dif applied  (D) [C]
+   i = LOG_NET_CDAT;             tags[i][0] = 1; tags[i][1] = 3;  tags[i][3] = 67; sprintf(ctags[i], "cdat"); // cdat         (C) [CS]
+   i = LOG_NET_TIMER_ADJUST;     tags[i][0] = 1; tags[i][1] = 6;  tags[i][3] = 84; sprintf(ctags[i], "tmaj"); // timer adjust (T) [C]
+   i = LOG_NET_CLIENT_PING;      tags[i][0] = 1; tags[i][1] = 14; tags[i][3] = 78; sprintf(ctags[i], "cpng"); // client ping  (N) [C]
+   i = LOG_TMR;                  tags[i][0] = 1; tags[i][1] = 15; tags[i][3] = 79; sprintf(ctags[i], "tmst"); // timestamp    (O) [CS]
 
-   i = LOG_TMR;                 tags[i][0] = 1; tags[i][1] = 15; tags[i][3] = 79; sprintf(ctags[i], "tmst"); // timestamp    (O) [CS]
 
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 

@@ -74,7 +74,7 @@ void mwDemoRecord::range_tools_do(int action)
 
 
 
-void mwDemoRecord::proc_range_tools_menu(void)
+void mwDemoRecord::proc_range_tools_menu()
 {
    if (mInput.mouse_b[2][0])
    {

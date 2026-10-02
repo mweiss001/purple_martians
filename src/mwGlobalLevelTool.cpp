@@ -203,7 +203,7 @@ void mwGlobalLevelTool::changeTileNumberRange(int oldNumber, int newNumber, int 
 
 
 
-void mwGlobalLevelTool::execute(void)
+void mwGlobalLevelTool::execute()
 {
 
    int old_start_level = mLevel.start_level;

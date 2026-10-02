@@ -636,7 +636,7 @@ void mwDemoRecord::proc_edit_gm_type_menu(int & t)
 }
 
 // translation table from gm index to index in gm_txt_line array
-void mwDemoRecord::load_lnk_arr(void)
+void mwDemoRecord::load_lnk_arr()
 {
    lnk_entry_pos = 0;
    for (int i=0; i<mGameMoves.entry_pos; i++)

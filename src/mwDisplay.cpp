@@ -49,7 +49,7 @@ void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
    }
 }
 
-void mwDisplay::proc_scale_factor_change(void)
+void mwDisplay::proc_scale_factor_change()
 {
    float scale_factor_mlt = 0.01;
 
@@ -94,7 +94,7 @@ void mwDisplay::set_custom_scale_factor(float new_scale_factor, int time)
    custom_scale_factor_mlt = pow((scale_factor/scale_factor_current), (1.0/(float)time) ) - 1;
 }
 
-void mwDisplay::proc_custom_scale_factor_change(void)
+void mwDisplay::proc_custom_scale_factor_change()
 {
    if (scale_factor_current < scale_factor)
    {
@@ -109,7 +109,7 @@ void mwDisplay::proc_custom_scale_factor_change(void)
 }
 
 
-void mwDisplay::auto_set_display_transform_double(void)
+void mwDisplay::auto_set_display_transform_double()
 {
    display_transform_double = 1;
 
@@ -171,7 +171,7 @@ void mwDisplay::set_display_transform_and_adjust_window_positions(float old_disp
 
 
 
-void mwDisplay::cycle_display_transform(void)
+void mwDisplay::cycle_display_transform()
 {
    float old_display_transform_double = display_transform_double;
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
@@ -200,7 +200,7 @@ void mwDisplay::set_display_transform()
 
 
 
-void mwDisplay::enforce_valid_window_pos(void)
+void mwDisplay::enforce_valid_window_pos()
 {
    int debug_print = 0;
    int valid = 0;
@@ -230,7 +230,7 @@ void mwDisplay::enforce_valid_window_pos(void)
 
 
 
-int mwDisplay::init_display(void)
+int mwDisplay::init_display()
 {
    int num_adapters = al_get_num_video_adapters();
    if (num_adapters == 0)
@@ -305,7 +305,7 @@ int mwDisplay::init_display(void)
    return 1;
 }
 
-void mwDisplay::proc_display_change(void)
+void mwDisplay::proc_display_change()
 {
    if ((last_display_change_frame != mLoop.frame_num - 1) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)) // skip if just changed last frame
    {
@@ -324,7 +324,7 @@ void mwDisplay::proc_display_change(void)
 
 // when the window is moved, no events are sent (in linux)
 // this function will poll and update display variables
-void mwDisplay::refresh_window_position_and_size(void)
+void mwDisplay::refresh_window_position_and_size()
 {
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    disp_w_curr = al_get_display_width(display);
@@ -346,7 +346,7 @@ void mwDisplay::refresh_window_position_and_size(void)
    }
 }
 
-void mwDisplay::toggle_fullscreen(void)
+void mwDisplay::toggle_fullscreen()
 {
    //printf("toggle fullscreen\n");
    if (fullscreen) // change from fullscreen to windowed
@@ -366,7 +366,7 @@ void mwDisplay::toggle_fullscreen(void)
 
 }
 
-void mwDisplay::set_windowed(void)
+void mwDisplay::set_windowed()
 {
    fullscreen = 0;
    if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
@@ -382,7 +382,7 @@ void mwDisplay::set_windowed(void)
    }
 }
 
-void mwDisplay::set_fullscreen(void)
+void mwDisplay::set_fullscreen()
 {
    fullscreen = 1;
    if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
@@ -405,7 +405,7 @@ void mwDisplay::set_fullscreen(void)
    }
 }
 
-void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
+void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on()
 {
    int debug_print = 0;
    if (debug_print) printf("Detecting which monitor the current window is on (window pos x:%d y:%d\n", disp_x_curr, disp_y_curr);
@@ -514,7 +514,7 @@ void mwDisplay::show_display_flags(int flags)
    if (flags & ALLEGRO_OPENGL_ES_PROFILE)          printf("ALLEGRO_OPENGL_ES_PROFILE\n");
 }
 
-void mwDisplay::show_display_options(void)
+void mwDisplay::show_display_options()
 {
    printf("display options\n");
    printf("ALLEGRO_RED_SIZE:%d\n",               al_get_display_option(display, ALLEGRO_RED_SIZE));
@@ -554,7 +554,7 @@ void mwDisplay::show_display_options(void)
    printf("ALLEGRO_DISPLAY_OPTIONS_COUNT:%d\n",  al_get_display_option(display, ALLEGRO_DISPLAY_OPTIONS_COUNT));
 }
 
-void mwDisplay::show_display_orientation(void)
+void mwDisplay::show_display_orientation()
 {
    int dor = al_get_display_orientation(display);
    if (dor ==  0) printf("ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN\n");
@@ -569,7 +569,7 @@ void mwDisplay::show_display_orientation(void)
    if (dor == 32) printf("ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN\n");
 }
 
-void mwDisplay::show_fullscreen_modes(void)
+void mwDisplay::show_fullscreen_modes()
 {
    printf("available fullscreen modes:\n");
    int nd = al_get_num_display_modes();
@@ -585,7 +585,7 @@ void mwDisplay::show_fullscreen_modes(void)
 
 
 
-void mwDisplay::show_var_sizes(void)
+void mwDisplay::show_var_sizes()
 {
    printf("\nVariables used to save selection\n\n"   );
 
@@ -674,14 +674,14 @@ void mwDisplay::show_var_sizes(void)
    sz = (int)sizeof(mGameMoves.arr);
    printf("game_moves    :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
-   sz = (int)sizeof(mLog.log_msg);
-   printf("log_msg       :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
-
-   sz = (int)sizeof(mLog.log_lines);
-   printf("log_lines     :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
-
-   sz = (int)sizeof(mLog.log_lines_int);
-   printf("log_lines_int :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   // sz = (int)sizeof(mLog.log_msg);
+   // printf("log_msg       :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   //
+   // sz = (int)sizeof(mLog.log_lines);
+   // printf("log_lines     :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   //
+   // sz = (int)sizeof(mLog.log_lines_int);
+   // printf("log_lines_int :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
 
    sz = (int)sizeof(mLog.log_types);
@@ -719,7 +719,7 @@ void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full,
    //  printf("0:%4d 0:%4d w:%4d h:%4d - scrn\n", 0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
 }
 
-void mwDisplay::show_display_adapters(void)
+void mwDisplay::show_display_adapters()
 {
    int num_adapters = al_get_num_video_adapters();
    printf("%d adapters found...\n", num_adapters);
@@ -742,7 +742,7 @@ void mwDisplay::show_display_adapters(void)
    }
 }
 
-void mwDisplay::set_window_title(void)
+void mwDisplay::set_window_title()
 {
    char msg[1024];
    //int SW = SCREEN_W;

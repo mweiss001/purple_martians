@@ -44,6 +44,7 @@ class mwClientStatusInsertQueue
    private:
       std::jthread m_thread;
 
+
       std::queue<client_status_buffer_row> q;
 
       std::mutex m;

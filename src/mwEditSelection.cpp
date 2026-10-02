@@ -31,7 +31,7 @@ void mwEditSelection::init()
 }
 
 
-void mwEditSelection::clear_ft_variables(void)
+void mwEditSelection::clear_ft_variables()
 {
    // ft_level_header
    for (int x=0; x<20; x++) ft_level_header[x] = 0;
@@ -553,7 +553,7 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 }
 
 
-void mwEditSelection::do_clear(void)
+void mwEditSelection::do_clear()
 {
    int x1 = mLevelEditor.selection.x1*20;
    int y1 = mLevelEditor.selection.y1*20;
@@ -619,7 +619,7 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
 }
 
 
-void mwEditSelection::draw_fsel(void)
+void mwEditSelection::draw_fsel()
 {
 
    int sw = ft_level_header[8];
@@ -653,7 +653,7 @@ void mwEditSelection::draw_fsel(void)
          ftLift.draw_lift(l, mwRect<float>::fromX1Y1WH(ftLift.cur[l].x, ftLift.cur[l].y, ftLift.cur[l].w, ftLift.cur[l].h));
 }
 
-void mwEditSelection::process_mouse_on_background(void)
+void mwEditSelection::process_mouse_on_background()
 {
    if (mInput.mouse_b[1][0])
    {

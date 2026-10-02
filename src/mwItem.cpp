@@ -36,7 +36,7 @@ mwItem::mwItem()
    initialize();
 }
 
-void mwItem::initialize(void)
+void mwItem::initialize()
 {
 
    strcpy(item_name[0],  "item_empty");
@@ -111,7 +111,7 @@ int mwItem::item_secondary67_hires(int type)
 
 
 
-void mwItem::draw_items(void)
+void mwItem::draw_items()
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)

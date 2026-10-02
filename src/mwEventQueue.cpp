@@ -10,7 +10,7 @@
 
 mwEventQueue mEventQueue;
 
-void mwEventQueue::create_timers(void)
+void mwEventQueue::create_timers()
 {
    // create timers
    fps_timer = al_create_timer(1 / (float) mLoop.frame_speed);
@@ -63,7 +63,7 @@ void mwEventQueue::proc(int pch)
 //   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
 }
 
-void mwEventQueue::proc_menu(void)
+void mwEventQueue::proc_menu()
 {
    proc(1);
    // this is done so that the game controls can be used to navigate menus and visual level select
@@ -77,7 +77,7 @@ void mwEventQueue::adjust_fps_timer(int new_fps)
    al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
 }
 
-void mwEventQueue::reset_fps_timer(void)
+void mwEventQueue::reset_fps_timer()
 {
    mLoop.frame_speed = 40;
    al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));

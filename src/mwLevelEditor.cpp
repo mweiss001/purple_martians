@@ -218,7 +218,7 @@ int mwLevelEditor::loop(int level)
 
 
 
-void mwLevelEditor::process_scrolledge(void)
+void mwLevelEditor::process_scrolledge()
 {
    int bw = BORDER_WIDTH;
    int swb = mDisplay.SCREEN_W-bw;

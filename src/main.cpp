@@ -14,5 +14,5 @@ int main(int argument_count, char **argument_array)
    signal(SIGABRT, signal_handler);
    signal(SIGTERM, signal_handler);
    mMain.pm_main(argument_count, argument_array);
-   return 1;
+   return 0;
 }

@@ -2266,7 +2266,7 @@ void mwTileHelper::find_connected(int x, int y, int group)
 }
 
 
-void mwTileHelper::process_mouse_on_background(void)
+void mwTileHelper::process_mouse_on_background()
 {
    if (mInput.mouse_b[1][0])
    {

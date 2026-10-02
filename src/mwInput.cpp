@@ -31,7 +31,7 @@ mwInput::mwInput()
    //initialize();
 }
 
-void mwInput::initialize(void)
+void mwInput::initialize()
 {
    if (!mDisplay.no_display)
    {
@@ -160,7 +160,7 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
 }
 
 
-void mwInput::proc_keys_held(void)
+void mwInput::proc_keys_held()
 {
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
    {
@@ -390,7 +390,7 @@ void mwInput::serial_key_check(int key)
 }
 
 
-void mwInput::function_key_check(void)
+void mwInput::function_key_check()
 {
    // debug variables used when adjusting things
    if (key[ALLEGRO_KEY_UP][   2]) mLoop.pct_y--;
@@ -515,7 +515,7 @@ int mwInput::get_scan_code_from_joystick(int joy, int button, int num)
 
 
 
-int mwInput::my_readkey(void) // only get key or joystick bindings
+int mwInput::my_readkey() // only get key or joystick bindings
 {
    int quit = 0, ret = 0;
 
@@ -802,13 +802,13 @@ void mwInput::set_controls_to_custom_sets(int s)
    }
 }
 
-int mwInput::SHFT(void)
+int mwInput::SHFT()
 {
    if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) return 1;
    else return 0;
 }
 
-int mwInput::CTRL(void)
+int mwInput::CTRL()
 {
    if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) return 1;
    else return 0;
@@ -820,7 +820,7 @@ void mwInput::m_err(const char * err_msg)
    al_show_native_message_box(mDisplay.display, "Error", "Error:", err_msg, NULL,  ALLEGRO_MESSAGEBOX_ERROR );
 }
 
-void mwInput::tsw(void)
+void mwInput::tsw()
 {
    al_flush_event_queue(mEventQueue.event_queue);
    int quit = 0;

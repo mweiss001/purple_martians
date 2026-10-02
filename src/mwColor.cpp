@@ -85,7 +85,7 @@ mwColor::mwColor()
    White  = pc[15];
 }
 
-void mwColor::show_palette(void)
+void mwColor::show_palette()
 {
    int x = 100;
    int y = 100;
@@ -104,7 +104,7 @@ void mwColor::show_palette(void)
    }
 }
 
-void mwColor::process_flash_color(void)
+void mwColor::process_flash_color()
 {
    if (++flash_counter > 32) flash_counter = 1;
    if ((flash_counter  > 0)  && (flash_counter < 9))   { flash_color = 10;  flash_color2 = 15; }

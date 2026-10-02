@@ -40715,6 +40715,210 @@ void mwLevel::save_level(int level_num)
 
 
 
+2026-09-30 05:23:39
+
+
+logging in settings does not work...
+
+   mLog.init_log_types();
+
+are getting overwritten???
+
+
+mLog.log_types[]
+
+writes:
+init_log_types();
+void mwSettings::load_settings(void)
+void mwSettings::save_settings(void)
+
+
+
+C:\pm\pm.exe
+init log types
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+Loading data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+System ID: Windows
+Desktop Resolution: 3840x2160
+Saving data/settings.pm
+Loading data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+
+
+deleted settings.pm
+
+
+C:\pm\pm.exe
+init log types
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+Loading data/settings.pm
+error loading data/settings.pm -- recreating
+init log types
+Saving data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+System ID: Windows
+Desktop Resolution: 3840x2160
+Saving data/settings.pm
+Loading data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+
+
+well it seems to be working now...
+
+back to troubleshooting netgame
+
+
+server m36
+client scat
+or reversed, does not matter
+when client completes game, a few second later, client restarts same level, and is not responsive to input
+It works when starting new level from overworld, but not when either player does exit
+also does not quit clean from command line, still need CTRL-C
+
+now I added another client e6430 and still the same...
+
+nothing usefulll in the logs so far...
+
+try adding more logging
+
+this is the culprit!!!
+
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   {
+      mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - pause player and setup exit xyincs\n", frame_num, mPlayer.syn[0].level_done_mode);
+      mScreen.add_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
+//      mLevel.add_play_data_record(mLevel.play_level, 1);
+
+
+
+void mwLevel::add_play_data_record(int lev, int type)
+{
+   printf("void mwLevel::add_play_data_record(lev:%d, type:%d))\n", lev, type);
+
+   int save_flag = 1;
+   if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
+   if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
+   if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;   // or if this is option is set
+   if (lev == 1) save_flag = 0;                                             // never save data for overworld
+   if (save_flag)
+   {
+      mLevel.skc_trigger_demo_cheat = 0;
+
+      if (type == 2)  // debug - mark level complete with UP on gate
+      {
+         char sql[2000];
+         sprintf(sql, "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);", lev, data[lev].time_par + 1200,  1, 0, 0,0,0,0);
+         mSql.execute_sql(sql, mSql.db_level_play_stats);
+         calc_level_stats(lev);
+      }
+
+      else
+      {
+
+         // printf("void mwLevel::add_play_data_record - mGmInfo.fill()\n");
+         // mGmInfo.fill();
+//         printf("void mwLevel::add_play_data_record - mGmInfo.add()\n");
+//         mGmInfo.add();
+      }
+
+//      printf("void mwLevel::add_play_data_record - check_achievements()\n");
+//      check_achievements();
+//      printf("void mwLevel::add_play_data_record - save_data()\n");
+//      save_data();
+      level_stats_bmp_msg_type = 0;
+   }
+}
+
+
+mGmInfo.fill() causes the badness....
+
+why?
+
+why am I running it on client anyway?
+
+could I just disable it for clients?
+
+think about it...why would I add a play record on the client?
+It still is broken...I need to remove on both client and server...
+
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   {
+      mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - pause player and setup exit xyincs\n", frame_num, mPlayer.syn[0].level_done_mode);
+      mScreen.add_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
+
+      // added this check 20260930 - do not run if client or server
+      if ((!mNetgame.ima_client) && (!mNetgame.ima_server)) mLevel.add_play_data_record(mLevel.play_level, 1);
+
+now it seems to work....
+
+
+
+so why does the server not exit clean?
+
+this is the culprit why program does not exit nicely from server
+mClientStatusInsertQueue.start();
+
+void mwClientStatusInsertQueue::start()
+{
+   // make sure it is stopped
+   m_thread.request_stop();
+   m_thread = std::jthread(std::bind_front(&mwClientStatusInsertQueue::sqlite_consumer, this));
+}
+
+void mwClientStatusInsertQueue::stop()
+{
+   m_thread.request_stop();
+   m_thread.detach();
+}
+
+
+2026-10-01 18:25:19
+spent all day fucking with logging
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

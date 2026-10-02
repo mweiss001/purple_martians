@@ -16,7 +16,7 @@
 mwBottomMessage mBottomMessage;
 
 
-void mwBottomMessage::init_filter_events(void)
+void mwBottomMessage::init_filter_events()
 {
    // all off
    for (int i=0; i<100; i++) filter_event[i] = 0;
@@ -41,7 +41,7 @@ void mwBottomMessage::init_filter_events(void)
 
 }
 
-void mwBottomMessage::create_test_mode_list(void)
+void mwBottomMessage::create_test_mode_list()
 {
    initialize();
 
@@ -126,7 +126,7 @@ void mwBottomMessage::create_test_mode_list(void)
 
 
 
-void mwBottomMessage::bmsg_create_bitmaps(void)
+void mwBottomMessage::bmsg_create_bitmaps()
 {
    for (int x=0; x<BMSG_MAX_LINES; x++)
    {
@@ -136,7 +136,7 @@ void mwBottomMessage::bmsg_create_bitmaps(void)
    bmsg_temp = mBitmap.create_and_clear_bitmap(800, 20); // temp bitmap for building new lines
 }
 
-void mwBottomMessage::initialize(void)
+void mwBottomMessage::initialize()
 {
    if (!mDisplay.no_display)
    {

@@ -151,7 +151,7 @@ void mwVisualLevel::compare_curr(int sel)
    al_flip_display();
    mInput.tsw();
 }
-void mwVisualLevel::compare_all(void)
+void mwVisualLevel::compare_all()
 {
    char msg[1024];
    // iterate and load levels
@@ -336,7 +336,7 @@ void mwVisualLevel::lev_draw(int full, int sel, int cur)
    al_draw_text(mFont.pr8, mColor.pc[12], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Quit with ESC");
 }
 
-void mwVisualLevel::level_viewer(void)
+void mwVisualLevel::level_viewer()
 {
    char msg[1024];
    le_temp = al_create_bitmap(1000,1000);

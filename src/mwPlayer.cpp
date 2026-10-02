@@ -55,9 +55,7 @@ void mwPlayer::proc_player_health(int p)
       if (!mLoop.ff_state)
       {
          mScreen.add_player_text_overlay(p, 3);
-
-         mLog.add_headerf(LOG_NET, -1, 0, "PLAYER:%d DIED!", p);
-         mLog.add_log_net_db_row(LOG_NET, 0, p, "PLAYER:%d DIED!", p);
+         mLog.add(LOG_NET, LOG_NET_SUBTYPE_PLAYER_DIED, p); // "PLAYER:%d DIED!"
          syn[p].stat_respawns++;
       }
    }
@@ -974,7 +972,7 @@ void mwPlayer::proc_player_ladder(int p)
    if (syn[p].on_ladder) proc_player_ladder_move(p);
 }
 
-void mwPlayer::move_players(void)
+void mwPlayer::move_players()
 {
    if (mMain.headless_server)
    {
@@ -1195,7 +1193,7 @@ void mwPlayer::draw_player(int p)
    }
 }
 
-void mwPlayer::draw_players(void)
+void mwPlayer::draw_players()
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) draw_player(p);
@@ -1226,7 +1224,7 @@ void mwPlayer::draw_player_direct_to_screen(int p)
 }
 
 
-void mwPlayer::draw_players_direct_to_screen(void)
+void mwPlayer::draw_players_direct_to_screen()
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) draw_player_direct_to_screen(p);
@@ -1300,7 +1298,7 @@ void mwPlayer::set_players_shape(int p)
 }
 
 
-int mwPlayer::find_inactive_player(void)
+int mwPlayer::find_inactive_player()
 {
    for (int p=1; p<NUM_PLAYERS; p++)
       if (!syn[p].active) return p;
@@ -1536,7 +1534,7 @@ void mwPlayer::init_player(int p, int t)
    }
 }
 
-void mwPlayer::set_default_player_colors(void)
+void mwPlayer::set_default_player_colors()
 {
    mPlayer.syn[1].color = 10;
    mPlayer.syn[2].color = 11;
@@ -1615,7 +1613,7 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
-void mwPlayer::proc_player_input(void)
+void mwPlayer::proc_player_input()
 {
    if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)

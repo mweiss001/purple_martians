@@ -181,7 +181,7 @@ class mwNetgame
    int server_update_status_img_size = 400;
    int server_update_status_img_time;
 
-   int server_insert_client_status_enable = 1;
+   int server_insert_client_status_enable = 0;
    int server_insert_client_status_batch_size_target = 20;
    int server_insert_client_status_batch_size_actual;
    int server_insert_client_status_batch_time_avg;

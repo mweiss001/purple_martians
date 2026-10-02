@@ -11,7 +11,7 @@
 
 
 
-void mwEnemy::fill_strings(void)
+void mwEnemy::fill_strings()
 {
    strcpy (enemy_name[0][0],  "empty");
    strcpy (enemy_name[1][0],  "Bouncer");
@@ -100,7 +100,7 @@ int mwEnemy::show_enemy_data(int x_pos, int y_pos)
 
 
 // fix this here..............returns even if full!!!!
-int mwEnemy::get_empty_enemy(void)
+int mwEnemy::get_empty_enemy()
 {
    int en = -1;
    for (int d=0; d<100; d++)
@@ -134,7 +134,7 @@ int mwEnemy::get_empty_enemy(int type)
 }
 
 
-void mwEnemy::show_all_enemies(void)
+void mwEnemy::show_all_enemies()
 {
    char msg[1024];
    ALLEGRO_BITMAP *tmp;
@@ -194,7 +194,7 @@ void mwEnemy::show_all_enemies(void)
 }
 
 
-void mwEnemy::sort_enemy(void)
+void mwEnemy::sort_enemy()
 {
    int swap_flag = 1;
    while (swap_flag)
@@ -247,7 +247,7 @@ void mwEnemy::sort_enemy(void)
 
 }
 
-int mwEnemy::create_cloner(void)
+int mwEnemy::create_cloner()
 {
    int aborted_create = 0;
    int e = get_empty_enemy(9); // type 9 cloner
@@ -284,7 +284,7 @@ int mwEnemy::create_cloner(void)
    else return e;
 }
 
-int mwEnemy::create_vinepod(void)
+int mwEnemy::create_vinepod()
 {
    int aborted_create = 0;
    int e = get_empty_enemy(7);

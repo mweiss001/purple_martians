@@ -16,7 +16,7 @@
 
 mwHelp mHelp;
 
-void mwHelp::load_help(void)
+void mwHelp::load_help()
 {
    char msg[1024];
    char buff[200];

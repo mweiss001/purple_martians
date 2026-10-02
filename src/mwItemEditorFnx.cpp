@@ -49,7 +49,7 @@ int mwItem::item_data(int x, int y)
    return y;
 }
 
-void mwItem::show_all_items(void)
+void mwItem::show_all_items()
 {
    char msg[1024];
    ALLEGRO_BITMAP *tmp;
@@ -209,7 +209,7 @@ int mwItem::sort_item(int set_pos)
    return inum;
 }
 
-int mwItem::get_empty_item(void) // just find me an empty
+int mwItem::get_empty_item() // just find me an empty
 {
    int mt = -1;
    for (int i=0; i<500; i++)
@@ -377,7 +377,7 @@ int mwItem::create_exit(int c)
    else return 0;
 }
 
-void mwItem::show_all_pmsg(void)
+void mwItem::show_all_pmsg()
 {
    int text_pos = 0;
    al_set_target_backbuffer(mDisplay.display);

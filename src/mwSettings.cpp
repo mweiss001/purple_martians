@@ -32,9 +32,9 @@
 
 mwSettings mSettings;
 
-void mwSettings::load_settings(void)
+void mwSettings::load_settings()
 {
-   //printf("Loading data/settings.pm\n");
+   printf("Loading data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","rb");
    if (fp)
    {
@@ -56,9 +56,9 @@ void mwSettings::load_settings(void)
    }
 }
 
-void mwSettings::save_settings(void)
+void mwSettings::save_settings()
 {
-   //printf("Saving data/settings.pm\n");
+   printf("Saving data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","wb");
    if (fp)
    {
@@ -72,7 +72,7 @@ void mwSettings::save_settings(void)
 }
 
 
-void mwSettings::reset_overlay_settings(void)
+void mwSettings::reset_overlay_settings()
 {
    for (int i=0; i<10; i++)
       for (int j=0; j<4; j++)
@@ -463,7 +463,7 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
 //  0 - Main
 // ---------------------------------------------------------------
-void mwSettings::page_main(void)
+void mwSettings::page_main()
 {
    int line_spacing = 8;
    //line_spacing += mLoop.pct_y;
@@ -637,7 +637,7 @@ void mwSettings::page_main(void)
 // ---------------------------------------------------------------
 //  1 - game mode (not used)
 // ---------------------------------------------------------------
-void mwSettings::page_mode(void)
+void mwSettings::page_mode()
 {
    int line_spacing = 12;
    //line_spacing +=  mLoop.pct_y;
@@ -724,7 +724,7 @@ void mwSettings::page_mode(void)
 // ---------------------------------------------------------------
 //  2 - controls
 // ---------------------------------------------------------------
-void mwSettings::page_controls(void)
+void mwSettings::page_controls()
 {
    int tc = 15;  // text color
    int bts = 20; // button spacing
@@ -787,7 +787,7 @@ void mwSettings::page_controls(void)
 // ---------------------------------------------------------------
 //  3 - Controls 2 (Function Keys)
 // ---------------------------------------------------------------
-void mwSettings::page_controls2(void)
+void mwSettings::page_controls2()
 {
    int line_spacing = 12;
    //line_spacing +=  mLoop.pct_y;
@@ -830,7 +830,7 @@ void mwSettings::page_controls2(void)
 // ---------------------------------------------------------------
 //  4 - netgame
 // ---------------------------------------------------------------
-void mwSettings::page_netgame(void)
+void mwSettings::page_netgame()
 {
    int line_spacing = 7;
    int section_spacing = 16;
@@ -1406,7 +1406,7 @@ void mwSettings::page_bottom_msg(int draw_only)
 // ---------------------------------------------------------------
 //  7 - level stats
 // ---------------------------------------------------------------
-void mwSettings::page_level_stats(void)
+void mwSettings::page_level_stats()
 {
 
    int line_spacing = 12;
@@ -1471,7 +1471,7 @@ void mwSettings::page_level_stats(void)
 // ---------------------------------------------------------------
 //  8 - transitions
 // ---------------------------------------------------------------
-void mwSettings::page_transitions(void)
+void mwSettings::page_transitions()
 {
 
    int line_spacing = 12;
@@ -1520,7 +1520,7 @@ void mwSettings::page_transitions(void)
 // ---------------------------------------------------------------
 //  10 - viewport
 // ---------------------------------------------------------------
-void mwSettings::page_viewport(void)
+void mwSettings::page_viewport()
 {
    int line_spacing = 6;
    //line_spacing +=  mLoop.pct_y;
@@ -1629,7 +1629,7 @@ void mwSettings::page_viewport(void)
 // ---------------------------------------------------------------
 //  11 - overlay
 // ---------------------------------------------------------------
-void mwSettings::page_overlay(void)
+void mwSettings::page_overlay()
 {
    int line_spacing = 14;
    int xa = cfp_x1 + 10;
@@ -1679,7 +1679,7 @@ void mwSettings::page_overlay(void)
 // ---------------------------------------------------------------
 //  12 - double
 // ---------------------------------------------------------------
-void mwSettings::page_double(void)
+void mwSettings::page_double()
 {
    int line_spacing = 10;
    //line_spacing +=  mLoop.pct_y;
@@ -1768,7 +1768,7 @@ void mwSettings::page_double(void)
 // ---------------------------------------------------------------
 //  13 - speed
 // ---------------------------------------------------------------
-void mwSettings::page_speed(void)
+void mwSettings::page_speed()
 {
    int line_spacing = 7;
    //line_spacing +=  mLoop.pct_y;
@@ -1880,7 +1880,7 @@ void mwSettings::page_speed(void)
 // ---------------------------------------------------------------
 //  16 - info
 // ---------------------------------------------------------------
-void mwSettings::page_info(void)
+void mwSettings::page_info()
 {
    int line_spacing = 8;
    //line_spacing +=  mLoop.pct_y;
@@ -1922,7 +1922,7 @@ void mwSettings::page_info(void)
 // ---------------------------------------------------------------
 //  17 - logging
 // ---------------------------------------------------------------
-int mwSettings::page_log(void)
+int mwSettings::page_log()
 {
    int line_spacing = 6;
    //line_spacing +=  mLoop.pct_y;
@@ -1944,7 +1944,7 @@ int mwSettings::page_log(void)
 
 
 
-   mLog.init_log_types();
+//   mLog.init_log_types();
 
 
 
@@ -1956,7 +1956,7 @@ int mwSettings::page_log(void)
       {
          mWidget.togglec_log(xa, ya, xb, 10, 1,i,tc,fc);
 
-         printf("draw log tog:%d \n", i);
+//         printf("draw log tog:%d \n", i);
 
       }
 
@@ -2093,7 +2093,7 @@ int mwSettings::page_log(void)
 // ---------------------------------------------------------------
 //  18 - misc
 // ---------------------------------------------------------------
-void mwSettings::page_misc(void)
+void mwSettings::page_misc()
 {
    int line_spacing = 12;
    //line_spacing +=  mLoop.pct_y;

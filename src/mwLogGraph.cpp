@@ -117,7 +117,7 @@ int mwLog::load_ping_graph(int num_lines)
       char tll[200]; // temp log line
       char res[80];
 
-      if (type == LOG_NET_timer_adjust)
+      if (type == LOG_NET_TIMER_ADJUST)
       {
          sprintf(tll, "%s", log_lines[i]);
 
@@ -143,7 +143,7 @@ int mwLog::load_ping_graph(int num_lines)
             mGraph[0].add_data_point(3, (double) fn, fps_chase);
          }
       }
-      if (type == LOG_NET_client_ping)
+      if (type == LOG_NET_CLIENT_PING)
       {
          sprintf(tll, "%s", log_lines[i]);
 
@@ -270,7 +270,7 @@ int mwLog::load_bandwidth_graph(int num_lines, int both)
 
    // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
-      if (log_lines_int[i][0] == LOG_NET_bandwidth)
+      if (log_lines_int[i][0] == LOG_NET_BANDWIDTH)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
@@ -518,7 +518,7 @@ int mwLog::load_client_server_sync_graph(int num_lines)
          }
       }
 
-      if (log_lines_int[i][0] == LOG_NET_stak)
+      if (log_lines_int[i][0] == LOG_NET_DIF_ACK)
       {
          int p = log_lines_int[i][1];
          double fn = (double) log_lines_int[i][2];

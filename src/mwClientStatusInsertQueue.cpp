@@ -22,9 +22,8 @@ void mwClientStatusInsertQueue::start()
 void mwClientStatusInsertQueue::stop()
 {
    m_thread.request_stop();
+   m_thread.detach();
 }
-
-
 
 void mwClientStatusInsertQueue::add()
 {

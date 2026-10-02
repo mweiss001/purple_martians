@@ -9,6 +9,17 @@ class mwLoop
 
    int state[8] = {0};
 
+
+   char state_names[50][80];
+
+   const char* quit_action_names[4] = {"QUIT", "MENU", "OVERWORLD", "SETTINGS" };
+
+   // 20261002 the only things that are used are 0 or 1
+   // 2 is set but never used
+   // 0 is used to immediately quit to command line, if started from there to play demo
+   const char* done_action_names[3] = {"QUIT", "MENU", "OVERWORLD" };
+
+
    int quit_action = 0;
    int done_action = 0;
 
@@ -70,7 +81,7 @@ class mwLoop
    static int have_all_players_acknowledged();
    void game_menu();
    void proc_level_done_mode();
-   void proc_program_state();
+   void proc_program_state_change();
 
    void remote_control_loop();
 

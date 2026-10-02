@@ -145,7 +145,6 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
 {
    for (int i=0; i<200; i++) if (!rx_buf[i].active) return i;
 
-   mLog.log_add_prefixed_text(LOG_NET, -1, "rx packet buffer full!\n");
    printf("[%d] rx packet buffer full!\n", mLoop.frame_num);
 
    // count types of packets in buffer
@@ -172,14 +171,17 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) srrf_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] cdat\n", cdat_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stak\n", stak_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] rctl\n", rctl_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stdf\n", stdf_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] snfo\n", snfo_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] sfil\n", sfil_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] srrf\n", srrf_count);
-   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] crfl\n", crfl_count);
+
+   mLog.add(LOG_NET, LOG_NET_SUBTYPE_PACKET_BUF_FULL, -1, cdat_count, stak_count, rctl_count, stdf_count, snfo_count, sfil_count, srrf_count, crfl_count, all_count);
+
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] cdat\n", cdat_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stak\n", stak_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] rctl\n", rctl_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stdf\n", stdf_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] snfo\n", snfo_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] sfil\n", sfil_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] srrf\n", srrf_count);
+   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] crfl\n", crfl_count);
 
    return -1;
 }

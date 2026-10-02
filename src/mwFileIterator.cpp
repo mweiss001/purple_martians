@@ -11,7 +11,7 @@ mwFileIterator::mwFileIterator()
 }
 
 
-void mwFileIterator::initialize(void)
+void mwFileIterator::initialize()
 {
    num_filenames = 0;
 

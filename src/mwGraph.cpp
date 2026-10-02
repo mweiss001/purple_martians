@@ -19,7 +19,7 @@ mwGraph::mwGraph()
    initialize();
 }
 
-void mwGraph::initialize(void)
+void mwGraph::initialize()
 {
    plot_x1 = 0;
    plot_y1 = 0;
@@ -142,7 +142,7 @@ void mwGraph::autoset_new_series_color(int series_index)
       }
 }
 
-void mwGraph::proc_graph(void)
+void mwGraph::proc_graph()
 {
    draw_graph(0);
 }
@@ -218,7 +218,7 @@ void mwGraph::set_series_legend_type(int type)
    }
 }
 
-void mwGraph::draw_series_legend(void)
+void mwGraph::draw_series_legend()
 {
    if (series_legend_slave)
    {
@@ -490,7 +490,7 @@ void mwGraph::enforce_axis_limits(int type)
    }
 }
 
-void mwGraph::enforce_axis_limits(void)
+void mwGraph::enforce_axis_limits()
 {
    enforce_axis_limits(1); // reverse order
    enforce_axis_limits(2); // min max limits
@@ -604,7 +604,7 @@ void mwGraph::draw_title(int set_size_only)
    else title_draw_size = 0;
 }
 
-void mwGraph::x_axis_get_size_and_arrange_pos(void)
+void mwGraph::x_axis_get_size_and_arrange_pos()
 {
    // call these with 1 to set size only
    draw_title(1);
@@ -975,7 +975,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
    }
 }
 
-void mwGraph::y_axis_get_size_and_arrange_pos(void)
+void mwGraph::y_axis_get_size_and_arrange_pos()
 {
    y_axis_draw_gridlines_and_labels(1);
    y_axis_draw_legend(1);
@@ -1008,7 +1008,7 @@ void mwGraph::y_axis_get_size_and_arrange_pos(void)
    y_axis_legend_draw_x = plot_x1 - y_axis_grid_label_draw_size - pad - y_axis_legend_draw_size;
 }
 
-int mwGraph::calc_data_range(void)
+int mwGraph::calc_data_range()
 {
    x_data_min = x_data_max = x_data_rng = 0;
    y_data_min = y_data_max = y_data_rng = 0;
@@ -1244,7 +1244,7 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
 
 
 }
-void mwGraph::draw_plot_area(void)
+void mwGraph::draw_plot_area()
 {
    int lines_drawn = 0;
    int segments_drawn = 0;
@@ -1296,7 +1296,7 @@ void mwGraph::draw_plot_area(void)
    al_reset_clipping_rectangle();
 }
 
-int mwGraph::proc_series_legend_menu(void)
+int mwGraph::proc_series_legend_menu()
 {
    if ((series_legend_draw_on) && (mInput.mouse_x > series_legend_x1) && (mInput.mouse_x < series_legend_x2) && (mInput.mouse_y > series_legend_y1) && (mInput.mouse_y < series_legend_y2))
    {
@@ -1333,7 +1333,7 @@ int mwGraph::proc_series_legend_menu(void)
    else return 0;
 }
 
-void mwGraph::proc_plot_menu(void)
+void mwGraph::proc_plot_menu()
 {
    if (mInput.mouse_b[2][0])
    {

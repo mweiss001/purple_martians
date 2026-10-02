@@ -10,10 +10,14 @@ Last updated 20251229
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23
 
+
 #define LOG_NET_stdf_rewind        25
 #define LOG_NET_stdf_create        26
 #define LOG_NET_stdf               27
 #define LOG_NET_stdf_packets       28
+
+
+
 
 #define LOG_NET_dif_apply          30
 
@@ -23,8 +27,6 @@ Last updated 20251229
 #define LOG_NET_timer_adjust       37
 
 #define LOG_NET_file_transfer      39
-
-
 
 
 
@@ -497,6 +499,10 @@ mwNetgameSessionLog:
 
 
 
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 status and net logs
 -------------------
@@ -645,14 +651,14 @@ struct client_session client_sessions[8];
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 New version 20260104
 
-session logging has permanent been superceded by a database version
+session logging has permanently been superceded by a database version
 
 Session logs
 ------------
 Saves information about netgame sessions
 A session is defined as when a client joins and lasts until the client quits
 It can span many levels, but only has one player associated with it.
-The player info I collect is:
+Player info collected:
 - player number
 - player color
 - player name (set by the player) 
@@ -763,13 +769,6 @@ if (!mLog.log_types[LOG_NET_session].action) return;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 

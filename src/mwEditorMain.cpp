@@ -68,7 +68,7 @@ char* mwEditorMain::get_text_description_of_block_based_on_flags(int flags, char
    return msg;
 }
 
-void mwEditorMain::show_draw_item_cursor(void)
+void mwEditorMain::show_draw_item_cursor()
 {
    if (point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
@@ -143,7 +143,7 @@ void mwEditorMain::show_item_info(int x, int y, int color, int type, int num)
    }
 }
 
-void mwEditorMain::find_point_item(void)
+void mwEditorMain::find_point_item()
 {
    // find point item
    point_item_type = 1; // block by default
@@ -212,7 +212,7 @@ void mwEditorMain::find_point_item(void)
    //al_draw_textf(mFont.pr8, mColor.pc[15], dx, dy-10, 0, "point_item_type:%d  gx:%d  gy:%d", point_item_type, mLevelEditor.gx, mLevelEditor.gy);
 }
 
-void mwEditorMain::process_mouse_on_background(void)
+void mwEditorMain::process_mouse_on_background()
 {
    if (mInput.mouse_b[1][0])
    {

@@ -291,7 +291,7 @@ void mwLoop::remote_control_loop()
 
 
 
-void mwLoop::initialize_and_resize_remote_graphs(void)
+void mwLoop::initialize_and_resize_remote_graphs()
 {
    // width and x position are based on screen width
    int width = remote_graphs_width;

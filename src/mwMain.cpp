@@ -22,8 +22,9 @@
 
 mwMain mMain;
 
-void mwMain::final_wrapup(void)
+void mwMain::final_wrapup()
 {
+   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
    if (!headless_server)
    {
       mDisplay.refresh_window_position_and_size();
@@ -41,12 +42,11 @@ void mwMain::fast_exit(int type)
    if (type == 2)  printf("\n\nReceived SIGINT - terminating...\n\n");
    if (type == 6)  printf("\n\nReceived SIGABRT - terminating...\n\n");
    if (type == 15) printf("\n\nReceived SIGTERM - terminating...\n\n");
-   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
    final_wrapup();
    exit(type);
 }
 
-void mwMain::show_system_id(void)
+void mwMain::show_system_id()
 {
    int j = al_get_system_id();
    if (j == ALLEGRO_SYSTEM_ID_UNKNOWN)     printf("System ID: Unknown system\n");
@@ -60,7 +60,7 @@ void mwMain::show_system_id(void)
    if (j == ALLEGRO_SYSTEM_ID_SDL)         printf("System ID: SDL\n");
 }
 
-void mwMain::set_exe_path(void)
+void mwMain::set_exe_path()
 {
    ALLEGRO_PATH *ep = al_get_standard_path(ALLEGRO_EXENAME_PATH);
    al_set_path_filename(ep, NULL);
@@ -69,7 +69,7 @@ void mwMain::set_exe_path(void)
    al_destroy_path(ep);
 }
 
-void mwMain::set_and_get_versions(void)
+void mwMain::set_and_get_versions()
 {
    // set version name
    sprintf(mLoop.pm_version_string, PM_VERSION);
@@ -97,6 +97,7 @@ void mwMain::set_and_get_versions(void)
    else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
 
 
+
    // get hostname
    FILE *fp = popen("hostname", "r");
    int loop = 0;
@@ -109,18 +110,13 @@ void mwMain::set_and_get_versions(void)
    }
    mLoop.local_hostname[loop] = 0;
    pclose(fp);
-//   printf("Hostname:%s\n", mLoop.local_hostname);
-
-//   std::string t2 = std::format("{:%Y%m%d %H%M%S}", std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now()));
-//   std::cout << "GMT Time: " << t2 << std::endl;
-
+   //printf("Hostname:%s\n", mLoop.local_hostname);
 
 }
 
 int mwMain::initial_setup()
 {
    // printf("initial_setup()\n");
-
 
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
@@ -194,14 +190,9 @@ int mwMain::initial_setup()
       return 0;
    }
 
-
-
    mLevel.load_data();
    mFont.load_fonts();
    mBitmap.load_tiles();
-
-
-
 
    // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)
@@ -289,8 +280,6 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       }
       mLoop.main_loop();
    }
-   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
-
    final_wrapup();
-   exit(0);
+   return 0;
 }

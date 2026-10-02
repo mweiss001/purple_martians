@@ -33,7 +33,7 @@ mwGameMoves::mwGameMoves()
 }
 
 
-void mwGameMoves::initialize(void)
+void mwGameMoves::initialize()
 {
    memset(arr, 0, sizeof arr);
    //for (int x=0; x<GAME_MOVES_SIZE; x++) clear_single(x);
@@ -93,12 +93,12 @@ void mwGameMoves::gm_swap(int i, int j)
    }
 }
 
-void mwGameMoves::gm_sort(void)
+void mwGameMoves::gm_sort()
 {
 /*
 
 
-   void mwGameMoves::gm_sort(void)
+   void mwGameMoves::gm_sort()
    {
       // first sort by frame
       int swap_flag = 1;
@@ -273,7 +273,7 @@ void mwGameMoves::gm_sort(void)
       }
 }
 
-void mwGameMoves::remove_doubled_moves(void)
+void mwGameMoves::remove_doubled_moves()
 {
    gm_sort();
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -310,7 +310,7 @@ int mwGameMoves::has_player_acknowledged(int p)
 
 
 // processes all entries in the game_moves array that match current frame_num
-void mwGameMoves::proc(void)
+void mwGameMoves::proc()
 {
    // search entire range
    int start_index = entry_pos-1;
@@ -535,11 +535,7 @@ void mwGameMoves::proc_game_move_player_active(int p, int color)
       {
          mScreen.add_player_text_overlay(p, 1);
          mGameEvent.add(6, 0, 0, p, 0, 0, 0);
-         if (!mLoop.ff_state)
-         {
-            mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
-            mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became ACTIVE!", p);
-         }
+         if (!mLoop.ff_state) mLog.add(LOG_NET,LOG_NET_SUBTYPE_PLAYER_ACTIVE,p); // Player became ACTIVE!
       }
    }
 }
@@ -552,29 +548,24 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
 
    if (mPlayer.syn[p].active)
    {
-      if (!mLoop.ff_state)
-      {
-         mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became INACTIVE!                              ", p);
-         mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became INACTIVE!", p);
-      }
-
+      if (!mLoop.ff_state) mLog.add(LOG_NET,LOG_NET_SUBTYPE_PLAYER_INACTIVE,p); // Player became INACTIVE!
       mScreen.add_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
-
       mPlayer.syn[p].active = 0;
-
       if (mNetgame.ima_server)
       {
          if (p == 0) // local server player quit
          {
             // printf("Local Server Player Quit:%d\n", mLoop.frame_num);
-            if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+            //if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ENDING_STATS);
+            if (!mLoop.ff_state) mLog.add(LOG_NET_ENDING_STATS, 0, p);
             mLoop.state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
          }
          else // client quit on server
          {
             // printf("Client Quit on Server:%d\n", mLoop.frame_num);
-            if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+            //if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ENDING_STATS, p);
+            if (!mLoop.ff_state) mLog.add(LOG_NET_ENDING_STATS, 1, p);
          }
       }
 
@@ -779,7 +770,7 @@ void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
 }
 
 
-void mwGameMoves::save_gm_file_select(void)
+void mwGameMoves::save_gm_file_select()
 {
    char fname[1024];
    sprintf(fname, "savegame/");
@@ -987,15 +978,22 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
 {
    char msg[256];
    int ret = 0; // good return by default
-   if (entry_pos == 0)          ret = 1; // No game moves to save
-   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
-   if (mDemoMode.play_mode_active)          ret = 3; // Never save demo when in demo mode
-   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
+   if (entry_pos == 0)              ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)      ret = 2; // Never save demo for overworld
+   if (mDemoMode.play_mode_active)  ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)         ret = 4; // Never save demo locally for client
 
    if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
    // only log here if file will not be saved
-   if (ret) mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
+
+   if (ret) mLog.add(LOG_NET_FILE_TRANSFER, 1, sendto, 0,0,0,0,0,0,0,0,0,0, get_save_txt(ret, msg));
+
+//   if (ret) mLog.add(LOG_NET_FILE_TRANSFER, 1, sendto, 0,0,0,0,0,0,0,0, get_save_txt(ret, msg));
+//   if (ret) mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
+
+
+
 
    if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
 
@@ -1005,7 +1003,11 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
       gm_sort();
       save_gm(fname);
 
-      mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
+      //mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, sendto, "saved:%s\n", fname);
+//      mLog.add(LOG_NET_FILE_TRANSFER, 2, sendto, 0,0,0,0,0,0,0,0, fname);
+
+      mLog.add(LOG_NET_FILE_TRANSFER, 2, sendto, 0,0,0,0,0,0,0,0,0,0, fname);
+
       sprintf(mDemoRecord.last_loaded_demo_file, "%s", fname); // update current loaded demo filename
 
       //save_gm_txt(fname); // also save as a human readable text file
@@ -1126,7 +1128,7 @@ bool mwGameMoves::save_gm(const char *fname)
 
 
 
-void mwGameMoves::print_header(void)
+void mwGameMoves::print_header()
 {
    printf("Filename            :%s\n",   last_loaded_gm_filename);
    printf("MUID                :%s\n",   HEADER_muid.c_str());

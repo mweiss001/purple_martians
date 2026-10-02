@@ -13,12 +13,9 @@ this needs to be fixed!!!
 
 logging in settings does not work...
 
-
    mLog.init_log_types();
 
 are getting overwritten???
-
-
 
 
 
@@ -412,6 +409,21 @@ make some levels that have a ladder that appear after killing all the bad guys..
 major changes to logging
 ------------------------------------------------------------------------------
 
+I want all calls through my code that add a log entry to be a one line function call
+and each will have a unique ID
+I will decide after that based on the ID whether or not they get logged
+
+the single line function call will probably have a few different call signatures depending on what info needs to be logged
+
+
+
+
+
+
+
+
+
+
 
 make some kind of database cleanup function for sessions
 to close all open ones that might have been orphaned
@@ -429,6 +441,113 @@ I am unsure of the benefits of this
 
 what if this gmInfo I am generating is saved in a database?
 that was where i was going with the stats thing anyway, was I not?
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+major change!!
+
+I want a new data structure the keeps track of a bunch of game state variables
+right now I am doing that with a kind of hack where I add variables to the the player struct, then use only p0 instance
+examples:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_ack; (this is per player)
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey = 0;
+   int server_force_client_offset = 0;
+
+what am I going to call this?
+
+game_state_data
+game_state_meta_data
+current_running_game_data
+game_state
+gameState
+
+then I can just sync that from server to client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ------------------------------------------------------------------------------

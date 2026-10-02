@@ -183,7 +183,7 @@ void mwNetgame::process_bandwidth_counters(int p)
       mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
       mPlayer.loc[p].rx_packets_per_tally = mPlayer.loc[p].rx_packets_tally;
 
-      mLog.log_add_prefixed_textf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
+      mLog.add(LOG_NET_BANDWIDTH, 0, p, mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
 
       // reset tallies
       mPlayer.loc[p].tx_bytes_tally   = 0;

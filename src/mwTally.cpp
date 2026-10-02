@@ -19,7 +19,7 @@ mwTally::mwTally()
    initialize();
 }
 
-void mwTally::initialize(void)
+void mwTally::initialize()
 {
    num = 0;
    tally = 0;

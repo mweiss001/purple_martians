@@ -24,7 +24,7 @@
 #include "mwSql.h"
 
 
-void mwLevel::reset_level_data(void)
+void mwLevel::reset_level_data()
 {
    clear_data();
    save_data();
@@ -32,7 +32,7 @@ void mwLevel::reset_level_data(void)
    load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
-void mwLevel::unlock_all_levels(void)
+void mwLevel::unlock_all_levels()
 {
    // only change levels that were locked to start with
    for(int i=0; i<100; i++)
@@ -46,23 +46,6 @@ void mwLevel::unlock_all_levels(void)
    load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
-/*
-int mwLevel::get_level_status(int level, int &status_color, char * status_text)
-{
-   char sql[1024];
-   sprintf(sql, "SELECT status FROM level_play_data WHERE level=%d", level);
-
-   int status = mSql.execute_sql_and_return_one_int(sql, mSql.db_level_play_stats);
-
-   if (status == 0) { sprintf(status_text, "Locked");   status_color = 10; } // red
-   if (status == 1) { sprintf(status_text, "Ready");    status_color = 13; } // lt blue
-   if (status == 2) { sprintf(status_text, "Complete"); status_color = 12; } // dk blue
-   if (status == 3) { sprintf(status_text, "Perfect");  status_color = 8;  } // purple
-
-   return status;
-}
-*/
-
 void mwLevel::set_status_text_and_color(int level)
 {
    int i = level;
@@ -72,11 +55,9 @@ void mwLevel::set_status_text_and_color(int level)
    if (data[i].status == 3) { sprintf(data[i].status_text, "Perfect");  data[i].status_color = 8;  } // purple
 }
 
-
 void mwLevel::add_play_data_record(int lev, int type)
 {
-   // printf("void mwLevel::add_play_data_record(lev:%d, type:%d))\n", lev, type);
-
+   //printf("void mwLevel::add_play_data_record(lev:%d, type:%d))\n", lev, type);
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
    if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
@@ -85,7 +66,6 @@ void mwLevel::add_play_data_record(int lev, int type)
    if (save_flag)
    {
       mLevel.skc_trigger_demo_cheat = 0;
-
       if (type == 2)  // debug - mark level complete with UP on gate
       {
          char sql[2000];
@@ -93,19 +73,16 @@ void mwLevel::add_play_data_record(int lev, int type)
          mSql.execute_sql(sql, mSql.db_level_play_stats);
          calc_level_stats(lev);
       }
-
       else
       {
          mGmInfo.fill();
          mGmInfo.add();
       }
-
       check_achievements();
       save_data();
       level_stats_bmp_msg_type = 0;
    }
 }
-
 
 
 void mwLevel::calc_level_stats(int lev)
@@ -191,7 +168,7 @@ void mwLevel::calc_level_stats(int lev)
 
 
 
-void mwLevel::check_achievements(void)
+void mwLevel::check_achievements()
 {
    int strict = 0;
    // in strict mode all levels are locked until the previous one is completed
@@ -400,7 +377,7 @@ int mwLevel::find_msg(const char* str)
 
 
 // only ever called from load level after loading level 1
-void mwLevel::set_overworld_barriers(void)
+void mwLevel::set_overworld_barriers()
 {
 
    // --------------------------------
@@ -910,7 +887,7 @@ void mwLevel::save_data()
    mInput.m_err("Error saving level_data.pm");
 }
 
-void mwLevel::dump_level_data(void)
+void mwLevel::dump_level_data()
 {
 //   printf("Play Data:\n");
 //   for (int i=0; i<play_data_num; i++)

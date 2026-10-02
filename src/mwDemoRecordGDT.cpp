@@ -5,7 +5,7 @@
 #include "mwGameMoves.h"
 #include "mwLevel.h"
 
-void mwDemoRecord::gdt(void)
+void mwDemoRecord::gdt()
 {
    if (!mDemoMode.load_demo_file_array()) return;
 

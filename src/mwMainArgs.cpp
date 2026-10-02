@@ -566,7 +566,7 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 #include "mwGmInfo.h"
 
 
-void mwMain::temp_test(void)
+void mwMain::temp_test()
 {
 
 //   printf("test!!!!\n");

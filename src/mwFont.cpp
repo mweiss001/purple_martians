@@ -7,7 +7,7 @@
 
 mwFont mFont;
 
-void mwFont::load_fonts(void)
+void mwFont::load_fonts()
 {
    al_destroy_font(bltn);
    bltn = al_create_builtin_font();

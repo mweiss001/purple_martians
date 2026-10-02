@@ -60,7 +60,7 @@ public:
    int special_array_num_lines = 4;  // number of lines
    int special_array_cur_lines = 3;  // number of lines currently shown
 
-   void fill_block_array(void);
+   void fill_block_array();
 
    void draw(mwRect<int> &rect, int draw_only, int have_focus);
 
@@ -71,7 +71,7 @@ private:
    int lasty; // last y position inserted
 
 
-   void load_pde(void);
+   void load_pde();
 
    void pushCreator(std::string text, int type, int tile, int creator_id, std::string desc = "");
    void pushRegular(struct pde p, std::string text, int type, std::string desc);

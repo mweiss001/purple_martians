@@ -104,7 +104,7 @@ int mwItem::seq_color(int mod, int c1, int c2)
    return col;
 }
 
-int mwItem::seq_color2(void)
+int mwItem::seq_color2()
 {
    int ca[40];
    int ci = 0;
@@ -157,7 +157,7 @@ int mwItem::seq_color2(void)
    return ca[mod];
 }
 
-int mwItem::seq_color3(void)
+int mwItem::seq_color3()
 {
    int ca[20];
    int ci = 0;

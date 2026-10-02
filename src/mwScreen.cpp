@@ -57,10 +57,14 @@ void mwScreen::transition_cutscene(int i, int f)
 {
    if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
    {
-      if (mLog.log_types[LOG_OTH_transitions].action)
+      if (mLog.log_types[LOG_OTH_TRANSITIONS].action)
       {
-         const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-         mLog.log_add_prefixed_textf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
+//         const char* tcn[5] = {"nothing", "game", "menu", "gate"};
+//         mLog.log_add_prefixed_textf(LOG_OTH_TRANSITIONS, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
+
+         mLog.add(LOG_OTH_TRANSITIONS, 0, -1, i, f);
+
+
       }
 
       if ((i) || (f)) // only if not both 0
@@ -196,7 +200,7 @@ void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, flo
 }
 
 
-void mwScreen::set_screen_display_variables(void)
+void mwScreen::set_screen_display_variables()
 {
 // ----------------------------------------------------------------------
 // step 1 - determine x, y, width and height to draw on the screen
@@ -244,7 +248,7 @@ void mwScreen::set_screen_display_variables(void)
 }
 
 
-void mwScreen::set_level_display_region_xy(void)
+void mwScreen::set_level_display_region_xy()
 {
 // ----------------------------------------------------------------------
 // use active local player to find where to grab the region from level buffer
@@ -409,7 +413,7 @@ void mwScreen::set_level_display_region_xy(void)
    }
 }
 
-void mwScreen::draw_scaled_level_region_to_display(void)
+void mwScreen::draw_scaled_level_region_to_display()
 {
    set_screen_display_variables();
 
@@ -514,7 +518,7 @@ void mwScreen::draw_scaled_level_region_to_display(void)
 }
 
 // to show in settings
-void mwScreen::draw_hyst_rect(void)
+void mwScreen::draw_hyst_rect()
 {
    int bw = BORDER_WIDTH;
    float x_size = (mDisplay.SCREEN_W-bw*2) * viewport_x_div/2; // larger number is smaller window
@@ -530,7 +534,7 @@ void mwScreen::draw_hyst_rect(void)
 
 
 
-void mwScreen::set_map_var(void)
+void mwScreen::set_map_var()
 {
    // set menu x and y
    menu_x = mDisplay.SCREEN_W/2;
@@ -650,7 +654,7 @@ void mwScreen::draw_tile_overlay(int tile, int x, int y)
 
 
 
-void mwScreen::init_level_background(void) // fill level_background with block tiles
+void mwScreen::init_level_background() // fill level_background with block tiles
 {
    //double t0 = al_get_time();
    //printf("init_level_background\n");
@@ -761,7 +765,7 @@ void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, flo
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
 }
 
-void mwScreen::draw_level_map_under_menu(void) // used only in menu
+void mwScreen::draw_level_map_under_menu() // used only in menu
 {
    int sz = menu_level_display_size;
    int x = menu_level_display_x;
@@ -797,7 +801,7 @@ void mwScreen::draw_level_map_under_menu(void) // used only in menu
 }
 
 
-void mwScreen::draw_level_info(void) // used only in menu
+void mwScreen::draw_level_info() // used only in menu
 {
    char msg[80];
    int lev = mLevel.last_level_loaded;
@@ -870,7 +874,7 @@ void mwScreen::draw_level_info(void) // used only in menu
 }
 
 
-void mwScreen::draw_line_of_players(void)
+void mwScreen::draw_line_of_players()
 {
    // draw a line of players on each side of menu
 
@@ -910,7 +914,7 @@ void mwScreen::draw_line_of_players(void)
    }
 }
 
-void mwScreen::frame_and_title(void)
+void mwScreen::frame_and_title()
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
    int tc = mColor.get_contrasting_color(c);

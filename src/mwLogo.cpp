@@ -18,13 +18,13 @@ mwLogo::mwLogo()
    initialize();
 }
 
-void mwLogo::initialize(void)
+void mwLogo::initialize()
 {
    seed_logo();
    fill_logo();
 }
 
-void mwLogo::seed_logo(void)
+void mwLogo::seed_logo()
 {
    // outer arms start and end pos are all fixed
    points[0][0] = -200;
@@ -88,7 +88,7 @@ void mwLogo::seed_logo(void)
 
 
 
-void mwLogo::fill_logo(void)
+void mwLogo::fill_logo()
 {
    // --- outer arms ---
    // mirror spline 0 to 1, 4, 5
@@ -392,7 +392,7 @@ void mwLogo::mdw_an(float x, float y, float sc)
 
 
 // splash screen uses an2
-int mwLogo::mdw_an2(void)
+int mwLogo::mdw_an2()
 {
    float x_scale = mScreen.splash_logo_scale;
    float y_scale = mScreen.splash_logo_scale;
@@ -464,7 +464,7 @@ int mwLogo::mdw_an2(void)
 
 
 
-void mwLogo::splash_screen(void)
+void mwLogo::splash_screen()
 {
    mdw_an_seq = 0;
    mScreen.set_map_var();
@@ -554,7 +554,7 @@ void mwLogo::mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)
    al_destroy_bitmap(t1);
 }
 
-void mwLogo::spline_test(void)
+void mwLogo::spline_test()
 {
    float x_scale = 1.0;
    float y_scale = 1.0;
@@ -616,7 +616,7 @@ void mwLogo::redraw_spline(int s)
    }
 }
 
-void mwLogo::spline_adjust(void)
+void mwLogo::spline_adjust()
 {
    al_show_mouse_cursor(mDisplay.display);
 

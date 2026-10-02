@@ -47,7 +47,7 @@ void mwShot::proc_pshot_collision(int p, int b)
 
 
 
-int mwShot::find_empty_pshot(void)
+int mwShot::find_empty_pshot()
 {
    int index = -1;
 
@@ -119,7 +119,7 @@ void mwShot::proc_player_shoot(int p)
 }
 
 
-void mwShot::move_pshots(void)
+void mwShot::move_pshots()
 {
    num_pshots = 0;
 
@@ -253,7 +253,7 @@ void mwShot::draw_eshots()
       }
 }
 
-void mwShot::clear_shots(void)
+void mwShot::clear_shots()
 {
    for (int b=0; b<50; b++)
    {
@@ -277,7 +277,7 @@ void mwShot::clear_shots(void)
 
 
 
-int mwShot::find_empty_eshot(void)
+int mwShot::find_empty_eshot()
 {
    int index = -1;
 

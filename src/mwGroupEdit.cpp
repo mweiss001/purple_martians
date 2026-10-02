@@ -646,7 +646,7 @@ void mwGroupEdit::init()
 
 
 // iterate the object list to find out what controls are valid
-void mwGroupEdit::set_valid_controls(void)
+void mwGroupEdit::set_valid_controls()
 {
    // set all controls valid by default
    for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
@@ -712,7 +712,7 @@ void mwGroupEdit::remove_obj_list_item(int a)
    }
 }
 
-void mwGroupEdit::remove_obj_list_filtered_items(void)
+void mwGroupEdit::remove_obj_list_filtered_items()
 {
    for (int i=0; i<NUM_OBJ; i++)
       if (obj_list[i][0])
@@ -828,7 +828,7 @@ void mwGroupEdit::add_selection_to_list(int set_filters)
    }
 }
 
-void mwGroupEdit::process_mouse_on_background(void)
+void mwGroupEdit::process_mouse_on_background()
 {
    if (mInput.mouse_b[1][0])
    {
