@@ -18,17 +18,10 @@ int mwSql::init()
 
 void mwSql::create_prepared_statements()
 {
-/*
-   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-   int rc2 = sqlite3_prepare_v2(db_client_status, sql2, -1, &client_status_insert_stmt, nullptr);
-   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_client_status));
-*/
-
    char sql[1024];
-   sprintf(sql, "INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+   sprintf(sql, "INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
    int rc2 = sqlite3_prepare_v2(db_server_status, sql, -1, &server_status_insert_stmt, nullptr);
    if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_server_status));
-
 }
 
 int mwSql::open_database()
@@ -38,23 +31,11 @@ int mwSql::open_database()
    sprintf(filename, "%s", "data/sessions.db");
    if (sqlite3_open(filename, &db_sessions))        { printf("Can't open database %s\n", filename);  return (0); }
 
-
-   //   sprintf(filename, "%s", "data/game_events.db");
-//   if (sqlite3_open(filename, &db_game_events))     { printf("Can't open database %s\n", filename);  return (0); }
-
-   /*
-   sprintf(filename, "%s", "data/client_status.db");
-   if (sqlite3_open(filename, &db_client_status))   { printf("Can't open database %s\n", filename);  return (0); }
-   */
-
-
    sprintf(filename, "%s", "data/server_status.db");
    if (sqlite3_open(filename, &db_server_status))   { printf("Can't open database %s\n", filename);  return (0); }
 
-
    sprintf(filename, "%s", "data/level_play_stats.db");
    if (sqlite3_open(filename, &db_level_play_stats))   { printf("Can't open database %s\n", filename);  return (0); }
-
 
 //   execute_sql("PRAGMA journal_mode = WAL", db_client_status);
 
@@ -121,14 +102,6 @@ void mwSql::create_tables()
 
 
 
-
-
-
-
-
-
-
-
    strcpy(sql, "CREATE TABLE IF NOT EXISTS play_data( \
                id                  INTEGER PRIMARY KEY, \
                level               INT,  \
@@ -165,32 +138,6 @@ void mwSql::create_tables()
                time_total            INT ); ");
    execute_sql(sql, db_level_play_stats);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 
    // strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
@@ -206,33 +153,32 @@ void mwSql::create_tables()
    // execute_sql(sql, db_sessions);
 */
 
+
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               version       TEXT, \
+               uptime        INT, \
+               cpua          INT, \
+               cpum          INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               fakekey       INT, \
+               ss_allow      INT, \
+               ss_enabled    INT, \
+               ss_period     INT, \
+               ss_size       INT, \
+               ss_time       INT, \
+               enemies       INT ); ");
+   execute_sql(sql, db_server_status);
+
+
+
+
 /*
-
-
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
-               id            INTEGER PRIMARY KEY, \
-               timestamp     INT, \
-               frame         INT, \
-               pl_num        INT, \
-               pl_col        INT, \
-               pl_name       TEXT, \
-               pl_host       TEXT, \
-               cpu           INT, \
-               sync          INT, \
-               ping          INT, \
-               lcor          INT, \
-               rcor          INT, \
-               rewind        INT, \
-               difs          INT, \
-               tkbs          INT ); ");
-   execute_sql(sql, db_client_status);
-   strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
-   execute_sql(sql, db_client_status);
-
-
-  */
-
    strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
                timestamp     TEXT PRIMARY KEY, \
                version       TEXT, \
@@ -256,6 +202,21 @@ void mwSql::create_tables()
                ss_time       INT, \
                enemies       INT ); ");
    execute_sql(sql, db_server_status);
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
@@ -264,24 +225,6 @@ void mwSql::create_tables()
                val         REAL, \
                mod         INT ); ");
    execute_sql(sql, db_server_status);
-
-
-/*
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
-               id          INTEGER PRIMARY KEY, \
-               frame       INT, \
-               ev          INT, \
-               x           INT, \
-               y           INT, \
-               p           INT, \
-               z2          INT, \
-               z3          INT, \
-               z4          INT ); ");
-   execute_sql(sql, db_game_events);
-
-  */
-
 
 }
 

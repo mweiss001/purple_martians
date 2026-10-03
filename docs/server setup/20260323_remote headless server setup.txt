@@ -333,6 +333,9 @@ faster way to send src to linux
 ----------------------------------------------------------------
 
 
+pscp -pw zaiden c:\pm\src\mwCon*  m@192.168.1.138:dev/purple_martians/src/
+
+
 pscp -pw zaiden c:\pm\src\mwNetgameS*  m@192.168.1.148:dev/purple_martians/src/
 
 pscp -pw zaiden c:\pm\src\mwMain*  m@192.168.1.148:dev/purple_martians/src/

@@ -29,7 +29,7 @@ Under "All networks' turn off password protected sharing
 
 On the desktop create a folder called pm_client_52
 
-right-clieck -> properties -> sharing tab
+right-click -> properties -> sharing tab
 
 click share
 

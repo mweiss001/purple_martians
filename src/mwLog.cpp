@@ -20,8 +20,6 @@ mwLog::mwLog()
 {
    init_log_types(); // now only done when recreating settings.pm
    erase_log();
-   erase_log_net();
-   erase_log_status();
 }
 
 void mwLog::init_log_types()
@@ -34,7 +32,6 @@ void mwLog::init_log_types()
       log_types[i].action = 0;
       strcpy(log_types[i].name, "");
    }
-
 
    i = LOG_error;                  log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
 
@@ -52,14 +49,10 @@ void mwLog::init_log_types()
    i = LOG_NET_ENDING_STATS;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ENDING_STATS");
    i = LOG_NET_BANDWIDTH;          log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_BANDWIDTH");
    i = LOG_NET_SESSION;            log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_SESSION");
-   i = LOG_NET_CSV;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_CSV"); log_types[i].action = 0;
-
 
    i = LOG_OTH_PROGRAM_STATE;      log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_PROGRAM_STATE");
    i = LOG_OTH_TRANSITIONS;        log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_TRANSITIONS");
    i = LOG_OTH_LEVEL_DONE;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_LEVEL_DONE");
-
-
 
    i = LOG_TMR_cpu;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cpu");
    i = LOG_TMR_rebuild_bitmaps;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rebuild_bitmaps");
@@ -77,9 +70,7 @@ void mwLog::init_log_types()
    i = LOG_TMR_client_timer_adj;   log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
    i = LOG_TMR_client_ping;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
    i = LOG_TMR_proc_rx_buffer;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
-
 }
-
 
 
 void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2, float v3, float v4, float v5, float v6, float v7, float v8, float v9, const char* t1, const char* t2)
@@ -114,8 +105,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          const char* tcn[5] = {"nothing", "game", "menu", "gate"};
          mLog.log_add_prefixed_textf(LOG_OTH_TRANSITIONS, 0, "Transition from %s to %s\n", tcn[i], tcn[f]);
       }
-
-
    }
 
 
@@ -159,8 +148,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 2) log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "PROGRAM STATE - exit program at level done because done_action = 0");
       if (sub_type == 3) log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "PROGRAM STATE - instead of menu, go to overworld because quit_action = 2");
       if (sub_type == 4) log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "PROGRAM STATE - instead of menu, go to settings because quit_action = 3");
-
-
    }
 
 
@@ -192,7 +179,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    {
       sprintf(msg, "stdf create:%d", (int) v0);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
    }
 
 
@@ -202,8 +188,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 1) sprintf(msg, "rx dif complete [%d to %d] - uncompressed",   (int)v0, (int)v1);
       if (sub_type == 2) sprintf(msg, "rx dif complete [%d to %d] - bad uncompress", (int)v0, (int)v1);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
-
    }
 
 
@@ -217,7 +201,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 3) sprintf(msg, "%s  -  sdln bad!", msg1);
 
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
    }
 
 
@@ -245,8 +228,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          sprintf(msg, "%s [applied] [%s]", msg1, msg2);
       }
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
-
    }
 
    if (log_type == LOG_NET_DIF_ACK)
@@ -255,7 +236,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 1) sprintf(msg, "rx stak p:%d ack:[%d] cur:[%d] slsn:[%d] - dsync:[%4.1f] chase:[%4.1f]", (int)v0, (int)v1, (int)v2, (int)v3, v4*1000, v5);
       if (sub_type == 2) sprintf(msg, "rx stak p:%d ack:[%d] cur:[%d] slsn:[%d] - wrong slsn, ignoring", (int)v0, (int)v1, (int)v2, (int)v3);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-//      add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
    }
 
 
@@ -267,20 +247,16 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 2) sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d] - late - dropped",            p, (int)v0, (int)v1, (int)v2);
       if (sub_type == 3) sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d] - wrong slsn:[%d] - dropped", p, (int)v0, (int)v1, (int)v2, (int)v3);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
    }
 
 
 
    if (log_type == LOG_NET_TIMER_ADJUST)
    {
-      sprintf(msg, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]", v0*1000, v1*1000, v2*1000, v3);
+      if (sub_type == 0) sprintf(msg, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]", v0*1000, v1*1000, v2*1000, v3);
+      if (sub_type == 1) sprintf(msg, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f] - no stdf packets this frame", v0*1000, v1*1000, v2*1000, v3);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, 0,   "%s",   msg);
    }
-
-
-
 
    if (log_type == LOG_NET_CLIENT_PING)
    {
@@ -289,10 +265,7 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
       sprintf(msg, "client ping[%5.1f] avg[%5.1f]\n", ping*1000, ping_avg*1000);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-      //add_log_net_db_row(log_type, 0, p,   "%s",   msg);
    }
-
-
 
 
 
@@ -302,24 +275,17 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
    if (log_type == LOG_NET_FILE_TRANSFER)
    {
-
       if (sub_type == 1) sprintf(msg, "save:txt:%s", t1); // not saved
       if (sub_type == 2) sprintf(msg, "saved:%s", t1); // saved
-
       if (sub_type == 4) sprintf(msg, "%s%s", t1, t2); // rx srrf -
       if (sub_type == 5) sprintf(msg, "%s", t1); // rx %s size:[%d] id:[%d]
       if (sub_type == 6) sprintf(msg, "%s", t1); // tx clrf - client request file");
-
       if (sub_type == 7)  sprintf(msg, "%s", t1);            // rx clrf - client request file");
       if (sub_type == 8)  sprintf(msg, "%s%d", t1, (int)v0); // rx sfak - client acknowledged getting file id:
       if (sub_type == 9)  sprintf(msg, "%s%s", t1, t2);      // starting file transfer - ", files_to_send[i].name);
       if (sub_type == 10) sprintf(msg, "file:%s does not exist", t1);      // file:%s does not exist
       if (sub_type == 11) sprintf(msg, "file:%s is too large - %d > 200k", t1, (int)v0);      // file:%s too large
-
-
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
-//      add_log_net_db_row(log_type, 0, p,   "%s",   msg);
-
    }
 
 
@@ -371,15 +337,12 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          if (error == 1) add_fw( log_type, -1, 76, 10, "|", " ", "Failed to initialize network");
          if (error == 2) add_fw( log_type, -1, 76, 10, "|", " ", "Failed to open server channel");
          add_fw( log_type, p, 76, 10, "+", "-", "");
-
-         //add_log_net_db_row(log_type, 0, 0, "Server mode started - hostname:%s", mLoop.local_hostname);
       }
 
       if (sub_type == LOG_NET_SUBTYPE_SERVER_STOP)
       {
          sprintf(msg, "Shutting down the server network");
          add_header(log_type, p, 0, msg);
-         //add_log_net_db_row(log_type, 0, 0, t1);
       }
 
 
@@ -395,12 +358,10 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
          add_fwf(log_type, p, 76, 10, "+", "-", "");
          add_fwf(log_type, p, 76, 10, "|", " ",        "Server received join request from %s at %s (color:%d)", t1, t2, requested_color);
-         add_log_net_db_row(log_type, sub_type, p,     "Server received join request from %s at %s (color:%d)", t1, t2, requested_color);
 
          if (full)
          {
             add_fwf(log_type, p, 76, 10, "|", " ",    "Reply sent: 'SERVER FULL'");
-            add_log_net_db_row(log_type, sub_type, p,  "Reply sent: 'SERVER FULL'");
          }
          else
          {
@@ -411,10 +372,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
             add_fwf(log_type, p, 76, 10, "|", " ", "Server Frame:%d", server_frame);
             add_fwf(log_type, p, 76, 10, "|", " ", "Server Level Sequence Num:%d", slsn);
             add_fwf(log_type, p, 76, 10, "+", "-", "");
-
-            add_log_net_db_row(log_type, sub_type, p,       "Server replied with join invitation:");
-            add_log_net_db_row(log_type, sub_type, p,       "Level:[%d] Frame:[%d] SLSN:%d", lev, server_frame, slsn);
-            add_log_net_db_row(log_type, sub_type, p,       "Player Number:[%d] Player Color:%d", cp, color);
          }
       }
 
@@ -470,10 +427,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          add_fwf(log_type,  p, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
          add_fwf(log_type,  p, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
          add_fwf(log_type,  p, 76, 10, "+", "-", "");
-
-         add_log_net_db_row(log_type, 0, p, "Client received join invitation from server");
-         add_log_net_db_row(log_type, 0, p, "Player Number:[%d] - Player Color:[%d]", p, color);
-         add_log_net_db_row(log_type, 0, p, "Lev:[%d] Frame:[%d] slsn:[%d]", lev, sfnum, slsn);
       }
 
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_STOP)
@@ -493,7 +446,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       {
          int server_last_stak_rx_frame_num = v0;
          add_headerf(log_type, p, 1,        "Server dropped player:%d (last stak rx:%d)", p, server_last_stak_rx_frame_num);
-         //add_log_net_db_row(log_type, 0, p,  "Server dropped player:%d (last stak rx:%d)", p, server_last_stak_rx_frame_num);
       }
 
 
@@ -504,7 +456,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          add_fwf(log_type, p, 76, 10, "|", " ", "Local Client Player %d Lost Server Connection!", p);
          add_fwf(log_type, p, 76, 10, "|", " ", "last_dif_applied:[%d]", last_dif_applied);
          add_fwf(log_type, p, 76, 10, "+", "-", "");
-         //add_log_net_db_row(log_type, 0, 0, "Lost Server Connection! - last dif applied:[%d]", last_dif_applied);
       }
 
 
@@ -514,7 +465,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          if (v0 == 1) sprintf(msg, "Server Approaching %d Game Moves! - Reload", (int) v1);
          if (v0 == 2) sprintf(msg, "Server Approaching %d Frames! - Reload", (int) v1);
          add_header(log_type, p, 1, msg);
-         add_log_net_db_row(log_type, sub_type, p, msg);
       }
 
       if (sub_type == LOG_NET_SUBTYPE_PACKET_BUF_FULL)
@@ -576,32 +526,13 @@ void mwLog::clear_all_log_actions()
 void mwLog::flush_logs()
 {
    save_log_file();
-   save_log_net_file();
-   save_log_status_file();
 }
-
-
 
 void mwLog::erase_log()
 {
    log_msg[0] = 0;
    log_msg_pos = 0;
 }
-
-void mwLog::erase_log_net()
-{
-   log_net_msg[0] = 0;
-   log_net_msg_pos = 0;
-   log_net_msg_num_lines = 0;
-}
-
-void mwLog::erase_log_status()
-{
-   log_status_msg[0] = 0;
-   log_status_msg_pos = 0;
-   log_status_msg_num_lines = 0;
-}
-
 
 void mwLog::save_log_file()
 {
@@ -633,64 +564,6 @@ void mwLog::save_log_file()
 
 
 
-void mwLog::save_log_net_file()
-{
-   if (strlen(log_net_msg) > 0)
-   {
-      al_make_directory("logs/net"); // create if not already created
-
-      char filename[256];
-      time_t now = time(NULL);
-      struct tm *timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "logs/net/%Y%m%d-%H%M%S", timenow);
-
-      auto currentDateTime = std::chrono::system_clock::now();
-      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
-
-      char sms[64];
-      sprintf(sms, ".%d.csv", ms);
-
-      strcat(filename, sms);
-
-      FILE *filepntr = fopen(filename,"w");
-      fprintf(filepntr, "%s", log_net_msg);
-      fclose(filepntr);
-
-      printf("%s saved \n", filename);
-      erase_log_net();
-   }
-}
-
-
-void mwLog::save_log_status_file()
-{
-   if (strlen(log_status_msg) > 0)
-   {
-      al_make_directory("logs/status"); // create if not already created
-
-      char filename[256];
-      time_t now = time(NULL);
-      struct tm *timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "logs/status/%Y%m%d-%H%M%S", timenow);
-
-      auto currentDateTime = std::chrono::system_clock::now();
-      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
-
-      char sms[64];
-      sprintf(sms, ".%d.csv", ms);
-
-      strcat(filename, sms);
-
-      FILE *filepntr = fopen(filename,"w");
-      fprintf(filepntr, "%s", log_status_msg);
-      fclose(filepntr);
-
-      printf("%s saved \n", filename);
-//      printf("%s\n", log_status_msg);
-      erase_log_status();
-   }
-}
-
 
 void mwLog::log_error(const char *txt, bool dialog)
 {
@@ -701,41 +574,12 @@ void mwLog::log_error(const char *txt, bool dialog)
 }
 
 
-void mwLog::log_append_text_to_db(int type, const char *txt)
-{
-//    if (mSql.db_logs == NULL)
-//    {
-//       printf("Error! Cannot insert log into database. Database not open\n");
-//       printf("log:%s\n", txt);
-//       return;
-//    }
-//    char sql[1024];
-//
-// //   double agt = al_get_time();
-//    double agt = 0;
-//
-//    char ts[256];
-//    sprintf(ts, "%s", mMiscFnx.get_timestamp());
-//    sprintf(sql, "INSERT INTO logs ( message, created, agt ) VALUES('%s', '%s', %f)" , txt, ts, agt);
-//    printf("sql:%s\n", sql);
-//    mSql.execute_sql(sql, mSql.db_logs);
-}
-
 
 // appends passed text string to log array
 // this is only function that actually prints to console or adds to log array
 // also checks if log array is full and flushes to disk
 void mwLog::log_append_text(int type, const char *txt)
 {
-   // add to db...
-
-   // just add created, frame, agt, and text line
-
-   // log_append_text_to_db(type, txt);
-
-
-
-
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
@@ -786,9 +630,6 @@ void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...
 
 
 
-
-
-
 // adds text string with profile timer prefix prefix
 // [%2d][%d][%d]tmst %s", type, player, mLoop.frame_num, txt);
 void mwLog::add_tmr(int type, const char *txt)
@@ -807,7 +648,6 @@ void mwLog::add_tmrf(int type, const char *format, ...)
    add_tmr(type, msg);
 }
 
-
 // adds a single profile timer log entry
 void mwLog::add_tmr1(int type, const char *tag, double dt)
 {
@@ -815,16 +655,6 @@ void mwLog::add_tmr1(int type, const char *tag, double dt)
    sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
    add_tmr(type, msg);
 }
-//
-// // adds a single profile timer log entry and optionally terminate LF
-// void mwLog::add_tmr2(int type, const char *tag, double dt)
-// {
-//    char msg[500];
-//    sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
-//    add_tmr(type, msg);
-// }
-//
-
 
 
 
@@ -1032,7 +862,6 @@ void mwLog::log_ending_stats_server(int type)
    log_player_array(type);
 }
 
-
 void mwLog::log_player_array(int type)
 {
    char msg[1024];
@@ -1065,6 +894,7 @@ void mwLog::log_player_array(int type)
    }
    add_fw(type, 0, 76, 10, "+", "-", "");
 }
+
 /*
 void mwLog::log_player_array2(int type)
 {
@@ -1129,143 +959,3 @@ void mwLog::log_bandwidth_stats(int type, int p)
 }
 
 
-
-
-// this will be called directly from all the places I want to log from
-// server will add directly and client will send packet
-void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
-{
-   if (!mLog.log_types[LOG_NET_CSV].action) return;
-
-   // skip these message types if server with no clients
-   if ((mNetgame.ima_server) && (mNetgame.server_num_clients == 0))
-   {
-      if (type == LOG_NET_DIF_REWIND) return;
-      if (type == LOG_NET_DIF_CREATE) return;
-   }
-
-   if ((mNetgame.ima_server) || (mNetgame.ima_client))
-   {
-      double agt = al_get_time();
-      int f = mLoop.frame_num;
-      int p = mPlayer.active_local_player;
-
-      // build the actual message from variable args
-      char smsg[800];
-      va_list args;
-      va_start(args, format);
-      vsprintf(smsg, format, args);
-      va_end(args);
-
-      if (mNetgame.ima_server) add_log_net_db_row2(type, sub_type, agt, f, p, client, smsg);
-
-      // I don't need to send player num or client, server will know who it came from
-      if (mNetgame.ima_client) mNetgame.client_send_clog_packet(type, sub_type, f, agt, smsg);
-   }
-}
-
-
-// actually adds to char array
-// called both by server directly and when server rx's clog
-void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
-{
-   if (!mLog.log_types[LOG_NET_CSV].action) return;
-
-
-   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
-
-//   char d[100];
-//   mMiscFnx.chr_dt(d);
-
-   char txt[1000];
-   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, ts.c_str(), agt, f, p, client, msg);
-//         printf("%s", txt);
-
-   int size_limit = NUM_LOG_CHAR;
-   if ((log_net_msg_pos + (int)strlen(txt)) >= size_limit)
-   {
-      printf("log_net array size > %d char ... dumping to file\n", size_limit);
-      save_log_net_file();
-   }
-
-   int line_limit = 1000;
-   if (log_net_msg_num_lines > line_limit)
-   {
-      printf("log_net array lines > %d ... dumping to file\n", line_limit);
-      save_log_net_file();
-   }
-
-   memcpy(log_net_msg + log_net_msg_pos, txt, strlen(txt));
-   log_net_msg_pos += strlen(txt);
-   log_net_msg[log_net_msg_pos] = 0; // NULL terminate
-   log_net_msg_num_lines++;
-}
-
-void mwLog::add_log_status_db_rows()
-{
-   if (!mLog.log_types[LOG_NET_CSV].action) return;
-
-   // do not log status unless at least one client is connected
-   if (mNetgame.server_num_clients == 0) return;
-
-   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
-
-
-//   char d[100];
-//   mMiscFnx.chr_dt(d);
-
-   int f = mLoop.frame_num;
-
-   char txt[1000];
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.syn[p].active)
-      {
-         int r = mPlayer.loc[p].rewind;
-         float cpu  = mPlayer.loc[p].cpu;
-         float sync = mPlayer.loc[p].pdsync*1000;
-         float ping = mPlayer.loc[p].ping*1000;
-         float difs = mPlayer.loc[p].cmp_dif_size;
-         float lcor = mPlayer.loc[p].client_loc_plr_cor;
-         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
-
-         float txbf = mPlayer.loc[p].tx_current_bytes_for_this_frame;
-         float rxbf = mPlayer.loc[p].rx_current_bytes_for_this_frame;
-         float txpf = mPlayer.loc[p].tx_current_packets_for_this_frame;
-         float rxpf = mPlayer.loc[p].rx_current_packets_for_this_frame;
-
-         // these values have no meaning for server
-         if (p == 0)
-         {
-            sync = 0;
-            ping = 0;
-            difs = 0;
-            lcor = 0;
-            rcor = 0;
-         }
-
-         sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
-                       ts.c_str(), f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
-
-         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
-
-         int size_limit = NUM_LOG_CHAR;
-         if ((log_status_msg_pos + (int)strlen(txt)) >= size_limit)
-         {
-            printf("log_status array size > %d char ... dumping to file\n", size_limit);
-            save_log_status_file();
-         }
-
-         int line_limit = 1000; // 25 seconds
-         if (log_status_msg_num_lines > line_limit)
-         {
-            printf("log status array lines > %d ... dumping to file\n", line_limit);
-            save_log_status_file();
-         }
-
-         memcpy(log_status_msg + log_status_msg_pos, txt, strlen(txt));
-         log_status_msg_pos += strlen(txt);
-         log_status_msg[log_status_msg_pos] = 0; // NULL terminate
-         log_status_msg_num_lines++;
-      }
-}

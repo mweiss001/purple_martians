@@ -57,7 +57,6 @@ TABLE sessions
    execute_sql(sql, db_sessions);
 
 
-
 This database table is accessed with the following functions in the file: 'mwNetgameServerSession.cpp'
 
 void mwNetgame::session_open(const char* address, const char* hostname, int p, int endreason)
@@ -105,7 +104,7 @@ Checking players with active sessions
 -------------------------------------
 void mwNetgame::session_check_active()
 Called every frame from server_control()
-If any player has an open session, but the player is not active anymore, close the session 
+If any player has an open session, but the player is not active anymore, the session is closed
 if ((mPlayer.loc[p].session_id) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 
 
@@ -175,7 +174,6 @@ This table links 'gm.muid' to 'sessions.id'
 ---------------------------------------------------------------------------------------------------------------
 
 mGameMoves and demo files
-
 
 
 When a new level is loaded: 

@@ -20,7 +20,6 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDrawSequence.h"
-#include "mwClientStatusInsertQueue.h"
 #include "mwServerScreenshot.h"
 
 
@@ -48,7 +47,6 @@ int mwNetgame::serverInitNetwork()
    if (error) return 0;
 
    ima_server = 1;
-   mClientStatusInsertQueue.start();
    return 1;
 }
 
@@ -59,7 +57,6 @@ void mwNetgame::serverExitNetwork()
    networkExit();
 
    ima_server = 0;
-   mClientStatusInsertQueue.stop();
 
    // reset player data
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
@@ -342,13 +339,6 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
    sqlite3_bind_int(  stmt, i++, mPlayer.syn[0].server_force_fakekey ); // 10
 
-
-   sqlite3_bind_int(  stmt, i++, server_insert_client_status_enable);
-   sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_size_target);
-   sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_size_actual);
-   sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_time_avg);
-   sqlite3_bind_int(  stmt, i++, server_insert_client_status_batch_time_max); // 15
-
    sqlite3_bind_int(  stmt, i++, server_update_status_img_allowed);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_enabled);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
@@ -450,20 +440,6 @@ void mwNetgame::server_process_db_control()
             server_update_status_img();
             used = 1;
          }
-
-
-         if (row.key == "server_insert_client_status_enable")
-         {
-            server_insert_client_status_enable = !server_insert_client_status_enable;
-            used = 1;
-         }
-
-         if (row.key == "server_insert_client_status_batch_size_target")
-         {
-            server_insert_client_status_batch_size_target = row.val;
-            used = 1;
-         }
-
 
          if (!used) printf("control unused: %s %f %d\n", row.key.c_str(), row.val, row.mod);
 
@@ -923,22 +899,6 @@ void mwNetgame::server_proc_pang_packet(char *data, int p)
 }
 
 
-void mwNetgame::server_proc_clog_packet(int i)
-{
-   int type          = mPacketBuffer.PacketGetInt32(i);
-   int sub_type      = mPacketBuffer.PacketGetInt32(i);
-   int f             = mPacketBuffer.PacketGetInt32(i);
-   double agt        = mPacketBuffer.PacketGetDouble(i);
-
-   char msg[200];
-   mPacketBuffer.PacketReadStringN(i, msg);
-
-   int p = mPacketBuffer.rx_buf[i].p; // get player number from packet buffer info
-
-   //printf ("Server rx clog - type:%d sub:%d f:%d agt:%f, msg:[%s]\n", type, sub_type, f, agt, msg);
-
-   mLog.add_log_net_db_row2(type, sub_type, agt, f, p, 0, msg);
-}
 
 
 
@@ -965,10 +925,6 @@ void mwNetgame::server_control()
    if (server_remote_control) server_send_snfo_packet();
 
 
-   if (server_insert_client_status_enable) mClientStatusInsertQueue.add();
-
-
-
    server_process_db_control();
 
 
@@ -985,7 +941,7 @@ void mwNetgame::server_control()
    server_update_status_img_recurring();
 
 
-   mLog.add_log_status_db_rows();
+
 
 
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);

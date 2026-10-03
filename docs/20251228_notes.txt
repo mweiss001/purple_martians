@@ -41593,8 +41593,7 @@ I have:
 scat 192.168.1.142
 purplemartians.org 96.45.1.12
 o7040 192.168.1.138
-
-o3000 192.168.1.146
+o3000 192.168.1.148
 
 are there rows in the database table sessions?
 yes
@@ -41680,10 +41679,749 @@ test it out
 it looks great!
 
 why are the save games in the timeline exactly 1H longer than they are supposed to be?
-
 Do I need to dig into the html??
-
 should I do this on o7040?
+the issue did not happen on o7040...
+
+all looks great!!!
+
+
+
+client's sync oscillates between 0 and 20 a few times per second
+
+for some crazy reason the offset is set to -20??
+
+
+in config:
+
+   agcf(NETWORK, mNetgame.client_chase_offset, -0.02)
+   agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, -0.005)
+   agci(NETWORK, mNetgame.client_chase_offset_mode, 1)
+
+stop server and erase config
+
+it is backwards!!!
+
+why?
+before I change anything, investigate more
+is ping revesered?
+i don't think so...
+
+ping is a positive number
+
+
+what do I know for sure?
+
+when I put it in manual mode, negative numbers cause oscilation
+
+The clients run slighly ahead of the server in time.
+
+dsysnc should be positive
+
+
+could I fix all this by simply changing:
+
+   agcf(NETWORK, mNetgame.client_chase_offset, 0.02)
+   agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, 0.005)
+
+do it fool!!!
+
+commit...
+new version on scat and 6430..done
+hook up d5414 also...done
+
+2026-10-03 11:56:42
+now what?
+how can i disable the status stuff that generates lots of data...
+lets look into that...
+
+what does csv do?
+
+
+
+
+
+void mwLog::add_log_status_db_rows() ... only one call from server control
+
+
+creates files with this:
+
+i don't know what would use them
+
+2026-10-03T18:24:24,319,0,0,7.1,0.0,0.0,  0,0.0,0.0,778,106,  1,  1
+2026-10-03T18:24:24,319,1,0,11.6,2.6,0.0,700,0.0,0.0,778,106,  1,  1
+2026-10-03T18:24:24,320,0,0,6.8,0.0,0.0,  0,0.0,0.0,763,106,  1,  1
+2026-10-03T18:24:24,320,1,0,10.6,2.7,0.0,685,0.0,0.0,763,106,  1,  1
+2026-10-03T18:24:24,321,0,0,6.9,0.0,0.0,  0,0.0,0.0,802,214,  2,  3
+2026-10-03T18:24:24,321,1,0,11.4,2.8,0.0,662,0.0,0.0,802,214,  2,  3
+2026-10-03T18:24:24,322,0,0,7.0,0.0,0.0,  0,0.0,0.0,832,106,  1,  1
+2026-10-03T18:24:24,322,1,0,10.1,2.8,0.9,754,0.0,0.0,832,106,  1,  1
+2026-10-03T18:24:24,323,0,0,7.1,0.0,0.0,  0,0.0,0.0,755,106,  1,  1
+2026-10-03T18:24:24,323,1,0,10.9,2.5,0.9,677,0.0,0.0,755,106,  1,  1
+2026-10-03T18:24:24,324,0,0,7.6,0.0,0.0,  0,0.0,0.0,688,106,  1,  1
+2026-10-03T18:24:24,324,1,0,10.2,2.6,0.9,610,0.0,0.0,688,106,  1,  1
+
+
+just remove it and save it here...
+
+   mLog.add_log_status_db_rows();
+
+//   void add_log_status_db_rows();
+
+void mwLog::add_log_status_db_rows()
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // do not log status unless at least one client is connected
+   if (mNetgame.server_num_clients == 0) return;
+
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
+
+   int f = mLoop.frame_num;
+
+   char txt[1000];
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         int r = mPlayer.loc[p].rewind;
+         float cpu  = mPlayer.loc[p].cpu;
+         float sync = mPlayer.loc[p].pdsync*1000;
+         float ping = mPlayer.loc[p].ping*1000;
+         float difs = mPlayer.loc[p].cmp_dif_size;
+         float lcor = mPlayer.loc[p].client_loc_plr_cor;
+         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
+
+         float txbf = mPlayer.loc[p].tx_current_bytes_for_this_frame;
+         float rxbf = mPlayer.loc[p].rx_current_bytes_for_this_frame;
+         float txpf = mPlayer.loc[p].tx_current_packets_for_this_frame;
+         float rxpf = mPlayer.loc[p].rx_current_packets_for_this_frame;
+
+         // these values have no meaning for server
+         if (p == 0)
+         {
+            sync = 0;
+            ping = 0;
+            difs = 0;
+            lcor = 0;
+            rcor = 0;
+         }
+
+         sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
+                       ts.c_str(), f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
+
+         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
+
+         int size_limit = NUM_LOG_CHAR;
+         if ((log_status_msg_pos + (int)strlen(txt)) >= size_limit)
+         {
+            printf("log_status array size > %d char ... dumping to file\n", size_limit);
+            save_log_status_file();
+         }
+
+         int line_limit = 1000; // 25 seconds
+         if (log_status_msg_num_lines > line_limit)
+         {
+            printf("log status array lines > %d ... dumping to file\n", line_limit);
+            save_log_status_file();
+         }
+
+         memcpy(log_status_msg + log_status_msg_pos, txt, strlen(txt));
+         log_status_msg_pos += strlen(txt);
+         log_status_msg[log_status_msg_pos] = 0; // NULL terminate
+         log_status_msg_num_lines++;
+      }
+}
+
+   //   void save_log_status_file();
+
+   char log_status_msg[NUM_LOG_CHAR];
+   int log_status_msg_pos = 0;
+   int log_status_msg_num_lines = 0;
+
+
+void mwLog::erase_log_status()
+{
+   log_status_msg[0] = 0;
+   log_status_msg_pos = 0;
+   log_status_msg_num_lines = 0;
+}
+
+
+void mwLog::save_log_status_file()
+{
+   if (strlen(log_status_msg) > 0)
+   {
+      al_make_directory("logs/status"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/status/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+      char sms[64];
+      sprintf(sms, ".%d.csv", ms);
+
+      strcat(filename, sms);
+
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_status_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+//      printf("%s\n", log_status_msg);
+      erase_log_status();
+   }
+}
+
+
+it is gone!!!
+
+
+next...
+
+
+
+this is kind of cool:
+void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
+void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
+
+- runs on both client and server
+- saves to a file
+- server add directly and client send in packet to server, then server adds...
+
+I am going to remove all traces of it....
+
+
+
+   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
+   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
+
+// this will be called directly from all the places I want to log from
+// server will add directly and client will send packet
+void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // skip these message types if server with no clients
+   if ((mNetgame.ima_server) && (mNetgame.server_num_clients == 0))
+   {
+      if (type == LOG_NET_DIF_REWIND) return;
+      if (type == LOG_NET_DIF_CREATE) return;
+   }
+
+   if ((mNetgame.ima_server) || (mNetgame.ima_client))
+   {
+      double agt = al_get_time();
+      int f = mLoop.frame_num;
+      int p = mPlayer.active_local_player;
+
+      // build the actual message from variable args
+      char smsg[800];
+      va_list args;
+      va_start(args, format);
+      vsprintf(smsg, format, args);
+      va_end(args);
+
+      if (mNetgame.ima_server) add_log_net_db_row2(type, sub_type, agt, f, p, client, smsg);
+
+      // I don't need to send player num or client, server will know who it came from
+      if (mNetgame.ima_client) mNetgame.client_send_clog_packet(type, sub_type, f, agt, smsg);
+   }
+}
+
+
+// actually adds to char array
+// called both by server directly and when server rx's clog
+void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
+
+   char txt[1000];
+   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, ts.c_str(), agt, f, p, client, msg);
+//         printf("%s", txt);
+
+   int size_limit = NUM_LOG_CHAR;
+   if ((log_net_msg_pos + (int)strlen(txt)) >= size_limit)
+   {
+      printf("log_net array size > %d char ... dumping to file\n", size_limit);
+      save_log_net_file();
+   }
+
+   int line_limit = 1000;
+   if (log_net_msg_num_lines > line_limit)
+   {
+      printf("log_net array lines > %d ... dumping to file\n", line_limit);
+      save_log_net_file();
+   }
+
+   memcpy(log_net_msg + log_net_msg_pos, txt, strlen(txt));
+   log_net_msg_pos += strlen(txt);
+   log_net_msg[log_net_msg_pos] = 0; // NULL terminate
+   log_net_msg_num_lines++;
+}
+
+
+void mwNetgame::server_proc_clog_packet(int i)
+{
+   int type          = mPacketBuffer.PacketGetInt32(i);
+   int sub_type      = mPacketBuffer.PacketGetInt32(i);
+   int f             = mPacketBuffer.PacketGetInt32(i);
+   double agt        = mPacketBuffer.PacketGetDouble(i);
+
+   char msg[200];
+   mPacketBuffer.PacketReadStringN(i, msg);
+
+   int p = mPacketBuffer.rx_buf[i].p; // get player number from packet buffer info
+
+   //printf ("Server rx clog - type:%d sub:%d f:%d agt:%f, msg:[%s]\n", type, sub_type, f, agt, msg);
+
+   mLog.add_log_net_db_row2(type, sub_type, agt, f, p, 0, msg);
+}
+
+
+void mwNetgame::client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg)
+{
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "clog");
+   mPacketBuffer.PacketPutInt32(data, pos, type);
+   mPacketBuffer.PacketPutInt32(data, pos, sub_type);
+   mPacketBuffer.PacketPutInt32(data, pos, f);
+   mPacketBuffer.PacketPutDouble(data, pos, agt);
+   mPacketBuffer.PacketAddStringN(data, pos, smsg);
+   clientSend(data, pos);
+}
+
+   char log_net_msg[NUM_LOG_CHAR];
+   int log_net_msg_pos = 0;
+   int log_net_msg_num_lines = 0;
+
+
+   void erase_log_net();
+   void save_log_net_file();
+
+
+
+
+void mwLog::save_log_net_file()
+{
+   if (strlen(log_net_msg) > 0)
+   {
+      al_make_directory("logs/net"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/net/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+      char sms[64];
+      sprintf(sms, ".%d.csv", ms);
+
+      strcat(filename, sms);
+
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_net_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+      erase_log_net();
+   }
+}
+
+LOG_NET_CSV has been completely removed!!!
+
+now...
+how is data stored in database?
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
+               timestamp     TEXT PRIMARY KEY, \
+               version       TEXT, \
+               uptime        INT, \
+               cpua          INT, \
+               cpum          INT, \
+               clients       INT, \
+               level         INT, \
+               level_time    INT, \
+               moves         INT, \
+               fakekey       INT, \
+               sics_enable       INT, \
+               sicsb_size_target INT, \
+               sicsb_size_actual INT, \
+               sicsb_time_avg    INT, \
+               sicsb_time_max    INT, \
+               ss_allow      INT, \
+               ss_enabled    INT, \
+               ss_period     INT, \
+               ss_size       INT, \
+               ss_time       INT, \
+               enemies       INT ); ");
+   execute_sql(sql, db_server_status);
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \
+               id          INTEGER PRIMARY KEY, \
+               key         TEXT, \
+               val         REAL, \
+               mod         INT ); ");
+   execute_sql(sql, db_server_status);
+
+
+// called every 1s from loop
+void mwNetgame::server_insert_status_row() // inserts row into status table
+{
+
+if (server_insert_client_status_enable) mClientStatusInsertQueue.add();
+
+
+
+I think client status is what I want to remove
+
+
+
+   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+   int rc2 = sqlite3_prepare_v2(db_client_status, sql2, -1, &client_status_insert_stmt, nullptr);
+   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db_client_status));
+
+   sprintf(filename, "%s", "data/client_status.db");
+   if (sqlite3_open(filename, &db_client_status))   { printf("Can't open database %s\n", filename);  return (0); }
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
+               id            INTEGER PRIMARY KEY, \
+               timestamp     INT, \
+               frame         INT, \
+               pl_num        INT, \
+               pl_col        INT, \
+               pl_name       TEXT, \
+               pl_host       TEXT, \
+               cpu           INT, \
+               sync          INT, \
+               ping          INT, \
+               lcor          INT, \
+               rcor          INT, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+   execute_sql(sql, db_client_status);
+   strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
+   execute_sql(sql, db_client_status);
+
+
+  */
+
+/*
+   //   sprintf(filename, "%s", "data/game_events.db");
+//   if (sqlite3_open(filename, &db_game_events))     { printf("Can't open database %s\n", filename);  return (0); }
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS game_events( \
+               id          INTEGER PRIMARY KEY, \
+               frame       INT, \
+               ev          INT, \
+               x           INT, \
+               y           INT, \
+               p           INT, \
+               z2          INT, \
+               z3          INT, \
+               z4          INT ); ");
+   execute_sql(sql, db_game_events);
+
+  */
+
+
+
+
+#include "pm.h"
+#include "mwLoop.h"
+#include "mwClientStatusInsertQueue.h"
+
+#include "mwNetgame.h"
+#include "mwSql.h"
+
+mwClientStatusInsertQueue mClientStatusInsertQueue;
+
+mwClientStatusInsertQueue::mwClientStatusInsertQueue()
+{
+   time_ra.initialize(10);
+}
+
+void mwClientStatusInsertQueue::start()
+{
+   // make sure it is stopped
+   m_thread.request_stop();
+   m_thread = std::jthread(std::bind_front(&mwClientStatusInsertQueue::sqlite_consumer, this));
+}
+
+void mwClientStatusInsertQueue::stop()
+{
+   m_thread.request_stop();
+   m_thread.detach();
+}
+
+void mwClientStatusInsertQueue::add()
+{
+   // get timestamp as msec since epoch
+   std::uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+   // get current frame
+   int frame = mLoop.frame_num;
+
+   std::lock_guard<std::mutex> lock(m);
+
+   // add queue row for each active player
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         int color = mPlayer.syn[p].color;
+         std::string name = mPlayer.syn[p].name;
+         std::string hostname = mPlayer.loc[p].hostname;
+         int cpu = mPlayer.loc[p].cpu;
+         int sync = mPlayer.loc[p].pdsync*1000;
+         int ping = mPlayer.loc[p].ping*1000;
+         int lcor = mPlayer.loc[p].client_loc_plr_cor;
+         int rcor = mPlayer.loc[p].client_rmt_plr_cor;
+         int rwnd = mPlayer.loc[p].rewind;
+         int difs = mPlayer.loc[p].cmp_dif_size;
+         int tkbs = mPlayer.loc[p].tx_bytes_per_tally;
+         struct client_status_buffer_row row = {timestamp, frame, p, color, name, hostname, cpu, sync, ping,lcor, rcor, rwnd, difs, tkbs };
+         q.push(row);
+      }
+   cv.notify_one(); // notify that items are available
+}
+
+
+
+bool mwClientStatusInsertQueue::pop(client_status_buffer_row &row)
+{
+   std::unique_lock<std::mutex> lock(m);
+
+   // wait until queue is not empty
+   cv.wait(lock, [this]{ return !q.empty(); });
+
+   if (q.empty())  return false;
+   row = q.front();
+   q.pop();
+   return true;
+}
+
+// this is run in its own thread
+// fills q2 and dumps q2 when filled
+
+void mwClientStatusInsertQueue::sqlite_consumer(std::stop_token stoken)
+{
+   client_status_buffer_row row;
+   sqlite3 *db;
+   char filename[256];
+   sprintf(filename, "%s", "data/client_status.db");
+   if (sqlite3_open(filename, &db))   { printf("Can't open database %s\n", filename);  }
+   mSql.execute_sql("PRAGMA journal_mode = WAL", db);
+   char sql[2000];
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS client_status( \
+               id            INTEGER PRIMARY KEY, \
+               timestamp     INT, \
+               frame         INT, \
+               pl_num        INT, \
+               pl_col        INT, \
+               pl_name       TEXT, \
+               pl_host       TEXT, \
+               cpu           INT, \
+               sync          INT, \
+               ping          INT, \
+               lcor          INT, \
+               rcor          INT, \
+               rewind        INT, \
+               difs          INT, \
+               tkbs          INT ); ");
+   mSql.execute_sql(sql, db);
+   strcpy(sql, "CREATE INDEX IF NOT EXISTS timestamp_index ON client_status(timestamp DESC)");
+   mSql.execute_sql(sql, db);
+
+   sqlite3_stmt *client_status_insert_stmt = nullptr;
+
+   const char* sql2 = "INSERT INTO client_status VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+   int rc2 = sqlite3_prepare_v2(db, sql2, -1, &client_status_insert_stmt, nullptr);
+
+   if (rc2 != SQLITE_OK) printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+
+   // setup done
+
+   // this is the loop that continually runs in the thread
+   // the while loop 'while (pop(row))' blocks until it has a row to return
+   // rows are pushed on to another non thread safe queue
+   // when that reaches a certain size all rows in it are dumped, wrapped in an sql transaction
+   while (!stoken.stop_requested())
+   {
+      while (pop(row))
+      {
+         q2.push_back(row);
+         //printf("added to q2: %d\n", row.frame);
+         if ((int) q2.size() >= mNetgame.server_insert_client_status_batch_size_target) dumpQ2(db, client_status_insert_stmt);
+      }
+   }
+}
+
+
+#include "mwPlayer.h"
+
+#include "sqlite3.h"
+
+#include <thread>
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
+#include "mwRollingAverage.h"
+
+
+struct client_status_buffer_row
+{
+   std::uint64_t timestamp;
+   int frame;
+   int p;
+   int color;
+   std::string name;
+   std::string hostname;
+   int cpu;
+   int sync;
+   int ping;
+   int lcor;
+   int rcor;
+   int rwnd;
+   int difs;
+   int tkbs;
+};
+
+
+class mwClientStatusInsertQueue
+{
+   public:
+      mwClientStatusInsertQueue();
+      void add();
+
+      void start();
+      void stop();
+
+
+   private:
+      std::jthread m_thread;
+
+
+      std::queue<client_status_buffer_row> q;
+
+      std::mutex m;
+      std::condition_variable cv;
+      void sqlite_consumer(std::stop_token stoken);
+      bool pop(client_status_buffer_row &row);
+
+      std::deque<client_status_buffer_row> q2;
+      void dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_stmt);
+
+      mwRollingAverage time_ra;
+
+};
+
+extern mwClientStatusInsertQueue mClientStatusInsertQueue;
+
+
+
+void mwClientStatusInsertQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_insert_stmt)
+{
+   double t0 = al_get_time();
+   int count = q2.size();
+
+   mSql.execute_sql("BEGIN TRANSACTION;", db);
+
+   for (auto row : q2)
+   {
+
+      sqlite3_reset(      client_status_insert_stmt);
+      sqlite3_bind_int64( client_status_insert_stmt, 1,  row.timestamp);
+      sqlite3_bind_int(   client_status_insert_stmt, 2,  row.frame);
+      sqlite3_bind_int(   client_status_insert_stmt, 3,  row.p);
+      sqlite3_bind_int(   client_status_insert_stmt, 4,  row.color);
+      sqlite3_bind_text(  client_status_insert_stmt, 5,  row.name.c_str(),     -1, SQLITE_TRANSIENT);
+      sqlite3_bind_text(  client_status_insert_stmt, 6,  row.hostname.c_str(), -1, SQLITE_TRANSIENT);
+      sqlite3_bind_int(   client_status_insert_stmt, 7,  row.cpu);
+      sqlite3_bind_int(   client_status_insert_stmt, 8,  row.sync);
+      sqlite3_bind_int(   client_status_insert_stmt, 9,  row.ping);
+      sqlite3_bind_int(   client_status_insert_stmt, 10, row.lcor);
+      sqlite3_bind_int(   client_status_insert_stmt, 11, row.rcor);
+      sqlite3_bind_int(   client_status_insert_stmt, 12, row.rwnd);
+      sqlite3_bind_int(   client_status_insert_stmt, 13, row.difs);
+      sqlite3_bind_int(   client_status_insert_stmt, 14, row.tkbs);
+      if (sqlite3_step(   client_status_insert_stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(db));
+   }
+
+   q2.clear();
+
+   mSql.execute_sql("COMMIT;", db);
+
+   // add time to insert (ms) to rolling average
+   time_ra.add_data((al_get_time() - t0)*1000);
+
+   // count, avg, max (ns)
+   mNetgame.server_insert_client_status_batch_size_actual = count;
+   mNetgame.server_insert_client_status_batch_time_avg = time_ra.avg*1000; // ns
+   mNetgame.server_insert_client_status_batch_time_max = time_ra.max*1000; // ns
+
+   double et = time_ra.last_input;
+   int qs = q.size();
+   int q2s = q2.size();
+   printf("%d - Inserted %d rows in %0.2f - %0.4f per row - %f  %f q1:%d q2:%d\n", mLoop.frame_num, count, et, et/count, time_ra.avg, time_ra.max, qs, q2s);
+
+}
+
+all gone!!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

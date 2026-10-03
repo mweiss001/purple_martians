@@ -52,7 +52,6 @@ void mwPacketBuffer::proc_rx_buffer()
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFAK) mNetgame.server_proc_sfak_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) mNetgame.server_proc_crfl_packet(i);
-            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CLOG) mNetgame.server_proc_clog_packet(i);
          }
          if (mNetgame.ima_client)
          {
@@ -195,6 +194,7 @@ float mwPacketBuffer::get_max_dsync()
    for (int i=0; i<200; i++)
       if ((rx_buf[i].active) && (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF))
       {
+         // get destination frame from packet
          int dst = 0;
          memcpy(&dst, rx_buf[i].data+20, 4); // memcpy dst
 
@@ -202,9 +202,9 @@ float mwPacketBuffer::get_max_dsync()
          float csync = (float)(dst - mLoop.frame_num) * 0.025;                     // crude integer sync based on frame numbers
          float dsync = csync + al_get_time() - mPacketBuffer.rx_buf[i].timestamp;  // add time between now and when the packet was received into packet buffer
 
+         // compare to max
          if (dsync > max_dsync) max_dsync = dsync;
       }
-
    return max_dsync;
 }
 

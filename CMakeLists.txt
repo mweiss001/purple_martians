@@ -149,8 +149,6 @@ add_executable(pm
 
         src/sqlite3.c
         src/sqlite3.h
-        src/mwClientStatusInsertQueue.cpp
-        src/mwClientStatusInsertQueue.h
         src/mwServerScreenshot.cpp
         src/mwServerScreenshot.h
         src/mwTileSets.cpp

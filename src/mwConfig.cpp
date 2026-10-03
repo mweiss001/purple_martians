@@ -357,8 +357,8 @@ void mwConfig::load_config(int type)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)
    agci(NETWORK, mPlayer.syn[0].player_vs_self_shots, 1)
 
-   agcf(NETWORK, mNetgame.client_chase_offset, -0.02)
-   agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, -0.005)
+   agcf(NETWORK, mNetgame.client_chase_offset, 0.02)
+   agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, 0.005)
    agci(NETWORK, mNetgame.client_chase_offset_mode, 1)
 
    agci(LOGGING, mLog.autosave_log_on_level_done, 0)

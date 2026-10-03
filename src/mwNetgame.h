@@ -131,9 +131,6 @@ class mwNetgame
    void client_send_sfak_packet(int id);
    void client_send_crfl();
 
-   void client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg);
-
-
    void client_proc_pong_packet(char *data);
    int  client_proc_sjon_packet(char *data);
    void client_proc_srrf_packet(int i);
@@ -207,8 +204,6 @@ class mwNetgame
 
    void server_proc_cjon_packet(char* data, char* address);
    void server_proc_cjrc_packet(char* data, char* address);
-
-   void server_proc_clog_packet(int i);
 
 
    void server_proc_rctl_packet(int i);

@@ -13,7 +13,6 @@
 #define NUM_LOG_CHAR  100000000
 #define NUM_LOG_LINES 1000000
 
-
 #define LOG_error                         9
 
 #define LOG_NET                          10
@@ -30,7 +29,7 @@
 #define LOG_NET_ENDING_STATS             34
 #define LOG_NET_BANDWIDTH                35
 #define LOG_NET_SESSION                  37
-#define LOG_NET_CSV                      38
+
 
 #define LOG_NET_SUBTYPE_PLAYER_ACTIVE         1
 #define LOG_NET_SUBTYPE_PLAYER_INACTIVE       2
@@ -52,11 +51,9 @@
 #define LOG_NET_SUBTYPE_SERVER_RELOAD         90
 #define LOG_NET_SUBTYPE_PACKET_BUF_FULL       94
 
-
 #define LOG_OTH_PROGRAM_STATE      50
 #define LOG_OTH_TRANSITIONS        51
 #define LOG_OTH_LEVEL_DONE         52
-
 
 #define LOG_TMR                    60
 #define LOG_TMR_cpu                70
@@ -64,7 +61,6 @@
 #define LOG_TMR_move_tot           74
 #define LOG_TMR_move_all           75
 #define LOG_TMR_move_enem          76
-
 
 #define LOG_TMR_draw_tot           80
 #define LOG_TMR_draw_all           81
@@ -107,27 +103,13 @@ private:
    void add_header(int type, int player, int blank_lines, const char *txt);
    void log_time_date_stamp();
 
-   char log_status_msg[NUM_LOG_CHAR];
-   int log_status_msg_pos = 0;
-   int log_status_msg_num_lines = 0;
-
-   char log_net_msg[NUM_LOG_CHAR];
-   int log_net_msg_pos = 0;
-   int log_net_msg_num_lines = 0;
-
    int lp[8][2];
 
    ALLEGRO_FS_ENTRY *filenames[1000];
    int num_filenames;
 
-
    void erase_log();
-   void erase_log_net();
-   void erase_log_status();
-
    void save_log_file();
-   void save_log_net_file();
-   void save_log_status_file();
 
    void log_ending_stats_client(int type, int p);
    void log_ending_stats_server(int type);
@@ -153,10 +135,6 @@ public:
 
    void log_error(const char *txt, bool dialog = 1);
 
-
-   void add_log_status_db_rows();
-   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
-   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
 
    void add(int log_type, int sub_type, int p, float v0=0, float v1=0, float v2=0, float v3=0, float v4=0, float v5=0, float v6=0, float v7=0, float v8=0, float v9=0, const char* t1="", const char* t2="");
 

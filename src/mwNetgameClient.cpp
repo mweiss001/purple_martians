@@ -493,6 +493,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
    }
    mLog.add(LOG_NET_DIF_TRX_PACKET, 1, -1, seq+1, max_seq, src, dst, sb, sz, sdln, slsn);
 
+
    memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+36, sz);   // put the piece of data in the buffer
 
    client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
@@ -700,23 +701,6 @@ void mwNetgame::client_send_cdat_packet(int p)
 
 
 
-void mwNetgame::client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg)
-{
-   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
-   mPacketBuffer.PacketName(data, pos, "clog");
-   mPacketBuffer.PacketPutInt32(data, pos, type);
-   mPacketBuffer.PacketPutInt32(data, pos, sub_type);
-   mPacketBuffer.PacketPutInt32(data, pos, f);
-   mPacketBuffer.PacketPutDouble(data, pos, agt);
-   mPacketBuffer.PacketAddStringN(data, pos, smsg);
-   clientSend(data, pos);
-}
-
-
-
-
-
-
 
 
 
@@ -777,26 +761,26 @@ void mwNetgame::client_timer_adjust()
       // total adjust
       float t_adj = p_adj;
 
-      // calc adjusted speed
+
+      // calc speed adjustment
       float fps_chase = mLoop.frame_speed - t_adj;
 
       // enforce limits
       if (fps_chase < 10) fps_chase = 10;
       if (fps_chase > 70) fps_chase = 70;
 
-      // adjust the timer
-      al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
-
       // save value in player struct
       mPlayer.loc[p].client_chase_fps = fps_chase;
 
+      // adjust the timer
+      al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
+
+
       mLog.add_tmrf(LOG_TMR_client_timer_adj, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, err*1000, t_adj);
 
-      mLog.add(LOG_NET_TIMER_ADJUST, 0, p, mPlayer.loc[p].pdsync, mPlayer.loc[p].pdsync_avg, sp, fps_chase);
-
-
+      mLog.add(LOG_NET_TIMER_ADJUST, 0, p, mPlayer.loc[p].pdsync, mPlayer.loc[p].pdsync_avg, client_chase_offset, mPlayer.loc[p].client_chase_fps );
    }
-   // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
+   else mLog.add(LOG_NET_TIMER_ADJUST, 1, p, mPlayer.loc[p].pdsync, mPlayer.loc[p].pdsync_avg, client_chase_offset, mPlayer.loc[p].client_chase_fps ); // no stdf packets this frame
 }
 
 void mwNetgame::client_proc_player_drop()

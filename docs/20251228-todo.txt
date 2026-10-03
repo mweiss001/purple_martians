@@ -6,29 +6,8 @@ BUGS!!
 
 do something about viewport
 
-
-when client exits level, stays on same level and keys are frozen
-this needs to be fixed!!!
-
-
-logging in settings does not work...
-
-   mLog.init_log_types();
-
-are getting overwritten???
-
-
-
 in filters, when all view off, can't select block to view item
 cannot reproduce??
-
-
-
-
-
-
-
-
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
