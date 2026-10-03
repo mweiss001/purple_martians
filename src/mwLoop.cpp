@@ -578,7 +578,7 @@ void mwLoop::proc_program_state_change()
          mLog.add(LOG_NET_ENDING_STATS, 0, -1);
          mNetgame.channelFlush();
          mNetgame.server_lev_seq_num++;
-         if (mLog.log_types[LOG_NET_SESSION].action) mNetgame.session_save_active_at_level_done();
+         if (mLog.log_types[LOG_NET_SESSION].action) mNetgame.session_update_at_level_done();
       }
 
       if (mLog.autosave_log_on_level_done) mLog.flush_logs();

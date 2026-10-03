@@ -160,9 +160,11 @@ public:
 
    void add(int log_type, int sub_type, int p, float v0=0, float v1=0, float v2=0, float v3=0, float v4=0, float v5=0, float v6=0, float v7=0, float v8=0, float v9=0, const char* t1="", const char* t2="");
 
+
    void add_tmrf(int type, const char *format, ...);
    void add_tmr1(int type, const char *tag, double dt);
    void add_tmr(int type, const char *txt);
+
 
    int autosave_log_on_level_done = 0;
    int autosave_log_on_level_quit = 0;

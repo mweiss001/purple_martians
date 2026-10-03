@@ -40888,6 +40888,701 @@ void mwClientStatusInsertQueue::stop()
 spent all day fucking with logging
 
 
+20261001
+
+I want to have a better understanding of how logging works and maybe change it a bit.
+
+
+All the places in code where I add a log entry should be as simple as possible, only one line.
+I am fine with many different types of calls to add log entries.
+
+I still want to keep the part where I choose to:
+print to console
+save to file
+add to db
+
+
+The way it works now is there is one underlying log function that adds a text line to either file or prints to console
+When I do this with the database I want to capture more than this.
+
+
+This means I will need to change every call to add logs, but that is OK....
+
+What do I want to store?
+
+frame number
+log type number
+a bunch of ints and floats
+text
+
+how many ints and floats?
+should I even care if they are ints or floats?
+make them all floats and use 12-16??
+
+for example:
+
+
+mLog.add(LOG_NET_stdf, p, src, dst, cmp_size, cr, num_packets);
+
+
+   mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+
+
+
+
+I will need a unique number for each call....
+
+lets start with these:
+
+#define LOG_NET_stdf_rewind        25
+#define LOG_NET_stdf_create        26
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+
+new:
+
+
+these were stdf:
+#define LOG_NET_STDF_RX     
+#define LOG_NET_STDF_TX    
+
+these were stdf_packets:
+#define LOG_NET_STDF_PACKETS_TX    
+#define LOG_NET_STDF_PACKETS_RX    
+#define LOG_NET_STDF_PACKETS_RX_BAD    
+#define LOG_NET_STDF_PACKETS_RX_BAD_NEXT_LEV    
+
+
+this was stdf_create:
+#define LOG_NET_STDF_CREATE
+
+
+this was stdf_rewind:
+#define LOG_NET_STDF_REWIND
+
+this was dif_apply:
+#define LOG_NET_STDF_APPLY
+
+
+now the add call:
+
+
+   void add(int log_entry_type, float v0=0, float v1=0, float v2=0, float v3=0, float v4=0, float v5=0, float v6=0, float v7=0);
+
+
+#define LOG_NET_STDF_REWIND       100
+#define LOG_NET_STDF_CREATE       102   
+#define LOG_NET_STDF_APPLY        104   
+
+#define LOG_NET_STDF_TX           110
+#define LOG_NET_STDF_RX           108  
+
+#define LOG_NET_STDF_TX_PACKET    112  
+#define LOG_NET_STDF_RX_PACKET    114 
+
+
+I want to keep the same numbers
+
+#define LOG_NET_STDF_REWIND       25
+
+
+redid a lot of this...now test...
+also fixed some logic errors in rewind code if rewind state was not found
+seems to work...
+
+next?
+
+
+
+
+26 create
+
+change to upper case
+
+renumber:
+
+
+old:
+#define LOG_NET_ending_stats       22
+#define LOG_NET_bandwidth          23
+
+#define LOG_NET_STDF_REWIND        25
+#define LOG_NET_STDF_CREATE        26
+
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+
+
+
+new:
+#define LOG_NET_ending_stats       16
+#define LOG_NET_bandwidth          18
+
+#define LOG_NET_STDF_REWIND        20
+#define LOG_NET_STDF_CREATE        21
+#define LOG_NET_STDF_APPLY         22   
+
+
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+
+
+
+next 
+
+#define LOG_NET_STDF_TX            23
+#define LOG_NET_STDF_RX            24
+
+
+mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+mLog.add_log_net_db_row(LOG_NET_stdf, 0, p,    "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]", p, src, dst, cmp_size, cr, num_packets);
+
+
+next packets
+
+these are all done:
+
+#define LOG_NET_STDF_REWIND        20
+#define LOG_NET_STDF_CREATE        21
+#define LOG_NET_STDF_APPLY         22
+#define LOG_NET_STDF_TX            23
+#define LOG_NET_STDF_RX            24
+#define LOG_NET_STDF_TX_PACKET     25
+#define LOG_NET_STDF_RX_PACKET     26
+
+
+I want to combine 
+
+#define LOG_NET_STDF_TX            23
+#define LOG_NET_STDF_RX            24
+
+and make it
+
+#define LOG_NET_STDF_TRX           23
+
+the reason is that I want to be able to enable or disable them together...
+one is client and one is server
+
+done
+
+no do same for 
+
+#define LOG_NET_STDF_TRX_PACKET     25
+done
+
+now do STAK and CDAT..done
+
+do goodly testing
+
+or maybe do timer adjust first?? done
+
+now what?
+
+there is a whole lot of LOG_NET
+
+types:
+
+PLAYER ACTIVE
+PLAYER INACTIVE
+
+LEVEL STARTED
+NEXT LEVEL
+
+CLIENT MODE STARTED
+SERVER MODE STARTED
+
+I think I can make this work...
+
+start replacing calls
+with active and inactive
+
+
+
+server limits
+
+server proc player drop
+
+            mLog.add_headerf(LOG_NET, -1, 1,       "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+            mLog.add_log_net_db_row(LOG_NET, 0, p,  "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+
+
+server proc cjon
+
+I need to send a string or 2
+
+
+v0 - sub_type
+v1 - full
+v2 - requested color
+v3 - color
+v4 - level
+
+
+
+I have server join done
+
+player died
+
+sjrc
+
+client_proc_player_drop()
+
+now the big ones I have left...the biggest...
+client init, exit, join
+
+
+
+start with 
+
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_NEW_GAME)
+   {
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_NEW_GAME]\n");
+
+      mLog.log_versions();
+      mLog.add_fw (LOG_NET, -1, 76, 10, "+", "-", "");
+      mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
+40 CLient Start
+
+
+now everything that uses LOG_NET is done
+all run through mLog.add
+
+next...
+ping..done
+file transfer..done
+ending stats..it has its own functions...
+
+
+what about sessions?
+
+I think it is soley used with the new server session things..yes...
+
+
+2026-10-02 02:31:04
+
+This is what I want to do with logging:
+
+- make all calls to log common
+I have a great start on this.
+
+The function call and parameters I use to add log entries will be identical to how they are stored in the database.
+
+Then I will convert that group of variables to printable line(s)
+
+INT frame
+INT log_type
+INT sub_type
+INT player
+
+then 10 floats
+then 2 strings
+
+before I do this, is it actually big enough for all cases?
+
+how will I do this?
+fix all 40+ calls?
+
+one at a time...
+add to add2
+
+   if (log_type == LOG_NET)
+
+
+#define LOG_NET                          10
+#define LOG_NET_SUBTYPE_PLAYER_ACTIVE    1
+#define LOG_NET_SUBTYPE_PLAYER_INACTIVE  2
+#define LOG_NET_SUBTYPE_PLAYER_DIED      4
+#define LOG_NET_SUBTYPE_NEXT_LEVEL       20
+#define LOG_NET_SUBTYPE_LEVEL_STARTED    21
+
+
+
+5 done...54 left
+
+also do this:
+
+   if (player == -1) player = mPlayer.active_local_player;
+
+send -1 all the time, unless client
+
+#define LOG_NET_SUBTYPE_SERVER_START     31
+#define LOG_NET_SUBTYPE_SERVER_STOP      32
+
+
+#define LOG_NET_SUBTYPE_CLIENT_START     40
+#define LOG_NET_SUBTYPE_CLIENT_INIT      41
+#define LOG_NET_SUBTYPE_CLIENT_CJON      42
+#define LOG_NET_SUBTYPE_CLIENT_WAIT      43
+#define LOG_NET_SUBTYPE_CLIENT_SJON      44
+#define LOG_NET_SUBTYPE_CLIENT_STOP      45
+
+tested
+
+
+#define LOG_NET                          10
+#define LOG_NET_SUBTYPE_PLAYER_ACTIVE    1
+#define LOG_NET_SUBTYPE_PLAYER_INACTIVE  2
+#define LOG_NET_SUBTYPE_PLAYER_DIED      4
+#define LOG_NET_SUBTYPE_NEXT_LEVEL       20
+#define LOG_NET_SUBTYPE_LEVEL_STARTED    21
+#define LOG_NET_SUBTYPE_SERVER_START     31
+#define LOG_NET_SUBTYPE_SERVER_STOP      32
+#define LOG_NET_SUBTYPE_SERVER_CJON      33
+#define LOG_NET_SUBTYPE_CLIENT_START     40
+#define LOG_NET_SUBTYPE_CLIENT_INIT      41
+#define LOG_NET_SUBTYPE_CLIENT_CJON      42
+#define LOG_NET_SUBTYPE_CLIENT_WAIT      43
+#define LOG_NET_SUBTYPE_CLIENT_SJON      44
+#define LOG_NET_SUBTYPE_CLIENT_STOP      45
+
+now 44 left
+
+I now have all LOG_NET done
+
+#define LOG_NET                          10
+#define LOG_NET_SUBTYPE_PLAYER_ACTIVE    1
+#define LOG_NET_SUBTYPE_PLAYER_INACTIVE  2
+#define LOG_NET_SUBTYPE_PLAYER_DIED      4
+#define LOG_NET_SUBTYPE_NEXT_LEVEL       20
+#define LOG_NET_SUBTYPE_LEVEL_STARTED    21
+#define LOG_NET_SUBTYPE_SERVER_START     31
+#define LOG_NET_SUBTYPE_SERVER_STOP      32
+#define LOG_NET_SUBTYPE_SERVER_CJON      33
+#define LOG_NET_SUBTYPE_CLIENT_START     40
+#define LOG_NET_SUBTYPE_CLIENT_INIT      41
+#define LOG_NET_SUBTYPE_CLIENT_CJON      42
+#define LOG_NET_SUBTYPE_CLIENT_WAIT      43
+#define LOG_NET_SUBTYPE_CLIENT_SJON      44
+#define LOG_NET_SUBTYPE_CLIENT_STOP      45
+#define LOG_NET_SUBTYPE_SERVER_CJRC      82
+#define LOG_NET_SUBTYPE_SERVER_DROP      86
+#define LOG_NET_SUBTYPE_CLIENT_DROP      88
+#define LOG_NET_SUBTYPE_SERVER_RELOAD    90
+#define LOG_NET_SUBTYPE_PACKET_BUFFER_FULL 94
+
+37 left
+
+could I do another big category like STDF
+
+#define LOG_NET_STDF_REWIND        20
+#define LOG_NET_STDF_CREATE        21
+#define LOG_NET_STDF_APPLY         22
+#define LOG_NET_STDF_TRX           23
+#define LOG_NET_STDF_TRX_PACKET    25
+#define LOG_NET_STAK               27
+
+
+just do this:
+
+#define LOG_NET_DIF_REWIND        20
+#define LOG_NET_DIF_CREATE        21
+#define LOG_NET_DIF_TRX           22
+#define LOG_NET_DIF_TRX_PACKET    23
+#define LOG_NET_DIF_APPLY         24
+#define LOG_NET_DIF_ACK           25
+
+I think I have all these done...try to test..looks good
+
+18 left!!!
+
+CDAT done, now down to 14
+timer adjust done
+ping done
+now just file transfer
+
+
+all done
+-removed add
+-rename add2 to add
+
+59 usages
+2026-10-02 07:07:27
+
+now??
+
+bandwidth done
+
+
+
+what is my goal here?
+
+to have all logging entries in my code a single line call to add
+
+
+do:
+ending stats
+state
+level_done
+
+
+ending stats is called from:
+
+void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
+1 client
+1 server
+
+
+if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+1 client
+1 server
+   
+void mwNetgame::client_proc_player_drop()
+2 x client   
+   
+ending stats done
+
+
+program state 20 calls
+
+do I have a list of states, no
+
+make one...
+
+#define PM_PROGRAM_STATE_QUIT                           0
+#define PM_PROGRAM_STATE_MENU                           1
+#define PM_PROGRAM_STATE_CONFIG                         3
+
+#define PM_PROGRAM_STATE_DEMO_RECORD                    7
+
+#define PM_PROGRAM_STATE_CLIENT_NEW_GAME               200
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          201
+#define PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP            202
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE 203
+
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT1               210
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT2               211
+#define PM_PROGRAM_STATE_CLIENT_EXIT                   214
+
+#define PM_PROGRAM_STATE_SERVER_NEW_GAME               300
+#define PM_PROGRAM_STATE_SERVER_EXIT                   301
+
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        10
+#define PM_PROGRAM_STATE_MAIN_GAME_LOOP                11
+#define PM_PROGRAM_STATE_NEXT_LEVEL                    12
+#define PM_PROGRAM_STATE_RESUME                        13
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT            14
+
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
+
+
+first I should get all these numbers less than 50
+
+
+
+#define PM_PROGRAM_STATE_QUIT                           0
+#define PM_PROGRAM_STATE_MENU                           1
+#define PM_PROGRAM_STATE_CONFIG                         3
+
+#define PM_PROGRAM_STATE_DEMO_RECORD                    7
+
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        10
+#define PM_PROGRAM_STATE_MAIN_GAME_LOOP                11
+#define PM_PROGRAM_STATE_NEXT_LEVEL                    12
+#define PM_PROGRAM_STATE_RESUME                        13
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT            14
+
+#define PM_PROGRAM_STATE_CLIENT_NEW_GAME               20
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          21
+#define PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP            22
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE 23
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT1               24
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT2               25
+#define PM_PROGRAM_STATE_CLIENT_EXIT                   26
+
+#define PM_PROGRAM_STATE_SERVER_NEW_GAME               30
+#define PM_PROGRAM_STATE_SERVER_EXIT                   31
+
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
+
+
+
+2026-10-02 10:52:31
+
+done with logging of PROGRAM_STATE
+
+next transitions:done
+
+next level done...done
+
+LOG_OTH_move
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move eshots\n", frame_num);
+      mShot.move_eshots();      t[1] = al_get_time();
+
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move pshots\n", frame_num);
+      mShot.move_pshots();      t[2] = al_get_time();
+
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move lifts\n", frame_num);
+      mLift.move_lifts(0);      t[3] = al_get_time();
+
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move players\n", frame_num);
+      mPlayer.move_players();   t[4] = al_get_time();
+
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move enemies\n", frame_num);
+      mEnemy.move_enemies();    t[5] = al_get_time();
+
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
+      mItem.move_items();       t[6] = al_get_time();
+
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move eshots\n", frame_num);
+      // mShot.move_eshots();      t[1] = al_get_time();
+      //
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move pshots\n", frame_num);
+      // mShot.move_pshots();      t[2] = al_get_time();
+      //
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move lifts\n", frame_num);
+      // mLift.move_lifts(0);      t[3] = al_get_time();
+      //
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move players\n", frame_num);
+      // mPlayer.move_players();   t[4] = al_get_time();
+      //
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move enemies\n", frame_num);
+      // mEnemy.move_enemies();    t[5] = al_get_time();
+      //
+      // mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
+      // mItem.move_items();       t[6] = al_get_time();
+
+
+      mShot.move_eshots();      t[1] = al_get_time();
+      mShot.move_pshots();      t[2] = al_get_time();
+      mLift.move_lifts(0);      t[3] = al_get_time();
+      mPlayer.move_players();   t[4] = al_get_time();
+      mEnemy.move_enemies();    t[5] = al_get_time();
+      mItem.move_items();       t[6] = al_get_time();
+
+      mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+                      (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
+
+      mLog.add_tmr1(LOG_TMR_move_tot, "move", al_get_time() - t[0]);
+
+I think I will remove this...done
+
+
+and also LOG_OTH_draw
+
+16 of these that do nothing....
+
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
+      if (setup_only) ds_add_names(i, "d-bkgr", "get_new_background");
+      else { mScreen.get_new_background(1);  ds_add(i); }
+
+removed also....
+
+Now I am down to timers!! woo hoo!!!
+
+
+
+// adds text string with profile timer prefix prefix
+// [%2d][%d][%d]tmst %s", type, player, mLoop.frame_num, txt);
+4 void mwLog::add_tmr(int type, const char *txt)
+
+// wrapper for 'add_tmr' that takes a printf style format
+4 void mwLog::add_tmrf(int type, const char *format, ...)
+
+// adds a single profile timer log entry
+29 void mwLog::add_tmr1(int type, const char *tag, double dt)
+
+what if I just made most of mLog private to see what is used?
+
+
+
+look into move enemy and remove appends
+
+
+
+[60][0][36]tmst m-cann:[0.0011] m-arch:[0.0014] m-clon:[0.0002] 
+[60][0][37]tmst m-cann:[0.0010] m-arch:[0.0015] m-clon:[0.0003] 
+[60][0][38]tmst m-cann:[0.0011] m-arch:[0.0016] m-clon:[0.0003] 
+[60][0][39]tmst m-cann:[0.0012] m-arch:[0.0014] m-clon:[0.0002] 
+[60][0][40]tmst m-cann:[0.0010] m-arch:[0.0015] m-clon:[0.0003] 
+[60][0][41]tmst m-cann:[0.0024] m-arch:[0.0030] m-clon:[0.0021] 
+[60][0][42]tmst m-cann:[0.0016] m-arch:[0.0019] m-clon:[0.0003] 
+[60][0][43]tmst m-cann:[0.0023] m-arch:[0.0028] m-clon:[0.0002] 
+[60][0][44]tmst m-cann:[0.0021] m-arch:[0.0028] 
+
+
+      mLog.add_tmr(LOG_TMR_move_enem, "");
+      for (int i=0; i<100; i++)
+         if (tmr_tally[i][1] > 0)
+            mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+      mLog.log_append_text(LOG_TMR_move_enem, "\n");
+   }
+}
+
+could I build a struct or vector and send it to the log function
+
+variabale number of items
+
+each item will have 5char name and float
+
+
+old:
+      mLog.add_tmr(LOG_TMR_move_enem, "");
+       for (int i=0; i<100; i++)
+          if (tmr_tally[i][1] > 0)
+             mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+       mLog.log_append_text(LOG_TMR_move_enem, "\n");
+
+new:
+      std::string tmp;
+      for (int i=0; i<100; i++)
+         if (tmr_tally[i][1] > 0)
+         {
+            char m[256];
+            sprintf(m, " m-%s:[%0.4f]", enemy_name[i][1], tmr_tally[i][1]*1000);
+            tmp += m;
+         }
+      tmp += "\n";
+      mLog.add_tmr(LOG_TMR_move_enem, tmp.c_str());
+
+
+
+now do the same for draw
+
+old:
+         mLog.add_tmr(LOG_TMR_draw_all, ""); // header
+         for (int i=1; i<ns-1; i++)
+            mLog.log_append_textf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
+
+         if (mLog.log_types[LOG_TMR_draw_tot].action) mLog.log_append_text(LOG_TMR_draw_all, "\n"); // total has already been logged, end line here
+         else                                         mLog.log_append_textf(LOG_TMR_draw_all, "%s:[%0.4f]\n " , name[0][ns-1], (ts[ns-1] - ts[0]) * 1000); // add total and end line
+
+new:
+         std::string tmp;
+         for (int i=1; i<ns-1; i++)
+         {
+            char m[256];
+            sprintf(m, " %s:[%0.4f]" , name[0][i], (ts[i] - ts[i-1]) * 1000);
+            tmp += m;
+         }
+
+         if (!mLog.log_types[LOG_TMR_draw_tot].action) // total has not already been logged
+         {
+            char m[256];
+            sprintf(m, " %s:[%0.4f]", name[0][ns-1], (ts[ns-1] - ts[0]) * 1000); // add total and end line
+            tmp += m;
+         }
+         tmp += "\n";
+         tmp.erase(0, 1);
+         mLog.add_tmr(LOG_TMR_draw_all, tmp.c_str());
+
+
+
+
+2026-10-02 15:14:27
+
+OK now what?
+
+what do you have done?
+
+all logging is done through a very small set of functions
+
+I want to figure out CSV
+
+do I even use it any more??
+
+2026-10-02 18:47:40
 
 
 

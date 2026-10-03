@@ -56,7 +56,6 @@ int mwSql::open_database()
    if (sqlite3_open(filename, &db_level_play_stats))   { printf("Can't open database %s\n", filename);  return (0); }
 
 
-
 //   execute_sql("PRAGMA journal_mode = WAL", db_client_status);
 
    return (1);
@@ -118,6 +117,15 @@ void mwSql::create_tables()
                gm_muid           TEXT, \
                session_id        INT  ); ");
    execute_sql(sql, db_sessions);
+
+
+
+
+
+
+
+
+
 
 
 

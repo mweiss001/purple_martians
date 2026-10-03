@@ -223,13 +223,17 @@ class mwNetgame
    // --------------------------------------------------------------------
 
    void session_add(const char* address, const char* hostname, int p, int endreason);
-   void session_update(int p, char *end_reason = NULL);
+   void session_update(int p, char *end_reason = nullptr);
    void session_close(int p, int reason);
    void session_check_active();
-   void session_save_active_at_level_done();
+   void session_update_at_level_done();
    void session_flush_active_at_server_exit();
-
    void session_check_active_in_db();
+
+
+
+
+
 
 
    // --------------------------------------------------------------------

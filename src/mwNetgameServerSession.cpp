@@ -38,6 +38,8 @@ void mwNetgame::session_check_active()
 // called once per second in mLoop
 void mwNetgame::session_check_active_in_db()
 {
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
+
    // find all open sessions in database
    std::vector<std::vector<int>> matrix = {};
    mSql.execute_sql_and_return_2d_vector_int("SELECT id FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
@@ -77,7 +79,7 @@ void mwNetgame::session_flush_active_at_server_exit()
 // server can complete level also, but 'sessions' do not apply for server
 // next_level and exits are only counted for clients
 // and are only used in sessions
-void mwNetgame::session_save_active_at_level_done()
+void mwNetgame::session_update_at_level_done()
 {
    // printf("frame:%d - session_save_active_at_level_done() level:%d  ffs:%d  )\n ", mLoop.frame_num, mLevel.play_level, mLoop.ff_state);
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
@@ -147,12 +149,22 @@ void mwNetgame::session_update(int p, char * m_endreason)
    }
 
 
+   // by default the session is still open
    char endreason[128];
    strcpy(endreason, "open");
+
+
+   // unless passed something other than nullptr
    if (m_endreason != nullptr) strcpy(endreason, m_endreason);
+
 
    // printf("  p[%d] update session id:%d nl:%d  ex:%d   er:%s\n ", p, sid, mPlayer.syn[p].stat_next_levels, mPlayer.syn[p].stat_exits, endreason);
 
+
+
+   // -------------------------------------------
+   // get all the data from the existing session
+   // -------------------------------------------
    int cdats_rx=0;
    int next_levels=0;
    int exits=0;
@@ -240,7 +252,12 @@ void mwNetgame::session_update(int p, char * m_endreason)
    else fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db_sessions));
    sqlite3_finalize(stmt);
 
-   // now that I have all that....
+
+
+   // now that I have all the data from the existing session
+   // I need to add the current player stat and bandwith tallies
+   // and update the end time and duration
+
 
    // get timestamp from now
    std::string dt_end = mMiscFnx.timestamp_UTC_ISO8601();
@@ -282,7 +299,10 @@ void mwNetgame::session_update(int p, char * m_endreason)
       rx_packets_avg_per_sec = rx_packets_total / duration;
    }
 
-   // now update sessions with all this data
+
+   // now update the record with the modified data
+   // --------------------------------------------
+
 
    // prepare statement
    const char* sql2 ="UPDATE sessions SET \
