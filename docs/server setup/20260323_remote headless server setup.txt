@@ -214,6 +214,7 @@ manually work on the server database
 ----------------------------------------------------------------
 sqlite3 /home/m/purple_martians/data/database.db
 
+
 .mode column
 SELECT * FROM gm;
 SELECT * FROM gm_sessions;
@@ -331,6 +332,15 @@ win_copy_to_pmh.bat copy_cfg
 faster way to send src to linux
 ----------------------------------------------------------------
 
+
+pscp -pw zaiden c:\pm\src\mwNetgameS*  m@192.168.1.148:dev/purple_martians/src/
+
+pscp -pw zaiden c:\pm\src\mwMain*  m@192.168.1.148:dev/purple_martians/src/
+
+pscp -pw zaiden c:\pm\src\mwN*  m@192.168.1.148:dev/purple_martians/src/
+pscp -pw zaiden c:\pm\src\mwL*  m@192.168.1.148:dev/purple_martians/src/
+
+
 pscp -pw zaiden c:\pm\src\mwLog.cpp  m@192.168.1.146:dev/purple_martians/src/
 
 pscp -pw zaiden c:\pm\src\mwStatus*  m@192.168.1.146:dev/purple_martians/src/
@@ -347,6 +357,8 @@ pscp -pw zaiden m@192.168.1.122:dev/purple_martians/lev_stat.*  c:\pm\
 pscp -pw zaiden c:\pm\src\mwNetgameS*  m@192.168.1.122:dev/purple_martians/src/
 
 pscp -pw zaiden c:\pm\src\mwThr*  m@192.168.1.122:dev/purple_martians/src/
+
+
 
 
 pscp -pw zaiden c:\pm\src\mwLevelIcons*  m@192.168.1.142:dev/purple_martians/src/

@@ -93,7 +93,7 @@ void mwNetgame::session_update_at_level_done()
 
 }
 
-void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
+void mwNetgame::session_open(const char* address, const char* hostname, int p, int endreason)
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
@@ -127,6 +127,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
 
    mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
 
+
    // close immediately if server full endreason
    if (endreason == 1) session_close(p, endreason);
 }
@@ -134,13 +135,23 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
 
 
 
-// called only when closing session or level done
-// adds all the player tallies, bandwidth tallies
-// if passed nullptr for endreason, session is still open
+/*
+called closing session or level done
+
+called only from:
+void mwNetgame::session_close(int p, int er)
+void mwNetgame::session_update_at_level_done()
+
+adds all the player tallies, bandwidth tallies...
+if passed nullptr for 'endreason', the session will still be open
+
+*/
+
 void mwNetgame::session_update(int p, char * m_endreason)
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
+   // get session id from player
    int sid = mPlayer.loc[p].session_id;
    if (!sid)
    {
@@ -153,13 +164,8 @@ void mwNetgame::session_update(int p, char * m_endreason)
    char endreason[128];
    strcpy(endreason, "open");
 
-
    // unless passed something other than nullptr
    if (m_endreason != nullptr) strcpy(endreason, m_endreason);
-
-
-   // printf("  p[%d] update session id:%d nl:%d  ex:%d   er:%s\n ", p, sid, mPlayer.syn[p].stat_next_levels, mPlayer.syn[p].stat_exits, endreason);
-
 
 
    // -------------------------------------------
@@ -254,9 +260,10 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
 
 
-   // now that I have all the data from the existing session
-   // I need to add the current player stat and bandwith tallies
-   // and update the end time and duration
+   // now that I have all the data from the existing session...
+   // - update the end time and duration
+   // - add the current player stat and bandwidth tallies
+   // --------------------------------------------
 
 
    // get timestamp from now
@@ -264,8 +271,6 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    // find duration
    int duration = mMiscFnx.find_duration(dt_start, dt_end.c_str());
-
-
 
    //printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
 
@@ -330,11 +335,10 @@ void mwNetgame::session_update(int p, char * m_endreason)
       duration                 =?,\
       dt_end                   =?,\
       endreason                =? WHERE id=?";
-
    sqlite3_prepare_v2(mSql.db_sessions, sql2, -1, &stmt, nullptr);
 
-   // bind parameters
 
+   // bind parameters
    sqlite3_bind_int(stmt,   1,  cdats_rx);
    sqlite3_bind_int(stmt,   2,  next_levels);
    sqlite3_bind_int(stmt,   3,  exits);
@@ -363,6 +367,8 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    // execute and step through results
    step_result = sqlite3_step(stmt);
+
+   sqlite3_finalize(stmt);
 
 }
 

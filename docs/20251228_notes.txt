@@ -41586,6 +41586,141 @@ do I even use it any more??
 
 
 
+Trying to figure out why the server with status does not work...
+
+
+I have:
+scat 192.168.1.142
+purplemartians.org 96.45.1.12
+o7040 192.168.1.138
+
+o3000 192.168.1.146
+
+are there rows in the database table sessions?
+yes
+
+
+try rebuilding everything on o3000
+
+
+
+g++ -std=c++20 -Wall -c src/mwLog.cpp -o o/src/mwLog.o
+src/mwLog.cpp: In member function ‘void mwLog::add(int, int, int, float, float, float, float, float, float, float, float, float, float, const char*, const char*)’:
+src/mwLog.cpp:216:42: warning: ‘  -  slsn is from next level...’ directive writing 50 bytes into a region of size between 1 and 256 [-Wformat-overflow=]
+  216 |       if (sub_type == 2) sprintf(msg, "%s  -  slsn is from next level - setting next level:%d", msg1, (int) v6);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/mwLog.cpp:216:33: note: ‘sprintf’ output between 52 and 317 bytes into a destination of size 256
+  216 |       if (sub_type == 2) sprintf(msg, "%s  -  slsn is from next level - setting next level:%d", msg1, (int) v6);
+      |                          ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/mwLog.cpp:217:42: warning: ‘  -  sdln bad!’ directive writing 14 bytes into a region of size between 1 and 256 [-Wformat-overflow=]
+  217 |       if (sub_type == 3) sprintf(msg, "%s  -  sdln bad!", msg1);
+      |                                          ^~~~~~~~~~~~~~
+src/mwLog.cpp:217:33: note: ‘sprintf’ output between 15 and 270 bytes into a destination of size 256
+  217 |       if (sub_type == 3) sprintf(msg, "%s  -  sdln bad!", msg1);
+      |                          ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+g++ -std=c++20 -Wall -c src/mwNetgameClient.cpp -o o/src/mwNetgameClient.o
+src/mwNetgameClient.cpp: In member function ‘void mwNetgame::client_proc_sfil_packet(int)’:
+src/mwNetgameClient.cpp:426:24: warning: ‘%s’ directive writing up to 255 bytes into a region of size 253 [-Wformat-overflow=]
+  426 |       sprintf(msg, "rx %s size:[%d] id:[%d]", fname, fsize, id);
+      |                        ^~                     ~~~~~
+src/mwNetgameClient.cpp:426:14: note: ‘sprintf’ output between 20 and 295 bytes into a destination of size 256
+  426 |       sprintf(msg, "rx %s size:[%d] id:[%d]", fname, fsize, id);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -std=c++20 -Wall -c src/mwNetgameServer.cpp -o o/src/mwNetgameServer.o
+g++ -std=c++20 -Wall -c src/mwNetgameServerFileTransfer.cpp -o o/src/mwNetgameServerFileTransfer.o
+g++ -std=c++20 -Wall -c src/mwNetgameServerSession.cpp -o o/src/mwNetgameServerSession.o
+
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.12.0
+GCC Version: 13.3.0 - C++20
+Loading data/settings.pm
+Saving data/settings.pm
+Saving data/settings.pm
+System ID: Xglx
+Starting Headless Server.
+Segmentation fault (core dumped)
+m@o3000:~/dev/purple_martians$
+
+
+why????
+
+I have traced it down to this:
+
+   stilemap = al_load_bitmap("bitmaps/sprites.png");
+
+does not fail on scat
+fails on o3000
+
+rebuild allegro and pay attention to png stuff?
+now it fucking works!!!!
+probably did not have png support
+
+2026-10-03 06:49:40
+
+This is what I have now:
+
+redid everything from scratch on o3000
+well not everything...just allegro and pm...
+it works now
+I can start headless server
+I can join and play
+I can see data on the web sessions
+
+now I want to continue documenting sessions and how gm is related
+
+
+2026-10-03 08:46:30
+
+I think I have all that documented in 20261002_session.txt
+test it out
+
+it looks great!
+
+why are the save games in the timeline exactly 1H longer than they are supposed to be?
+
+Do I need to dig into the html??
+
+should I do this on o7040?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

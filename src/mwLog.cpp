@@ -26,7 +26,7 @@ mwLog::mwLog()
 
 void mwLog::init_log_types()
 {
-   printf("init log types\n");
+   // printf("init log types\n");
    int i;
    for (i=0; i<100; i++)
    {

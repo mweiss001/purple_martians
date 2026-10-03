@@ -463,8 +463,6 @@ void mwLoop::proc_program_state_change()
    if (state[1] == PM_PROGRAM_STATE_CLIENT_NEW_GAME)
    {
 
-
-
       mLog.add(LOG_NET, LOG_NET_SUBTYPE_CLIENT_START, -1,  0,0,0,0,0,0,0,0,0,0, local_hostname);
 
       mEventQueue.reset_fps_timer();

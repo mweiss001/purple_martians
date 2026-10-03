@@ -222,7 +222,7 @@ class mwNetgame
    // ---   mwNetgameSessionLog.cpp  -------------------------------------
    // --------------------------------------------------------------------
 
-   void session_add(const char* address, const char* hostname, int p, int endreason);
+   void session_open(const char* address, const char* hostname, int p, int endreason);
    void session_update(int p, char *end_reason = nullptr);
    void session_close(int p, int reason);
    void session_check_active();

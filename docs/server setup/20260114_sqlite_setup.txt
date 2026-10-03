@@ -154,8 +154,32 @@ Command line stuff:
 linux:
 ----------------------------
 sudo apt install sqlite3
-type sqlite
+type 'sqlite3'
 .open <database>
+
+
+
+
+cd /home/m/dev/purple_martians/data
+sqlite3
+.open session.db
+.tables
+
+
+sqlite3 /home/m/dev/purple_martians/data/sessions.db
+.mode column
+
+SELECT id, dt_start, player_name FROM sessions;
+
+SELECT * FROM sessions LIMIT 2;
+ 
+
+
+
+
+
+
+
 
 windows
 ---------

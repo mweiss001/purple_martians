@@ -60,7 +60,7 @@ TABLE sessions
 
 This database table is accessed with the following functions in the file: 'mwNetgameServerSession.cpp'
 
-void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
+void mwNetgame::session_open(const char* address, const char* hostname, int p, int endreason)
 void mwNetgame::session_update(int p, char * m_endreason)
 void mwNetgame::session_update_at_level_done();
 void mwNetgame::session_close(int p, int er)
@@ -73,7 +73,7 @@ void mwNetgame::session_flush_active_at_server_exit()
 Starting a session
 ---------------------------
 When the server replies to a client's join request, it calls this function to start a session:
-void session_add(const char* address, const char* hostname, int p, int endreason)
+void session_open(const char* address, const char* hostname, int p, int endreason)
 The id of the created row is called session_id and is stored in the player's struct 'mPlayer.loc[p].session_id'
 
 
@@ -148,6 +148,8 @@ If you delete it, it will be recreated.
 ---------------------------------------------------------------------------------------------------------------
 Sessions are also linked with gm files in the same sessions database
 
+This table contains data about gm files saved on the server:
+
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
                muid           TEXT PRIMARY KEY, \
                filename       TEXT, \
@@ -159,26 +161,51 @@ Sessions are also linked with gm files in the same sessions database
    execute_sql(sql, db_sessions);
 
 
+
+This table links 'gm.muid' to 'sessions.id'
+
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
                id                INTEGER PRIMARY KEY, \
                gm_muid           TEXT, \
                session_id        INT  ); ");
    execute_sql(sql, db_sessions);
 
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
-
-Need to document this better
-
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mGameMoves and demo files
 
 
 
+When a new level is loaded: 
+---------------------------
+HEADER values in mwGameMoves are set 
+The new muid is linked with any open sessions (only on server)
+void mwGameMoves::new_level()
+{
+   initialize();
+   HEADER_create_timestamp = mMiscFnx.timestamp_UTC_ISO8601();
+   HEADER_muid = mMiscFnx.generate_muid();
+   HEADER_level = mLevel.play_level;
+   status = 1;
+   if (mNetgame.ima_server) create_gm_session_links();
+}
 
 
 
+Adding gm to db
+---------------
+When the level is completed and gm is saved:
+save_gm() calls 'add_gm_to_db(const char *fname)' (only on server)
+This adds an entry to the 'gm' table with muid, filename...etc
+Then adds links to any open sessions
+
+
+When a new session is started:
+------------------------------
+The new session_id is linked with the current HEADER_muid 
+mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
 
 
 

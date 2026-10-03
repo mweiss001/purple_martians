@@ -823,7 +823,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
       // add session log
-      session_add(address, hostname, 0, 1);
+      session_open(address, hostname, 0, 1);
    }
    else // inactive player found, proceed with join
    {
@@ -865,7 +865,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
 
       // start session log
-      session_add(address, hostname, p, 0);
+      session_open(address, hostname, p, 0);
    }
    mLog.add(LOG_NET, LOG_NET_SUBTYPE_SERVER_CJON, -1, full, requested_color, color, mLevel.play_level, p, mLoop.frame_num, server_lev_seq_num, 0, 0, 0, playername, hostname);
 }

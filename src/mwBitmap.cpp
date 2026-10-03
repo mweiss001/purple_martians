@@ -45,10 +45,6 @@ void mwBitmap::create_bitmaps()
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
 
-
-   //if (!M_btilemap) printf("ERROR! M_btilemap is NULL\n");
-
-
    // this bitmap format is used for all other bitmaps
    if (!mDisplay.no_display) al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
@@ -58,28 +54,21 @@ void mwBitmap::create_bitmaps()
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
 
-
-
-
    // create bottom message bitmaps
    mBottomMessage.bmsg_create_bitmaps();
 
    // create level_background and level_buffer bitmaps
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
-
 }
 
 // done only once in initial_setup
 int mwBitmap::load_tiles()
 {
-   printf("load tiles\n");
+   //printf("load tiles\n");
 
    // get sprites
    stilemap = al_load_bitmap("bitmaps/sprites.png");
-   printf("post stilemap = al_load_bitmap('bitmaps/sprites.png')\n");
-
-
    al_convert_mask_to_alpha(stilemap, al_map_rgb(0, 0, 0)) ;
    if (!stilemap)
    {
@@ -94,8 +83,6 @@ int mwBitmap::load_tiles()
          for (int x=0; x<32; x++)
             sprite[y*32 + x] = al_create_sub_bitmap(stilemap, x*22+1, y*22+1, 20, 20);
    }
-
-   printf("post load sprites\n");
 
    // get block tiles
    btilemap = al_load_bitmap("bitmaps/tiles.png");

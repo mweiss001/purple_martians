@@ -34,7 +34,7 @@ mwSettings mSettings;
 
 void mwSettings::load_settings()
 {
-   printf("Loading data/settings.pm\n");
+   //printf("Loading data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","rb");
    if (fp)
    {
@@ -58,7 +58,7 @@ void mwSettings::load_settings()
 
 void mwSettings::save_settings()
 {
-   printf("Saving data/settings.pm\n");
+   //printf("Saving data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","wb");
    if (fp)
    {

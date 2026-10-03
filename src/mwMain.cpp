@@ -157,7 +157,6 @@ int mwMain::initial_setup()
       mSound.sound_on = 0;
 
       mBitmap.load_sprit(); // get animation sequences and shape attributes
-      //printf("post mBitmap.load_sprit()\n");
 
    }
    else if (!mDisplay.init_display())
@@ -192,12 +191,8 @@ int mwMain::initial_setup()
 
 
    mLevel.load_data();
-
    mFont.load_fonts();
-
-   printf("pre load tiles\n");
    mBitmap.load_tiles();
-   printf("post load tiles\n");
 
 
    // --- things not to load for headless server ---------------

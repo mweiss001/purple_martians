@@ -48,9 +48,9 @@ void mwGameMoves::initialize()
    HEADER_last_frame = 0;
    HEADER_num_entries = 0;
 
-
    status = 0;
 }
+
 
 
 
@@ -62,8 +62,7 @@ void mwGameMoves::new_level()
    HEADER_muid = mMiscFnx.generate_muid();
    HEADER_level = mLevel.play_level;
    status = 1;
-
-   create_gm_session_links();
+   if (mNetgame.ima_server) create_gm_session_links();
 }
 
 
@@ -301,10 +300,6 @@ int mwGameMoves::has_player_acknowledged(int p)
    if (end_pos < 0) end_pos = 0;
    for (int x=start_pos; x>end_pos; x--) // look back for ack
       if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p) && (arr[x][0] <= mLoop.frame_num)) return 1;
-
-
-//   if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
-
    return 0;
 }
 
@@ -422,9 +417,6 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    // --------------------------------------------------------------------------------------
    if ((type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2 & PM_COMPMOVE_MENU))
    {
-
-
-
       // ----------------------------------------------------------------------------------------
       // single player mode quit - do not enter inactive game move (so game can be resumed)
       // ----------------------------------------------------------------------------------------
@@ -442,7 +434,6 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          add_game_move2(frame, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_MENU_KEY);
          return;
       }
-
 
       // ----------------------------------------------------------------------------------------
       // local server
@@ -710,10 +701,6 @@ char* mwGameMoves::get_gm_text3(int gm, char* tmp)
 
 
 
-
-
-
-
 char* mwGameMoves::get_gm_text(int gm, char* tmp)
 {
    int f = arr[gm][0]; // frame
@@ -744,9 +731,6 @@ void mwGameMoves::save_gm_txt(const char *sfname)
 
    fclose(filepntr);
 }
-
-
-
 
 
 char * mwGameMoves::get_save_txt(int num, char *txt)
@@ -792,10 +776,6 @@ void mwGameMoves::save_gm_file_select()
    else printf("file select cancelled\n");
    al_destroy_native_file_dialog(afc);
 }
-
-
-
-
 
 
 
@@ -986,25 +966,15 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
    // only log here if file will not be saved
-
    if (ret) mLog.add(LOG_NET_FILE_TRANSFER, 1, sendto, 0,0,0,0,0,0,0,0,0,0, get_save_txt(ret, msg));
-
-//   if (ret) mLog.add(LOG_NET_FILE_TRANSFER, 1, sendto, 0,0,0,0,0,0,0,0, get_save_txt(ret, msg));
-//   if (ret) mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
-
-
-
-
    if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
+
 
    // actually do the save
    if (!ret)
    {
       gm_sort();
       save_gm(fname);
-
-      //mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, sendto, "saved:%s\n", fname);
-//      mLog.add(LOG_NET_FILE_TRANSFER, 2, sendto, 0,0,0,0,0,0,0,0, fname);
 
       mLog.add(LOG_NET_FILE_TRANSFER, 2, sendto, 0,0,0,0,0,0,0,0,0,0, fname);
 
@@ -1088,7 +1058,7 @@ bool mwGameMoves::save_gm(const char *fname)
    char fn[256];
    sprintf(fn, "%s", al_get_path_filename(path));
 
-   add_gm_to_db(fn);
+   if (mNetgame.ima_server) add_gm_to_db(fn);
 
    return 1;
 }
@@ -1363,39 +1333,30 @@ int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
    status = 2;
 
 
-
    // does this run every time? no
    if (fillGmInfo) mGmInfo.fill();
-
 
 
    // why do this with every load? was it a temporary thing?
    //add_gm_to_db(fname);
 
-
-
-
-
    return 1;
 }
 
 
-
-// call from load...or save..or somewhere we know HEADER is valid
-
+// called only from save_gm() and only if (mNetgame.ima_server)
 void mwGameMoves::add_gm_to_db(const char *fname)
 {
-   printf("\nDatabase add or update\n");
+   printf("\nAdd_gm_to_db\n");
 
    // first convert HEADER_create_timestamp and HEADER_last_frame to dt_start, dt_end, duration
-   //printf("HEADER_create_timestamp:'%s'\n", HEADER_create_timestamp.c_str());
-   //printf("HEADER_last_frame:'%d'\n", HEADER_last_frame);
-
    char dts[32] = {0};
    char dte[32] = {0};
 
    // use HEADER_create_timestamp as is for dts
    sprintf(dts, "%s", HEADER_create_timestamp.c_str());
+
+   // get duration from last frame
    int dur = HEADER_last_frame / 40;
 
    // create stringstream 'ss' from dts
@@ -1407,6 +1368,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
    // push ss into get_time, which will convert based on format and put in timestart
    ss >> std::get_time(&timestart, "%Y-%m-%dT%H:%M:%S");
    if (ss.fail()) printf("Error parsing time\n");
+
 
    // add duration to timestart
    timestart.tm_sec += dur;
@@ -1421,13 +1383,13 @@ void mwGameMoves::add_gm_to_db(const char *fname)
 //   printf("dte:'%s'\n", dte);
 //   printf("dur:%d\n", dur);
 
+
    // check if muid already exists
    char sql[500];
    sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
    if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
    {
-      //printf("muid: '%s' exists - updating filename\n", HEADER_muid.c_str());
-      //sprintf(sql, "UPDATE gm ( filename, dt_start, dt_end, duration, level, num_entries )
+      printf("muid: '%s' exists  --  not inserting\n", HEADER_muid.c_str());
    }
    else
    {
@@ -1437,12 +1399,13 @@ void mwGameMoves::add_gm_to_db(const char *fname)
                                      HEADER_muid.c_str(), fname, dts, dte, dur, HEADER_level, HEADER_num_entries);
       //printf("sql:%s\n", sql);
       mSql.execute_sql(sql, mSql.db_sessions);
-
       create_gm_session_links();
    }
 }
 
 
+// iterates all players with valid session_id
+// calls 'create_gm_session_link(int session_id)' to create links to the current HEADER_muid
 void mwGameMoves::create_gm_session_links()
 {
    if (mNetgame.ima_server)
@@ -1450,7 +1413,8 @@ void mwGameMoves::create_gm_session_links()
          if (mPlayer.loc[p].session_id) create_gm_session_link(mPlayer.loc[p].session_id);
 }
 
-
+// creates a link from the passed 'session_id' to the current HEADER_muid
+// first checks if the link already exists
 void mwGameMoves::create_gm_session_link(int session_id)
 {
    char sql[500];
