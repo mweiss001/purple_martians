@@ -421,14 +421,9 @@ void mwNetgame::client_proc_sfil_packet(int i)
       char fname[256];
       memcpy(fname, dmp, sizeof(fname));
 
-//      mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, -1, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
-      char msg[256];
+      char msg[1024];
       sprintf(msg, "rx %s size:[%d] id:[%d]", fname, fsize, id);
-//      mLog.add(LOG_NET_FILE_TRANSFER, 5,0,0,0,0,0,0,0,0,0, msg);
-
       mLog.add(LOG_NET_FILE_TRANSFER, 5, -1, 0,0,0,0,0,0,0,0,0,0, msg);
-
-
 
       // write to file
       FILE *fp = fopen(fname, "wb");
@@ -447,6 +442,7 @@ void mwNetgame::client_proc_sfil_packet(int i)
 }
 
 
+
 void mwNetgame::client_send_sfak_packet(int id)
 {
    // printf("Client ack id:%d\n", id);
@@ -458,17 +454,14 @@ void mwNetgame::client_send_sfak_packet(int id)
 
 void mwNetgame::client_send_crfl()
 {
-//   mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, -1, "tx clrf - client request file\n");
-
-//   mLog.add(LOG_NET_FILE_TRANSFER, 6,0,0,0,0,0,0,0,0,0, "tx clrf - client request file");
-
    mLog.add(LOG_NET_FILE_TRANSFER, 6, -1, 0,0,0,0,0,0,0,0,0,0, "tx clrf - client request file");
-
-
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "crfl");
    clientSend(data, pos);
 }
+
+
+
 
 
 void mwNetgame::client_proc_stdf_packet(int i)

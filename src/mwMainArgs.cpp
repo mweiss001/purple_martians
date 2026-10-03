@@ -180,7 +180,6 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
 
 
-
    if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
 
 //   if ((argument_count > 1) && (strcmp(argument_array[1],"-rc") == 0 )) server_remote_control = 1;
@@ -349,6 +348,9 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-sh") == 0 ) // headless server
       {
+//         printf("void mwNetgame::headless_server_setup()\n");
+
+
          mNetgame.headless_server_setup();
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;

@@ -88,7 +88,7 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
 //   int entered = 0;
 
-   char msg[256];
+   char msg[1024];
    sprintf(msg, "%s", "");
 
    if (log_type == LOG_OTH_LEVEL_DONE)

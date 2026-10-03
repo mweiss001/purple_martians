@@ -155,7 +155,10 @@ int mwMain::initial_setup()
       mDisplay.no_display = 1;
       printf("Starting Headless Server.\n");
       mSound.sound_on = 0;
+
       mBitmap.load_sprit(); // get animation sequences and shape attributes
+      //printf("post mBitmap.load_sprit()\n");
+
    }
    else if (!mDisplay.init_display())
    {
@@ -163,10 +166,7 @@ int mwMain::initial_setup()
       return 0;
    }
 
-
-
    mBitmap.create_bitmaps();
-
 
    if(!al_init_image_addon())
    {
@@ -190,9 +190,15 @@ int mwMain::initial_setup()
       return 0;
    }
 
+
    mLevel.load_data();
+
    mFont.load_fonts();
+
+   printf("pre load tiles\n");
    mBitmap.load_tiles();
+   printf("post load tiles\n");
+
 
    // --- things not to load for headless server ---------------
    if (!mDisplay.no_display)
