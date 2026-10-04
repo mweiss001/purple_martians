@@ -1,37 +1,17 @@
 import { setupTopPageLinks, getDHMSfromFrame } from './common.js';
-import { setupServerSnapshotControls, updateServerSnapshotControls} from './serverSnapshotControls.js';
-import { setupServerControls,         updateServerControls}         from './serverControls.js';
-
 
 document.addEventListener('DOMContentLoaded', (event) =>
 {
    setupTopPageLinks();
-   const statusControls = document.getElementById('statusControls');
-   statusControls.style.display = 'flex';
-
-   setupServerControls(statusControls);
-
-   setupServerSnapshotControls(statusControls);
-
 
    fetchDataServerStatus();
-
-   document.getElementById('ssSingleButton').addEventListener("click", function()
-   {
-      setTimeout(() =>
-      {
-         fetchDataServerStatus();
-      }, 200);
-   });
 
    document.getElementById("refreshButton").addEventListener("click", function()
    {
       fetchDataServerStatus();
    });
-   
-   
+    
 });
-
 
 
 function adjustTimer(data)
@@ -43,7 +23,6 @@ function adjustTimer(data)
       startTimer();
       return;
    }      
-
 
    // stop timer
    if ((!data[0].ss_enabled) || (!data[0].ss_period)) stopTimer();
@@ -76,9 +55,6 @@ var updateInterval = 200;
 let intervalId; // Variable to store the refresh timer interval ID
 
 
-
-
-
 async function fetchDataServerStatus()
 {
    var data = [];
@@ -95,12 +71,7 @@ async function fetchDataServerStatus()
       updateLevelText(data);
       updateClientSection(data);
       updateLevelIcon(data);
-      updateServerControls(data);
-      updateServerSnapshotControls(data);
-      
       adjustTimer(data);
-      
-      
    }
 }
 

@@ -337,6 +337,7 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, mLevel.play_level);
    sqlite3_bind_int(  stmt, i++, mLoop.frame_num );
    sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
+
    sqlite3_bind_int(  stmt, i++, mPlayer.syn[0].server_force_fakekey ); // 10
 
    sqlite3_bind_int(  stmt, i++, server_update_status_img_allowed);
@@ -344,6 +345,7 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_size);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_time);
+
    sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 16
 
    if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));

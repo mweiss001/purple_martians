@@ -13,8 +13,6 @@ export function setupServerControls(parentContainer)
    setupControlsFakekey(container);
 }
 
-
-
 function setupControlsFakekey(parentContainer)
 {
    setupCheckBoxControl(parentContainer, 'fakekeyCheckBox', 'Fake Key:', 0);

@@ -21,111 +21,10 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+look into server snapshot and document it
 
-get rid of pages s2 and s3
-
-
-put it all in a folder and document it
-
-as well as all the other failed attempts, like the one with qt
-
-
-
-
-
-Tilesets
---------
-
-
-
-take more advantage of all the extra tiles in 90 tileset
-there are many places to do this:
-
-Make much more complex tile replace controls
-show each alt and what it does
-can I even click on the screen to change alt modes?
-
-
-
-
-- replace tools in tilehelper
-make more options to do alt blocks, especially with single lines
-
-   int replace_mode_alt;
-
-replace mode alt for other tilesets?
-wires has options
-pipes also, can be solid middle or cross
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+remove the control button for fakekey from the web page
+I don't want to have any controls like that for now
 
 
 
@@ -263,7 +162,6 @@ message position
 
 another table to link levels to areas
 
-
 what are my big goals with this?
 
 currently:
@@ -295,35 +193,30 @@ redid blocks and lifts on 21 long one
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --------------------------------------------------
 tiles and tilesets
 --------------------------------------------------
+
+
+Tilesets
+--------
+take more advantage of all the extra tiles in 90 tileset
+there are many places to do this:
+
+Make much more complex tile replace controls
+show each alt and what it does
+can I even click on the screen to change alt modes?
+
+
+- replace tools in tilehelper
+make more options to do alt blocks, especially with single lines
+
+   int replace_mode_alt;
+
+replace mode alt for other tilesets?
+wires has options
+pipes also, can be solid middle or cross
+
 
 - do more custom draw modes with 90 tileset rect draw
 
@@ -350,88 +243,80 @@ add to settings:
 
 
 
-
-
-
-
-Widgets
----------------
-
-
 help screens
 ----------------
 - fix references to bombable blocks, breakable, switchable...done
 - at the start of level editor, mention only available in classic mode...done
 - give credit to where I got tilesets and sound effects...done
-
-
 - add description for status window controls
-
 - get a new pic for lift
 - redo tile helper
 - redo block selection
 
 
-to finish client_status:
-------------------------
-make graph selector...done
-automatic cleanup based on size (num rows) or time 
-option to not insert unless web page is being viewed
-i really want to be able to view static, historical data
-my attempt at that was very slow...why?
-even on the main graph s2, if I set the range higher, it crawls....
 
 
-I want to rename cpu to something else...
-maybe load, or busy
 
-make sure that server snapshot is fully disabled
 
-make some levels that have a ladder that appear after killing all the bad guys....
+
 
 
 ------------------------------------------------------------------------------
-major changes to logging
-------------------------------------------------------------------------------
+logging
 
-I want all calls through my code that add a log entry to be a one line function call
-and each will have a unique ID
-I will decide after that based on the ID whether or not they get logged
+add the functionality to add to database (maybe, can't really see many benefits)
 
-the single line function call will probably have a few different call signatures depending on what info needs to be logged
+make the main add function cleaner, common add for single line ones
 
+make the timer profile functions cleaner
+all start with this:
+[%2d][%d][%d]tmst %s
+then have a variable number of these:
+sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
+separated by spaces
+I want a single function
 
-
-
-
-
-
-
-
+none of this really matters...fuck it
 
 
-make some kind of database cleanup function for sessions
-to close all open ones that might have been orphaned
 
+
+
+
+
+-----------------------------------------------------------------------------
+
+
+--------------------------------------------
 add muid to sessions
 the main reason is:
 if I want to persist sessions and gms over multiple years and servers
 I cant have session id starting a 1 everytime
-
 what about players
 more like installations
 when the game is first run after being installed, generate a unique id for that player and system
 and also the server
 I am unsure of the benefits of this
+----------------------------------------
 
+
+
+----------------------------------
 what if this gmInfo I am generating is saved in a database?
 that was where i was going with the stats thing anyway, was I not?
+----------------------------------
 
 
 
 
 
 
+-----------------------------------------
+demoRecord
+make a cool method to determine is there is a shot possible that will kill an enemy
+at a certain frame and certain player,
+test all possible fire directions to see if any would hit an enemy that was not already hit
+-----------------------------------------
 
 
 
@@ -467,45 +352,6 @@ game_state
 gameState
 
 then I can just sync that from server to client
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -560,13 +406,6 @@ Big things:
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-server control from web:
-I could make buttons to display and change settings in a table
-
-I think I need to figure more things out, like how to get a button to do something
-without reloading page
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
@@ -584,11 +423,7 @@ edit it and send it back
 how big is it? settings.pm is 8K
 why am i scared of 8K? I do server client file transfer all the time
 
-
-make copy tiles main bitmap scroll down and up if taller than screen height
-
-
-
+make copy tiles main bitmap scroll down and up if taller than screen height..done
 
 in level editor, when loading new level and cancelling, new level is loaded anyway
 don't know if it is possible to fix, I think the visual preview loads the level...
@@ -608,7 +443,6 @@ there could be an array
 I already have almost exactly that with states, do I not ??
 
 
-
 I had 3 clients sessions running for almost 10 days.
 One day they all showed 'lost server connection'
 in sessions they all still show as open
@@ -625,7 +459,6 @@ when do they join, instantly?? when do they joining when playing back?
 changed it so that next level resets player health to 100...
 now I need to test....did one test good...do some more...did a second one... all good
 
-
 2026-03-08 07:03:44
 started new server last night around 11
 lev 16, fakekey many clients
@@ -633,9 +466,6 @@ all gms in timeline show as 2H long, or 1H longer than they should
 DST happened, but does not full explain wtf
 actually the wrong durations are only in timeline, they look fine in gm table
 WTF is happening with purple coin counter in multiplayer, it is usually wrong!!
-
-
-
 
 
 right now the main pmh server is running a version that is not compatible with the version on github...multiplayer on main server is broken
@@ -650,8 +480,6 @@ I think I can kill all on server pmh...
 
 all I really need to do is get the latest version on pmh...i think...
 
-
-
 I want to make my own custom file dialogs
 especially for load, I want to see what I am loading, visually
 I need some sub areas:
@@ -660,15 +488,6 @@ I need some sub areas:
 - list of files found
 - display preview for files
 - button to load, save, etc
-
-
-
-
-
-
-what if i had a mode where player could control movement of lift with direction key?
-
-
 
 
 
@@ -1328,6 +1147,10 @@ There is a lot of info in level stats that would be better suited in database. J
 ------------------------------------------------------------------------------
 
 
+what if i had a mode where player could control movement of lift with direction key?
+
+
+
 
 show horizontal bar graph with players and how how they were active in the save game
 I think I can do this with div flex box and proportional widths
@@ -1483,4 +1306,8 @@ gmList
 - why does timeline show the current position tags and bleed over to transport tools?
 
 these are not important...I am done with demoRecord!!
+
+
+
+
 

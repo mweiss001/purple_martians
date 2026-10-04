@@ -42734,10 +42734,108 @@ I cannot reproduce this bug....
 
 2026-10-04 10:06:55
 did some moving of folders and files and documented old abandoned versions of client status logging
-
 now I want to look at the web stuff again
-
 how?
+
+I have the share setup:
+\\o7040\www
+
+but it is read only:
+sudo chmod 777 -R /var/www/html
+moved s2 and s3 to  docs\logging\netgame status\web and sqlite
+edited: common.js and removed links to S2 and S3
+
+now get those changes on the server back to the dev folder
+
+erase and recreate tmp, then copy to tmp folder....
+
+cd ~
+sudo rm -r tmp
+mkdir tmp
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+
+pscp -r -pw zaiden m@192.168.1.138:tmp/* c:\pm\web 
+
+
+going through to do file:
+
+----------------------------------------------------------
+make some kind of database cleanup function for sessions
+to close all open ones that might have been orphaned
+this is already done....
+----------------------------------------------------------
+
+
+more files to move in web dir
+
+everything related to client status
+
+removed from status.html:
+
+            <div style=" display:flex; gap:2px; padding:4px;">
+               <div id='statusControls' class='statusPage'></div>
+            </div>
+
+
+removed in status.js            
+
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   setupTopPageLinks();
+//   const statusControls = document.getElementById('statusControls');
+//   statusControls.style.display = 'flex';
+//   setupServerControls(statusControls);
+//   setupServerSnapshotControls(statusControls);
+
+
+async function fetchDataServerStatus()
+{
+   var data = [];
+   try
+   {
+      const response = await fetch('fetchDataServerStatus.php');
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      data = await response.json();
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+
+      updateStatusText(data);
+      updateLevelText(data);
+      updateClientSection(data);
+      updateLevelIcon(data);
+//      updateServerControls(data);
+//      updateServerSnapshotControls(data);
+      adjustTimer(data);
+   }
+}
+
+now there are no controls on status page....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

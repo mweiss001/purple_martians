@@ -77,7 +77,7 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 {
    if (p == -1) p = mPlayer.active_local_player;
 
-//   int entered = 0;
+
 
    char msg[1024];
    sprintf(msg, "%s", "");
@@ -87,6 +87,8 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 5) log_append_textf(log_type, "[%4d] Level Done Mode:%d - %s [%d]\n", mLoop.frame_num, sub_type, t1, (int)v0);
       else               log_append_textf(log_type, "[%4d] Level Done Mode:%d - %s\n", mLoop.frame_num, sub_type, t1);
    }
+
+
 
 
    if (log_type == LOG_OTH_TRANSITIONS)
@@ -239,7 +241,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    }
 
 
-
    if (log_type == LOG_NET_CDAT)
    {
       if (sub_type == 0) sprintf(msg, "tx cdat - move:%d",                                                    (int)v0);
@@ -248,7 +249,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
       if (sub_type == 3) sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d] - wrong slsn:[%d] - dropped", p, (int)v0, (int)v1, (int)v2, (int)v3);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
    }
-
 
 
    if (log_type == LOG_NET_TIMER_ADJUST)
@@ -262,7 +262,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    {
       float ping = v0;
       float ping_avg = v1;
-
       sprintf(msg, "client ping[%5.1f] avg[%5.1f]\n", ping*1000, ping_avg*1000);
       log_add_prefixed_textf(log_type, p, "%s\n", msg);
    }
@@ -289,38 +288,31 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    }
 
 
-
-
    if (log_type == LOG_NET)
    {
       if (sub_type == LOG_NET_SUBTYPE_PLAYER_ACTIVE)
       {
-         sprintf(msg, "Player:%d became ACTIVE!", p);
-         add_header(log_type, p, 0, msg);
+         add_headerf(log_type, p, 0, "Player:%d became ACTIVE!", p);
       }
+
       if (sub_type == LOG_NET_SUBTYPE_PLAYER_INACTIVE)
       {
-         sprintf(msg, "Player:%d became INACTIVE!", p);
-         add_header(log_type, p, 0, msg);
+         add_headerf(log_type, p, 0, "Player:%d became INACTIVE!", p);
       }
+
       if (sub_type == LOG_NET_SUBTYPE_PLAYER_DIED)
       {
-         sprintf(msg, "Player:%d DIED!", p);
-         add_header(log_type, p, 0, msg);
+         add_headerf(log_type, p, 0, "Player:%d DIED!", p);
       }
 
       if (sub_type == LOG_NET_SUBTYPE_NEXT_LEVEL)
       {
-         int l = v0;
-         sprintf(msg, "NEXT LEVEL:%d", l);
-         add_header(log_type, p, 1, msg);
+         add_headerf(log_type, p, 1, "NEXT LEVEL:%d", (int)v0);
       }
 
       if (sub_type == LOG_NET_SUBTYPE_LEVEL_STARTED)
       {
-         int l = v0;
-         sprintf(msg, "LEVEL %d STARTED", l);
-         add_header(log_type, p, 1, msg);
+         add_headerf(log_type, p, 1, "LEVEL %d STARTED", (int)v0);
       }
 
 
@@ -341,10 +333,8 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
       if (sub_type == LOG_NET_SUBTYPE_SERVER_STOP)
       {
-         sprintf(msg, "Shutting down the server network");
-         add_header(log_type, p, 0, msg);
+         add_header(log_type, p, 0, "Shutting down the server network");
       }
-
 
       if (sub_type == LOG_NET_SUBTYPE_SERVER_CJON)
       {
@@ -375,7 +365,6 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          }
       }
 
-
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_START) // Client mode started on localhost:[%s]
       {
          sprintf(msg, "Client mode started on localhost:%s", t1);
@@ -401,8 +390,7 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_INIT)
       {
-         sprintf(msg, "Sent 'cjon' packet to server, waiting for reply...");
-         add_fw(log_type, p, 76, 10, "|", " ", msg);
+         add_fw(log_type, p, 76, 10, "|", " ", "Sent 'cjon' packet to server, waiting for reply...");
       }
 
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_WAIT)
@@ -431,10 +419,8 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_STOP)
       {
-         sprintf(msg, "Shutting down the client network");
-         add_header(log_type, p, 0, msg);
+         add_header(log_type, p, 0, "Shutting down the client network");
       }
-
 
       if (sub_type == LOG_NET_SUBTYPE_SERVER_CJRC)
       {
@@ -444,26 +430,23 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
 
       if (sub_type == LOG_NET_SUBTYPE_SERVER_DROP)
       {
-         int server_last_stak_rx_frame_num = v0;
-         add_headerf(log_type, p, 1,        "Server dropped player:%d (last stak rx:%d)", p, server_last_stak_rx_frame_num);
+         add_headerf(log_type, p, 1, "Server dropped player:%d (last stak rx:%d)", p, (int)v0);
       }
-
 
       if (sub_type == LOG_NET_SUBTYPE_CLIENT_DROP)
       {
          int last_dif_applied = v0;
          add_fwf(log_type, p, 76, 10, "+", "-", "");
-         add_fwf(log_type, p, 76, 10, "|", " ", "Local Client Player %d Lost Server Connection!", p);
+         add_fwf(log_type, p, 76, 10, "|", " ", "Local client player:%d lost server connection!", p);
          add_fwf(log_type, p, 76, 10, "|", " ", "last_dif_applied:[%d]", last_dif_applied);
          add_fwf(log_type, p, 76, 10, "+", "-", "");
       }
 
-
       if (sub_type == LOG_NET_SUBTYPE_SERVER_RELOAD)
       {
-         if (v0 == 0) sprintf(msg, "Headless Server with no clients! - Reload");
-         if (v0 == 1) sprintf(msg, "Server Approaching %d Game Moves! - Reload", (int) v1);
-         if (v0 == 2) sprintf(msg, "Server Approaching %d Frames! - Reload", (int) v1);
+         if (v0 == 0) sprintf(msg, "Headless server with no clients! - reload");
+         if (v0 == 1) sprintf(msg, "Server approaching %d game moves! - reload", (int) v1);
+         if (v0 == 2) sprintf(msg, "Server approaching %d frames! - reload", (int) v1);
          add_header(log_type, p, 1, msg);
       }
 
@@ -481,32 +464,8 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          log_add_prefixed_textf(log_type, p, "[%d] all \n", v8);
       }
    }
-
-
-
-
-   // if (!entered)
-   // {
-   //    add_header(log_type, p, 0, msg);
-   //    add_log_net_db_row(log_type, sub_type, p, "%s", msg);
-   // }
-   //
-
-
-
-
-
 }
    
-
-   
-
-
-
-
-
-
-
 
 void mwLog::clear_all_log_actions()
 {
@@ -563,8 +522,6 @@ void mwLog::save_log_file()
 }
 
 
-
-
 void mwLog::log_error(const char *txt, bool dialog)
 {
    char msg[256];
@@ -572,6 +529,7 @@ void mwLog::log_error(const char *txt, bool dialog)
    add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
    if (dialog) mInput.m_err(txt);
 }
+
 
 
 
@@ -614,11 +572,9 @@ void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
 }
 
 
-
 // wrapper for 'log_add_prefixed_text' that takes a printf style format
 void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...)
 {
-   if (player == -1) player = mPlayer.active_local_player;
    char smsg[1000];
    va_list args;
    va_start(args, format);
@@ -626,6 +582,7 @@ void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...
    va_end(args);
    log_add_prefixed_text(type, player, smsg);
 }
+
 
 
 
@@ -699,20 +656,14 @@ void mwLog::add_tmr1(int type, const char *tag, double dt)
 
 
 
-
 // adds fixed width formatted printf style text string
 void mwLog::add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...)
 {
-   if (player == -1) player = mPlayer.active_local_player;
-
    char smsg[200];
    va_list args;
    va_start(args, format);
    vsprintf(smsg, format, args);
    va_end(args);
-
-
-
    add_fw(type, player, width, pos, border, fill, smsg);
 }
 
@@ -759,10 +710,8 @@ void mwLog::add_fw(int type, int player, int width, int pos, const char *border,
    log_add_prefixed_text(type, player, ftxt);
 }
 
-
 void mwLog::add_headerf(int type, int player, int blank_lines, const char *format, ...)
 {
-   if (player == -1) player = mPlayer.active_local_player;
    char smsg[200];
    va_list args;
    va_start(args, format);
