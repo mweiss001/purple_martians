@@ -113,7 +113,6 @@ void mwSql::create_tables()
    execute_sql(sql, db_play_data);
 
 
-
 /*
    // strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
    //             id              INTEGER PRIMARY KEY, \
@@ -129,8 +128,6 @@ void mwSql::create_tables()
 */
 
 
-
-
    strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
                timestamp     TEXT PRIMARY KEY, \
                version       TEXT, \
@@ -141,57 +138,8 @@ void mwSql::create_tables()
                level         INT, \
                level_time    INT, \
                moves         INT, \
-               fakekey       INT, \
-               ss_allow      INT, \
-               ss_enabled    INT, \
-               ss_period     INT, \
-               ss_size       INT, \
-               ss_time       INT, \
                enemies       INT ); ");
    execute_sql(sql, db_server_status);
-
-
-
-
-/*
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
-               timestamp     TEXT PRIMARY KEY, \
-               version       TEXT, \
-               uptime        INT, \
-               cpua          INT, \
-               cpum          INT, \
-               clients       INT, \
-               level         INT, \
-               level_time    INT, \
-               moves         INT, \
-               fakekey       INT, \
-               sics_enable       INT, \
-               sicsb_size_target INT, \
-               sicsb_size_actual INT, \
-               sicsb_time_avg    INT, \
-               sicsb_time_max    INT, \
-               ss_allow      INT, \
-               ss_enabled    INT, \
-               ss_period     INT, \
-               ss_size       INT, \
-               ss_time       INT, \
-               enemies       INT ); ");
-   execute_sql(sql, db_server_status);
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS control( \

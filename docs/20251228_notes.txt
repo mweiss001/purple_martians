@@ -43007,6 +43007,52 @@ void mwServerScreenshot::save()
 
 }
 
+all gone from code, deploy and test....works!!!
+probably need to remove in web after...
+
+
+old:
+
+function updateLevelIcon(data)
+{
+   if (!data[0].ss_allowed)
+   {
+//      const size = data[0].ss_size + 'px'; 
+//      levelIcon.style.height = size;
+//      levelIcon.style.width  = size;
+
+      // get static level icon 
+      const iconpath = "/assets/icons/lev" + String(data[0].level).padStart(3, '0') + ".png";
+      document.getElementById('levelIcon').src = iconpath;
+
+   }
+   else
+   {
+      // get server snapshot level icon
+      if (data[0].ss_enabled) reloadImageById('levelIcon', '/downloads/lev_stat.png');
+      else
+      {
+         // get static level icon 
+         const iconpath = "/assets/icons/lev" + String(data[0].level).padStart(3, '0') + ".png";
+         document.getElementById('levelIcon').src = iconpath;
+      }
+      const size = data[0].ss_size + 'px'; 
+      levelIcon.style.height = size;
+      levelIcon.style.width  = size;
+   }
+}
+
+new:
+function updateLevelIcon(data)
+{
+   // get static level icon 
+   const iconpath = "/assets/icons/lev" + String(data[0].level).padStart(3, '0') + ".png";
+   document.getElementById('levelIcon').src = iconpath;
+}
+
+
+
+old:
 
 
 
@@ -43017,15 +43063,102 @@ void mwServerScreenshot::save()
 
 
 
+function adjustTimer(data)
+{
+   if (!data[0].ss_allowed)
+   {
+      stopTimer();
+      updateInterval = 2000;
+      startTimer();
+      return;
+   }      
+
+   // stop timer
+   if ((!data[0].ss_enabled) || (!data[0].ss_period)) stopTimer();
+   else
+   {
+      stopTimer();
+      updateInterval = data[0].ss_period * 25;
+      startTimer();
+   }      
+}
 
 
 
+function startTimer()
+{
+   // Prevent multiple intervals from running simultaneously
+   if (intervalId) return; 
+   intervalId = setInterval(fetchDataServerStatus, updateInterval);
+   //console.log("Timer started/resumed");
+}
+
+function stopTimer()
+{
+   clearInterval(intervalId);
+   intervalId = null; // Clear the ID to indicate the timer is stopped
+   //console.log("Timer stopped");
+}
+
+var updateInterval = 200;
+let intervalId; // Variable to store the refresh timer interval ID
 
 
+async function fetchDataServerStatus()
+{
+   var data = [];
+   try
+   {
+      const response = await fetch('fetchDataServerStatus.php');
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      data = await response.json();
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+
+      updateStatusText(data);
+      updateLevelText(data);
+      updateClientSection(data);
+      updateLevelIcon(data);
+      adjustTimer(data);
+   }
+}
 
 
+new:
+document.addEventListener('DOMContentLoaded', (event) =>
+{
+   setupTopPageLinks();
+
+   setInterval(fetchDataServerStatus, 2000);
+
+   fetchDataServerStatus();
+
+   document.getElementById("refreshButton").addEventListener("click", function()
+   {
+      fetchDataServerStatus();
+   });
+    
+});
 
 
+async function fetchDataServerStatus()
+{
+   var data = [];
+   try
+   {
+      const response = await fetch('fetchDataServerStatus.php');
+      if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+      data = await response.json();
+   } catch (error) { console.error("Fetch error:", error.message);
+   } finally
+   {
+      updateStatusText(data);
+      updateLevelText(data);
+      updateClientSection(data);
+      updateLevelIcon(data);
+   }
+}
 
 
 
