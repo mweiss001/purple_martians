@@ -20,8 +20,6 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDrawSequence.h"
-#include "mwServerScreenshot.h"
-
 
 int mwNetgame::serverInitNetwork()
 {
@@ -295,27 +293,6 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 }
 
 
-void mwNetgame::server_update_status_img_recurring()
-{
-   if (server_update_status_img_period)
-   {
-      if ((mLoop.frame_num > server_update_status_img_period_cnt + server_update_status_img_period) || (mLoop.frame_num < server_update_status_img_period_cnt))
-      {
-         server_update_status_img();
-      }
-   }
-}
-
-void mwNetgame::server_update_status_img()
-{
-   if ((server_update_status_img_allowed) && (server_update_status_img_enabled))
-   {
-      server_update_status_img_period_cnt = mLoop.frame_num;
-      mServerScreenshot.start();
-   }
-}
-
-
 // called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
@@ -337,16 +314,7 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, mLevel.play_level);
    sqlite3_bind_int(  stmt, i++, mLoop.frame_num );
    sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
-
-   sqlite3_bind_int(  stmt, i++, mPlayer.syn[0].server_force_fakekey ); // 10
-
-   sqlite3_bind_int(  stmt, i++, server_update_status_img_allowed);
-   sqlite3_bind_int(  stmt, i++, server_update_status_img_enabled);
-   sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
-   sqlite3_bind_int(  stmt, i++, server_update_status_img_size);
-   sqlite3_bind_int(  stmt, i++, server_update_status_img_time);
-
-   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 16
+   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 10
 
    if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));
 
@@ -419,29 +387,29 @@ void mwNetgame::server_process_db_control()
          }
 
 
-         if (row.key == "ss_enable")
-         {
-            server_update_status_img_enabled = !server_update_status_img_enabled;
-            used = 1;
-         }
-
-         if (row.key == "ss_period")
-         {
-            server_update_status_img_period = row.val;
-            used = 1;
-         }
-
-         if (row.key == "ss_size")
-         {
-            server_update_status_img_size = row.val;
-            used = 1;
-         }
-
-         if (row.key == "ss_single")
-         {
-            server_update_status_img();
-            used = 1;
-         }
+         // if (row.key == "ss_enable")
+         // {
+         //    server_update_status_img_enabled = !server_update_status_img_enabled;
+         //    used = 1;
+         // }
+         //
+         // if (row.key == "ss_period")
+         // {
+         //    server_update_status_img_period = row.val;
+         //    used = 1;
+         // }
+         //
+         // if (row.key == "ss_size")
+         // {
+         //    server_update_status_img_size = row.val;
+         //    used = 1;
+         // }
+         //
+         // if (row.key == "ss_single")
+         // {
+         //    server_update_status_img();
+         //    used = 1;
+         // }
 
          if (!used) printf("control unused: %s %f %d\n", row.key.c_str(), row.val, row.mod);
 
@@ -931,18 +899,9 @@ void mwNetgame::server_control()
             serverSendTo(data, pos + srv_exp_siz, p);
          }
 
-   server_update_status_img_recurring();
-
-
-
-
-
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
 
    server_count_clients();
-
-
-
 
 
 }

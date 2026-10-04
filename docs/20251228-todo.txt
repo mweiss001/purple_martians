@@ -21,10 +21,31 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+when I create MUID when loading level, do not do this if overworld....
+actually that is OK, just don't enter in db
+
+
+
+
+
+
 look into server snapshot and document it
 
-remove the control button for fakekey from the web page
-I don't want to have any controls like that for now
+
+Total time:10.888068 Create:0.007932 Draw:3.979971 Save:6.900165
+Total time:10.968618 Create:0.008442 Draw:4.050763 Save:6.909413
+Total time:10.830897 Create:0.008408 Draw:3.909093 Save:6.913396
+Total time:11.019671 Create:0.008684 Draw:4.051522 Save:6.959465
+Segmentation fault (core dumped)
+m@o7040:~/dev/purple_martians$
+it takes a long time to do
+I think I want it gone
+make a folder for all of it
+
+
+
+
+
 
 
 

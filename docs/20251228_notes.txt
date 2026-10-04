@@ -42813,12 +42813,199 @@ async function fetchDataServerStatus()
 }
 
 now there are no controls on status page....
+and I have moved more things to the backup
+
+now where in main code is ss_snapshot
+
+   int server_update_status_img_allowed = 0;
+   int server_update_status_img_enabled = 0;
+   int server_update_status_img_period = 40;
+   int server_update_status_img_period_cnt = 0;
+   int server_update_status_img_size = 400;
+   int server_update_status_img_time;
+
+
+   int server_insert_client_status_enable = 0;
+   int server_insert_client_status_batch_size_target = 20;
+   int server_insert_client_status_batch_size_actual;
+   int server_insert_client_status_batch_time_avg;
+   int server_insert_client_status_batch_time_max;
+
+
+
+
+// called every 1s from loop
+void mwNetgame::server_insert_status_row() // inserts row into status table
+{
+   mSql.execute_sql("DELETE FROM status", mSql.db_server_status);
+
+   std::string ts = mMiscFnx.timestamp("%Y%m%d-%H%M%S");
+   int i = 1;
+
+   sqlite3_stmt *stmt = mSql.server_status_insert_stmt;
+   sqlite3_reset(     stmt);
+
+   sqlite3_bind_text( stmt, i++,  ts.c_str(),     -1, SQLITE_TRANSIENT);
+   sqlite3_bind_text( stmt, i++,  PM_VERSION,     -1, SQLITE_TRANSIENT);
+   sqlite3_bind_int(  stmt, i++,  al_get_time());
+   sqlite3_bind_int(  stmt, i++,  mRollingAverage[0].avg);
+   sqlite3_bind_int(  stmt, i++,  mRollingAverage[0].max); // 5
+
+   sqlite3_bind_int(  stmt, i++, server_num_clients);
+   sqlite3_bind_int(  stmt, i++, mLevel.play_level);
+   sqlite3_bind_int(  stmt, i++, mLoop.frame_num );
+   sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
+
+   
+   sqlite3_bind_int(  stmt, i++, mPlayer.syn[0].server_force_fakekey ); // 10
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_allowed);
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_enabled);
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_size);
+   sqlite3_bind_int(  stmt, i++, server_update_status_img_time);
+
+   
+      
+   
+   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 16
+
+   if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));
+
+}
+
+
+
+do I really want to disable all this?
+
+try it out first
+
+it was the reason I actually had the headless server handle bitmaps....
+
+it would be so much simpler if I removed it....
+
+
+
+.........
+
+get changes from web and commit
+
+
+erase and recreate tmp, then copy to tmp folder....
+
+cd ~
+sudo rm -r tmp
+mkdir tmp
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+
+pscp -r -pw zaiden m@192.168.1.138:tmp/* c:\pm\web 
 
 
 
 
 
+remove all snapshot image
 
+   void server_update_status_img_recurring();
+   void server_update_status_img();
+
+   int server_update_status_img_allowed = 1;
+   int server_update_status_img_enabled = 1;
+   int server_update_status_img_period = 40;
+   int server_update_status_img_period_cnt = 0;
+   int server_update_status_img_size = 400;
+   int server_update_status_img_time;
+  
+
+
+void mwNetgame::server_update_status_img_recurring()
+{
+   if (server_update_status_img_period)
+   {
+      if ((mLoop.frame_num > server_update_status_img_period_cnt + server_update_status_img_period) || (mLoop.frame_num < server_update_status_img_period_cnt))
+      {
+         server_update_status_img();
+      }
+   }
+}
+
+void mwNetgame::server_update_status_img()
+{
+   if ((server_update_status_img_allowed) && (server_update_status_img_enabled))
+   {
+      server_update_status_img_period_cnt = mLoop.frame_num;
+      mServerScreenshot.start();
+   }
+}
+
+
+
+
+#include "mwServerScreenshot.h"
+
+mwServerScreenshot mServerScreenshot;
+
+#include "pm.h"
+#include "mwScreen.h"
+#include "mwNetgame.h"
+#include <thread>
+#include <functional>
+
+void mwServerScreenshot::start()
+{
+   if (!busy)
+   {
+      busy = 1;
+      // Create and run the long task in a separate thread
+      std::thread worker(std::bind_front(&mwServerScreenshot::save, this));
+      // Detach the worker thread to let it run in the background
+      worker.detach();
+
+   }
+   else printf("busy\n");
+}
+
+
+#ifndef PM_MWSERVERSCREENSHOT_H
+#define PM_MWSERVERSCREENSHOT_H
+
+class mwServerScreenshot
+{
+   public:
+      void start();
+
+   private:
+      void save();
+      bool busy = false;
+};
+extern mwServerScreenshot mServerScreenshot;
+#endif //PM_MWSERVERSCREENSHOT_H
+
+
+void mwServerScreenshot::save()
+{
+   int size = mNetgame.server_update_status_img_size;
+
+   double t0 = al_get_time();
+   ALLEGRO_BITMAP * tmp = al_create_bitmap(size, size);
+   double t1 = al_get_time();
+
+   mScreen.draw_level2(tmp, 0, 0, size, 1, 1, 1, 1, 1);
+   double t2 = al_get_time();
+
+   if (!al_save_bitmap("savegame/lev_stat.png", tmp)) printf("error saving!\n");
+
+   al_destroy_bitmap(tmp);
+
+   double t3 = al_get_time();
+   printf("Total time:%f Create:%f Draw:%f Save:%f \n", (t3-t0)*1000, (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000);
+
+   mNetgame.server_update_status_img_time = (t3-t0)*1000;
+
+   busy = 0;
+
+}
 
 
 
