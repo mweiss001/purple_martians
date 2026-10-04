@@ -161,6 +161,102 @@ You can also force the server to load a new level, or reload the current level.
 
 
 
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+abandoned versions
+
+qt and mysql
+------------
+20240609 to 20240811
+saved in mysql database and viewed with qt app
+It was a quite convoluted method and did not work with large amounts of data
+
+Started with rsyslog to add log entries from both client and server
+Then moved to a method where clients would send logs entried to server with clog packets.
+Then server would save both its own logs and clients logs to csv files.
+Then those files would be scraped and added to mysql database.
+The scraping was done with PHP then bash scripts.
+Then qt would display some nice graphs.
+
+see the qt folder
+
+
+
+php and web
+------------
+direct calls in program to add to sqlite3 database
+displayed on web page
+
+This ran on the server only, all the info needed from clients was there.
+It had a very fancy thread safe queue in its own class.
+Log entries were added to the queue, and written to the database in chucks to not affect performance.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

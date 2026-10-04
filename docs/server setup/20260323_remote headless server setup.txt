@@ -231,9 +231,6 @@ change permissions of web files on server so they can be edited with samba in wi
 sudo chmod 777 -R /var/www/html
 
 
-
-
-
 --------------------------------------------------------------------------------------------
 make sure that changes you make on the server in /var/www/html get back to the dev machine
 --------------------------------------------------------------------------------------------

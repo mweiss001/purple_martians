@@ -42080,9 +42080,11 @@ how is data stored in database?
    execute_sql(sql, db_server_status);
 
 
+
 // called every 1s from loop
 void mwNetgame::server_insert_status_row() // inserts row into status table
 {
+
 
 if (server_insert_client_status_enable) mClientStatusInsertQueue.add();
 
@@ -42140,8 +42142,6 @@ I think client status is what I want to remove
    execute_sql(sql, db_game_events);
 
   */
-
-
 
 
 #include "pm.h"
@@ -42729,6 +42729,28 @@ then others join, die, quit, etc....
 works when level done
 works when all player quit also
 I cannot reproduce this bug....
+
+
+
+2026-10-04 10:06:55
+did some moving of folders and files and documented old abandoned versions of client status logging
+
+now I want to look at the web stuff again
+
+how?
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
