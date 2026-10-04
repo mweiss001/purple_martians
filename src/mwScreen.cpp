@@ -30,42 +30,25 @@ mwScreen mScreen;
 
 void mwScreen::get_new_background(int full)
 {
-   // this is much faster in headless server mode with memory bitmaps
-   if (mDisplay.no_display)
-   {
-      al_destroy_bitmap(mBitmap.level_buffer);
-      mBitmap.level_buffer = al_clone_bitmap(mBitmap.level_background);
-   }
+   al_set_target_bitmap(mBitmap.level_buffer);
+   if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
    else
    {
-      al_set_target_bitmap(mBitmap.level_buffer);
-      if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
-      else
-      {
-         // this only grabs the visible region, in the interests of speed
-         int x = level_display_region_x - 20; if (x < 0) x = 0;
-         int y = level_display_region_y - 20; if (y < 0) y = 0;
-         int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
-         int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
-         al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
-      }
+      // this only grabs the visible region, in the interests of speed
+      int x = level_display_region_x - 20; if (x < 0) x = 0;
+      int y = level_display_region_y - 20; if (y < 0) y = 0;
+      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
    }
 }
 
 
 void mwScreen::transition_cutscene(int i, int f)
 {
-   if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mMain.headless_server))
    {
-      if (mLog.log_types[LOG_OTH_TRANSITIONS].action)
-      {
-//         const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-//         mLog.log_add_prefixed_textf(LOG_OTH_TRANSITIONS, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
-
-         mLog.add(LOG_OTH_TRANSITIONS, 0, -1, i, f);
-
-
-      }
+      mLog.add(LOG_OTH_TRANSITIONS, 0, -1, i, f);
 
       if ((i) || (f)) // only if not both 0
       {
@@ -713,6 +696,7 @@ void mwScreen::init_level_background() // fill level_background with block tiles
 }
 
 
+
 void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {
    if (mLevel.valid_level_loaded)
@@ -721,7 +705,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
       if (lifts)   mLift.draw_lifts();
       if (items)   mItem.draw_items();
       if (enemies) mEnemy.draw_enemies();
-      if (mLevel.resume_allowed || mDisplay.no_display)
+      if (mLevel.resume_allowed)
       {
          if (players) mPlayer.draw_players();
          mShot.draw_eshots();

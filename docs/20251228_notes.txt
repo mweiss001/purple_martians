@@ -43160,210 +43160,30 @@ async function fetchDataServerStatus()
    }
 }
 
+2026-10-04 13:12:28
+commit deploy and test...good
 
+now find all the places in code I changed to make headless server work with bitmaps...
 
 
 
+why do I sometimes test for 'headless_server' and sometimes 'mDisplay.no_display'
 
+   if (headless_server)
+   {
+      mDisplay.no_display = 1;
 
 
 
+can I make them the same?
+why else would I need both
+mMain.headless_server
+now only mMain.headless_server
+removed lots of things....
+2026-10-04 14:11:16
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I think I am done with removing server snapshot and headless server stuff
+2026-10-04 14:11:45
 
 
 

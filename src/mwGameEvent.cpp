@@ -7,6 +7,7 @@
 #include "mwLoop.h"
 #include "mwDisplay.h"
 #include "mwGmInfo.h"
+#include "mwMain.h"
 #include "mwSql.h"
 
 
@@ -26,7 +27,7 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
    if (ev == 43) add_to_vector = true; // enemy shot
    if (add_to_vector) game_events.push_back({ mLoop.frame_num, ev, x, y, z1, z2, z3, z4 });
 
-   if (!mDisplay.no_display)
+   if (!mMain.headless_server)
    {
       if (ev == 11) // tally raw damage
       {

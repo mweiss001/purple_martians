@@ -960,7 +960,7 @@ void mwLoop::main_loop()
 
             mBitmap.update_animation();
 
-            if (!mDisplay.no_display)
+            if (!mMain.headless_server)
             {
                mSound.proc_sound();
 

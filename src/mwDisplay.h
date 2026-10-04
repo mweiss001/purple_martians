@@ -6,8 +6,6 @@ class mwDisplay
 
    ALLEGRO_DISPLAY *display = NULL;
 
-   int no_display = 0;
-
    int desktop_width;
    int desktop_height;
 

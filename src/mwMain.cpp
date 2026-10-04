@@ -97,7 +97,6 @@ void mwMain::set_and_get_versions()
    else std::cout << "Unknown or experimental C++ version: " << standard << std::endl;
 
 
-
    // get hostname
    FILE *fp = popen("hostname", "r");
    int loop = 0;
@@ -152,12 +151,9 @@ int mwMain::initial_setup()
    // --- display --------------------
    if (headless_server)
    {
-      mDisplay.no_display = 1;
       printf("Starting Headless Server.\n");
       mSound.sound_on = 0;
-
       mBitmap.load_sprit(); // get animation sequences and shape attributes
-
    }
    else if (!mDisplay.init_display())
    {
@@ -165,44 +161,41 @@ int mwMain::initial_setup()
       return 0;
    }
 
-   mBitmap.create_bitmaps();
-
-   if(!al_init_image_addon())
-   {
-      mInput.m_err("Failed to initialize image addon.\n");
-      return 0;
-   }
-   if(!al_init_primitives_addon())
-   {
-      mInput.m_err("Failed to initialize primitives addon.\n");
-      return 0;
-   }
-
-   if(!al_init_font_addon())
-   {
-      mInput.m_err("Failed to initialize font addon.\n");
-      return 0;
-   }
-   if(!al_init_ttf_addon())
-   {
-      mInput.m_err("Failed to initialize ttf addon.\n");
-      return 0;
-   }
-
-
-   mLevel.load_data();
-   mFont.load_fonts();
-   mBitmap.load_tiles();
-
 
    // --- things not to load for headless server ---------------
-   if (!mDisplay.no_display)
+   if (!headless_server)
    {
-      al_inhibit_screensaver(true);
+      al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
 
+      if(!al_init_image_addon())
+      {
+         mInput.m_err("Failed to initialize image addon.\n");
+         return 0;
+      }
+      if(!al_init_primitives_addon())
+      {
+         mInput.m_err("Failed to initialize primitives addon.\n");
+         return 0;
+      }
+
+      mBitmap.create_bitmaps();
+      mBitmap.load_tiles();
       mLevelIcons.load(0);
 
-      al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
+
+      if(!al_init_font_addon())
+      {
+         mInput.m_err("Failed to initialize font addon.\n");
+         return 0;
+      }
+      if(!al_init_ttf_addon())
+      {
+         mInput.m_err("Failed to initialize ttf addon.\n");
+         return 0;
+      }
+
+      mFont.load_fonts();
+
 
       // --- allegro add ons ------------
       if(!al_init_native_dialog_addon())
@@ -217,7 +210,6 @@ int mwMain::initial_setup()
          mInput.m_err("Failed to install keyboard.\n");
          return 0;
       }
-      //else printf("installed keyboard\n");
       al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
 
       // --- mouse ----------------------
@@ -236,26 +228,22 @@ int mwMain::initial_setup()
          mInput.m_err("Failed to install joystick.\n");
          return 0;
       }
-      //else printf("installed joystick\n");
       int nj = al_get_num_joysticks();
-      //printf("found %d joystick(s)\n", nj);
       if (nj > 0)
       {
          mInput.joy0 = al_get_joystick(0);
-         //printf("j0 - %s\n", al_get_joystick_name(joy0));
-
          if (nj > 1)
          {
             mInput.joy1 = al_get_joystick(1);
-            //printf("j1 - %s\n", al_get_joystick_name(joy1));
          }
          al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
       }
-
       al_set_display_icon(mDisplay.display, mBitmap.sprite[401]);
-
+      al_inhibit_screensaver(true);
       mSound.load_sound();
    }
+
+   mLevel.load_data();
 
    // init players
    mPlayer.set_default_player_colors();

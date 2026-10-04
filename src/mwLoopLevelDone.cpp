@@ -20,8 +20,7 @@
 #include "mwShot.h"
 
 #include "mwGameMoves.h"
-
-
+#include "mwMain.h"
 
 
 void mwLoop::proc_level_done_mode()
@@ -41,7 +40,7 @@ void mwLoop::proc_level_done_mode()
       mPlayer.syn[0].level_done_timer = 0; // immediate next mode
 
 
-      if (!mDisplay.no_display)
+      if (!mMain.headless_server)
       {
          cutscene_original_zoom = mDisplay.scale_factor_current;
          mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
@@ -90,7 +89,7 @@ void mwLoop::proc_level_done_mode()
    {
       mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for rocket move");
 
-      if (!mDisplay.no_display)
+      if (!mMain.headless_server)
       {
          // create bitmap of the background
          if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
@@ -119,7 +118,7 @@ void mwLoop::proc_level_done_mode()
       for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
       for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
 
-      if (!mDisplay.no_display)
+      if (!mMain.headless_server)
       {
          mScreen.init_level_background();
          cutscene_accel = 1.0;
@@ -130,7 +129,7 @@ void mwLoop::proc_level_done_mode()
    if (mPlayer.syn[0].level_done_mode == 27) // rocket move
    {
       if (mPlayer.syn[0].level_done_timer == 240) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Rocket move");
-      if (!mDisplay.no_display)
+      if (!mMain.headless_server)
       {
          mScreen.get_new_background(1);
          cutscene_bg_x += cutscene_accel;
@@ -147,7 +146,7 @@ void mwLoop::proc_level_done_mode()
    if (mPlayer.syn[0].level_done_mode == 26)
    {
       mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for zoom in");
-      if (!mDisplay.no_display)
+      if (!mMain.headless_server)
       {
          mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
       }

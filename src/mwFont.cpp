@@ -4,6 +4,7 @@
 #include "mwFont.h"
 #include "mwDisplay.h"
 #include "mwInput.h"
+#include "mwMain.h"
 
 mwFont mFont;
 
@@ -46,7 +47,7 @@ void mwFont::load_fonts()
    if (!acha) mInput.m_err("Failed to load font from bitmaps/Achafont.ttf");
 
    int sfs = 100;
-   if (!mDisplay.no_display) sfs = al_get_display_option(mDisplay.display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
+   sfs = al_get_display_option(mDisplay.display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
    //printf("Saucer font size:%d\n", sfs);
    al_destroy_font(sauc);
    sauc = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);

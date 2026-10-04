@@ -9,6 +9,7 @@
 #include "mwLoop.h"
 #include "mwItem.h"
 #include "mwEnemy.h"
+#include "mwMain.h"
 #include "mwSound.h"
 #include "mwScreen.h"
 #include "mwPlayer.h"
@@ -138,7 +139,7 @@ void mwBottomMessage::bmsg_create_bitmaps()
 
 void mwBottomMessage::initialize()
 {
-   if (!mDisplay.no_display)
+   if (!mMain.headless_server)
    {
       for (int c=0; c<BMSG_MAX_LINES; c++)
       {

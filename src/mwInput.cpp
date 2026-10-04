@@ -33,7 +33,7 @@ mwInput::mwInput()
 
 void mwInput::initialize()
 {
-   if (!mDisplay.no_display)
+   if (!mMain.headless_server)
    {
       for (int i=0; i<64; i++) skc[i] = 0;
       skc_index = 0;
