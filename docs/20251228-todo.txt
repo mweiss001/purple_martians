@@ -9,6 +9,8 @@ do something about viewport
 in filters, when all view off, can't select block to view item
 cannot reproduce??
 
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -20,8 +22,12 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+get rid of pages s2 and s3
 
 
+put it all in a folder and document it
+
+as well as all the other failed attempts, like the one with qt
 
 
 

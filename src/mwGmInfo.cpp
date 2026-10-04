@@ -17,35 +17,26 @@ mwGmInfo mGmInfo;
 
 void mwGmInfo::clear()
 {
-   // clear game_event vector
-   mGameEvent.game_events.clear();
-
-   // clear player info vector
    gmPlayerInfo.clear();
-
    lastFrame = -1;
    levelDoneFrame = -1;
    levelDonePlayer = -1;
-
    completed = false;
-
    coinsCollected = 0;
    playerDeaths = 0;
    enemiesKilled = 0;
-
 }
 
 
-/*
-plays back the current level with the current game moves array and gathers statistics
-reloads the current level to seek back to start
-*/
+
+// reloads and plays back the current level with the current game moves array to fill mGameEvent.game_event vector
 
 void mwGmInfo::fill()
 {
    //printf("mwGmInfo::fill()\n");
 
-   clear();
+   // clear game_event vector
+   mGameEvent.game_events.clear();
 
    // get last frame from last game move
    lastFrame = mGameMoves.arr[mGameMoves.entry_pos-1][0];
@@ -56,29 +47,15 @@ void mwGmInfo::fill()
    // load level and seek start
    mDemoMode.seek_to_frame(0, 0);
 
-
-   // double t0 = al_get_time();
-
    mSound.mute = 1;
 
-   // playback level to fill game_event vector and find level done if exists
    int done = 0;
    while (!done)
    {
       mLoop.frame_num++;
       mGameMoves.proc();
       mLoop.move_frame();
-
-      if (mPlayer.syn[0].level_done_mode)
-      {
-         levelDoneFrame  = mPlayer.syn[0].level_done_frame;
-         levelDonePlayer = mPlayer.syn[0].level_done_player;
-         lastFrame = levelDoneFrame;
-         // printf("1 - levelDoneFrame = %d player:%d\n", levelDoneFrame, levelDonePlayer);
-         completed = true;
-         done = 1;
-      }
-
+      if (mPlayer.syn[0].level_done_mode) done = 1;
       // if 10s past last game move and level not done, stop and leave completed = false and last frame as last game move frame
       if (mLoop.frame_num > lastFrame + 400) done = 1;
    }
@@ -88,38 +65,42 @@ void mwGmInfo::fill()
    // restore old control method
    mPlayer.syn[0].control_method = old_mPlayer0_control_method;
 
-   //printf("t1: %f\n", (al_get_time() - t0)*1000);
+   calc();
+}
+
+// calculates a bunch of stuff
+void mwGmInfo::calc()
+{
+   //printf("mwGmInfo::calc()\n");
+
+
+   clear();
+
+   if (mPlayer.syn[0].level_done_mode)
+   {
+      levelDoneFrame  = mPlayer.syn[0].level_done_frame;
+      levelDonePlayer = mPlayer.syn[0].level_done_player;
+      lastFrame = levelDoneFrame;
+      completed = true;
+   }
 
    findPlayerTracks();
    findPlayerTracksLastMoves();
    findDeaths();
    findPurpleCoins();
    findEnemyHits();
-
 }
 
 
-
-
-// adds the current data stored in gmInfo to database
-// called after fill
+// adds the data stored in gmInfo to database
 void mwGmInfo::add()
 {
    char sql[500];
-
-
-   sprintf(sql, "INSERT INTO play_data (level,                          time,           completed, num_players,        player_respawns,         enemies_killed,     enemies_left,        coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);" ,
-                                        mLevel.play_level, mGmInfo.lastFrame,   mGmInfo.completed,           0,   mGmInfo.playerDeaths,  mGmInfo.enemiesKilled, mEnemy.num_enemy, mGmInfo.coinsCollected);
-
-   printf("sql:%s \n", sql);
-
-   mSql.execute_sql(sql, mSql.db_level_play_stats);
-
-   mLevel.calc_level_stats(mLevel.play_level);
+   sprintf(sql, "INSERT INTO play_data (level, time,      completed, num_players, player_respawns, enemies_killed, enemies_left,     coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);" ,
+                            mLevel.play_level, lastFrame, completed, 0,           playerDeaths,    enemiesKilled,  mEnemy.num_enemy, coinsCollected);
+   //printf("sql:%s \n", sql);
+   mSql.execute_sql(sql, mSql.db_play_data);
 }
-
-
-
 
 // iterate game moves, use player active and inactive to create gmPlayerInfo entries
 void mwGmInfo::findPlayerTracks()
@@ -196,7 +177,6 @@ int mwGmInfo::getGmPlayerInfoIndex(int p, int frame)
       if (p == gmPlayerInfo[i].playerNum && frame >= gmPlayerInfo[i].startFrame && frame <= gmPlayerInfo[i].endFrame) return i;
    return -1;
 }
-
 
 
 void mwGmInfo::findEnemyHits()

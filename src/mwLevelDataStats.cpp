@@ -93,7 +93,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
 
    int status = mLevel.data[lev].status;
-   int col = mLevel.data[lev].status_color;
+   int col = mLevel.level_status_color[status];
 
 
    if (lev != -1)
@@ -131,7 +131,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
          if (tally[0][2] == tally[0][0]) { sprintf(stxt, "Perfect"); col = 8; }
          al_draw_text(mFont.pr8, mColor.pc[col],  x+width/2, y,   ALLEGRO_ALIGN_CENTER, stxt);
       }
-      else al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, mLevel.data[lev].status_text);
+      else al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, mLevel.level_status_text[mLevel.data[lev].status]);
    }
    x += width + 8;
    vline[vli++] = x-4;

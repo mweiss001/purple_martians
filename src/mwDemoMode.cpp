@@ -79,7 +79,6 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
 {
    double t0 = al_get_time(); // for the entire function
 
-
    if (!load_demo_file_array()) return;
 
    // save initial state
@@ -99,6 +98,7 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
       //printf("i:%d - filename:%s - lev:%d ", i, al_get_fs_entry_name(demo_FS_filenames[i]), mLevel.play_level);
       mGmInfo.fill();
       mGmInfo.add();
+      mLevel.calc_level_stats(mLevel.play_level);
 
       al_set_target_backbuffer(mDisplay.display);
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
@@ -327,22 +327,15 @@ void mwDemoMode::seek_to_frame(const int frame, const int draw)
    // if seeking backwards or same frame, reload level and play forwards
    if (frame <= mLoop.frame_num) mLoop.load_and_setup_level(mLevel.play_level, 4);
 
+   mSound.mute = true;
    while (mLoop.frame_num < frame)
    {
-      mSound.mute = true;
-
-
       mLoop.frame_num++;
       mGameMoves.proc();
       mLoop.move_frame();
    }
-
-   if (draw) mDrawSequence.ds_draw(0, 0);
    mSound.mute = false;
-
-
-
-
+   if (draw) mDrawSequence.ds_draw(0, 0);
 }
 
 

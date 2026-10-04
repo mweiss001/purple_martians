@@ -9,8 +9,6 @@ struct level_data
    char level_name[200];
 
    int status;
-   int status_color;
-   char status_text[16];
 
    int min_respawns;
    int max_coins_collected;
@@ -30,8 +28,6 @@ struct level_data
    int time_average;
    int time_total;
 };
-
-
 
 
 class mwLevel
@@ -111,15 +107,14 @@ class mwLevel
       "Training"
    };
 
+   const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };
+   int         level_status_color[4] = {       10,      13,         12,        8  };
+
 
    int area_array[100][2];
 
    void unlock_all_level_in_area(int area);
 
-
-//   int get_level_status(int level, int &status_color, char * status_text);
-
-   void set_status_text_and_color(int status);
 
 
    void reset_level_data();
@@ -146,20 +141,11 @@ class mwLevel
    void load_data();
    void save_data();
 
-   void save_level_data_to_db();
-   void load_level_data_from_db();
-
-
-
-
    void dump_level_data();
-
 
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
    void check_achievements();
-
-   void update_level_status(int lev);
 
    int level_exists(int level);
 

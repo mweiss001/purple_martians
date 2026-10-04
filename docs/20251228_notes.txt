@@ -41738,9 +41738,6 @@ lets look into that...
 what does csv do?
 
 
-
-
-
 void mwLog::add_log_status_db_rows() ... only one call from server control
 
 
@@ -42390,26 +42387,348 @@ void mwClientStatusInsertQueue::dumpQ2(sqlite3 *db, sqlite3_stmt *client_status_
 
 all gone!!!!
 
+still works....
+
+
+
+now what?
+
+look into the play data stuff
+
+
+'db_level_play_data' has 2 tables
+play_data (for each play)
+
+void mwLevel::add_play_data_record(int lev, int type)
+sprintf(sql, "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);", lev, data[lev].time_par + 1200,  1, 0, 0,0,0,0);
+
+
+level_data (tallied play_data...and more)
+exactly one per level
+
+
+
+void mwLevel::load_level_data_from_db()
+
+void mwLevel::save_level_data_to_db()
+{
+   mSql.execute_sql("DELETE FROM level_data", mSql.db_level_play_data);
+   for(int i=0; i<100; i++)
+   {
+      char sql[2000];
+      sprintf(sql, "INSERT INTO level_data (level, level_name, status, status_color, status_text, \
+                                            min_respawns, max_coins_collected, tot_coins, \
+                                            min_enemies_left, min_enemies_left_par, max_enemies_killed, \
+                                            times_played, times_beat, times_quit, time_par, time_best, \
+                                            time_best_all_coins, time_worst, time_average, time_total ) \
+                                            VALUES(%d, '%s', %d, %d, '%s',    %d, %d, %d,   %d, %d, %d,    %d, %d, %d, %d, %d,   %d, %d, %d, %d)",
+                                            i, data[i].level_name, data[i].status, data[i].status_color, data[i].status_text,
+                                            data[i].min_respawns, data[i].max_coins_collected, data[i].tot_coins,
+                                            data[i].min_enemies_left, data[i].min_enemies_left_par, data[i].max_enemies_killed,
+                                            data[i].times_played, data[i].times_beat, data[i].times_quit, data[i].time_par, data[i].time_best,
+                                            data[i].time_best_all_coins, data[i].time_worst, data[i].time_average, data[i].time_total );
+
+      mSql.execute_sql(sql, mSql.db_level_play_data);
+   }
+}
+
+
+I want to figure this out more:
+
+
+
+where do I add play_data records?
+
+level not complete saves:
+2 x game menu, when leaving resumable game with arrows
+visual level, when leaving resumable game
+when going back to overworld from level (this is like resume, but need to save cause overworld will overwrite)
+
+
+level complete saves:
+--------------------
+level done mode 30 start of final rocket cutscene
+level done mode 9  (but only if not client or server)
+gate collision debug press up to mark level done
+
+
+how do I save play_data records?
+
+mGmInfo.calc();
+plays back current game with current gameMoves to fill event array
+
+mGmInfo.add();
+adds gmInfo to database table
+
+
+
+mLevel.calc_level_stats(mLevel.play_level);
+   this iterates all play_data in the database for the level and sets the data struct in memory
+
+the order that things get called:
+
+
+fill (or calc)
+add()
+  mLevel.calc_level_stats(mLevel.play_level);
+
+mLevel.check_achievements();
+- checks for barriers
+
+
+
+void mwLevel::save_data()
+{
+   save_level_data_to_db();
+   FILE *fp =fopen("data/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
+}
+
+struct level_data data[100];
+
+struct level_data
+{
+   char level_name[200];
+
+   int status;
+   int status_color;
+   char status_text[16];
+
+   int min_respawns;
+   int max_coins_collected;
+   int tot_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
 
 
 
 
 
+what if I was to make a class to store all this?
+
+
+mwLevelData
+
+store all the tallied data for each level
+
+also manage the database of play data records
+
+
+I think I might be better off not keeping the 100 level_data records in a database table
+going back to the way it was
 
 
 
 
 
+   // strcpy(sql, "CREATE TABLE IF NOT EXISTS level_data( \
+   //             level                 INTEGER PRIMARY KEY, \
+   //             level_name            TEXT, \
+   //             status                INT,  \
+   //             status_color          INT,  \
+   //             status_text           TEXT, \
+   //             min_respawns          INT,  \
+   //             max_coins_collected   INT,  \
+   //             tot_coins             INT,  \
+   //             min_enemies_left      INT,  \
+   //             min_enemies_left_par  INT,  \
+   //             max_enemies_killed    INT,  \
+   //             times_played          INT,  \
+   //             times_beat            INT,  \
+   //             times_quit            INT,  \
+   //             time_par              INT,  \
+   //             time_best             INT,  \
+   //             time_best_all_coins   INT,  \
+   //             time_worst            INT,  \
+   //             time_average          INT,  \
+   //             time_total            INT ); ");
+   // execute_sql(sql, db_level_play_data);
+
+/*
+
+
+//   void save_level_data_to_db();
+//   void load_level_data_from_db();
+
+
+//
+// void mwLevel::save_level_data_to_db()
+// {
+//    mSql.execute_sql("DELETE FROM level_data", mSql.db_level_play_data);
+//    for(int i=0; i<100; i++)
+//    {
+//       char sql[2000];
+//       sprintf(sql, "INSERT INTO level_data (level, level_name, status, status_color, status_text, \
+//                                             min_respawns, max_coins_collected, tot_coins, \
+//                                             min_enemies_left, min_enemies_left_par, max_enemies_killed, \
+//                                             times_played, times_beat, times_quit, time_par, time_best, \
+//                                             time_best_all_coins, time_worst, time_average, time_total ) \
+//                                             VALUES(%d, '%s', %d, %d, '%s',    %d, %d, %d,   %d, %d, %d,    %d, %d, %d, %d, %d,   %d, %d, %d, %d)",
+//                                             i, data[i].level_name, data[i].status, data[i].status_color, data[i].status_text,
+//                                             data[i].min_respawns, data[i].max_coins_collected, data[i].tot_coins,
+//                                             data[i].min_enemies_left, data[i].min_enemies_left_par, data[i].max_enemies_killed,
+//                                             data[i].times_played, data[i].times_beat, data[i].times_quit, data[i].time_par, data[i].time_best,
+//                                             data[i].time_best_all_coins, data[i].time_worst, data[i].time_average, data[i].time_total );
+//
+//       mSql.execute_sql(sql, mSql.db_level_play_data);
+//    }
+// }
+//
+// void mwLevel::load_level_data_from_db()
+// {
+//    // clear everything first
+//    for(int i=0; i<100; i++)
+//    {
+//       strcpy(data[i].level_name, "");
+//
+//       data[i].status = 0;
+//       data[i].status_color = 0;
+//       strcpy(data[i].status_text, "");
+//
+//       data[i].min_respawns = 0;
+//       data[i].max_coins_collected = 0;
+//       data[i].tot_coins = 0;
+//
+//       data[i].min_enemies_left = 0;
+//       data[i].min_enemies_left_par = 0;
+//       data[i].max_enemies_killed = 0;
+//
+//       data[i].times_played = 0;
+//       data[i].times_beat = 0;
+//       data[i].times_quit = 0;
+//       data[i].time_par = 0;
+//       data[i].time_best = 0;
+//
+//       data[i].time_best_all_coins = 0;
+//       data[i].time_worst = 0;
+//       data[i].time_average = 0;
+//       data[i].time_total = 0;
+//    }
+//
+//
+//    // get all int values from database
+//    char sql[2000];
+//    sprintf(sql, "SELECT level, status, status_color, \
+//                         min_respawns, max_coins_collected, tot_coins, \
+//                         min_enemies_left, min_enemies_left_par, max_enemies_killed, \
+//                         times_played, times_beat, times_quit, time_par, time_best, \
+//                         time_best_all_coins, time_worst, time_average, time_total FROM level_data");
+//    std::vector<std::vector<int>> matrix = {};
+//    mSql.execute_sql_and_return_2d_vector_int(sql, mSql.db_level_play_data, matrix );
+//
+//    // iterate
+//    for (auto m : matrix)
+//    {
+//       int i = m[0];
+//       data[i].status = m[1];
+//       data[i].status_color = m[2];
+//       data[i].min_respawns = m[3];
+//       data[i].max_coins_collected = m[4];
+//       data[i].tot_coins = m[5];
+//       data[i].min_enemies_left = m[6];
+//       data[i].min_enemies_left_par = m[7];
+//       data[i].max_enemies_killed = m[8];
+//       data[i].times_played = m[9];
+//       data[i].times_beat = m[10];
+//       data[i].times_quit = m[11];
+//       data[i].time_par = m[12];
+//       data[i].time_best = m[13];
+//       data[i].time_best_all_coins = m[14];
+//       data[i].time_worst = m[15];
+//       data[i].time_average = m[16];
+//       data[i].time_total = m[17];
+//    }
+//
+//    // get level names and par time
+//    set_level_names_and_par_time();
+//
+//    // set status text and color
+//    for(int i=0; i<100; i++)
+//       set_status_text_and_color(i);
+// }
+//
+
+it is gone...
+
+
+2026-10-03 17:47:53
+I have done a lot of cleanup around level and play data
+
+what is next to do?
+
+I want to get rid of the last 2 pages s2 and s3
+
+2026-10-04 06:18:04
+when playing game on server and saving, does not play back if level was not completed?
+try locally
+seems to work
+demo play has wrong time slider?
+
+void mwDemoMode::run_single_from_cmd_fn(const char* fn)
+{
+   play_mode_active = 1;
+   if (mGameMoves.load_gm(fn) && mLoop.load_and_setup_level(mLevel.play_level, 4)) run_loop(0, 0, mLevel.play_level);
+   play_mode_active = 0;
+}
+
+is is something in gmInfo that is not getting loaded?
+
+if I run demoRecord, then play demo all is good...what is different?
+
+both run fill then calc...
+
+this is the cuplrit!!!
+   float lf = timeline_last_frame;
+
+how can I tell if demoRecord is running?
+
+   // normally the end is the last frame
+   float lf = mDemoMode.last_frame;
+
+   // in demoRecord the last frame can get pushed if playing or recording past the end
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) lf = timeline_last_frame;
+
+fixed!!!
 
 
 
 
+2026-10-04 07:28:23
+when playing game on server and saving, does not play back if level was not completed?
+try locally
+seems to work
 
+tried with 4 players and level done...good
+tried with players quitting
+all 4 players left the game one at a time and that is how it played back...
 
+lets try something very complicated
 
-
-
-
+1p start
+then others join, die, quit, etc....
+works when level done
+works when all player quit also
+I cannot reproduce this bug....
 
 
 

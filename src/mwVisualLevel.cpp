@@ -651,8 +651,6 @@ int mwVisualLevel::visual_level_select(int max_level)
 
 
 
-
-
    int grid_sel_row;
    int grid_sel_col;
 

@@ -19,7 +19,6 @@ Logging must be enabled in Settings->Logging
 
 Both server and clients save logs
 
-
 start pm with pm -l  to start the log file viewer and choose a file
 start pm with pm -lr to start the log file viewer and open the most recent file
 

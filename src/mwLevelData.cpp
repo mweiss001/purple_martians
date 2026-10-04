@@ -38,7 +38,6 @@ void mwLevel::unlock_all_levels()
    for(int i=0; i<100; i++)
    {
       if (data[i].status == 0) data[i].status = 1;
-      update_level_status(i);
    }
    for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
@@ -46,14 +45,6 @@ void mwLevel::unlock_all_levels()
    load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
-void mwLevel::set_status_text_and_color(int level)
-{
-   int i = level;
-   if (data[i].status == 0) { sprintf(data[i].status_text, "Locked");   data[i].status_color = 10; } // red
-   if (data[i].status == 1) { sprintf(data[i].status_text, "Ready");    data[i].status_color = 13; } // lt blue
-   if (data[i].status == 2) { sprintf(data[i].status_text, "Complete"); data[i].status_color = 12; } // dk blue
-   if (data[i].status == 3) { sprintf(data[i].status_text, "Perfect");  data[i].status_color = 8;  } // purple
-}
 
 void mwLevel::add_play_data_record(int lev, int type)
 {
@@ -70,14 +61,14 @@ void mwLevel::add_play_data_record(int lev, int type)
       {
          char sql[2000];
          sprintf(sql, "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);", lev, data[lev].time_par + 1200,  1, 0, 0,0,0,0);
-         mSql.execute_sql(sql, mSql.db_level_play_stats);
-         calc_level_stats(lev);
+         mSql.execute_sql(sql, mSql.db_play_data);
       }
       else
       {
-         mGmInfo.fill();
+         mGmInfo.calc();
          mGmInfo.add();
       }
+      mLevel.calc_level_stats(mLevel.play_level);
       check_achievements();
       save_data();
       level_stats_bmp_msg_type = 0;
@@ -87,7 +78,7 @@ void mwLevel::add_play_data_record(int lev, int type)
 
 void mwLevel::calc_level_stats(int lev)
 {
-   // iterates all play_data and sets these variables
+   // iterates all play_data for level and sets these variables
 
    data[lev].times_played = 0;
    data[lev].times_beat = 0;
@@ -102,7 +93,7 @@ void mwLevel::calc_level_stats(int lev)
    char sql[4000];
    sprintf(sql, "SELECT time, completed, player_respawns, enemies_killed, enemies_left, coins_collected FROM play_data WHERE level=%d", lev );
    std::vector<std::vector<int>> matrix = {};
-   mSql.execute_sql_and_return_2d_vector_int(sql, mSql.db_level_play_stats, matrix );
+   mSql.execute_sql_and_return_2d_vector_int(sql, mSql.db_play_data, matrix );
 
    // iterate
    for (auto m : matrix)
@@ -230,17 +221,9 @@ void mwLevel::check_achievements()
          }
       }
    }
-
-   for (int i=0; i<100; i++) update_level_status(i);
 }
 
-void mwLevel::update_level_status(int lev)
-{
-   if (data[lev].status == 0) { sprintf(data[lev].status_text, "Locked");   data[lev].status_color = 10; } // red
-   if (data[lev].status == 1) { sprintf(data[lev].status_text, "Ready");    data[lev].status_color = 13; } // lt blue
-   if (data[lev].status == 2) { sprintf(data[lev].status_text, "Complete"); data[lev].status_color = 12; } // dk blue
-   if (data[lev].status == 3) { sprintf(data[lev].status_text, "Perfect");  data[lev].status_color = 8;  } // purple
-}
+
 
 void mwLevel::sob_hline(int x1, int x2, int y, int a)
 {
@@ -543,10 +526,7 @@ void mwLevel::fill_area_array()
    faa_helper(1000, 2000, 740,  900,  1, aai, 8);  // area 8
    faa_helper(900,  1100, 920,  1080, 1, aai, 9);  // area 9 (final boss)
 
-
    faa_helper(0,    1000, 1160, 1700, 1, aai, 10); // area 10 (extra levels)
-
-
 
    faa_helper(1000, 2000, 1160, 1700, 1, aai, 11); // area 11 (multiplayer bomb toss levels)
    faa_helper(0,    2000, 1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
@@ -566,14 +546,6 @@ void mwLevel::data_helper(int i, int time_par, const char *name)
 {
    strcpy(data[i].level_name, name);
    data[i].time_par = time_par; // 4:00 demo 3:15
-
-
-   // char sql[500];
-   // sprintf(sql, "INSERT INTO level_play_data (level, level_name, time_par) VALUES (%d, '%s', %d)", i, name, time_par);
-   // mSql.execute_sql(sql, mSql.db_level_play_stats);
-
-
-
 }
 
 void mwLevel::set_level_names_and_par_time()
@@ -648,7 +620,6 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(25,  1000,  "One Cannon");          // 0:25 demo 0:21.9
    data_helper(37,  800,   "Sacrifice");           // 0:20 demo 0:13.3
 
-
    // ---------------------------------------
    // Advanced Information Levels
    // ---------------------------------------
@@ -667,20 +638,14 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(97,  3600,  "Jumpworms");            // 1:30 demo 1:18
    data_helper(98,  3600,  "Lifts");                // 1:30 demo 1:11
 
-
-
-
-
 }
-
 
 
 
 
 void mwLevel::clear_data()
 {
-   mSql.execute_sql("DELETE FROM play_data", mSql.db_level_play_stats);
-
+   mSql.execute_sql("DELETE FROM play_data", mSql.db_play_data);
 
    for(int i=0; i<16; i++) area_locks[i] = 1; // set all locks
    area_locks[13] = 0; // basic training area unlocked
@@ -691,14 +656,11 @@ void mwLevel::clear_data()
    mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
    mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
 
-
    for(int i=0; i<100; i++)
    {
       strcpy(data[i].level_name, "");
 
       data[i].status = 0;
-      data[i].status_color = 0;
-      strcpy(data[i].status_text, "");
 
       data[i].time_par = 0;
       data[i].time_best = 0;
@@ -724,8 +686,6 @@ void mwLevel::clear_data()
    // unlock first training level
    data[80].status = 1;
 
-
-
    unlock_all_level_in_area(10);
    unlock_all_level_in_area(11);
    unlock_all_level_in_area(12);
@@ -733,19 +693,11 @@ void mwLevel::clear_data()
    double t0 = al_get_time();
 
    // load all levels to get purple coin counts, and update status color and text
-   for (int p=0; p<100; p++)
-      if (mLevel.load_level_by_number(p, 1, 1))
+   for (int lv=0; lv<100; lv++)
+      if (mLevel.load_level_by_number(lv, 1, 1))
       {
-         update_level_status(p);
-
-         data[p].tot_coins = 0;
          for (int i=0; i<500; i++)
-            if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[p].tot_coins++;
-
-         char sql[1024];
-         sprintf(sql, "UPDATE level_play_data SET tot_coins=%d WHERE level=%d ", data[p].tot_coins, p);
-         mSql.execute_sql(sql, mSql.db_level_play_stats);
-
+            if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 1)) data[lv].tot_coins++;
       }
 
    printf("clear load levels time:%f\n", al_get_time() - t0);
@@ -755,111 +707,13 @@ void mwLevel::clear_data()
 
 }
 
-
-
-
-void mwLevel::save_level_data_to_db()
-{
-   mSql.execute_sql("DELETE FROM level_data", mSql.db_level_play_stats);
-   for(int i=0; i<100; i++)
-   {
-      char sql[2000];
-      sprintf(sql, "INSERT INTO level_data (level, level_name, status, status_color, status_text, \
-                                            min_respawns, max_coins_collected, tot_coins, \
-                                            min_enemies_left, min_enemies_left_par, max_enemies_killed, \
-                                            times_played, times_beat, times_quit, time_par, time_best, \
-                                            time_best_all_coins, time_worst, time_average, time_total ) \
-                                            VALUES(%d, '%s', %d, %d, '%s',    %d, %d, %d,   %d, %d, %d,    %d, %d, %d, %d, %d,   %d, %d, %d, %d)",
-                                            i, data[i].level_name, data[i].status, data[i].status_color, data[i].status_text,
-                                            data[i].min_respawns, data[i].max_coins_collected, data[i].tot_coins,
-                                            data[i].min_enemies_left, data[i].min_enemies_left_par, data[i].max_enemies_killed,
-                                            data[i].times_played, data[i].times_beat, data[i].times_quit, data[i].time_par, data[i].time_best,
-                                            data[i].time_best_all_coins, data[i].time_worst, data[i].time_average, data[i].time_total );
-
-      mSql.execute_sql(sql, mSql.db_level_play_stats);
-   }
-}
-
-void mwLevel::load_level_data_from_db()
-{
-   // clear everything first
-   for(int i=0; i<100; i++)
-   {
-      strcpy(data[i].level_name, "");
-
-      data[i].status = 0;
-      data[i].status_color = 0;
-      strcpy(data[i].status_text, "");
-
-      data[i].min_respawns = 0;
-      data[i].max_coins_collected = 0;
-      data[i].tot_coins = 0;
-
-      data[i].min_enemies_left = 0;
-      data[i].min_enemies_left_par = 0;
-      data[i].max_enemies_killed = 0;
-
-      data[i].times_played = 0;
-      data[i].times_beat = 0;
-      data[i].times_quit = 0;
-      data[i].time_par = 0;
-      data[i].time_best = 0;
-
-      data[i].time_best_all_coins = 0;
-      data[i].time_worst = 0;
-      data[i].time_average = 0;
-      data[i].time_total = 0;
-   }
-
-
-   // get all int values from database
-   char sql[2000];
-   sprintf(sql, "SELECT level, status, status_color, \
-                        min_respawns, max_coins_collected, tot_coins, \
-                        min_enemies_left, min_enemies_left_par, max_enemies_killed, \
-                        times_played, times_beat, times_quit, time_par, time_best, \
-                        time_best_all_coins, time_worst, time_average, time_total FROM level_data");
-   std::vector<std::vector<int>> matrix = {};
-   mSql.execute_sql_and_return_2d_vector_int(sql, mSql.db_level_play_stats, matrix );
-
-   // iterate
-   for (auto m : matrix)
-   {
-      int i = m[0];
-      data[i].status = m[1];
-      data[i].status_color = m[2];
-      data[i].min_respawns = m[3];
-      data[i].max_coins_collected = m[4];
-      data[i].tot_coins = m[5];
-      data[i].min_enemies_left = m[6];
-      data[i].min_enemies_left_par = m[7];
-      data[i].max_enemies_killed = m[8];
-      data[i].times_played = m[9];
-      data[i].times_beat = m[10];
-      data[i].times_quit = m[11];
-      data[i].time_par = m[12];
-      data[i].time_best = m[13];
-      data[i].time_best_all_coins = m[14];
-      data[i].time_worst = m[15];
-      data[i].time_average = m[16];
-      data[i].time_total = m[17];
-   }
-
-   // get level names and par time
-   set_level_names_and_par_time();
-
-   // set status text and color
-   for(int i=0; i<100; i++)
-      set_status_text_and_color(i);
-}
-
-
 void mwLevel::load_data()
 {
-   load_level_data_from_db();
+   //load_level_data_from_db();
    FILE *fp =fopen("data/level_data.pm","rb");
    if (fp)
    {
+      fread(data,           sizeof(data),          1, fp);
       fread(area_locks,     sizeof(area_locks),    1, fp);
       fread(area_array,     sizeof(area_array),    1, fp);
       fclose(fp);
@@ -875,10 +729,11 @@ void mwLevel::load_data()
 
 void mwLevel::save_data()
 {
-   save_level_data_to_db();
+   //save_level_data_to_db();
    FILE *fp =fopen("data/level_data.pm","wb");
    if (fp)
    {
+      fwrite(data,           sizeof(data),          1, fp);
       fwrite(area_locks,     sizeof(area_locks),    1, fp);
       fwrite(area_array,     sizeof(area_array),    1, fp);
       fclose(fp);
@@ -901,11 +756,9 @@ void mwLevel::dump_level_data()
 //   for(int i=0; i<5; i++)
 //      printf("i:%d %d %d\n", i, area_array[i][0], area_array[i][1]);
 
-
    printf("\nArea Locks:\n");
    for(int i=0; i<16; i++)
       printf("i:%d %d \n", i, area_locks[i]);
-
 
 }
 

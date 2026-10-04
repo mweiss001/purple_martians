@@ -59,8 +59,6 @@ void mwDemoRecord::draw_timeline(mwWindow w)
 bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int display_only)
 {
 
-
-
    int baseFrameColor = 15;
 
    // height increase for active track
@@ -85,11 +83,17 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
    al_draw_rectangle(       x1, y1, x2, y2, mColor.pc[baseFrameColor], 1);
 
+
    mColor.process_flash_color();
 
    // get start frame and last frame
    float sf = 0;
-   float lf = timeline_last_frame;
+
+   // normally the end is the last frame
+   float lf = mDemoMode.last_frame;
+
+   // in demoRecord the last frame can get pushed if playing or recording past the end
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) lf = timeline_last_frame;
 
 
    // starting y position
@@ -107,7 +111,6 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
    {
       struct gmPlayerInfoRecord r = mGmInfo.gmPlayerInfo[i];
 
-
       int p = r.playerNum;
       int c = r.playerCol;
 
@@ -116,7 +119,6 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
       //      int highlight_color = mColor.flash_color;
 
       int highlight_color = 15;
-
 
       // set ry1
       float ry2 = ry1 + bts;
@@ -131,6 +133,9 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
       // get track start and end pos as float
       float rsf = r.startFrame;
       float ref = r.endFrame;
+
+
+
 
       // if end pos is not fixed amd less than lf, make it lf
       if (r.noEnd) ref = lf;

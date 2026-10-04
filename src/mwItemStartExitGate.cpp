@@ -328,12 +328,11 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    {
       int xc = x+10; // center of tile
       int lev = item[i][6];
-      int col = mLevel.data[lev].status_color;
       int status = mLevel.data[lev].status;
+      int col = mLevel.level_status_color[status];
 
       char stat_txt[16];
-      sprintf(stat_txt, "%s", mLevel.data[lev].status_text);
-
+      sprintf(stat_txt, "%s", mLevel.level_status_text[status]);
 
       // in netgame, temporarily change all not complete status to complete status
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
@@ -408,7 +407,7 @@ void mwItem::draw_gate_info(int i)
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
 
    int status = mLevel.data[lev].status;
-   int col = mLevel.data[lev].status_color;
+   int col = mLevel.level_status_color[status];
 
    if ((mNetgame.ima_server) || (mNetgame.ima_client))
    {

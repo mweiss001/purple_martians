@@ -1,0 +1,273 @@
+just remove it and save it here...
+
+   mLog.add_log_status_db_rows();
+
+//   void add_log_status_db_rows();
+
+void mwLog::add_log_status_db_rows()
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // do not log status unless at least one client is connected
+   if (mNetgame.server_num_clients == 0) return;
+
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
+
+   int f = mLoop.frame_num;
+
+   char txt[1000];
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         int r = mPlayer.loc[p].rewind;
+         float cpu  = mPlayer.loc[p].cpu;
+         float sync = mPlayer.loc[p].pdsync*1000;
+         float ping = mPlayer.loc[p].ping*1000;
+         float difs = mPlayer.loc[p].cmp_dif_size;
+         float lcor = mPlayer.loc[p].client_loc_plr_cor;
+         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
+
+         float txbf = mPlayer.loc[p].tx_current_bytes_for_this_frame;
+         float rxbf = mPlayer.loc[p].rx_current_bytes_for_this_frame;
+         float txpf = mPlayer.loc[p].tx_current_packets_for_this_frame;
+         float rxpf = mPlayer.loc[p].rx_current_packets_for_this_frame;
+
+         // these values have no meaning for server
+         if (p == 0)
+         {
+            sync = 0;
+            ping = 0;
+            difs = 0;
+            lcor = 0;
+            rcor = 0;
+         }
+
+         sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
+                       ts.c_str(), f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
+
+         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
+
+         int size_limit = NUM_LOG_CHAR;
+         if ((log_status_msg_pos + (int)strlen(txt)) >= size_limit)
+         {
+            printf("log_status array size > %d char ... dumping to file\n", size_limit);
+            save_log_status_file();
+         }
+
+         int line_limit = 1000; // 25 seconds
+         if (log_status_msg_num_lines > line_limit)
+         {
+            printf("log status array lines > %d ... dumping to file\n", line_limit);
+            save_log_status_file();
+         }
+
+         memcpy(log_status_msg + log_status_msg_pos, txt, strlen(txt));
+         log_status_msg_pos += strlen(txt);
+         log_status_msg[log_status_msg_pos] = 0; // NULL terminate
+         log_status_msg_num_lines++;
+      }
+}
+
+   //   void save_log_status_file();
+
+   char log_status_msg[NUM_LOG_CHAR];
+   int log_status_msg_pos = 0;
+   int log_status_msg_num_lines = 0;
+
+
+void mwLog::erase_log_status()
+{
+   log_status_msg[0] = 0;
+   log_status_msg_pos = 0;
+   log_status_msg_num_lines = 0;
+}
+
+
+void mwLog::save_log_status_file()
+{
+   if (strlen(log_status_msg) > 0)
+   {
+      al_make_directory("logs/status"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/status/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+      char sms[64];
+      sprintf(sms, ".%d.csv", ms);
+
+      strcat(filename, sms);
+
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_status_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+//      printf("%s\n", log_status_msg);
+      erase_log_status();
+   }
+}
+
+
+this is kind of cool:
+void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
+void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
+
+- runs on both client and server
+- saves to a file
+- server add directly and client send in packet to server, then server adds...
+
+I am going to remove all traces of it....
+
+
+
+   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
+   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
+
+// this will be called directly from all the places I want to log from
+// server will add directly and client will send packet
+void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // skip these message types if server with no clients
+   if ((mNetgame.ima_server) && (mNetgame.server_num_clients == 0))
+   {
+      if (type == LOG_NET_DIF_REWIND) return;
+      if (type == LOG_NET_DIF_CREATE) return;
+   }
+
+   if ((mNetgame.ima_server) || (mNetgame.ima_client))
+   {
+      double agt = al_get_time();
+      int f = mLoop.frame_num;
+      int p = mPlayer.active_local_player;
+
+      // build the actual message from variable args
+      char smsg[800];
+      va_list args;
+      va_start(args, format);
+      vsprintf(smsg, format, args);
+      va_end(args);
+
+      if (mNetgame.ima_server) add_log_net_db_row2(type, sub_type, agt, f, p, client, smsg);
+
+      // I don't need to send player num or client, server will know who it came from
+      if (mNetgame.ima_client) mNetgame.client_send_clog_packet(type, sub_type, f, agt, smsg);
+   }
+}
+
+
+// actually adds to char array
+// called both by server directly and when server rx's clog
+void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+
+   std::string ts = mMiscFnx.timestamp_UTC_ISO8601();
+
+//   char d[100];
+//   mMiscFnx.chr_dt(d);
+
+   char txt[1000];
+   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, ts.c_str(), agt, f, p, client, msg);
+//         printf("%s", txt);
+
+   int size_limit = NUM_LOG_CHAR;
+   if ((log_net_msg_pos + (int)strlen(txt)) >= size_limit)
+   {
+      printf("log_net array size > %d char ... dumping to file\n", size_limit);
+      save_log_net_file();
+   }
+
+   int line_limit = 1000;
+   if (log_net_msg_num_lines > line_limit)
+   {
+      printf("log_net array lines > %d ... dumping to file\n", line_limit);
+      save_log_net_file();
+   }
+
+   memcpy(log_net_msg + log_net_msg_pos, txt, strlen(txt));
+   log_net_msg_pos += strlen(txt);
+   log_net_msg[log_net_msg_pos] = 0; // NULL terminate
+   log_net_msg_num_lines++;
+}
+
+
+void mwNetgame::server_proc_clog_packet(int i)
+{
+   int type          = mPacketBuffer.PacketGetInt32(i);
+   int sub_type      = mPacketBuffer.PacketGetInt32(i);
+   int f             = mPacketBuffer.PacketGetInt32(i);
+   double agt        = mPacketBuffer.PacketGetDouble(i);
+
+   char msg[200];
+   mPacketBuffer.PacketReadStringN(i, msg);
+
+   int p = mPacketBuffer.rx_buf[i].p; // get player number from packet buffer info
+
+   //printf ("Server rx clog - type:%d sub:%d f:%d agt:%f, msg:[%s]\n", type, sub_type, f, agt, msg);
+
+   mLog.add_log_net_db_row2(type, sub_type, agt, f, p, 0, msg);
+}
+
+
+void mwNetgame::client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg)
+{
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "clog");
+   mPacketBuffer.PacketPutInt32(data, pos, type);
+   mPacketBuffer.PacketPutInt32(data, pos, sub_type);
+   mPacketBuffer.PacketPutInt32(data, pos, f);
+   mPacketBuffer.PacketPutDouble(data, pos, agt);
+   mPacketBuffer.PacketAddStringN(data, pos, smsg);
+   clientSend(data, pos);
+}
+
+   char log_net_msg[NUM_LOG_CHAR];
+   int log_net_msg_pos = 0;
+   int log_net_msg_num_lines = 0;
+
+
+   void erase_log_net();
+   void save_log_net_file();
+
+void mwLog::save_log_net_file()
+{
+   if (strlen(log_net_msg) > 0)
+   {
+      al_make_directory("logs/net"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/net/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+      char sms[64];
+      sprintf(sms, ".%d.csv", ms);
+
+      strcat(filename, sms);
+
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_net_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+      erase_log_net();
+   }
+}
+
+LOG_NET_CSV has been completely removed!!!

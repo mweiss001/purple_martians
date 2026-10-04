@@ -1,0 +1,67 @@
+I had a method where I would store status data in a database, then view it with a qt app.
+
+I abandoned this because it was too slow once the number of data point got too large.
+
+I will try to document how it worked here.
+
+It used mysql as the database.
+First I was using Syslog to add to the database.
+
+
+20240609 Qt account signup 
+
+20240811 last notes in 5000 line file
+
+20240613
+
+working on changing how I send log messages with UDP in my game.
+
+this would all be so much easier if I could just put them directly into the database...
+bypassing the syslog thing...
+
+if the server has a connection to the client, why don't I send the log messages that way
+
+just a short simple UDP packet...this is the way that it already is....
+
+then the server will be responsible for adding all messages to the database
+and I will make a method that puts them in the tables that i want right from the start...
+
+this passing through syslog, then having to move them from one table to another is more complicated than needed and slow
+
+20240626
+method to have logs inserted by server 
+and clients send them to server with clog packets
+
+Then I saved them as csv files
+
+then I had php scrape and add to database
+
+then I used bash to do the same
+
+There is an executable version of the qt app here:
+
+\\x\mw\docs\aa_mdw_programs\pm\pm_20241230\qt\build
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,187 @@
+Level and Play Data
+20261003
+
+
+Level data is an array of structs. One struct per level. Only levels less than 100.
+
+struct level_data data[100];
+
+struct level_data
+{
+   char level_name[200];
+   int status;
+
+   int min_respawns;
+   int max_coins_collected;
+   int tot_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
+
+The names and par times are set manually:
+
+void mwLevel::set_level_names_and_par_time()
+{
+   data_helper(1,   0,     "Overworld Map");
+   data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
+   data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
+.....
+
+status is one of the following:
+
+   const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };
+   int         level_status_color[4] = {       10,      13,         12,        8  };
+
+
+
+this is how it is saved and loaded:
+
+void mwLevel::load_data()
+{
+   //load_level_data_from_db();
+   FILE *fp =fopen("data/level_data.pm","rb");
+   if (fp)
+   {
+      fread(data,           sizeof(data),          1, fp);
+      fread(area_locks,     sizeof(area_locks),    1, fp);
+      fread(area_array,     sizeof(area_array),    1, fp);
+      fclose(fp);
+      return;
+   }
+   else
+   {
+      printf("Error loading data/level_data.pm, recreating....\n");
+      clear_data();
+      save_data();
+   }
+}
+
+void mwLevel::save_data()
+{
+   //save_level_data_to_db();
+   FILE *fp =fopen("data/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
+}
+
+
+
+
+------------------------------------------
+------------------------------------------
+Play Data
+------------------------------------------
+------------------------------------------
+Whenever a level is played, stats are stored.
+
+This is in a database table called:
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS play_data( \
+               id                  INTEGER PRIMARY KEY, \
+               level               INT,  \
+               time                INT,  \
+               completed           INT,  \
+               num_players         INT,  \
+               player_respawns     INT,  \
+               enemies_killed      INT,  \
+               enemies_left        INT,  \
+               coins_collected     INT ); ");
+   execute_sql(sql, db_play_data);
+
+
+
+Where play_data records are added
+---------------------------------
+
+
+
+level not complete saves: (4)
+-----------------------------
+2 x game menu, when leaving resumable game with arrows
+visual level, when leaving resumable game by selecting new one
+when quitting a level and going back to overworld (this is like resume, but loading overworld will overwrite resumable game)
+
+level complete saves: (2)
+-------------------------
+level done mode 30 start of final rocket cutscene
+level done mode 9  (but only if not client or server)
+
+these are added by calling 'mwLevel::add_play_data_record(int lev, int type)'
+which then calls:
+         mGmInfo.calc();
+         mGmInfo.add();
+
+
+debug or cheat saves:
+--------------------
+gate collision debug press up to mark level done
+these are added by calling add_play_data_record(int lev, int type == 2)
+
+this directly inserts an sql row:
+char sql[2000];
+sprintf(sql, "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);", lev, data[lev].time_par + 1200,  1, 0, 0,0,0,0);
+mSql.execute_sql(sql, mSql.db_play_data);
+
+
+
+playing all demos for stat
+--------------------------
+this does not call 'add_play_data_record'
+it calls these directly:
+
+      mGmInfo.fill();
+      mGmInfo.add();
+
+
+In all cases, these functions are called afterwards:
+
+mLevel.calc_level_stats(mLevel.play_level);
+mLevel.check_achievements();
+mLevel.save_data();
+
+
+mLevel.calc_level_stats(mLevel.play_level);
+-------------------------------------------
+iterates all play_data record for the level and tallies them into the level_data array
+
+
+mLevel.check_achievements();
+----------------------------
+checks which levels are complete and unlocks areas and barriers
+
+mLevel.save_data();
+-------------------
+void mwLevel::save_data()
+{
+   //save_level_data_to_db();
+   FILE *fp =fopen("data/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
+}
+

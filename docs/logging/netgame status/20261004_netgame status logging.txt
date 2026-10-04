@@ -1,0 +1,244 @@
+When debugging netgame, logging is very useful.
+
+There is a lot of information that can be logged, so much that it can generate huge log files.
+
+Over the years I have tried and abandoned many different approaches to this.
+
+At the heart of it all are points in the code where I add log entries.
+
+These can be printed to the console, saved in a text file, or added to a database.
+
+Some of these values work well when plotted on a graph vs time.
+
+
+List of variables and log entries:
+----------------------------------
+
+
+
+
+---------------------------
+-- Server debug overlays --
+---------------------------
+If you are running the server locally on a machine with a display, you can enable some debug overlay.
+In 'Settings' -> 'Overlay', enable 'debug grid', 'debug controls', 'bandwidth stats'
+
+
+debug grid
+----------
+Shows text grid of values for server and any connected clients.
+cpu
+sync
+ping
+dif size
+tx bandwidth
+rewind
+local corrections
+local corrections max
+local corrections avg
+remote corrections
+remote corrections max
+remote corrections avg
+base resets
+late cdats 
+
+There are other options, but they must be manually configured in code and recompiled
+
+
+debug controls
+--------------
+Shows some controls to modify server settings.
+force client offset (on/off)
+client offset
+zlib compression level
+extra packets num
+extra packets size
+
+bandwidths stats
+----------------
+Shows bandwidth stats for server and any connected clients
+
+
+
+---------------------------
+-- Client debug overlays --
+---------------------------
+In 'Settings' -> 'Overlay', enable 'debug grid', 'sync_graph', 'sync_adjust', 'bandwidth stats'
+
+
+debug grid
+----------
+Shows text grid of values for server and any connected clients.
+base resets
+rewind
+late cdats 
+
+There are other options, but they must be manually configured in code and recompiled
+
+
+sync_graph
+----------
+shows a small graph with sync and ping
+
+sync_adjust
+-----------
+shows current sync and has controls to change:
+automatic offset or manual
+offset value
+
+bandwidths stats
+----------------
+Shows bandwidth stats for server and any connected clients
+
+
+
+
+
+
+---------------------------
+-- Server Remote Control --
+---------------------------
+This is a connection to a server running on a different machine.
+It is great for headless servers that do not have a display.
+The connection is very similar to the way a client connects.
+If you can connect to the server as a client, you will be able to connect as remote control.
+
+Current the only way to start this is from the command line on a client machine:
+pm -rc
+
+This shows a debug grid very similar to the server overlay debug_grid.
+cpu
+sync
+ping
+dif size
+tx bandwidth
+rewind
+local corrections
+local corrections max
+local corrections avg
+remote corrections
+remote corrections max
+remote corrections avg
+base resets
+late cdats 
+
+There are also running graphs for some values:
+cpu
+sync
+ping
+dif size
+tx bandwidth
+rewind
+local corrections
+remote corrections
+
+Each graph can be toggled by clicking its tile in the debug_grid
+
+
+
+There are a number of controls:
+
+Shows some controls to modify server settings.
+force client offset (on/off)
+client offset
+zlib compression level
+extra packets num
+extra packets size
+
+Player vs Player shot config
+
+Server Force Fakekey
+If enable all clients will generate random inputs every frame.
+This is useful for extreme worst case load testing.
+
+You can also force the server to load a new level, or reload the current level.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

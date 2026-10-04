@@ -344,7 +344,7 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, server_update_status_img_period);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_size);
    sqlite3_bind_int(  stmt, i++, server_update_status_img_time);
-   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 21
+   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 16
 
    if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));
 
@@ -481,8 +481,8 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
    // break compressed dst into smaller pieces
    int num_packets = (dst_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
-   float cr = (float)dst_size*100 / (float)5400; // compression ratio
-   printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
+   //float cr = (float)dst_size*100 / (float)5400; // compression ratio
+   // printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
 
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
@@ -542,7 +542,6 @@ void mwNetgame::server_proc_rctl_packet(int i)
       if (mNetgame.srv_exp_siz < 0)     mNetgame.srv_exp_siz = 0;
       if (mNetgame.srv_exp_siz > 1000)  mNetgame.srv_exp_siz = 1000;
    }
-
 
    // ----------------------------------------------------------------------------------------
    // shot config adjustments - do not apply directly, add a game move one frame in the future
@@ -634,9 +633,7 @@ void mwNetgame::server_proc_player_drop()
       {
          //printf("Server dropped remote control client due to no response\n");
          server_remote_control = 0;
-         // is there any other cleanup I need to do here?
       }
-
 
       // check to see if we need to drop clients
       for (int p=1; p<NUM_PLAYERS; p++)
@@ -644,11 +641,7 @@ void mwNetgame::server_proc_player_drop()
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             session_close(p, 4); // reason 4 - comm loss
-//            mLog.add(LOG_NET, 86, p, mPlayer.loc[p].server_last_stak_rx_frame_num); // "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
-
             mLog.add(LOG_NET, LOG_NET_SUBTYPE_SERVER_DROP, p, mPlayer.loc[p].server_last_stak_rx_frame_num); // "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
-
-
          }
    }
 }
@@ -712,10 +705,6 @@ void mwNetgame::server_proc_cdat_packet(int i)
    int cm             = mPacketBuffer.PacketGetInt32(i);
    double timestamp   = mPacketBuffer.rx_buf[i].timestamp;
 
-//   char log_msg_txt1[128];
-//   sprintf(log_msg_txt1, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d]", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn);
-
-
    // reject cdats if server_lev_seq_num does not match
    if (slsn != server_lev_seq_num) // wrong slsn - dropped
    {
@@ -739,6 +728,7 @@ void mwNetgame::server_proc_cdat_packet(int i)
    // update server dirty frame if cdat is earlier
    if (cdat_frame_num < server_dirty_frame) server_dirty_frame = cdat_frame_num;
 
+   // this is the server's version of client sync...clients also calculate their own sync
 
    // calculate game_move_sync
    mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
@@ -749,11 +739,12 @@ void mwNetgame::server_proc_cdat_packet(int i)
    // add to average tally
    mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync);
 
+   // tally cdats received
    mPlayer.loc[p].client_cdat_packets_tx++;
 
+   // add log entry
    mLog.add(LOG_NET_CDAT, 1, p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn, mGameMoves.entry_pos);
 }
-
 
 
 

@@ -48641,14 +48641,11 @@ get all the bugs later...
 
 massive chanages to netgame
 
-time for a new release....
-
+time for a new rlease....
 
 bug...why is remote not getting snfo packets
 they are getting to wireshark on the server
 fixed..I have to actually set 'iamclient' to recieve packets
-
-
 
 
 
@@ -57624,8 +57621,6 @@ removed ClientReceive and integrated into packet buffer rx...
 
 
 
-
-
 NetworkInit() is called by
 
 int mwNetgame::ClientInitNetwork(void)
@@ -57645,7 +57640,6 @@ it looks like I might need to compile qt from source, and maybe the same with my
 are there better ways to do it? probably
 
 I figured it out and it is not that hard...
-
 
 I am keeping text of all the different things I am working on in many different places..
 
@@ -58560,8 +58554,6 @@ continue with color lines...
 stretch final row...done
 
 
-
-
 redo column select...
 always get all columns, but get them in a specific order
 
@@ -59030,7 +59022,6 @@ bypassing the syslog thing...
 
 
 
-
 OK now what?
 
 make a php to read pm_log and make sessions
@@ -59176,6 +59167,7 @@ client per client
 307,200 per minute
 
 my function that scrapes from one db to another takes 7ms per line
+
 
 
 307,200 x .007 = 2150s = 35min to parse 1 minute
@@ -59356,21 +59348,12 @@ CALL test();
 better....!
 
 
-
-
-
-
-
-
 here is my thought:
 
 
 if the server has a connection to the client, why don't I send the log messages that way
 
-
-
 just a short simple UDP packet...this is the way that it already is....
-
 
 then the server will be responsible for adding all messages to the database
 and I will make a method that puts them in the tables that i want right from the start...
@@ -59510,7 +59493,6 @@ char lognet_db_msg[NUM_LOG_CHAR];
 int lognet_db_msglog_msg_pos = 0;
 
 
-
 I now have the rough framework of creating files...
 
 Now make php to load into db...
@@ -59546,7 +59528,6 @@ ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv opti
 LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs/20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
 ERROR 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides
-
 
 
 
@@ -61533,15 +61514,11 @@ echo "\nSession scrape completed in: $et seconds\n\n";
 
 
 
-
-
-
 show full datetime in sessions in qtapp
 
 did it by making another delegate for that tableview
 
 make that tableview columns expand
-
 
 
 I need a whole bunch more settings:
@@ -62124,11 +62101,6 @@ start with a simple graph...cpu...
 
 
 
-
-
-
-
-
 ---------------
 Monday July 1
 what to do today?
@@ -62441,6 +62413,7 @@ then deploy to server and generate more data...
 20240811
 made a few changes to demo level 089
 do a new release...
+
 
 
 20241230

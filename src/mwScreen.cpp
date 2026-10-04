@@ -824,7 +824,7 @@ void mwScreen::draw_level_info() // used only in menu
 
       y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
-      mItem.draw_line(x1, x2, y, "Status",                mLevel.data[lev].status_text, mLevel.data[lev].status_color); y+=9;
+      mItem.draw_line(x1, x2, y, "Status",                mLevel.level_status_text[mLevel.data[lev].status], mLevel.level_status_color[mLevel.data[lev].status]); y+=9;
 
       if (mLevel.data[lev].status < 2)
       {
