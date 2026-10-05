@@ -249,7 +249,6 @@ item[][12] draw lines always, never, only when touched
 
 
 
-
 [2] - bonus
 item[][6] bonus type (0 - Health   1 - Purple Coin)
 item[][7] health bonus
@@ -257,6 +256,7 @@ item[][7] health bonus
 
 [3] - exit
 item[][8] exit with x enemies left
+
 
 [4] - key
 item[][6]  block range x
@@ -271,7 +271,7 @@ item[][12] matching keyed blocks only
 item[][6] mode
 item[][7] start index
 item[][8] no backsies
-
+item[][9] trigger
 
 
 [6] - orb
@@ -300,10 +300,6 @@ item[][13] = TGOF pm_event
 
 
 
-
-
-
-
 [7] - mine
 item[][8] mine damage
 
@@ -314,6 +310,7 @@ item[][8]  fuse length counter
 item[][9]  fuse length value
 item[][11]  sticky
 item[][12]  timer / remote
+
 
 [9]  - Trigger
 item[][2] = draw_type (color)
@@ -421,15 +418,16 @@ item[][11] = mode
 item[][12] = damage
 
 
-
 [18] - gate
+
+item[][1] draw_mode
+
+
 item[][6] level num
-item[][7] player touching
-item[][8] display page
-item[][9]
-item[][10]
-item[][11]
-item[][12]
+item[][7] display page
+
+
+
 
 [19] hider
 

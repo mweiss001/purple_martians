@@ -43186,6 +43186,158 @@ I think I am done with removing server snapshot and headless server stuff
 2026-10-04 14:11:45
 
 
+core dump when running on scat
+no files found...probabaly level icons..fixed order in initial setup...
+
+
+
+2026-10-04 18:03:58
+
+getting some nicer door shapes
+
+pipoya door animation
+32x32
+free
+3 tiles high and 2 tiles wide
+2x2 when closed
+
+
+also maybe:
+https://shawnyao.itch.io/door-texture-pack
+USD$1.50
+
+https://eldergame.itch.io/door-pack
+USD$4.00
+
+
+
+
+wwnt with pipoya door animation
+32x32
+3 tiles high and 2 tiles wide
+2x2 when closed
+
+animated so there are 3 frames
+all in all 54 tiles for 3 door types
+base size 384x384 convert to 240x240 then import
+
+I have the first set in place at 320
+
+now what?
+
+do some custom draw shit for gates
+
+
+
+I also want to be able to specify the map size and coordinates
+
+I will need x, y size for both normal and touched
+
+do I have 6 ints?
+
+what is used on gate already?
+
+
+
+
+why is draw gate info a separate function from draw gate?
+
+called in draw_sequence and draw_level2
+
+because it is only drawn for a specific player!!!
+
+I don't think I need it in draw_level2
+it is just there so it will show up on map in paused game in menu
+
+
+I can still call it from draw_gate
+the only other reason would be to profile draw time...
+
+move it fool !!!
+
+there used to be item[][7] player touching gate
+
+I think it is not used anymore
+now I have:
+mPlayer.syn[p].marked_gate
+mPlayer.syn[p].overworld_last_touched_gate
+
+
+commented out in draw_level2:
+      // // draw gate info
+      // for (int p=0; p<NUM_PLAYERS; p++)
+      //    if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+      //    {11
+      //       mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+      //    }
+
+
+commented out in draw_sequence
+      if (setup_only) ds_add_names(i, "d-gnfo", "gate info");
+      else
+      {
+         // draw gate info
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+               mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+          ds_add(i);
+      }
+
+
+added at the end of draw_gate
+
+      // check if marked by player
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) draw_gate_info(i);
+
+it seems to work...
+
+now implement draw_mode...done
+
+2026-10-05 07:28:00
+
+time for work...commit and push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -177,11 +177,8 @@ int mwMain::initial_setup()
          mInput.m_err("Failed to initialize primitives addon.\n");
          return 0;
       }
-
       mBitmap.create_bitmaps();
       mBitmap.load_tiles();
-      mLevelIcons.load(0);
-
 
       if(!al_init_font_addon())
       {
@@ -193,8 +190,8 @@ int mwMain::initial_setup()
          mInput.m_err("Failed to initialize ttf addon.\n");
          return 0;
       }
-
       mFont.load_fonts();
+
 
 
       // --- allegro add ons ------------
@@ -244,6 +241,11 @@ int mwMain::initial_setup()
    }
 
    mLevel.load_data();
+
+   // this needs to be after mLevel.load_data();
+   if (!headless_server) mLevelIcons.load(0);
+
+
 
    // init players
    mPlayer.set_default_player_colors();

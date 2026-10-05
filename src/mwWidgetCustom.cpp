@@ -807,6 +807,36 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
 
 
 
+
+
+   if (type == 405) // gate draw mode
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,  "Draw Mode:Legacy"  },
+         {  1,  "Draw Mode:New Door" }
+      };
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    if (type == 500) // lift mode
    {
       valid_type = 1;

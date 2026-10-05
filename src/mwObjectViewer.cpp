@@ -1910,6 +1910,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          }
          break;
          case 18: // gate
+            odbp(d, xa, xb, ya, bts, 8, 405, mItem.item[n][1]); // draw mode
+            ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 10, mItem.item[n][6], 99, 1, 1,  1, 10, "Level:");
          break;
          case 19: // hider

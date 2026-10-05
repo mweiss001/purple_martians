@@ -105,6 +105,7 @@ int mwLift::construct_lift(int lift, char* lift_name)
    strcpy(cur[lift].lift_name, lift_name);
    cur[lift].active = 1;
    cur[lift].draw_mode = 1;
+   cur[lift].draw_mode_val1 = 880;
    return 1;
 }
 
@@ -341,6 +342,7 @@ int mwLift::create_lift()
       int initial_color = 12;
       int initial_type = 1;
       int initial_val = 20;
+
 
       int cf = initial_color << 28; // shift 4 bits of color into place
       cf |= PM_LIFT_SOLID_PLAYER;

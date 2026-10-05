@@ -17,6 +17,8 @@ mwLevelIcons mLevelIcons;
 // create one level_icon file per level
 void mwLevelIcons::create()
 {
+   // printf("mwLevelIcons::create()\n");
+
    bool save_web = true;
 
    if (profile) t0 = al_get_time();
@@ -182,7 +184,7 @@ void mwLevelIcons::load(int rebuild_all)
    int num_files = mFileIterator.iterate("bitmaps/level_icons");
    if (num_files == 0)
    {
-      printf("No files found.\n");
+      printf("No level icon files found.\n");
       create();
       num_files = mFileIterator.iterate("bitmaps/level_icons");
    }

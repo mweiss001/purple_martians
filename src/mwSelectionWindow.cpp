@@ -24,7 +24,7 @@ mwSelectionWindow mSelectionWindow;
 void mwSelectionWindow::setupTileSetGroups()
 {
 
-         // set up tile set groups
+   // set up tile set groups
 
    int i;
 
@@ -1007,6 +1007,7 @@ void mwSelectionWindow::load_pde()
    pushRegular(p, "Crew (NPC)", 1,  "Children to rescue");
 
    pushCreator("Hider Creator",        1, 219, 476, "");
+
 
    p.ia = { 118, 940, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Gate", 1,  "");

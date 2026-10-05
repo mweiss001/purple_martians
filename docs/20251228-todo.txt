@@ -6,8 +6,9 @@ BUGS!!
 
 do something about viewport
 
-in filters, when all view off, can't select block to view item
-cannot reproduce??
+
+I think edit selection draw fsel might be drawing on things it should not
+make sure target bitmaps are set properly
 
 
 
@@ -21,26 +22,15 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-when I create MUID when loading level, do not do this if overworld....
-actually that is OK, just don't enter in db
+
+can I get some nicer shapes?
+like a nicer gate and maybe nicer door
 
 
 
 
 
-
-look into server snapshot and document it
-
-
-Total time:10.888068 Create:0.007932 Draw:3.979971 Save:6.900165
-Total time:10.968618 Create:0.008442 Draw:4.050763 Save:6.909413
-Total time:10.830897 Create:0.008408 Draw:3.909093 Save:6.913396
-Total time:11.019671 Create:0.008684 Draw:4.051522 Save:6.959465
-Segmentation fault (core dumped)
-m@o7040:~/dev/purple_martians$
-it takes a long time to do
-I think I want it gone
-make a folder for all of it
+move levels not used to + 100
 
 
 
@@ -48,140 +38,12 @@ make a folder for all of it
 
 
 
+-----------------------------------------------------------
+Redo the overworld level to rearrange the levels once again
+-----------------------------------------------------------
 
 
 
-
-
-
-
-
-
-
-
-here is a big one...
-
-redo the overworld level to rearrange the levels once again
-at the same time, replace flat int arrays saved to disk with database tables....
-
-what do I have now?
-
-   int area_array[100][2];
-
-   const char* area_names[20] =
-     
-   int area_locks[16];
-   
-   
-   struct level_data data[100];
-
-struct level_data
-{
-   char level_name[200];
-
-   int status;
-   int status_color;
-   char status_text[16];
-
-   int min_respawns;
-   int max_coins_collected;
-   int tot_purple_coins;
-   int min_enemies_left;
-   int min_enemies_left_par;
-   int max_enemies_killed;
-
-   int times_played;
-   int times_beat;
-   int times_quit;
-
-   int time_par;
-   int time_best;
-   int time_best_all_coins;
-
-   int time_worst;
-   int time_average;
-   int time_total;
-};
-
-I already have data converted to table, but I like to keep it in memory for ease of quick lookup
-like when I want to draw all the gates
-
-test to see if I dont need to save the old way...
-
-do I have a table for that? actually no...
-
-this could get complex...
-what am I trying to accomplish?
-I have the individual plays stored in a table, but not the tallied version...I keep that in memory
-
-to start with just save and load that data from a database table instead of binary file chunk
-
-this will make things a little more complex to start, but I want to work towards using the database...
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS level_data( \
-               level                 INTEGER PRIMARY KEY, \
-               level_name            TEXT, \
-               status                INT,  \
-               status_color          INT,  \
-               status_text           TEXT, \
-
-               min_respawns          INT,  \
-               max_coins_collected   INT,  \
-               tot_coins             INT,  \
-               min_enemies_left      INT,  \
-               min_enemies_left_par  INT,  \
-               max_enemies_killed    INT,  \
-               times_played          INT,  \
-               times_beat            INT,  \
-               times_quit            INT,  \
-               time_par              INT,  \
-               time_best             INT,  \
-               time_best_all_coins   INT,  \
-               time_worst            INT,  \
-               time_average          INT,  \
-               time_total            INT ); ");
-   execute_sql(sql, db_level_play_stats);
-
-
-2026-08-16 10:11:10
-
-this is done...
-
-now what?
-
-
-   int area_array[100][2];
-
-   const char* area_names[20] =
-     
-   int area_locks[16];
-
-
-
-how about a table to replace 
-
-   int area_array[100][2];
-   const char* area_names[20] =
-
-
-it does not do what I thought
-its just a link of areas and levels
-
-
-new:
-
-areas
-name
-index
-x1
-y1
-x2
-y2
-visible
-
-message position
-
-another table to link levels to areas
 
 what are my big goals with this?
 
@@ -196,9 +58,33 @@ currently:
 
 I think I biggest overall thing I want is to do is thin the marginal levels....
 
-redid lev055 ancient ruins, now 1:59
-new for all 95: 2:47:52
-redid blocks and lifts on 21 long one
+maybe I should start with the best levels and work backwards
+
+using my existing gate system each platform is 9 blocks apart vertically 0, 9, 18, 27...etc
+and 7 blocks apart horizontally... 5, 12, 19 
+
+
+what if I have 4 great areas with 5 levels each all around the final level
+
+try to draw it out and see what you can make it look like
+
+
+saved lev 1 as 68
+
+gates are not shown
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -301,10 +187,6 @@ none of this really matters...fuck it
 
 
 
-
-
-
-
 -----------------------------------------------------------------------------
 
 
@@ -338,6 +220,7 @@ make a cool method to determine is there is a shot possible that will kill an en
 at a certain frame and certain player,
 test all possible fire directions to see if any would hit an enemy that was not already hit
 -----------------------------------------
+
 
 
 
@@ -409,7 +292,6 @@ then I can just sync that from server to client
 ------------------------------------------------------------------------------
 sessions to do:
 ------------------------------------------------------------------------------
-
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------

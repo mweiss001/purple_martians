@@ -712,17 +712,11 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
          mShot.draw_pshots();
       }
    }
-   if (!mNetgame.server_remote_control)
+   if (!mNetgame.server_remote_control) // why am I testing for this?
    {
       // first erase hidden regions (only in not in level editor)
       if (!mLoop.level_editor_running) mItem.erase_hider_areas();
 
-      // draw gate info
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-         {
-            mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
-         }
       for (int i=0; i<500; i++)
          if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_message(i, 0, 0, 0);
    }

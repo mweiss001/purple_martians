@@ -155,7 +155,7 @@ void mwEditorMain::find_point_item()
    for (int a=0; a<max_ob; a++)      // clear array
    {
        mo[a][0] = 0;
-       mo[a][1] = 1;
+       mo[a][1] = 0;
    }
    for (int i=0; i<500; i++) // check for item
       if ((mItem.item[i][0]) && (ob < max_ob))
