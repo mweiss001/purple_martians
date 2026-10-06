@@ -24,6 +24,7 @@
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwEventQueue.h"
+#include "mwGameState.h"
 #include "mwGmInfo.h"
 
 
@@ -47,7 +48,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    // display it
    al_draw_text(mFont.pr8, mColor.pc[c], tx+2, y, 0, ss.str().c_str());
 
-   if (mPlayer.syn[0].level_done_mode == 5)
+   if (mGameState.level_done_mode == 5)
    {
       if (!mPlayer.syn[p].level_done_ack)
       {
@@ -56,7 +57,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay, 0, "press");
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+8, 0, " any");
 
-         int val = mPlayer.syn[0].level_done_timer;
+         int val = mGameState.level_done_timer;
 
          if (val == 999)
          {
@@ -85,7 +86,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
 void mwScreen::show_level_done()
 {
-   int ldm = mPlayer.syn[0].level_done_mode;
+   int ldm = mGameState.level_done_mode;
 
    if (ldm && ldm < 10) draw_large_text_overlay(2, 0);
 
@@ -1113,7 +1114,7 @@ void mwScreen::draw_top_frame(int p)
 
       // get time from either frame_num or level_done_frame
       char tmr[80];
-      if (mPlayer.syn[0].level_done_mode) mMiscFnx.chrms(mPlayer.syn[0].level_done_frame, tmr);
+      if (mGameState.level_done_mode) mMiscFnx.chrms(mGameState.level_done_frame, tmr);
       else  mMiscFnx.chrms(mLoop.frame_num, tmr);
 
 
@@ -1315,7 +1316,7 @@ void mwScreen::draw_screen_overlay()
    mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_drw_frm", al_get_time() - t1);
 
 
-   if (mPlayer.syn[0].level_done_mode)
+   if (mGameState.level_done_mode)
    {
       t1 = al_get_time();
       show_level_done();

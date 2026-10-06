@@ -91,14 +91,14 @@ The server controls the process using the following variables, which are synced 
 <mh3>
 These are the variables used in the process:
 </mh3>
-<pre><code class="language-cpp">mPlayer.syn[0].level_done_mode
-mPlayer.syn[0].level_done_timer
+<pre><code class="language-cpp">mGameState.level_done_mode
+mGameState.level_done_timer
 mPlayer.syn[0].level_done_ack
-mPlayer.syn[0].level_done_x
-mPlayer.syn[0].level_done_y
-mPlayer.syn[0].level_done_player
-mPlayer.syn[0].level_done_frame;
-mPlayer.syn[0].level_done_next_level
+mGameState.level_done_x
+mGameState.level_done_y
+mGameState.level_done_player
+mGameState.level_done_frame;
+mGameState.level_done_next_level
 </code></pre>
 <mh3>'mode' is the current mode
 
@@ -148,17 +148,17 @@ This can only be initiated from mode 0, to prevent re-triggering.
    int exit_enemys_left = mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
+      if ((mGameState.level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
       {
-         mPlayer.syn[0].level_done_mode = 9;
-         mPlayer.syn[0].level_done_timer = 0;
-         mPlayer.syn[0].level_done_x = itemf[i][0];
-         mPlayer.syn[0].level_done_y = itemf[i][1];
-         mPlayer.syn[0].level_done_player = p;
-         mPlayer.syn[0].level_done_frame = mLoop.frame_num;
+         mGameState.level_done_mode = 9;
+         mGameState.level_done_timer = 0;
+         mGameState.level_done_x = itemf[i][0];
+         mGameState.level_done_y = itemf[i][1];
+         mGameState.level_done_player = p;
+         mGameState.level_done_frame = mLoop.frame_num;
 
-         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
-         else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
+         if (!mMain.classic_mode) mGameState.level_done_next_level = 1;                             // in story mode all exits return to overworld
+         else mGameState.level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
       }
    }
 }</code></pre>
@@ -180,7 +180,7 @@ This has the effect of freezing everything when in level done mode.
 
 <pre><code class="language-cpp">void mwLoop::move_frame(void)
 {
-   if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
+   if (mGameState.level_done_mode) proc_level_done_mode();
    else
    {
       mShot.move_eshots();
@@ -199,17 +199,17 @@ In  'proc_level_done_mode()'  the timer is decremented and modes are switched
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
    ...
-   if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
+   if (--mGameState.level_done_timer <= 0) // time to change to next level_done_mode
    {
-      mPlayer.syn[0].level_done_mode--;
-      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;   // players seek exit
-      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;   // players shrink and rotate into exit
-      if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
-      if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  
-      if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
+      mGameState.level_done_mode--;
+      if (mGameState.level_done_mode == 8) mGameState.level_done_timer = 60;   // players seek exit
+      if (mGameState.level_done_mode == 7) mGameState.level_done_timer = 20;   // players shrink and rotate into exit
+      if (mGameState.level_done_mode == 6) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 5) mGameState.level_done_timer = 600;  // skippable 15s delay;
+      if (mGameState.level_done_mode == 4) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 3) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 2) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 }
 </code></pre>
@@ -227,7 +227,7 @@ When the level done procedure starts, the level is frozen and all players move t
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
   ... 
-   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   if (mGameState.level_done_mode == 9) // pause players and set up exit xyincs
    {
       for (int p=0; p< NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)
@@ -235,8 +235,8 @@ When the level done procedure starts, the level is frozen and all players move t
             mPlayer.syn[p].paused = 5; // set player paused
 
             // get distance between player and exit
-            float dx = mPlayer.syn[0].level_done_x - mPlayer.syn[p].x;
-            float dy = mPlayer.syn[0].level_done_y - mPlayer.syn[p].y;
+            float dx = mGameState.level_done_x - mPlayer.syn[p].x;
+            float dy = mGameState.level_done_y - mPlayer.syn[p].y;
 
             // get move
             mPlayer.syn[p].xinc = dx/60;
@@ -247,7 +247,7 @@ When the level done procedure starts, the level is frozen and all players move t
             if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
          }
    }
-   if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
+   if (mGameState.level_done_mode == 8) // players seek exit
    {
       for (int p=0; p< NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)
@@ -272,7 +272,7 @@ Then the players shrink and rotate into the exit.
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
    ...
-   if (mPlayer.syn[0].level_done_mode == 7) // shrink and rotate
+   if (mGameState.level_done_mode == 7) // shrink and rotate
    {
       for (int p=0; p< NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)
@@ -315,7 +315,7 @@ In mode 5, players' inputs are modified to be a special 'ack' type game move whe
    // -----------------------------------------------------------------------------------------------------------------
    // if we are in level_done_mode 5, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
    // -----------------------------------------------------------------------------------------------------------------
-   if ((mPlayer.syn[0].level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
+   if ((mGameState.level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
       if (!has_player_acknowledged(p)) // to prevent multiple acks
          add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);
@@ -373,11 +373,11 @@ This is only done on the server, and then synced back to clients as part of the 
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
    ...
-   if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
+   if (mGameState.level_done_mode == 5) // skippable 15s timeout
    {
       if (!mNetgame.ima_client)
       {
-         if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
+         if (have_all_players_acknowledged()) mGameState.level_done_timer = 0; // skip
       }
    }
 </code></pre>
@@ -390,7 +390,7 @@ This is used to display which players have acknowledged in the level done stats.
 
 <pre><code class="language-cpp">void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
-   if (mPlayer.syn[0].level_done_mode == 5)
+   if (mGameState.level_done_mode == 5)
    {
       if (!mPlayer.syn[p].level_done_ack)
       {
@@ -398,7 +398,7 @@ This is used to display which players have acknowledged in the level done stats.
          int pay = 16;
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay, 0, "press");
          al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+8, 0, " any");
-         int tl = mPlayer.syn[0].level_done_timer/40;
+         int tl = mGameState.level_done_timer/40;
          if (tl > 9) al_draw_textf(mFont.pr8, mColor.pc[c], tx+154, y+pay+18, 0, "  %2d", tl);
          else        al_draw_textf(mFont.pr8, mColor.pc[c], tx+158, y+pay+18, 0, "  %d", tl);
       }
@@ -437,17 +437,17 @@ Once all players have acknowledged or timed out we progress to the next level_do
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
    ...
-   if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
+   if (--mGameState.level_done_timer <= 0) // time to change to next level_done_mode
    {
-      mPlayer.syn[0].level_done_mode--;
-      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;   // players seek exit
-      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;   // players shrink and rotate into exit
-      if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
-      if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  
-      if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
+      mGameState.level_done_mode--;
+      if (mGameState.level_done_mode == 8) mGameState.level_done_timer = 60;   // players seek exit
+      if (mGameState.level_done_mode == 7) mGameState.level_done_timer = 20;   // players shrink and rotate into exit
+      if (mGameState.level_done_mode == 6) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 5) mGameState.level_done_timer = 600;  // skippable 15s delay;
+      if (mGameState.level_done_mode == 4) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 3) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 2) mGameState.level_done_timer = 0;
+      if (mGameState.level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 }
 </code></pre>
@@ -460,8 +460,8 @@ In  'PM_PROGRAM_STATE_NEXT_LEVEL'  we do all the cleanup, resetting, loading and
 
 <pre><code class="language-cpp">if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
-      mPlayer.syn[0].level_done_mode = 0;
-      mLevel.play_level = mPlayer.syn[0].level_done_next_level;
+      mGameState.level_done_mode = 0;
+      mLevel.play_level = mGameState.level_done_next_level;
       mLevel.load_level(mLevel.play_level, 0, 0);
       ...
 
@@ -489,9 +489,9 @@ They use the exact same procedure, but they jump to mode 3 instantly.
    if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )    // if UP pressed, enter gate (client can never locally enter gate)
    {
       // immediate next level to gate level
-      mPlayer.syn[0].level_done_mode = 3;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = lev;
+      mGameState.level_done_mode = 3;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = lev;
    }
 }</code></pre>
 
@@ -510,13 +510,13 @@ Again its uses the exact same procedure, but starts on mode 3.
    // -1 current level
    // -2 next level
 
-   if ((level != 0) && (mPlayer.syn[0].level_done_mode == 0)) // only trigger from level done mode 0
+   if ((level != 0) && (mGameState.level_done_mode == 0)) // only trigger from level done mode 0
    {
       if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
       if (level == -1) level = mLevel.play_level;
-      mPlayer.syn[0].level_done_mode = 3;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = level;
+      mGameState.level_done_mode = 3;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = level;
    }
 }</code></pre>
 
@@ -535,10 +535,10 @@ It is triggered by a special orb on level 64.
 {
    if ((item[i][12] == 99) && (!mNetgame.ima_client))
    {
-      mPlayer.syn[0].level_done_mode = 30;
-      mPlayer.syn[0].level_done_player = p;
-      mPlayer.syn[0].level_done_frame = mLoop.frame_num;
-      mPlayer.syn[0].level_done_next_level = 1;
+      mGameState.level_done_mode = 30;
+      mGameState.level_done_player = p;
+      mGameState.level_done_frame = mLoop.frame_num;
+      mGameState.level_done_next_level = 1;
    }
 }</code></pre>
 
@@ -546,13 +546,13 @@ It is triggered by a special orb on level 64.
 It goes through level_done_modes 30 to 24, then jumps to mode 6 to join the normal level done procedure.
 </mh3>
 
-<pre><code class="language-cpp">if (mPlayer.syn[0].level_done_mode == 30) mPlayer.syn[0].level_done_timer = 0;   // set up for player move and zoom out
-if (mPlayer.syn[0].level_done_mode == 29) mPlayer.syn[0].level_done_timer = 100; // player move and zoom out
-if (mPlayer.syn[0].level_done_mode == 28) mPlayer.syn[0].level_done_timer = 0;   // set up for rocket move
-if (mPlayer.syn[0].level_done_mode == 27) mPlayer.syn[0].level_done_timer = 240; // rocket move
-if (mPlayer.syn[0].level_done_mode == 26) mPlayer.syn[0].level_done_timer = 0;   // set up for zoom in
-if (mPlayer.syn[0].level_done_mode == 25) mPlayer.syn[0].level_done_timer = 100; // zoom in
-if (mPlayer.syn[0].level_done_mode == 24) mPlayer.syn[0].level_done_timer = 0;   // jump to mode 6</code></pre>
+<pre><code class="language-cpp">if (mGameState.level_done_mode == 30) mGameState.level_done_timer = 0;   // set up for player move and zoom out
+if (mGameState.level_done_mode == 29) mGameState.level_done_timer = 100; // player move and zoom out
+if (mGameState.level_done_mode == 28) mGameState.level_done_timer = 0;   // set up for rocket move
+if (mGameState.level_done_mode == 27) mGameState.level_done_timer = 240; // rocket move
+if (mGameState.level_done_mode == 26) mGameState.level_done_timer = 0;   // set up for zoom in
+if (mPlayer.syn[0].level_done_mode == 25) mGameState.level_done_timer = 100; // zoom in
+if (mPlayer.syn[0].level_done_mode == 24) mGameState.level_done_timer = 0;   // jump to mode 6</code></pre>
 
 
 <mh3>
@@ -587,13 +587,13 @@ All of the variables that control level done are synced to the client from the s
 </mh3>
 
 <pre><code class="language-cpp">mPlayer.syn[0].level_done_mode
-mPlayer.syn[0].level_done_timer
+mGameState.level_done_timer
 mPlayer.syn[0].level_done_ack
-mPlayer.syn[0].level_done_x
-mPlayer.syn[0].level_done_y
-mPlayer.syn[0].level_done_player
-mPlayer.syn[0].level_done_frame;
-mPlayer.syn[0].level_done_next_level
+mGameState.level_done_x
+mGameState.level_done_y
+mGameState.level_done_player
+mGameState.level_done_frame;
+mGameState.level_done_next_level
 </code></pre>
 
 
@@ -607,17 +607,17 @@ The server does that, then syncs the variables to the client.
 
 <pre><code class="language-cpp">
    if (!mNetgame.ima_client)
-      if (--mPlayer.syn[0].level_done_timer <= 0)
+      if (--mGameState.level_done_timer <= 0)
       {
          mPlayer.syn[0].level_done_mode--;
 
-         if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;  // players seek exit
-         if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;  // players shrink and rotate into exit
-         if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-         if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
-         if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
-         if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-         if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
+         if (mPlayer.syn[0].level_done_mode == 8) mGameState.level_done_timer = 60;  // players seek exit
+         if (mPlayer.syn[0].level_done_mode == 7) mGameState.level_done_timer = 20;  // players shrink and rotate into exit
+         if (mPlayer.syn[0].level_done_mode == 6) mGameState.level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 5) mGameState.level_done_timer = 600; // skippable 15s delay;
+         if (mPlayer.syn[0].level_done_mode == 4) mGameState.level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 3) mGameState.level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 2) mGameState.level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
          if (mPlayer.syn[0].level_done_mode == 1)
          {
             mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);
@@ -645,7 +645,7 @@ The more robust method I came up with is to have the client automatically call n
    if (slsn == server_lev_seq_num + 1)
    {
       mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "slsn is from next level - setting next level:%d\n\n", sdln);
-      mPlayer.syn[0].level_done_next_level = sdln;
+      mGameState.level_done_next_level = sdln;
       mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
       return;
    }

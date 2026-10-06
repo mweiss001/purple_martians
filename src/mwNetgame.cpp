@@ -4,6 +4,7 @@
 #include "mwNetgame.h"
 #include "mwPlayer.h"
 #include "mwEnemy.h"
+#include "mwGameState.h"
 #include "mwItem.h"
 #include "mwLift.h"
 #include "mwTriggerEvent.h"
@@ -99,6 +100,8 @@ void mwNetgame::game_vars_to_state(char * b)
    offset += sz; sz = sizeof(mShot.p);             memcpy(b+offset, mShot.p,             sz);
    offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
    offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
+   offset += sz; sz = sizeof(mGameState);          memcpy(b+offset, &mGameState,         sz);
+
 }
 
 void mwNetgame::state_to_game_vars(char * b)
@@ -114,6 +117,8 @@ void mwNetgame::state_to_game_vars(char * b)
    sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
    sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
    sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
+   sz = sizeof(mGameState);          memcpy(&mGameState,         b+offset, sz); offset += sz;
+
 }
 
 void mwNetgame::get_state_dif(char *a, char *b, char *c, int size)

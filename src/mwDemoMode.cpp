@@ -15,6 +15,7 @@
 #include "mwBitmap.h"
 #include "mwConfig.h"
 #include "mwEnemy.h"
+#include "mwGameState.h"
 #include "mwGmInfo.h"
 #include "mwSound.h"
 #include "mwSql.h"
@@ -246,14 +247,14 @@ int mwDemoMode::key_check()
    int key_used = 0;
 
    // if waiting for continue at the end of a demo
-   if (mPlayer.syn[0].level_done_mode == 5)
+   if (mGameState.level_done_mode == 5)
    {
       // any key
       for (int k = 0; k < ALLEGRO_KEY_MAX; k++)
          if (mInput.key[k][0])
          {
             key_used = 1;
-            mPlayer.syn[0].level_done_mode = 1;
+            mGameState.level_done_mode = 1;
          }
    }
 
@@ -362,14 +363,14 @@ void mwDemoMode::frame_advance()
 bool mwDemoMode::check_level_done()
 {
    // 10s past last game move
-   if (mPlayer.syn[0].level_done_mode == 0 && mLoop.frame_num > last_frame + 400)
+   if (mGameState.level_done_mode == 0 && mLoop.frame_num > last_frame + 400)
    {
       // skip players seek exit, jump to mode 5
-      mPlayer.syn[0].level_done_mode = 5;
+      mGameState.level_done_mode = 5;
    }
 
    // divert before normal next level mode
-   if (mPlayer.syn[0].level_done_mode == 1) return true;
+   if (mGameState.level_done_mode == 1) return true;
    return false;
 }
 

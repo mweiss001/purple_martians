@@ -13,14 +13,14 @@
 #include "mwDemoRecord.h"
 #include "mwFont.h"
 #include "mwColor.h"
-
+#include "mwGameState.h"
 
 
 mwShot mShot;
 
 void mwShot::proc_pshot_collision(int p, int b)
 {
-   mPlayer.syn[p].health -= mPlayer.syn[0].player_vs_player_shot_damage;
+   mPlayer.syn[p].health -= mGameState.player_vs_player_shot_damage;
 
    float bxinc = mShot.p[b].xinc/3;
 

@@ -6,6 +6,7 @@
 #include "mwEnemy.h"
 #include "mwGameEvent.h"
 #include "mwGameMoves.h"
+#include "mwGameState.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
@@ -55,7 +56,7 @@ void mwGmInfo::fill()
       mLoop.frame_num++;
       mGameMoves.proc();
       mLoop.move_frame();
-      if (mPlayer.syn[0].level_done_mode) done = 1;
+      if (mGameState.level_done_mode) done = 1;
       // if 10s past last game move and level not done, stop and leave completed = false and last frame as last game move frame
       if (mLoop.frame_num > lastFrame + 400) done = 1;
    }
@@ -76,10 +77,10 @@ void mwGmInfo::calc()
 
    clear();
 
-   if (mPlayer.syn[0].level_done_mode)
+   if (mGameState.level_done_mode)
    {
-      levelDoneFrame  = mPlayer.syn[0].level_done_frame;
-      levelDonePlayer = mPlayer.syn[0].level_done_player;
+      levelDoneFrame  = mGameState.level_done_frame;
+      levelDonePlayer = mGameState.level_done_player;
       lastFrame = levelDoneFrame;
       completed = true;
    }

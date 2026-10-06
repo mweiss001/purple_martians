@@ -122,7 +122,7 @@ void mwDemoRecord::gdt()
 //         }
 //      mGameMoves.save_gm(current_loaded_demo_file, 0);
       // show shot config
-//      printf("pvs:%d pvs:%d dmg:%d\n", mPlayer.syn[0].player_vs_player_shots, mPlayer.syn[0].player_vs_self_shots, mPlayer.syn[0].player_vs_player_shot_damage);
+//      printf("pvs:%d pvs:%d dmg:%d\n", mGameState.player_vs_player_shots, mGameState.player_vs_self_shots, mGameState.player_vs_player_shot_damage);
 
 //      mGameMoves.save_gm(current_loaded_demo_file, 0);
    }

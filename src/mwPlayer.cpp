@@ -23,6 +23,7 @@
 #include "mwGameMoves.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
+#include "mwGameState.h"
 #include "mwMain.h"
 
 mwPlayer mPlayer;
@@ -564,16 +565,16 @@ void mwPlayer::proc_player_collisions(int p)
          {
             int pb = mShot.p[b].player; // player that fired the shot
 
-            if ((syn[0].player_vs_player_shots) && (pb != p))
+            if ((mGameState.player_vs_player_shots) && (pb != p))
             {
                mShot.proc_pshot_collision(p, b);
-               mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
+               mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
                mPlayer.syn[pb].stat_player_hits++;
             }
-            if ((syn[0].player_vs_self_shots) && (pb == p))
+            if ((mGameState.player_vs_self_shots) && (pb == p))
             {
                mShot.proc_pshot_collision(p, b);
-               mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
+               mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
                mPlayer.syn[pb].stat_self_hits++;
             }
          }
@@ -1432,12 +1433,17 @@ void mwPlayer::init_player(int p, int t)
       loc[p].last_health_adjust = 0;
       loc[p].potential_bomb_damage = 0;
 
-      syn[p].level_done_mode = 0;
-      syn[p].level_done_timer = 0;
       syn[p].level_done_ack = 0;
-      syn[p].level_done_x = 0;
-      syn[p].level_done_y = 0;
-      syn[p].level_done_player = 0;
+
+
+      mGameState.level_done_mode = 0;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_x = 0;
+      mGameState.level_done_y = 0;
+      mGameState.level_done_player = 0;
+
+
+
 
       syn[p].marked_gate = -1;
 
@@ -1615,7 +1621,7 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
 
 void mwPlayer::proc_player_input()
 {
-   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+   if ((mGameState.level_done_mode == 0) || (mGameState.level_done_mode == 5)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((syn[p].active) && (syn[p].paused_type != 3)) // cycle all active players except hidden player in headless server
          {

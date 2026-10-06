@@ -11,14 +11,14 @@ struct psyn // synced between server and client
    int paused_mode;
    int paused_mode_count;
 
-   int level_done_mode;
-   int level_done_timer;
+//   int level_done_mode;
+//   int level_done_timer;
    int level_done_ack;
-   int level_done_x;
-   int level_done_y;
-   int level_done_player;
-   int level_done_frame;
-   int level_done_next_level;
+//   int level_done_x;
+//   int level_done_y;
+//   int level_done_player;
+//   int level_done_frame;
+//   int level_done_next_level;
 
    int overworld_last_touched_gate;
 
@@ -88,13 +88,17 @@ struct psyn // synced between server and client
    int late_cdats;
    int late_cdats_last_sec;
 
-   int player_vs_player_shots;
-   int player_vs_player_shot_damage;
-   int player_vs_self_shots;
+
+//   int player_vs_player_shots;
+//   int player_vs_player_shot_damage;
+//   int player_vs_self_shots;
+
 
    int server_force_fakekey = 0;
    int server_force_client_offset = 0;
    float client_chase_offset = -0.02;
+
+
 
    int player_text_overlay_timer;
    int player_text_overlay_type;

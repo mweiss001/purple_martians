@@ -7,6 +7,7 @@
 #include "mwLog.h"
 #include "mwSql.h"
 #include "mwGameMoves.h"
+#include "mwGameState.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
 
@@ -87,7 +88,7 @@ void mwNetgame::session_update_at_level_done()
       if (mPlayer.loc[p].session_id)
       {
          if (mLevel.play_level != 1) mPlayer.syn[p].stat_next_levels++;
-         if (p == mPlayer.syn[0].level_done_player) mPlayer.syn[p].stat_exits++;
+         if (p == mGameState.level_done_player) mPlayer.syn[p].stat_exits++;
          session_update(p);
       }
 

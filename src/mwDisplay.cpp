@@ -24,6 +24,7 @@
 #include "mwSettings.h"
 #include "mwBottomMessage.h"
 #include "mwDemoRecord.h"
+#include "mwGameState.h"
 #include "mwLevelEditor.h"
 
 
@@ -600,6 +601,9 @@ void mwDisplay::show_var_sizes()
    printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
    printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
 
+
+
+
    int sz = 0;
    sz+= sizeof(level_header);
    sz+= sizeof(mLevel.l);
@@ -649,6 +653,7 @@ void mwDisplay::show_var_sizes()
    printf("mShot.p             :%6d\n", (int)sizeof(mShot.p)              );
    printf("mShot.e             :%6d\n", (int)sizeof(mShot.e)              );
    printf("mTriggerEvent.event :%6d\n", (int)sizeof(mTriggerEvent.event)  );
+   printf("mGameState          :%6d\n", (int)sizeof(mGameState) );
 
    sz = 0;
    sz+= sizeof(mPlayer.syn);
@@ -661,8 +666,12 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mShot.p);
    sz+= sizeof(mShot.e);
    sz+= sizeof(mTriggerEvent.event);
+   sz+= sizeof(mGameState);
+
    printf("--------------------:------\n");
    printf("total               :%6d\n",  sz );
+
+
 
    printf("\nOther Large Variables\n\n");
 

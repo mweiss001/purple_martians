@@ -43,6 +43,7 @@
 #include "mwMain.h"
 #include "mwConfig.h"
 #include "mwGameEvent.h"
+#include "mwGameState.h"
 #include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
@@ -116,7 +117,7 @@ void mwLoop::initialize()
 
 void mwLoop::move_frame()
 {
-   if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
+   if (mGameState.level_done_mode) proc_level_done_mode();
    else
    {
       double t[8] = { 0 };
@@ -382,7 +383,7 @@ void mwLoop::proc_program_state_change()
          {
             mLog.add(LOG_OTH_PROGRAM_STATE, 3, -1); // instead of menu, go to overworld
             //mLog.log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "instead of menu, go to overworld\n");
-            mPlayer.syn[0].level_done_next_level = 1;
+            mGameState.level_done_next_level = 1;
             state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
             quit_action = 1;    // menu
             done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
@@ -556,14 +557,14 @@ void mwLoop::proc_program_state_change()
 //----------------------------------------------------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
-      mLog.add(LOG_NET, LOG_NET_SUBTYPE_NEXT_LEVEL, -1, mPlayer.syn[0].level_done_next_level); // NEXT LEVEL
+      mLog.add(LOG_NET, LOG_NET_SUBTYPE_NEXT_LEVEL, -1, mGameState.level_done_next_level); // NEXT LEVEL
 
 
 // --------------------------------------------------------
 // cleanup after level done
 // --------------------------------------------------------
       mSound.stop_sound();
-      mPlayer.syn[0].level_done_mode = 0;
+      mGameState.level_done_mode = 0;
 
       if (mNetgame.ima_client)
       {
@@ -610,7 +611,7 @@ void mwLoop::proc_program_state_change()
 // ----------------------------------------------------------
 // if destination is overworld
 // ----------------------------------------------------------
-      if (mPlayer.syn[0].level_done_next_level == 1)
+      if (mGameState.level_done_next_level == 1)
       {
          mLog.add(LOG_OTH_TRANSITIONS, 1, -1); // "Next level to overworld\n");
          //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level to overworld\n");
@@ -622,7 +623,7 @@ void mwLoop::proc_program_state_change()
 // -----------------------------------------------------------------------------------------------------
 // if going from overworld to any other level, assume gate is used...no transition until after load
 // -----------------------------------------------------------------------------------------------------
-      if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1))
+      if ((mLevel.play_level == 1) && (mGameState.level_done_next_level != 1))
       {
          mLog.add(LOG_OTH_TRANSITIONS, 2, -1); // "Next level from overworld\n");
 
@@ -635,7 +636,7 @@ void mwLoop::proc_program_state_change()
 // if going from any level to any level (except overworld)
 // also test that previous state == 11  to not trigger when started from menu or settings
 // -----------------------------------------------------------------------------------------------------
-      if ((mLevel.play_level != 1) && (mPlayer.syn[0].level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
+      if ((mLevel.play_level != 1) && (mGameState.level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
       {
          mLog.add(LOG_OTH_TRANSITIONS, 3, -1); // Level to level (no overworld)
          //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Level to level (no overworld)\n");
@@ -656,7 +657,7 @@ void mwLoop::proc_program_state_change()
 // ---------------------------------------------------
 // load the new level
 // ---------------------------------------------------
-      mLevel.play_level = mPlayer.syn[0].level_done_next_level;
+      mLevel.play_level = mGameState.level_done_next_level;
       if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
 
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
@@ -967,7 +968,7 @@ void mwLoop::main_loop()
                // -----------------------------------
                // process scale factor changes
                // -----------------------------------
-               int ldm = mPlayer.syn[0].level_done_mode;
+               int ldm = mGameState.level_done_mode;
                if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
                else                            mDisplay.proc_scale_factor_change();
             }

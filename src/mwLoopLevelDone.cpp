@@ -20,24 +20,25 @@
 #include "mwShot.h"
 
 #include "mwGameMoves.h"
+#include "mwGameState.h"
 #include "mwMain.h"
 
 
 void mwLoop::proc_level_done_mode()
 {
-//   mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d\n", frame_num, mPlayer.syn[0].level_done_mode);
+//   mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d\n", frame_num, mGameState.level_done_mode);
 
    //-------------------------------------
    // start of final level rocket cutscene
    //-------------------------------------
-   if (mPlayer.syn[0].level_done_mode == 30) // setup for players seek and zoom out
+   if (mGameState.level_done_mode == 30) // setup for players seek and zoom out
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for players seek and zoom out");
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for players seek and zoom out");
 
 
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
-      mPlayer.syn[0].level_done_timer = 0; // immediate next mode
+      mGameState.level_done_timer = 0; // immediate next mode
 
 
       if (!mMain.headless_server)
@@ -48,7 +49,7 @@ void mwLoop::proc_level_done_mode()
 
 
       // bring other netgame players home
-      int c = mPlayer.syn[0].level_done_player; // captain of the ship!
+      int c = mGameState.level_done_player; // captain of the ship!
       mPlayer.syn[c].xinc = 0;
       mPlayer.syn[c].yinc = 0;
 
@@ -74,9 +75,9 @@ void mwLoop::proc_level_done_mode()
          }
    }
 
-   if (mPlayer.syn[0].level_done_mode == 29) // players seek and zoom out
+   if (mGameState.level_done_mode == 29) // players seek and zoom out
    {
-      if (mPlayer.syn[0].level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek and zoom out");
+      if (mGameState.level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek and zoom out");
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
@@ -85,9 +86,9 @@ void mwLoop::proc_level_done_mode()
          }
    }
 
-   if (mPlayer.syn[0].level_done_mode == 28) // set up for rocket move
+   if (mGameState.level_done_mode == 28) // set up for rocket move
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for rocket move");
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for rocket move");
 
       if (!mMain.headless_server)
       {
@@ -126,9 +127,9 @@ void mwLoop::proc_level_done_mode()
       }
    }
 
-   if (mPlayer.syn[0].level_done_mode == 27) // rocket move
+   if (mGameState.level_done_mode == 27) // rocket move
    {
-      if (mPlayer.syn[0].level_done_timer == 240) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Rocket move");
+      if (mGameState.level_done_timer == 240) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Rocket move");
       if (!mMain.headless_server)
       {
          mScreen.get_new_background(1);
@@ -143,30 +144,30 @@ void mwLoop::proc_level_done_mode()
          al_flip_display();
       }
    }
-   if (mPlayer.syn[0].level_done_mode == 26)
+   if (mGameState.level_done_mode == 26)
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for zoom in");
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for zoom in");
       if (!mMain.headless_server)
       {
          mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
       }
    }
-   if (mPlayer.syn[0].level_done_mode == 25)
+   if (mGameState.level_done_mode == 25)
    {
-      if (mPlayer.syn[0].level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Zoom in");
+      if (mGameState.level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Zoom in");
    }
-   if (mPlayer.syn[0].level_done_mode == 24) // jump to level done
+   if (mGameState.level_done_mode == 24) // jump to level done
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Jump to level done");
-      mPlayer.syn[0].level_done_mode = 6;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = 1; // always go to overworld after beating the game
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Jump to level done");
+      mGameState.level_done_mode = 6;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = 1; // always go to overworld after beating the game
    }
 
-   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   if (mGameState.level_done_mode == 9) // pause players and set up exit xyincs
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Pause player and setup exit xyincs");
-      mScreen.add_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Pause player and setup exit xyincs");
+      mScreen.add_player_text_overlay(mGameState.level_done_player, 2);
 
       // added this check 20260930 - do not run if client or server
       if ((!mNetgame.ima_client) && (!mNetgame.ima_server)) mLevel.add_play_data_record(mLevel.play_level, 1);
@@ -179,8 +180,8 @@ void mwLoop::proc_level_done_mode()
             mPlayer.syn[p].paused = 5; // set player paused
 
             // get distance between player and exit
-            float dx = mPlayer.syn[0].level_done_x - mPlayer.syn[p].x;
-            float dy = mPlayer.syn[0].level_done_y - mPlayer.syn[p].y;
+            float dx = mGameState.level_done_x - mPlayer.syn[p].x;
+            float dy = mGameState.level_done_y - mPlayer.syn[p].y;
 
             // get move
             mPlayer.syn[p].xinc = dx/60;
@@ -191,10 +192,10 @@ void mwLoop::proc_level_done_mode()
             if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
          }
    }
-   if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
+   if (mGameState.level_done_mode == 8) // players seek exit
    {
-      if (mPlayer.syn[0].level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek exit");
-      float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
+      if (mGameState.level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek exit");
+      float fade = 0.3 + (float) mGameState.level_done_timer / 85; // 1 to .3 in 60 frames
       if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
@@ -203,9 +204,9 @@ void mwLoop::proc_level_done_mode()
             mPlayer.syn[p].y += mPlayer.syn[p].yinc;
          }
    }
-   if (mPlayer.syn[0].level_done_mode == 7) // shrink and rotate
+   if (mGameState.level_done_mode == 7) // shrink and rotate
    {
-      if (mPlayer.syn[0].level_done_timer == 20) mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players shrink and rotate");
+      if (mGameState.level_done_timer == 20) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players shrink and rotate");
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
@@ -215,58 +216,58 @@ void mwLoop::proc_level_done_mode()
    }
 
 
-   if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
+   if (mGameState.level_done_mode == 5) // skippable 15s timeout
    {
-      if (mPlayer.syn[0].level_done_timer % 40 == 0)
+      if (mGameState.level_done_timer % 40 == 0)
       {
-         int time_left = (mPlayer.syn[0].level_done_timer/40) - 1;
-         mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, time_left,0,0,0,0,0,0,0,0,0, "Skippable 15s timeout ");
+         int time_left = (mGameState.level_done_timer/40) - 1;
+         mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, time_left,0,0,0,0,0,0,0,0,0, "Skippable 15s timeout ");
       }
 
       if (mDemoMode.play_mode_active)
       {
-         if (mPlayer.syn[0].level_done_timer == 999) mPlayer.syn[0].level_done_timer++;
+         if (mGameState.level_done_timer == 999) mGameState.level_done_timer++;
       }
       else if (!mNetgame.ima_client)
       {
-         if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
+         if (have_all_players_acknowledged()) mGameState.level_done_timer = 0; // skip
       }
    }
 
-   if (mPlayer.syn[0].level_done_mode == 2) // delay to load next level
+   if (mGameState.level_done_mode == 2) // delay to load next level
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Delay to load next level");
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Delay to load next level");
    }
 
    if (!mNetgame.ima_client)
-      if (--mPlayer.syn[0].level_done_timer <= 0)
+      if (--mGameState.level_done_timer <= 0)
       {
-         mPlayer.syn[0].level_done_mode--;
-         if (mPlayer.syn[0].level_done_mode == 30) mPlayer.syn[0].level_done_timer = 0;   // set up for player move and zoom out
-         if (mPlayer.syn[0].level_done_mode == 29) mPlayer.syn[0].level_done_timer = 100; // player move and zoom out
-         if (mPlayer.syn[0].level_done_mode == 28) mPlayer.syn[0].level_done_timer = 0;   // set up for rocket move
-         if (mPlayer.syn[0].level_done_mode == 27) mPlayer.syn[0].level_done_timer = 240; // rocket move
-         if (mPlayer.syn[0].level_done_mode == 26) mPlayer.syn[0].level_done_timer = 0;   // set up for zoom in
-         if (mPlayer.syn[0].level_done_mode == 25) mPlayer.syn[0].level_done_timer = 100; // zoom in
-         if (mPlayer.syn[0].level_done_mode == 24) mPlayer.syn[0].level_done_timer = 0;   // jump to mode 6
-         if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;  // players seek exit
-         if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;  // players shrink and rotate into exit
-         if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;   // not used
-         if (mPlayer.syn[0].level_done_mode == 5)
+         mGameState.level_done_mode--;
+         if (mGameState.level_done_mode == 30) mGameState.level_done_timer = 0;   // set up for player move and zoom out
+         if (mGameState.level_done_mode == 29) mGameState.level_done_timer = 100; // player move and zoom out
+         if (mGameState.level_done_mode == 28) mGameState.level_done_timer = 0;   // set up for rocket move
+         if (mGameState.level_done_mode == 27) mGameState.level_done_timer = 240; // rocket move
+         if (mGameState.level_done_mode == 26) mGameState.level_done_timer = 0;   // set up for zoom in
+         if (mGameState.level_done_mode == 25) mGameState.level_done_timer = 100; // zoom in
+         if (mGameState.level_done_mode == 24) mGameState.level_done_timer = 0;   // jump to mode 6
+         if (mGameState.level_done_mode == 8) mGameState.level_done_timer = 60;  // players seek exit
+         if (mGameState.level_done_mode == 7) mGameState.level_done_timer = 20;  // players shrink and rotate into exit
+         if (mGameState.level_done_mode == 6) mGameState.level_done_timer = 0;   // not used
+         if (mGameState.level_done_mode == 5)
          {
             if (mDemoMode.play_mode_active)
             {
-               if (mScreen.demo_controls_pause_when_done) mPlayer.syn[0].level_done_timer = 999; // special value to mark wait forever
-               else mPlayer.syn[0].level_done_timer = 160; // skippable 4s delay;
+               if (mScreen.demo_controls_pause_when_done) mGameState.level_done_timer = 999; // special value to mark wait forever
+               else mGameState.level_done_timer = 160; // skippable 4s delay;
             }
-            else mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+            else mGameState.level_done_timer = 600; // skippable 15s delay;
          }
-         if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;  // not used
-         if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;  // not used
-         if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
-         if (mPlayer.syn[0].level_done_mode == 1)
+         if (mGameState.level_done_mode == 4) mGameState.level_done_timer = 0;  // not used
+         if (mGameState.level_done_mode == 3) mGameState.level_done_timer = 0;  // not used
+         if (mGameState.level_done_mode == 2) mGameState.level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
+         if (mGameState.level_done_mode == 1)
          {
-            mLog.add(LOG_OTH_LEVEL_DONE, mPlayer.syn[0].level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Load next level");
+            mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Load next level");
             state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
          }
       }

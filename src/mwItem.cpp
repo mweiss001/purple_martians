@@ -219,6 +219,7 @@ void mwItem::move_items()
              (type != PM_ITEM_TYPE_TIMER) &&
              (type != PM_ITEM_TYPE_BLKMNP) &&
              (type != PM_ITEM_TYPE_BLKDMG) &&
+             (type != PM_ITEM_TYPE_GATE) &&
              (type != PM_ITEM_TYPE_LIT_BOMB))
          {
             int ttl = item[i][14];
@@ -242,6 +243,7 @@ void mwItem::move_items()
              (type != PM_ITEM_TYPE_TIMER) &&
              (type != PM_ITEM_TYPE_BLKMNP) &&
              (type != PM_ITEM_TYPE_BLKDMG) &&
+             (type != PM_ITEM_TYPE_GATE) &&
              (type != PM_ITEM_TYPE_HIDER) &&
              (! ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)))    ) // not moving key
          {

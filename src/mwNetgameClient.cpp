@@ -17,6 +17,7 @@
 #include "mwLoop.h"
 #include "mwQuickGraph2.h"
 #include "mwGameMoves.h"
+#include "mwGameState.h"
 #include "mwMiscFnx.h"
 
 
@@ -482,7 +483,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
       if (slsn == server_lev_seq_num +1) // slsn is from next level - setting next level
       {
          mLog.add(LOG_NET_DIF_TRX_PACKET, 2, -1, seq+1, max_seq, src, dst, sb, sz, sdln, slsn);
-         mPlayer.syn[0].level_done_next_level = sdln;
+         mGameState.level_done_next_level = sdln;
          mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
       }
       else // slsn bad

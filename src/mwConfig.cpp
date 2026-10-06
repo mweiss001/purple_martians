@@ -22,6 +22,7 @@
 #include "mwMain.h"
 #include "mwScreen.h"
 #include "mwGameMoves.h"
+#include "mwGameState.h"
 #include "mwWindowManager.h"
 
 
@@ -157,9 +158,9 @@ void mwConfig::save_config(int type)
 
       if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_SHOTS))
       {
-         asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
-         asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
-         asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
+         asci(NETWORK, mGameState.player_vs_player_shots)
+         asci(NETWORK, mGameState.player_vs_player_shot_damage)
+         asci(NETWORK, mGameState.player_vs_self_shots)
       }
 
       if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET))
@@ -353,9 +354,9 @@ void mwConfig::load_config(int type)
 
    agci(NETWORK, mNetgame.server_port, 24785)
 
-   agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
-   agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)
-   agci(NETWORK, mPlayer.syn[0].player_vs_self_shots, 1)
+   agci(NETWORK, mGameState.player_vs_player_shots, 1)
+   agci(NETWORK, mGameState.player_vs_player_shot_damage, 5)
+   agci(NETWORK, mGameState.player_vs_self_shots, 1)
 
    agcf(NETWORK, mNetgame.client_chase_offset, 0.02)
    agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, 0.005)

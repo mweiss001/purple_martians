@@ -16,6 +16,7 @@
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
 #include "mwDisplay.h"
+#include "mwGameState.h"
 #include "mwMain.h"
 
 
@@ -64,7 +65,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    bool packet_check = 1;
 
    int skip_draw = 0;
-   if (mPlayer.syn[0].level_done_mode == 27) skip_draw = 1;
+   if (mGameState.level_done_mode == 27) skip_draw = 1;
    if (mMain.headless_server) skip_draw = 1;
    if (!skip_draw)
    {

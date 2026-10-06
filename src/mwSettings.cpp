@@ -25,6 +25,7 @@
 #include "mwGameMoves.h"
 #include "mwCodeStats.h"
 #include "mwEditorMain.h"
+#include "mwGameState.h"
 #include "mwHelp.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
@@ -879,17 +880,17 @@ void mwSettings::page_netgame()
    prect.draw_rectangle(mColor.pc[fc], 1);
    ya += line_spacing;
 
-//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
+//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameState.player_vs_player_shots, "Player vs Player shots", 15, 15);
 
-   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15, 0);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mGameState.player_vs_player_shots, "Player vs Player shots", 15, 15, 0);
 
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Do player's shots affect other players?");
 
    ya+=10;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15);
-   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15, 0);
+//   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameState.player_vs_self_shots, "Player vs Self shots", 15, 15);
+   mWidget.mCheckBox(0, xa, xb, ya, bts, 0,  mGameState.player_vs_self_shots, "Player vs Self shots", 15, 15, 0);
 
 
 
@@ -900,7 +901,7 @@ void mwSettings::page_netgame()
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
    ya+=4;
 
-   mWidget.mSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mPlayer.syn[0].player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:", 0, 0); ya+=bts;
+   mWidget.mSliderInt(0, xa, xb,  1, ya, bts-2,  2, 2, 1, 1,  12, 12, 15, 15, 15,0, 0,  mGameState.player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:", 0, 0); ya+=bts;
    ya+=4;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "The amount of damage player's shots do to");
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya+10, 0, "other players and themselves.");
@@ -1911,6 +1912,11 @@ void mwSettings::page_info()
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show display adapters",           0)) mDisplay.show_display_adapters();
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show code statistics",            0)) mwCodeStats::run();
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show RAND_MAX",                   0)) printf("RAND_MAX: %i\n", RAND_MAX);
+
+
+
+
+
 }
 
 

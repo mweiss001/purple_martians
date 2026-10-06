@@ -18,6 +18,7 @@
 #include "mwScreen.h"
 #include "mwColor.h"
 #include "mwFont.h"
+#include "mwGameState.h"
 #include "mwWidget.h"
 #include "mwQuickGraph2.h"
 
@@ -142,9 +143,9 @@ void mwLoop::remote_control_loop()
    cy+=20;
 
    gfc = 9; // group frame color
-   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mPlayer.syn[0].player_vs_player_shots, "Player vs Player Shots", 15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
+   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mGameState.player_vs_player_shots, "Player vs Player Shots", 15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
    cy-=2;
-   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mPlayer.syn[0].player_vs_self_shots,   "Player vs Self Shots",   15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
+   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mGameState.player_vs_self_shots,   "Player vs Self Shots",   15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
 
 
    int inc = 1;
@@ -155,7 +156,7 @@ void mwLoop::remote_control_loop()
 
 
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mGameState.player_vs_player_shot_damage);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, +inc);
 
 

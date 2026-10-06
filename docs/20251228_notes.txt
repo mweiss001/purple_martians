@@ -15468,9 +15468,9 @@ I have one function that checks for level done
 
 int mwDemoMode::check_level_done() const
 {
-   if (mPlayer.syn[0].level_done_mode)
+   if (mGameState.level_done_mode)
    {
-      if (mPlayer.syn[0].level_done_mode == 1) return 1;
+      if (mGameState.level_done_mode == 1) return 1;
       if (mLoop.frame_num > mPlayer.syn[0].level_done_frame + 280)  return 1; // 280 frames past level done (80) for seek and 5s more
    }
    else if (mLoop.frame_num > last_frame + 400) return 1; // 10s past last game move
@@ -15527,12 +15527,12 @@ now put a continue button on the controls, but only if paused in mode 20
 
 
 
-   if ((mDemoMode.controls_paused) && (mPlayer.syn[0].level_done_mode == 20))
+   if ((mDemoMode.controls_paused) && (mGameState.level_done_mode == 20))
    {
 
       if (mWidget.buttont(xc-32, ya, xc+32, bts, 0,0,0,0, 0,11,15, 0,  1,0,0,0, "Continue"))
       {
-         mPlayer.syn[0].level_done_mode = 1;
+         mGameState.level_done_mode = 1;
       }
 
 
@@ -43300,9 +43300,149 @@ time for work...commit and push
 
 
 
+now look in player syn struct and see what I can move...
+basically if it is only used by player 0, it can be moved
+
+all but ack
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_ack;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey = 0;
+   int server_force_client_offset = 0;
+   float client_chase_offset = -0.02;
 
 
+final...so far
 
+
+class mwGameState
+{
+   public:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey;
+   int server_force_client_offset;
+   float client_chase_offset;
+
+   int gate_enter_mode;
+   int gate_enter_item;
+   int gate_enter_player;
+
+};
+extern mwGameState mGameState;
+
+
+mPlayer.syn[0].level_done_timer
+
+mGameState.level_done_timer
+
+I will need a new place to reset these:
+
+      syn[p].level_done_mode = 0;
+      syn[p].level_done_timer = 0;
+      syn[p].level_done_ack = 0;
+      syn[p].level_done_x = 0;
+      syn[p].level_done_y = 0;
+      syn[p].level_done_player = 0;
+
+
+init_player 1, 2, 17
+
+same place...
+
+      mGameState.level_done_mode = 0;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_x = 0;
+      mGameState.level_done_y = 0;
+      mGameState.level_done_player = 0;
+
+
+now find size and pass gameState also
+
+
+#define STATE_SIZE 113344
+with 7 ints removed from player
+
+7 * 4 * 8 = 224
+113120
+
++64
+
+113184
+
+changed state size in pm.h
+
+changed this:
+
+void mwNetgame::game_vars_to_state(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(mPlayer.syn);         memcpy(b+offset, mPlayer.syn,         sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
+   offset += sz; sz = sizeof(mItem.item);          memcpy(b+offset, mItem.item,          sz);
+   offset += sz; sz = sizeof(mItem.itemf);         memcpy(b+offset, mItem.itemf,         sz);
+   offset += sz; sz = sizeof(mLift.cur);           memcpy(b+offset, mLift.cur,           sz);
+   offset += sz; sz = sizeof(mLevel.l);            memcpy(b+offset, mLevel.l,            sz);
+   offset += sz; sz = sizeof(mShot.p);             memcpy(b+offset, mShot.p,             sz);
+   offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
+   offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
+   offset += sz; sz = sizeof(mGameState);          memcpy(b+offset, &mGameState,         sz);
+
+}
+
+void mwNetgame::state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(mPlayer.syn);         memcpy(mPlayer.syn,         b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);          memcpy(mItem.item,          b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf);         memcpy(mItem.itemf,         b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);           memcpy(mLift.cur,           b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);            memcpy(mLevel.l,            b+offset, sz); offset += sz;
+   sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
+   sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
+   sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
+   sz = sizeof(mGameState);          memcpy(&mGameState,         b+offset, sz); offset += sz;
+
+}
+
+tested and it seems to work!!!
+
+
+next do these:
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+
+removed 3 * 4 * 8 = 96
+
+now 113088
 
 
 

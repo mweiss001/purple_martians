@@ -16,6 +16,7 @@
 #include "mwDemoMode.h"
 #include "mwScreen.h"
 #include "mwDisplay.h"
+#include "mwGameState.h"
 #include "mwLevelIcons.h"
 #include "mwNetgame.h"
 #include "mwTriggerEvent.h"
@@ -218,17 +219,17 @@ void mwItem::proc_exit_collision(int p, int i)
    int exit_enemys_left = mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
+      if ((mGameState.level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
       {
-         mPlayer.syn[0].level_done_mode = 9;
-         mPlayer.syn[0].level_done_timer = 0;
-         mPlayer.syn[0].level_done_x = itemf[i][0];
-         mPlayer.syn[0].level_done_y = itemf[i][1];
-         mPlayer.syn[0].level_done_player = p;
-         mPlayer.syn[0].level_done_frame = mLoop.frame_num;
+         mGameState.level_done_mode = 9;
+         mGameState.level_done_timer = 0;
+         mGameState.level_done_x = itemf[i][0];
+         mGameState.level_done_y = itemf[i][1];
+         mGameState.level_done_player = p;
+         mGameState.level_done_frame = mLoop.frame_num;
 
-         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
-         else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
+         if (!mMain.classic_mode) mGameState.level_done_next_level = 1;                             // in story mode all exits return to overworld
+         else mGameState.level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
          mGameEvent.add(4, 0, 0, p, 0, 0, 0);
       }
    }
@@ -254,16 +255,16 @@ void mwItem::proc_exit_collision(int p, int i)
 // Gate
 // -----------------------------------------------------------------------
 
-
-item[][0]  = 5 - Start
+item[][0] = 18 - Gate
 item[][1] = draw mode
-item[][2] = opening_animation_counter
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+item[][2] =
+item[][3] = draw sequence
+
 item[][4] = x pos
 item[][5] = y pos
+
 item[][6] = level
 item[][7] = current display page
-
 
 
 what do I have to use:
@@ -271,15 +272,14 @@ what do I have to use:
 i need:
 
 
+8 small_map_x
+9 small_map_y
+10 small_map_size
 
-small_map_x
-small_map_y
-small_map_size
 
-
-large_map_x
-large_map_y
-large_map_size
+11 large_map_x
+12 large_map_y
+13 large_map_size
 
 
 
@@ -297,7 +297,12 @@ large_map_size
 
 
 
+void mwItem::proc_gate(int i)
+{
 
+
+
+}
 
 
 void mwItem::proc_gate_collision(int p, int i)
@@ -327,8 +332,26 @@ void mwItem::proc_gate_collision(int p, int i)
       if (status < 2) status = 2;
    }
 
+
+
+   int draw_mode = item[i][1];
+   int enter_gate = 0;
+
    // if UP pressed, enter gate (client can never locally enter gate)
-   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) && (!item[i][3]) )
+   {
+      if (draw_mode == 0) enter_gate = 1;
+      if (draw_mode == 1) item[i][3] = 10;
+   }
+
+   if (item[i][3])
+   {
+      item[i][3]++;
+      if (item[i][3] == 30) enter_gate = 1;
+   }
+
+
+   if (enter_gate)
    {
 
       // server to set last touched gate for all clients
@@ -342,13 +365,21 @@ void mwItem::proc_gate_collision(int p, int i)
       }
 
       // immediate next level to gate level
-      mPlayer.syn[0].level_done_mode = 3;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = lev;
+      mGameState.level_done_mode = 3;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = lev;
 
       mLoop.quit_action = 2;
       mLoop.done_action = 2;
    }
+
+
+
+
+
+
+
+
 
    // if DOWN pressed, cycle display pages
    if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][7]++;
@@ -367,6 +398,9 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 {
    // to fix default shape from selection window PDE
    if (item[i][1] == 940) item[i][1] = 0;
+
+
+
 
 
    if (custom) al_draw_bitmap(mBitmap.sprite[139], x, y, 0 );
@@ -426,7 +460,12 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       if (draw_mode == 1)
       {
          // new 6 tile 3 frame animated door
-         int o = 0+mLoop.pct_x*6+mLoop.pct_y*32;
+         //int o = 0+mLoop.pct_x*6+mLoop.pct_y*32;
+
+         int o = (item[i][3]/10)*6;
+
+
+
          al_draw_bitmap(mBitmap.tile[320+o], x-10, y-39, 0);
          al_draw_bitmap(mBitmap.tile[321+o], x+10, y-39, 0);
          al_draw_bitmap(mBitmap.tile[322+o], x-10, y-19, 0);

@@ -54,13 +54,11 @@ class mwItem
    void proc_start(int i);
 
 
-
-
    int draw_exit(int i, int x, int y, int shape);
    void proc_exit_collision(int p, int i);
 
 
-
+   void proc_gate(int i);
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
@@ -418,7 +416,7 @@ item[][11] = mode
 item[][12] = damage
 
 
-[18] - gate
+[18] - gateI wii
 
 item[][1] draw_mode
 

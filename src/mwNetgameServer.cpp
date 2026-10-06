@@ -20,6 +20,7 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDrawSequence.h"
+#include "mwGameState.h"
 
 int mwNetgame::serverInitNetwork()
 {
@@ -163,9 +164,9 @@ void mwNetgame::server_rewind()
 
    // save values we don't want rewound
    float old_cco = mPlayer.syn[0].client_chase_offset;
-   int pvps = mPlayer.syn[0].player_vs_player_shots;
-   int pvpd = mPlayer.syn[0].player_vs_player_shot_damage;
-   int pvss = mPlayer.syn[0].player_vs_self_shots;
+   int pvps = mGameState.player_vs_player_shots;
+   int pvpd = mGameState.player_vs_player_shot_damage;
+   int pvss = mGameState.player_vs_self_shots;
    int sffk = mPlayer.syn[0].server_force_fakekey;
    int sfco = mPlayer.syn[0].server_force_client_offset;
    int lcd[8][2] = { 0 };
@@ -180,9 +181,9 @@ void mwNetgame::server_rewind()
 
    // restore values we don't want reset
    mPlayer.syn[0].client_chase_offset = old_cco;
-   mPlayer.syn[0].player_vs_player_shots = pvps;
-   mPlayer.syn[0].player_vs_player_shot_damage = pvpd;
-   mPlayer.syn[0].player_vs_self_shots = pvss;
+   mGameState.player_vs_player_shots = pvps;
+   mGameState.player_vs_player_shot_damage = pvpd;
+   mGameState.player_vs_self_shots = pvss;
    mPlayer.syn[0].server_force_fakekey = sffk;
    mPlayer.syn[0].server_force_client_offset = sfco;
    for (int pp=0; pp<NUM_PLAYERS; pp++)
@@ -517,9 +518,9 @@ void mwNetgame::server_proc_rctl_packet(int i)
    // shot config adjustments - do not apply directly, add a game move one frame in the future
    // ----------------------------------------------------------------------------------------
    int shot_config_change = 0;
-   int new_dmg = mPlayer.syn[0].player_vs_player_shot_damage;
-   int new_pvp = mPlayer.syn[0].player_vs_player_shots;
-   int new_pvs = mPlayer.syn[0].player_vs_self_shots;
+   int new_dmg = mGameState.player_vs_player_shot_damage;
+   int new_pvp = mGameState.player_vs_player_shots;
+   int new_pvs = mGameState.player_vs_self_shots;
 
    if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
    {
@@ -618,7 +619,7 @@ void mwNetgame::server_proc_player_drop()
 
 void mwNetgame::server_proc_limits()
 {
-   if (mPlayer.syn[0].level_done_mode == 0) // only trigger from level done mode 0
+   if (mGameState.level_done_mode == 0) // only trigger from level done mode 0
    {
       int reload = 0;
 
@@ -656,13 +657,13 @@ void mwNetgame::server_reload(int level)
    // -1 current level
    // -2 next level
 
-   if ((level != 0) && (mPlayer.syn[0].level_done_mode == 0)) // only trigger from level done mode 0
+   if ((level != 0) && (mGameState.level_done_mode == 0)) // only trigger from level done mode 0
    {
       if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
       if (level == -1) level = mLevel.play_level;
-      mPlayer.syn[0].level_done_mode = 3;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = level;
+      mGameState.level_done_mode = 3;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = level;
    }
 }
 

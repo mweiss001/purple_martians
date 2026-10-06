@@ -183,6 +183,8 @@ add_executable(pm
         src/mwListBox.h
         src/mwWidgetSlider.cpp
         src/mwWidgetCustom.cpp
+        src/mwGameState.cpp
+        src/mwGameState.h
 )
 
 

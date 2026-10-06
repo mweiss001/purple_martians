@@ -20080,8 +20080,8 @@ that sounds kind of abrupt
 can I gradually fade out?
    if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
    {
-//      float fade = (float) mPlayer.syn[0].level_done_timer / 60; // 1 to 0 in 60 frames
-//      float fade = 0.5 + (float) mPlayer.syn[0].level_done_timer / 120; // 1 to .5 in 60 frames
+//      float fade = (float) mGameState.level_done_timer / 60; // 1 to 0 in 60 frames
+//      float fade = 0.5 + (float) mGameState.level_done_timer / 120; // 1 to .5 in 60 frames
       float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
       if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
 

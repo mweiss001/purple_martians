@@ -13,6 +13,7 @@
 #include "mwDisplay.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
+#include "mwGameState.h"
 #include "mwGmInfo.h"
 #include "mwScreen.h"
 #include "mwMain.h"
@@ -393,17 +394,17 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
       int sc = 0;
-      if (mPlayer.syn[0].player_vs_player_shots) sc |= 0b01;
-      if (mPlayer.syn[0].player_vs_self_shots)   sc |= 0b10;
+      if (mGameState.player_vs_player_shots) sc |= 0b01;
+      if (mGameState.player_vs_self_shots)   sc |= 0b10;
 
-      add_game_move2(frame, type, sc, mPlayer.syn[0].player_vs_player_shot_damage);
+      add_game_move2(frame, type, sc, mGameState.player_vs_player_shot_damage);
       return; // to exit immediately
    }
 
    // -----------------------------------------------------------------------------------------------------------------
    // if we are in level_done_mode 5, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
    // -----------------------------------------------------------------------------------------------------------------
-   if ((mPlayer.syn[0].level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
+   if ((mGameState.level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
       if (!has_player_acknowledged(p)) // to prevent multiple acks
          add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);
@@ -492,9 +493,9 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 
 void mwGameMoves::proc_game_move_shot_config(int shot, int damg)
 {
-   mPlayer.syn[0].player_vs_player_shots       = shot & 0b01;
-   mPlayer.syn[0].player_vs_self_shots         = shot & 0b10;
-   mPlayer.syn[0].player_vs_player_shot_damage = damg;
+   mGameState.player_vs_player_shots       = shot & 0b01;
+   mGameState.player_vs_self_shots         = shot & 0b10;
+   mGameState.player_vs_player_shot_damage = damg;
 }
 
 void mwGameMoves::proc_game_move_player_hidden(int p)
