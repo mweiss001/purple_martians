@@ -178,7 +178,7 @@ The setpoint is called 'client_chase_offset', and it is set from one of three th
       if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
       // overridden by server
-      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
+      if (mGameState.server_force_client_offset) client_chase_offset = mGameState.client_chase_offset;
 
       // set point
       float sp = client_chase_offset;</code></pre>
@@ -241,7 +241,7 @@ I was experimenting with implementing a <a href="https://www.google.com/search?q
       if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
       // overidden by server
-      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
+      if (mGameState.server_force_client_offset) client_chase_offset = mGameState.client_chase_offset;
 
       // set point
       float sp = client_chase_offset;

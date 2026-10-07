@@ -1365,7 +1365,7 @@ void mwPlayer::init_player(int p, int t)
 
       loc[p].hostname[0] = 0;
       loc[p].fake_keypress_mode = 0;
-      syn[p].server_force_fakekey = 0;
+      mGameState.server_force_fakekey = 0;
 
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc
@@ -1631,7 +1631,7 @@ void mwPlayer::proc_player_input()
                set_comp_move_from_player_key_check(p);
 
                // fakekey mode
-               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+               if ((loc[p].fake_keypress_mode) || (mGameState.server_force_fakekey))
                {
                   // even in fakekey mode allow ESC or menu
                   if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;

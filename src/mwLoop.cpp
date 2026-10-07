@@ -117,21 +117,31 @@ void mwLoop::initialize()
 
 void mwLoop::move_frame()
 {
-   if (mGameState.level_done_mode) proc_level_done_mode();
-   else
+   if (mGameState.level_done_mode)
    {
-      double t[8] = { 0 };
-      t[0] = al_get_time();
-      mShot.move_eshots();      t[1] = al_get_time();
-      mShot.move_pshots();      t[2] = al_get_time();
-      mLift.move_lifts(0);      t[3] = al_get_time();
-      mPlayer.move_players();   t[4] = al_get_time();
-      mEnemy.move_enemies();    t[5] = al_get_time();
-      mItem.move_items();       t[6] = al_get_time();
-      mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
-                      (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
-      mLog.add_tmr1(LOG_TMR_move_tot, "move", al_get_time() - t[0]);
+      proc_level_done_mode();
+      return;
    }
+
+   if (mGameState.gate_enter_mode)
+   {
+      proc_gate_enter_mode();
+      return;
+   }
+
+   double t[8] = { 0 };
+   t[0] = al_get_time();
+   mShot.move_eshots();      t[1] = al_get_time();
+   mShot.move_pshots();      t[2] = al_get_time();
+   mLift.move_lifts(0);      t[3] = al_get_time();
+   mPlayer.move_players();   t[4] = al_get_time();
+   mEnemy.move_enemies();    t[5] = al_get_time();
+   mItem.move_items();       t[6] = al_get_time();
+   mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
+   mLog.add_tmr1(LOG_TMR_move_tot, "move", al_get_time() - t[0]);
+
+
 }
 
 

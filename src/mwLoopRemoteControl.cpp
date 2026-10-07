@@ -129,11 +129,11 @@ void mwLoop::remote_control_loop()
 
 
    int gfc = 10; // group frame color
-   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mPlayer.syn[0].server_force_client_offset, "Force Client Offset", 15, 15, 0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_force_client_offset, 0);
+   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mGameState.server_force_client_offset, "Force Client Offset", 15, 15, 0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_force_client_offset, 0);
 
    if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mGameState.client_chase_offset*1000);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, +0.005);
 
 
@@ -213,7 +213,7 @@ void mwLoop::remote_control_loop()
    cy+=20;
 
    gfc = 7; // group frame color
-   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mPlayer.syn[0].server_force_fakekey, "Server Force Fakekey", 15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
+   if (mWidget.mCheckBox(0, cx, cx+200, cy, 16,  gfc, mGameState.server_force_fakekey, "Server Force Fakekey", 15, 15, 0) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
 
    cy+=20;
 

@@ -21,8 +21,8 @@ class mwGameState
    float client_chase_offset;
 
    int gate_enter_mode;
+   int gate_enter_timer;
    int gate_enter_item;
-   int gate_enter_player;
 
 };
 extern mwGameState mGameState;

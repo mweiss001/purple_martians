@@ -669,15 +669,15 @@ void mwScreen::init_level_background() // fill level_background with block tiles
          for (int y=0; y<100; y++)
              mark_non_default_block(x, y, mLevel.l[x][y]);
 
-
-
-
+/*
    // draw gates for overworld level
    if (mLevel.last_level_loaded == 1)
    {
       for (int i=0; i<500; i++)
          if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);
    }
+*/
+
 
    // draw messages that are always on
    char msg[256];

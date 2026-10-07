@@ -748,7 +748,7 @@ void mwNetgame::client_timer_adjust()
       if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
       // overridden by server
-      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
+      if (mGameState.server_force_client_offset) client_chase_offset = mGameState.client_chase_offset;
 
       // set point
       float sp = client_chase_offset;

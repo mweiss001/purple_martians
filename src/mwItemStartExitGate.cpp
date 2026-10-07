@@ -245,11 +245,6 @@ void mwItem::proc_exit_collision(int p, int i)
 
 
 
-
-
-
-
-
 /*
 // -----------------------------------------------------------------------
 // Gate
@@ -258,7 +253,7 @@ void mwItem::proc_exit_collision(int p, int i)
 item[][0] = 18 - Gate
 item[][1] = draw mode
 item[][2] =
-item[][3] = draw sequence
+item[][3] =
 
 item[][4] = x pos
 item[][5] = y pos
@@ -266,43 +261,19 @@ item[][5] = y pos
 item[][6] = level
 item[][7] = current display page
 
-
 what do I have to use:
 
 i need:
-
 
 8 small_map_x
 9 small_map_y
 10 small_map_size
 
-
 11 large_map_x
 12 large_map_y
 13 large_map_size
 
-
-
-
-
-
-
-
-
 */
-
-
-
-
-
-
-
-void mwItem::proc_gate(int i)
-{
-
-
-
-}
 
 
 void mwItem::proc_gate_collision(int p, int i)
@@ -332,54 +303,12 @@ void mwItem::proc_gate_collision(int p, int i)
       if (status < 2) status = 2;
    }
 
-
-
-   int draw_mode = item[i][1];
-   int enter_gate = 0;
-
-   // if UP pressed, enter gate (client can never locally enter gate)
-   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) && (!item[i][3]) )
+   // if not already in gate_enter_mode, and not client (client can never locally enter gate) and UP pressed, start gate_enter_mode)
+   if ( !mGameState.gate_enter_mode && !mNetgame.ima_client && mPlayer.syn[p].up)
    {
-      if (draw_mode == 0) enter_gate = 1;
-      if (draw_mode == 1) item[i][3] = 10;
+      mGameState.gate_enter_mode = 9;
+      mGameState.gate_enter_item = i;
    }
-
-   if (item[i][3])
-   {
-      item[i][3]++;
-      if (item[i][3] == 30) enter_gate = 1;
-   }
-
-
-   if (enter_gate)
-   {
-
-      // server to set last touched gate for all clients
-      if (mNetgame.ima_server)
-      {
-         for (int pp=1; pp<8; pp++)
-            if (mPlayer.syn[pp].active)
-            {
-               mPlayer.syn[pp].overworld_last_touched_gate = lev;
-            }
-      }
-
-      // immediate next level to gate level
-      mGameState.level_done_mode = 3;
-      mGameState.level_done_timer = 0;
-      mGameState.level_done_next_level = lev;
-
-      mLoop.quit_action = 2;
-      mLoop.done_action = 2;
-   }
-
-
-
-
-
-
-
-
 
    // if DOWN pressed, cycle display pages
    if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][7]++;
@@ -398,9 +327,6 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 {
    // to fix default shape from selection window PDE
    if (item[i][1] == 940) item[i][1] = 0;
-
-
-
 
 
    if (custom) al_draw_bitmap(mBitmap.sprite[139], x, y, 0 );
@@ -455,16 +381,13 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          mScreen.draw_framed_text(xc, ly+101, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
       }
 
-
-
       if (draw_mode == 1)
       {
-         // new 6 tile 3 frame animated door
-         //int o = 0+mLoop.pct_x*6+mLoop.pct_y*32;
+         int o = 0;
 
-         int o = (item[i][3]/10)*6;
-
-
+         if (mGameState.gate_enter_mode == 8) o = 6; // partially open door
+         if (mGameState.gate_enter_mode < 8) o = 12; // fully open door
+         if (mGameState.gate_enter_mode == 0) o = 0; // closed door
 
          al_draw_bitmap(mBitmap.tile[320+o], x-10, y-39, 0);
          al_draw_bitmap(mBitmap.tile[321+o], x+10, y-39, 0);
@@ -472,14 +395,29 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          al_draw_bitmap(mBitmap.tile[323+o], x+10, y-19, 0);
          al_draw_bitmap(mBitmap.tile[324+o], x-10, y+1,  0);
          al_draw_bitmap(mBitmap.tile[325+o], x+10, y+1,  0);
-      }
 
+
+         if (mGameState.gate_enter_mode == 5) // shrink and rotate
+         {
+            int size = (10-mGameState.gate_enter_timer) * 5;
+
+            mLevelIcons.draw_level_icon(x, y-15, size, lev);
+
+
+         }
+         // if (o)
+         // {
+         //    mLevelIcons.draw_level_icon(x, y-15, 20, lev);
+         //
+         //
+         // }
+
+
+     }
 
       // draw gate info if marked by player
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) draw_gate_info(i);
-
-
 
 
    }

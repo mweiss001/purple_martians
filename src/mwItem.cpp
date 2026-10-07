@@ -154,11 +154,6 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 //   if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
 
 
-//   if (type == PM_ITEM_TYPE_GATE)     drawn = draw_gate         (i, x, y, custom);
-
-
-
-
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
 

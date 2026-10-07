@@ -24,6 +24,124 @@
 #include "mwMain.h"
 
 
+
+void mwLoop::proc_gate_enter_mode()
+{
+   int seek_time = 80;
+
+
+
+   int i = mGameState.gate_enter_item;
+   int draw_mode = mItem.item[i][1];
+
+   int enter_gate = 0;
+
+   if (draw_mode == 0) enter_gate = 1;
+
+   if (draw_mode == 1)
+   {
+      if (mGameState.gate_enter_mode == 9) mGameState.gate_enter_timer = 0; // entry point
+
+      if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
+      {
+         int x = mItem.itemf[i][0];
+         int y = mItem.itemf[i][1];
+
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
+            {
+               mPlayer.syn[p].paused = 5; // set player paused
+
+               // get distance between player and gate center
+               float dx = x - mPlayer.syn[p].x;
+               float dy = (y - mPlayer.syn[p].y) -15;
+
+               // get move
+               mPlayer.syn[p].xinc = dx/seek_time;
+               mPlayer.syn[p].yinc = dy/seek_time;
+
+               // set left right direction
+               if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
+               if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
+            }
+      }
+
+      if (mGameState.gate_enter_mode == 6) // players seek gate
+      {
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
+            {
+               mPlayer.syn[p].x += mPlayer.syn[p].xinc;
+               mPlayer.syn[p].y += mPlayer.syn[p].yinc;
+            }
+      }
+
+      if (mGameState.gate_enter_mode == 5) // shrink and rotate
+      {
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
+            {
+               mPlayer.syn[p].draw_scale -= 0.05;
+               mPlayer.syn[p].draw_rot -= 8;
+            }
+      }
+
+      if (!mNetgame.ima_client) // clients do not set this locally, must come from server
+         if (--mGameState.gate_enter_timer <= 0)
+         {
+            mGameState.gate_enter_mode--;
+
+            if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // open door
+            if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
+            if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = seek_time; // players seek gate
+            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = 10; // players shrink and rotate into exit
+            if (mGameState.gate_enter_mode == 4) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 3) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 2) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 1) enter_gate = 1;
+         }
+   }
+
+
+
+
+
+
+
+
+   if (enter_gate)
+   {
+      int lev = mItem.item[i][6];
+
+      // server to set last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mPlayer.syn[pp].active)
+            {
+               mPlayer.syn[pp].overworld_last_touched_gate = lev;
+            }
+      }
+
+      // immediate next level to gate level
+      mGameState.level_done_mode = 3;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = lev;
+
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
+
+      mGameState.gate_enter_mode = 0;
+   }
+
+
+}
+
+
+
+
+
+
 void mwLoop::proc_level_done_mode()
 {
 //   mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d\n", frame_num, mGameState.level_done_mode);

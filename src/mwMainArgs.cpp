@@ -138,7 +138,7 @@ void mwMain::copy_files_to_clients(int type)
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
 
-   sprintf(client[num_clients++], "\\\\d5414\\pm_client54");  // win 10 -- ruggedized old work laptop
+//   sprintf(client[num_clients++], "\\\\d5414\\pm_client54");  // win 10 -- ruggedized old work laptop
 
 
 
@@ -179,25 +179,15 @@ void mwMain::copy_files_to_clients(int type)
 
 void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
-
-
    if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
-
 //   if ((argument_count > 1) && (strcmp(argument_array[1],"-rc") == 0 )) server_remote_control = 1;
-
-
    if (argument_count == 2) // example 'pmwin x'
    {
-
-
       if (strcmp(argument_array[1],"-test") == 0 )  // temp test
       {
          temp_test();
          exit(0);
       }
-
-
-
 
       if (strcmp(argument_array[1],"-t")  == 0 ) { copy_files_to_clients(1); exit(0); } // exe only
       if (strcmp(argument_array[1],"-tl") == 0 ) { copy_files_to_clients(2); exit(0); } // exe and levels
@@ -208,7 +198,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
 //      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm23"); exit(0); } // copy src dir only to specific linux machine
 
-      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_levels("\\\\scat\\pm23"); exit(0); } // copy src dir only to specific linux machine
+//      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_levels("\\\\scat\\pm23"); exit(0); } // copy src dir only to specific linux machine
 
 
 

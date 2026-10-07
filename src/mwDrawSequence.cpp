@@ -67,6 +67,8 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    int skip_draw = 0;
    if (mGameState.level_done_mode == 27) skip_draw = 1;
    if (mMain.headless_server) skip_draw = 1;
+
+
    if (!skip_draw)
    {
       int i=0;

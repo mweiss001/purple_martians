@@ -80,7 +80,11 @@ class mwLoop
 
    static int have_all_players_acknowledged();
    void game_menu();
+
    void proc_level_done_mode();
+   void proc_gate_enter_mode();
+
+
    void proc_program_state_change();
 
    void remote_control_loop();

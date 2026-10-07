@@ -855,15 +855,15 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
 
 
       ya = csy1+2;
-      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
-      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
-      al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "force client offset:%d", mPlayer.syn[0].server_force_client_offset);
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mGameState.server_force_client_offset = !mGameState.server_force_client_offset;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mGameState.server_force_client_offset = !mGameState.server_force_client_offset;
+      al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "force client offset:%d", mGameState.server_force_client_offset);
 
 
       ya += bth+1;
-      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mPlayer.syn[0].client_chase_offset -= 0.005;
-      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mPlayer.syn[0].client_chase_offset += 0.005;
-      al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "client offset:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
+      if (mWidget.mButtonNB(0, csx1+2, csx1+2+btw,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "-",   0)) mGameState.client_chase_offset -= 0.005;
+      if (mWidget.mButtonNB(0, csx2-btw-4, csx2-2,  1, ya, bth-2,    1, 2, 0, 1,   color, 0, 15, 0, 0, "+",   0)) mGameState.client_chase_offset += 0.005;
+      al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "client offset:%2.0f", mGameState.client_chase_offset * 1000);
 
 
       ya += bth+1;
@@ -1025,12 +1025,12 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 
       int ya = csy5 + 2;
 
-//      if (mPlayer.syn[0].server_force_client_offset)
+//      if (mGameState.server_force_client_offset)
 
       if (0)
       {
          mWidget.mButton(0, csx1+23, csx2-23,  1, ya, 14,    1, 2, 0, 1,   color, 0, 15, 0, 0, "Server",   1);
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mPlayer.syn[0].client_chase_offset*1000);
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mGameState.client_chase_offset*1000);
       }
       else
       {

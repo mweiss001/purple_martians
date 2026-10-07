@@ -43298,8 +43298,6 @@ now implement draw_mode...done
 
 time for work...commit and push
 
-
-
 now look in player syn struct and see what I can move...
 basically if it is only used by player 0, it can be moved
 
@@ -43443,6 +43441,372 @@ next do these:
 removed 3 * 4 * 8 = 96
 
 now 113088
+
+
+this is what I have removed:
+
+mPlayer.syn[0].server_force_fakekey
+
+mGameState.server_force_fakekey;
+
+
+
+struct psyn // synced between server and client
+{
+   int active;  // all routines that process player will skip inactive
+   int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
+   int paused;
+   int paused_type; // 1 = death, 2 = door move
+   int paused_mode;
+   int paused_mode_count;
+
+//   int level_done_mode;
+//   int level_done_timer;
+   int level_done_ack;
+//   int level_done_x;
+//   int level_done_y;
+//   int level_done_player;
+//   int level_done_frame;
+//   int level_done_next_level;
+
+   int overworld_last_touched_gate;
+
+   float x, y;        // players position
+   float xinc, yinc;  // players speed
+   float right_xinc, left_xinc;
+
+   float health;
+   float old_health;
+
+   int on_ladder;
+   int on_rope;
+   int player_ride;
+
+   int carry_item;
+
+   int shape; // index to player_tile
+   int color; // used to draw frames and stuff in players color
+
+   char name[9];
+
+   int left_right; // determines the direction the player is facing
+
+   float draw_rot;
+   float draw_scale;
+
+   int door_draw_rot_num_steps;
+   float door_draw_rot;
+   float door_draw_rot_inc;
+
+   float door_xinc;
+   float door_yinc;
+
+   int marked_door;
+   int door_item;
+   int door_num_steps;
+
+   int marked_gate;
+   int spawn_point_index;
+
+   // controls
+   int up, down, left, right;
+   int jump, fire, menu;
+
+   // bitfields of the 7 controls
+   int ctrl_bitf;
+   int old_ctrl_bitf;
+
+   int shot_wait_counter, shot_wait, shot_speed;
+
+   int stat_respawns;
+   int stat_shots_fired;
+   int stat_enemy_hits;
+   int stat_player_hits;
+   int stat_self_hits;
+   int stat_purple_coins;
+
+   int stat_next_levels;
+   int stat_exits;
+
+   int stat_enemy_exploded;
+   int stat_player_exploded;
+   int stat_self_exploded;
+
+   int late_cdats;
+   int late_cdats_last_sec;
+
+   int player_text_overlay_timer;
+   int player_text_overlay_type;
+
+   
+
+//   int player_vs_player_shots;
+//   int player_vs_player_shot_damage;
+//   int player_vs_self_shots;
+
+//   int server_force_fakekey = 0;
+//   int server_force_client_offset = 0;
+//   float client_chase_offset = -0.02;
+
+
+
+   // int spare_int1;
+   // int spare_int2;
+   // int spare_int3;
+   // int spare_int4;
+
+
+};
+
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2080
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  5120
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+mGameState          :    64
+--------------------:------
+total               :112864
+
+2026-10-06 19:21:57
+
+OK now I have some stuff in game state
+
+class mwGameState
+{
+   public:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey;
+   int server_force_client_offset;
+   float client_chase_offset;
+
+   int gate_enter_mode;
+   int gate_enter_item;
+   int gate_enter_player;
+
+};
+extern mwGameState mGameState;
+
+back to making my new gate work
+
+2026-10-06 19:23:52
+
+I am going to use gate_enter_mode like level_done_mode
+only one can be active at a time
+
+
+gates can only be activated if mGameState.gate_enter_mode == 0
+
+when any gate is activated,
+mGameState.gate_enter_mode = 1;
+mGameState.gate_enter_item = i;
+mGameState.gate_enter_player = p;
+
+then in proc_gate,
+if mGameState.gate_enter_mode && mGameState.gate_enter_item == i
+
+process this gate, including actually activating it..
+
+all collision will do is start the process
+
+done...
+
+I draw all gates on overworld in level background, can't do that any more!!!
+
+
+I think I know why I drew info like I did...so it would be on top!!!
+
+2026-10-06 21:06:32
+
+
+
+2026-10-07 04:53:06
+
+I want to make the door animation have a little more...
+
+as the door opens, we see the level behind the door...
+then the player moves up a little and shrinks into the door
+
+
+should I move that custom drawing into the proc section?
+probably not, I want to segregate draw from proc...
+
+
+but like with the level done stuff, it might be nice to have its own class
+
+especially if I want to make it complex, like level done...and I do!!!
+
+I really want to have more modes, especially have all players seek the gate and spin into it...
+
+Do it fool!
+
+it does not need to be its own class, just a function
+
+void mwLoop::proc_level_done_mode()
+
+void mwLoop::proc_gate_enter_mode()
+
+
+void mwLoop::move_frame()
+{
+   if (mGameState.level_done_mode)
+   {
+      proc_level_done_mode();
+      return;
+   }
+
+   if (mGameState.gate_enter_mode)
+   {
+      proc_gate_enter_mode();
+      return;
+   }
+
+now make it so that no drawing happens in draw
+
+what layer am I drawing on in gate_entry_mode?
+
+how is it done in level_done_mode?
+
+move it back to draw?? yes...
+
+
+2026-10-07 06:52:37
+
+I think I am getting somewhere, it seems to be working
+
+drawing of gate is done in draw_gate
+
+      if (draw_mode == 1)
+      {
+         int o = 0;
+
+         if (mGameState.gate_enter_mode == 8) o = 6; // partially open door
+         if (mGameState.gate_enter_mode < 8) o = 12; // fully open door
+         if (mGameState.gate_enter_mode == 0) o = 0; // closed door
+
+         al_draw_bitmap(mBitmap.tile[320+o], x-10, y-39, 0);
+         al_draw_bitmap(mBitmap.tile[321+o], x+10, y-39, 0);
+         al_draw_bitmap(mBitmap.tile[322+o], x-10, y-19, 0);
+         al_draw_bitmap(mBitmap.tile[323+o], x+10, y-19, 0);
+         al_draw_bitmap(mBitmap.tile[324+o], x-10, y+1,  0);
+         al_draw_bitmap(mBitmap.tile[325+o], x+10, y+1,  0);
+
+     }
+
+proc_gate is not used and removed
+
+
+this is how it starts:
+
+in gate_collision:
+   
+   // if not already in gate_enter_mode, and not client (client can never locally enter gate) and UP pressed, start gate_enter_mode)
+   if ( !mGameState.gate_enter_mode && !mNetgame.ima_client && mPlayer.syn[p].up)
+   {
+      mGameState.gate_enter_mode = 9;
+      mGameState.gate_enter_item = i;
+   }
+
+
+void mwLoop::proc_gate_enter_mode()
+
+            if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // open door
+            if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
+            if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = seek_time; // players seek gate
+            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = 10; // players shrink and rotate into exit
+            if (mGameState.gate_enter_mode == 4) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 3) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 2) mGameState.gate_enter_timer = 0;  // not used
+            if (mGameState.gate_enter_mode == 1) enter_gate = 1;
+
+Now all that is left is to fine tune the timings
+
+I also would like to show the level behind where the players rotate and shrink into it
+
+I also need to skip drawing in headless server mode...or do I?.. should already be done...
+
+2026-10-07 07:19:28
+commit
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
 
 
 

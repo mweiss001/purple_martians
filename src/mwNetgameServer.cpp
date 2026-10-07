@@ -163,12 +163,12 @@ void mwNetgame::server_rewind()
    double t0 = al_get_time();
 
    // save values we don't want rewound
-   float old_cco = mPlayer.syn[0].client_chase_offset;
+   float old_cco = mGameState.client_chase_offset;
    int pvps = mGameState.player_vs_player_shots;
    int pvpd = mGameState.player_vs_player_shot_damage;
    int pvss = mGameState.player_vs_self_shots;
-   int sffk = mPlayer.syn[0].server_force_fakekey;
-   int sfco = mPlayer.syn[0].server_force_client_offset;
+   int sffk = mGameState.server_force_fakekey;
+   int sfco = mGameState.server_force_client_offset;
    int lcd[8][2] = { 0 };
    for (int pp=0; pp<NUM_PLAYERS; pp++)
       if (mPlayer.syn[pp].active)
@@ -180,12 +180,12 @@ void mwNetgame::server_rewind()
    mStateHistory[0].apply_rewind_state(server_dirty_frame);
 
    // restore values we don't want reset
-   mPlayer.syn[0].client_chase_offset = old_cco;
+   mGameState.client_chase_offset = old_cco;
    mGameState.player_vs_player_shots = pvps;
    mGameState.player_vs_player_shot_damage = pvpd;
    mGameState.player_vs_self_shots = pvss;
-   mPlayer.syn[0].server_force_fakekey = sffk;
-   mPlayer.syn[0].server_force_client_offset = sfco;
+   mGameState.server_force_fakekey = sffk;
+   mGameState.server_force_client_offset = sfco;
    for (int pp=0; pp<NUM_PLAYERS; pp++)
       if (mPlayer.syn[pp].active)
       {
@@ -383,7 +383,7 @@ void mwNetgame::server_process_db_control()
 
          if (row.key == "fakekey")
          {
-            mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+            mGameState.server_force_fakekey = !mGameState.server_force_fakekey;
             used = 1;
          }
 
@@ -489,7 +489,7 @@ void mwNetgame::server_proc_rctl_packet(int i)
 
    if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
    {
-      mPlayer.syn[0].client_chase_offset += val;
+      mGameState.client_chase_offset += val;
       mConfig.save_config(PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET);
    }
 
@@ -548,8 +548,8 @@ void mwNetgame::server_proc_rctl_packet(int i)
       mConfig.save_config(PM_CFG_SAVE_NETGAME_SHOTS);
    }
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
-   if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
-   if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
+   if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mGameState.server_force_fakekey = !mGameState.server_force_fakekey;
+   if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mGameState.server_force_client_offset = !mGameState.server_force_client_offset;
 }
 
 void mwNetgame::server_proc_stak_packet(int i)
