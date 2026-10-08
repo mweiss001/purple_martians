@@ -43749,6 +43749,199 @@ commit
 
 
 
+make the shrink, rotate, and enter mode more customizable:
+
+length (in frames)
+number of rotations
+final scale
+
+   int rotate_time = 40;
+   int num_rotations = 2;
+   float final_scale = .1;
+
+      if (mGameState.gate_enter_mode == 5) // shrink and rotate
+      {
+         float scale_inc = (1.0 - final_scale) / rotate_time;
+         float rot_inc = num_rotations * (ALLEGRO_PI * 2) / rotate_time;
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
+            {
+               mPlayer.syn[p].draw_scale -= scale_inc;
+               mPlayer.syn[p].draw_rot -= rot_inc;
+            }
+      }
+
+
+
+         if (mGameState.gate_enter_mode == 5) // shrink and rotate
+         {
+            // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+            float rotate_time = 40;
+            float ratio = (rotate_time - mGameState.gate_enter_timer) / rotate_time;
+
+            // level icon size
+            float size = 200 * ratio;
+
+            // level icon x and y
+            float lx = xc - size/2;  // level icon x pos
+            float ly = yc - size/2;  // level icon y pos
+
+            al_draw_filled_rectangle(   lx, ly, lx+size+1, ly+size+1, mColor.pc[0]);      // clear
+            mLevelIcons.draw_level_icon(lx+1, ly+1, size, lev);                           // level icon
+            al_draw_rectangle(          lx, ly, lx+size+1, ly+size+1, mColor.pc[col], 1); // frame
+         }
+
+
+
+2026-10-08 05:35:30
+That is working well enough for now.  Later I may want to fine tune it, and maybe even do something like work on a nice transition.
+
+Now I want to work on the rest.
+- customizable small map
+
+need to set x, y, size in ov
+should I make them absolute or relative to main item x, y?
+what is easiest? absolute...
+
+now I need to move the 'draw_gate_info' back to draw sequence where it belongs, so that it is on a higher draw layer
+done
+
+now what about the info?
+
+It has a fixed width of 200 that I cannot change because of the text width
+
+The height is variable based on what page is shown
+I could change the y position relative to the main item
+
+   int bs = 200; // level icon size
+   int by = y+35; // info y start pos
+   if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
+
+
+first I need a way to optionally show the info pages in ov...
+
+I will need a variable 
+mPlayer.syn[0].marked_gate = n; ... does not work
+
+in mwLevelEditor:
+int show_gate_info;
+int show_gate_info_item;
+
+int mwLevelEditor::redraw_background()
+
+      mScreen.get_new_background(0);
+
+      // draw lifts
+      if (mEditorMain.obj_filter[4][1][1]) mLift.draw_lifts();
+
+      // draw items
+      for (int i=0; i<500; i++)
+      {
+         int type = mItem.item[i][0];
+         if (type && mEditorMain.obj_filter[2][type][1]) mItem.draw_item(i, 0, 0, 0);
+      }
+      // draw enemies
+      for (int e=0; e<100; e++)
+      {
+         int type = mEnemy.Ei[e][0];
+         if (type && mEditorMain.obj_filter[3][type][1]) mEnemy.draw_enemy(e, 0, 0, 0);
+      }
+
+      if (show_gate_info) mItem.draw_gate_info(show_gate_info_item);
+
+
+
+in mwObjectViewer
+
+            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        13, 13,  "Hide Info",                "Show Info");
+            if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
+
+            if (odbb(d, xa, xb, ya, bts, q, "Page")) if (++mItem.item[n][7] > 2) mItem.item[n][7] = 0;
+
+    
+Now I can see the gate info at will!!!
+
+but!....mItem.item[n][7] gets saved and is now the initial page for gate...
+
+how can I deal with that?
+
+change:
+
+void mwItem::draw_gate_info(int i)
+
+void mwItem::draw_gate_info(int i)
+
+
+void draw_gate_info(int i, int page = -1);
+
+   //int page = item[i][7];   
+   if (page == -1) page = item[i][7];
+
+
+
+   int show_gate_info;
+   int show_gate_info_item;
+   int show_gate_info_page;
+
+            if (odbb(d, xa, xb, ya, bts, q, "Page")) if (++mLevelEditor.show_gate_info_page > 2) mLevelEditor.show_gate_info_page = 0;
+            //if (odbb(d, xa, xb, ya, bts, q, "Page")) if (++mItem.item[n][7] > 2) mItem.item[n][7] = 0;
+
+      if (show_gate_info) mItem.draw_gate_info(show_gate_info_item, show_gate_info_page);
+
+
+ok now I have dealt with that
+
+I can optionally show gate_info
+
+I think its time for a commit
+2026-10-08 07:11:33
+
+and maybe deploy to 138 and test...
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

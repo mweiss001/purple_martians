@@ -159,15 +159,15 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
           ds_add(i);
       }
 
-      // if (setup_only) ds_add_names(i, "d-gnfo", "gate info");
-      // else
-      // {
-      //    // draw gate info
-      //    for (int p=0; p<NUM_PLAYERS; p++)
-      //       if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-      //          mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
-      //     ds_add(i);
-      // }
+      if (setup_only) ds_add_names(i, "d-gnfo", "gate info");
+      else
+      {
+         // draw gate info
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+               mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+          ds_add(i);
+      }
 
 
       if (packet_check) mPacketBuffer.check_for_packets();

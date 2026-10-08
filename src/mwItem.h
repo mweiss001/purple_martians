@@ -61,7 +61,13 @@ class mwItem
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
-   void draw_gate_info(int i);
+
+
+
+   void draw_gate_info(int i, int page = -1);
+
+
+
 
    char * chrd(int v, char* ft);
    char * chrd(int v1, int v2, char* ft);

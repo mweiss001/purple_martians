@@ -6,10 +6,14 @@ struct psyn // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
+
+
    int paused;
    int paused_type; // 1 = death, 2 = door move
    int paused_mode;
    int paused_mode_count;
+
+
 
    int level_done_ack;
 

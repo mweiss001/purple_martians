@@ -27,8 +27,10 @@
 
 void mwLoop::proc_gate_enter_mode()
 {
-   int seek_time = 80;
-
+   int seek_time = 30;
+   int rotate_time = 40;
+   int num_rotations = 2;
+   float final_scale = .1;
 
 
    int i = mGameState.gate_enter_item;
@@ -76,13 +78,16 @@ void mwLoop::proc_gate_enter_mode()
             }
       }
 
+
       if (mGameState.gate_enter_mode == 5) // shrink and rotate
       {
+         float scale_inc = (1.0 - final_scale) / rotate_time;
+         float rot_inc = num_rotations * (ALLEGRO_PI * 2) / rotate_time;
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
-               mPlayer.syn[p].draw_scale -= 0.05;
-               mPlayer.syn[p].draw_rot -= 8;
+               mPlayer.syn[p].draw_scale -= scale_inc;
+               mPlayer.syn[p].draw_rot -= rot_inc;
             }
       }
 
@@ -90,23 +95,16 @@ void mwLoop::proc_gate_enter_mode()
          if (--mGameState.gate_enter_timer <= 0)
          {
             mGameState.gate_enter_mode--;
-
             if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // open door
             if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
             if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = seek_time; // players seek gate
-            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = 10; // players shrink and rotate into exit
+            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = rotate_time; // players shrink and rotate
             if (mGameState.gate_enter_mode == 4) mGameState.gate_enter_timer = 0;  // not used
             if (mGameState.gate_enter_mode == 3) mGameState.gate_enter_timer = 0;  // not used
             if (mGameState.gate_enter_mode == 2) mGameState.gate_enter_timer = 0;  // not used
             if (mGameState.gate_enter_mode == 1) enter_gate = 1;
          }
    }
-
-
-
-
-
-
 
 
    if (enter_gate)

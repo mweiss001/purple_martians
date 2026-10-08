@@ -333,6 +333,8 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    else
    {
       int xc = x+10; // center of tile
+      int yc = y-5;  // center of tile
+
       int lev = item[i][6];
 
       int draw_mode = item[i][1];
@@ -396,28 +398,52 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          al_draw_bitmap(mBitmap.tile[324+o], x-10, y+1,  0);
          al_draw_bitmap(mBitmap.tile[325+o], x+10, y+1,  0);
 
+         // draw crosshairs
+         // al_draw_line(xc, yc-10, xc, yc+10, mColor.Red, 1);
+         // al_draw_line(xc-10, yc, xc+10, yc, mColor.Red, 1);
 
          if (mGameState.gate_enter_mode == 5) // shrink and rotate
          {
-            int size = (10-mGameState.gate_enter_timer) * 5;
+            // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+            float rotate_time = 40;
+            float ratio = (rotate_time - mGameState.gate_enter_timer) / rotate_time;
 
-            mLevelIcons.draw_level_icon(x, y-15, size, lev);
+            // level icon size
+            float size = 200 * ratio;
 
+            // level icon x and y
+            float lx = xc - size/2;  // level icon x pos
+            float ly = yc - size/2;  // level icon y pos
 
+            al_draw_filled_rectangle(   lx, ly, lx+size+1, ly+size+1, mColor.pc[0]);      // clear
+            mLevelIcons.draw_level_icon(lx+1, ly+1, size, lev);                           // level icon
+            al_draw_rectangle(          lx, ly, lx+size+1, ly+size+1, mColor.pc[col], 1); // frame
          }
-         // if (o)
-         // {
-         //    mLevelIcons.draw_level_icon(x, y-15, 20, lev);
-         //
-         //
-         // }
 
 
-     }
+         // draw level icon with frame
+         float lx = item[i][8];  // level icon x pos
+         float ly = item[i][9];  // level icon y pos
+         int ls = item[i][10]; // level icon size
 
-      // draw gate info if marked by player
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) draw_gate_info(i);
+         al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+         mLevelIcons.draw_level_icon(lx+1, ly+1, ls, lev);                        // level icon
+         al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
+         mScreen.draw_framed_text(lx+ls/2, ly+ls+1, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+
+
+
+
+
+
+      }
+
+
+      // this is not done here, it is done in draw sequence so that it is on a higher draw layer and not covered by other things
+      // // draw gate info if marked by player
+      // for (int p=0; p<NUM_PLAYERS; p++)
+      //    if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) draw_gate_info(i);
 
 
    }
@@ -425,19 +451,23 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 }
 
 
-void mwItem::draw_gate_info(int i)
+void mwItem::draw_gate_info(int i, int page)
 {
    int x = item[i][4];
    int y = item[i][5];
    int xc = x + 10; // center of tile
    int lev = item[i][6];
-   int page = item[i][7];
+
+   //int page = item[i][7];
+   if (page == -1) page = item[i][7];
+
+
 
 
    int bs = 200; // level icon size
    int by = y+35; // info y start pos
-
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
+
 
    int status = mLevel.data[lev].status;
    int col = mLevel.level_status_color[status];
@@ -451,8 +481,6 @@ void mwItem::draw_gate_info(int i)
          col = 12;
       }
    }
-
-//   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 
    mScreen.draw_framed_text(xc, by, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 

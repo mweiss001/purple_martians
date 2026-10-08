@@ -538,6 +538,14 @@ int mwLevelEditor::redraw_background()
          if (type && mEditorMain.obj_filter[3][type][1]) mEnemy.draw_enemy(e, 0, 0, 0);
       }
 
+
+      if (show_gate_info) mItem.draw_gate_info(show_gate_info_item, show_gate_info_page);
+
+
+
+
+
+
 //      mItem.draw_items();
 //      mEnemy.draw_enemies();
 

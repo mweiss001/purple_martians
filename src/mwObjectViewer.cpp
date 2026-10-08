@@ -15,6 +15,7 @@
 #include "mwLift.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
+#include "mwPlayer.h"
 #include "mwScreen.h"
 #include "mwTriggerEvent.h"
 #include "mwWidget.h"
@@ -96,7 +97,7 @@ void mwObjectViewer::ov_set_width(mwWindow & ww)
    if ((obt == 2) && (type == 15)) w = 240; // sproingy
    if ((obt == 2) && (type == 16)) w = 280; // bm
    if ((obt == 2) && (type == 17)) w = 290; // bd
-   if ((obt == 2) && (type == 18)) w = 220; // gate
+   if ((obt == 2) && (type == 18)) w = 280; // gate
    if ((obt == 2) && (type == 19)) w = 260; // hider
 
    if (obt == 3) w = 300; // all enemies
@@ -1141,6 +1142,8 @@ void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int &var, int
    mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, var, bitflag,  txt0, txt1, bcol0, bcol1, tcol0, tcol1, 0, 0, d);
 }
 
+
+
 // 42
 bool mwObjectViewer::odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt)
 {
@@ -1910,9 +1913,30 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          }
          break;
          case 18: // gate
+         {
             odbp(d, xa, xb, ya, bts, 8, 405, mItem.item[n][1]); // draw mode
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 10, mItem.item[n][6], 99, 1, 1,  1, 10, "Level:");
+
+            ya+=4; // spacer
+            int q=12; // mode color
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][8],  1990, 0, 1,  1, 10, "Level Icon x:");
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][9],  1990, 0, 1,  1, 10, "Level Icon y:");
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][10], 400, 20, 1,  1, 10, "Level Icon size:");
+
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position"))
+            {
+               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10;
+               mItem.item[n][9] = mItem.item[n][5] - mItem.item[n][10] - 28;
+            }
+
+            ya+=4; // spacer
+            q = 13;
+            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Info",                "Show Info");
+            if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
+            if (odbb(d, xa, xb, ya, bts, q, "Page")) if (++mLevelEditor.show_gate_info_page > 2) mLevelEditor.show_gate_info_page = 0;
+
+         }
          break;
          case 19: // hider
          {
