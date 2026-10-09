@@ -12,6 +12,10 @@ class mwGameState
    int level_done_frame;
    int level_done_next_level;
 
+   int gate_enter_mode;
+   int gate_enter_timer;
+   int gate_enter_item;
+
    int player_vs_player_shots;
    int player_vs_player_shot_damage;
    int player_vs_self_shots;
@@ -20,9 +24,6 @@ class mwGameState
    int server_force_client_offset;
    float client_chase_offset;
 
-   int gate_enter_mode;
-   int gate_enter_timer;
-   int gate_enter_item;
 
 };
 extern mwGameState mGameState;

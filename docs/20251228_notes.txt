@@ -43898,6 +43898,106 @@ I think its time for a commit
 
 and maybe deploy to 138 and test...
 
+seems to be working!!!
+
+
+soon I will want to test on the official server!!!
+I think I might have broken remote....it still seems to work...
+
+cant adjust player hit amount
+
+when other player joins, fakekey is reset
+
+2026-10-08 13:38:56
+testing with clion disabled...
+
+2026-10-09 05:38:17
+still running
+
+2026-10-09 05:46:02
+fix remote not sending some data
+
+   if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -inc);
+
+void mwNetgame::client_send_rctl_packet(int type, double val)
+{
+   mLoop.remote_frames_since_last_rctl_sent = 0;
+
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "rctl");
+   mPacketBuffer.PacketPutInt32(data, pos, type);
+   mPacketBuffer.PacketPutDouble(data, pos, val);
+   clientSend(data, pos);
+}
+
+
+it is actually changing, but not showing on remote!!!
+I think I relied on just sending the player struct!!!
+
+add:
+   
+// copy to variables
+sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
+sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
+sz = sizeof(mGameState);  memcpy(&mGameState, dmp+offset, sz); offset += sz;
+
+offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
+offset += sz; sz = sizeof(mPlayer.loc); memcpy(src + offset, mPlayer.loc, sz);
+offset += sz; sz = sizeof(mGameState);  memcpy(src + offset, &mGameState, sz);
+
+
+// what is my actual size?
+
+Variables used to send info to remote
+
+mPlayer.syn         :  2080
+mPlayer.loc         :  3136
+mGameState          :    64
+---------------:------
+total          :  5280
+
+I think we are good...
+
+when other player joins, fakekey is reset.....
+
+
+
+I reset it in player init...
+
+should not do that.
+
+      loc[p].hostname[0] = 0;
+      loc[p].fake_keypress_mode = 0;
+      // mGameState.server_force_fakekey = 0;
+
+is there some place I should?
+
+how about when I init server?
+
+there were no places in code where I set initial values for these:
+
+   int server_force_fakekey;
+   int server_force_client_offset;
+   float client_chase_offset;
+
+not it is done when I contruct mwNetgame:
+
+   mGameState.server_force_fakekey = 0;
+   mGameState.server_force_client_offset = 0;
+   mGameState.client_chase_offset = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

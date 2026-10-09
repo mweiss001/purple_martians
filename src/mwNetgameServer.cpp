@@ -381,11 +381,11 @@ void mwNetgame::server_process_db_control()
          printf("%s %f %d\n", row.key.c_str(), row.val, row.mod);
 
 
-         if (row.key == "fakekey")
-         {
-            mGameState.server_force_fakekey = !mGameState.server_force_fakekey;
-            used = 1;
-         }
+         // if (row.key == "fakekey")
+         // {
+         //    mGameState.server_force_fakekey = !mGameState.server_force_fakekey;
+         //    used = 1;
+         // }
 
 
          // if (row.key == "ss_enable")
@@ -443,6 +443,8 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
    int sz=0, offset=0;
    offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
    offset += sz; sz = sizeof(mPlayer.loc); memcpy(src + offset, mPlayer.loc, sz);
+   offset += sz; sz = sizeof(mGameState);  memcpy(src + offset, &mGameState, sz);
+
 
    // compress src to dst
    uLongf destLen= sizeof(dst);
@@ -482,6 +484,9 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
 
 void mwNetgame::server_proc_rctl_packet(int i)
 {
+   //printf("mwNetgame::server_proc_rctl_packet\n");
+
+
    server_remote_control_last_rctl_rx_frame = mLoop.frame_num;
 
    int type = mPacketBuffer.PacketGetInt32(i);
@@ -524,6 +529,7 @@ void mwNetgame::server_proc_rctl_packet(int i)
 
    if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
    {
+
       shot_config_change = 1;
       new_dmg += val;
       if (new_dmg < -100) new_dmg = -100;

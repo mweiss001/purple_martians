@@ -331,6 +331,8 @@ void mwNetgame::client_proc_snfo_packet(int i)
             int sz=0, offset=0;
             sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
             sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
+            sz = sizeof(mGameState);  memcpy(&mGameState, dmp+offset, sz); offset += sz;
+
 
             // dsync, ping graphs
             for (int i=1; i<8; i++) // cycle all clients

@@ -153,9 +153,6 @@ void mwLoop::remote_control_loop()
 
 
    if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -inc);
-
-
-
    al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mGameState.player_vs_player_shot_damage);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, +inc);
 

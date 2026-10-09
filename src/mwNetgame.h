@@ -85,6 +85,7 @@ class mwNetgame
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 
 
+
    // local client's buffer for building compressed sfil from packets
    char client_sfil_buffer[100000];
    int  client_sfil_buffer_pieces[100];   // to mark packet pieces as received

@@ -24,6 +24,13 @@ mwNetgame::mwNetgame()
    sprintf(server_address, "purplemartians.org");
    server_port = 24785;
    zlib_cmp = 7;
+
+   mGameState.server_force_fakekey = 0;
+   mGameState.server_force_client_offset = 0;
+   mGameState.client_chase_offset = 0;
+
+
+
    for (int i=0; i<20; i++) files_to_send[i].active = 0;
    for (int i=0; i<8; i++) clear_channel(i);
    Channel = NULL;

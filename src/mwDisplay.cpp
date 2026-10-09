@@ -617,10 +617,6 @@ void mwDisplay::show_var_sizes()
    printf("total          :%6d\n",  sz );
 
 
-
-
-
-
    printf("\nVariables used to save levels in pml format\n\n"   );
    printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
    printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
@@ -670,6 +666,24 @@ void mwDisplay::show_var_sizes()
 
    printf("--------------------:------\n");
    printf("total               :%6d\n",  sz );
+
+
+
+
+   printf("\nVariables used to send info to remote\n\n"   );
+   printf("mPlayer.syn         :%6d\n", (int)sizeof(mPlayer.syn)          );
+   printf("mPlayer.loc         :%6d\n", (int)sizeof(mPlayer.loc)          );
+   printf("mGameState          :%6d\n", (int)sizeof(mGameState) );
+
+   sz = 0;
+   sz+= sizeof(mPlayer.syn);
+   sz+= sizeof(mPlayer.loc);
+   sz+= sizeof(mGameState);
+
+   printf("---------------:------\n");
+   printf("total          :%6d\n",  sz );
+
+
 
 
 
