@@ -190,13 +190,31 @@ void mwItem::move_items()
    for (int i=0; i<500; i++)
       if (item[i][0])
       {
+         int type = item[i][0];
          int x = itemf[i][0];
          int y = itemf[i][1];
 
-         if ((x<0) || (x>1980) || (y<0) || (y>1980)) item[i][0] = 0; // remove if out of bounds
 
-         int type = item[i][0];
-         if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
+         if ((x<0) || (x>1980) || (y<0) || (y>1980))
+         {
+            int action = 1; // delete
+            if (type == PM_ITEM_TYPE_START) action = 2; // clamp
+
+            if (action == 1)
+            {
+               printf("l:%d - f:%d  item:%d out of bounds - deleting!\n", mLevel.play_level, mLoop.frame_num, i);
+               item[i][0] = 0; // remove if out of bounds
+            }
+            if (action == 2)
+            {
+               mMiscFnx.enforce_limits(itemf[i][0], 0, 1980);
+               mMiscFnx.enforce_limits(itemf[i][1], 0, 1980);
+               x = itemf[i][0];
+               y = itemf[i][1];
+            }
+         }
+
+
          if (type == PM_ITEM_TYPE_ORB)      proc_orb(i);
          if (type == PM_ITEM_TYPE_TRIGGR)   proc_trigger(i);
          if (type == PM_ITEM_TYPE_MSG)      proc_pmsg(i);
@@ -208,14 +226,18 @@ void mwItem::move_items()
          if (type == PM_ITEM_TYPE_LIT_RCKT) proc_lit_rocket(i);
          if (type == PM_ITEM_TYPE_START)    proc_start(i);
 
+         if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
+
 
          // check for time to live
-         if ((type != PM_ITEM_TYPE_TRIGGR) &&
-             (type != PM_ITEM_TYPE_TIMER) &&
-             (type != PM_ITEM_TYPE_BLKMNP) &&
-             (type != PM_ITEM_TYPE_BLKDMG) &&
-             (type != PM_ITEM_TYPE_GATE) &&
-             (type != PM_ITEM_TYPE_LIT_BOMB))
+         bool ttl_check = 1;
+         if (type == PM_ITEM_TYPE_TRIGGR)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_TIMER)    ttl_check = 0;
+         if (type == PM_ITEM_TYPE_BLKMNP)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_BLKDMG)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_GATE)     ttl_check = 0;
+         if (type == PM_ITEM_TYPE_LIT_BOMB) ttl_check = 0;
+         if (ttl_check)
          {
             int ttl = item[i][14];
             if (ttl)
@@ -231,23 +253,38 @@ void mwItem::move_items()
             }
          }
 
-         // not stationary and not lit rocket, trigger, bm, bd or moving key
-         if ((item[i][3]) &&  // not stationary
-             (type != PM_ITEM_TYPE_LIT_RCKT) &&
-             (type != PM_ITEM_TYPE_TRIGGR) &&
-             (type != PM_ITEM_TYPE_TIMER) &&
-             (type != PM_ITEM_TYPE_BLKMNP) &&
-             (type != PM_ITEM_TYPE_BLKDMG) &&
-             (type != PM_ITEM_TYPE_GATE) &&
-             (type != PM_ITEM_TYPE_HIDER) &&
-             (! ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)))    ) // not moving key
+         bool moveable = item[i][3];        // not stationary;
+         if (type == PM_ITEM_TYPE_LIT_RCKT) moveable = 0;
+         if (type == PM_ITEM_TYPE_TRIGGR)   moveable = 0;
+         if (type == PM_ITEM_TYPE_TIMER)    moveable = 0;
+         if (type == PM_ITEM_TYPE_BLKMNP)   moveable = 0;
+         if (type == PM_ITEM_TYPE_BLKDMG)   moveable = 0;
+         if (type == PM_ITEM_TYPE_GATE)     moveable = 0;
+         if (type == PM_ITEM_TYPE_HIDER)    moveable = 0;
+         if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
+
+
+
+         // // not stationary and not lit rocket, trigger, bm, bd or moving key
+         // if ((item[i][3]) &&  // not stationary
+         //     (type != PM_ITEM_TYPE_LIT_RCKT) &&
+         //     (type != PM_ITEM_TYPE_TRIGGR) &&
+         //     (type != PM_ITEM_TYPE_TIMER) &&
+         //     (type != PM_ITEM_TYPE_BLKMNP) &&
+         //     (type != PM_ITEM_TYPE_BLKDMG) &&
+         //     (type != PM_ITEM_TYPE_GATE) &&
+         //     (type != PM_ITEM_TYPE_HIDER) &&
+         //     (! ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)))    ) // not moving key
+
+
+         if (moveable)
          {
             // check if being carried
             int pc = 0;
             for (int p=0; p<NUM_PLAYERS; p++)
                if (mPlayer.syn[p].active)
                   if ((!mPlayer.syn[p].paused) || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))
-                     if (i == (mPlayer.syn[p].carry_item-1)) pc = 1;
+                     if (i == mPlayer.syn[p].carry_item-1) pc = 1;
 
             if (!pc) // not being carried
             {
@@ -274,7 +311,7 @@ void mwItem::move_items()
 
                   if (itemf[i][2] < 0)
                   {
-                     itemf[i][2] += .01;                    // slow down - xinc
+                     itemf[i][2] += .01;                    // slow down -xinc
                      if (itemf[i][2] > 0) itemf[i][2] = 0; // set to zero if crosses zero
 
                   }
@@ -285,7 +322,7 @@ void mwItem::move_items()
                   // moving right and hit wall
                   if ((itemf[i][2] > 0) && (mSolid.is_right_solid(x,y, 1, 3)))
                   {
-                     if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
+                     if (!sticky) itemf[i][0] -= itemf[i][2];   // take back xinc
                      itemf[i][2] = 0;                           // stop
                   }
 
@@ -311,16 +348,25 @@ void mwItem::move_items()
                      int a = mSolid.is_down_solid(x, y, 1, 3);             // check for block below
                      if (a==0)
                      {
-
                         if (! ((type == 99) && (item[i][6] == 2))) // no gravity for exploding bomb
-                           itemf[i][3] += .1;                     // apply gravity to yinc
+                           itemf[i][3] += .1;                      // apply gravity to yinc
 
                         if (itemf[i][3] > 3) itemf[i][3] = 3;  // max gravity
                      }
                      if (a) // slow down xinc if block or lift below
                      {
-                        if (itemf[i][2] > 0) itemf[i][2] -= .12;
-                        if (itemf[i][2] < 0) itemf[i][2] += .12;
+                        // slow down xinc (friction)
+                        if (itemf[i][2] > 0)
+                        {
+                           itemf[i][2] -= .12;                    // slow down +xinc
+                           if (itemf[i][2] < 0) itemf[i][2] = 0; // set to zero if crosses zero
+                        }
+
+                        if (itemf[i][2] < 0)
+                        {
+                           itemf[i][2] += .12;                    // slow down -xinc
+                           if (itemf[i][2] > 0) itemf[i][2] = 0; // set to zero if crosses zero
+                        }
                      }
 
                      if ((a==1) || (a==2)) // align with ground if block below
@@ -376,7 +422,7 @@ void mwItem::move_items()
                   } // end of not moving up
                } // end of not stuck to wall
             } // end of not being carried
-         } // end of if not stationary and not lit rocket
+         } // end of if moveable
       } // end of iterate all active items
 }
 
@@ -428,19 +474,20 @@ int mwItem::player_drop_item(int p, int i)
 
 
 
-
 void mwItem::proc_player_carry(int p)
 {
    if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item))
       if (!mPlayer.syn[p].paused || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))// player is carrying item
       {
          int i = mPlayer.syn[p].carry_item-1;  // item number
+         int type = item[i][0];
 
-         if (!item[i][0]) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
-         if ((item[i][0] == PM_ITEM_TYPE_LIT_RCKT) || (item[i][0] == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
+         if (type == 0) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
-         if (item[i][0] != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
+         if ((type == PM_ITEM_TYPE_LIT_RCKT) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
+
+         if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
          {
             // set item position relative to player that's carrying it
             itemf[i][1] = mPlayer.syn[p].y - 2;
@@ -458,7 +505,7 @@ void mwItem::proc_player_carry(int p)
             }
             else if (wall_stuck < 6)
             {
-               if (item[i][0] != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
+               if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
                {
                   itemf[i][2] = mPlayer.syn[p].xinc;  // inherit the players momentum
                   itemf[i][3] = mPlayer.syn[p].yinc;
@@ -469,7 +516,7 @@ void mwItem::proc_player_carry(int p)
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((item[i][0] == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
+               if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
             }
          }

@@ -372,6 +372,15 @@ int mwMiscFnx::check_limit(int val, int ll, int ul)
 
 
 
+void mwMiscFnx::enforce_limits(float &val, float ll, float ul)
+{
+   if (val < ll) val = ll;
+   if (val > ul) val = ul;
+}
+
+
+
+
 void mwMiscFnx::enforce_limits(int &val, int ll, int ul)
 {
    if (val < ll) val = ll;

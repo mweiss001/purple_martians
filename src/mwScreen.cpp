@@ -140,9 +140,6 @@ void mwScreen::draw_screen_frame()
    for (int x=0; x<BORDER_WIDTH; x++)
       al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + 64 + (x * 16)], 1);
 
-
-
-
 //   for (int x=0; x<BORDER_WIDTH; x++)
 //      al_draw_rounded_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, 8, 8, mColor.pc[c + (x * 16)], 1);
 
@@ -150,7 +147,6 @@ void mwScreen::draw_screen_frame()
 
 void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay)
 {
-
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
    al_set_target_backbuffer(mDisplay.display);
 
@@ -176,7 +172,6 @@ void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, flo
       al_clear_to_color(al_map_rgb(0,0,0));
       draw_level_centered_on_player_pos(fmxi, fmyi, sci);
       draw_screen_overlay();
-//      draw_screen_frame();
       al_flip_display();
       al_rest(delay);
    }
@@ -213,10 +208,6 @@ void mwScreen::set_screen_display_variables()
       screen_display_h = sls;                                    // new screen_display_h = sls
       if (!mLoop.level_editor_running) screen_display_y += a/2;  // new screen_display_y draw ypos
    }
-
-
-
-
 
 
 // ----------------------------------------------------------------------
@@ -402,7 +393,6 @@ void mwScreen::draw_scaled_level_region_to_display()
 
    if (!mLoop.level_editor_running) set_level_display_region_xy();
 
-
    if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
    {
       int sls = mDisplay.scale_factor_current * 2000;    // get the scaled size of the entire level
@@ -537,9 +527,6 @@ void mwScreen::set_map_var()
    if (!mMain.classic_mode) menu_level_info_w = 0;
 
 
-
-
-
    // determine the size of the level_display
 
    // get the available y space left for the level display
@@ -589,9 +576,6 @@ void mwScreen::set_map_var()
 //
 //   menu_logo_y = mDisplay.SCREEN_H - BORDER_WIDTH - menu_level_info_w/2;
 
-
-
-
 //   // menu logo scale
 //   float sp = menu_level_display_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
 //   menu_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
@@ -606,9 +590,7 @@ void mwScreen::set_map_var()
    splash_logo_scale_dec = (splash_logo_scale - menu_logo_scale) / 320;
    splash_logo_x_dec     = (splash_logo_x     - menu_logo_x)     / 320;
    splash_logo_y_dec     = (splash_logo_y     - menu_logo_y)     / 320;
-
 }
-
 
 
 void mwScreen::mark_non_default_block(int x, int y, int tile)
@@ -619,7 +601,6 @@ void mwScreen::mark_non_default_block(int x, int y, int tile)
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
    }
 }
-
 
 void mwScreen::draw_tile_overlay(int tile, int x, int y)
 {
@@ -634,8 +615,6 @@ void mwScreen::draw_tile_overlay(int tile, int x, int y)
    if (draw_overlay == 2) al_draw_bitmap(mBitmap.tile[159],      x*20, y*20, 0);
    if (draw_overlay == 3) al_draw_bitmap(mBitmap.tile[158],      x*20, y*20, 0);
 }
-
-
 
 void mwScreen::init_level_background() // fill level_background with block tiles
 {
@@ -686,11 +665,6 @@ void mwScreen::init_level_background() // fill level_background with block tiles
          mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
 
 
-
-
-
-
-
 //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 
 }
@@ -729,8 +703,6 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
 // used only in transitions
 void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
 {
-   // use scale factor to determine scaled size of level
-   int sz = scale_factor * 2000;
 
    // find where to grab the source screen from based on the players position
    int px = mPlayer.syn[mPlayer.active_local_player].x;
@@ -739,6 +711,9 @@ void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, flo
    int mgx = screen_x - (px * scale_factor);  // start x pos on level
    int mgy = screen_y - (py * scale_factor);  // start y pos on level
 
+
+   // use scale factor to determine scaled size of level
+   int sz = scale_factor * 2000;
 
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
 }
@@ -822,10 +797,7 @@ void mwScreen::draw_level_info() // used only in menu
          if (mpc >= tpc) pcc = 8;
          mItem.draw_line(x1, x2, y, "Purple Coins",   mItem.chrd(mpc, tpc, msg), pcc); y+=9;
 
-
          y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
-
-
 
          mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
          mItem.draw_line(x1, x2, y, "Min Time Overall",   mMiscFnx.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
@@ -844,8 +816,6 @@ void mwScreen::draw_level_info() // used only in menu
          mItem.draw_line(x1, x2, y, "Min Player Deaths",  mItem.chrd(  mLevel.data[lev].min_respawns,        msg), 15); y+=9;
          mItem.draw_line(x1, x2, y, "Max Enemies Killed", mItem.chrd(  mLevel.data[lev].max_enemies_killed,  msg), 15); y+=9;
          mItem.draw_line(x1, x2, y, "Min Enemies Left",   mItem.chrd(  mLevel.data[lev].min_enemies_left,    msg), 15); y+=9;
-
-
       }
    }
    al_draw_rectangle(x1-1, menu_level_info_y, x2+1, y+1, mColor.pc[15], 1);
@@ -855,7 +825,6 @@ void mwScreen::draw_level_info() // used only in menu
 void mwScreen::draw_line_of_players()
 {
    // draw a line of players on each side of menu
-
 
    float sc = (float)menu_h / 20; // initial scale has player the same height as menu
    float y = menu_y+sc*10;        // initial y position has player lined up with menu
@@ -873,7 +842,6 @@ void mwScreen::draw_line_of_players()
    {
 //      printf("c:%d sc:%f x2:%f y:%f\n", c, sc, x2, y);
 
-
       if (!first) al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x1, y, sc, sc, 0, 0);
       al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x2, y, sc, sc, 0, ALLEGRO_FLIP_HORIZONTAL);
 
@@ -888,23 +856,21 @@ void mwScreen::draw_line_of_players()
       np++;
 
       first = 0;
-
    }
 }
 
+
+
+
 void mwScreen::frame_and_title()
 {
-   int c = mPlayer.syn[mPlayer.active_local_player].color;
-   int tc = mColor.get_contrasting_color(c);
-
    draw_screen_frame();
 
    // draw the version text centered on the bottom of the border
-   al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", mLoop.pm_version_string);
+   al_draw_textf(mFont.pr8, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", mLoop.pm_version_string);
 
    // draw the title on top on the border
-   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, c);
-
+   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, mPlayer.syn[mPlayer.active_local_player].color);
 }
 
 

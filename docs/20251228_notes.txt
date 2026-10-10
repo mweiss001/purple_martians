@@ -4,7 +4,6 @@ I am back baby!
 
 But just for a few quick things...
 
-
 See if I remeber how to work with this project
 
 I think the first thing I will do is see if I can commit to github
@@ -43679,6 +43678,102 @@ void mwLoop::move_frame()
       return;
    }
 
+
+
+
+make a new class to hold game_state that I plan to sync to clients...
+what will I call it?
+
+game_state?
+that is pretty close to state...
+
+how about a class mwGameState and a variable called s
+
+this is how it will look when used:
+
+mGameState.s.LevelDone
+mGameState.s.LevelDonePlayer
+
+mGameState.s.GateEntered
+mGameState.s.GateEnteredPlayer
+
+...
+
+actually discovered if a class is POD I can treat it like a struct
+
+mGameState.levelDoneMode
+mGameState.levelDonePlayer
+
+mGameState.gateEnteredMode
+mGameState.gateEnteredPlayer
+
+
+now look in player syn struct and see what I can move...
+basically if it is only used by player 0, it can be moved
+
+all but ack
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_ack;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey = 0;
+   int server_force_client_offset = 0;
+   float client_chase_offset = -0.02;
+
+
+final...so far
+
+
+class mwGameState
+{
+   public:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey;
+   int server_force_client_offset;
+   float client_chase_offset;
+
+   int gate_enter_mode;
+   int gate_enter_item;
+   int gate_enter_player;
+
+};
+extern mwGameState mGameState;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 now make it so that no drawing happens in draw
 
 what layer am I drawing on in gate_entry_mode?
@@ -43990,196 +44085,180 @@ not it is done when I contruct mwNetgame:
 
 
 
+can I make it so that if server fakekey is active, local fakekey can toggle it off?
 
+try this!!
 
+          
+               // set to server's state
+               bool fake_key = mGameState.server_force_fakekey;
+               
+               // local state can toggle off the server's state!!
+               if (loc[p].fake_keypress_mode) fake_key = !fake_key; 
 
+               if (fake_key)
+               {
+                  // even in fakekey mode allow ESC or menu
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               }
 
+               // // fakekey mode
+               // if ((loc[p].fake_keypress_mode) || (mGameState.server_force_fakekey))
+               // {
+               //    // even in fakekey mode allow ESC or menu
+               //    if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               // }
 
 
+2026-10-09 06:51:00
+now back to making gate look better...
 
 
+2026-10-09 15:46:33
 
+int mwColor::get_contrasting_color(int color)
+{
+/*
+   if (color == 15) return 10;
+   if (color == 14) return 2;
+   if (color == 13) return 8;
+//   if (color == 12) return 15;
+//   if (color == 11) return 15;
+//   if (color == 10) return 15;
+//   if (color == 9) return 15;
+//   if (color == 8) return 15;
+//   if (color == 7) return 15;
+//   if (color == 6) return 15;
+//   if (color == 5) return 15;
+//   if (color == 4) return 15;
+//   if (color == 3) return 15;
+//   if (color == 2) return 15;
+//   if (color == 1) return 15;
+//   if (color == 0) return 15;
+*/
 
+   // as of 20261009...white looks great, why did I ever do anything different?
+   return 15;
+}
 
 
 
 
+why do I get these on both client and server?
 
-    
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
+Lev:37 - Error setting player position: No start item found
 
+level 37 has a perfectly normal start
+why is this happening?
 
+now they are spawning bad also..
 
+could it be that the start block gets thrown out of the frame, falls to the bottom and is destroyed?
 
+I have a demo level where I see exactly what happens:
+20261009-143605-[37]-autosave on level done.gm
+At 36s the start block is thrown up with such force that it gets stuck in the ceiling.
+Then because it is stuck, it travels right until it is freed, then falls to its death!
+Well at least I know what is happening....
 
 
+What am I going to do about the start missing?
+I have never run into that before.
 
+I could make it so that in that specific case (level037), I have the start created by a cloner
+and if it is ever destroyed, the cloner will recreate it.
+There could still be a very brief time when the start was missing...
+don't do this...
 
 
+I could make it so that the start is never destroyed by going past the edges of the level...
+done. now start is clamped to edges of level instead of being destroyed
 
 
+I could put debug print into code when an item is destroyed at level edges, then run all demos and see if it triggers...
+done. I only had 2 hits and I fixed them.
 
 
 
+how does it look in demo record?
 
+-------------------------------------------
 
+I also have a bad time playing the level back...
+moves show properly x/428004
+time is wrong: something out of -1
+it works when playing, but any seeking is bad
 
+I think I have a bug with demo playback when either the level is not complete, or the start is missing
+I need to test this with that special demo level I have.
+-------------------------------------------------
 
 
 
+demo record playing back level that does not have an end, time is -1 ???
 
+get some test info
 
 
+test local with no end...quit..time shows -1
 
 
+// this is the function that actually loads the gm from the full file path
+// -------------------------------------------------------------------------
+int mwGameMoves::load_gm(const char *sfname, bool fillGmInfo)
+{
 
+PMSAVEGAME
+MUID:JSXAVCGPQRWXFYBW
+VERSION:3
+CREATE_TIMESTAMP:2026-10-10T13:02:57
+MODIFY_TIMESTAMP:2026-10-10T13:04:10
+LEVEL:37
+LAST_FRAME:2131
+GAMEMOVE_NUM_ENTRIES:180
+GAMEMOVE_DATA_START:
+1,9,3,10
+1,8392448,1634100580,7629941
+21,5,0,2
 
 
+// does this run every time? no
+if (fillGmInfo) mGmInfo.fill();
 
 
+// calculates a bunch of stuff
+void mwGmInfo::calc()
+{
+   //printf("mwGmInfo::calc()\n");
 
+   clear();
 
+   if (mGameState.level_done_mode)
+   {
+      levelDoneFrame  = mGameState.level_done_frame;
+      levelDonePlayer = mGameState.level_done_player;
+      lastFrame = levelDoneFrame;
+      completed = true;
+   }
+   else
+   {
+      // get last frame from last game move
+      lastFrame = mGameMoves.arr[mGameMoves.entry_pos-1][0];
 
+   }
 
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I think I fixed it by adding else....
 
 
 

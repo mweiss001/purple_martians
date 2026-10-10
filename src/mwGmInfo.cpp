@@ -74,7 +74,6 @@ void mwGmInfo::calc()
 {
    //printf("mwGmInfo::calc()\n");
 
-
    clear();
 
    if (mGameState.level_done_mode)
@@ -84,6 +83,18 @@ void mwGmInfo::calc()
       lastFrame = levelDoneFrame;
       completed = true;
    }
+   else
+   {
+      // get last frame from last game move
+      lastFrame = mGameMoves.arr[mGameMoves.entry_pos-1][0];
+
+   }
+
+
+
+
+
+
 
    findPlayerTracks();
    findPlayerTracksLastMoves();

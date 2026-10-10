@@ -7,9 +7,6 @@ class mwColor
 
    void process_flash_color();
    void show_palette();
-   int get_contrasting_color(int color);
-
-
 
 
    ALLEGRO_COLOR pc[256];

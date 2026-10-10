@@ -12,6 +12,7 @@ make sure target bitmaps are set properly
 
 
 
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -23,127 +24,15 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-make a new class to hold game_state that I plan to sync to clients...
-what will I call it?
-
-game_state?
-that is pretty close to state...
-
-how about a class mwGameState and a variable called s
-
-this is how it will look when used:
-
-mGameState.s.LevelDone
-mGameState.s.LevelDonePlayer
-
-mGameState.s.GateEntered
-mGameState.s.GateEnteredPlayer
-
-...
-
-actually discovered if a class is POD I can treat it like a struct
-
-mGameState.levelDoneMode
-mGameState.levelDonePlayer
-
-mGameState.gateEnteredMode
-mGameState.gateEnteredPlayer
-
-
-now look in player syn struct and see what I can move...
-basically if it is only used by player 0, it can be moved
-
-all but ack
-
-   int level_done_mode;
-   int level_done_timer;
-   int level_done_ack;
-   int level_done_x;
-   int level_done_y;
-   int level_done_player;
-   int level_done_frame;
-   int level_done_next_level;
-
-   int player_vs_player_shots;
-   int player_vs_player_shot_damage;
-   int player_vs_self_shots;
-
-   int server_force_fakekey = 0;
-   int server_force_client_offset = 0;
-   float client_chase_offset = -0.02;
-
-
-final...so far
-
-
-class mwGameState
-{
-   public:
-
-   int level_done_mode;
-   int level_done_timer;
-   int level_done_x;
-   int level_done_y;
-   int level_done_player;
-   int level_done_frame;
-   int level_done_next_level;
-
-   int player_vs_player_shots;
-   int player_vs_player_shot_damage;
-   int player_vs_self_shots;
-
-   int server_force_fakekey;
-   int server_force_client_offset;
-   float client_chase_offset;
-
-   int gate_enter_mode;
-   int gate_enter_item;
-   int gate_enter_player;
-
-};
-extern mwGameState mGameState;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 can I get some nicer shapes?
 like a nicer gate and maybe nicer door
 
-
-
-
-
 move levels not used to + 100
-
-
-
-
-
 
 
 -----------------------------------------------------------
 Redo the overworld level to rearrange the levels once again
 -----------------------------------------------------------
-
-
 
 
 what are my big goals with this?

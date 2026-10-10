@@ -45,6 +45,8 @@ class mwMiscFnx
    void enforce_limits_with_rollover(int &val, int ll, int ul);
    void enforce_limits(int &val, int ll, int ul);
 
+   void enforce_limits(float &val, float ll, float ul);
+
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);
 

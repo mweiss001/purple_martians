@@ -1630,12 +1630,27 @@ void mwPlayer::proc_player_input()
             {
                set_comp_move_from_player_key_check(p);
 
-               // fakekey mode
-               if ((loc[p].fake_keypress_mode) || (mGameState.server_force_fakekey))
+
+               // set to server's state
+               bool fake_key = mGameState.server_force_fakekey;
+
+               // local state can toggle off the server's state!!
+               if (loc[p].fake_keypress_mode) fake_key = !fake_key;
+
+               if (fake_key)
                {
                   // even in fakekey mode allow ESC or menu
                   if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
                }
+
+               // // fakekey mode
+               // if ((loc[p].fake_keypress_mode) || (mGameState.server_force_fakekey))
+               // {
+               //    // even in fakekey mode allow ESC or menu
+               //    if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               // }
+
+
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {

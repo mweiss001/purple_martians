@@ -1104,7 +1104,7 @@ void mwScreen::draw_top_frame(int p)
 
    int tdx = BORDER_WIDTH;
    int tdy = 0;
-   int tc = mColor.get_contrasting_color(mPlayer.syn[p].color);
+   int tc = 15;
 
    // ----------------------------------
    // draw info on top frame
@@ -1188,9 +1188,7 @@ void mwScreen::draw_bottom_frame(int p)
    int bdy = mDisplay.SCREEN_H - 10;
    int bdx = BORDER_WIDTH;
    int ts = 0;  // text spacing
-
-   int tc = mColor.get_contrasting_color(mPlayer.syn[p].color);
-
+   int tc = 15;
 
    // ----------------------------------
    // draw common info on bottom frame
