@@ -44262,6 +44262,504 @@ I think I fixed it by adding else....
 
 
 
+2026-10-10 07:34:30
+
+commit and back to gate...
+what do I want to do to gate?
+
+y pos for info
+
+
+- show page# in widget..done
+- make sure I have all the pages..done
+
+- make y offset for info..done
+- make some default buttons for y offset..done
+
+add the purple coin and timer badges
+get a new timer badge
+
+
+now what about the different colors for how completed it is?
+384
+
+what colors do I have now?
+
+red lt blue blue purple
+
+should I make custom doors for all those?
+
+should I put them in door tiles?
+should I make gate tiles?
+
+do they also get rebuilt?
+
+I am thinking I will make gate tiles, but later...
+
+18 x 4
+
+if I make 3 more colors for the one I will have 18 x 7
+
+
+
+
+
+I am getting a little bogged down by all the different ways I could do this.
+So many options.
+
+I like the colored doors.
+How will I show locked?
+
+how about the small map goes below
+then if touched it will be overwritten
+
+The always on stuff below will have:
+level name
+status (locked, perfect, etc)
+badges?
+
+then when touched:
+more of the same
+
+drawing below with hider does not work
+
+154 6x8 start 7, 6
+
+made a nice lock
+
+I suppose I could call the draw function just like I do the info
+then I could choose to draw either...
+
+did that, but now....
+gate info draws in places where it should be hidden!!!
+
+arrgh!!
+should I just not use hiders in overworld?
+I can I find a way to not draw the gate info in areas that are hidden?
+
+also now small gate info is drawn over big...
+
+this is a huge mess!!
+
+I want the large to be drawn last in ds, just like it used to be.
+
+
+how can I get around hider?
+
+draw small stuff after hider. Only draw if level is in an unlocked area.
+
+
+
+in draw sequence:
+- erase hidden
+- draw gates (check for active areas)
+- draw gate info
+
+now the gate tiles are in front of player!!!
+
+separate small gate info from draw gate
+
+
+
+why don't I just check if level is in an unlocked area and don't draw anything?
+
+void mwLevel::unlock_all_level_in_area(int area)
+{
+   for(int i=0; i<100; i++)
+      if (area_array[i][1] == area)
+         if (data[area_array[i][0]].status < 1) data[area_array[i][0]].status = 1;
+}
+
+if (area_array[i][0]].status 
+
+
+
+
+first find level from gate
+
+   int lev = item[i][6];
+
+
+2nd find area
+
+int area = -1;
+
+for (int i=0; i<100; i++)
+{
+   if (area_array[i][0] == lev) area = area_array[i][1];
+}      
+      
+3rd find if area is locked
+if (area_locks[area] == 1)
+      
+
+I think I am getting somewhere.
+
+I check if level is in locked area like this:
+
+bool mwItem::is_level_in_locked_area(int lev)
+{
+   int area = -1;
+   for (int i=0; i<100; i++)
+      if (mLevel.area_array[i][0] == lev) area = mLevel.area_array[i][1];
+   if (area == -1)
+   {
+      printf("level:%d not found in any area\n", lev);
+      return false;
+   }
+   if (mLevel.area_locks[area] == 1) return true;
+   return false;
+}
+
+
+here, if lev is in locked area, just don't draw anything
+
+int mwItem::draw_gate(int i, int x, int y, int custom)
+{
+   // to fix default shape from selection window PDE
+   if (item[i][1] == 940) item[i][1] = 0;
+
+
+   if (custom) al_draw_bitmap(mBitmap.sprite[139], x, y, 0 );
+   else
+   {
+      bool player_on_gate = false;
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
+
+      int lev = item[i][6];
+      if (is_level_in_locked_area(lev)) return 1;
+
+
+restore normal gate draw function
+
+
+but now gates are clipped by hider
+
+add separate draw info...
+
+first of all, gates are draw normally in item draw
+if they are in a hidden area, nothing is drawn
+this just draws the tiles for the gate
+
+then after hiders erase stuff:
+draw gate info for all gates
+draw hover gate info
+
+
+this works, but...
+
+now level icon stuff is above all other layers, like player....
+
+what can I do about hider to not make it so stupid..
+
+can I implement more layers?
+
+
+this is getting very complex and complicated..
+
+It would be very simple to not do hiders at all...
+
+Or I could change hider's behaviour:
+
+optional:
+if an enemy or item is in the rect area, do not draw it..
+
+optional:
+do not draw blocks in hidden area
+
+optional:
+blindly erase all in area after normal draw
+
+this might be a solution, maybe even a good one
+
+kinda still seems hacky...
+
+
+[19] hider
+item[][1] = pm_event_trigger
+item[][2] = active
+item[][3] = mode
+
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+
+item[][10] = blind erase
+
+item[][11] = disable draw item
+item[][12] = disable draw enemy
+item[][13] = disable draw lift
+
+
+
+2026-10-10 19:42:39
+commit to play games with zaiden and kaileb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

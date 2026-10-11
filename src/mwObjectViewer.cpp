@@ -1932,9 +1932,21 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
             ya+=4; // spacer
             q = 13;
-            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Info",                "Show Info");
+            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Gate Info Pages",        "Show Gate Info Pages");
             if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
-            if (odbb(d, xa, xb, ya, bts, q, "Page")) if (++mLevelEditor.show_gate_info_page > 2) mLevelEditor.show_gate_info_page = 0;
+
+
+            char msg[200];
+            sprintf(msg, "Gate Info Page:%d", mLevelEditor.show_gate_info_page);
+            if (odbb(d, xa, xb, ya, bts, q, msg)) if (++mLevelEditor.show_gate_info_page > 3) mLevelEditor.show_gate_info_page = 0;
+
+            ya+=4; // spacer
+           q = 10;
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][11],  400, -400, 1,  1, 10, "Info Pages Y Offset:");
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Lower")) mItem.item[n][11] = 35;
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Upper")) mItem.item[n][11] = -200;
+
+
 
          }
          break;
@@ -1964,6 +1976,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                odb0(d, xa, xb, ya, bts,  13, mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
             }
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mItem.item[n][10],   10+96, 10,  "Blind Erase:OFF", "Blind Erase:ON");
+
+
          }
          break;
      }

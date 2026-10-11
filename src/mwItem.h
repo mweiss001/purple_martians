@@ -62,10 +62,10 @@ class mwItem
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
 
+   bool is_level_in_locked_area(int lev);
 
-
-   void draw_gate_info(int i, int page = -1);
-
+   void draw_gate_info(int i);
+   void draw_gate_hover_info(int i, int page = -1);
 
 
 
@@ -421,18 +421,51 @@ item[][11] = mode
 item[][12] = damage
 
 
-[18] - gateI wii
+[18] - gate
+item[][1] = draw mode
+item[][2] =
+item[][3] =
 
-item[][1] draw_mode
+item[][4] = x pos
+item[][5] = y pos
 
+item[][6] = level
+item[][7] = current display page
 
-item[][6] level num
-item[][7] display page
+item[][8] small_map_x
+item[][9] small_map_y
+item[][10] small_map_size
+item[][11] info pages y offset
+
 
 
 
 
 [19] hider
+item[][1] = pm_event_trigger
+item[][2] = active
+item[][3] = mode
+
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+
+item[][10] = blind erase
+
+item[][11] = disable draw item
+item[][12] = disable draw enemy
+item[][13] = disable draw lift
+
+
+
+
+
+
+
+
+
+
 
 
 

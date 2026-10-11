@@ -686,7 +686,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
          mShot.draw_pshots();
       }
    }
-   if (!mNetgame.server_remote_control) // why am I testing for this?
+   if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
    {
       // first erase hidden regions (only in not in level editor)
       if (!mLoop.level_editor_running) mItem.erase_hider_areas();

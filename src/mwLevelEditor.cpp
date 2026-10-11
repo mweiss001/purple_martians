@@ -539,7 +539,7 @@ int mwLevelEditor::redraw_background()
       }
 
 
-      if (show_gate_info) mItem.draw_gate_info(show_gate_info_item, show_gate_info_page);
+      if (show_gate_info) mItem.draw_gate_hover_info(show_gate_info_item, show_gate_info_page);
 
 
 

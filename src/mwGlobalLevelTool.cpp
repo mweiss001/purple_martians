@@ -262,6 +262,15 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
+      for (int y=0; y<500; y++)
+         if (mItem.item[y][0] == 19) // hider
+         {
+            mItem.item[y][10] = 1;
+         }
+
+
+
+
        // for (int y=0; y<500; y++)
        //    if (mItem.item[y][0] == 17) // block damage
        //    {
@@ -362,7 +371,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (0)
+      if (1)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

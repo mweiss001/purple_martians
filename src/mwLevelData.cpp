@@ -450,10 +450,16 @@ void mwLevel::set_overworld_barriers()
    mItem.item[i][2] = 1;
    mItem.item[i][3] = 1;
    mItem.item[i][4] = 40;
+
    mItem.item[i][5] = 40;
    mItem.item[i][7] = lowest_visible_y;
    mItem.item[i][8] = 2000;
    mItem.item[i][9] = 2000 - lowest_visible_y;
+
+
+   mItem.item[i][10] = 0 ; // blind erase
+
+
 
    save_level(1); // save overworld level
 }

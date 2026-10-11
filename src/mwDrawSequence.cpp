@@ -159,15 +159,33 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
           ds_add(i);
       }
 
-      if (setup_only) ds_add_names(i, "d-gnfo", "gate info");
+
+
+
+
+      // this is here to draw after hiders
+      if (setup_only) ds_add_names(i, "d-gnfo", "draw_info");
       else
       {
-         // draw gate info
+         for (int i=0; i<500; i++)
+            if (mItem.item[i][0] == 18)
+            {
+               mItem.draw_gate_info(i);
+            }
+         ds_add(i);
+      }
+
+      // this is here to draw on top of everything else
+      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+      else
+      {
+         // draw hover info
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-               mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+               mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
           ds_add(i);
       }
+
 
 
       if (packet_check) mPacketBuffer.check_for_packets();
