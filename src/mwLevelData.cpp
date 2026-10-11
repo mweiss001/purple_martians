@@ -17,6 +17,7 @@
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
 #include "mwDemoMode.h"
+#include "mwEditSelection.h"
 #include "mwGameEvent.h"
 #include "mwGmInfo.h"
 #include "mwMain.h"
@@ -363,6 +364,9 @@ int mwLevel::find_msg(const char* str)
 void mwLevel::set_overworld_barriers()
 {
 
+   mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
+
+
    // --------------------------------
    // area 0
    // --------------------------------
@@ -385,7 +389,6 @@ void mwLevel::set_overworld_barriers()
       }
    }
    else if (msg_id != -1) mItem.clear_item(msg_id); // erase msg if it exists
-
 
 
    sob_area_msg(13, 625,  40); // basic training levels
@@ -432,17 +435,20 @@ void mwLevel::set_overworld_barriers()
 
 
    // how much of overworld level to hide
-   int lowest_visible_y = 200; // default only top training row visible
-   if (!area_locks[1]) lowest_visible_y = 380; // area 1 and 2 visible
-   if (!area_locks[3]) lowest_visible_y = 560; // area 3 and 4 visible
-   if (!area_locks[5]) lowest_visible_y = 740; // area 5 and 6 visible
-   if (!area_locks[7]) lowest_visible_y = 920; // area 7 visible
-   if (!area_locks[9]) lowest_visible_y = 1100; // area 9 visible
-   if (!area_locks[10]) lowest_visible_y = 2000; // area 9 visible
+   // int lowest_visible_y = 200; // default only top training row visible
+   // if (!area_locks[1]) lowest_visible_y = 380; // area 1 and 2 visible
+   // if (!area_locks[3]) lowest_visible_y = 560; // area 3 and 4 visible
+   // if (!area_locks[5]) lowest_visible_y = 740; // area 5 and 6 visible
+   // if (!area_locks[7]) lowest_visible_y = 920; // area 7 visible
+   // if (!area_locks[9]) lowest_visible_y = 1100; // area 9 visible
+   // if (!area_locks[10]) lowest_visible_y = 2000; // area 9 visible
+   //
+   //
+   //
+   // // remove all hiders
+   // for(int i=0; i<500; i++) if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
 
-   // remove all hiders
-   for(int i=0; i<500; i++) if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
-
+   /*
    // create hider
    int i = mItem.get_empty_item(19);
    mItem.item[i][0] = 19;
@@ -456,8 +462,9 @@ void mwLevel::set_overworld_barriers()
    mItem.item[i][8] = 2000;
    mItem.item[i][9] = 2000 - lowest_visible_y;
 
+   mItem.item[i][10] = 1 ; // blind erase
 
-   mItem.item[i][10] = 0 ; // blind erase
+*/
 
 
 

@@ -43,15 +43,22 @@ class mwEditSelection
    std::vector<liftIDTranslation> liftIDTranslations{};
    std::vector<itemIDTranslation> itemIDTranslations{};
 
+
+   void add_sel_to_level(int lev, const char* sel_file, int x, int y);
+
    int load_selection(const char* filename);
    int load_selection_prompt();
 
    void fill_ft_variables_from_selection(int save_to_disk);
+   void copy_ft_variables_to_level(int qx1, int qy1);
+
    void sel_to_ft(char * b);
    void ft_to_sel(char * b);
 
-   void do_copy(int qx1, int qy1);
-   void do_clear();
+
+   void clear_area(int x1, int y1, int x2, int y2);
+
+
    void set_block_with_flag_filters(int x, int y, int tn);
 
    void draw_fsel();

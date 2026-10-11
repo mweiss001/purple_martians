@@ -91,20 +91,9 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
-
       if (setup_only) ds_add_names(i, "d-item", "draw_items");
       else { mItem.draw_items(); ds_add(i); }
 
-
-
-//   if (setup_only) ds_add_names(i, "d-gate", "draw_gates");
-//   else
-//   {
-//      for (int i=0; i<500; i++)
-//         if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);
-//
-//      add(i);
-//   }
 
 //   if (setup_only) ds_add_names(i, "d-mssg", "draw_message");
 //   else
@@ -146,6 +135,18 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else { mShot.draw_pshots(); ds_add(i); }
 
 
+      // this is here to draw on top of other things, but not players
+      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+      else
+      {
+         // draw hover info
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+               mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
+         ds_add(i);
+      }
+
+
       if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
       else { mPlayer.draw_players(); ds_add(i); }
 
@@ -156,33 +157,6 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
           if (!mLoop.level_editor_running) mItem.erase_hider_areas();
-          ds_add(i);
-      }
-
-
-
-
-
-      // this is here to draw after hiders
-      if (setup_only) ds_add_names(i, "d-gnfo", "draw_info");
-      else
-      {
-         for (int i=0; i<500; i++)
-            if (mItem.item[i][0] == 18)
-            {
-               mItem.draw_gate_info(i);
-            }
-         ds_add(i);
-      }
-
-      // this is here to draw on top of everything else
-      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
-      else
-      {
-         // draw hover info
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-               mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
           ds_add(i);
       }
 

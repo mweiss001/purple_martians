@@ -44498,6 +44498,364 @@ item[][13] = disable draw lift
 2026-10-10 19:42:39
 commit to play games with zaiden and kaileb
 
+2026-10-11 04:29:52
+that never happened
+
+
+I have some huge bugs in the overworld...
+
+I was in the middle of changing hider
+
+add the don't draw items and enemies functionality
+
+This whole method is quite convoluted and complex.
+Just so I can hide other areas then still draw on them.
+
+
+What about a method where I add to the level with some fancy edit selection copy paste shit?
+I should have all the functions there already, maybe need a little tweaking
+
+What are you talking about?
+In code, load selection from disk and paste to specific area on a level, then save the level.
+
+
+void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
+{
+   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d\n", lev, sel_file, x, y);
+
+   // load level
+   if (!mLevel.load_level_by_number(lev, 1, 0)) return;
+
+   // load sel
+   if (!load_selection(sel_file)) return;
+
+   // paste to level
+   copy_ft_variables_to_level(x, y);
+
+   // save level
+   mLevel.save_level(lev);
+}
+
+test it out...
+
+where? how?
+
+make a sel
+
+sel/test123.sel
+
+where to paste it? 10,2
+
+mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
+
+
+It works!!!
+
+It makes extra copies if run more than once...
+I could optionally clear first
+I should do something with filters
+
+could I:
+copy the filter array to restore later
+set all filters on
+clear
+paste
+restore filters
+also if I do clear, I would need to set selection first to get the area
+
+I don't think I save the object filters, they should always be on until changed
+
+in case I don't...
+
+void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
+{
+   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d\n", lev, sel_file, x, y);
+
+   // load level
+   if (!mLevel.load_level_by_number(lev, 1, 0)) return;
+
+   // load sel
+   if (!load_selection(sel_file)) return;
+
+   // make a copy of the object filters
+   int temp_obj_filter[5][20][2];
+   memcpy(temp_obj_filter, mEditorMain.obj_filter, sizeof(temp_obj_filter));
+
+   // set all object filters on
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+      {
+         mEditorMain.obj_filter[i][j][0] = 1;
+         mEditorMain.obj_filter[i][j][1] = 1;
+      }
+
+   // clear area
+   clear_area(x, y, x+ft_level_header[8], y+ft_level_header[9]);
+
+   // paste to level
+   copy_mode = 1;
+   copy_ft_variables_to_level(x, y);
+
+   // restore original object filters 
+   memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
+   
+   // save level
+   mLevel.save_level(lev);
+}
+
+
+2026-10-11 06:15:00
+
+I think I have all this working...
+
+Now what?
+
+I will need to completely redo how I do overworld
+
+As each section gets unlocked, I will copy the section to the overworld.
+No hiders will be needed.
+
+How many sections will I need?
+
+I am completely redoing everything...fresh start...
+
+can I lose the hider shit? please do...
+
+
+draw sequence:
+only draw hover info last...done
+
+in item gate
+
+removed:
+//   bool is_level_in_locked_area(int lev);
+//   void draw_gate_info(int i);
+
+
+/*
+
+
+void mwItem::draw_gate_info(int i)
+{
+   int draw_mode = item[i][1];
+
+   bool player_on_gate = false;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
+
+   int lev = item[i][6];
+   if (is_level_in_locked_area(lev)) return;
+
+   int status = mLevel.data[lev].status;
+
+   // in netgame, temporarily change all not complete status to complete status
+   if ((mNetgame.ima_server) || (mNetgame.ima_client))
+   {
+      if (status < 2) status = 2;
+   }
+   int col = mLevel.level_status_color[status];
+
+   int x = item[i][4];
+   int y = item[i][5];
+
+
+   int xc = x+10; // center of tile
+   int yc = y-5;  // center of tile
+
+
+   if (draw_mode == 0)
+   {
+      // draw level icon with frame
+      int ls = 100;              // level icon size
+      float lx = 0.5 + xc-ls/2;  // level icon x pos
+      float ly = 0.5 + y-131;    // level icon y pos
+
+      al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+      mLevelIcons.draw_level_icon(lx+1, ly+1, 100, lev);                        // level icon
+      al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
+      mScreen.draw_framed_text(xc, ly+101, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+
+   }
+   if (draw_mode == 1)
+   {
+      if (!player_on_gate)
+      {
+         // draw level icon with frame
+         float lx = item[i][8];  // level icon x pos
+         float ly = item[i][9];  // level icon y pos
+         int ls = item[i][10]; // level icon size
+
+         al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+         mLevelIcons.draw_level_icon(lx+1, ly+1, ls, lev);                        // level icon
+         al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
+
+         // level name text frame below
+         //mScreen.draw_framed_text(lx+ls/2, ly+ls+1, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+         // level name text frame above
+         mScreen.draw_framed_text(lx+ls/2, ly-9, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+      }
+
+   }
+}
+
+bool mwItem::is_level_in_locked_area(int lev)
+{
+   int area = -1;
+   for (int i=0; i<100; i++)
+      if (mLevel.area_array[i][0] == lev) area = mLevel.area_array[i][1];
+   if (area == -1)
+   {
+      printf("level:%d not found in any area\n", lev);
+      return false;
+   }
+   if (mLevel.area_locks[area] == 1) return true;
+   return false;
+}
+
+*/
+
+
+
+
+now gate drawing all takes place in: 
+int mwItem::draw_gate(int i, int x, int y, int custom)
+
+except for hover:
+void mwItem::draw_gate_hover_info(int i, int page)
+
+then remove hider from set overworld barriers
+
+all done...
+
+much simpler now...
+
+now make shit work....
+
+experiment with info above...all of it...
+
+then when player hovers, level above will just get bigger
+
+when entering, transition into level above
+
+draw gate on top of level above when opening
+
+make some flags
+icon above or below (will determine label text position)
+
+item[][3] flags
+
+#define PM_ITEM_GATE_ICON_LABEl_POS  0b00000000000000001
+
+I now have that done..
+
+now can I reverse the hover?
+that might take more work...
+
+I now have all the draw stuff in this function:
+void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int col)
+
+I think I should start by drawing the framed level title
+
+then moving up or down from there
+
+2026-10-11 09:32:14
+
+it took a lot of bullshit but I got everything to line up.. I want to compare on linux
+commit....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

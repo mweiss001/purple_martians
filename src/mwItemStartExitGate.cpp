@@ -323,7 +323,6 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    // to fix default shape from selection window PDE
    if (item[i][1] == 940) item[i][1] = 0;
 
-
    if (custom) al_draw_bitmap(mBitmap.sprite[139], x, y, 0 );
    else
    {
@@ -333,8 +332,6 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
 
       int lev = item[i][6];
-      if (is_level_in_locked_area(lev)) return 1;
-
 
       int xc = x+10; // center of tile
       int yc = y-5;  // center of tile
@@ -380,22 +377,18 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
 //         al_draw_scaled_bitmap(mBitmap.sprite[542], 3, 3, 14, 14, x+12, y-11, 14, 14, 0);
 
-
-
-
-
          // // draw the level number (optional, comment out for release)
          // //al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev);
          //
-         // // draw level icon with frame
-         // int ls = 100;              // level icon size
-         // float lx = 0.5 + xc-ls/2;  // level icon x pos
-         // float ly = 0.5 + y-131;    // level icon y pos
-         //
-         // al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
-         // mLevelIcons.draw_level_icon(lx+1, ly+1, 100, lev);                        // level icon
-         // al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
-         // mScreen.draw_framed_text(xc, ly+101, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+         // draw level icon with frame
+         int ls = 100;              // level icon size
+         float lx = 0.5 + xc-ls/2;  // level icon x pos
+         float ly = 0.5 + y-131;    // level icon y pos
+
+         al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+         mLevelIcons.draw_level_icon(lx+1, ly+1, 100, lev);                        // level icon
+         al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
+         mScreen.draw_framed_text(xc, ly+101, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 
       }
 
@@ -462,28 +455,21 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
             al_draw_rectangle(          lx, ly, lx+size+1, ly+size+1, mColor.pc[col], 1); // frame
          }
 
+         if (!player_on_gate)
+         {
+            // draw level icon with frame
+            float lx = item[i][8]; // level icon x pos
+            float ly = item[i][9]; // level icon y pos
+            int ls = item[i][10];  // level icon size
+            al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
+            mLevelIcons.draw_level_icon(lx+1, ly+1, ls, lev);                         // level icon
+            al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
 
-         // if (!player_on_gate)
-         // {
-         //
-         //    // draw level icon with frame
-         //    float lx = item[i][8];  // level icon x pos
-         //    float ly = item[i][9];  // level icon y pos
-         //    int ls = item[i][10]; // level icon size
-         //
-         //    al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
-         //    mLevelIcons.draw_level_icon(lx+1, ly+1, ls, lev);                        // level icon
-         //    al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
-         //
-         //    // level name text frame below
-         //    //mScreen.draw_framed_text(lx+ls/2, ly+ls+1, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-         //
-         //    // level name text frame above
-         //    mScreen.draw_framed_text(lx+ls/2, ly-9, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-         //
-         // }
-
-
+            // draw and frame the level name
+            int tly = ly-9; // above
+            if (item[i][3] & PM_ITEM_GATE_ICON_LABEl_POS) tly = ly+ls; // below
+            mScreen.draw_framed_text(lx+ls/2, tly, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name);
+         }
       }
 
 
@@ -494,91 +480,6 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    }
    return 1;
 }
-
-void mwItem::draw_gate_info(int i)
-{
-   int draw_mode = item[i][1];
-
-   bool player_on_gate = false;
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
-
-   int lev = item[i][6];
-   if (is_level_in_locked_area(lev)) return;
-
-   int status = mLevel.data[lev].status;
-
-   // in netgame, temporarily change all not complete status to complete status
-   if ((mNetgame.ima_server) || (mNetgame.ima_client))
-   {
-      if (status < 2) status = 2;
-   }
-   int col = mLevel.level_status_color[status];
-
-   int x = item[i][4];
-   int y = item[i][5];
-
-
-   int xc = x+10; // center of tile
-   int yc = y-5;  // center of tile
-
-
-   if (draw_mode == 0)
-   {
-      // draw level icon with frame
-      int ls = 100;              // level icon size
-      float lx = 0.5 + xc-ls/2;  // level icon x pos
-      float ly = 0.5 + y-131;    // level icon y pos
-
-      al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
-      mLevelIcons.draw_level_icon(lx+1, ly+1, 100, lev);                        // level icon
-      al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
-      mScreen.draw_framed_text(xc, ly+101, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-
-
-   }
-   if (draw_mode == 1)
-   {
-      if (!player_on_gate)
-      {
-         // draw level icon with frame
-         float lx = item[i][8];  // level icon x pos
-         float ly = item[i][9];  // level icon y pos
-         int ls = item[i][10]; // level icon size
-
-         al_draw_filled_rectangle(   lx, ly, lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
-         mLevelIcons.draw_level_icon(lx+1, ly+1, ls, lev);                        // level icon
-         al_draw_rectangle(          lx, ly, lx+ls+1, ly+ls+1, mColor.pc[col], 1); // frame
-
-         // level name text frame below
-         //mScreen.draw_framed_text(lx+ls/2, ly+ls+1, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-
-         // level name text frame above
-         mScreen.draw_framed_text(lx+ls/2, ly-9, 0, mFont.pixl, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-      }
-
-   }
-}
-
-
-
-
-
-
-bool mwItem::is_level_in_locked_area(int lev)
-{
-   int area = -1;
-   for (int i=0; i<100; i++)
-      if (mLevel.area_array[i][0] == lev) area = mLevel.area_array[i][1];
-   if (area == -1)
-   {
-      printf("level:%d not found in any area\n", lev);
-      return false;
-   }
-   if (mLevel.area_locks[area] == 1) return true;
-   return false;
-}
-
 
 
 
@@ -614,32 +515,42 @@ void mwItem::draw_gate_hover_info(int i, int page)
       }
    }
 
-   mScreen.draw_framed_text(xc, by, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+
+   int dir = 0;
+   if (item[i][3] & PM_ITEM_GATE_HOVER_PAGE_DIR) dir = 1;
 
    if (status == 0)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (page == 0) show_page(0, xc, bs, by, lev, col); // level icon map
-      if (page == 1) show_page(7, xc, bs, by, lev, col); // not completed general
+      if (page == 0) show_page(0, xc, bs, by, dir, lev, col); // level icon map
+      if (page == 1) show_page(7, xc, bs, by, dir, lev, col); // not completed general
    }
    if (status == 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (page == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
-      if (page == 1) show_page( 7, xc, bs, by, lev, col); // not completed general
-      if (page == 2) show_page(12, xc, bs, by, lev, col); // demo
+      if (page == 0) show_page( 0, xc, bs, by, dir, lev, col); // level icon map
+      if (page == 1) show_page( 7, xc, bs, by, dir, lev, col); // not completed general
+      if (page == 2) show_page(12, xc, bs, by, dir, lev, col); // demo
    }
    if (status > 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (page == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
-      if (page == 1) show_page( 1, xc, bs, by, lev, col); // general
-      if (page == 2) show_page( 2, xc, bs, by, lev, col); // times
-      if (page == 3) show_page( 3, xc, bs, by, lev, col); // purple coins
-      if (page == 4) show_page(12, xc, bs, by, lev, col); // demo
+      if (page == 0) show_page( 0, xc, bs, by, dir, lev, col); // level icon map
+      if (page == 1) show_page( 1, xc, bs, by, dir, lev, col); // general
+      if (page == 2) show_page( 2, xc, bs, by, dir, lev, col); // times
+      if (page == 3) show_page( 3, xc, bs, by, dir, lev, col); // purple coins
+      if (page == 4) show_page(12, xc, bs, by, dir, lev, col); // demo
    }
+
+
+   //   mScreen.draw_framed_text(xc, by, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+
+
+
 }
 
 
@@ -722,8 +633,85 @@ char * mwItem::chrd(int v1, int v2, char* ft)
    return ft;
 }
 
-void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
+void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int col)
 {
+   float o = 0.5;
+
+   // page x1 and x2 from xc and level icon width
+   float x1 = (float)(xc-bs/2 - 1) + o;
+   float x2 = (float)(xc+bs/2 + 1) - o;
+
+   // running y position
+   float ya = by + o;
+
+
+   // debug passed y pos
+   al_draw_line(x1-100, by, x2+100, by, mColor.Red, 1);
+
+
+   // draw the framed level name first
+   if (dir) ya -= 12; // up
+   else ya -= 1; // down
+   mScreen.draw_framed_text(xc, ya, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name);
+
+   if (dir) ya += 0; // up
+   else ya += 11;    // down
+
+
+   // y start pos past title
+   float smy = ya;
+   // debug y start pos past title
+   al_draw_line(x1-100, smy, x2+100, smy, mColor.Red, 1);
+
+
+
+   if (page == 0) // level icon map
+   {
+      if (dir) // up
+      {
+         ya -= bs+1;
+         mLevelIcons.draw_level_icon(x1+1, ya+1, 200, lev);
+         al_draw_rectangle(x1, ya, x2, smy, mColor.pc[col], 1);
+      }
+      else  // down
+      {
+         mLevelIcons.draw_level_icon(x1+1, ya+1, 200, lev);
+         al_draw_rectangle(x1, smy, x2, ya+bs+1, mColor.pc[col], 1);
+      }
+
+
+      /*
+
+
+      if (dir) ya -= bs-1; // up
+      else ya += 0; // down
+
+      mLevelIcons.draw_level_icon(x1+1, ya+1, 200, lev);
+
+//      if (dir) ya -= 0;  // up
+//      else ya += (bs+o); // down
+
+
+
+      // when I draw this one with y1 and y2 reversed the corners disappear??
+      if (dir) al_draw_rectangle(x1, ya+1, x2, smy, mColor.pc[col], 1);
+
+
+      else al_draw_rectangle(x1, smy, x2, ya+bs+1, mColor.pc[col], 1); // down
+
+*/
+
+
+
+
+   }
+
+//   al_draw_filled_rectangle(x1, smy, x2, ya, mColor.pc[15+128]);
+//   al_draw_rectangle(       x1, smy, x2, ya, mColor.pc[col], 1);
+
+   /*
+
+
    char msg[80];
    int yi=10;
 
@@ -731,15 +719,24 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
    int bx2 = xc+bs/2; // level icon x2
    float yp = by+11.5; // top of frame
 
+
+
+
+
+
+   int yb = 0;
+
+
    if (page == 0) // level icon map
    {
+      yb = yp+bs+2;
       al_draw_rectangle(bx, yp, bx+bs+1, by+bs+12.5, mColor.pc[col], 1);
       mLevelIcons.draw_level_icon(bx, by+12, 200, lev);
    }
 
    if (page == 1) // general
    {
-      int yb = yp+(6*yi)+25;
+      yb = yp+(6*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
       al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
@@ -756,7 +753,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
    if (page == 2) // times
    {
-      int yb = yp+(9*yi)+25;
+      yb = yp+(9*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
       al_draw_bitmap(mBitmap.sprite[542], bx+1, (int)yp+2, 0); // show clock
@@ -776,7 +773,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
    if (page == 3) // purple coins
    {
-      int yb = yp+(2*yi)+25;
+      yb = yp+(2*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
       al_draw_bitmap(mBitmap.sprite[197], bx+1, (int)yp+2, 0); // show purple coin
@@ -789,7 +786,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
    if (page == 7) // not completed general
    {
-      int yb = yp+(3*yi)+25;
+      yb = yp+(3*yi)+25;
       al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
       al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
       al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
@@ -806,7 +803,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
       if ((mLevel.data[lev].times_beat == 0) && (mLevel.data[lev].times_played > 2)) // if not beat and started > 2 time
       {
-         int yb = yp+(4*yi)+25;
+         yb = yp+(4*yi)+25;
          al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
          al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
          al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
@@ -825,7 +822,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       }
       else
       {
-         int yb = yp+(1*yi)+25;
+         yb = yp+(1*yi)+25;
          al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
          al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
          al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
@@ -843,5 +840,15 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
       }
    }
+
+
+   // draw and frame the level name
+   int tly = by; // above
+   if (dir) tly = yb-1; // below
+
+   mScreen.draw_framed_text(xc, tly, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+*/
+
+
 }
 

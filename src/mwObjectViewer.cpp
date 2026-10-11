@@ -1924,11 +1924,22 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][9],  1990, 0, 1,  1, 10, "Level Icon y:");
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][10], 400, 20, 1,  1, 10, "Level Icon size:");
 
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position"))
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
             {
-               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10;
-               mItem.item[n][9] = mItem.item[n][5] - mItem.item[n][10] - 28;
+               mItem.item[n][3] |= PM_ITEM_GATE_ICON_LABEl_POS; // label below
+               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
+               mItem.item[n][9] = mItem.item[n][5] - mItem.item[n][10] - 27;
             }
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
+            {
+               mItem.item[n][3] &= ~PM_ITEM_GATE_ICON_LABEl_POS; // label above
+               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
+               mItem.item[n][9] = mItem.item[n][5] + 29;
+            }
+
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_ICON_LABEl_POS, "Icon Label:Above","Icon Label:Below ", q, q, 15, 15);
+
+
 
             ya+=4; // spacer
             q = 13;
@@ -1945,6 +1956,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][11],  400, -400, 1,  1, 10, "Info Pages Y Offset:");
             if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Lower")) mItem.item[n][11] = 35;
             if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Upper")) mItem.item[n][11] = -200;
+
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_HOVER_PAGE_DIR, "Hover Label:Above","Hover Label:Below ", q, q, 15, 15);
+
+
 
 
 

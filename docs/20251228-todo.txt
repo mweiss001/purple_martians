@@ -12,6 +12,10 @@ make sure target bitmaps are set properly
 
 
 
+rx packet buffer full? why? add some logging to see what packets...
+
+
+
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------

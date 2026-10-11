@@ -173,14 +173,15 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
 
    mLog.add(LOG_NET, LOG_NET_SUBTYPE_PACKET_BUF_FULL, -1, cdat_count, stak_count, rctl_count, stdf_count, snfo_count, sfil_count, srrf_count, crfl_count, all_count);
 
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] cdat\n", cdat_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stak\n", stak_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] rctl\n", rctl_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stdf\n", stdf_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] snfo\n", snfo_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] sfil\n", sfil_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] srrf\n", srrf_count);
-   // mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] crfl\n", crfl_count);
+   printf( "[%d] cdat\n", cdat_count);
+   printf( "[%d] stak\n", stak_count);
+   printf( "[%d] rctl\n", rctl_count);
+   printf( "[%d] stdf\n", stdf_count);
+   printf( "[%d] snfo\n", snfo_count);
+   printf( "[%d] sfil\n", sfil_count);
+   printf( "[%d] srrf\n", srrf_count);
+   printf( "[%d] crfl\n", crfl_count);
+   printf( "[%d] all\n", all_count);
 
    return -1;
 }

@@ -62,9 +62,7 @@ class mwItem
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
 
-   bool is_level_in_locked_area(int lev);
 
-   void draw_gate_info(int i);
    void draw_gate_hover_info(int i, int page = -1);
 
 
@@ -75,7 +73,7 @@ class mwItem
    char* chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
-   void show_page(int page, int xc, int bs, int by, int lev, int col);
+   void show_page(int page, int xc, int bs, int by, int dir, int lev, int col);
 
 
 
@@ -421,17 +419,15 @@ item[][11] = mode
 item[][12] = damage
 
 
+
 [18] - gate
 item[][1] = draw mode
 item[][2] =
-item[][3] =
-
+item[][3] = flags
 item[][4] = x pos
 item[][5] = y pos
-
 item[][6] = level
 item[][7] = current display page
-
 item[][8] small_map_x
 item[][9] small_map_y
 item[][10] small_map_size

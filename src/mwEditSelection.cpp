@@ -51,6 +51,44 @@ void mwEditSelection::clear_ft_variables()
 }
 
 
+
+void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
+{
+   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d\n", lev, sel_file, x, y);
+
+   // load level
+   if (!mLevel.load_level_by_number(lev, 1, 0)) return;
+
+   // load sel
+   if (!load_selection(sel_file)) return;
+
+   // make a copy of the object filters
+   int temp_obj_filter[5][20][2];
+   memcpy(temp_obj_filter, mEditorMain.obj_filter, sizeof(temp_obj_filter));
+
+   // set all object filters on
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+      {
+         mEditorMain.obj_filter[i][j][0] = 1;
+         mEditorMain.obj_filter[i][j][1] = 1;
+      }
+
+   // clear area
+   clear_area(x, y, x+ft_level_header[8], y+ft_level_header[9]);
+
+   // paste to level
+   copy_mode = 1;
+   copy_ft_variables_to_level(x, y);
+
+   // restore original object filters
+   memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
+
+   // save level
+   mLevel.save_level(lev);
+}
+
+
 int mwEditSelection::load_selection_prompt()
 {
    return mLoadSelectionDialog.run();
@@ -60,6 +98,8 @@ int mwEditSelection::load_selection_prompt()
    // if (mMiscFnx.mw_file_select("Load Selection", sel_filename, ".sel", 0)) return load_selection(sel_filename);
    // return 0;
 }
+
+
 
 int mwEditSelection::load_selection(const char* filename)
 {
@@ -256,7 +296,8 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    }
 }
 
-void mwEditSelection::do_copy(int qx1, int qy1)
+
+void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 {
    // printf("do fcopy\n");
 
@@ -553,17 +594,49 @@ void mwEditSelection::do_copy(int qx1, int qy1)
 }
 
 
-void mwEditSelection::do_clear()
+void mwEditSelection::clear_area(int x1, int y1, int x2, int y2)
 {
-   int x1 = mLevelEditor.selection.x1*20;
-   int y1 = mLevelEditor.selection.y1*20;
-   int x2 = mLevelEditor.selection.x2*20+20;
-   int y2 = mLevelEditor.selection.y2*20+20;
+   // blocks
+   if (mEditorMain.obj_filter[1][1][0])
+      for (int x=x1; x<x2; x++)
+         for (int y=y1; y<y2; y++) mLevel.l[x][y]=0;
 
+   // items
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0]) && (mEditorMain.obj_filter[2][mItem.item[i][0]][0]))
+         if ((mItem.item[i][4] >= x1*20) && (mItem.item[i][4] < x2*20) && (mItem.item[i][5] >= y1*20) && (mItem.item[i][5] < y2*20)) mItem.clear_item(i);
+
+   // enemies
+   for (int e=0; e<100; e++)
+      if ((mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[e][0]][0]))
+         if ((mEnemy.Ef[e][0] >= x1*20) && (mEnemy.Ef[e][0] < x2*20) && (mEnemy.Ef[e][1] >= y1*20) && (mEnemy.Ef[e][1] < y2*20)) mEnemy.clear_enemy(e);
+
+   // lifts
+   if (mEditorMain.obj_filter[4][1][0])
+      for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward because erase_lift changes list order
+         if (mLift.cur[l].active)
+            if ((mLift.cur[l].x >= x1*20) && (mLift.cur[l].x < x2*20) && (mLift.cur[l].y >= y1*20) && (mLift.cur[l].y < y2*20)) mLift.erase_lift(l);
+
+   mEnemy.sort_enemy();
+   mItem.sort_item(1);
+   mScreen.init_level_background();
+}
+
+
+/*
+
+void mwEditSelection::clear_area(int x1, int y1, int x2, int y2)
+{
    // blocks
    if (mEditorMain.obj_filter[1][1][0])
       for (int x=mLevelEditor.selection.x1; x<mLevelEditor.selection.x2+1; x++)
          for (int y=mLevelEditor.selection.y1; y<mLevelEditor.selection.y2+1; y++) mLevel.l[x][y]=0;
+
+   int x1_20 = x1*20;
+   int y1_20 = y1*20;
+   int x2_20 = x2*20;
+   int y2_20 = y2*20;
+
 
    // items
    for (int i=0; i<500; i++)
@@ -585,6 +658,30 @@ void mwEditSelection::do_clear()
    mItem.sort_item(1);
    mScreen.init_level_background();
 }
+
+
+
+void mwEditSelection::do_clear()
+{
+   int x1 = mLevelEditor.selection.x1*20;
+   int y1 = mLevelEditor.selection.y1*20;
+   int x2 = mLevelEditor.selection.x2*20+20;
+   int y2 = mLevelEditor.selection.y2*20+20;
+   clear_area(x1, y1, x2, y2);
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
@@ -660,7 +757,7 @@ void mwEditSelection::process_mouse_on_background()
       if (copy_mode)
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         do_copy(mLevelEditor.gx, mLevelEditor.gy);
+         copy_ft_variables_to_level(mLevelEditor.gx, mLevelEditor.gy);
       }
       else mLevelEditor.get_new_selection("selection"); // get new selection
    }
@@ -670,6 +767,7 @@ void mwEditSelection::process_mouse_on_background()
       mLevelEditor.set_mode(1);
    }
 }
+
 
 void mwEditSelection::sel_to_ft(char * b) // for load
 {
@@ -717,12 +815,12 @@ void mwEditSelection::draw_buttons(int x1, int x2, int &ya, int d)
       copy_mode = 2;
       fill_ft_variables_from_selection(0);
       draw_fsel();
-      do_clear();
+      clear_area(mLevelEditor.selection.x1, mLevelEditor.selection.y1, mLevelEditor.selection.x2+1, mLevelEditor.selection.y2+1);
       al_set_target_backbuffer(mDisplay.display);
    }
    if (mWidget.mButton(0,x1,x2, ya, 16,  1,2,0,1,   9, 0, 15, 0, 0, "Clear Selection", d))
    {
-      do_clear();
+      clear_area(mLevelEditor.selection.x1, mLevelEditor.selection.y1, mLevelEditor.selection.x2+1, mLevelEditor.selection.y2+1);
       al_set_target_backbuffer(mDisplay.display);
    }
    ya+=8; // spacing between groups
