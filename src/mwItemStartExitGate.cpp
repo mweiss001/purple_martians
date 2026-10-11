@@ -498,7 +498,6 @@ void mwItem::draw_gate_hover_info(int i, int page)
    int by = y+35; // info y start pos
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
 
-
    if (item[i][1] == 1) by = y + item[i][11]; // draw_mode 1
 
 
@@ -514,8 +513,6 @@ void mwItem::draw_gate_hover_info(int i, int page)
          col = 12;
       }
    }
-
-
 
    int dir = 0;
    if (item[i][3] & PM_ITEM_GATE_HOVER_PAGE_DIR) dir = 1;
@@ -544,13 +541,6 @@ void mwItem::draw_gate_hover_info(int i, int page)
       if (page == 3) show_page( 3, xc, bs, by, dir, lev, col); // purple coins
       if (page == 4) show_page(12, xc, bs, by, dir, lev, col); // demo
    }
-
-
-   //   mScreen.draw_framed_text(xc, by, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-
-
-
-
 }
 
 
@@ -644,14 +634,13 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
    // running y position
    float ya = by + o;
 
-
-   // debug passed y pos
-   al_draw_line(x1-100, by, x2+100, by, mColor.Red, 1);
+   // debug initial y pos
+   //al_draw_line(x1-100, ya, x2+100, by, mColor.Red, 1);
 
 
    // draw the framed level name first
-   if (dir) ya -= 12; // up
-   else ya -= 1; // down
+   if (dir) ya -= 11; // up
+   else ya -= 0; // down
    mScreen.draw_framed_text(xc, ya, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name);
 
    if (dir) ya += 0; // up
@@ -661,8 +650,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
    // y start pos past title
    float smy = ya;
    // debug y start pos past title
-   al_draw_line(x1-100, smy, x2+100, smy, mColor.Red, 1);
-
+   //al_draw_line(x1-100, smy, x2+100, smy, mColor.Red, 1);
 
 
    if (page == 0) // level icon map
@@ -678,124 +666,83 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
          mLevelIcons.draw_level_icon(x1+1, ya+1, 200, lev);
          al_draw_rectangle(x1, smy, x2, ya+bs+1, mColor.pc[col], 1);
       }
-
-
-      /*
-
-
-      if (dir) ya -= bs-1; // up
-      else ya += 0; // down
-
-      mLevelIcons.draw_level_icon(x1+1, ya+1, 200, lev);
-
-//      if (dir) ya -= 0;  // up
-//      else ya += (bs+o); // down
-
-
-
-      // when I draw this one with y1 and y2 reversed the corners disappear??
-      if (dir) al_draw_rectangle(x1, ya+1, x2, smy, mColor.pc[col], 1);
-
-
-      else al_draw_rectangle(x1, smy, x2, ya+bs+1, mColor.pc[col], 1); // down
-
-*/
-
-
-
-
    }
-
-//   al_draw_filled_rectangle(x1, smy, x2, ya, mColor.pc[15+128]);
-//   al_draw_rectangle(       x1, smy, x2, ya, mColor.pc[col], 1);
-
-   /*
-
 
    char msg[80];
    int yi=10;
 
-   int bx = xc-bs/2;  // level icon x1
-   int bx2 = xc+bs/2; // level icon x2
-   float yp = by+11.5; // top of frame
-
-
-
-
-
-
-   int yb = 0;
-
-
-   if (page == 0) // level icon map
-   {
-      yb = yp+bs+2;
-      al_draw_rectangle(bx, yp, bx+bs+1, by+bs+12.5, mColor.pc[col], 1);
-      mLevelIcons.draw_level_icon(bx, by+12, 200, lev);
-   }
-
    if (page == 1) // general
    {
-      yb = yp+(6*yi)+25;
-      al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-      al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
-      al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "General");
-      al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-      yp+=25;
-      draw_line(bx, bx2, (int)yp, "Min Time Overall",   chrms(mLevel.data[lev].time_best,           msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Min Time w/coins",   chrms(mLevel.data[lev].time_best_all_coins, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Min Player Deaths",  chrd(mLevel.data[lev].min_respawns,         msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Max Purple Coins",   chrd(mLevel.data[lev].max_coins_collected,  mLevel.data[lev].tot_coins, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Max Enemies Killed", chrd(mLevel.data[lev].max_enemies_killed,   msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Min Enemies Left",   chrd(mLevel.data[lev].min_enemies_left,     msg), 15); yp+=yi;
+      float size = (6*yi)+13;
+      if (dir) ya -= size; // up
+      float yb = ya+size;
+      al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+      al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "General");
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      ya+=13.5;
+
+      draw_line(x1+2, x2-1, ya, "Min Time Overall",   chrms(mLevel.data[lev].time_best,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time w/coins",   chrms(mLevel.data[lev].time_best_all_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Player Deaths",  chrd(mLevel.data[lev].min_respawns,         msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Purple Coins",   chrd(mLevel.data[lev].max_coins_collected,  mLevel.data[lev].tot_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Enemies Killed", chrd(mLevel.data[lev].max_enemies_killed,   msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Enemies Left",   chrd(mLevel.data[lev].min_enemies_left,     msg), 15); ya+=yi;
    }
+
 
    if (page == 2) // times
    {
-      yb = yp+(9*yi)+25;
-      al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-      al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.sprite[542], bx+1, (int)yp+2, 0); // show clock
-      al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Time to Complete");
-      al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-      yp+=25;
-      draw_line(bx, bx2, (int)yp, "Par Time",          chrms(mLevel.data[lev].time_par,            msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Min Time Overall",  chrms(mLevel.data[lev].time_best,           msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Min Time w/coins",  chrms(mLevel.data[lev].time_best_all_coins, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Max Time",          chrms(mLevel.data[lev].time_worst,          msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Avg Time",          chrms(mLevel.data[lev].time_average,        msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Total Play Time",   chrms(mLevel.data[lev].time_total,          msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Played",      chrd(mLevel.data[lev].times_played,         msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Completed",   chrd(mLevel.data[lev].times_beat,           msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Quit",        chrd(mLevel.data[lev].times_quit,           msg), 15); yp+=yi;
+      float size = (9*yi)+13;
+      if (dir) ya -= size; // up
+      float yb = ya+size;
+      al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+      al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Time to Complete");
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      ya+=13.5;
+
+      draw_line(x1+2, x2-1, ya, "Par Time",          chrms(mLevel.data[lev].time_par,            msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time Overall",  chrms(mLevel.data[lev].time_best,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time w/coins",  chrms(mLevel.data[lev].time_best_all_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Time",          chrms(mLevel.data[lev].time_worst,          msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Avg Time",          chrms(mLevel.data[lev].time_average,        msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Total Play Time",   chrms(mLevel.data[lev].time_total,          msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Played",      chrd(mLevel.data[lev].times_played,         msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Completed",   chrd(mLevel.data[lev].times_beat,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Quit",        chrd(mLevel.data[lev].times_quit,           msg), 15); ya+=yi;
    }
 
-   if (page == 3) // purple coins
+   if (page == 3) // purple coins 3
    {
-      yb = yp+(2*yi)+25;
-      al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-      al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.sprite[197], bx+1, (int)yp+2, 0); // show purple coin
-      al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Purple Coins");
-      al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-      yp+=25;
-      draw_line(bx, bx2, (int)yp, "Collected", chrd(mLevel.data[lev].max_coins_collected, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Total",     chrd(mLevel.data[lev].tot_coins,           msg), 15); yp+=yi;
+      float size = (2*yi)+25;
+      if (dir) ya -= size; // up
+      float yb = ya+size;
+      al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+      al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+      al_draw_bitmap(mBitmap.sprite[197], x1+2, ya+2, 0); // show purple coin
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+8, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Purple Coins");
+      al_draw_line(x1, ya+23, x2, ya+23, mColor.pc[col], 1);
+      ya+=25.5;
+
+      draw_line(x1+2, x2-1, ya, "Collected", chrd(mLevel.data[lev].max_coins_collected, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Total",     chrd(mLevel.data[lev].tot_coins,           msg), 15); ya+=yi;
    }
 
    if (page == 7) // not completed general
    {
-      yb = yp+(3*yi)+25;
-      al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-      al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-      al_draw_bitmap(mBitmap.sprite[127+col], bx+1, (int)yp+2, 0);
-      al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int) yp+8, 0, "General");
-      al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-      yp+=25;
-      draw_line(bx, bx2, (int)yp, "Par Time",     chrms(mLevel.data[lev].time_par,        msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Purple Coins", chrd(mLevel.data[lev].tot_coins, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Played", chrd(mLevel.data[lev].times_played,     msg), 15); yp+=yi;
+      float size = (3*yi)+13;
+      if (dir) ya -= size; // up
+      float yb = ya+size;
+      al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+      al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "General");
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      ya+=13.5;
+
+      draw_line(x1+2, x2-1, ya, "Par Time",     chrms(mLevel.data[lev].time_par,      msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Purple Coins", chrd(mLevel.data[lev].tot_coins,      msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Played", chrd(mLevel.data[lev].times_played,   msg), 15); ya+=yi;
    }
 
    if (page == 12) // run demo for level
@@ -803,16 +750,18 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
 
       if ((mLevel.data[lev].times_beat == 0) && (mLevel.data[lev].times_played > 2)) // if not beat and started > 2 time
       {
-         yb = yp+(4*yi)+25;
-         al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-         al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-         al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
-         al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int)yp+8, 0, "Run Demo");
-         al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-         yp+=25;
-         al_draw_textf(mFont.pr8, mColor.pc[15], xc,(int)yp, ALLEGRO_ALIGN_CENTER, "type 'demo' to run demo"); yp+=yi*2;
-         al_draw_textf(mFont.pr8, mColor.pc[15], xc,(int)yp, ALLEGRO_ALIGN_CENTER, "type 'cheat' to let demo"); yp+=yi;
-         al_draw_textf(mFont.pr8, mColor.pc[15], xc,(int)yp, ALLEGRO_ALIGN_CENTER, "complete level for you"); yp+=yi;
+         float size = (4*yi)+13;
+         if (dir) ya -= size; // up
+         float yb = ya+size;
+         al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+         al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+         al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Run Demo");
+         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+         ya+=13.5;
+
+         al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "type 'demo' to run demo");  ya+=yi*2;
+         al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "type 'cheat' to let demo"); ya+=yi;
+         al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "complete level for you");   ya+=yi;
 
          if (mLevel.skc_trigger_demo)
          {
@@ -822,14 +771,16 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
       }
       else
       {
-         yb = yp+(1*yi)+25;
-         al_draw_filled_rectangle(bx, yp, bx2+1, yb, mColor.pc[0]);
-         al_draw_rectangle(bx, yp, bx2+1, yb, mColor.pc[col], 1);
-         al_draw_bitmap(mBitmap.sprite[401], bx+1, (int)yp+2, 0); // show player
-         al_draw_textf(mFont.pr8, mColor.pc[15], bx+28, (int)yp+8, 0, "Run Demo");
-         al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
-         yp+=25;
-         al_draw_textf(mFont.pr8, mColor.pc[15], xc,(int)yp, ALLEGRO_ALIGN_CENTER, "type 'demo' to run demo"); yp+=yi;
+         float size = (1*yi)+13;
+         if (dir) ya -= size; // up
+         float yb = ya+size;
+         al_draw_filled_rectangle(x1, ya, x2, yb, mColor.pc[0]);
+         al_draw_rectangle(x1, ya, x2, yb, mColor.pc[col], 1);
+         al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Run Demo");
+         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+         ya+=13.5;
+
+         al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "type 'demo' to run demo"); ya+=yi;
 
          if (mLevel.skc_trigger_demo)
          {
@@ -837,18 +788,6 @@ void mwItem::show_page(int page, int xc, int bs, int by, int dir, int lev, int c
             if (mLevel.skc_trigger_demo_cheat) mLevel.skc_trigger_demo_cheat = 0; // do nothing if trying to cheat here
             else mDemoMode.run_single_from_gate(lev);
          }
-
       }
    }
-
-
-   // draw and frame the level name
-   int tly = by; // above
-   if (dir) tly = yb-1; // below
-
-   mScreen.draw_framed_text(xc, tly, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
-*/
-
-
 }
-

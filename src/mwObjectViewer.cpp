@@ -1943,7 +1943,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
             ya+=4; // spacer
             q = 13;
-            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Gate Info Pages",        "Show Gate Info Pages");
+            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Hover Info Pages",        "Show Hover Info Pages");
             if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
 
 
@@ -1952,12 +1952,19 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (odbb(d, xa, xb, ya, bts, q, msg)) if (++mLevelEditor.show_gate_info_page > 3) mLevelEditor.show_gate_info_page = 0;
 
             ya+=4; // spacer
-           q = 10;
-            odbi(d, xa, xb, ya, bts, q, mItem.item[n][11],  400, -400, 1,  1, 10, "Info Pages Y Offset:");
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Lower")) mItem.item[n][11] = 35;
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Upper")) mItem.item[n][11] = -200;
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][11],  400, -400, 1,  1, 10, "Hover Pages Y Offset:");
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
+            {
+               mItem.item[n][3] &= ~PM_ITEM_GATE_HOVER_PAGE_DIR;
+               mItem.item[n][11] = 35;
+            }
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
+            {
+               mItem.item[n][3] |= PM_ITEM_GATE_HOVER_PAGE_DIR;
+               mItem.item[n][11] = -19;
+            }
 
-            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_HOVER_PAGE_DIR, "Hover Label:Above","Hover Label:Below ", q, q, 15, 15);
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_HOVER_PAGE_DIR, "Hover Pages Direction:Above","Hover Pages Direction:Below ", q, q, 15, 15);
 
 
 

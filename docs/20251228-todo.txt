@@ -16,6 +16,12 @@ rx packet buffer full? why? add some logging to see what packets...
 
 
 
+when letting demo complete level for you, time is demo time, should be time+30s...maybe??
+
+press fire to complete level does nothing
+
+
+
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -26,6 +32,35 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+gates
+-----
+- colored tiles
+- optional different tiles
+- tiles on their own tilemap
+- badges
+- info about badges in hover pages
+- transitions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 can I get some nicer shapes?

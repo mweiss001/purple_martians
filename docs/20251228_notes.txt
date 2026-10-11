@@ -44764,6 +44764,85 @@ then moving up or down from there
 
 it took a lot of bullshit but I got everything to line up.. I want to compare on linux
 commit....
+with some minor bullshit I am happy
+
+now do the text pages
+
+I got the first one done!!!
+
+they are very easy now that I have one done
+
+I think I have that done...now test drawing up...looks good
+
+now make defaults for up and down
+
+done...
+
+now what?
+
+make the doors draw last so they are on top...
+
+do not draw hover if in gate entry mode
+
+badges?
+
+colored doors?
+
+if I save the gate tiles in their own tilemap, I do not have to be bound by the arbitrary 20x20 tiles anymore...
+in fact, maybe I should save them in their native resolution....
+that only looks good when drawing direct to screen...
+
+got some portal tilesets
+
+from 
+
+	Created By: PixelZoink & actuallyKron
+	Purchased From: actuallykron.itch.io/portals-premium
+	
+	Twitter: @PizelZoink
+	Instagram: @PixelZoink
+	
+	YouTube: https://bit.ly/3CskurG
+	Itch.io: actuallykron.itch.io
+	Twitter: @actuallyKron
+	Instagram: @actuallyKron
+
+
+		██╗░░░░░██╗░█████╗░███████╗███╗░░██╗░█████╗░███████╗
+		██║░░░░░██║██╔══██╗██╔════╝████╗░██║██╔══██╗██╔════╝
+		██║░░░░░██║██║░░╚═╝█████╗░░██╔██╗██║██║░░╚═╝█████╗░░
+		██║░░░░░██║██║░░██╗██╔══╝░░██║╚████║██║░░██╗██╔══╝░░
+		███████╗██║╚█████╔╝███████╗██║░╚███║╚█████╔╝███████╗
+		╚══════╝╚═╝░╚════╝░╚══════╝╚═╝░░╚══╝░╚════╝░╚══════╝
+
+
+					You are allowed to:				
+
+	- Use these assets for personal, educational and commercial projects.
+	Credit is not necessary but is appreciated. Feel free to link to my Itch.io Page.​
+	- Modify these assets to suit your needs.
+
+					You are NOT allowed to:				
+
+	- Re-sell or redistribute these assets as game assets or images. This includes modified versions.
+	- Use these assets if you haven't paid for them.
+	- Use these assets in any  NFT related projects.
+
+
+size 2304x64
+36x1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

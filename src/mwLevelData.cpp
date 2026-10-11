@@ -364,7 +364,7 @@ int mwLevel::find_msg(const char* str)
 void mwLevel::set_overworld_barriers()
 {
 
-   mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
+   //mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
 
 
    // --------------------------------
