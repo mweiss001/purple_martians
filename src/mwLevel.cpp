@@ -207,12 +207,13 @@ int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silentl
 {
    char filename[255];
    sprintf(filename, "levels/level%03d.pml", level_num);
+   // printf("mwLevel::load_level_by_number(level_num:%d, load_only:%d, fail_silently:%d) - filename:%s\n", level_num, load_only, fail_silently, filename);
    return load_level(filename, load_only, fail_silently);
 }
 
 int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
-   //printf("mwLevel::load_level_filename(%s)\n", filename);
+   //printf("mwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
    char msg[1024];
    FILE *fp = fopen(filename, "rb");
    if (!fp)

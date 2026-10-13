@@ -46,6 +46,9 @@ class mwEditSelection
 
    void add_sel_to_level(int lev, const char* sel_file, int x, int y);
 
+   void copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy, int clear);
+
+
    int load_selection(const char* filename);
    int load_selection_prompt();
 

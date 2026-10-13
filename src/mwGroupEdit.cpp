@@ -46,6 +46,7 @@ varnum = flag bits
 
 
 
+
 void mwGroupEdit::init()
 {
    mGroupEdit.show_sel_frame = 1;
@@ -565,6 +566,40 @@ void mwGroupEdit::init()
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 1000;
    cot[i][2][13] = 1; // timer
+
+
+   i++;
+   sprintf(ge_data[i].name, "Gate Draw Mode");
+   sprintf(ge_data[i].snam, "gtdm");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 1;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 5;
+   cot[i][2][18] = 1; // gate
+
+   i++;
+   sprintf(ge_data[i].name, "Level Icon Size");
+   sprintf(ge_data[i].snam, "lisz");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 20;
+   ge_data[i].adj_max = 400;
+   ge_data[i].min_allowed = 20;
+   ge_data[i].max_allowed = 400;
+   cot[i][2][18] = 1; // gate
+
+   i++;
+   sprintf(ge_data[i].name, "Hover Icon Size");
+   sprintf(ge_data[i].snam, "hisz");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 11;
+   ge_data[i].adj_min = 20;
+   ge_data[i].adj_max = 400;
+   ge_data[i].min_allowed = 20;
+   ge_data[i].max_allowed = 400;
+   cot[i][2][18] = 1; // gate
 
 
 

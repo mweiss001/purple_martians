@@ -45084,6 +45084,402 @@ fix all gates....
 10 11 and dir...
 
 
+2026-10-13 03:10:13
+fix lev 1 and move to backup..done
+
+move all remaining levels to 71..done
+
+
+make some group edit stuff for gates
+I want to select a group and change sizes, etc
+
+   i++;
+   sprintf(ge_data[i].name, "Gate Draw Mode");
+   sprintf(ge_data[i].snam, "gtdm");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 1;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 5;
+   cot[i][2][18] = 1; // gate
+
+   i++;
+   sprintf(ge_data[i].name, "Level Icon Size");
+   sprintf(ge_data[i].snam, "lisz");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 20;
+   ge_data[i].adj_max = 400;
+   ge_data[i].min_allowed = 20;
+   ge_data[i].max_allowed = 400;
+   cot[i][2][18] = 1; // gate
+
+   i++;
+   sprintf(ge_data[i].name, "Hover Icon Size");
+   sprintf(ge_data[i].snam, "hisz");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 11;
+   ge_data[i].adj_min = 20;
+   ge_data[i].adj_max = 400;
+   ge_data[i].min_allowed = 20;
+   ge_data[i].max_allowed = 400;
+   cot[i][2][18] = 1; // gate
+
+that was so easy
+
+can I do something like find all levels from 1-100 that do not have a gate in overworld
+maybe I could just make a list of gates in a level
+
+
+I would like to change some level numbers
+I would like to make the classic mode next level follow a cool path
+
+2-57 regular levels (except 9 25, 37)
+
+80-84 training
+plus 9 25 37 
+
+85-98 advanced info
+
+I want to disable the gate drawing down
+
+I want to break free
+
+
+I think I am ready to test the level in position 1.
+
+I want to have a function that copies from 70 to 1
+
+void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy);
+
+
+this makes no sense at all:
+
+I get a hard crash when trying to load level:
+
+Desktop Resolution: 3840x2160
+mwLevel::load_level_by_number(level_num:1, load_only:0, fail_silently:0) - filename:levels/level001.pml
+mwLevel::load_level_filename(filename:levels/level001.pml, load_only:0, fail_silently:0)
+add_sel_to_level(lev:1, sel_filename:sel/test123.sel, x:10, y:2)
+mwLevel::load_level_by_number(level_num:1, load_only:1, fail_silently:0) - filename:levels/level001.pml
+mwLevel::load_level_filename(filename:levels/level001.pml, load_only:1, fail_silently:0)
+load_selection(sel/test123.sel)
+copy_sel_from_level(slev:1 sx:45 sy:48, sw:10 sh:10 dlev:200 dx:20 dy:20)
+post print
+mwLevel::load_level_by_number(level_num:1, load_only:1, fail_silently:0) - filename:levels/level001.pml
+
+Process finished with exit code -1073741571 (0xC00000FD)
+
+
+
+
+int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silently)
+{
+   char filename[255];
+   sprintf(filename, "levels/level%03d.pml", level_num);
+
+   printf("mwLevel::load_level_by_number(level_num:%d, load_only:%d, fail_silently:%d) - filename:%s\n", level_num, load_only, fail_silently, filename);
+
+   int ret = load_level(filename, load_only, fail_silently);
+
+   return ret;
+}
+
+int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
+{
+   printf("mwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
+   char msg[1024];
+   FILE *fp = fopen(filename, "rb");
+
+
+
+
+Desktop Resolution: 3840x2160
+mwLevel::load_level_by_number(level_num:1, load_only:0, fail_silently:0) - filename:levels/level001.pml
+post print
+mwLevel::load_level_filename(filename:levels/level001.pml, load_only:0, fail_silently:0)
+
+add_sel_to_level(lev:1, sel_filename:sel/test123.sel, x:10, y:2)
+mwLevel::load_level_by_number(level_num:1, load_only:1, fail_silently:0) - filename:levels/level001.pml
+post print
+mwLevel::load_level_filename(filename:levels/level001.pml, load_only:1, fail_silently:0)
+load_selection(sel/test123.sel)
+
+test_load(lev:1)
+mwLevel::load_level_by_number(level_num:1, load_only:1, fail_silently:0) - filename:levels/level001.pml
+post print
+mwLevel::load_level_filename(filename:levels/level001.pml, load_only:1, fail_silently:0)
+
+copy_sel_from_level(slev:1 sx:45 sy:48, sw:10 sh:10 dlev:200 dx:20 dy:20)
+post print
+mwLevel::load_level_by_number(level_num:1, load_only:1, fail_silently:0) - filename:levels/level001.pml
+post print
+
+Process finished with exit code -1073741571 (0xC00000FD)
+
+
+
+it fails later than I thought...when trying to compress...
+I was confused because printing to console did not show it
+
+   al_make_directory("sel"); // create if not already created
+
+   printf("post make dir\n");
+
+
+   // put variables in sel
+   char sel[SEL_SIZE];
+   ft_to_sel(sel);
+
+   printf("post put var in sel\n");
+
+
+   // compress sel to cmp
+   char cmp[SEL_SIZE];
+   uLongf destLen= sizeof(cmp);
+
+   printf("pre compress - sizeof(sel):%d  sizeof(cmp):%d   \n", (int)sizeof(sel), (int)sizeof(cmp));
+
+//   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)sel, sizeof(sel), -1);
+
+   printf("post compress\n");
+
+   int cmp_size = destLen;
+
+post make dir
+post put var in sel
+pre compress - sizeof(sel):384800  sizeof(cmp):384800
+post compress
+
+
+2026-10-13 05:56:48
+makes no sense to me...but hey...maybe I can even skip the writing to file part...
+yes, that is much easier...
+
+void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy)
+{
+   // printf("copy_sel_from_level(slev:%d sx:%d sy:%d, sw:%d sh:%d dlev:%d dx:%d dy:%d)\n", slev, sx, sy, sw, sh, dlev, dx, dy);
+
+   // load source level
+   if (!mLevel.load_level_by_number(slev, 1, 0)) return;
+   
+   // set selection
+   mLevelEditor.selection.x1 = sx;
+   mLevelEditor.selection.y1 = sy;
+   mLevelEditor.selection.x2 = sx+sw-1;
+   mLevelEditor.selection.y2 = sy+sh-1;
+   
+   // make a copy of the object filters
+   int temp_obj_filter[5][20][2];
+   memcpy(temp_obj_filter, mEditorMain.obj_filter, sizeof(temp_obj_filter));
+
+   // set all object filters on
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+      {
+         mEditorMain.obj_filter[i][j][0] = 1;
+         mEditorMain.obj_filter[i][j][1] = 1;
+      }
+   
+   // fill ft from selection 
+   fill_ft_variables_from_selection(0);
+
+   // load destination level
+   if (!mLevel.load_level_by_number(dlev, 1, 0)) return;
+
+   // clear area
+   clear_area(dx, dy, dx+ft_level_header[8], dy+ft_level_header[9]);
+
+   // paste to level
+   copy_mode = 1;
+   copy_ft_variables_to_level(dx, dy);
+
+   // save level
+   mLevel.save_level(dlev);
+   
+   // restore original object filters
+   memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
+}
+
+well now that I have made a copy of the old level 1, I can copy everything over..
+
+it seems to be working
+
+
+should I start re-implementing areas?
+
+   int area_array[100][2];
+
+   const char* area_names[20] =
+   {
+      "",
+      "Area 1",
+      "Area 2",
+      "Area 3",
+      "Area 4",
+      "Area 5",
+      "Area 6",
+      "Area 7",
+      "Area 8",
+      "Area 9",
+      "Extra",
+      "2P",
+      "Demo",
+      "Training",
+      "Training"
+   };
+
+// searches the overworld level for gates in certain areas, then adds their levels to area array
+void mwLevel::fill_area_array()
+{
+   // clear area array and index
+   for (int i=0; i<100; i++)
+   {
+      area_array[i][0] = 0;
+      area_array[i][1] = 0;
+   }
+   int aai = 0;
+
+   faa_helper(0,    700,  0,    180,  0, aai, 13); // basic training levels
+   faa_helper(1000, 2000, 0,    180,  1, aai, 14); // advanced training levels
+   faa_helper(0,    1000, 200,  360,  0, aai, 1);  // area 1
+   faa_helper(1000, 2000, 200,  360,  1, aai, 2);  // area 2
+   faa_helper(0,    1000, 380,  540,  0, aai, 3);  // area 3
+   faa_helper(1000, 2000, 380,  540,  1, aai, 4);  // area 4
+   faa_helper(0,    1000, 560,  720,  0, aai, 5);  // area 5
+   faa_helper(1000, 2000, 560,  720,  1, aai, 6);  // area 6
+   faa_helper(0,    1000, 740,  900,  0, aai, 7);  // area 7
+   faa_helper(1000, 2000, 740,  900,  1, aai, 8);  // area 8
+   faa_helper(900,  1100, 920,  1080, 1, aai, 9);  // area 9 (final boss)
+
+   faa_helper(0,    1000, 1160, 1700, 1, aai, 10); // area 10 (extra levels)
+
+   faa_helper(1000, 2000, 1160, 1700, 1, aai, 11); // area 11 (multiplayer bomb toss levels)
+   faa_helper(0,    2000, 1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
+//   for(int i=0; i<aai; i++) printf("area:%d level:%d\n", area_array[i][1], area_array[i][0]);
+}
+
+
+why don't I do this a different way
+
+struct overworld_area
+{
+   char name[200];
+   int color;
+   int visible;
+   
+   int x;
+   int y;
+   int w;
+   int h;
+   
+   int msg_x;
+   int msg_y;
+
+   int num_levels_tot;
+   int num_levels_complete;   
+   int num_levels_perfect;   
+
+};
+
+struct overworld_area overworld_area_array[20];
+
+save and load like others
+
+create with 
+
+area_array is more complicated than it needs to be
+
+all it needs to do is map level to area
+it could do that like this:
+
+int aa[100]
+with level as the index
+
+
+instead I do it like this:
+
+int aa[index][2]
+int aa[index][0] = level
+int aa[index][1] = area
+
+this has the advantage of a level being in more that one area (which I never use)
+go with new...
+
+   int level_area[100];
+
+
+or I could add it to level_data struct....
+
+that would be most wise....
+
+2026-10-13 07:27:56
+
+save and commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

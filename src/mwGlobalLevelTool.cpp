@@ -262,9 +262,6 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
-
-
-
       // for (int y=0; y<500; y++)
       //    if (mItem.item[y][0] == 19) // hider
       //    {
@@ -272,25 +269,25 @@ void mwGlobalLevelTool::execute()
       //    }
 
 
-       for (int y=0; y<500; y++)
-          if (mItem.item[y][0] == 18) // gate
-          {
-
-             if (mItem.item[y][1] == 1) // gold door
-             {
-                mItem.item[y][3] = 2; // flags both up
-                mItem.item[y][10] = 50;
-                mItem.item[y][11] = 100;
-             }
-
-             if (mItem.item[y][1] == 3) // metal door
-             {
-                mItem.item[y][3] = 0; // icon up hover down
-                mItem.item[y][10] = 100;
-                mItem.item[y][11] = 210;
-             }
-
-          }
+       // for (int y=0; y<500; y++)
+       //    if (mItem.item[y][0] == 18) // gate
+       //    {
+       //
+       //       if (mItem.item[y][1] == 1) // gold door
+       //       {
+       //          mItem.item[y][3] = 2; // flags both up
+       //          mItem.item[y][10] = 50;
+       //          mItem.item[y][11] = 100;
+       //       }
+       //
+       //       if (mItem.item[y][1] == 3) // metal door
+       //       {
+       //          mItem.item[y][3] = 0; // icon up hover down
+       //          mItem.item[y][10] = 100;
+       //          mItem.item[y][11] = 210;
+       //       }
+       //
+       //    }
 
 
 
@@ -394,7 +391,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (1)
+      if (0)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

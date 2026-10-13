@@ -553,7 +553,7 @@ void mwItem::draw_gate_hover_info(int i, int page)
    if (status == 1)
    {
       mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, col, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+28, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
+      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
 
       //      al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
 //      al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
@@ -564,7 +564,7 @@ void mwItem::draw_gate_hover_info(int i, int page)
    if (status > 1)
    {
       mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, col, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+28, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
+      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
 
       // al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       // al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");

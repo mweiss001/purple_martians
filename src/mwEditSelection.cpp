@@ -52,9 +52,62 @@ void mwEditSelection::clear_ft_variables()
 
 
 
+
+void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy, int clear)
+{
+   // printf("copy_sel_from_level(slev:%d sx:%d sy:%d, sw:%d sh:%d dlev:%d dx:%d dy:%d)\n", slev, sx, sy, sw, sh, dlev, dx, dy);
+
+   // load source level
+   if (!mLevel.load_level_by_number(slev, 1, 0)) return;
+
+   // set selection
+   mLevelEditor.selection.x1 = sx;
+   mLevelEditor.selection.y1 = sy;
+   mLevelEditor.selection.x2 = sx+sw-1;
+   mLevelEditor.selection.y2 = sy+sh-1;
+
+   // make a copy of the object filters
+   int temp_obj_filter[5][20][2];
+   memcpy(temp_obj_filter, mEditorMain.obj_filter, sizeof(temp_obj_filter));
+
+   // set all object filters on
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+      {
+         mEditorMain.obj_filter[i][j][0] = 1;
+         mEditorMain.obj_filter[i][j][1] = 1;
+      }
+
+   // fill ft from selection
+   fill_ft_variables_from_selection(0);
+
+   // load destination level
+   if (!mLevel.load_level_by_number(dlev, 1, 0)) return;
+
+   // clear area
+   if (clear == 1) clear_area(dx, dy, dx+ft_level_header[8], dy+ft_level_header[9]);
+   if (clear == 2) clear_area(0, 0, 100, 100);
+
+
+
+   // paste to level
+   copy_mode = 1;
+   copy_ft_variables_to_level(dx, dy);
+
+   // save level
+   mLevel.save_level(dlev);
+
+   // restore original object filters
+   memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
+}
+
+
+
+
+
 void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
 {
-   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d\n", lev, sel_file, x, y);
+   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d)\n", lev, sel_file, x, y);
 
    // load level
    if (!mLevel.load_level_by_number(lev, 1, 0)) return;

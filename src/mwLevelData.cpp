@@ -364,8 +364,13 @@ int mwLevel::find_msg(const char* str)
 void mwLevel::set_overworld_barriers()
 {
 
-   //mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
+//   mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
 
+//   mEditSelection.copy_sel_from_level(70, 45, 48, 10, 10, 1, 70, 50, 2);
+
+   mEditSelection.copy_sel_from_level(70, 0, 0, 100, 100, 1, 0, 0, 2);
+
+/*
 
    // --------------------------------
    // area 0
@@ -433,6 +438,8 @@ void mwLevel::set_overworld_barriers()
    sob_vline(0,  46, 57, !area_locks[10]);   // edge pieces that I want invisible until 10 done
    sob_vline(99, 46, 84, !area_locks[10]);   // edge pieces that I want invisible until 10 done
 
+*/
+
 
    // how much of overworld level to hide
    // int lowest_visible_y = 200; // default only top training row visible
@@ -466,9 +473,7 @@ void mwLevel::set_overworld_barriers()
 
 */
 
-
-
-   save_level(1); // save overworld level
+//   save_level(1); // save overworld level
 }
 
 
@@ -516,16 +521,48 @@ void mwLevel::faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int
 }
 
 
+
+
+void mwLevel::faa_helper_create(int index, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y)
+{
+   sprintf(overworld_area_array[index].name, "%s", name);
+   overworld_area_array[index].color = color;
+   overworld_area_array[index].visible = visible;
+   overworld_area_array[index].x = x;
+   overworld_area_array[index].y = y;
+   overworld_area_array[index].w = w;
+   overworld_area_array[index].h = h;
+   overworld_area_array[index].msg_x = msg_x;
+   overworld_area_array[index].msg_y = msg_y;
+
+
+//   faa_helper(x, x, x+w, y+h, 1, int &aai, int area)
+
+
+
+}
+
+
+
+
+
 // searches the overworld level for gates in certain areas, then adds their levels to area array
 void mwLevel::fill_area_array()
 {
+
+   faa_helper_create(1, "Training", 12, 1, 0, 0,  100, 14, 42, 5);
+   faa_helper_create(2, "Area 1",   13, 1, 0, 14, 100, 10, 42, 16);
+
+
+
+   int aai = 0;
+
    // clear area array and index
    for (int i=0; i<100; i++)
    {
       area_array[i][0] = 0;
       area_array[i][1] = 0;
    }
-   int aai = 0;
 
    faa_helper(0,    700,  0,    180,  0, aai, 13); // basic training levels
    faa_helper(1000, 2000, 0,    180,  1, aai, 14); // advanced training levels
@@ -544,6 +581,16 @@ void mwLevel::fill_area_array()
    faa_helper(1000, 2000, 1160, 1700, 1, aai, 11); // area 11 (multiplayer bomb toss levels)
    faa_helper(0,    2000, 1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
 //   for(int i=0; i<aai; i++) printf("area:%d level:%d\n", area_array[i][1], area_array[i][0]);
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -629,6 +676,8 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(82,  8400,  "Training Level 3");    // 3:30 demo 2:12
    data_helper(83,  6000,  "Training Level 4");    // 2:30 demo 1:14
    data_helper(84,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
+
+
    data_helper(9,   6000,  "Bomb Intro");          // 2:30 demo 1:35
    data_helper(25,  1000,  "One Cannon");          // 0:25 demo 0:21.9
    data_helper(37,  800,   "Sacrifice");           // 0:20 demo 0:13.3
@@ -664,7 +713,13 @@ void mwLevel::clear_data()
    area_locks[13] = 0; // basic training area unlocked
 
    load_level_by_number(1, 1, 0); // load overworld level to set overworld barriers
+
+
    fill_area_array();
+
+
+
+
 
    mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
    mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
@@ -729,6 +784,10 @@ void mwLevel::load_data()
       fread(data,           sizeof(data),          1, fp);
       fread(area_locks,     sizeof(area_locks),    1, fp);
       fread(area_array,     sizeof(area_array),    1, fp);
+
+      fread(overworld_area_array,     sizeof(overworld_area_array),    1, fp);
+
+
       fclose(fp);
       return;
    }
@@ -749,6 +808,11 @@ void mwLevel::save_data()
       fwrite(data,           sizeof(data),          1, fp);
       fwrite(area_locks,     sizeof(area_locks),    1, fp);
       fwrite(area_array,     sizeof(area_array),    1, fp);
+
+      fwrite(overworld_area_array,  sizeof(overworld_area_array),    1, fp);
+
+
+
       fclose(fp);
       return;
    }

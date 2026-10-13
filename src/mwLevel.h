@@ -30,6 +30,30 @@ struct level_data
 };
 
 
+struct overworld_area
+{
+   char name[200];
+   int color;
+   int visible;
+
+   int x;
+   int y;
+   int w;
+   int h;
+
+   int msg_x;
+   int msg_y;
+
+   int num_levels_tot;
+   int num_levels_complete;
+   int num_levels_perfect;
+
+};
+
+
+
+
+
 class mwLevel
 {
    public:
@@ -82,9 +106,15 @@ class mwLevel
 
    void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
 
+   void faa_helper_create(int index, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
+
+
    void fill_area_array();
 
    struct level_data data[100];
+
+   struct overworld_area overworld_area_array[20];
+
 
    int area_locks[16];
 
@@ -110,8 +140,11 @@ class mwLevel
    const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };
    int         level_status_color[4] = {       10,      13,         12,        8  };
 
-
    int area_array[100][2];
+
+   int level_area[100];
+
+
 
    void unlock_all_level_in_area(int area);
 
