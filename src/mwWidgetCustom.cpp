@@ -815,10 +815,12 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       listItems =
       {
          {  0,  "Draw Mode:Legacy"  },
-         {  1,  "Draw Mode:New Door" }
+         {  1,  "Draw Mode:Gold Colored Door" },
+         {  2,  "Draw Mode:Wooden Door" },
+         {  3,  "Draw Mode:Metal Door" },
+         {  4,  "Draw Mode:Portcullis" }
       };
    }
-
 
 
 

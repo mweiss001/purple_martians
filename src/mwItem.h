@@ -59,6 +59,10 @@ class mwItem
 
 
    void proc_gate_collision(int p, int i);
+
+
+   void draw_level_icon(int i, int level, int status, int color);
+
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
 
@@ -73,7 +77,7 @@ class mwItem
    char* chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
-   void show_page(int page, int xc, int bs, int by, int dir, int lev, int col);
+   void show_page(int page, int xc, int bs, int by, int dir, int lev, int col, int status, int draw_mode);
 
 
 
@@ -375,13 +379,6 @@ item[][15] = t2 o/p event
 #define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
 
 
-
-
-
-
-
-
-
 [14]  - switch
 item[][6]  block range x
 item[][7]  block range y
@@ -422,18 +419,23 @@ item[][12] = damage
 
 [18] - gate
 item[][1] = draw mode
+0 Draw Mode:Legacy
+1 Draw Mode:Gold Colored Door
+2 Draw Mode:Wooden Door
+3 Draw Mode:Metal Door
+4 Draw Mode:Portcullis
 item[][2] =
 item[][3] = flags
+#define PM_ITEM_GATE_LEVEL_ICON_DIR  0b00000000000000001
+#define PM_ITEM_GATE_HOVER_PAGE_DIR  0b00000000000000010
+
 item[][4] = x pos
 item[][5] = y pos
+
 item[][6] = level
 item[][7] = current display page
-item[][8] small_map_x
-item[][9] small_map_y
-item[][10] small_map_size
-item[][11] info pages y offset
 
-
+item[][10] level icon size
 
 
 

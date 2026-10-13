@@ -40,7 +40,7 @@ void mwLoop::proc_gate_enter_mode()
 
    if (draw_mode == 0) enter_gate = 1;
 
-   if (draw_mode == 1)
+   if (draw_mode)
    {
       if (mGameState.gate_enter_mode == 9) mGameState.gate_enter_timer = 0; // entry point
 
@@ -95,7 +95,7 @@ void mwLoop::proc_gate_enter_mode()
          if (--mGameState.gate_enter_timer <= 0)
          {
             mGameState.gate_enter_mode--;
-            if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // open door
+            if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // partially open door
             if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
             if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = seek_time; // players seek gate
             if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = rotate_time; // players shrink and rotate

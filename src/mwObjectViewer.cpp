@@ -1920,53 +1920,21 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
             ya+=4; // spacer
             int q=12; // mode color
-            odbi(d, xa, xb, ya, bts, q, mItem.item[n][8],  1990, 0, 1,  1, 10, "Level Icon x:");
-            odbi(d, xa, xb, ya, bts, q, mItem.item[n][9],  1990, 0, 1,  1, 10, "Level Icon y:");
             odbi(d, xa, xb, ya, bts, q, mItem.item[n][10], 400, 20, 1,  1, 10, "Level Icon size:");
-
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
-            {
-               mItem.item[n][3] |= PM_ITEM_GATE_ICON_LABEl_POS; // label below
-               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
-               mItem.item[n][9] = mItem.item[n][5] - mItem.item[n][10] - 27;
-            }
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
-            {
-               mItem.item[n][3] &= ~PM_ITEM_GATE_ICON_LABEl_POS; // label above
-               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
-               mItem.item[n][9] = mItem.item[n][5] + 29;
-            }
-
-            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_ICON_LABEl_POS, "Icon Label:Above","Icon Label:Below ", q, q, 15, 15);
-
-
+            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_LEVEL_ICON_DIR, "Level Icon:Above","Level Icon:Below ", q, q, 15, 15);
 
             ya+=4; // spacer
             q = 13;
             odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Hover Info Pages",        "Show Hover Info Pages");
             if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
 
-
             char msg[200];
             sprintf(msg, "Gate Info Page:%d", mLevelEditor.show_gate_info_page);
             if (odbb(d, xa, xb, ya, bts, q, msg)) if (++mLevelEditor.show_gate_info_page > 3) mLevelEditor.show_gate_info_page = 0;
 
             ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, q, mItem.item[n][11],  400, -400, 1,  1, 10, "Hover Pages Y Offset:");
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
-            {
-               mItem.item[n][3] &= ~PM_ITEM_GATE_HOVER_PAGE_DIR;
-               mItem.item[n][11] = 35;
-            }
-            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
-            {
-               mItem.item[n][3] |= PM_ITEM_GATE_HOVER_PAGE_DIR;
-               mItem.item[n][11] = -19;
-            }
-
-            odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_HOVER_PAGE_DIR, "Hover Pages Direction:Above","Hover Pages Direction:Below ", q, q, 15, 15);
-
-
+            //odbt(d, xa, xb, ya, bts, mItem.item[n][3], PM_ITEM_GATE_HOVER_PAGE_DIR, "Hover Pages Direction:Below","Hover Pages Direction:Above", q, q, 15, 15);
+            odbi(d, xa, xb, ya, bts, q, mItem.item[n][11], 400, 20, 1,  1, 10, "Hover Level Icon size:");
 
 
 

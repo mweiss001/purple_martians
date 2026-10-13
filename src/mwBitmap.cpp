@@ -45,6 +45,8 @@ void mwBitmap::create_bitmaps()
    M_btilemap = create_and_clear_bitmap(704, 1408);
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
+   M_gtilemap = create_and_clear_bitmap(126, 434);
+
 
    // this bitmap format is used for all other bitmaps
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
@@ -54,6 +56,8 @@ void mwBitmap::create_bitmaps()
    btilemap = create_and_clear_bitmap(704, 1408);
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
+   gtilemap = create_and_clear_bitmap(126, 434);
+
 
    // create bottom message bitmaps
    mBottomMessage.bmsg_create_bitmaps();
@@ -129,7 +133,6 @@ int mwBitmap::load_tiles()
       }
    }
 
-
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.png");
    if (!dtilemap)
@@ -148,6 +151,25 @@ int mwBitmap::load_tiles()
             door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*22+1, (a+16)*22+1, 20, 20);
          }
    }
+
+   // get gate tiles
+   gtilemap = al_load_bitmap("bitmaps/gate_tiles.png");
+   if (!gtilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/gate_tiles.png");
+      return 0;
+   }
+   else
+   {
+      al_set_target_bitmap(M_gtilemap);
+      al_draw_bitmap(gtilemap, 0, 0, 0);
+      for (int a=0; a<7; a++)
+         for (int b=0; b<3; b++)
+            gate_tile[a][b] = al_create_sub_bitmap(gtilemap, b*42+1, a*62+1, 40, 60);
+   }
+
+
+
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
    return 1;
 }
@@ -178,6 +200,13 @@ void mwBitmap::rebuild_bitmaps()
    al_set_target_bitmap(dtilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
+
+   // rebuild gate tiles
+   al_set_target_bitmap(gtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_gtilemap, 0, 0, 0);
+
+
 
    t[1] = al_get_time();
 

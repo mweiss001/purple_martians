@@ -99,7 +99,122 @@ void mwBitmapTools::get_tile_from_tilemap(ALLEGRO_BITMAP *b, ALLEGRO_BITMAP *t, 
 
 
 
+void mwBitmapTools::make_gate_helper(int i, int x, int y)
+{
+   al_draw_bitmap(mBitmap.tile[i+0], x+0 , y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+1], x+20, y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+2], x+ 0, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+3], x+20, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+4], x+ 0, y+40, 0);
+   al_draw_bitmap(mBitmap.tile[i+5], x+20, y+40, 0);
 
+   i+=6;
+   x+=42;
+   al_draw_bitmap(mBitmap.tile[i+0], x+0 , y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+1], x+20, y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+2], x+ 0, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+3], x+20, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+4], x+ 0, y+40, 0);
+   al_draw_bitmap(mBitmap.tile[i+5], x+20, y+40, 0);
+
+   i+=6;
+   x+=42;
+   al_draw_bitmap(mBitmap.tile[i+0], x+0 , y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+1], x+20, y+0, 0);
+   al_draw_bitmap(mBitmap.tile[i+2], x+ 0, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+3], x+20, y+20, 0);
+   al_draw_bitmap(mBitmap.tile[i+4], x+ 0, y+40, 0);
+   al_draw_bitmap(mBitmap.tile[i+5], x+20, y+40, 0);
+}
+
+
+
+
+void mwBitmapTools::hue_shift(ALLEGRO_BITMAP *bmp, int x, int y, float sh, float th)
+{
+   // extract r, b, g, h, s, l from color
+   float r, g, b;
+   al_unmap_rgb_f(al_get_pixel(bmp, x, y), &r, &g, &b);
+
+   if (!(r==0 && g==0 && b==0)) // only if not black
+   {
+      float h, s, l;
+      al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+      if (abs(h - sh) < 2) h = th;
+
+      al_set_target_bitmap(bmp);
+      al_put_pixel(x, y, al_color_hsl(h, s, l));
+   }
+}
+
+
+
+
+void mwBitmapTools::make_gate_tilemap()
+{
+   al_set_target_bitmap(mBitmap.gtilemap);
+
+   int y = 1;
+   make_gate_helper(384, 1, y); // gold doors
+
+   y+=62;
+   make_gate_helper(384, 1, y); // gold doors
+
+   // light blue
+   for (int xx=0; xx<126; xx++)
+      for (int yy=y; yy<y+62; yy++)
+      {
+         hue_shift(mBitmap.gtilemap, xx, yy, 0, 180);
+         hue_shift(mBitmap.gtilemap, xx, yy, 7, 187);
+      }
+
+   y+=62;
+   make_gate_helper(384, 1, y); // gold doors
+   // dark blue
+   for (int xx=0; xx<126; xx++)
+      for (int yy=y; yy<y+62; yy++)
+      {
+         hue_shift(mBitmap.gtilemap, xx, yy, 0, 240);
+         hue_shift(mBitmap.gtilemap, xx, yy, 7, 247);
+      }
+
+
+   y+=62;
+   make_gate_helper(384, 1, y); // gold doors
+   // purple
+   for (int xx=0; xx<126; xx++)
+      for (int yy=y; yy<y+62; yy++)
+      {
+         hue_shift(mBitmap.gtilemap, xx, yy, 0, 270);
+         hue_shift(mBitmap.gtilemap, xx, yy, 7, 277);
+      }
+
+
+   y+=62;
+   make_gate_helper(320, 1, y); // wood doors
+
+   y+=62;
+   make_gate_helper(352, 1, y); // brick doors
+
+   y+=62;
+   make_gate_helper(416, 1, y); // portcullis
+
+   if (1)
+   {
+      //al_save_bitmap("bitmaps/gate_tiles.png", mBitmap.gtilemap);
+
+      // show all new player shapes
+      al_set_target_backbuffer(mDisplay.display);
+      al_clear_to_color(mColor.Black);
+
+      al_draw_bitmap(mBitmap.gtilemap, 100, 10, 0);
+
+      al_flip_display();
+      mInput.tsw();
+   }
+
+}
 
 
 
@@ -237,10 +352,6 @@ void mwBitmapTools::fill_player_tile()
        mInput.tsw();
    }
 }
-
-
-
-
 
 
 
@@ -2005,22 +2116,6 @@ void mwBitmapTools::copy_tiles()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
          while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
@@ -2039,6 +2134,8 @@ void mwBitmapTools::copy_tiles()
       if (mInput.key[ALLEGRO_KEY_S][0])
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
+
+         //make_gate_tilemap();
 
          //move_tiles_and_refs(256, 1024, 48);
          //move_tiles_and_refs(320, 1072, 48); // red pipes
@@ -2222,6 +2319,9 @@ void mwBitmapTools::copy_tiles()
    al_destroy_bitmap(qtmp);
    al_destroy_bitmap(qtmp2);
 }
+
+
+
 
 
 

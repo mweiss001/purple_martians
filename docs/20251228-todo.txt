@@ -11,14 +11,24 @@ I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
 
 
-
 rx packet buffer full? why? add some logging to see what packets...
-
 
 
 when letting demo complete level for you, time is demo time, should be time+30s...maybe??
 
 press fire to complete level does nothing
+
+
+can enter level even if locked
+
+
+in edit selection when copying doors (or moving) the destinations get screwed up
+
+
+
+
+
+
 
 
 
@@ -35,12 +45,35 @@ TO DO
 
 gates
 -----
-- colored tiles
-- optional different tiles
-- tiles on their own tilemap
-- badges
-- info about badges in hover pages
+- colored tiles..done
+- optional different tiles..done
+- tiles on their own tilemap..done
+- badges..done
+- info about badges in hover pages..done
+
 - transitions
+
+how am I going to do locked areas?
+
+area 0 training 8?
+area 1 basic ???
+area 2 intermediate 10
+area 3 skilled 10
+area 4 advanced (with escape rocket) 11
+extra
+debug
+multiplayer bomb toss
+
+I should decide on a level that has the master overworld that I can copy from
+
+
+
+
+
+
+
+
+
 
 
 
@@ -101,7 +134,6 @@ try to draw it out and see what you can make it look like
 saved lev 1 as 68
 
 gates are not shown
-
 
 
 

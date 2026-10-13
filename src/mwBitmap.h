@@ -10,8 +10,6 @@ class mwBitmap
    void create_bitmaps();
    void rebuild_bitmaps();
 
-
-
    int load_tiles();
 
    void save_sprit();
@@ -24,16 +22,20 @@ class mwBitmap
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;
    ALLEGRO_BITMAP *dtilemap;
+   ALLEGRO_BITMAP *gtilemap;
 
    ALLEGRO_BITMAP *M_stilemap;
    ALLEGRO_BITMAP *M_btilemap;
    ALLEGRO_BITMAP *M_ptilemap;
    ALLEGRO_BITMAP *M_dtilemap;
+   ALLEGRO_BITMAP *M_gtilemap;
 
    ALLEGRO_BITMAP *sprite[NUM_SPRITES];
    ALLEGRO_BITMAP *tile[NUM_TILES];
    ALLEGRO_BITMAP *player_tile[16][32];
    ALLEGRO_BITMAP *door_tile[2][16][8];
+   ALLEGRO_BITMAP *gate_tile[7][3];
+
 
    ALLEGRO_BITMAP *level_background;
    ALLEGRO_BITMAP *level_buffer;
@@ -52,10 +54,6 @@ class mwBitmap
    void update_animation();
 
    int tileFlags[NUM_TILES];
-
-
-
-
 
    ALLEGRO_BITMAP * create_and_clear_bitmap(int x, int y);
 };

@@ -50,6 +50,10 @@ class mwBitmapTools
 
    void clear_tile_range(int d, int r);
 
+   void hue_shift(ALLEGRO_BITMAP *b, int x, int y, float sh, float th);
+
+   void make_gate_helper(int i, int x, int y);
+   void make_gate_tilemap();
 
 
    void fill_player_tile();

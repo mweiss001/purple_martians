@@ -44836,6 +44836,259 @@ size 2304x64
 
 
 
+step 1 - color gold gates manually
+step 2 - put them in ther own tilemap (with code)
+step 3 - make bitmap structures like other tilemaps only these will be 40x60
+--profit?
+
+make a function in bitmap tools
+- make a new bitmap
+- copy gold gate tiles
+- colorize save
+
+what size?
+40x60
+3 tiles per color
+4 colors snd three other shapes
+
+3 tiles by 7 tile
+
+120 x 420
+
+plus borders
+
+
+order:
+0 - red
+1 - lt blue
+2 - blue
+3 - purple
+4 - wood door
+5 - brick door
+6 - porticulis
+
+
+
+from what I can tell, the border means that every tile has a 1 pix block border
+
+so 42x62
+
+and 42x3 = 126
+62 x 7 = 434
+
+126x434
+
+added to bitmap:
+
+   ALLEGRO_BITMAP *gtilemap;
+   ALLEGRO_BITMAP *M_gtilemap;
+
+   M_gtilemap = create_and_clear_bitmap(126, 434);
+   gtilemap = create_and_clear_bitmap(126, 434);
+
+   // rebuild gate tiles
+   al_set_target_bitmap(gtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_gtilemap, 0, 0, 0);
+
+
+2026-10-12 06:06:34
+
+I have them drawn on the bitmap,
+
+now how do you plan to color them?
+
+
+iterate pixel ranges
+
+i = 1
+
+   for (int x=0; x<62; x++)
+      for (int y=i*126; y<(i+1)*126; y++)
+
+
+now save...
+
+gate_tiles
+
+   ALLEGRO_BITMAP *gate_tile[7][3];
+
+I have this all working!!!
+
+gate tiles are in their own tilemap
+loaded just like all other tilemaps
+draw in gate and colors work with status
+
+
+how to do optional different tiles:
+use draw_mode
+
+1 - gold (with colors)
+2 - wood
+3 - brick
+4 - portcullis
+
+bug - all gates open at the same time?..fixed
+
+
+
+what if I drew the badges beside the level name in hover?
+try that...done..looks good
+
+now what about having something in the main icon display?
+something like the status text, and maybe a very small version of the badges
+
+or maybe just show locked...
+
+
+
+I think I want to really mess things up!!
+
+
+I want to have a level with all gates..
+this is the one I will copy from
+
+how will I do areas?
+
+manually enter them in code?
+rectangular only?
+
+I could start by working on level 69 with my new gates...
+
+escape rocket is the center piece
+
+I want 4 areas around it that need to be completed first
+I can color them the 4 primary colors
+each of them should have how many levels?
+
+
+I think I have a plan...
+
+
+I have 10 very good levels.
+I will put them with escape rocket on the final row.
+All 10 have to be complete to do the final level
+Or maybe like it used to be, more than half....
+draw this
+
+
+changes... make icon x and y relative, then they will move with main gate
+do I even need x? make it centered always
+
+make a flag for above or below
+
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
+            {
+               mItem.item[n][3] |= PM_ITEM_GATE_ICON_LABEl_POS; // label below
+               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
+               mItem.item[n][9] = mItem.item[n][5] - mItem.item[n][10] - 27;
+            }
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
+            {
+               mItem.item[n][3] &= ~PM_ITEM_GATE_ICON_LABEl_POS; // label above
+               mItem.item[n][8] = mItem.item[n][4] - mItem.item[n][10]/2 + 10; // centered on gate
+               mItem.item[n][9] = mItem.item[n][5] + 29;
+            }
+
+this is done
+
+why don't I get rid of info pages y offset also and make it auto
+
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Below"))
+            {
+               mItem.item[n][3] &= ~PM_ITEM_GATE_HOVER_PAGE_DIR;
+               mItem.item[n][11] = 35;
+            }
+            if (odbb(d, xa, xb, ya, bts, q, "Set Default Position Above"))
+            {
+               mItem.item[n][3] |= PM_ITEM_GATE_HOVER_PAGE_DIR;
+               mItem.item[n][11] = -19;
+            }
+
+
+done...
+
+make info pages erase a slightly larger area...up and on sides
+
+area 0 training 8?
+area 1 basic ???
+area 2 intermediate 10
+area 3 skilled 10
+area 4 advanced (with escape rocket) 11
+extra
+debug
+multiplayer bomb toss
+
+
+What I have done so far does not look very different from what I originally had.
+
+
+After spending time looking at it, this is what I would like to do:
+
+Level Icon
+----------
+I want to see the status. Maybe text line like I used to have.
+
+
+Hover Info
+----------
+many different things here
+I want to to not be so tall...
+
+can I adjust the size?
+what would that do to the text
+yes I can!!!
+make the text page size 200, but reduce for map page 0
+one of them is not centered...fixed
+
+
+how about 50 for icon and 100 for other
+
+
+Text pages can still be above the normal icon.
+larger map page could be level with the bottom of the gate and have the gate drawn on top
+then when entered,
+large map shrinks to center as door opens
+then player shrinks as map expands from center
+
+
+
+make it possible to do this for level icon
+make a 2nd line underneath with the status text
+done
+
+now make the text for UP and DOWN have a cleared background
+done
+
+now make hover info show the status line also..done
+line up the badges...done
+
+It looks really nice, but hover info only draws up...
+
+So if I remove the ability to do down, but I want to add size for hover icon
+
+done...
+
+2026-10-12 19:09:33
+
+copy this to the main notes and do a recap
+
+
+
+
+made tilemap for gate icons, just like all the others
+
+
+fix all gates....
+
+10 11 and dir...
+
+
+
+
+
+
+
 
 
 
