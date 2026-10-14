@@ -12,7 +12,7 @@
 
 // item[x][1]  draw type (0=hidden, 1=static door, 2=animated warp)
 // item[x][6]  color
-// item[x][7]  move type (0 = auto, 1 = force instant, 2 = force move
+// item[x][7]  move type (0 = force instant, 1 = force move
 // item[x][8]  type (0 = no dest (exit only), 1 = linked dest
 // item[x][9]  linked destination item
 // item[x][10] key held flag

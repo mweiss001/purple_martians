@@ -45419,6 +45419,141 @@ that would be most wise....
 save and commit
 
 
+added:
+
+struct level_data
+{
+   char level_name[200];
+
+   int area;
+
+
+There is strict mode where all levels need to be completed before the next one is unlocked.
+I don't think I am going to do that.
+Do I even wate to keep the locked state?
+
+I want to be able to save the unlocked status and overide or restore later
+
+Where is all that stored?
+
+I have area locks?
+I think I am going to do away with locks for levels...
+
+next I want to play with area unlocks
+
+The only thing that should matter is which areas are visible.
+
+How about:
+
+When level 1 is loaded, draw the proper visible and save array of vis.
+
+Then check everytime and only redraw if vis changes
+
+I need function to erase all...just load area 0 with clear == 2;
+
+Now I want to fill in all the barrier blocks for areas below
+
+
+2026-10-14 07:37:56
+
+I have this stuff looking good for now...
+
+
+next do the messages...frame work is there
+
+next do the unlocking of areas..
+
+basic framework seems to be working
+
+2026-10-14 08:59:00
+commit 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

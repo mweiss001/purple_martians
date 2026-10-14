@@ -8,6 +8,9 @@ struct level_data
 {
    char level_name[200];
 
+   int area;
+
+
    int status;
 
    int min_respawns;
@@ -104,9 +107,12 @@ class mwLevel
    void level_check();
 
 
-   void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
+//   void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
 
    void faa_helper_create(int index, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
+
+   void create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile);
+   void create_msg_helper(int area);
 
 
    void fill_area_array();
@@ -142,7 +148,6 @@ class mwLevel
 
    int area_array[100][2];
 
-   int level_area[100];
 
 
 
@@ -157,10 +162,14 @@ class mwLevel
    void show_level_stats(int &w, int &h, int draw, int msg_type );
 
 
-   void sob_hline(int x1, int x2, int y, int a);
-   void sob_vline(int x, int y1, int y2, int a);
-   void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
-   void sob_area_msg(int area, int x, int y);
+   // void sob_hline(int x1, int x2, int y, int a);
+   // void sob_vline(int x, int y1, int y2, int a);
+   // void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
+   // void sob_area_msg(int area, int x, int y);
+
+
+
+
    void set_overworld_barriers();
 
    int find_msg(const char* str);

@@ -53,6 +53,8 @@ void mwEditSelection::clear_ft_variables()
 
 
 
+
+
 void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy, int clear)
 {
    // printf("copy_sel_from_level(slev:%d sx:%d sy:%d, sw:%d sh:%d dlev:%d dx:%d dy:%d)\n", slev, sx, sy, sw, sh, dlev, dx, dy);
@@ -88,8 +90,6 @@ void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int 
    if (clear == 1) clear_area(dx, dy, dx+ft_level_header[8], dy+ft_level_header[9]);
    if (clear == 2) clear_area(0, 0, 100, 100);
 
-
-
    // paste to level
    copy_mode = 1;
    copy_ft_variables_to_level(dx, dy);
@@ -104,10 +104,9 @@ void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int 
 
 
 
-
 void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
 {
-   printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d)\n", lev, sel_file, x, y);
+   // printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d)\n", lev, sel_file, x, y);
 
    // load level
    if (!mLevel.load_level_by_number(lev, 1, 0)) return;
