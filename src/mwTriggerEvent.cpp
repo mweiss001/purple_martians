@@ -236,7 +236,7 @@ int mwTriggerEvent::get_unused_pm_event()
       if (!is_pm_event_used(ev)) return ev;
       else if (++ev > 999) done = 1;
    }
-   return 0; // only if no unused can be found
+   return 0; // only if no unused event can be found
 }
 
 

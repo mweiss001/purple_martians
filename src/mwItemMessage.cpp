@@ -18,6 +18,55 @@
 #include "mwLevelEditor.h"
 #include "mwObjectViewer.h"
 
+
+
+
+
+/*
+
+[10] - msg
+item[][1] event trigger
+
+item[][2] draw flags
+PM_ITEM_PMSG_SHOW_ALWAYS
+PM_ITEM_PMSG_SHOW_SCROLL
+PM_ITEM_PMSG_FRAME0
+PM_ITEM_PMSG_FRAME1
+PM_ITEM_PMSG_FRAME2
+PM_ITEM_PMSG_FRAME4
+PM_ITEM_PMSG_FRAME12
+
+item[][4]  scroll x
+item[][5]  scroll y
+
+item[][6]  msg x
+item[][7]  msg y
+item[][8]  msg w
+item[][9]  msg h
+
+I don't think these are used...
+item[][10]
+item[][11]
+
+item[][12] timer count and val  (packed)
+item[][13] text and frame color (packed)
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
 void mwItem::proc_pmsg_collision(int i)
 {
    if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) proc_pmsg_reset_timer(i);

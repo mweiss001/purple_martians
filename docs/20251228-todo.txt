@@ -12,6 +12,13 @@ make sure target bitmaps are set properly
 
 
 rx packet buffer full? why? add some logging to see what packets...
+client had the error, but all counters were zero 
+re-did to count and print all packets listed in pm.h
+
+
+
+
+
 
 
 when letting demo complete level for you, time is demo time, should be time+30s...maybe??

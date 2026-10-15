@@ -71,9 +71,17 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    x += 8; // first text spacer
 
 
-   // set level and area
-   if ((i > -1) && (i < 100))
-      if (area_array[i][1]) lev = area_array[i][0];
+   // // set level and area
+   // if ((i > -1) && (i < 100))
+   //    if (area_array[i][1]) lev = area_array[i][0];
+
+   // WTF???
+
+   if ((i > -1) && (i < 100)) lev = i;
+
+
+
+
 
 
    // level name
@@ -459,7 +467,10 @@ void mwLevel::show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy
 
 void mwLevel::draw_level_stats(int xc, int y1, int msg_type)
 {
-   if (level_stats_bmp_msg_type != msg_type)
+   //printf("draw_level_stats\n");
+
+
+   //   if (level_stats_bmp_msg_type != msg_type)
    {
       // get w and h
       show_level_stats(level_stats_bmp_w, level_stats_bmp_h, 0, msg_type);
@@ -543,24 +554,36 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
 
    if (msg_type == 3) // overworld all
    {
-      // by default show only training
+      // by default show all
       show_training = 1;
-      show_main = 0;
-      show_extra = 0;
-      show_demo = 0;
-      show_grand_totals = 0;
+      show_main = 1;
+      show_extra = 1;
+      show_demo = 1;
+      show_grand_totals = 1;
 
-      if (!area_locks[1]) // unlocked between training levels and area 1,2
-      {
-         show_main = 1;
-      }
 
-      if (!area_locks[10]) // unlocked past main game
-      {
-         show_extra = 1;
-         show_demo = 1;
-         show_grand_totals = 1;
-      }
+      // // by default show only training
+      // show_training = 1;
+      // show_main = 0;
+      // show_extra = 0;
+      // show_demo = 0;
+      // show_grand_totals = 0;
+      //
+      // if (!area_locks[1]) // unlocked between training levels and area 1,2
+      // {
+      //    show_main = 1;
+      // }
+      //
+      // if (!area_locks[10]) // unlocked past main game
+      // {
+      //    show_extra = 1;
+      //    show_demo = 1;
+      //    show_grand_totals = 1;
+      // }
+
+
+
+
    }
 
    if (msg_type == 4) // overworld train
@@ -588,6 +611,9 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
    // --------------------------------------
    if (show_training)
    {
+      //printf("show training\n");
+
+
       int ac = 11; // area color
       if (draw) al_draw_filled_rectangle(x1, y, x2, y+123, mColor.pc[ac+bco]); // background
       show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Training Levels", msg_type);
@@ -595,9 +621,22 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
       // training levels (13 and 14)
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
       y+=4;
-      for(int i=0; i<100; i++)
-         if ((area_array[i][1] == 13) || (area_array[i][1] == 14))
-            show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+
+      // for(int i=0; i<100; i++)
+      //    if ((area_array[i][1] == 13) || (area_array[i][1] == 14))
+      //       show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+
+      // for (int i=0; i<100; i++)
+      //    if (data[i].area == 1)
+      //       show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+
+
+      for (int i=0; i<100; i++)
+         if (area_array[i][1] == 1)
+            show_level_stats_row(area_array[i][0], x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+
+
+
 
       y+=4;
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
@@ -615,14 +654,30 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
    {
       int ac = 4; // area color
 
+      // gets the size?
       int y_size = 52; // base size
-      for(int a=1; a<10; a++)
-         if ((!area_locks[a]) || (msg_type == 1))
+
+      for (int area=2; area<6; area++)
+         if (overworld_area_array[area].visible)
          {
-            for(int i=0; i<100; i++)
-               if (area_array[i][1] == a) y_size+=8;
+            for (int i=0; i<100; i++)
+               if (data[i].area == area) y_size+=8;
             y_size+=4;
          }
+
+
+      // for(int a=1; a<10; a++)
+      //    if ((!area_locks[a]) || (msg_type == 1))
+      //    {
+      //       for(int i=0; i<100; i++)
+      //          if (area_array[i][1] == a) y_size+=8;
+      //       y_size+=4;
+      //    }
+      //
+
+
+
+
       if (draw) al_draw_filled_rectangle(x1, y, x2, y+y_size, mColor.pc[ac+bco]); // background
 
       show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Main Game", msg_type);
@@ -630,17 +685,32 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
       // levels
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
       y+=4;
-      for(int a=1; a<10; a++)
-         if ((!area_locks[a]) || (msg_type == 1))
+
+      for (int area=2; area<6; area++)
+         if (overworld_area_array[area].visible)
          {
-            for(int i=0; i<100; i++)
-               if (area_array[i][1] == a)
-                  show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+            for (int i=0; i<100; i++)
+               if (data[i].area == area) show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
             y+=2;
             if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
             y+=2;
          }
+
+      // for(int a=1; a<10; a++)
+      //    if ((!area_locks[a]) || (msg_type == 1))
+      //    {
+      //       for(int i=0; i<100; i++)
+      //          if (area_array[i][1] == a)
+      //             show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+      //       y+=2;
+      //       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      //       y+=2;
+      //    }
+
+
       y+=2;
+
+
       show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, msg_type);
       show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
       if (show_extra) y-=5; // no space between sections
@@ -651,15 +721,22 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
    // --------------------------------------
    if (show_extra)
    {
+      //printf("show extra\n");
+
+      int y_size = 154;
+
+
+
       int ac = 14; // area color
-      if (draw) al_draw_filled_rectangle(x1, y, x2, y+154, mColor.pc[ac+bco]); // background color
+      if (draw) al_draw_filled_rectangle(x1, y, x2, y+y_size, mColor.pc[ac+bco]); // background color
       show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Extra Levels", msg_type);
 
       // extra levels (10)
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
       y+=4;
-      for(int i=0; i<100; i++)
-         if (area_array[i][1] == 10)
+
+      for (int i=0; i<100; i++)
+         if (data[i].area == 6)
             show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
 
       y+=4;
@@ -678,15 +755,19 @@ void mwLevel::show_level_stats(int &w, int &h, int draw, int msg_type)
    // --------------------------------------
    if (show_demo)
    {
+      int y_size = 170;
+
       int ac = 13; // area color
-      if (draw) al_draw_filled_rectangle(x1, y, x2, y+170, mColor.pc[ac+bco]); // background color
+      if (draw) al_draw_filled_rectangle(x1, y, x2, y+y_size, mColor.pc[ac+bco]); // background color
       show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Demo Levels", msg_type);
 
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
       y+=4;
-      for(int i=0; i<100; i++)
-         if (area_array[i][1] == 12)
+
+      for (int i=0; i<100; i++)
+         if (data[i].area == 7)
             show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, msg_type);
+
 
       y+=4;
       if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);

@@ -147,10 +147,38 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
    printf("[%d] rx packet buffer full!\n", mLoop.frame_num);
 
    // count types of packets in buffer
+   int pc[20] = {};
+   int tc = 0;
+
+   for (int i=0; i<200; i++)
+      if (!rx_buf[i].active)
+      {
+         pc[rx_buf[i].type]++;
+         tc++;
+      }
+
+   for (int i=0; i<20; i++)
+      printf( "[%d][%s] - %d\n", i, packet_names[i], pc[i]);
+
+   printf( "[--][ all] - %d\n", tc);
+
+   return -1;
+}
+
+
+   /*
+
    int cdat_count = 0;
    int stak_count = 0;
+
+   int cjon_count = 0;
+   int cjrc_count = 0;
+
    int rctl_count = 0;
    int stdf_count = 0;
+
+
+
    int snfo_count = 0;
    int sfil_count = 0;
    int srrf_count = 0;
@@ -171,6 +199,46 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
 
+
+#define PM_NETGAME_PACKET_TYPE_CDAT 1
+#define PM_NETGAME_PACKET_TYPE_STAK 2
+#define PM_NETGAME_PACKET_TYPE_CJON 3
+#define PM_NETGAME_PACKET_TYPE_CJRC 4
+#define PM_NETGAME_PACKET_TYPE_RCTL 5
+#define PM_NETGAME_PACKET_TYPE_SFAK 6
+#define PM_NETGAME_PACKET_TYPE_CRFL 7
+#define PM_NETGAME_PACKET_TYPE_CLOG 8
+
+#define PM_NETGAME_PACKET_TYPE_STDF 11
+#define PM_NETGAME_PACKET_TYPE_SJON 12
+#define PM_NETGAME_PACKET_TYPE_SJRC 13
+#define PM_NETGAME_PACKET_TYPE_SNFO 14
+#define PM_NETGAME_PACKET_TYPE_SFIL 15
+#define PM_NETGAME_PACKET_TYPE_SRRF 16
+
+
+   if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
+   if (PacketRead(data, "stak")) type = PM_NETGAME_PACKET_TYPE_STAK;
+   if (PacketRead(data, "rctl")) type = PM_NETGAME_PACKET_TYPE_RCTL;
+   if (PacketRead(data, "sfak")) type = PM_NETGAME_PACKET_TYPE_SFAK;
+   if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
+   if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
+   if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
+   if (PacketRead(data, "srrf")) type = PM_NETGAME_PACKET_TYPE_SRRF;
+   if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
+   if (PacketRead(data, "clog")) type = PM_NETGAME_PACKET_TYPE_CLOG;
+
+
+
+
+
+
+
+
+
+
+
+
    mLog.add(LOG_NET, LOG_NET_SUBTYPE_PACKET_BUF_FULL, -1, cdat_count, stak_count, rctl_count, stdf_count, snfo_count, sfil_count, srrf_count, crfl_count, all_count);
 
    printf( "[%d] cdat\n", cdat_count);
@@ -183,9 +251,12 @@ int mwPacketBuffer::find_empty_rx_packet_buffer()
    printf( "[%d] crfl\n", crfl_count);
    printf( "[%d] all\n", all_count);
 
+
+
+
    return -1;
 }
-
+*/
 
 float mwPacketBuffer::get_max_dsync()
 {

@@ -9,8 +9,6 @@ struct level_data
    char level_name[200];
 
    int area;
-
-
    int status;
 
    int min_respawns;
@@ -50,9 +48,7 @@ struct overworld_area
    int num_levels_tot;
    int num_levels_complete;
    int num_levels_perfect;
-
 };
-
 
 
 
@@ -107,52 +103,28 @@ class mwLevel
    void level_check();
 
 
-//   void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
 
-   void faa_helper_create(int index, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
+   void faa_helper_create(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
 
    void create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile);
    void create_msg_helper(int area);
 
-
    void fill_area_array();
 
-   struct level_data data[100];
+   void faa_helper(int area, int xasc, int &aai);
+   int area_array[100][2];
 
+   struct level_data data[100];
    struct overworld_area overworld_area_array[20];
 
 
-   int area_locks[16];
 
-   const char* area_names[20] =
-   {
-      "",
-      "Area 1",
-      "Area 2",
-      "Area 3",
-      "Area 4",
-      "Area 5",
-      "Area 6",
-      "Area 7",
-      "Area 8",
-      "Area 9",
-      "Extra",
-      "2P",
-      "Demo",
-      "Training",
-      "Training"
-   };
+
 
    const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };
    int         level_status_color[4] = {       10,      13,         12,        8  };
 
-   int area_array[100][2];
-
-
-
-
    void unlock_all_level_in_area(int area);
-
 
 
    void reset_level_data();
@@ -161,22 +133,13 @@ class mwLevel
    void draw_level_stats(int x1, int y1, int msg_type);
    void show_level_stats(int &w, int &h, int draw, int msg_type );
 
-
-   // void sob_hline(int x1, int x2, int y, int a);
-   // void sob_vline(int x, int y1, int y2, int a);
-   // void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
-   // void sob_area_msg(int area, int x, int y);
-
-
-
-
    void set_overworld_barriers();
-
-   int find_msg(const char* str);
 
    void data_helper(int i, int time_par, const char *name);
 
    void set_level_names_and_par_time();
+
+
 
 
    void clear_data();

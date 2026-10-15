@@ -19,6 +19,51 @@ class mwPacketBuffer
    public:
    mwRollingAverage RA[8];
 
+   /*
+#define PM_NETGAME_PACKET_TYPE_CDAT 1
+#define PM_NETGAME_PACKET_TYPE_STAK 2
+#define PM_NETGAME_PACKET_TYPE_CJON 3
+#define PM_NETGAME_PACKET_TYPE_CJRC 4
+#define PM_NETGAME_PACKET_TYPE_RCTL 5
+#define PM_NETGAME_PACKET_TYPE_SFAK 6
+#define PM_NETGAME_PACKET_TYPE_CRFL 7
+#define PM_NETGAME_PACKET_TYPE_CLOG 8
+
+#define PM_NETGAME_PACKET_TYPE_STDF 11
+#define PM_NETGAME_PACKET_TYPE_SJON 12
+#define PM_NETGAME_PACKET_TYPE_SJRC 13
+#define PM_NETGAME_PACKET_TYPE_SNFO 14
+#define PM_NETGAME_PACKET_TYPE_SFIL 15
+#define PM_NETGAME_PACKET_TYPE_SRRF 16
+
+*/
+
+   const char* packet_names[20] =
+   {
+      "",
+      "cdat",
+      "stak",
+      "cjon",
+      "cjrc",
+      "rctl",
+      "sfak",
+      "crfl",
+      "clog",
+      "",
+      "",
+      "stdf",
+      "sjon",
+      "sjrc",
+      "snfo",
+      "sfil",
+      "srrf"
+   };
+
+
+
+
+
+
    mwPacketBuffer(); // default constructor
    ~mwPacketBuffer(); // default deconstructor
    void init_packet_buffer();

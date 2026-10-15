@@ -45469,6 +45469,145 @@ basic framework seems to be working
 commit 
 
 
+2026-10-14 17:24:34
+
+do I even care about locked levels?
+
+don't get rid of the capability
+but for now make them all unlocked
+
+
+working on the messages for areas
+
+I am not happy with the names of the areas.
+Some thoughts:
+Surface Training
+Outskirts
+Suburbs
+Downtown
+Underground
+
+
+Then what should I display:
+Total Levels:
+Complete Levels:
+Perfect Levels:
+That seems a bit wordy
+
+Area: Downtown
+Complete: 5/10
+Perfect: 2/10
+
+
+
+2026-10-15 05:16:30
+I want to remove area locks and area_array
+I need to fix level stats...
+its coming along nicely...
+
+now totally remove area array and area locks
+
+
+The thing about area_array (which I just removed) was:
+
+It could have a level in more than one area.
+This I deemed not important, and was why I removed it.
+
+But there was another feature that it enabled:
+
+Levels in an area could have a sort order.
+I miss this and I am going to bring area_array back for this reason.
+
+
+it is just a 2 dim array
+
+area_array[100][2]
+area_array[][0] - level
+area_array[][1] - area
+
+the only time I will use it is when I want to iterate levels in an area in a specific order
+
+
+
+ok bring it back:
+
+   int area_array[100][2];   
+
+save and load:
+
+done
+
+now fill it...
+
+it is back and working for training...gtg
+2026-10-15 07:03:24
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
