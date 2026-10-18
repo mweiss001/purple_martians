@@ -1424,7 +1424,7 @@ void mwSettings::page_level_stats()
    if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
    {
       ya+=line_spacing+8;
-      mLevel.draw_level_stats(cfp_txc, ya, 1);
+      mLevel.show_level_stats(cfp_txc, ya, 1);
    }
    else
    {

@@ -121,8 +121,6 @@ void mwItem::draw_items()
    }
 }
 
-
-
 void mwItem::draw_item(int i, int custom, int cx, int cy)
 {
    int type = item[i][0];
@@ -144,7 +142,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == PM_ITEM_TYPE_ORB)      drawn = draw_orb          (i, x, y);
    if (type == PM_ITEM_TYPE_BOMB)     drawn = draw_bomb         (i, x, y, shape);
    if (type == PM_ITEM_TYPE_TRIGGR)   drawn = draw_trigger      (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_MSG)      drawn = draw_message      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_MSG)      drawn = draw_pmsg         (i, x, y, custom);
    if (type == PM_ITEM_TYPE_ROCKET)   drawn = draw_rocket       (i, x, y, shape);
    if (type == PM_ITEM_TYPE_TIMER)    drawn = draw_timer        (i, x, y, custom);
    if (type == PM_ITEM_TYPE_BLKMNP)   drawn = draw_block_manip  (i, x, y);
@@ -204,7 +202,7 @@ void mwItem::move_items()
 
             if (action == 1)
             {
-               printf("l:%d - f:%d  item:%d out of bounds - deleting!\n", mLevel.play_level, mLoop.frame_num, i);
+               printf("l:%d - f:%d  item:%d item_type:%d [%s] out of bounds (x:%d y:%d) - deleting!\n", mLevel.play_level, mLoop.frame_num, i, item[i][0], item_name[item[i][0]], x, y);
                item[i][0] = 0; // remove if out of bounds
             }
             if (action == 2)

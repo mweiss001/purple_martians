@@ -90,28 +90,63 @@ class mwLevel
    void save_level(int level_to_save);
    int save_level_prompt();
 
-   void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
-   void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, int msg_type);
+   // levelDataStats
+   // -----------------------------
 
-   void show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title, int msg_type);
+   ALLEGRO_BITMAP * level_stats_bitmap = NULL;
+   int level_stats_bmp_msg_type = 0;
+   int level_stats_bmp_w;
+   int level_stats_bmp_h;
+   int level_stats_show_level_number = 0;
 
-   void show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int msg_type);
 
-   int show_level_data(int x_pos, int y_pos, int type);
+   int vline[20] = { 0 };
+   int vli = 0;
+   int tally[2][16] = { 0 };
+
+   int row_type = 0;
+
+
+   void show_level_stats(int x1, int y1, int msg_type);
+   void draw_level_stats(int &w, int &h, int draw, int msg_type);
+
+   void show_level_stats_area(int area, int x1, int x2, int &y, int draw, int bco, int &gy, int &ty, int &max_x);
+   void show_level_stats_main_area(     int x1, int x2, int &y, int draw, int bco, int &gy, int &ty, int &max_x);
+   void show_level_stats_grand_total(   int x1, int x2, int &y, int draw, int bco, int &gy, int &ty, int &max_x);
+
+   void show_level_stats_outline_with_thicker_lines(int x1, int x2, int  gy, int   y, int c);
+   void show_level_stats_title_and_header(          int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int col, const char* title);
+   void show_level_stats_totals(                    int x1, int x2, int  gy, int  ty, int& max_x, int& y, int draw, int col);
+   void show_level_stats_row(                int i, int x1, int x2, int draw, int &max_x, int &y);
+
+
+
+
+
+
+
+
+
+
    void zero_level_data();
+   int show_level_data(int x_pos, int y_pos, int type);
    void level_check();
 
 
 
-   void faa_helper_create(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
+   void overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
 
    void create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile);
    void create_msg_helper(int area);
 
-   void fill_area_array();
+   void create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol, int mx, int my, int mw, int mh, int mcol, int mflags, const char *msg);
+   void create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, int mcol, int mfs, const char *msg);
 
-   void faa_helper(int area, int xasc, int &aai);
+
+   void fill_overworld_area_array();
+
+   void fill_area_array(int area, int xasc, int &aai);
    int area_array[100][2];
 
    struct level_data data[100];
@@ -130,8 +165,6 @@ class mwLevel
    void reset_level_data();
    void unlock_all_levels();
 
-   void draw_level_stats(int x1, int y1, int msg_type);
-   void show_level_stats(int &w, int &h, int draw, int msg_type );
 
    void set_overworld_barriers();
 
@@ -157,15 +190,8 @@ class mwLevel
    void pml_to_var(char * b);
    void var_to_pml(char * b);
 
-   ALLEGRO_BITMAP * level_stats_bitmap = NULL;
-
-   int level_stats_bmp_msg_type = 0;
 
 
-   int level_stats_bmp_w;
-   int level_stats_bmp_h;
-
-   int level_stats_show_level_number = 0;
 
    int make_backup_on_save_level = 0;
 

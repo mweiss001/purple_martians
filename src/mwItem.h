@@ -128,16 +128,19 @@ class mwItem
 
 
    // mwItemMessage.cpp
-   int draw_message(int i, int x, int y, int custom);
-   void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f);
+   int draw_pmsg(int i, int x, int y, int custom);
+   void draw_message(int i, int custom, int xpos_c = 0, int ypos = 0, int cursor_pos = 0, int cursor_blink = 0, char *f = NULL);
    void proc_pmsg(int i);
 
    void proc_pmsg_collision(int i);
    void proc_pmsg_reset_timer(int i);
-   int edit_pmsg_text(int c, int new_msg);
+   void proc_pmsg_countdown_timer(int i);
 
+   int edit_pmsg_text(int c, int new_msg);
    int get_frame_size(int num);
    void set_frame_size(int num, int frame_size);
+
+
 
 
    // mwItemTrigger.cpp

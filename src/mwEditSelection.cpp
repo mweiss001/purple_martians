@@ -88,7 +88,7 @@ void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int 
 
    // clear area
    if (clear == 1) clear_area(dx, dy, dx+ft_level_header[8], dy+ft_level_header[9]);
-   if (clear == 2) clear_area(0, 0, 100, 100);
+   if (clear == 2) mLevel.zero_level_data();
 
    // paste to level
    copy_mode = 1;
@@ -100,8 +100,6 @@ void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int 
    // restore original object filters
    memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
 }
-
-
 
 
 void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)

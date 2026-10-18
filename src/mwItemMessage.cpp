@@ -20,6 +20,90 @@
 
 
 
+/*
+
+how do messages get drawn?
+
+-------------------------------------------
+always on messages
+-------------------------------------------
+always on messages are drawn on the level background in:
+void mwScreen::init_level_background()
+{
+// draw messages that are always on
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+         mItem.draw_message(i, 2, 0, 0, 0, 0, NULL);
+}
+
+then they are skipped in the normal draw sequence
+
+int mwItem::draw_pmsg(int i, int x, int y, int custom)
+{
+   // when to draw message
+   if (custom == 0)
+   {
+      int draw = 0;
+
+      // draw if timer running
+      int timer_count=0, timer_val=0;
+      mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
+      if (timer_count) draw = 1;
+
+      // skip draw if always on (already drawn on level background)
+      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
+
+      if (draw) draw_message(i, 0, 0, 0, 0, 0, NULL);
+   }
+
+
+-------------------------------------------
+level statistics messages
+-------------------------------------------
+
+for special message:
+
+// hijack for special stats messages
+   int show_stats_msg = 0;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) && (!custom)) show_stats_msg = 3;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:1",  23)) && (!custom))          show_stats_msg = 21;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:2",  23)) && (!custom))          show_stats_msg = 22;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:3",  23)) && (!custom))          show_stats_msg = 23;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:4",  23)) && (!custom))          show_stats_msg = 24;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:5",  23)) && (!custom))          show_stats_msg = 25;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:6",  23)) && (!custom))          show_stats_msg = 26;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Area:7",  23)) && (!custom))          show_stats_msg = 27;
+
+   if (show_stats_msg) mLevel.show_level_stats(x1+w/2, y1, show_stats_msg);
+   else
+   {
+      ... rest of the normal message draw
+
+when calling the normal item draw, level stat messages are skipped:
+
+void mwItem::draw_items()
+{
+   al_set_target_bitmap(mBitmap.level_buffer);
+   for (int i=0; i<500; i++)
+   {
+      if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))))) // skip drawing level stats message here, do it later
+         draw_item(i, 0, 0, 0);
+   }
+}
+
+in draw sequence, at the end, they are drawn
+
+// this is drawn here to make sure it is on top
+      if (setup_only) ds_add_names(i, "d-lsta", "level stats");
+      else
+      {
+         for (int i=0; i<500; i++)
+            if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
+               mItem.draw_pmsg(i, mItem.item[i][4], mItem.item[i][5], 0);
+          ds_add(i);
+      }
+*/
+
 
 
 /*
@@ -51,17 +135,7 @@ item[][11]
 item[][12] timer count and val  (packed)
 item[][13] text and frame color (packed)
 
-
-
-
-
 */
-
-
-
-
-
-
 
 
 
@@ -73,9 +147,6 @@ void mwItem::proc_pmsg_collision(int i)
 }
 
 
-
-
-
 void mwItem::proc_pmsg_reset_timer(int i)
 {
    int timer_count=0, timer_val=0;
@@ -84,15 +155,22 @@ void mwItem::proc_pmsg_reset_timer(int i)
    mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
 }
 
+void mwItem::proc_pmsg_countdown_timer(int i)
+{
+   int timer_count=0, timer_val=0;
+   mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
+   if (timer_count > 0) timer_count--;
+   mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
+}
+
+
+
 void mwItem::proc_pmsg(int i)
 {
    if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
    {
       // count down the timer
-      int timer_count=0, timer_val=0;
-      mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
-      if (timer_count > 0) timer_count--;
-      mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
+      proc_pmsg_countdown_timer(i);
 
       // check for event trigger
       if ((item[i][1]) && (mTriggerEvent.event[item[i][1]])) proc_pmsg_reset_timer(i);
@@ -111,114 +189,161 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
-int mwItem::draw_message(int i, int x, int y, int custom)
+int mwItem::draw_pmsg(int i, int x, int y, int custom)
 {
-   char msg[1024];
-   if (!custom)
-   {
-      int timer_count=0, timer_val=0;
-      mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
-      // if timer running and not always show, draw the message
-      // if always show, it has already been drawn on background
-      if ((timer_count) && (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
-   }
-
-   // if show scroll or level editor running draw scroll
+   // when to draw scroll
    int show_scroll = 0;
    if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) show_scroll = 1;
    if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) show_scroll = 0;
    if (mLoop.level_editor_running) show_scroll = 1;
    if (show_scroll) al_draw_bitmap(mBitmap.sprite[mBitmap.zz[0][36]], x, y, 0);
+
+   // when to draw message
+   if (custom == 0)
+   {
+      int draw = 0;
+
+      // draw if timer running
+      int timer_count=0, timer_val=0;
+      mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
+      if (timer_count) draw = 1;
+
+      // skip draw if always on (already drawn on level background)
+      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
+
+      if (draw) draw_message(i, 0);
+   }
+
    return 1;
 }
 
-void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
+void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
-   char msg[1024];
 
-   // set where we will draw
-   if (custom == 1) al_set_target_backbuffer(mDisplay.display);
-   else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
-
-   // if custom == 2 do not change target
-
-   // make a copy of the string
-   char pt[500];
-
-   if (custom == 1) // get text from f
-   {
-      if (strlen(f) > 0) strcpy(pt, f);
-      else sprintf(pt, "<empty>");
-   }
-   else strcpy(pt, pmsgtext[i]); // get text from pmsg
-
-   int tc=0, fc=0;
-   mMiscFnx.get_int_3216(item[i][13], tc, fc); // get text and frame colors
-
-
-   int frame_width = get_frame_size(i);
-
-
-   int x1 = item[i][6];
-   int y1 = item[i][7];
-   int w  = item[i][8];
-   int h  = item[i][9];
-
-
-   if (custom == 1) // get custom x and y
-   {
-      x1 = xpos_c - w/2 - 8;
-      y1 = ypos - 10;
-   }
-
-   // other x and y positions
-   int x2 = x1 + w;
-   int xc = x1 + w / 2;
-   int y2 = y1 + h;
-
-
-
-   if (frame_width == 0)
-   {
-      if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-   }
-   else al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
-
-   if (frame_width == 1)
-   {
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
-   }
-
-   if (frame_width == 2)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[fc+a*128], 1.5);
-   }
-   if (frame_width == 4)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
-   }
-   if (frame_width == 12)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
-   }
-
+   int x = item[i][6];
+   int y = item[i][7];
+   int w = item[i][8];
+   int h = item[i][9];
 
    // hijack for special stats messages
    int show_stats_msg = 0;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full",            21)) && (!custom)) show_stats_msg = 1;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game",            21)) && (!custom)) show_stats_msg = 2;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) && (!custom)) show_stats_msg = 3;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Train", 30)) && (!custom)) show_stats_msg = 4;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Main",  30)) && (!custom)) show_stats_msg = 5;
-   if (show_stats_msg) mLevel.draw_level_stats(x1+w/2, y1, show_stats_msg);
+   if (!custom)
+   {
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) show_stats_msg = 3;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:1",          23)) show_stats_msg = 21;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:2",          23)) show_stats_msg = 22;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:3",          23)) show_stats_msg = 23;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:4",          23)) show_stats_msg = 24;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:5",          23)) show_stats_msg = 25;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:6",          23)) show_stats_msg = 26;
+      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:7",          23)) show_stats_msg = 27;
+   }
+   if (show_stats_msg) mLevel.show_level_stats(x+w/2, y, show_stats_msg);
    else
    {
+      bool draw_on_tmp_bitmap = 0;
+      if (mLoop.level_editor_running) draw_on_tmp_bitmap = 1;
+      // this is so that I can see how the text will actually look in the game
+      // in the game they are drawn on level_buffer and sub pixel alignment is an issue
+      // if I draw direct to the screen, I do not see it
+
+      if (!draw_on_tmp_bitmap)
+      {
+         // set where we will draw
+         if (custom == 1) al_set_target_backbuffer(mDisplay.display);
+         else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
+         // if custom == 2 do not change target
+      }
+
+      // make a copy of the string
+      char pt[500];
+      strcpy(pt, pmsgtext[i]); // get text from pmsg
+
+
+
+      if (custom == 1) // get custom x and y
+      {
+         x = xpos_c - w/2 - 8;
+         y = ypos - 10;
+      }
+
+
+      // where will drawing take place?
+
+      int dx1 = x;
+      int dy1 = y;
+
+      ALLEGRO_BITMAP * tmp;
+
+      if (draw_on_tmp_bitmap)
+      {
+         tmp = al_create_bitmap(w, h);
+         al_set_target_bitmap(tmp);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+
+         dx1 = 0;
+         dy1 = 0;
+      }
+
+      int dx2 = dx1+w;
+      int dy2 = dy1+h;
+
+
+      // get text and frame colors
+      int tc=0, fc=0;
+      mMiscFnx.get_int_3216(item[i][13], tc, fc);
+
+      // get frame width
+      int frame_width = get_frame_size(i);
+
+
+
+
+      if (frame_width == 0)
+      {
+         if (mLoop.level_editor_running) al_draw_rectangle(dx1, dy1, dx2, dy2, mColor.pc[15], 1);
+      }
+      else al_draw_filled_rectangle(dx1, dy1, dx2, dy2, mColor.pc[fc+13*16]);  // background
+
+      if (frame_width == 1)
+      {
+         al_draw_rectangle(dx1, dy1, dx2, dy2, mColor.pc[fc], 1);
+      }
+
+      if (frame_width == 2)
+      {
+         for (int a=0; a<frame_width; a++)
+            al_draw_rounded_rectangle(dx1+a, dy1+a, dx2-a, dy2-a, 4, 4, mColor.pc[fc+a*128], 1.5);
+      }
+      if (frame_width == 4)
+      {
+         for (int a=0; a<frame_width; a++)
+            al_draw_rounded_rectangle(dx1+a, dy1+a, dx2-a, dy2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
+      }
+      if (frame_width == 12)
+      {
+         for (int a=0; a<frame_width; a++)
+            al_draw_rounded_rectangle(dx1+a, dy1+a, dx2-a, dy2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
+      }
+
+
       //al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1); // debug show inner frame
+
+
+
+      // text editor
       if (custom == 1)
       {
+
+         if (custom == 1) // get text from f
+         {
+            if (strlen(f) > 0) strcpy(pt, f);
+            else sprintf(pt, "<empty>");
+         }
+
+
+
+         char msg[1024];
 
          // show cursor char
          sprintf(msg, "%c", pt[cursor_pos]);
@@ -226,7 +351,7 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
          if (pt[cursor_pos] == 10) sprintf(msg, "LF");
          if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
-         al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+         al_draw_textf(mFont.pr8, mColor.pc[15], dx1+w/2, dy2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
    //      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
    //      al_draw_textf(mFont.pr8, mColor.pc[15], x2-60, y2-9, 0, "[%s]", msg);
          //al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
@@ -257,16 +382,15 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
    //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
-      float y3 = y1+frame_width+line_height/2-3.5;
+      float y3 = dy1+frame_width+line_height/2-3.5;
 
       if (sp < 1)
       {
          sp = h - text_height;
-         y3 = y1+sp/2;
-
+         y3 = dy1+sp/2;
       }
 
-      al_draw_multiline_text(mFont.pr8, mColor.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+      al_draw_multiline_text(mFont.pr8, mColor.pc[tc], dx1+w/2, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
 
       if (cursor_blink)
       {
@@ -287,7 +411,7 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
          }
          else pt[cursor_pos] = cursor_char;
 
-         al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+         al_draw_multiline_text(mFont.pr8, mColor.pc[10], dx1+w/2+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
       }
 
       // crosshairs for alignment
@@ -295,7 +419,19 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
 //      al_draw_line(x1, y2, x2, y1, mColor.pc[fc], 1);
 //      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mColor.pc[fc], 1);
 //      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, mColor.pc[fc], 1);
+
+      if (draw_on_tmp_bitmap)
+      {
+         // set where we will draw
+         if (custom == 1) al_set_target_backbuffer(mDisplay.display);
+         else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
+
+         al_draw_bitmap(tmp, x, y, 0);
+         al_destroy_bitmap(tmp);
+      }
+
    }
+
 }
 
 
@@ -352,8 +488,8 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    //   printf("bc:%d\n", blink_counter);
 
       if (++blink_counter > blink_count) blink_counter = 0;
-      if (blink_counter > (blink_count/2)) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
-      else                                 draw_pop_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without
+      if (blink_counter > (blink_count/2)) draw_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
+      else                                 draw_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without
 
       int by = smy-bts/2-2;
       int ey = by+-3*bts; // erase y1

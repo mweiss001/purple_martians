@@ -4,4 +4,20 @@
     <option name="pythonIntegrationState" value="YES" />
   </component>
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/bitmaps" />
+      <file path="$PROJECT_DIR$/data" />
+      <file path="$PROJECT_DIR$/docs" />
+      <file path="$PROJECT_DIR$/help" />
+      <file path="$PROJECT_DIR$/levels" />
+      <file path="$PROJECT_DIR$/libnet" />
+      <file path="$PROJECT_DIR$/libnet_win" />
+      <file path="$PROJECT_DIR$/savegame" />
+      <file path="$PROJECT_DIR$/screenshots" />
+      <file path="$PROJECT_DIR$/sel" />
+      <file path="$PROJECT_DIR$/snd" />
+      <file path="$PROJECT_DIR$/web" />
+    </excludeRoots>
+  </component>
 </project>

@@ -95,31 +95,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else { mItem.draw_items(); ds_add(i); }
 
 
-//   if (setup_only) ds_add_names(i, "d-mssg", "draw_message");
-//   else
-//   {
-//      // draw msg last so they are on top
-//      for (int c=0; c<500; c++)
-//         if (mItem.item[c][0] == 10)
-//         {
-//            mItem.draw_message(c, mItem.itemf[c][0], mItem.itemf[c][1], 0);
-//
-//
-////            char msg[256];
-////            int timer_count=0, timer_val=0;
-////            mMiscFnx.get_int_3216(mItem.item[c][12], timer_count, timer_val);
-////            // if timer running and not always show, draw the message
-////            // if always show, it has been drawn on background
-////            if ((timer_count) && (!(mItem.item[c][2] & PM_ITEM_PMSG_SHOW_ALWAYS))) mItem.draw_pop_message(c, 0, 0, 0, 0, 0, msg);
-//         }
-//      add(i);
-//   }
-//
-
-
       if (packet_check) mPacketBuffer.check_for_packets();
-
-
 
       if (setup_only) ds_add_names(i, "d-enem", "draw_enemies");
       else { mEnemy.draw_enemies(); ds_add(i); }
@@ -160,18 +136,21 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
           ds_add(i);
       }
 
-
-
       if (packet_check) mPacketBuffer.check_for_packets();
 
+
+      // this is drawn here to make sure it is on top
       if (setup_only) ds_add_names(i, "d-lsta", "level stats");
       else
       {
          for (int i=0; i<500; i++)
             if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
-               mItem.draw_message(i, 0, 0, 0);
+               mItem.draw_pmsg(i, mItem.item[i][4], mItem.item[i][5], 0);
           ds_add(i);
       }
+
+
+
 
       if (packet_check) mPacketBuffer.check_for_packets();
 

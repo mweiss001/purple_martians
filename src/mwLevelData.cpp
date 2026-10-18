@@ -3,28 +3,21 @@
 #include "pm.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
-#include "mwLift.h"
 #include "mwItem.h"
-#include "mwEnemy.h"
-#include "mwScreen.h"
-#include "mwFont.h"
 #include "mwInput.h"
-#include "mwBitmap.h"
-#include "mwColor.h"
 #include "mwMiscFnx.h"
-#include "mwDisplay.h"
-#include "mwLoop.h"
 #include "mwPlayer.h"
-#include "mwVisualLevel.h"
 #include "mwDemoMode.h"
 #include "mwEditSelection.h"
-#include "mwGameEvent.h"
 #include "mwGmInfo.h"
-#include "mwMain.h"
-#include "mwNetgame.h"
+#include "mwLoop.h"
 #include "mwSql.h"
 #include "mwTriggerEvent.h"
-
+#include "pm.h"
+#include "pm.h"
+#include "pm.h"
+#include "pm.h"
+#include "pm.h"
 
 void mwLevel::reset_level_data()
 {
@@ -162,18 +155,35 @@ void mwLevel::check_achievements()
 {
    // check for completed areas
 
-   for (int a=1; a<8; a++)
+
+   // area 1 - training
+   // if more than 2 levels done
+   int done = 0;
+   for (int l=0; l<99; l++)
+      if ((data[l].area == 1) && (data[l].status > 1)) done++;
+
+   if (done > 0) overworld_area_array[2].visible = 1; // make next area visible
+
+
+
+   // main areas (2-5)
+   for (int a=2; a<6; a++)
    {
-//      int tot = overworld_area_array[a].num_levels_tot;
-      int done = 0;
+      int tot = overworld_area_array[a].num_levels_tot;
+      done = 0;
       for (int l=0; l<99; l++)
          if ((data[l].area == a) && (data[l].status > 1)) done++;
 
-      if (done) // temp if any done
+      float pd = 100 * (float)done / (float)tot;
+
+      if (pd > 1) // greater than 1%
       {
          overworld_area_array[a+1].visible = 1; // make next area visible
       }
    }
+
+
+
 
 
    /*
@@ -244,18 +254,168 @@ void mwLevel::check_achievements()
 
 }
 
+
+
+
+
+
+
+/*
+creates a message with internal scroll trigger
+scroll x,y
+
+msg x,y,w,h
+msg frame color
+msg flags
+message text
+*/
+
+void mwLevel::create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, int mcol, int mflags, const char *msg )
+{
+   // create message
+   int i = mItem.get_empty_item(10);
+   mItem.item[i][2] = mflags;
+   mItem.item[i][4] = sx;
+   mItem.item[i][5] = sy;
+   mItem.item[i][6] = mx;
+   mItem.item[i][7] = my;
+   mItem.item[i][8] = mw;
+   mItem.item[i][9] = mh;
+   mItem.item[i][12] = 2; // display time
+   mMiscFnx.set_int_3216(mItem.item[i][13], 15, mcol); // set text and frame colors
+   strcpy(mItem.pmsgtext[i], msg);
+}
+
+
+
+/*
+creates a message and trigger item set
+trigger x,y,w,h
+tcol - trigger color (0 is no draw)
+msg x,y,w,h
+msg frame color
+msg flags
+message text
+*/
+
+
+void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol, int mx, int my, int mw, int mh, int mcol, int mflags, const char *msg )
+{
+   // get an unused event
+   int ev = mTriggerEvent.get_unused_pm_event();
+
+   // create trigger
+   int i = mItem.get_empty_item(9);
+   mItem.item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+
+   if (tcol)
+   {
+      mItem.item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
+      mItem.item[i][2] = tcol;
+   }
+
+   mItem.item[i][4] = tx-20;
+   mItem.item[i][5] = ty;
+   mItem.item[i][6] = tx;
+   mItem.item[i][7] = ty;
+   mItem.item[i][8] = tw;
+   mItem.item[i][9] = th;
+   mItem.item[i][11] = ev; // constant send when triggered
+
+   // create message
+   i = mItem.get_empty_item(10);
+   mItem.item[i][1] = ev;
+   mItem.item[i][2] = mflags;
+   mItem.item[i][4] = mx-20;
+   mItem.item[i][5] = my;
+   mItem.item[i][6] = mx;
+   mItem.item[i][7] = my;
+   mItem.item[i][8] = mw;
+   mItem.item[i][9] = mh;
+
+   mItem.item[i][12] = 2; // display time
+   mMiscFnx.set_int_3216(mItem.item[i][13], 15, mcol); // set text and frame colors
+
+   strcpy(mItem.pmsgtext[i], msg);
+}
+
+
+
 void mwLevel::create_msg_helper(int area)
 {
    int x = overworld_area_array[area].msg_x;
    int y = overworld_area_array[area].msg_y;
    int col = overworld_area_array[area].color;
+
+
+   int ss_flags = 0;
+   ss_flags |= PM_BTILE_SOLID_PLAYER;
+   ss_flags |= PM_BTILE_SOLID_ENEMY;
+   ss_flags |= PM_BTILE_SOLID_ITEM;
+   ss_flags |= PM_BTILE_SEMISOLID_PLAYER;
+   ss_flags |= PM_BTILE_SEMISOLID_ENEMY;
+   ss_flags |= PM_BTILE_SEMISOLID_ITEM;
+
+   // add semisolid platform of blocks below
+   int by = y/20+3;
+   for (int bx=x/20; bx<x/20+6; bx++) mLevel.l[bx][by] = 899 + ss_flags;
+   mLevel.l[x/20][by] = 898 + ss_flags;
+   mLevel.l[x/20+5][by] = 900 + ss_flags;
+
+
+   // create always on message with area name
+   // ----------------------------------------------
+   create_msg_helper(x-20, y, x, y, 95, 23, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
+
+
+   // create trigger and message for area stats
+   // ----------------------------------------------
+   char msg[80];
+   sprintf(msg, "Level Statistics Area:%d", area);
+
+   // scroll
+   //create_msg_helper(x, y+40, 1000, y+70, 20,20, col, PM_ITEM_PMSG_FRAME0 + PM_ITEM_PMSG_SHOW_SCROLL, msg);
+
+   // visible trigger
+   create_msg_helper_trigger(x, y+40, 20, 20, col, 1000, y+70, 0, 0, col, PM_ITEM_PMSG_FRAME0, msg);
+
+   // hidden trigger with tile
+   // create_msg_helper_trigger(x, y+40, 20, 20, 0, 1000, y+70, 0, 0, col, PM_ITEM_PMSG_FRAME0, msg);
+   // mLevel.l[x/20][(y+40)/20] = 134;
+
+
+   // create trigger and message for what needs to be completed to continue
+   // ---------------------------------------------------------------------
+   if (area == 1) // && overworld_area_array[2].visible == 0)
+   {
+      int ay2 = (overworld_area_array[area].y + overworld_area_array[area].h-1)*20;
+      int ax1 = 920;
+      int axw = 160;
+      create_msg_helper_trigger(ax1, ay2-20, axw, 20, 0, ax1, ay2+24, axw, 40, col, PM_ITEM_PMSG_FRAME4, "Complete two\nlevels to unlock");
+   }
+
+
+
+
+
+
+   // if (area == 1) sprintf(msg, "Complete two training\nlevels to continue");
+   // if (area == 2) sprintf(msg, "Complete more than half\nthe levels to continue");
+   // create_msg_helper2(x+60, y+40, 20, 20, 13, x, y+70, 300, 50, col, PM_ITEM_PMSG_FRAME4, msg);
+
+/*
+
+
+
+
+
+
    int nl = overworld_area_array[area].num_levels_tot;
 
    int w = 95;
 //   int h = 57;
 
    int h = 40;
-
 
 
    char msg1[20];
@@ -280,7 +440,7 @@ void mwLevel::create_msg_helper(int area)
          if (data[i].status > 2) per++;
       }
 
-
+*/
 
 
 /*
@@ -321,11 +481,13 @@ void mwLevel::create_msg_helper(int area)
    //    }
    // }
 
+
+   /*
    sprintf(msg2, "Done:%d/%d", cmp, nl);
    sprintf(msg3, "Perfect:%d/%d", per, nl);
 
    col = 13;
-
+*/
 
 
    /*
@@ -348,13 +510,16 @@ void mwLevel::create_msg_helper(int area)
 
 */
 
+
+
+   /*
    char msg[256];
 //   sprintf(msg, "%s\n%s\n%s\n%s", msg1, msg2, msg3, msg4);
    sprintf(msg, "%s\n%s\n%s", msg1, msg2, msg3);
+*/
 
 
-
-
+/*
    // message with trigger
    // ----------------------------
    int ev = mTriggerEvent.get_unused_pm_event();
@@ -384,7 +549,7 @@ void mwLevel::create_msg_helper(int area)
    mItem.item[i][12] = 10; // display time
    mMiscFnx.set_int_3216(mItem.item[i][13], 15, col); // set text and frame colors
    strcpy(mItem.pmsgtext[i], msg);
-
+*/
 
 /*
 
@@ -405,7 +570,6 @@ void mwLevel::create_msg_helper(int area)
    strcpy(mItem.pmsgtext[i], msg);
 
 */
-
 
 
 /*
@@ -432,7 +596,9 @@ void mwLevel::create_msg_helper(int area)
 }
 
 
-
+// creates an invisible door set from x1,y1 to x2,x2
+// tile is usually an arrow pointing in the direction of the move
+// enter_type can be (0-immediate, 1 = up, 2 = down)
 void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile)
 {
    // add tile
@@ -455,10 +621,7 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
    mItem.item[i1][4]  = x2*20; // x
    mItem.item[i1][5]  = y2*20; // y
    //mItem.item[i1][8]  = 0; // type - exit only
-
 }
-
-
 
 
 
@@ -466,16 +629,24 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
 // only ever called from load level after loading level 1
 void mwLevel::set_overworld_barriers()
 {
-   double t = al_get_time();
+//   double t = al_get_time();
 
-   // overworld_area_array[2].visible = 1;
-   // overworld_area_array[3].visible = 1;
-   // overworld_area_array[4].visible = 1;
-   // overworld_area_array[5].visible = 1;
-   // overworld_area_array[6].visible = 1;
-   // overworld_area_array[7].visible = 1;
+   // debug all areas visible
+   overworld_area_array[2].visible = 1;
+   overworld_area_array[3].visible = 1;
+   overworld_area_array[4].visible = 1;
+   overworld_area_array[5].visible = 1;
+   overworld_area_array[6].visible = 1;
+   overworld_area_array[7].visible = 1;
 
-
+   // // debug all areas visible
+   // overworld_area_array[1].visible = 1;
+   // overworld_area_array[2].visible = 0;
+   // overworld_area_array[3].visible = 0;
+   // overworld_area_array[4].visible = 0;
+   // overworld_area_array[5].visible = 0;
+   // overworld_area_array[6].visible = 0;
+   // overworld_area_array[7].visible = 0;
 
    // always copy area 1 - clear all first
    int i = 1;
@@ -483,6 +654,7 @@ void mwLevel::set_overworld_barriers()
    int y = overworld_area_array[i].y;
    int w = overworld_area_array[i].w;
    int h = overworld_area_array[i].h;
+
    mEditSelection.copy_sel_from_level(70, x, y, w, h, 1, x, y, 2);
 
    // copy other areas if visible
@@ -495,15 +667,12 @@ void mwLevel::set_overworld_barriers()
       if (overworld_area_array[i].visible) mEditSelection.copy_sel_from_level(70, x, y, w, h, 1, x, y, 1);
    }
 
-
    // modify visible areas
    for (i=1; i<8; i++)
-   {
       if (overworld_area_array[i].visible)
       {
          // create msg
          create_msg_helper(i);
-
 
          // add side to side doors
          if (i>0 && i<6)
@@ -515,8 +684,10 @@ void mwLevel::set_overworld_barriers()
          }
 
 
-         if (i>1 && i<6)
+         // remove blocks from bottom of area above and create doors from area above
+         if (i>1 && i<6) // only for areas 2 - 5
          {
+            // top y position of this area
             y = overworld_area_array[i].y;
 
             // remove blocks from bottom of area above
@@ -525,52 +696,13 @@ void mwLevel::set_overworld_barriers()
             // add doors from area above
             create_door_helper(1,  y-2, 1,  y+2, 2, 15);
             create_door_helper(98, y-2, 98, y+2, 2, 15);
-
          }
-
-
-      }
-
-
    }
-
-
-
-   // // add side to side doors for area 1 (always there)
-   // y = overworld_area_array[1].y + overworld_area_array[1].h - 2;
-   // create_door_helper(0,  y,  97, y, 0, 11);
-   // create_door_helper(99, y,   2, y, 0, 12);
-
-
-   // // remove barriers and add doors for areas 2-5
-   // for (i=2; i<6; i++)
-   // {
-   //    if (overworld_area_array[i].visible)
-   //    {
-   //       y = overworld_area_array[i].y;
-   //
-   //       // remove blocks from bottom of area above
-   //       for (x=46; x<54; x++) mLevel.l[x][y-1] = 0;
-   //
-   //       // add doors from area above
-   //       create_door_helper(1,  y-2, 1,  y+2, 2, 15);
-   //       create_door_helper(98, y-2, 98, y+2, 2, 15);
-   //
-   //
-   //
-   //       create_msg_helper(i);
-   //
-   //
-   //
-   //
-   //    }
-   // }
-   //
-
 
    save_level(1); // save overworld level
 
-   printf("time to set overworld barriers: %f\n", al_get_time() - t);
+
+//   printf("time to set overworld barriers: %f\n", al_get_time() - t);
 
 
 //   mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
@@ -579,123 +711,11 @@ void mwLevel::set_overworld_barriers()
 
 //   mEditSelection.copy_sel_from_level(70, 0, 0, 100, 100, 1, 0, 0, 2);
 
-
-
-
-
-/*
-
-   // --------------------------------
-   // area 0
-   // --------------------------------
-   int msg_id = find_msg("Complete Basic");
-   if (area_locks[1])   // locked between training levels and area 1,2
-   {
-      if (msg_id == -1) // create msg if it does not exist
-      {
-         int i = mItem.get_empty_item(10);
-         mItem.item[i][0] = 10;
-         mItem.item[i][2] = 11;
-         mItem.item[i][4] = 980;
-         mItem.item[i][5] = 160;
-         mItem.item[i][6] = 867;
-         mItem.item[i][7] = 183;
-         mItem.item[i][8] = 266;
-         mItem.item[i][9] = 15;
-         mItem.item[i][13] = 851980;
-         sprintf(mItem.pmsgtext[i], "Complete Basic Training");
-      }
-   }
-   else if (msg_id != -1) mItem.clear_item(msg_id); // erase msg if it exists
-
-
-   sob_area_msg(13, 625,  40); // basic training levels
-   sob_area_msg(14, 1250, 40); // advanced training levels
-
-   sob_area_msg(1,  745,  220);
-   sob_area_msg(2,  1161, 220);
-   sob_area_msg(3,  745,  400);
-   sob_area_msg(4,  1161, 400);
-   sob_area_msg(5,  745,  580);
-   sob_area_msg(6,  1161, 580);
-   sob_area_msg(7,  745,  760);
-   sob_area_msg(8,  1161, 760);
-
-   sob_area_msg(9,  725,  940);  // final area
-
-
-   sob_area_msg(17, 1161, 940);  // main area levels
-   sob_area_msg(16, 1161, 1010); // all levels
-
-   sob_area_msg(10, 745,  1410); // extra levels
-   sob_area_msg(12, 940,  1750); // demo levels
-
-
-   // blocking lines of blocks
-   sob_vline(60, 1,  8,  area_locks[14]);  // blocking area 14 (advanced training)
-
-   sob_vline(56, 10, 17, area_locks[2]);   // blocking area 2
-   sob_vline(56, 19, 26, area_locks[4]);   // blocking area 4
-   sob_vline(56, 28, 35, area_locks[6]);   // blocking area 6
-   sob_vline(56, 37, 44, area_locks[8]);   // blocking area 8
-
-   sob_hline(45, 54, 9,  area_locks[1]);   // blocking between training levels and area 1, 2
-   sob_hline(45, 54, 18, area_locks[3]);   // blocking between area 1,2 and area 3,4
-   sob_hline(45, 54, 27, area_locks[5]);   // blocking between area 3,4 and area 5,6
-   sob_hline(45, 54, 36, area_locks[7]);   // blocking between area 5,6 and area 7,8
-   sob_hline(45, 54, 45, area_locks[9]);   // blocking between area 7,8 and area 9
-
-   sob_vline(43, 46, 53, area_locks[10]);   // blocking between area 9 and the rest
-   sob_vline(56, 46, 53, area_locks[10]);   // blocking between area 9 and the rest
-
-   sob_vline(0,  46, 57, !area_locks[10]);   // edge pieces that I want invisible until 10 done
-   sob_vline(99, 46, 84, !area_locks[10]);   // edge pieces that I want invisible until 10 done
-
-*/
-
-
-   // how much of overworld level to hide
-   // int lowest_visible_y = 200; // default only top training row visible
-   // if (!area_locks[1]) lowest_visible_y = 380; // area 1 and 2 visible
-   // if (!area_locks[3]) lowest_visible_y = 560; // area 3 and 4 visible
-   // if (!area_locks[5]) lowest_visible_y = 740; // area 5 and 6 visible
-   // if (!area_locks[7]) lowest_visible_y = 920; // area 7 visible
-   // if (!area_locks[9]) lowest_visible_y = 1100; // area 9 visible
-   // if (!area_locks[10]) lowest_visible_y = 2000; // area 9 visible
-   //
-   //
-   //
-   // // remove all hiders
-   // for(int i=0; i<500; i++) if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
-
-   /*
-   // create hider
-   int i = mItem.get_empty_item(19);
-   mItem.item[i][0] = 19;
-   mItem.item[i][1] = 0;
-   mItem.item[i][2] = 1;
-   mItem.item[i][3] = 1;
-   mItem.item[i][4] = 40;
-
-   mItem.item[i][5] = 40;
-   mItem.item[i][7] = lowest_visible_y;
-   mItem.item[i][8] = 2000;
-   mItem.item[i][9] = 2000 - lowest_visible_y;
-
-   mItem.item[i][10] = 1 ; // blind erase
-
-*/
-
-//   save_level(1); // save overworld level
 }
 
 
-
-
-
-
-
-void mwLevel::faa_helper(int area, int xasc, int &aai)
+// fills the area array (used only to control the order of levels in each area for stat listings)
+void mwLevel::fill_area_array(int area, int xasc, int &aai)
 {
    int x1 = overworld_area_array[area].x * 20;
    int y1 = overworld_area_array[area].y * 20;
@@ -744,7 +764,7 @@ void mwLevel::faa_helper(int area, int xasc, int &aai)
 
 
 
-void mwLevel::faa_helper_create(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y)
+void mwLevel::overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y)
 {
    sprintf(overworld_area_array[area].name, "%s", name);
    overworld_area_array[area].color = color;
@@ -755,7 +775,6 @@ void mwLevel::faa_helper_create(int area, const char* name, int color, int visib
    overworld_area_array[area].h = h;
    overworld_area_array[area].msg_x = msg_x;
    overworld_area_array[area].msg_y = msg_y;
-
    overworld_area_array[area].num_levels_tot = 0;
 
    // find all gates in the area
@@ -769,32 +788,27 @@ void mwLevel::faa_helper_create(int area, const char* name, int color, int visib
 }
 
 
-
-// searches the base overworld level for gates in certain areas, then adds their levels to area array
-void mwLevel::fill_area_array()
+// adds areas to overworld_area_array
+// searches the base overworld level for gates in areas
+void mwLevel::fill_overworld_area_array()
 {
-   faa_helper_create(1, "Training", 12, 1, 0, 0,  100, 14, 42*20, 5*20);
-   faa_helper_create(2, "Start",    13, 0, 0, 14, 100, 10, 41*20+3, 14*20+2);
-   faa_helper_create(3, "More",      6, 0, 0, 24, 100, 10, 42*20, 24*20);
-   faa_helper_create(4, "Harder",    7, 0, 0, 34, 100, 10, 42*20, 33*20);
-   faa_helper_create(5, "Final",     8, 0, 0, 44, 100, 14, 42*20, 44*20);
-   faa_helper_create(6, "Extra",     9, 0, 0, 59, 100, 23, 42*20, 61*20);
-   faa_helper_create(7, "Dev Demo", 10, 0, 0, 85, 100, 15, 42*20, 87*20);
-   for (int i=0; i<100; i++) printf("level:%d - area:%d\n", i, data[i].area);
+   // load base overworld level
+   load_level_by_number(70, 1, 0);
 
+   overworld_area_array_add(1, "Training", 11, 1, 0, 0,  100, 14, 42*20, 5*20);
+   overworld_area_array_add(2, "Start",    13, 0, 0, 14, 100, 10, 41*20+3, 14*20+2);
+   overworld_area_array_add(3, "More",      6, 0, 0, 24, 100, 10, 42*20, 25*20);
+   overworld_area_array_add(4, "Harder",    7, 0, 0, 34, 100, 10, 42*20, 34*20);
+   overworld_area_array_add(5, "Final",     8, 0, 0, 44, 100, 14, 42*20, 45*20);
+   overworld_area_array_add(6, "Extra",     9, 0, 0, 74, 100, 6,  42*20, 62*20);
+   overworld_area_array_add(7, "Dev Demo", 10, 0, 0, 85, 100, 15, 45*20, 86*20);
 
+   // print all levels and areas they belong to
+   //for (int i=0; i<100; i++) printf("level:%d - area:%d\n", i, data[i].area);
 
+   // fills the area array (used only to control the order of levels in each area for stat listings)
    int aai = 0;
-   for (int area=1; area<8; area++) faa_helper(area, 1, aai);
-
-
-
-
-
-
-
-
-
+   for (int area=1; area<8; area++) fill_area_array(area, 1, aai);
 }
 
 
@@ -804,7 +818,6 @@ void mwLevel::unlock_all_level_in_area(int area)
       if (data[i].area == area)
          if (data[i].status < 1) data[i].status = 1;
 }
-
 
 void mwLevel::data_helper(int i, int time_par, const char *name)
 {
@@ -880,8 +893,6 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(82,  8400,  "Training Level 3");    // 3:30 demo 2:12
    data_helper(83,  6000,  "Training Level 4");    // 2:30 demo 1:14
    data_helper(84,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
-
-
    data_helper(9,   6000,  "Bomb Intro");          // 2:30 demo 1:35
    data_helper(25,  1000,  "One Cannon");          // 0:25 demo 0:21.9
    data_helper(37,  800,   "Sacrifice");           // 0:20 demo 0:13.3
@@ -913,13 +924,19 @@ void mwLevel::clear_data()
 {
    mSql.execute_sql("DELETE FROM play_data", mSql.db_play_data);
 
-
    mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
    mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
 
+
+   for (int i=0; i<100; i++)
+   {
+      area_array[i][0] = 0;
+      area_array[i][1] = 0;
+   }
+
    for (int i=0; i<20; i++)
    {
-      sprintf(overworld_area_array[i].name, "%s", "");
+      strcpy(overworld_area_array[i].name, "");
       overworld_area_array[i].color = 0;
       overworld_area_array[i].visible = 0;
       overworld_area_array[i].x = 0;
@@ -953,13 +970,7 @@ void mwLevel::clear_data()
    }
 
    set_level_names_and_par_time();
-
-   load_level_by_number(70, 1, 0); // load base overworld level to set areas
-
-   fill_area_array();
-
-
-   double t0 = al_get_time();
+   fill_overworld_area_array();
 
    // load all levels to get purple coin counts
    for (int lv=0; lv<100; lv++)
@@ -969,13 +980,10 @@ void mwLevel::clear_data()
             if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 1)) data[lv].tot_coins++;
       }
 
-   load_level_by_number(1, 1, 0); // load overworld level
-
-   printf("clear load levels time:%f\n", al_get_time() - t0);
+   load_level_by_number(1, 1, 0); // load overworld level to force initial setup
 
    save_data();
    level_stats_bmp_msg_type = 0;
-
 }
 
 void mwLevel::load_data()

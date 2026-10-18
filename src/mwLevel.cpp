@@ -3,25 +3,22 @@
 #include "pm.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
-#include "mwLift.h"
 #include "mwItem.h"
 #include "mwEnemy.h"
+#include "mwLift.h"
 #include "mwScreen.h"
 #include "mwFont.h"
 #include "mwInput.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwMiscFnx.h"
-#include "mwDisplay.h"
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwMain.h"
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
-#include "mwNetgame.h"
 #include "mwShot.h"
 #include "mwTriggerEvent.h"
-
 
 
 mwLevel mLevel;

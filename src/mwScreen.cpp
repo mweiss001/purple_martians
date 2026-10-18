@@ -657,13 +657,10 @@ void mwScreen::init_level_background() // fill level_background with block tiles
    }
 */
 
-
    // draw messages that are always on
-   char msg[256];
    for (int i=0; i<500; i++)
       if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-         mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
-
+         mItem.draw_message(i, 2);
 
 //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 
@@ -691,8 +688,10 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
       // first erase hidden regions (only in not in level editor)
       if (!mLoop.level_editor_running) mItem.erase_hider_areas();
 
-      for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_message(i, 0, 0, 0);
+      // for (int i=0; i<500; i++)
+      //    if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_pmsg(i, 0, 0, 0);
+
+
    }
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
    else al_set_target_bitmap(b);
