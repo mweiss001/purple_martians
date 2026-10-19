@@ -28,7 +28,7 @@
 void mwLoop::proc_gate_enter_mode()
 {
    int seek_time = 30;
-   int rotate_time = 40;
+   int rotate_time = 80;
    int num_rotations = 2;
    float final_scale = .1;
 

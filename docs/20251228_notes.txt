@@ -45716,7 +45716,65 @@ old: mItem.draw_message(i, 0, 0, 0);
 
 
 It is confusing how messages get drawn...
-I should document it in code:
+I should document it in code...done
+
+Is there an option to left justify messages? no
+
+
+
+2026-10-18 09:04:54
+I want to remove msg pos from overworld_area_array
+just do it manually...done
+
+
+now I want to work on transitions
+
+
+
+
+
+
+
+start with player hover on gate
+what if level was drawn under the gate, level with floor
+
+
+when player starts rotating and shrinking in,
+make level expand from nothing
+
+
+
+
+2026-10-19 05:20:07
+
+BUG! - headless server crashes
+set_overworld_barriers()
+copy_sel_from_level()
+copy_ft_variables_to_level(dx, dy);
+init_level_background(); <--------  
+
+
+  
+void mwEditSelection::clear_area(int x1, int y1, int x2, int y2)    
+also calls:  
+init_level_background(); <--------  
+look for calls to these and manually call init_level_background();
+mScreen.init_level_background();
+
+done...
+
+commit
+
+
+
+
+
+
+
+
+
+
+
 
 
 

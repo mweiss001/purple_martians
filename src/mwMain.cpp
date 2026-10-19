@@ -245,8 +245,6 @@ int mwMain::initial_setup()
    // this needs to be after mLevel.load_data();
    if (!headless_server) mLevelIcons.load(0);
 
-
-
    // init players
    mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
@@ -255,6 +253,7 @@ int mwMain::initial_setup()
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
+
    return 1;
 }
 

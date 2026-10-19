@@ -38,6 +38,12 @@ in edit selection when copying doors (or moving) the destinations get screwed up
 
 
 
+something is overwriting overworld_area_array[2].name
+changing the 5th char to 'd' then terminating the string...
+
+
+
+
 
 
 
@@ -62,42 +68,11 @@ gates
 - tiles on their own tilemap..done
 - badges..done
 - info about badges in hover pages..done
-
 - transitions
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- make the messages for each area look nice
+- names for areas
 
 
 

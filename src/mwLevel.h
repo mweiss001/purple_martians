@@ -42,9 +42,6 @@ struct overworld_area
    int w;
    int h;
 
-   int msg_x;
-   int msg_y;
-
    int num_levels_tot;
    int num_levels_complete;
    int num_levels_perfect;
@@ -135,7 +132,7 @@ class mwLevel
 
 
 
-   void overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h, int msg_x, int msg_y);
+   void overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h);
 
    void create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile);
    void create_msg_helper(int area);
@@ -151,7 +148,6 @@ class mwLevel
 
    struct level_data data[100];
    struct overworld_area overworld_area_array[20];
-
 
 
 

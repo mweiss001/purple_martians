@@ -33,9 +33,7 @@ void mwLevel::set_start_level(int s)
    if (s < 1  ) s = 1;
    if (s > 399) s = 399;
    play_level = start_level = s;
-
    load_level_by_number(s, 0, 0);
-
    resume_allowed = 0;
    mConfig.save_config(PM_CFG_SAVE_START_LEVEL);
 }
@@ -205,6 +203,7 @@ int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silentl
    char filename[255];
    sprintf(filename, "levels/level%03d.pml", level_num);
    // printf("mwLevel::load_level_by_number(level_num:%d, load_only:%d, fail_silently:%d) - filename:%s\n", level_num, load_only, fail_silently, filename);
+
    return load_level(filename, load_only, fail_silently);
 }
 
@@ -272,9 +271,6 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
       }
 
 
-
-
-
       prev_level_loaded = last_level_loaded;
       last_level_loaded = level_num;
       valid_level_loaded = 0;
@@ -317,7 +313,6 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
          mLoop.eco_draw = 0;
       }
-
       return 1;
    }
 }

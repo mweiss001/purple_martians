@@ -139,7 +139,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       if (packet_check) mPacketBuffer.check_for_packets();
 
 
-      // this is drawn here to make sure it is on top
+      // Level Statistic messages are drawn here to make sure they are on top
       if (setup_only) ds_add_names(i, "d-lsta", "level stats");
       else
       {
@@ -148,8 +148,6 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
                mItem.draw_pmsg(i, mItem.item[i][4], mItem.item[i][5], 0);
           ds_add(i);
       }
-
-
 
 
       if (packet_check) mPacketBuffer.check_for_packets();

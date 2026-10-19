@@ -688,9 +688,9 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
       // first erase hidden regions (only in not in level editor)
       if (!mLoop.level_editor_running) mItem.erase_hider_areas();
 
-      // for (int i=0; i<500; i++)
-      //    if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_pmsg(i, 0, 0, 0);
-
+      // this will show level stats on menu level
+      //for (int i=0; i<500; i++)
+      //   if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_pmsg(i, 0, 0, 0);
 
    }
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
