@@ -220,6 +220,14 @@ int mwItem::draw_pmsg(int i, int x, int y, int custom)
 void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
 
+
+   // make a copy of the string
+   char pt[500];
+//   strcpy(pt, pmsgtext[i]); // get text from pmsg
+
+   strcpy(pt, mMessageText.get_text(i).c_str()); // get text from pmsg
+
+
    int x = item[i][6];
    int y = item[i][7];
    int w = item[i][8];
@@ -229,14 +237,14 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
    int show_stats_msg = 0;
    if (!custom)
    {
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) show_stats_msg = 3;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:1",          23)) show_stats_msg = 21;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:2",          23)) show_stats_msg = 22;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:3",          23)) show_stats_msg = 23;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:4",          23)) show_stats_msg = 24;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:5",          23)) show_stats_msg = 25;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:6",          23)) show_stats_msg = 26;
-      if (!strncmp(mItem.pmsgtext[i], "Level Statistics Area:7",          23)) show_stats_msg = 27;
+      if (!strncmp(pt, "Level Statistics Overworld All",   30)) show_stats_msg = 3;
+      if (!strncmp(pt, "Level Statistics Area:1",          23)) show_stats_msg = 21;
+      if (!strncmp(pt, "Level Statistics Area:2",          23)) show_stats_msg = 22;
+      if (!strncmp(pt, "Level Statistics Area:3",          23)) show_stats_msg = 23;
+      if (!strncmp(pt, "Level Statistics Area:4",          23)) show_stats_msg = 24;
+      if (!strncmp(pt, "Level Statistics Area:5",          23)) show_stats_msg = 25;
+      if (!strncmp(pt, "Level Statistics Area:6",          23)) show_stats_msg = 26;
+      if (!strncmp(pt, "Level Statistics Area:7",          23)) show_stats_msg = 27;
    }
    if (show_stats_msg) mLevel.show_level_stats(x+w/2, y, show_stats_msg);
    else
@@ -255,9 +263,7 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
          // if custom == 2 do not change target
       }
 
-      // make a copy of the string
-      char pt[500];
-      strcpy(pt, pmsgtext[i]); // get text from pmsg
+
 
 
 

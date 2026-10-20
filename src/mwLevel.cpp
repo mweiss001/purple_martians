@@ -154,6 +154,25 @@ void mwLevel::pml_to_var(char * b) // for load level
    sz = sizeof(mLift.cur);      memcpy(mLift.cur,      b+offset, sz); offset += sz;
    sz = sizeof(mLift.stp);      memcpy(mLift.stp,      b+offset, sz); offset += sz;
    sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
+
+
+
+
+   mItem.mMessageText.initialize();
+
+   for (int c=0; c<500; c++)
+      if (mItem.item[c][0] == 10)
+      {
+         mItem.mMessageText.set_text(c, mItem.pmsgtext[c]);
+      }
+
+   for (auto tmp: mItem.mMessageText.messageTextV)
+   {
+      printf("%d - '%s'\n", tmp.index, tmp.text.c_str());
+   }
+
+
+
 }
 
 void mwLevel::var_to_pml(char * b) // for save level
@@ -234,6 +253,9 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
       // copy to game variables
       zero_level_data();
       pml_to_var(pml);
+
+
+
 
 
       // get the level number from the filename
@@ -427,9 +449,11 @@ void mwLevel::zero_level_data()
       for (int x=0; x<100; x++)
            l[c][x] = 0;
 
+
+   mItem.mMessageText.initialize();
    for (int c=0; c<500; c++)  // items
    {
-      for (int x=0; x<500; x++) mItem.pmsgtext[c][x] = 0;
+//      for (int x=0; x<500; x++) mItem.pmsgtext[c][x] = 0;
       for (int x=0; x<16; x++)  mItem.item[c][x] = 0;
       for (int x=0; x<4; x++)   mItem.itemf[c][x] = 0;
    }

@@ -385,11 +385,11 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
       int status = mLevel.data[lev].status;
 
-      // in netgame, temporarily change all not complete status to complete status
-      if ((mNetgame.ima_server) || (mNetgame.ima_client))
-      {
-         if (status < 2) status = 2;
-      }
+      // // in netgame, temporarily change all not complete status to complete status
+      // if ((mNetgame.ima_server) || (mNetgame.ima_client))
+      // {
+      //    if (status < 2) status = 2;
+      // }
       int col = mLevel.level_status_color[status];
 
 
@@ -532,15 +532,15 @@ void mwItem::draw_gate_hover_info(int i, int page)
    int status = mLevel.data[lev].status;
    int col = mLevel.level_status_color[status];
 
-   if ((mNetgame.ima_server) || (mNetgame.ima_client))
-   {
-      // temporarily change all not complete status to complete status
-      if (status < 2)
-      {
-         status = 2;
-         col = 12;
-      }
-   }
+   // if ((mNetgame.ima_server) || (mNetgame.ima_client))
+   // {
+   //    // temporarily change all not complete status to complete status
+   //    if (status < 2)
+   //    {
+   //       status = 2;
+   //       col = 12;
+   //    }
+   // }
 
 
    if (status == 0)

@@ -100,7 +100,7 @@ void mwItem::show_all_items()
 
 int mwItem::sort_item(int set_pos)
 {
-   char msg[1024];
+//   char msg[1024];
    // to not break linked items
    for (int c=0; c < 500; c++)
       if (item[c][0] == 1) //door
@@ -135,19 +135,43 @@ int mwItem::sort_item(int set_pos)
             iswap = 0;
             if ((item[c][0] == 10) && (item[c+1][0] == 10)) // both messages
             {
-               strcpy(msg, pmsgtext[c]);
-               strcpy(pmsgtext[c], pmsgtext[c+1]);
-               strcpy(pmsgtext[c+1], msg);
+               // strcpy(msg, pmsgtext[c]);
+               // strcpy(pmsgtext[c], pmsgtext[c+1]);
+               // strcpy(pmsgtext[c+1], msg);
+
+
+               // get tmp string from 1st
+               std::string tmp = mMessageText.get_text(c);
+
+               // set 1st to 2nd
+               mMessageText.set_text(c, mMessageText.get_text(c+1).c_str() );
+
+               // set 2nd from tmp
+               mMessageText.set_text(c+1, tmp.c_str() );
+
             }
             if ((item[c][0] == 10) && (item[c+1][0] != 10)) // first only
             {
-               strcpy(pmsgtext[c+1], pmsgtext[c]);
-               pmsgtext[c][0] = 0;
+               // strcpy(pmsgtext[c+1], pmsgtext[c]);
+               // pmsgtext[c][0] = 0;
+
+               // set 2nd to first
+               mMessageText.set_text(c+1, mMessageText.get_text(c).c_str() );
+               // remove first
+               mMessageText.remove(c);
+
+
             }
             if ((item[c][0] != 10) && (item[c+1][0] == 10)) // second only
             {
-               strcpy(pmsgtext[c], pmsgtext[c+1]);
-               pmsgtext[c+1][0] = 0;
+               // strcpy(pmsgtext[c], pmsgtext[c+1]);
+               // pmsgtext[c+1][0] = 0;
+
+               // set 1st to 2nd
+               mMessageText.set_text(c, mMessageText.get_text(c+1).c_str() );
+               // remove 2nd
+               mMessageText.remove(c+1);
+
             }
             for (d=0; d<16; d++)
             {
@@ -266,7 +290,11 @@ void mwItem::test_items()
 
 void mwItem::clear_item(int num)
 {
-   if (item[num][0] == 10) pmsgtext[num][0] = 0;
+//   if (item[num][0] == 10) pmsgtext[num][0] = 0;
+
+   if (item[num][0] == 10) mMessageText.remove(num);
+
+
    for (int x=0; x<16; x++) item[num][x] = 0;
 }
 

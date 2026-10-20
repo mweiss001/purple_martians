@@ -27,14 +27,18 @@ void mwLevel::reset_level_data()
    load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
-void mwLevel::unlock_all_levels()
+void mwLevel::unlock_all_levels_and_areas()
 {
    // only change levels that were locked to start with
    for(int i=0; i<100; i++)
       if (data[i].status < 1) data[i].status = 1;
 
+   // make all areas visible
+   for(int i=1; i<8; i++)
+      overworld_area_array[i].visible = 1;
+
    save_data();
-   level_stats_bmp_msg_type = 0;        // to force recreation
+   level_stats_bmp_msg_type = 0;                  // to force recreation
    load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 
@@ -215,7 +219,12 @@ void mwLevel::create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, 
    mItem.item[i][9] = mh;
    mItem.item[i][12] = 2; // display time
    mMiscFnx.set_int_3216(mItem.item[i][13], 15, mcol); // set text and frame colors
-   strcpy(mItem.pmsgtext[i], msg);
+//   strcpy(mItem.pmsgtext[i], msg);
+
+   mItem.mMessageText.set_text(i, msg);
+
+
+
 }
 
 
@@ -268,7 +277,12 @@ void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol
    mItem.item[i][12] = 2; // display time
    mMiscFnx.set_int_3216(mItem.item[i][13], 15, mcol); // set text and frame colors
 
-   strcpy(mItem.pmsgtext[i], msg);
+//   strcpy(mItem.pmsgtext[i], msg);
+
+   mItem.mMessageText.set_text(i, msg);
+
+
+
 }
 
 
@@ -351,12 +365,12 @@ void mwLevel::create_msg_helper(int area)
    int msg_unlock_h =  40;
 
 
-   if (area == 1) // && overworld_area_array[2].visible == 0)
+   if (area == 1)//  && overworld_area_array[2].visible == 0)
    {
       create_msg_helper_trigger(msg_unlock_x, msg_unlock_y-40, msg_unlock_w, 20, 0, msg_unlock_x, msg_unlock_y+4, msg_unlock_w, msg_unlock_h, col, PM_ITEM_PMSG_FRAME4, "Complete two\nlevels to unlock");
    }
 
-   if (area == 2) // && overworld_area_array[3].visible == 0)
+   if (area == 2 && overworld_area_array[3].visible == 0)
    {
       create_msg_helper_trigger(msg_unlock_x, msg_unlock_y-40, msg_unlock_w, 20, 0, msg_unlock_x, msg_unlock_y+4, msg_unlock_w, msg_unlock_h, col, PM_ITEM_PMSG_FRAME4, "Complete three\nlevels to unlock");
    }

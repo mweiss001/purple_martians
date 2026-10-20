@@ -23,6 +23,7 @@
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwLevelEditor.h"
+#include "mwMessageText.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 
@@ -136,7 +137,7 @@ void mwMain::copy_files_to_clients(int type)
 
 
 
-//   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
    sprintf(client[num_clients++], "\\\\d5414\\pm_client54");  // win 10 -- ruggedized dell d5414 - old work laptop
 
 
@@ -559,6 +560,21 @@ void mwMain::temp_test()
 {
 
 //   printf("test!!!!\n");
+
+   // mwMessageText mMessageText;
+   // // add
+   // mMessageText.set_text(0, "test 0");
+   // mMessageText.set_text(1, "test 1");
+   // printf("t0 - '%s' t1 - '%s'  \n", mMessageText.get_text(0).c_str(), mMessageText.get_text(1).c_str());
+   // mMessageText.VtoA();
+   // printf("t0 - '%s' t1 - '%s'  \n", mMessageText.get_text(0).c_str(), mMessageText.get_text(1).c_str());
+   // mMessageText.AtoV();
+   // printf("t0 - '%s' t1 - '%s'  \n", mMessageText.get_text(0).c_str(), mMessageText.get_text(1).c_str());
+   // printf("t7 - '%s'\n", mMessageText.get_text(7).c_str());
+
+
+
+
 
 //   mLoadSelectionDialog.run();
 

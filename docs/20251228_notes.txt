@@ -45765,6 +45765,438 @@ done...
 
 commit
 
+made headless server unlock all levels and areas
+removed the part where gates (and level) stats are temp changed from less than complete to complete
+
+I now have a bug with messages...
+clients unlock message is blank, and should not show when next area is complete but does
+I fixed the do not show, but, the reason they are blank is because I do not sysnc pmsgtext??
+500x500 = 250,000 bytes
+
+
+I bet I so rarely use even a fraction of 1% of that
+
+could I make an easy way to serialize that data?
+yes, but then it would be variable length, can I deal with that?
+
+is there anything else I do not sync?
+lift step
+
+
+I could cap a maximum size for pmsgtext
+use glt to find actual usages
+
+
+num levels:156
+lev:1 pmsgtext total size:448
+lev:2 pmsgtext total size:0
+lev:3 pmsgtext total size:61
+lev:4 pmsgtext total size:0
+lev:5 pmsgtext total size:140
+lev:6 pmsgtext total size:74
+lev:7 pmsgtext total size:202
+lev:8 pmsgtext total size:0
+lev:9 pmsgtext total size:288
+lev:10 pmsgtext total size:18
+lev:11 pmsgtext total size:80
+lev:12 pmsgtext total size:58
+lev:13 pmsgtext total size:358
+lev:14 pmsgtext total size:187
+lev:15 pmsgtext total size:0
+lev:16 pmsgtext total size:74
+lev:17 pmsgtext total size:0
+lev:18 pmsgtext total size:114
+lev:19 pmsgtext total size:0
+lev:20 pmsgtext total size:310
+lev:21 pmsgtext total size:10
+lev:22 pmsgtext total size:45
+lev:23 pmsgtext total size:0
+lev:24 pmsgtext total size:0
+lev:25 pmsgtext total size:42
+lev:26 pmsgtext total size:470
+lev:27 pmsgtext total size:0
+lev:28 pmsgtext total size:110
+lev:29 pmsgtext total size:104
+lev:30 pmsgtext total size:0
+lev:31 pmsgtext total size:128
+lev:32 pmsgtext total size:66
+lev:33 pmsgtext total size:64
+lev:34 pmsgtext total size:97
+lev:35 pmsgtext total size:0
+lev:36 pmsgtext total size:0
+lev:37 pmsgtext total size:89
+lev:38 pmsgtext total size:0
+lev:39 pmsgtext total size:171
+lev:40 pmsgtext total size:0
+lev:41 pmsgtext total size:0
+lev:42 pmsgtext total size:134
+lev:43 pmsgtext total size:0
+lev:44 pmsgtext total size:52
+lev:45 pmsgtext total size:0
+lev:46 pmsgtext total size:0
+lev:47 pmsgtext total size:48
+lev:48 pmsgtext total size:0
+lev:49 pmsgtext total size:0
+lev:50 pmsgtext total size:105
+lev:51 pmsgtext total size:0
+lev:52 pmsgtext total size:0
+lev:53 pmsgtext total size:0
+lev:54 pmsgtext total size:187
+lev:55 pmsgtext total size:25
+lev:56 pmsgtext total size:0
+lev:57 pmsgtext total size:0
+lev:59 pmsgtext total size:0
+lev:60 pmsgtext total size:0
+lev:61 pmsgtext total size:0
+lev:64 pmsgtext total size:77
+lev:70 pmsgtext total size:268
+lev:80 pmsgtext total size:477
+lev:81 pmsgtext total size:1427
+lev:82 pmsgtext total size:889
+lev:83 pmsgtext total size:808
+lev:84 pmsgtext total size:377
+lev:85 pmsgtext total size:1073
+lev:86 pmsgtext total size:3110
+lev:87 pmsgtext total size:843
+lev:88 pmsgtext total size:1164
+lev:89 pmsgtext total size:481
+lev:90 pmsgtext total size:962
+lev:91 pmsgtext total size:671
+lev:92 pmsgtext total size:1360
+lev:93 pmsgtext total size:548
+lev:94 pmsgtext total size:586
+lev:95 pmsgtext total size:171
+lev:96 pmsgtext total size:512
+lev:97 pmsgtext total size:815
+lev:98 pmsgtext total size:1207
+lev:101 pmsgtext total size:89
+lev:102 pmsgtext total size:0
+lev:103 pmsgtext total size:0
+lev:104 pmsgtext total size:0
+lev:110 pmsgtext total size:0
+lev:111 pmsgtext total size:65
+lev:115 pmsgtext total size:0
+lev:301 pmsgtext total size:299
+lev:302 pmsgtext total size:85
+lev:303 pmsgtext total size:0
+lev:304 pmsgtext total size:0
+lev:305 pmsgtext total size:0
+lev:306 pmsgtext total size:0
+lev:307 pmsgtext total size:0
+lev:309 pmsgtext total size:28
+lev:310 pmsgtext total size:0
+lev:311 pmsgtext total size:0
+lev:312 pmsgtext total size:63
+lev:313 pmsgtext total size:0
+lev:314 pmsgtext total size:0
+lev:316 pmsgtext total size:18
+lev:317 pmsgtext total size:16
+lev:318 pmsgtext total size:0
+lev:319 pmsgtext total size:0
+lev:320 pmsgtext total size:41
+lev:321 pmsgtext total size:0
+lev:323 pmsgtext total size:0
+lev:324 pmsgtext total size:0
+lev:325 pmsgtext total size:0
+lev:326 pmsgtext total size:0
+lev:327 pmsgtext total size:0
+lev:328 pmsgtext total size:20
+lev:329 pmsgtext total size:0
+lev:330 pmsgtext total size:0
+lev:331 pmsgtext total size:0
+lev:332 pmsgtext total size:0
+lev:333 pmsgtext total size:0
+lev:334 pmsgtext total size:0
+lev:335 pmsgtext total size:0
+lev:336 pmsgtext total size:0
+lev:337 pmsgtext total size:0
+lev:338 pmsgtext total size:0
+lev:341 pmsgtext total size:0
+lev:342 pmsgtext total size:3001
+lev:343 pmsgtext total size:0
+lev:344 pmsgtext total size:0
+lev:345 pmsgtext total size:0
+lev:346 pmsgtext total size:0
+lev:347 pmsgtext total size:0
+lev:348 pmsgtext total size:553
+lev:350 pmsgtext total size:0
+lev:351 pmsgtext total size:0
+lev:352 pmsgtext total size:0
+lev:353 pmsgtext total size:0
+lev:354 pmsgtext total size:0
+lev:355 pmsgtext total size:101
+lev:356 pmsgtext total size:23
+lev:357 pmsgtext total size:14
+lev:358 pmsgtext total size:784
+lev:360 pmsgtext total size:70
+lev:361 pmsgtext total size:0
+lev:362 pmsgtext total size:0
+lev:363 pmsgtext total size:79
+lev:364 pmsgtext total size:0
+lev:365 pmsgtext total size:184
+lev:366 pmsgtext total size:0
+lev:367 pmsgtext total size:0
+lev:368 pmsgtext total size:0
+lev:369 pmsgtext total size:0
+lev:370 pmsgtext total size:0
+lev:371 pmsgtext total size:0
+lev:372 pmsgtext total size:0
+lev:373 pmsgtext total size:48
+lev:374 pmsgtext total size:43
+lev:375 pmsgtext total size:0
+
+
+level 86 "Triggers" has over 3000 char of legit text
+
+what if I chose 10,000 as an upper limit
+
+Here is a thought:
+why do I assume that chunks need to be a fixed size?
+
+How would I serialize the text data?
+a stream
+int index
+int length
+char data
+...
+repeat
+
+int32 num_records
+
+each record:
+
+int32 record index
+int32 length
+char[length]
+
+
+clients level stats msg do not show
+
+this is a whole other ball of bullshit...
+
+can they actually show on client?
+
+why or why not?
+
+they might not for the same reason:
+no text...
+
+
+
+
+
+
+I really think I should fix this.
+Get my head around dealing with variable length text
+
+right now I am using 250,000 bytes to store 500x500
+
+How about a vector of strings and indexes
+
+
+struct pmsgText
+{
+   int index;
+   std::string text
+}
+   
+std::vector<pmsgText> pmsgTextV;
+
+
+To retrieve the text for an index:
+----------------------------------
+bool get_pmsgtext(index, char* txt)
+{
+   for (auto tmp: pmsgTextV)
+      if (tmp.index == index)
+      {
+         sprintf(txt, "%s", tmp.name.c_str());
+         return true;
+      }
+   return false:   
+}
+
+
+To check if index exists:
+-------------------------
+bool does_pmsgtext_exist(index)
+{
+   for (auto tmp: pmsgTextV)
+      if (tmp.index == index) return true;
+   return false:   
+}
+
+
+To set text for an index:
+-------------------------
+void set_pmsgtext(int index, const char* txt)
+{
+   // check if index already exists
+   int exists = 0;
+
+   for (auto tmp: pmsgTextV)
+      if (tmp.index == index)
+      {
+         tmp.text = txt;
+         exists = 1;
+      }
+
+   if (!exists)
+   {
+      struct pmsgText pt;
+      pt.index = index;
+      pt.name = txt;
+      pmsgTextV.push_back(pt);
+   }
+}
+
+
+How to serialize to char array with max size
+--------------------------------------------
+char pta[5000] = {0};
+
+// zeroeth - determine how much space is required
+
+
+// first add num of elements
+
+// then add each element
+
+--------------------
+------------------------
+
+or on client I could just load the fully unlocked overworld level....
+
+---------------------------------------------
+---------------------------------------------
+
+Or I could just bite the bullet and use the whole thing
+
+that would make the state size close to 400k instead of 100k
+
+--------------------------------------------------
+
+
+I just dont like the very wastefull method of using 250k to store at most 3k
+
+------------------------------------------------------------
+
+Another approach:
+
+make a static level text
+
+message_text[5000];
+
+and keep pointer to where each text string starts and ends
+but then I would need to keep track of that
+
+-------------------------------------------
+what if I had a class called mwMessageText
+with an internal vector of strings and indexes
+and a method to serialize it to an internal char[5000]
+
+this class would be have an instance owned by mItem
+
+now take it for a test run:
+
+it looks good
+
+now can I load it from a level?
+
+how about when loading level, I also fill 
+
+first make mItem instantiate 
+
+ok now I fill on load...
+
+can I now use that to print when I need to?
+
+my end goal will be to get ride of all 
+
+   char pmsgtext[500][500];
+
+there are 48 usages...
+
+do this first:
+
+void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
+now 39
+
+now sort	item
+
+then:
+
+void mwItem::clear_item(int num)
+{
+//   if (item[num][0] == 10) pmsgtext[num][0] = 0;
+
+   if (item[num][0] == 10) mMessageText.remove(num);
+   
+
+I think I need to figure out the save and load stuff...
+
+2026-10-20 07:28:52
+
+commit and go to work
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -97,22 +97,19 @@ void mwNetgame::serverSendTo(void *data, int len, int p)
 
 void mwNetgame::headless_server_setup()
 {
-   printf("void mwNetgame::headless_server_setup()\n");
-
+   // printf("void mwNetgame::headless_server_setup()\n");
 
 
    mMain.classic_mode = 0;
 
-   printf("unlock_all_levels()\n");
-   mLevel.unlock_all_levels();
-
-
+   //printf("unlock all levels and areas\n");
+   mLevel.unlock_all_levels_and_areas();
 
    // make the hidden server player color taan (6)
    mPlayer.syn[0].color = 6;
 
 
-   printf("mLog.clear_all_log_actions()\n");
+   //printf("mLog.clear_all_log_actions()\n");
    mLog.clear_all_log_actions();
 
    // always have the basic LOG_NET active and printing to console as well as saving to file
@@ -153,7 +150,7 @@ void mwNetgame::headless_server_setup()
 //   mGameMoves.server_send_files_to_clients = 1;
 
 
-   printf("save_config()\n");
+   //printf("save_config()\n");
    mConfig.save_config();
 }
 

@@ -2,6 +2,7 @@
 
 #ifndef MWITEM_H
 #define MWITEM_H
+#include "mwMessageText.h"
 
 
 class mwItem
@@ -20,6 +21,13 @@ class mwItem
    char item_name[30][40];
    char pmsgtext[500][500];
    int item_tile[30];
+
+
+   mwMessageText mMessageText;
+
+
+
+
 
 
    int item_secondary67(int type);

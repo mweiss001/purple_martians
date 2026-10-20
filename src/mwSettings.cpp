@@ -700,7 +700,7 @@ void mwSettings::page_mode()
 
    if ((show_advanced) && (!mMain.classic_mode))
    {
-      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels();
+      if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   3, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels_and_areas();
 
 
 //      if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
@@ -1437,7 +1437,7 @@ void mwSettings::page_level_stats()
       {
          al_set_target_backbuffer(mDisplay.display);
 
-         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   8, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels();
+         if (mWidget.mButton(5, cfp_txc, 80,   ya, bts,    1, 2, 0, 1,   8, 0, 15, 0, 0, "Unlock all levels",   0)) mLevel.unlock_all_levels_and_areas();
          ya +=8;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1897,8 +1897,8 @@ void mwSettings::page_info()
    ya +=8;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show vars",   0)) mDisplay.show_var_sizes();
-   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "hostname",   0)) printf("Local hostname:%s\n", mLoop.local_hostname);
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show vars",                       0)) mDisplay.show_var_sizes();
+   if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "hostname",                        0)) printf("Local hostname:%s\n", mLoop.local_hostname);
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show bitmap flags 'tilemap'",     0)) mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.stilemap));
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show bitmap flags 'M_tilemap'",   0)) mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_stilemap));
    if (mWidget.mButton(0, xa, xb,  ya, bts,  1, 2, 0, 1,  12, 0, 15, 0, 0, "Show pixel format 'tilemap'",     0)) mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.stilemap));

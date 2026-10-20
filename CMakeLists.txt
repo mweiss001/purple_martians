@@ -185,6 +185,8 @@ add_executable(pm
         src/mwWidgetCustom.cpp
         src/mwGameState.cpp
         src/mwGameState.h
+        src/mwMessageText.h
+        src/mwMessageText.cpp
 )
 
 

@@ -159,7 +159,7 @@ class mwLevel
 
 
    void reset_level_data();
-   void unlock_all_levels();
+   void unlock_all_levels_and_areas();
 
 
    void set_overworld_barriers();

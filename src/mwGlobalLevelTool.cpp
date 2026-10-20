@@ -262,6 +262,19 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
+
+      int msg_size = 0;
+
+
+      for (int y=0; y<500; y++)
+         if (mItem.item[y][0] == 10) // msg
+         {
+            msg_size+= strlen(mItem.pmsgtext[y]);
+         }
+
+      printf("lev:%d pmsgtext total size:%d\n", le[x], msg_size);
+
+
       // for (int y=0; y<500; y++)
       //    if (mItem.item[y][0] == 19) // hider
       //    {
