@@ -144,9 +144,9 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
          for (int i=0; i<500; i++)
-            if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
+            if ((mItem.item[i][0] == 10) && (!strncmp(mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16)))
                mItem.draw_pmsg(i, mItem.item[i][4], mItem.item[i][5], 0);
-          ds_add(i);
+         ds_add(i);
       }
 
 

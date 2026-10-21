@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwMessageText.h"
-//#include <algorithm> // Required for std::erase_if
 
 mwMessageText::mwMessageText()
 {
@@ -12,16 +11,16 @@ mwMessageText::mwMessageText()
 void mwMessageText::initialize()
 {
    messageTextV.clear();
+   memset(messageTextA, 0, sizeof(messageTextA));
 }
 
-
-// remove index:
+// remove index
 void mwMessageText::remove(int index)
 {
    std::erase_if(messageTextV, [index](const messageText& m){ return m.index == index; });
 }
 
-// retrieve the text for an index:
+// retrieve the text for an index
 std::string mwMessageText::get_text(int index)
 {
    for (auto tmp: messageTextV)
@@ -37,14 +36,12 @@ void mwMessageText::set_text(int index, const char* txt)
 {
    // check if index already exists
    int exists = 0;
-
-   for (auto tmp: messageTextV)
+   for (auto& tmp: messageTextV)
       if (tmp.index == index)
       {
          tmp.text = txt;
          exists = 1;
       }
-
    if (!exists)
    {
       struct messageText mt;
@@ -54,7 +51,7 @@ void mwMessageText::set_text(int index, const char* txt)
    }
 }
 
-
+// pack vector to char array for saving
 void mwMessageText::VtoA()
 {
    // clear array
@@ -66,14 +63,14 @@ void mwMessageText::VtoA()
    // get vector size
    int vsize = (int) messageTextV.size();
 
-   // put the vector size int in char array and advance offset
+   // copy vector size to char array and advance offset
    sz = sizeof(vsize);
    memcpy(messageTextA+offset, &vsize, sz);
    offset += sz;
 
    for (auto tmp: messageTextV)
    {
-      // put the index int in char array and advance offset
+      // copy index to char array and advance offset
       int index = tmp.index;
       sz = sizeof(index);
       memcpy(messageTextA+offset, &index, sz);
@@ -83,15 +80,14 @@ void mwMessageText::VtoA()
       // get the string size
       int ssize = (int) tmp.text.size();
 
-      // put the string size int in char array and advance offset
+      // copy string size to char array and advance offset
       sz = sizeof(ssize);
       memcpy(messageTextA+offset, &ssize, sz);
       offset += sz;
 
-      // put string in char array and advance offset
+      // copy string to char array and advance offset
       char txt[500];
       strcpy(txt, tmp.text.c_str());
-
       memcpy(messageTextA+offset, txt, ssize);
       offset += ssize;
 
@@ -104,6 +100,7 @@ void mwMessageText::VtoA()
 
 }
 
+// unpack array to vector after loading
 void mwMessageText::AtoV()
 {
    // clear vector
@@ -142,9 +139,7 @@ void mwMessageText::AtoV()
       mt.index = index;
       mt.text = txt;
       messageTextV.push_back(mt);
-
    }
-
 }
 
 

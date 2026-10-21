@@ -250,7 +250,7 @@ void mwEditorMain::process_mouse_on_background()
                mItem.item[c][6] += ofx; // adjust with offsets
                mItem.item[c][7] += ofy;
             }
-            if (type == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[din]); // message
+            if (type == 10) mItem.mMessageText.set_text(c, mItem.mMessageText.get_text(din).c_str()); // message
             mItem.sort_item(1);
          }
          break;

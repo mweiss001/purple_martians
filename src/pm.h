@@ -38,7 +38,7 @@
 #define BORDER_WIDTH 12
 #define NUM_LIFTS 40
 
-#define STATE_SIZE 112864
+#define STATE_SIZE 117864
 
 
 #define PACKET_BUFFER_SIZE 1500

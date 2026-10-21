@@ -116,7 +116,7 @@ void mwItem::draw_items()
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)
    {
-      if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))))) // skip drawing level stats message here, do it later
+      if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16))))) // skip drawing level stats message here, do it later
          draw_item(i, 0, 0, 0);
    }
 }

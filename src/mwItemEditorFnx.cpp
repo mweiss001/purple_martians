@@ -414,47 +414,54 @@ void mwItem::show_all_pmsg()
    al_draw_text(mFont.pr8, mColor.pc[15], 20, text_pos, 0, "List of pop messages:");
    text_pos +=8;
 
-   for (int i=0; i<500; i++)
-   {
-      int len = strlen(pmsgtext[i]);
-      if (len > 0)
-      {
-         // count lines and max line length
-         int lines = 1;
-         int mll = 0; // max line length
-         int tlc = 0; // temp line counter
-         for (int j=0; j<len; j++)
-         {
-            if (pmsgtext[i][j] == 10)
-            {
-               lines++;
-               if (tlc > mll) mll = tlc;
-               tlc = 0;
-            }
-            else tlc++;
-         }
-         if (lines == 1) mll = tlc;
+   for (auto tmp: mItem.mMessageText.messageTextV)
+      al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d - %s", tmp.index, tmp.text.c_str());
 
-         al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
 
-         for (int j=0; j<len; j++)
-         {
-            int col = 15;
-            if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
-            if (pmsgtext[i][j] == 10) col = 9; // LF
-            al_draw_textf(mFont.pr8, mColor.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+   // for (int i=0; i<500; i++)
+   // {
+   //    int len = strlen(pmsgtext[i]);
+   //    if (len > 0)
+   //    {
+   //       // count lines and max line length
+   //       int lines = 1;
+   //       int mll = 0; // max line length
+   //       int tlc = 0; // temp line counter
+   //       for (int j=0; j<len; j++)
+   //       {
+   //          if (pmsgtext[i][j] == 10)
+   //          {
+   //             lines++;
+   //             if (tlc > mll) mll = tlc;
+   //             tlc = 0;
+   //          }
+   //          else tlc++;
+   //       }
+   //       if (lines == 1) mll = tlc;
+   //
+   //       al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
+   //
+   //       for (int j=0; j<len; j++)
+   //       {
+   //          int col = 15;
+   //          if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
+   //          if (pmsgtext[i][j] == 10) col = 9; // LF
+   //          al_draw_textf(mFont.pr8, mColor.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+   //
+   //          if (text_pos > mDisplay.SCREEN_H - 20)
+   //          {
+   //             al_flip_display();
+   //             mInput.tsw(); // wait for keypress
+   //             al_clear_to_color(al_map_rgb(0,0,0));
+   //             text_pos = 0;
+   //          }
+   //       }
+   //       text_pos +=8;
+   //    }
+   // }
 
-            if (text_pos > mDisplay.SCREEN_H - 20)
-            {
-               al_flip_display();
-               mInput.tsw(); // wait for keypress
-               al_clear_to_color(al_map_rgb(0,0,0));
-               text_pos = 0;
-            }
-         }
-         text_pos +=8;
-      }
-   }
+
+
    al_flip_display();
    mInput.tsw(); // wait for keypress
 }

@@ -1710,7 +1710,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=bts*2; // leave space for OK and Cancel buttons
             // draw the current one last to ensure it is on top
             mObjectViewer.pop_msg_viewer_pos = ya+bts/2+2;
-            mItem.draw_message(n, 1, (xa+xb)/2, mObjectViewer.pop_msg_viewer_pos, 0, 0, mItem.pmsgtext[n]); // show the message
+
+
+            char pcc[500];
+            sprintf(pcc, "%s", mItem.mMessageText.get_text(n).c_str());
+
+            mItem.draw_message(n, 1, (xa+xb)/2, mObjectViewer.pop_msg_viewer_pos, 0, 0, pcc ); // show the message
             ya+=bts*8;
          }
          break;

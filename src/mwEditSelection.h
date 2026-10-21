@@ -6,7 +6,9 @@
 #include "mwLift.h"
 #include "mwWindow.h"
 
-#define SEL_SIZE 384800
+//#define SEL_SIZE 384800
+
+#define SEL_SIZE 139800
 
 
 struct liftIDTranslation

@@ -234,7 +234,10 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
          }
          if (mItem.item[b][0] == 10) // message
          {
-            strcpy(ftItem.pmsgtext[c], mItem.pmsgtext[b]);
+            //strcpy(ftItem.pmsgtext[c], mItem.pmsgtext[b]);
+
+            ftItem.mMessageText.set_text(c, mItem.mMessageText.get_text(b).c_str()); // message
+
          }
       }
 
@@ -611,7 +614,10 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                }
                if (mItem.item[c][0] == 10) // message
                {
-                  strcpy(mItem.pmsgtext[c], ftItem.pmsgtext[b]);
+                  //strcpy(mItem.pmsgtext[c], ftItem.pmsgtext[b]);
+
+                  mItem.mMessageText.set_text(c, ftItem.mMessageText.get_text(b).c_str()); // message
+
                }
 
                // limits exceeded; erase
@@ -767,7 +773,11 @@ void mwEditSelection::sel_to_ft(char * b) // for load
    sz = sizeof(ftEnemy.Ef);      memcpy(ftEnemy.Ef,      b+offset, sz); offset += sz;
    sz = sizeof(ftLift.cur);      memcpy(ftLift.cur,      b+offset, sz); offset += sz;
    sz = sizeof(ftLift.stp);      memcpy(ftLift.stp,      b+offset, sz); offset += sz;
-   sz = sizeof(ftItem.pmsgtext); memcpy(ftItem.pmsgtext, b+offset, sz); offset += sz;
+//   sz = sizeof(ftItem.pmsgtext); memcpy(ftItem.pmsgtext, b+offset, sz); offset += sz;
+
+   sz = sizeof(ftItem.mMessageText.messageTextA); memcpy(ftItem.mMessageText.messageTextA, b+offset, sz); offset += sz;
+   ftItem.mMessageText.AtoV();
+
 }
 
 void mwEditSelection::ft_to_sel(char * b) // for save
@@ -780,7 +790,10 @@ void mwEditSelection::ft_to_sel(char * b) // for save
    offset += sz; sz = sizeof(ftEnemy.Ef);      memcpy(b+offset, ftEnemy.Ef,      sz);
    offset += sz; sz = sizeof(ftLift.cur);      memcpy(b+offset, ftLift.cur,      sz);
    offset += sz; sz = sizeof(ftLift.stp);      memcpy(b+offset, ftLift.stp,      sz);
-   offset += sz; sz = sizeof(ftItem.pmsgtext); memcpy(b+offset, ftItem.pmsgtext, sz);
+//   offset += sz; sz = sizeof(ftItem.pmsgtext); memcpy(b+offset, ftItem.pmsgtext, sz);
+
+   ftItem.mMessageText.VtoA();
+   offset += sz; sz = sizeof(ftItem.mMessageText.messageTextA); memcpy(b+offset, ftItem.mMessageText.messageTextA, sz);
 }
 
 void mwEditSelection::draw_buttons(int x1, int x2, int &ya, int d)

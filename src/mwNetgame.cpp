@@ -29,8 +29,6 @@ mwNetgame::mwNetgame()
    mGameState.server_force_client_offset = 0;
    mGameState.client_chase_offset = 0;
 
-
-
    for (int i=0; i<20; i++) files_to_send[i].active = 0;
    for (int i=0; i<8; i++) clear_channel(i);
    Channel = NULL;
@@ -89,11 +87,6 @@ void mwNetgame::clear_channel(int c)
 
 
 
-
-
-
-
-
 void mwNetgame::game_vars_to_state(char * b)
 {
    int sz = 0, offset = 0;
@@ -108,6 +101,10 @@ void mwNetgame::game_vars_to_state(char * b)
    offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
    offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
    offset += sz; sz = sizeof(mGameState);          memcpy(b+offset, &mGameState,         sz);
+
+   mItem.mMessageText.VtoA();
+   offset += sz; sz = sizeof(mItem.mMessageText.messageTextA); memcpy(b+offset, mItem.mMessageText.messageTextA, sz);
+
 
 }
 
@@ -125,6 +122,11 @@ void mwNetgame::state_to_game_vars(char * b)
    sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
    sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
    sz = sizeof(mGameState);          memcpy(&mGameState,         b+offset, sz); offset += sz;
+
+   sz = sizeof(mItem.mMessageText.messageTextA); memcpy(mItem.mMessageText.messageTextA, b+offset, sz); offset += sz;
+   mItem.mMessageText.AtoV();
+
+
 
 }
 

@@ -480,10 +480,18 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
       f[0] = (char)NULL;
       f[1] = (char)NULL;
       char_count = 1;
+
+      mItem.mMessageText.set_text(c, f);
+
+
    }
    else
    {
-      strcpy(f, pmsgtext[c]);
+//      strcpy(f, pmsgtext[c]);
+
+      strcpy(f, mItem.mMessageText.get_text(c).c_str());
+
+
       char_count = strlen(f);
    }
 
@@ -614,7 +622,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    if (bad) return 0;
    else
    {
-      strcpy(pmsgtext[c], f);
+      mItem.mMessageText.set_text(c, f);
       return 1;
    }
 }

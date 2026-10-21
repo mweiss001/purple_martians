@@ -115,7 +115,12 @@ void mwEnemy::cloner_create(int e)
 
                         // are we copying something that already has an expiry date?? if so leave it
                         if (mItem.item[b][14] == 0) mItem.item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
-                        if (mItem.item[c][0] == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[b]); // message
+
+//                        if (mItem.item[c][0] == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[b]); // message
+
+                        if (mItem.item[c][0] == 10) mItem.mMessageText.set_text(c, mItem.mMessageText.get_text(b).c_str()); // message
+
+
                         mItem.item[c][15] = 1000+e;   // tag with cloner id
                         c = 500; // end loop
                         no++;    // one more object created

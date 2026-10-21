@@ -46140,6 +46140,132 @@ I think I need to figure out the save and load stuff...
 commit and go to work
 
 
+2026-10-20 19:02:39
+
+OK how?
+
+start with save
+
+even before that var_to_pml
+
+add 5000 to 
+#define PML_SIZE 384720
+
+
+384720 - 250000 = 134720 + 5000 = 139720
+
+make a copy of levels...done
+
+modify save...done
+run glt done
+modify load...done
+
+all levels seem to have the text working, except level 1...
+
+I think I can make this change permanent...
+
+
+2026-10-21 04:30:11
+
+
+I need to make another instance for ft
+
+mItem.mMessageText.get_text(i).c_str())
+
+            if (type == 10) mItem.mMessageText.set_text(c, mItem.mMessageText.get_text(din).c_str()); // message
+
+2026-10-21 05:39:33
+
+I am down to only 6 refs to pmsgtext...all in editSelection
+
+It also saves and loads like level
+
+
+#define SEL_SIZE 384800 - 250000 = 134800 + 5000 = 139800
+#define SEL_SIZE 139800
+
+I think I have save and load done...
+
+pmsgtext has been completely removed!!!
+now what?
+overworld seems to be good!!
+
+make it part of state exchange
+
+#define STATE_SIZE 112864 + 5000
+
+#define STATE_SIZE 117864;
+
+
+I think the clients need to manually unlock everything
+otherwise I need to pass which areas are visible from client to server
+
+I really need to do this.
+separate the local level data from the servers
+
+   int area_array[100][2];
+   struct level_data data[100];
+   struct overworld_area overworld_area_array[20];
+
+in client mode, never save locally, get from state exchange
+
+how big is this?
+
+Other Large Variables
+
+mLevel.area_array             :         800          0K       0M
+mLevel.data                   :       26800         26K       0M
+mLevel.overworld_area_array   :        4720          4K       0M
+
+tot: 32,320
+
+struct level_data
+{
+   //char level_name[200];
+   char level_name[24];
+
+
+struct overworld_area
+{
+   //char name[200];
+   char name[24];
+
+
+mLevel.area_array             :         800          0K       0M
+mLevel.data                   :        9200          9K       0M
+mLevel.overworld_area_array   :        1200          1K       0M
+
+tot 11200
+
+I can add this to state exchange
+
+I need to do this so that clients have the same overworld as server
+and the stats shown for client are the server stats...
+
+I wish I could do a state exchange that did not have to be so frequent for less time sensitive data like this.
+
+The only thing I need from overworld_area_array is visible....
+
+
+mLevel.area_array             :         800          0K       0M
+mLevel.data                   :        9200          9K       0M
+mLevel.overworld_area_array   :         960          0K       0M
+
+tot: 10960
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

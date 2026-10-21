@@ -599,10 +599,7 @@ void mwDisplay::show_var_sizes()
    printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
    printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
    printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
-   printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
-
-
-
+   printf("mMessageTextA  :%6d\n",  (int)sizeof(mItem.mMessageText.messageTextA) );
 
    int sz = 0;
    sz+= sizeof(level_header);
@@ -612,9 +609,14 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mEnemy.Ei);
    sz+= sizeof(mLift.cur);
    sz+= sizeof(mLift.stp);
-   sz+= sizeof(mItem.pmsgtext);
+   sz+= sizeof(mItem.mMessageText.messageTextA);
+
    printf("---------------:------\n");
    printf("total          :%6d\n",  sz );
+
+
+
+
 
 
    printf("\nVariables used to save levels in pml format\n\n"   );
@@ -624,7 +626,7 @@ void mwDisplay::show_var_sizes()
    printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
    printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
    printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
-   printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
+   printf("mMessageTextA  :%6d\n",  (int)sizeof(mItem.mMessageText.messageTextA) );
 
    sz = 0;
    sz+= sizeof(mLevel.l);
@@ -633,9 +635,12 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mEnemy.Ei);
    sz+= sizeof(mLift.cur);
    sz+= sizeof(mLift.stp);
-   sz+= sizeof(mItem.pmsgtext);
+   sz+= sizeof(mItem.mMessageText.messageTextA);
    printf("---------------:------\n");
    printf("total          :%6d\n",  sz );
+
+
+
 
    printf("\nVariables used for netgame state exchange\n\n");
 
@@ -650,6 +655,7 @@ void mwDisplay::show_var_sizes()
    printf("mShot.e             :%6d\n", (int)sizeof(mShot.e)              );
    printf("mTriggerEvent.event :%6d\n", (int)sizeof(mTriggerEvent.event)  );
    printf("mGameState          :%6d\n", (int)sizeof(mGameState) );
+   printf("mMessageTextA       :%6d\n",  (int)sizeof(mItem.mMessageText.messageTextA) );
 
    sz = 0;
    sz+= sizeof(mPlayer.syn);
@@ -663,6 +669,7 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mShot.e);
    sz+= sizeof(mTriggerEvent.event);
    sz+= sizeof(mGameState);
+   sz+= sizeof(mItem.mMessageText.messageTextA);
 
    printf("--------------------:------\n");
    printf("total               :%6d\n",  sz );
@@ -687,7 +694,23 @@ void mwDisplay::show_var_sizes()
 
 
 
+
+
    printf("\nOther Large Variables\n\n");
+
+
+   sz = (int)sizeof(mLevel.area_array);
+   printf("mLevel.area_array             :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(mLevel.data);
+   printf("mLevel.data                   :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(mLevel.overworld_area_array);
+   printf("mLevel.overworld_area_array   :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+
+
+
 
 
 

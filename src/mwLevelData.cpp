@@ -173,10 +173,18 @@ void mwLevel::check_achievements()
    // main areas (2-5)
    for (int a=2; a<6; a++)
    {
-      int tot = overworld_area_array[a].num_levels_tot;
+      //int tot = overworld_area_array[a].num_levels_tot;
+
+      int tot = 0;
+
+
       done = 0;
       for (int l=0; l<99; l++)
-         if ((data[l].area == a) && (data[l].status > 1)) done++;
+         if (data[l].area == a)
+         {
+            tot++;
+            if (data[l].status > 1) done++;
+         }
 
       float pd = 100 * (float)done / (float)tot;
 
@@ -332,6 +340,7 @@ void mwLevel::create_msg_helper(int area)
    create_msg_helper(msg_name_x-20, msg_name_y, msg_name_x, msg_name_y, 95, 23, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
 
 
+
    // create trigger and message for area stats
    // ----------------------------------------------
    // msg area stats scroll
@@ -414,7 +423,6 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
 void mwLevel::set_overworld_barriers()
 {
    // printf("void mwLevel::set_overworld_barriers()\n");
-
 
    //   double t = al_get_time();
 
@@ -564,7 +572,6 @@ void mwLevel::overworld_area_array_add(int area, const char* name, int color, in
    overworld_area_array[area].y = y;
    overworld_area_array[area].w = w;
    overworld_area_array[area].h = h;
-   overworld_area_array[area].num_levels_tot = 0;
 
    // find all gates in the area
    for (int i=0; i<100; i++)
@@ -572,7 +579,6 @@ void mwLevel::overworld_area_array_add(int area, const char* name, int color, in
       {
          int lev = mItem.item[i][6];
          data[lev].area = area;
-         overworld_area_array[area].num_levels_tot++;
       }
 }
 

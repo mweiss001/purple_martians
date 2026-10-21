@@ -6,7 +6,7 @@
 
 struct level_data
 {
-   char level_name[200];
+   char level_name[24];
 
    int area;
    int status;
@@ -33,7 +33,7 @@ struct level_data
 
 struct overworld_area
 {
-   char name[200];
+   char name[24];
    int color;
    int visible;
 
@@ -41,10 +41,6 @@ struct overworld_area
    int y;
    int w;
    int h;
-
-   int num_levels_tot;
-   int num_levels_complete;
-   int num_levels_perfect;
 };
 
 
@@ -145,7 +141,6 @@ class mwLevel
 
    void fill_area_array(int area, int xasc, int &aai);
    int area_array[100][2];
-
    struct level_data data[100];
    struct overworld_area overworld_area_array[20];
 
