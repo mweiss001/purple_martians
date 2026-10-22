@@ -172,8 +172,8 @@ void mwLevel::pml_to_var(char * b) // for load level
    //    }
 
    // print message text
-   for (auto tmp: mItem.mMessageText.messageTextV)
-      printf("%d - '%s'\n", tmp.index, tmp.text.c_str());
+   // for (auto tmp: mItem.mMessageText.messageTextV)
+   //    printf("%d - '%s'\n", tmp.index, tmp.text.c_str());
 
 
 

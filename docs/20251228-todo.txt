@@ -11,6 +11,20 @@ make sure target bitmaps are set properly
 
 
 
+Load level icons:
+error saving web/assets/icons/lev070.png...
+makes no sense at all 
+
+
+
+
+
+
+
+
+
+
+
 rx packet buffer full? why? add some logging to see what packets...
 client had the error, but all counters were zero 
 re-did to count and print all packets listed in pm.h

@@ -151,11 +151,9 @@ void mwLoop::proc_level_done_mode()
    {
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for players seek and zoom out");
 
-
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
       mGameState.level_done_timer = 0; // immediate next mode
-
 
       if (!mMain.headless_server)
       {
@@ -285,8 +283,7 @@ void mwLoop::proc_level_done_mode()
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Pause player and setup exit xyincs");
       mScreen.add_player_text_overlay(mGameState.level_done_player, 2);
 
-      // added this check 20260930 - do not run if client or server
-      if ((!mNetgame.ima_client) && (!mNetgame.ima_server)) mLevel.add_play_data_record(mLevel.play_level, 1);
+      mLevel.add_play_data_record(mLevel.play_level, 1);
 
       if ((mGameMoves.autosave_game_on_level_done) && (mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
 

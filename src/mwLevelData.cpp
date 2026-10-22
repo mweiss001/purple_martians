@@ -11,6 +11,7 @@
 #include "mwEditSelection.h"
 #include "mwGmInfo.h"
 #include "mwLoop.h"
+#include "mwNetgame.h"
 #include "mwSql.h"
 #include "mwTriggerEvent.h"
 #include "pm.h"
@@ -43,9 +44,13 @@ void mwLevel::unlock_all_levels_and_areas()
 }
 
 
+
 void mwLevel::add_play_data_record(int lev, int type)
 {
    //printf("void mwLevel::add_play_data_record(lev:%d, type:%d))\n", lev, type);
+
+   if (mNetgame.ima_client) return; // clients do not save locally
+
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
    if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
@@ -72,10 +77,9 @@ void mwLevel::add_play_data_record(int lev, int type)
    }
 }
 
-
+// iterates all play_data for level and sets these variables
 void mwLevel::calc_level_stats(int lev)
 {
-   // iterates all play_data for level and sets these variables
 
    data[lev].times_played = 0;
    data[lev].times_beat = 0;
@@ -151,8 +155,6 @@ void mwLevel::calc_level_stats(int lev)
    if (data[lev].times_beat) data[lev].time_average = time_played_completed_only / data[lev].times_beat; // average time (only count completed records)
    if ((data[lev].time_best_all_coins > 0) && (data[lev].time_best_all_coins < data[lev].time_par)) data[lev].status = 3; // perfect
 }
-
-
 
 
 void mwLevel::check_achievements()

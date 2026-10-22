@@ -46253,748 +46253,91 @@ mLevel.overworld_area_array   :         960          0K       0M
 
 tot: 10960
 
+2026-10-21 07:21:48 commit
 
+need to add 10960 to state size, vars to state, then see what happens
+make sure client is not saving level stats locally
 
 
 
 
 
+2026-10-22 05:03:50
 
+Variables used for netgame state exchange
 
+mPlayer.syn                 :  2080
+mEnemy.Ei                   : 12800
+mEnemy.Ef                   :  6400
+mItem.item                  : 32000
+mItem.itemf                 :  8000
+mLift.cur                   :  5120
+mLevel.l                    : 40000
+mShot.p                     :  1200
+mShot.e                     :  1200
+mTriggerEvent.event         :  4000
+mGameState                  :    64
+mMessageTextA               :  5000
+mLevel.area_array           :   800
+mLevel.data                 :  9200
+mLevel.overworld_area_array :   960
+----------------------------:------
+total                       :128824
 
+#define STATE_SIZE 128824 
 
 
+2026-10-22 05:38:49
 
+implemented and seems to work as expected
 
+check for places where client might save stuff
+do not let client save anything locally
 
+test, client complete level...does not save on client or server
 
 
 
+// iterates all play_data for level and sets these variables
+void mwLevel::calc_level_stats(int lev)
+called from add_play_data_record()
 
 
+void mwLevel::add_play_data_record(int lev, int type)
+called at level done, or cancelling resumeable, or demo cheat done...
 
 
+void mwLevel::check_achievements()
+called from add_play_data_record()
 
 
+I think I just need to look into calls to add_play_data_record()
 
+7 calls:
 
+1  - gate cheat done
+23 - menu change level
+4  - menu quit to overworld
+5 - level done final rocket
+6 - level dome normal
+7 - visual level select
 
 
+looks like the only 2 I need to be concerned with are the level done ones
+modified both: if (!mNetgame.ima_client) mLevel.add_play_data_record(mLevel.play_level, 1);
 
 
+now it acts like I would expect:
+clients do no save level data locally
+server level data is saved
 
+what if I moved the check to within mLevel.add_play_data_record
+if (mNetgame.ima_client) return;
 
+do it...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+2026-10-22 06:05:34
 
 
 
