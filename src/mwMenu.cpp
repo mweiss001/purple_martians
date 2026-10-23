@@ -102,6 +102,10 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 */
 
 {
+
+   //printf("zmenu...\n");
+
+
    init_zmenu(menu_num);
 
    int y = mScreen.menu_y;
@@ -124,6 +128,10 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
    int right_held = 0;
 
    mInput.initialize();
+
+
+   //printf("zmenu...2\n");
+
 
    while (selection == 999)
    {

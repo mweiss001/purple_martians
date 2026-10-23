@@ -10,12 +10,52 @@ I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
 
 
-
 Load level icons:
 error saving web/assets/icons/lev070.png...
 makes no sense at all 
 
+could be a recursive thing where recreating level icons means loading levels
+and loading levels with gates requires level icons
 
+how to figure out?
+
+
+void mwLevelIcons::create()
+{
+   printf("mwLevelIcons::create()\n");
+
+looks like it gets to lev310 then has issues...
+
+309 had 2 bad gates...removed
+
+now gets through all levels then dies...
+
+Now I think it is some weird recursvive loop...
+
+load calls create which calls load???
+
+!!!!!
+      if (mMain.classic_mode) mScreen.draw_level_info();
+
+
+it seems to work until I do more than 110 for max level??
+works with size 100, 200, 400
+
+
+if I do max level 400, it crashes on create
+then if I run it again without create, it loads, but 1 and 70 do not have icons??
+
+did a bunch of refactoring and it is still the same...hmmm
+
+
+
+
+
+
+
+
+also because overworld changes so much, when ever loading overworld and setting overworld barriers,
+I should save new level icon...
 
 
 
@@ -30,20 +70,15 @@ client had the error, but all counters were zero
 re-did to count and print all packets listed in pm.h
 
 
-
-
-
 when letting demo complete level for you, time is demo time, should be time+30s...maybe??
 
 press fire to complete level does nothing
-
 
 can enter level even if locked
 
 
 in edit selection when copying doors (or moving) the destinations get screwed up
 I think sort might be causing this...
-
 
 
 something is overwriting overworld_area_array[2].name

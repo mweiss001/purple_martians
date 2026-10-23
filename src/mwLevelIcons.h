@@ -16,16 +16,24 @@ public:
    bool reload_needed = true;
    void draw_level_icon(int x, int y, int size, int level);
 
+
+
 private:
 
-   bool profile = false;
+   bool profile = true;
    double t0;
 
-   int size = 200;
+   int size = 100;
+
+   void create_one(int level, int save_web, ALLEGRO_BITMAP *tmp);
+
+   int load_icons_to_tilemap();
+
+
    void create();
    int get_level_num_from_filepath(const char* fn);
-   void add(const char* filepath, int &index);
-   bool find_level_icon(struct level_icon &li, int lev);
+   void add(const char* filepath, int index);
+   bool find_level_icon_index(int &index, int level);
 
    ALLEGRO_BITMAP * tilemap = nullptr;
    ALLEGRO_BITMAP * M_tilemap = nullptr;

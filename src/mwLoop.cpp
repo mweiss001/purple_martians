@@ -193,7 +193,6 @@ void mwLoop::game_menu()
       while (top_menu_sel != -1)
       {
          top_menu_sel = mMenu.zmenu(1, top_menu_sel);
-
          if (top_menu_sel == -1)  // exit
          {
             state[0] = PM_PROGRAM_STATE_QUIT;
@@ -352,7 +351,7 @@ void mwLoop::game_menu()
 
 void mwLoop::proc_program_state_change()
 {
-  // printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
+   //printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
 
    // ----------------------------------------------------------
    // handle all the changes from one state to another

@@ -672,7 +672,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
 {
    if (mLevel.valid_level_loaded)
    {
-      if (blocks) get_new_background(1);
+      if (blocks)  get_new_background(1);
       if (lifts)   mLift.draw_lifts();
       if (items)   mItem.draw_items();
       if (enemies) mEnemy.draw_enemies();
@@ -683,6 +683,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
          mShot.draw_pshots();
       }
    }
+
    if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
    {
       // first erase hidden regions (only in not in level editor)
@@ -771,6 +772,7 @@ void mwScreen::draw_level_info() // used only in menu
 
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, y, ALLEGRO_ALIGN_CENTER, "%s", mLevel.data[lev].level_name); y+=8;
 
+
    if (lev > 1)
    {
 
@@ -778,13 +780,16 @@ void mwScreen::draw_level_info() // used only in menu
 
       mItem.draw_line(x1, x2, y, "Status",                mLevel.level_status_text[mLevel.data[lev].status], mLevel.level_status_color[mLevel.data[lev].status]); y+=9;
 
+
       if (mLevel.data[lev].status < 2)
       {
-         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg),        15); y+=9;
-         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(  mLevel.data[lev].tot_coins, msg), 15); y+=9;
+
+         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(     mLevel.data[lev].tot_coins, msg), 15); y+=9;
       }
       else // completed
       {
+
          if (mLevel.data[lev].time_best < mLevel.data[lev].time_par) mItem.draw_line(x1, x2, y, "Time < Par",  "Yes", 8);
          else                                                        mItem.draw_line(x1, x2, y, "Time < Par",  "No",  15);
          y+=9;
@@ -817,6 +822,7 @@ void mwScreen::draw_level_info() // used only in menu
          mItem.draw_line(x1, x2, y, "Min Enemies Left",   mItem.chrd(  mLevel.data[lev].min_enemies_left,    msg), 15); y+=9;
       }
    }
+
    al_draw_rectangle(x1-1, menu_level_info_y, x2+1, y+1, mColor.pc[15], 1);
 }
 

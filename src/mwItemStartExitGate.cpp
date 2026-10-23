@@ -326,6 +326,8 @@ void mwItem::proc_gate_collision(int p, int i)
 
 void mwItem::draw_level_icon(int i, int level, int status, int color)
 {
+   // printf("mwItem::draw_level_icon(%d %d %d %d)\n", i, level, status, color);
+
    int x = item[i][4];
    int y = item[i][5];
 
@@ -347,7 +349,6 @@ void mwItem::draw_level_icon(int i, int level, int status, int color)
       ly =  ty1+9;    // level icon
    }
 
-
    al_draw_filled_rectangle(   lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[0]);      // clear
    mLevelIcons.draw_level_icon(lx+1, ly+1, ls, level);                           // level icon
    al_draw_rectangle(          lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[color], 1); // frame
@@ -357,9 +358,7 @@ void mwItem::draw_level_icon(int i, int level, int status, int color)
 
    // draw and frame the level status text
    mScreen.draw_framed_text(xc, ty2, 0, mFont.pixl, color, 15, mLevel.level_status_text[status]);
-
 }
-
 
 
 int mwItem::draw_gate(int i, int x, int y, int custom)
