@@ -501,7 +501,10 @@ void mwLevel::set_overworld_barriers()
 
    save_level(1); // save overworld level
 
-   if (!mMain.headless_server) mLevelIcons.update_one(1, 1); //   update_one
+   if (!mMain.headless_server) mLevelIcons.update_level_icon(1);
+
+
+
 
 
 

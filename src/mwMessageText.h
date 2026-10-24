@@ -1,15 +1,10 @@
 // mwMessageText.h
 
-
-
 struct messageText
 {
    int index;
    std::string text;
 };
-
-
-
 
 
 
@@ -21,11 +16,8 @@ public:
 
    void initialize();
 
-
    std::vector<messageText> messageTextV;
    char messageTextA[5000];
-
-
 
    std::string get_text(int index);
 
@@ -34,11 +26,8 @@ public:
    void remove(int index);
 
 
-
    void VtoA();
    void AtoV();
-
-
 };
 
 

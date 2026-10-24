@@ -15,24 +15,19 @@ public:
    void reload();
    bool reload_needed = true;
    void draw_level_icon(int x, int y, int size, int level);
-
-   void update_one(int level, int save_web);
-
+   void update_level_icon(int level);
 
 private:
 
    bool profile = true;
    double t0;
 
-   int size = 200;
+   int size = 100;
+   int max_level = 400;
 
-   void create_one(int level, int save_web);
-
+   void create_level_icon(int level, int save_web);
 
    int load_icons_to_tilemap();
-
-
-
 
 
    void create();

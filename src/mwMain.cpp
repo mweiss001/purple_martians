@@ -243,7 +243,7 @@ int mwMain::initial_setup()
    mLevel.load_data();
 
    // this needs to be after mLevel.load_data();
-   if (!headless_server) mLevelIcons.load(0);
+   if (!headless_server) mLevelIcons.load(1);
 
 //   if (!headless_server) mLevelIcons.load(1);
 

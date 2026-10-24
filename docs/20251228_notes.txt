@@ -46422,6 +46422,227 @@ do not update or create icons on headless server
 
 
 
+2026-10-24 05:01:18
+
+clean up level icons
+
+force 1 to be full 70 for web
+
+
+reloading level icons (just copying M_tilemap to tilemap)
+
+size:100
+max_level:100
+1000 x 900
+time:10-20ms
+
+size:100
+max_level:400
+1000 x 1600
+time:13-20ms
+
+size:200
+max_level:400
+2000 x 3200
+time:70-100ms
+
+size:400
+max_level:400
+4000 x 6400
+time:180-380ms
+
+
+Im going to go with 100.
+
+Now figure out web icons
+headless server should always have fully unlocked icon
+even if I have to do this manually
+do it at rebuild
+
+how?
+
+load level 70 and save icons for level
+
+run unlock all
+do overworld barriers
+save lev001 to web
+
+on dev machine:
+unlock all in settings
+remove all level icons
+run and they will be recreated
+
+OK I think this is sorted
+
+2026-10-24 06:10:55
+
+Do a recap of all you have changed last week:
+
+Pop Messages:
+--------------
+Text for messages used to be stored in a flat char array, char pmsgtext[500][500]; 
+This used 250,000 bytes and was mostly empty.
+The max used in a level was around 3000.
+
+Now I have a class called 'mwMessageText' with a vector of structs:
+
+struct messageText
+{
+   int index;
+   std::string text;
+};
+
+std::vector<messageText> messageTextV;
+
+This class has an instance owned by mItem.
+
+When I want the text for a certain index I use: 'get_text(index)'
+
+mItem.mMessageText.get_text(i)
+or 
+mItem.mMessageText.get_text(i).c_str()
+
+When I want to set text for a certain index I use: 'set_text(index, const char* txt)'
+
+When I want to save or load, I convert to a char array of fixed size 5000
+char messageTextA[5000];
+
+void VtoA();
+void AtoV();
+
+This new method is used in:
+- save and load level
+- save and load selection (in level editor editSelection)
+- netgame state exchange
+
+
+Level Data
+----------
+Information about levels status and stats are now synced to clients
+This is so that the clients have the same status for levels as the server and the same level statistics.
+This only persists on the client while in a netgame.
+When the client quits and goes back to a local game, all the original local stats and status are unchanged.
+
+these are the new synced variables:
+mLevel.area_array           :   800
+mLevel.data                 :  9200
+mLevel.overworld_area_array :   960
+
+
+
+
+2026-10-24 06:30:08
+look into where you temporarily change status in netgame, I don't really want that anymore
+look like I already did that in draw_gate...
+
+2026-10-24 06:33:42 commit then back to transitions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
 
 
 
