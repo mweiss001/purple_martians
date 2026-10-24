@@ -117,6 +117,9 @@ void mwLoop::initialize()
 
 void mwLoop::move_frame()
 {
+
+//   printf("move frame\n");
+
    if (mGameState.level_done_mode)
    {
       proc_level_done_mode();
@@ -193,6 +196,7 @@ void mwLoop::game_menu()
       while (top_menu_sel != -1)
       {
          top_menu_sel = mMenu.zmenu(1, top_menu_sel);
+
          if (top_menu_sel == -1)  // exit
          {
             state[0] = PM_PROGRAM_STATE_QUIT;
@@ -756,6 +760,10 @@ void mwLoop::proc_program_state_change()
 */
 int mwLoop::load_and_setup_level(int level, int type)
 {
+
+//   printf("int mwLoop::load_and_setup_level(int level, int type)\n");
+
+
    if (!mLevel.load_level_by_number(level, 0, 0)) return 0;
    else
    {
@@ -966,7 +974,6 @@ void mwLoop::main_loop()
 
          if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
          {
-
             frame_num++;
             frame_start_timestamp = al_get_time();
 

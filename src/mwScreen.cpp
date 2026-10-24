@@ -772,8 +772,7 @@ void mwScreen::draw_level_info() // used only in menu
 
    al_draw_textf(mFont.pr8, mColor.pc[15], xc, y, ALLEGRO_ALIGN_CENTER, "%s", mLevel.data[lev].level_name); y+=8;
 
-
-   if (lev > 1)
+   if (lev > 1 && lev < 100)
    {
 
       y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;

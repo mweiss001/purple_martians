@@ -93,6 +93,7 @@ void mwMenu::get_zmenu_width_and_height(int menu_num, int& width, int &height)
 }
 
 
+
 int mwMenu::zmenu(int menu_num, int menu_pos)
 /*
    used only for the main game menu
@@ -102,9 +103,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 */
 
 {
-
-   //printf("zmenu...\n");
-
 
    init_zmenu(menu_num);
 

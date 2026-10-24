@@ -114,6 +114,9 @@ class mwLevel
    void show_level_stats_row(                int i, int x1, int x2, int draw, int &max_x, int &y);
 
 
+   int get_total_purple_coins(int level);
+
+
 
 
 

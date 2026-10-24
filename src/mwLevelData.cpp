@@ -10,6 +10,7 @@
 #include "mwDemoMode.h"
 #include "mwEditSelection.h"
 #include "mwGmInfo.h"
+#include "mwLevelIcons.h"
 #include "mwLoop.h"
 #include "mwNetgame.h"
 #include "mwSql.h"
@@ -499,6 +500,11 @@ void mwLevel::set_overworld_barriers()
 
    save_level(1); // save overworld level
 
+   mLevelIcons.update_one(1, 1); //   update_one
+
+
+
+
    // printf("void mwLevel::set_overworld_barriers() -- complete\n");
 
 
@@ -813,6 +819,15 @@ void mwLevel::save_data()
    }
    mInput.m_err("Error saving level_data.pm");
 }
+
+
+int mwLevel::get_total_purple_coins(int level)
+{
+   if (level > 1 && level < 100) return data[mLevel.play_level].tot_coins;
+   return 0;
+}
+
+
 
 void mwLevel::dump_level_data()
 {

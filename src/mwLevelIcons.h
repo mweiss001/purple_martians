@@ -16,6 +16,7 @@ public:
    bool reload_needed = true;
    void draw_level_icon(int x, int y, int size, int level);
 
+   void update_one(int level, int save_web);
 
 
 private:
@@ -23,11 +24,15 @@ private:
    bool profile = true;
    double t0;
 
-   int size = 100;
+   int size = 200;
 
-   void create_one(int level, int save_web, ALLEGRO_BITMAP *tmp);
+   void create_one(int level, int save_web);
+
 
    int load_icons_to_tilemap();
+
+
+
 
 
    void create();

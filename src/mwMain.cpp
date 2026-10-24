@@ -251,6 +251,9 @@ int mwMain::initial_setup()
 
 
 
+
+
+
    // init players
    mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);

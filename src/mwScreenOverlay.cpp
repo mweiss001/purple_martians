@@ -1129,11 +1129,13 @@ void mwScreen::draw_top_frame(int p)
       tdx += 88;
 
 
+      int total_purple_coins = mLevel.get_total_purple_coins(mLevel.play_level);
+
       // draw purple coins if the level has any
-      if (mLevel.data[mLevel.play_level].tot_coins)
+      if (total_purple_coins)
       {
          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
-         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), total_purple_coins);
 
          // mBitmap.spin_shape(197, tdx+5, tdy-5, 0, 0, 19, 19, 0.5, 0.5, 60);
          // al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+1, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
