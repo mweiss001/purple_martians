@@ -12,6 +12,7 @@
 #include "mwGmInfo.h"
 #include "mwLevelIcons.h"
 #include "mwLoop.h"
+#include "mwMain.h"
 #include "mwNetgame.h"
 #include "mwSql.h"
 #include "mwTriggerEvent.h"
@@ -500,7 +501,7 @@ void mwLevel::set_overworld_barriers()
 
    save_level(1); // save overworld level
 
-   mLevelIcons.update_one(1, 1); //   update_one
+   if (!mMain.headless_server) mLevelIcons.update_one(1, 1); //   update_one
 
 
 
