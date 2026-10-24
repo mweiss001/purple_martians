@@ -50,7 +50,7 @@ void mwLevelIcons::update_level_icon(int level)
 */
 void mwLevelIcons::create_level_icon(int level, int save_web)
 {
-   printf("mwLevelIcons::create_level_icon(level:%d)\n", level);
+   //printf("mwLevelIcons::create_level_icon(level:%d)\n", level);
 
    if (mLevel.load_level_by_number(level, 1, 1)) // load only, then do custom setup
    {
@@ -256,7 +256,7 @@ void mwLevelIcons::add(const char* fn, int index)
 // load all level icon files and draw level icons on tilemaps
 void mwLevelIcons::load(int rebuild_all)
 {
-   printf("mwLevelIcons::load()\n");
+   //printf("mwLevelIcons::load()\n");
 
    if (profile) t0 = al_get_time();
 

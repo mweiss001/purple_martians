@@ -19,7 +19,7 @@ public:
 
 private:
 
-   bool profile = true;
+   bool profile = false;
    double t0;
 
    int size = 100;
