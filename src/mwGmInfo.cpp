@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwGmInfo.h"
 #include "mwDemoMode.h"
-#include "mwEnemy.h"
 #include "mwGameEvent.h"
 #include "mwGameMoves.h"
 #include "mwGameState.h"
@@ -109,7 +108,7 @@ void mwGmInfo::add()
 {
    char sql[500];
    sprintf(sql, "INSERT INTO play_data (level, time,      completed, num_players, player_respawns, enemies_killed, enemies_left,     coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);" ,
-                            mLevel.play_level, lastFrame, completed, 0,           playerDeaths,    enemiesKilled,  mEnemy.num_enemy, coinsCollected);
+                            mLevel.play_level, lastFrame, completed, 0,           playerDeaths,    enemiesKilled,  mLevel.mEnemy.num_enemy, coinsCollected);
    //printf("sql:%s \n", sql);
    mSql.execute_sql(sql, mSql.db_play_data);
 }

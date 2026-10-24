@@ -6,7 +6,6 @@
 #include "mwBitmap.h"
 #include "mwShot.h"
 #include "mwSolid.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwColor.h"
@@ -251,7 +250,7 @@ void mwEnemy::move_arch_block_common(int e)
 
    if (on_lift)
    {
-      Ef[e][1] += mLift.cur[ret-32].yinc;  // move with lift
+      Ef[e][1] += mLevel.mLift.cur[ret-32].yinc;  // move with lift
    }
 
 
@@ -348,7 +347,7 @@ void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
       int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
       int col = Ei[e][3];
 
-      float ps = mEnemy.Ef[e][8];  // player scale
+      float ps = Ef[e][8];  // player scale
       float yo = 10 * (1-ps);      // adjust y offset
 
       al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10+yo, ps, ps, 0, flags);

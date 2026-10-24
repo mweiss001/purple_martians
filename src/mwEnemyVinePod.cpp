@@ -6,7 +6,6 @@
 #include "mwBitmap.h"
 #include "mwShot.h"
 #include "mwSolid.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwColor.h"
 #include "mwFont.h"
@@ -173,7 +172,7 @@ void mwEnemy::move_vinepod(int e)
 void mwEnemy::vinepod_fill_points_array(int e, int np, float pnts[], float dest[])
 {
    // put variables in spline array
-   for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[e][i+3]+10;
+   for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3]+10;
 
    // scaling of control points
    float d = Ef[e][6];

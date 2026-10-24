@@ -6,9 +6,7 @@
 #include "mwBitmap.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
-#include "mwEnemy.h"
 #include "mwPlayer.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwDemoRecord.h"
 #include "mwFont.h"
@@ -308,10 +306,10 @@ int mwShot::find_empty_eshot()
 
 void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 {
-   float xlen = px - mEnemy.Ef[e][0];   // get the x distance between enemy and player
-   float ylen = py - mEnemy.Ef[e][1];   // get the y distance between enemy and player
+   float xlen = px - mLevel.mEnemy.Ef[e][0];   // get the x distance between enemy and player
+   float ylen = py - mLevel.mEnemy.Ef[e][1];   // get the y distance between enemy and player
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
-   float speed = mEnemy.Ef[e][7];            // speed
+   float speed = mLevel.mEnemy.Ef[e][7];            // speed
    float scaler = hy_dist / speed;    // get scaler
    float xinc = xlen / scaler;        // calc xinc
    float yinc = ylen / scaler;        // calc yinc
@@ -322,8 +320,8 @@ void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
       {
          mShot.e[b].active = mLoop.frame_num;
          mShot.e[b].shape = 1000 + shot_ans;
-         mShot.e[b].x = mEnemy.Ef[e][0];
-         mShot.e[b].y = mEnemy.Ef[e][1];
+         mShot.e[b].x = mLevel.mEnemy.Ef[e][0];
+         mShot.e[b].y = mLevel.mEnemy.Ef[e][1];
          mShot.e[b].xinc = xinc;
          mShot.e[b].yinc = yinc;
       }
@@ -338,9 +336,9 @@ void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
 void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
 {
    // origin of the shot and velocity with no direction
-   float bx = mEnemy.Ef[e][0];
-   float by = mEnemy.Ef[e][1];
-   float bv = mEnemy.Ef[e][7];
+   float bx = mLevel.mEnemy.Ef[e][0];
+   float by = mLevel.mEnemy.Ef[e][1];
+   float bv = mLevel.mEnemy.Ef[e][7];
 
    // targetted player x and y and velocity xinc and yinc
    float px  = mPlayer.syn[p].x;
@@ -390,21 +388,21 @@ void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
 
 void mwShot::fire_enemy_x_shot(int e, int p)
 {
-   float x_shot_speed = mEnemy.Ef[e][7];
+   float x_shot_speed = mLevel.mEnemy.Ef[e][7];
    for (int b=0; b<50; b++)  // find empty e_shot
       if (!mShot.e[b].active)
       {
          mShot.e[b].active = 1;
          mShot.e[b].yinc = 0;
-         mShot.e[b].x = mEnemy.Ef[e][0];
-         mShot.e[b].y = mEnemy.Ef[e][1];
+         mShot.e[b].x = mLevel.mEnemy.Ef[e][0];
+         mShot.e[b].y = mLevel.mEnemy.Ef[e][1];
 
-         if (mEnemy.Ef[e][0] < mPlayer.syn[p].x)
+         if (mLevel.mEnemy.Ef[e][0] < mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = x_shot_speed;
             mShot.e[b].shape = 488;
          }
-         if (mEnemy.Ef[e][0] >= mPlayer.syn[p].x)
+         if (mLevel.mEnemy.Ef[e][0] >= mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = -x_shot_speed;
             mShot.e[b].shape = 489;

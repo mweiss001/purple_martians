@@ -7,13 +7,11 @@
 #include "mwDisplay.h"
 #include "mwEditorMain.h"
 #include "mwEditSelection.h"
-#include "mwEnemy.h"
 #include "mwEventQueue.h"
 #include "mwLoadSelectionDialog.h"
 #include "mwFont.h"
 #include "mwGroupEdit.h"
 #include "mwInput.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
@@ -48,8 +46,8 @@ void mwLevelEditor::init(int level)
 
 
    selection.setXYWH(0,0,0,0);
-   mEnemy.sort_enemy();
-   mItem.sort_item(1);
+   mLevel.mEnemy.sort_enemy();
+   mLevel.mItem.sort_item(1);
    mInput.initialize();
    init_windows();
 }
@@ -523,38 +521,22 @@ int mwLevelEditor::redraw_background()
       mScreen.get_new_background(0);
 
       // draw lifts
-      if (mEditorMain.obj_filter[4][1][1]) mLift.draw_lifts();
+      if (mEditorMain.obj_filter[4][1][1]) mLevel.mLift.draw_lifts();
 
       // draw items
       for (int i=0; i<500; i++)
       {
-         int type = mItem.item[i][0];
-         if (type && mEditorMain.obj_filter[2][type][1]) mItem.draw_item(i, 0, 0, 0);
+         int type = mLevel.mItem.item[i][0];
+         if (type && mEditorMain.obj_filter[2][type][1]) mLevel.mItem.draw_item(i, 0, 0, 0);
       }
       // draw enemies
       for (int e=0; e<100; e++)
       {
-         int type = mEnemy.Ei[e][0];
-         if (type && mEditorMain.obj_filter[3][type][1]) mEnemy.draw_enemy(e, 0, 0, 0);
+         int type = mLevel.mEnemy.Ei[e][0];
+         if (type && mEditorMain.obj_filter[3][type][1]) mLevel.mEnemy.draw_enemy(e, 0, 0, 0);
       }
 
-
-      if (show_gate_info) mItem.draw_gate_hover_info(show_gate_info_item, show_gate_info_page);
-
-
-
-
-
-
-//      mItem.draw_items();
-//      mEnemy.draw_enemies();
-
-
-
-
-
-
-
+      if (show_gate_info) mLevel.mItem.draw_gate_hover_info(show_gate_info_item, show_gate_info_page);
 
       if (mode == 1) mEditorMain.draw_level_editor_background_overlays(mWM.mouse_on_window);    // Editor Main
       if (mode == 2) mEditSelection.draw_level_editor_background_overlays(mWM.mouse_on_window); // Edit Selection

@@ -9,11 +9,8 @@
 #include "mwScreen.h"
 #include "mwInput.h"
 #include "mwPlayer.h"
-#include "mwLift.h"
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShot.h"
 #include "mwLog.h"
@@ -594,22 +591,22 @@ void mwDisplay::show_var_sizes()
 
    printf("level header   :%6d\n",  (int)sizeof(level_header)   );
    printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
-   printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
-   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mEnemy.Ef)      );
-   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
-   printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
-   printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
-   printf("mMessageTextA  :%6d\n",  (int)sizeof(mItem.mMessageText.messageTextA) );
+   printf("mItem.item     :%6d\n",  (int)sizeof(mLevel.mItem.item)     );
+   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mLevel.mEnemy.Ef)      );
+   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mLevel.mEnemy.Ei)      );
+   printf("mLift.cur      :%6d\n",  (int)sizeof(mLevel.mLift.cur)      );
+   printf("mLift.stp      :%6d\n",  (int)sizeof(mLevel.mLift.stp)      );
+   printf("mMessageTextA  :%6d\n",  (int)sizeof(mLevel.mItem.mMessageText.messageTextA) );
 
    int sz = 0;
    sz+= sizeof(level_header);
    sz+= sizeof(mLevel.l);
-   sz+= sizeof(mItem.item);
-   sz+= sizeof(mEnemy.Ef);
-   sz+= sizeof(mEnemy.Ei);
-   sz+= sizeof(mLift.cur);
-   sz+= sizeof(mLift.stp);
-   sz+= sizeof(mItem.mMessageText.messageTextA);
+   sz+= sizeof(mLevel.mItem.item);
+   sz+= sizeof(mLevel.mEnemy.Ef);
+   sz+= sizeof(mLevel.mEnemy.Ei);
+   sz+= sizeof(mLevel.mLift.cur);
+   sz+= sizeof(mLevel.mLift.stp);
+   sz+= sizeof(mLevel.mItem.mMessageText.messageTextA);
 
    printf("---------------:------\n");
    printf("total          :%6d\n",  sz );
@@ -621,21 +618,21 @@ void mwDisplay::show_var_sizes()
 
    printf("\nVariables used to save levels in pml format\n\n"   );
    printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
-   printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
-   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mEnemy.Ef)      );
-   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
-   printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
-   printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
-   printf("mMessageTextA  :%6d\n",  (int)sizeof(mItem.mMessageText.messageTextA) );
+   printf("mItem.item     :%6d\n",  (int)sizeof(mLevel.mItem.item)     );
+   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mLevel.mEnemy.Ef)      );
+   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mLevel.mEnemy.Ei)      );
+   printf("mLift.cur      :%6d\n",  (int)sizeof(mLevel.mLift.cur)      );
+   printf("mLift.stp      :%6d\n",  (int)sizeof(mLevel.mLift.stp)      );
+   printf("mMessageTextA  :%6d\n",  (int)sizeof(mLevel.mItem.mMessageText.messageTextA) );
 
    sz = 0;
    sz+= sizeof(mLevel.l);
-   sz+= sizeof(mItem.item);
-   sz+= sizeof(mEnemy.Ef);
-   sz+= sizeof(mEnemy.Ei);
-   sz+= sizeof(mLift.cur);
-   sz+= sizeof(mLift.stp);
-   sz+= sizeof(mItem.mMessageText.messageTextA);
+   sz+= sizeof(mLevel.mItem.item);
+   sz+= sizeof(mLevel.mEnemy.Ef);
+   sz+= sizeof(mLevel.mEnemy.Ei);
+   sz+= sizeof(mLevel.mLift.cur);
+   sz+= sizeof(mLevel.mLift.stp);
+   sz+= sizeof(mLevel.mItem.mMessageText.messageTextA);
    printf("---------------:------\n");
    printf("total          :%6d\n",  sz );
 
@@ -645,34 +642,34 @@ void mwDisplay::show_var_sizes()
    printf("\nVariables used for netgame state exchange\n\n");
 
    printf("mPlayer.syn                 :%6d\n", (int)sizeof(mPlayer.syn)          );
-   printf("mEnemy.Ei                   :%6d\n", (int)sizeof(mEnemy.Ei)            );
-   printf("mEnemy.Ef                   :%6d\n", (int)sizeof(mEnemy.Ef)            );
-   printf("mItem.item                  :%6d\n", (int)sizeof(mItem.item)           );
-   printf("mItem.itemf                 :%6d\n", (int)sizeof(mItem.itemf)          );
-   printf("mLift.cur                   :%6d\n", (int)sizeof(mLift.cur)            );
+   printf("mEnemy.Ei                   :%6d\n", (int)sizeof(mLevel.mEnemy.Ei)            );
+   printf("mEnemy.Ef                   :%6d\n", (int)sizeof(mLevel.mEnemy.Ef)            );
+   printf("mItem.item                  :%6d\n", (int)sizeof(mLevel.mItem.item)           );
+   printf("mItem.itemf                 :%6d\n", (int)sizeof(mLevel.mItem.itemf)          );
+   printf("mLift.cur                   :%6d\n", (int)sizeof(mLevel.mLift.cur)            );
    printf("mLevel.l                    :%6d\n", (int)sizeof(mLevel.l)             );
    printf("mShot.p                     :%6d\n", (int)sizeof(mShot.p)              );
    printf("mShot.e                     :%6d\n", (int)sizeof(mShot.e)              );
    printf("mTriggerEvent.event         :%6d\n", (int)sizeof(mTriggerEvent.event)  );
    printf("mGameState                  :%6d\n", (int)sizeof(mGameState) );
-   printf("mMessageTextA               :%6d\n", (int)sizeof(mItem.mMessageText.messageTextA) );
+   printf("mMessageTextA               :%6d\n", (int)sizeof(mLevel.mItem.mMessageText.messageTextA) );
    printf("mLevel.area_array           :%6d\n", (int)sizeof(mLevel.area_array) );
    printf("mLevel.data                 :%6d\n", (int)sizeof(mLevel.data) );
    printf("mLevel.overworld_area_array :%6d\n", (int)sizeof(mLevel.overworld_area_array) );
 
    sz = 0;
    sz+= sizeof(mPlayer.syn);
-   sz+= sizeof(mEnemy.Ei);
-   sz+= sizeof(mEnemy.Ef);
-   sz+= sizeof(mItem.item);
-   sz+= sizeof(mItem.itemf);
-   sz+= sizeof(mLift.cur);
+   sz+= sizeof(mLevel.mEnemy.Ei);
+   sz+= sizeof(mLevel.mEnemy.Ef);
+   sz+= sizeof(mLevel.mItem.item);
+   sz+= sizeof(mLevel.mItem.itemf);
+   sz+= sizeof(mLevel.mLift.cur);
    sz+= sizeof(mLevel.l);
    sz+= sizeof(mShot.p);
    sz+= sizeof(mShot.e);
    sz+= sizeof(mTriggerEvent.event);
    sz+= sizeof(mGameState);
-   sz+= sizeof(mItem.mMessageText.messageTextA);
+   sz+= sizeof(mLevel.mItem.mMessageText.messageTextA);
    sz+= sizeof(mLevel.area_array);
    sz+= sizeof(mLevel.data);
    sz+= sizeof(mLevel.overworld_area_array);

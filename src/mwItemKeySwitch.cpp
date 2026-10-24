@@ -247,7 +247,7 @@ void mwItem::set_switch_tile(int i)
    if (item[i][10] & 0b1000) { c[nc] = 8;  nc++;} // purple
 
    // no colors selected
-   if (nc == 0) mItem.item[i][1] = b;                     // white
+   if (nc == 0) item[i][1] = b;                     // white
 
    // one color selected
    if ((nc == 1) && (c[0] == 9))  item[i][1] = b+1; // green

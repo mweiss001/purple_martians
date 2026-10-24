@@ -6,14 +6,11 @@
 #include "mwBitmapTools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwHelp.h"
-
+#include "mwLevel.h"
 
 
 // wrapper to increment ya by bts
@@ -71,13 +68,13 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
       if (o == 2)
       {
-         t = mItem.item[n][0];
-         sprintf(msg,"%s Help", mItem.item_name[t]);
+         t = mLevel.mItem.item[n][0];
+         sprintf(msg,"%s Help", mLevel.mItem.item_name[t]);
       }
       if (o == 3)
       {
-         t = mEnemy.Ei[n][0];
-         sprintf(msg,"%s Help", mEnemy.enemy_name[t][0]);
+         t = mLevel.mEnemy.Ei[n][0];
+         sprintf(msg,"%s Help", mLevel.mEnemy.enemy_name[t][0]);
       }
       if (o == 4) sprintf(msg,"Lift Help");
 
@@ -127,81 +124,81 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    {
       if (pressed)
       {
-         if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH)
          {
-            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
-            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
          }
-         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)
+         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)
          {
-            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
-            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
          }
-         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)
+         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)
          {
-            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
-            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
          }
-         else if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)
+         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)
          {
-            mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
-            mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
          }
       }
 
       sprintf(msg, "undef");
 
-      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
-      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
-      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
-      if (mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
+      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
 
    }
 
    if (type == 94) // orb rotation
    {
-      int rb = (mItem.item[v1][2] & PM_ITEM_ORB_ROTB) >> 14;
+      int rb = (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_ROTB) >> 14;
       if (pressed) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
       sprintf(msg, "Change Rotation");
       // set rb
       rb = rb << 14; // shift bits into place
-      mItem.item[v1][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
-      mItem.item[v1][2] |= rb; // merge
+      mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      mLevel.mItem.item[v1][2] |= rb; // merge
    }
 
    if (type == 96) // block damage draw rotation
    {
       // get rb
-      int rb = (mItem.item[v1][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
+      int rb = (mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
       if (pressed) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
       sprintf(msg, "Draw Rotation:%d", rb);
       // set rb
       rb = rb << 14; // shift bits into place
-      mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
-      mItem.item[v1][3] |= rb; // merge
+      mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_ROTB; // clear bits in target
+      mLevel.mItem.item[v1][3] |= rb; // merge
    }
 
 
    if (type == 310) // block manip block 1, 2, 3, 4
    {
-      int tn = mItem.item[v1][v2] & PM_BTILE_TILENUM_MASK;
+      int tn = mLevel.mItem.item[v1][v2] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block %d: %-4d", v3, tn);
       int tx1 = (x2+x1)/2+60;
       int ty1 = (y2+y1)/2-10;
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mItem.item[v1][v2]);
+      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mItem.item[v1][v2]);
       if (mouseOnButton)
       {
          int mpow_jnk = 0;
-         mBitmapTools.draw_flags(x2+6, y1, mItem.item[v1][v2], mpow_jnk, 0, 1, 1);
+         mBitmapTools.draw_flags(x2+6, y1, mLevel.mItem.item[v1][v2], mpow_jnk, 0, 1, 1);
          while (mInput.CTRL())
          {
             mEventQueue.proc(1);
             al_flip_display();
-            mBitmapTools.draw_flags(x2+6, y1, mItem.item[v1][v2], mpow_jnk, 0, 1, 1);
+            mBitmapTools.draw_flags(x2+6, y1, mLevel.mItem.item[v1][v2], mpow_jnk, 0, 1, 1);
          }
       }
    }
@@ -209,22 +206,22 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
    if (type == 318) // block walker block
    {
-      int tn = mEnemy.Ei[v1][13] & PM_BTILE_TILENUM_MASK;
+      int tn = mLevel.mEnemy.Ei[v1][13] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
       int tx1 = (x2+x1)/2+60;
       int ty1 = (y2+y1)/2-10;
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mEnemy.Ei[v1][13]);
+      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mEnemy.Ei[v1][13]);
       if (mouseOnButton)
       {
          int mpow_jnk = 0;
-         mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[v1][13], mpow_jnk, 0, 1, 1);
+         mBitmapTools.draw_flags(x2+6, y1, mLevel.mEnemy.Ei[v1][13], mpow_jnk, 0, 1, 1);
          while (mInput.CTRL())
          {
             mEventQueue.proc(1);
             al_flip_display();
-            mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[v1][13], mpow_jnk, 0, 1, 1);
+            mBitmapTools.draw_flags(x2+6, y1, mLevel.mEnemy.Ei[v1][13], mpow_jnk, 0, 1, 1);
          }
       }
    }
@@ -232,18 +229,18 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
    if (type == 320) // lift draw set single block
    {
-      int tn = mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
+      int tn = mLevel.mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block:%d", tn);
       int tx1 = (x2+x1)/2+60;
       int ty1 = (y2+y1)/2-10;
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mLift.cur[v1].draw_mode_val1);
+      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mLift.cur[v1].draw_mode_val1);
    }
 
    if (type == 321) // lift draw set start block
    {
-      int tn = mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
+      int tn = mLevel.mLift.cur[v1].draw_mode_val1 & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Start Block:%d", tn);
       int tx1 = (x2+x1)/2+80;
       int ty1 = (y2+y1)/2-10;
@@ -251,15 +248,15 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       al_draw_bitmap(mBitmap.tile[tn+0], tx1+0,  ty1, 0);
       al_draw_bitmap(mBitmap.tile[tn+1], tx1+20, ty1, 0);
       al_draw_bitmap(mBitmap.tile[tn+2], tx1+40, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mLift.cur[v1].draw_mode_val1);
+      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mLift.cur[v1].draw_mode_val1);
    }
 
 
    if (type == 401) // Trigger Field X Lift Alignment
    {
-      int C = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XC;
-      int F = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XF;
-      int L = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      int C = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XL;
       if (C) sprintf(msg, "Lift X Align:Center");
       else
       {
@@ -270,45 +267,45 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       }
       if (pressed)
       {
-         int C = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XC;
-         int F = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XF;
-         int L = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XL;
+         int C = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XC;
+         int F = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XF;
+         int L = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_XL;
          if (C)    // 1 X X
          {  // set to 0 0 0
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
          }
       }
    }
 
    if (type == 402) // Trigger Field Y Lift Alignment
    {
-      int C = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YC;
-      int F = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YF;
-      int L = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YL;
+      int C = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YC;
+      int F = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YF;
+      int L = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YL;
       if (C) sprintf(msg, "Lift Y Align:Center");
       else
       {
@@ -319,37 +316,37 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       }
       if (pressed)
       {
-         int C = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YC;
-         int F = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YF;
-         int L = mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YL;
+         int C = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YC;
+         int F = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YF;
+         int L = mLevel.mItem.item[v1][3] & PM_ITEM_TRIGGER_LIFT_YL;
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YC; // set   C flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
-            mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_TRIGGER_LIFT_YC; // set   C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
          }
       }
    }
@@ -361,9 +358,9 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
    if (type == 411) // DAMAGE Field X Lift Alignment
    {
-      int C = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XC;
-      int F = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XF;
-      int L = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XL;
+      int C = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XC;
+      int F = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XF;
+      int L = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
       if (C) sprintf(msg, "Lift X Align:Center");
       else
@@ -375,46 +372,46 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       }
       if (pressed)
       {
-         int C = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XC;
-         int F = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XF;
-         int L = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XL;
+         int C = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XC;
+         int F = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XF;
+         int L = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XC; // set   C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_XC; // set   C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
          }
       }
    }
    if (type == 412) // DAMAGE Field Y Lift Alignment
    {
-      int C = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YC;
-      int F = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YF;
-      int L = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YL;
+      int C = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YC;
+      int F = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YF;
+      int L = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
       if (C) sprintf(msg, "Lift Y Align:Center");
       else
@@ -426,37 +423,37 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       }
       if (pressed)
       {
-         int C = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YC;
-         int F = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YF;
-         int L = mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YL;
+         int C = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YC;
+         int F = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YF;
+         int L = mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YC; // set   C flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
-            mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mLevel.mItem.item[v1][3] |=  PM_ITEM_DAMAGE_LIFT_YC; // set   C flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
          }
       }
    }
@@ -527,22 +524,22 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       int lx = (x2+x1)/2;
       int ly = (y2+y1)/2;
       al_draw_filled_rectangle(lx+48, ly-10, lx+72, ly+10, mColor.Black);
-      al_draw_rotated_bitmap(mBitmap.sprite[mBitmap.zz[0][mEnemy.Ei[v1][v2]]], 10, 10, lx+60, ly, mEnemy.Ef[v1][14], 0);
+      al_draw_rotated_bitmap(mBitmap.sprite[mBitmap.zz[0][mLevel.mEnemy.Ei[v1][v2]]], 10, 10, lx+60, ly, mLevel.mEnemy.Ef[v1][14], 0);
       if (pressed)
       {
-         int ans = mEnemy.Ei[v1][v2];
+         int ans = mLevel.mEnemy.Ei[v1][v2];
          if (ans == 31) ans = 14;
          else
          {
             if (ans == 29) ans = 31;
             if (ans == 14) ans = 29;
          }
-         mEnemy.Ei[v1][v2] = ans;
+         mLevel.mEnemy.Ei[v1][v2] = ans;
 
          if (v2 == 5)
          {
-            mEnemy.Ei[v1][3] = ans;
-            mEnemy.Ei[v1][1] = mBitmap.zz[5][ans];
+            mLevel.mEnemy.Ei[v1][3] = ans;
+            mLevel.mEnemy.Ei[v1][1] = mBitmap.zz[5][ans];
          }
       }
    }

@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
-#include "mwItem.h"
 #include "mwInput.h"
 #include "mwMiscFnx.h"
 #include "mwPlayer.h"

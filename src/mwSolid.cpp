@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwSolid.h"
-#include "mwLift.h"
 #include "mwLevel.h"
 
 mwSolid mSolid;
@@ -64,16 +63,16 @@ int mwSolid::lift_check_helper(int solid_x, int solid_y, int lift_check, int typ
 {
    if (lift_check)
       for (int d=0; d<NUM_LIFTS; d++)
-         if (mLift.cur[d].active)
+         if (mLevel.mLift.cur[d].active)
          {
-            int x1 = mLift.cur[d].x;
-            int y1 = mLift.cur[d].y;
-            int x2 = mLift.cur[d].x + mLift.cur[d].w;
-            int y2 = mLift.cur[d].y + mLift.cur[d].h;
+            int x1 = mLevel.mLift.cur[d].x;
+            int y1 = mLevel.mLift.cur[d].y;
+            int x2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
+            int y2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
 
-            if ( ((type == 1) && (mLift.cur[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-                 ((type == 2) && (mLift.cur[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-                 ((type == 3) && (mLift.cur[d].flags & PM_LIFT_SOLID_ITEM  )) )
+            if ( ((type == 1) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+                 ((type == 2) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+                 ((type == 3) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_ITEM  )) )
             {
                if ((dir == 0) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x1 - 8) && (solid_x > x1 - 18)) return 32+d; // right
                if ((dir == 1) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x2 + 2) && (solid_x > x2 - 8 )) return 32+d; // left

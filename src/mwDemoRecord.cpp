@@ -21,7 +21,6 @@
 #include "mwMenu.h"
 #include "mwConfig.h"
 #include "mwGmInfo.h"
-#include "mwItem.h"
 
 mwDemoRecord mDemoRecord;
 

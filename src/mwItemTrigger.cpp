@@ -5,11 +5,9 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwPlayer.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwLoop.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -290,11 +288,11 @@ void mwItem::proc_trigger(int i)
 void mwItem::set_item_trigger_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
-   if (mLift.cur[d].active) // only proceed if lift number is valid
+   if (mLevel.mLift.cur[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = mLift.cur[d].x;
-      int lx2 = mLift.cur[d].x + mLift.cur[d].w;
+      int lx1 = mLevel.mLift.cur[d].x;
+      int lx2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
       int C = item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
       int F = item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
       int L = item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
@@ -311,8 +309,8 @@ void mwItem::set_item_trigger_location_from_lift(int i)
          if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = mLift.cur[d].y;
-      int ly2 = mLift.cur[d].y + mLift.cur[d].h;
+      int ly1 = mLevel.mLift.cur[d].y;
+      int ly2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
       C = item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
       F = item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
       L = item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
@@ -353,10 +351,10 @@ void mwItem::detect_trigger_collisions(int i)
          }
    if (flags & PM_ITEM_TRIGGER_ENEMY)
       for (int e=0; e<100; e++)
-         if (mEnemy.Ei[e][0])
+         if (mLevel.mEnemy.Ei[e][0])
          {
-            int x = mEnemy.Ef[e][0];
-            int y = mEnemy.Ef[e][1];
+            int x = mLevel.mEnemy.Ef[e][0];
+            int y = mLevel.mEnemy.Ef[e][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
    if (flags & PM_ITEM_TRIGGER_ITEM)
@@ -522,7 +520,7 @@ int mwItem::draw_block_manip(int i, int x, int y)
       float y2 = y1 + item[i][9];
       mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
 
-      if (mItem.item[i][3] == 4)
+      if (item[i][3] == 4)
       {
          col = item[i][12];
          x1 = item[i][13];
@@ -572,20 +570,20 @@ item[][12] = damage
 void mwItem::set_item_damage_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
-   if (mLift.cur[d].active) // only proceed if lift number is valid
+   if (mLevel.mLift.cur[d].active) // only proceed if lift number is valid
    {
       if (item[i][3] & PM_ITEM_DAMAGE_LIFT_MS) // mirror geometry from lift
       {
-         item[i][6] = mLift.cur[d].x;
-         item[i][7] = mLift.cur[d].y;
-         item[i][8] = mLift.cur[d].w;
-         item[i][9] = mLift.cur[d].h;
+         item[i][6] = mLevel.mLift.cur[d].x;
+         item[i][7] = mLevel.mLift.cur[d].y;
+         item[i][8] = mLevel.mLift.cur[d].w;
+         item[i][9] = mLevel.mLift.cur[d].h;
       }
       else
       {
          // x axis
-         int lx1 = mLift.cur[d].x;
-         int lx2 = mLift.cur[d].x + mLift.cur[d].w;
+         int lx1 = mLevel.mLift.cur[d].x;
+         int lx2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
          int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
          int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
          int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
@@ -602,8 +600,8 @@ void mwItem::set_item_damage_location_from_lift(int i)
             if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
          }
          // y axis
-         int ly1 = mLift.cur[d].y;
-         int ly2 = mLift.cur[d].y + mLift.cur[d].h;
+         int ly1 = mLevel.mLift.cur[d].y;
+         int ly2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
          C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
          F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
          L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
@@ -672,13 +670,13 @@ void mwItem::proc_item_damage_collisions(int i)
          }
    if (cde)
       for (int e2=0; e2<100; e2++)
-         if (mEnemy.Ei[e2][0])
+         if (mLevel.mEnemy.Ei[e2][0])
          {
-            int x = mEnemy.Ef[e2][0];
-            int y = mEnemy.Ef[e2][1];
+            int x = mLevel.mEnemy.Ef[e2][0];
+            int y = mLevel.mEnemy.Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
+               mLevel.mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
             }
          }
    if (cdi)
@@ -732,7 +730,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    if ((FLAGS & PM_ITEM_DAMAGE_LIFT_ON) && (FLAGS & PM_ITEM_DAMAGE_LIFT_MS))
    {
       int d = item[i][10]; // lift number
-      f.setXYWH(mLift.cur[d].x, mLift.cur[d].y, mLift.cur[d].w, mLift.cur[d].h);
+      f.setXYWH(mLevel.mLift.cur[d].x, mLevel.mLift.cur[d].y, mLevel.mLift.cur[d].w, mLevel.mLift.cur[d].h);
       f.round();
    }
 

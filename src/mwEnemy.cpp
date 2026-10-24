@@ -9,15 +9,10 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItem.h"
 #include "mwShot.h"
 #include "mwGameEvent.h"
 #include "mwLevel.h"
 #include "mwDemoRecord.h"
-
-
-mwEnemy mEnemy;
-
 
 void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 {
@@ -205,7 +200,6 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 
 void mwEnemy::draw_enemies()
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
    for (int e=0; e<100; e++)
       if (Ei[e][0])  // if enemy active
          draw_enemy(e, 0, 0, 0);
@@ -359,22 +353,22 @@ void mwEnemy::enemy_deathcount(int e)
    {
       Ei[e][0] = 0; // kill enemy
       for (int c=0; c<500; c++)
-         if (mItem.item[c][0] == 0) // find empty item
+         if (mLevel.mItem.item[c][0] == 0) // find empty item
          {
-            for (int y=0; y<16; y++) mItem.item[c][y] = 0; // clear item
-            mItem.item[c][0] = 2;           // type - bonus
-            mItem.item[c][1] = Ei[e][24];  // flower shape
-            mItem.item[c][2] = 1; // draw mode normal
-            mItem.item[c][3] = -1; // carryable
-            mItem.item[c][6] = 0; // bonus type 0 - health
-            mItem.item[c][7] = Ei[e][25];  //  life
-            mItem.item[c][8] = 0;
-            mItem.item[c][14] = 800; // time to live
+            for (int y=0; y<16; y++) mLevel.mItem.item[c][y] = 0; // clear item
+            mLevel.mItem.item[c][0] = 2;           // type - bonus
+            mLevel.mItem.item[c][1] = Ei[e][24];  // flower shape
+            mLevel.mItem.item[c][2] = 1; // draw mode normal
+            mLevel.mItem.item[c][3] = -1; // carryable
+            mLevel.mItem.item[c][6] = 0; // bonus type 0 - health
+            mLevel.mItem.item[c][7] = Ei[e][25];  //  life
+            mLevel.mItem.item[c][8] = 0;
+            mLevel.mItem.item[c][14] = 800; // time to live
 
-            mItem.itemf[c][0] = Ef[e][0];
-            mItem.itemf[c][1] = Ef[e][1];
-            mItem.itemf[c][2] = 0;
-            mItem.itemf[c][3] = 0;
+            mLevel.mItem.itemf[c][0] = Ef[e][0];
+            mLevel.mItem.itemf[c][1] = Ef[e][1];
+            mLevel.mItem.itemf[c][2] = 0;
+            mLevel.mItem.itemf[c][3] = 0;
             break; // end loop
          }
    }

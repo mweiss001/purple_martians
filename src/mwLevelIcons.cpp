@@ -6,9 +6,7 @@
 #include "mwDisplay.h"
 #include "mwFileIterator.h"
 #include "mwFont.h"
-#include "mwItem.h"
 #include "mwLevel.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwScreen.h"
 
@@ -55,12 +53,12 @@ void mwLevelIcons::create_level_icon(int level, int save_web)
    if (mLevel.load_level_by_number(level, 1, 1)) // load only, then do custom setup
    {
       mLevel.valid_level_loaded = 1;
-      mLift.lift_setup();
+      mLevel.mLift.lift_setup();
       for (int x=0; x<500; x++)
-         if (mItem.item[x][0]) // only if active set x y
+         if (mLevel.mItem.item[x][0]) // only if active set x y
          {
-            mItem.itemf[x][0] = mItem.item[x][4];
-            mItem.itemf[x][1] = mItem.item[x][5];
+            mLevel.mItem.itemf[x][0] = mLevel.mItem.item[x][4];
+            mLevel.mItem.itemf[x][1] = mLevel.mItem.item[x][5];
          }
 
       // draw blocks on level_background

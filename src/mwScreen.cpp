@@ -9,14 +9,11 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwDemoRecord.h"
 #include "mwEditorMain.h"
 #include "mwLoop.h"
-#include "mwItem.h"
 #include "mwMiscFnx.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShot.h"
 #include "mwInput.h"
@@ -659,8 +656,8 @@ void mwScreen::init_level_background() // fill level_background with block tiles
 
    // draw messages that are always on
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-         mItem.draw_message(i, 2);
+      if ((mLevel.mItem.item[i][0] == 10) && (mLevel.mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+         mLevel.mItem.draw_message(i, 2);
 
 //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 
@@ -673,9 +670,9 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
    if (mLevel.valid_level_loaded)
    {
       if (blocks)  get_new_background(1);
-      if (lifts)   mLift.draw_lifts();
-      if (items)   mItem.draw_items();
-      if (enemies) mEnemy.draw_enemies();
+      if (lifts)   mLevel.mLift.draw_lifts();
+      if (items)   mLevel.mItem.draw_items();
+      if (enemies) mLevel.mEnemy.draw_enemies();
       if (mLevel.resume_allowed)
       {
          if (players) mPlayer.draw_players();
@@ -687,7 +684,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
    if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
    {
       // first erase hidden regions (only in not in level editor)
-      if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+      if (!mLoop.level_editor_running) mLevel.mItem.erase_hider_areas();
 
       // this will show level stats on menu level
       //for (int i=0; i<500; i++)
@@ -777,20 +774,20 @@ void mwScreen::draw_level_info() // used only in menu
 
       y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
-      mItem.draw_line(x1, x2, y, "Status",                mLevel.level_status_text[mLevel.data[lev].status], mLevel.level_status_color[mLevel.data[lev].status]); y+=9;
+      mLevel.mItem.draw_line(x1, x2, y, "Status",                mLevel.level_status_text[mLevel.data[lev].status], mLevel.level_status_color[mLevel.data[lev].status]); y+=9;
 
 
       if (mLevel.data[lev].status < 2)
       {
 
-         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(     mLevel.data[lev].tot_coins, msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Purple Coins",       mLevel.mItem.chrd(     mLevel.data[lev].tot_coins, msg), 15); y+=9;
       }
       else // completed
       {
 
-         if (mLevel.data[lev].time_best < mLevel.data[lev].time_par) mItem.draw_line(x1, x2, y, "Time < Par",  "Yes", 8);
-         else                                                        mItem.draw_line(x1, x2, y, "Time < Par",  "No",  15);
+         if (mLevel.data[lev].time_best < mLevel.data[lev].time_par) mLevel.mItem.draw_line(x1, x2, y, "Time < Par",  "Yes", 8);
+         else                                                        mLevel.mItem.draw_line(x1, x2, y, "Time < Par",  "No",  15);
          y+=9;
 
 
@@ -798,27 +795,27 @@ void mwScreen::draw_level_info() // used only in menu
          int tpc = mLevel.data[lev].tot_coins;
          int pcc = 15;
          if (mpc >= tpc) pcc = 8;
-         mItem.draw_line(x1, x2, y, "Purple Coins",   mItem.chrd(mpc, tpc, msg), pcc); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Purple Coins",   mLevel.mItem.chrd(mpc, tpc, msg), pcc); y+=9;
 
          y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
-         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Min Time Overall",   mMiscFnx.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Min Time w/coins",   mMiscFnx.chrms( mLevel.data[lev].time_best_all_coins, msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Worst Time",         mMiscFnx.chrms( mLevel.data[lev].time_worst,          msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Average Time",       mMiscFnx.chrms( mLevel.data[lev].time_average,        msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Total Play Time",    mMiscFnx.chrms( mLevel.data[lev].time_total,          msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Min Time Overall",   mMiscFnx.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Min Time w/coins",   mMiscFnx.chrms( mLevel.data[lev].time_best_all_coins, msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Worst Time",         mMiscFnx.chrms( mLevel.data[lev].time_worst,          msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Average Time",       mMiscFnx.chrms( mLevel.data[lev].time_average,        msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Total Play Time",    mMiscFnx.chrms( mLevel.data[lev].time_total,          msg), 15); y+=9;
          y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
-         mItem.draw_line(x1, x2, y, "Times Played",       mItem.chrd(  mLevel.data[lev].times_played,        msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Times Completed",    mItem.chrd(  mLevel.data[lev].times_beat,          msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Times Quit",         mItem.chrd(  mLevel.data[lev].times_quit,          msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Times Played",       mLevel.mItem.chrd(  mLevel.data[lev].times_played,        msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Times Completed",    mLevel.mItem.chrd(  mLevel.data[lev].times_beat,          msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Times Quit",         mLevel.mItem.chrd(  mLevel.data[lev].times_quit,          msg), 15); y+=9;
 
          y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
-         mItem.draw_line(x1, x2, y, "Min Player Deaths",  mItem.chrd(  mLevel.data[lev].min_respawns,        msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Max Enemies Killed", mItem.chrd(  mLevel.data[lev].max_enemies_killed,  msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Min Enemies Left",   mItem.chrd(  mLevel.data[lev].min_enemies_left,    msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Min Player Deaths",  mLevel.mItem.chrd(  mLevel.data[lev].min_respawns,        msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Max Enemies Killed", mLevel.mItem.chrd(  mLevel.data[lev].max_enemies_killed,  msg), 15); y+=9;
+         mLevel.mItem.draw_line(x1, x2, y, "Min Enemies Left",   mLevel.mItem.chrd(  mLevel.data[lev].min_enemies_left,    msg), 15); y+=9;
       }
    }
 

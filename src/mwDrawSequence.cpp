@@ -5,18 +5,18 @@
 #include "mwPlayer.h"
 #include "mwDrawSequence.h"
 #include <limits>
+
+#include "mwBitmap.h"
 #include "mwFont.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwShot.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
 #include "mwDisplay.h"
 #include "mwGameState.h"
+#include "mwLevel.h"
 #include "mwMain.h"
 
 
@@ -83,22 +83,21 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
-
       if (setup_only) ds_add_names(i, "d-lift", "draw_lifts");
-      else { mLift.draw_lifts();  ds_add(i); }
+      else { mLevel.mLift.draw_lifts();  ds_add(i); }
 
 //      if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
       if (setup_only) ds_add_names(i, "d-item", "draw_items");
-      else { mItem.draw_items(); ds_add(i); }
+      else { mLevel.mItem.draw_items(); ds_add(i); }
 
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
       if (setup_only) ds_add_names(i, "d-enem", "draw_enemies");
-      else { mEnemy.draw_enemies(); ds_add(i); }
+      else { mLevel.mEnemy.draw_enemies(); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
@@ -118,7 +117,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
          // draw hover info
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-               mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
+               mLevel.mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
          ds_add(i);
       }
 
@@ -132,7 +131,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       if (setup_only) ds_add_names(i, "d-erhd", "erase hidden");
       else
       {
-          if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+          if (!mLoop.level_editor_running) mLevel.mItem.erase_hider_areas();
           ds_add(i);
       }
 
@@ -144,8 +143,8 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
          for (int i=0; i<500; i++)
-            if ((mItem.item[i][0] == 10) && (!strncmp(mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16)))
-               mItem.draw_pmsg(i, mItem.item[i][4], mItem.item[i][5], 0);
+            if ((mLevel.mItem.item[i][0] == 10) && (!strncmp(mLevel.mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16)))
+               mLevel.mItem.draw_pmsg(i, mLevel.mItem.item[i][4], mLevel.mItem.item[i][5], 0);
          ds_add(i);
       }
 
@@ -163,7 +162,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
          for (int c=0; c<500; c++)
-            if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 1)) mItem.draw_purple_coin_screen_direct(c);
+            if ((mLevel.mItem.item[c][0] == 2) && (mLevel.mItem.item[c][6] == 1)) mLevel.mItem.draw_purple_coin_screen_direct(c);
          ds_add(i);
       }
 
@@ -188,7 +187,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else
       {
          for (int e=0; e<100; e++)
-            if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
+            if (mLevel.mEnemy.Ei[e][0] == 19) mLevel.mEnemy.draw_crew_screen_direct(e);
          ds_add(i);
       }
 

@@ -17,7 +17,6 @@
 #include "mwGmInfo.h"
 #include "mwScreen.h"
 #include "mwMain.h"
-#include "mwItem.h"
 #include "mwMiscFnx.h"
 
 #include "mwSql.h"
@@ -513,7 +512,7 @@ void mwGameMoves::proc_game_move_player_active(int p, int color)
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
    {
-      mItem.set_player_start_pos(p);
+      mLevel.mItem.set_player_start_pos(p);
       mPlayer.syn[p].active = 1;
       mPlayer.loc[p].join_frame = mLoop.frame_num;
 

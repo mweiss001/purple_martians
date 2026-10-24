@@ -90,11 +90,9 @@ class mwEnemy
    void vinepod_mirror_y(int e);
 
 
-
    // mwEnemyFnx.cpp
    int is_player_in_enemy_trigger_box(int e);
    void set_enemy_rot_from_incs(int e);
-
 
    void set_enemy_rot_from_players_position(int e, int p, int extrapolate);
 
@@ -116,8 +114,8 @@ class mwEnemy
    int create_cloner();
    int create_vinepod();
 
+
 };
-extern mwEnemy mEnemy;
 
 #endif
 

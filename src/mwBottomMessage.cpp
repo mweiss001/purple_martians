@@ -7,8 +7,7 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
+#include "mwLevel.h"
 #include "mwMain.h"
 #include "mwSound.h"
 #include "mwScreen.h"
@@ -210,19 +209,19 @@ void mwBottomMessage::bm_draw_enemy(int e_type, int &xpos)
 {
    int de = disp_enemy;
 
-   ALLEGRO_BITMAP *tmp = mBitmap.sprite[mEnemy.enemy_tile[e_type]];
+   ALLEGRO_BITMAP *tmp = mBitmap.sprite[mLevel.mEnemy.enemy_tile[e_type]];
 
    if (de == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
-   if (de == 1) draw_text(xpos, 15, mEnemy.enemy_name[e_type][2]); // text only
+   if (de == 1) draw_text(xpos, 15, mLevel.mEnemy.enemy_name[e_type][2]); // text only
    if (de == 2) // tile + text
    {
       draw_bmp(tmp, xpos, 0, 0);
       xpos += 16;
-      draw_text(xpos, 15, mEnemy.enemy_name[e_type][2]);
+      draw_text(xpos, 15, mLevel.mEnemy.enemy_name[e_type][2]);
    }
    if (de == 3) // text + tile
    {
-      draw_text(xpos, 15, mEnemy.enemy_name[e_type][2]);
+      draw_text(xpos, 15, mLevel.mEnemy.enemy_name[e_type][2]);
       xpos += 16;
       draw_bmp(tmp, xpos, 0, 0);
    }
@@ -452,7 +451,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
       {
          custom_drawn = 1;
          draw_text(xpos, 15, " shot ");
-         bm_draw_enemy(mEnemy.Ei[z2][0], xpos);
+         bm_draw_enemy(mLevel.mEnemy.Ei[z2][0], xpos);
       }
 
 

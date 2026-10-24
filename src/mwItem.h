@@ -61,8 +61,9 @@ class mwItem
 
    void proc_gate_collision(int p, int i);
 
+   void draw_level_icon(int i);
 
-   void draw_level_icon(int i, int level, int status, int color);
+   void draw_gate_tile(int i);
 
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);
@@ -78,7 +79,7 @@ class mwItem
    char* chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
-   void show_page(int page, int xc, int bs, int by, int dir, int lev, int col, int status, int draw_mode);
+   void show_page(int page, int xc, int bs, int by, int lev, int col, int status);
 
 
 
@@ -194,9 +195,7 @@ class mwItem
 
    int create_hider(int i);
 
-
 };
-extern mwItem mItem;
 
 #endif
 
@@ -448,9 +447,8 @@ item[][1] = draw mode
 3 Draw Mode:Metal Door
 4 Draw Mode:Portcullis
 item[][2] =
-item[][3] = flags
-#define PM_ITEM_GATE_LEVEL_ICON_DIR  0b00000000000000001
-#define PM_ITEM_GATE_HOVER_PAGE_DIR  0b00000000000000010
+item[][3] = flags (not used)
+
 
 item[][4] = x pos
 item[][5] = y pos

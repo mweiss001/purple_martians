@@ -9,7 +9,7 @@
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwPlayer.h"
 #include "mwWidget.h"
@@ -258,7 +258,7 @@ void mwDemoRecord::start_record()
       int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
       mPlayer.init_player(p, 1);                  // full player reset
       mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
-      mItem.set_player_start_pos(p);              // set starting position
+      mLevel.mItem.set_player_start_pos(p);              // set starting position
 
       mPlayer.syn[p].active = 1;
 

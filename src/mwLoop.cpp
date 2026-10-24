@@ -32,9 +32,6 @@
 #include "mwHelp.h"
 
 #include "mwPlayer.h"
-#include "mwEnemy.h"
-#include "mwItem.h"
-#include "mwLift.h"
 #include "mwShot.h"
 #include "mwLevel.h"
 
@@ -135,12 +132,12 @@ void mwLoop::move_frame()
    double t[8] = { 0 };
    t[0] = al_get_time();
 
-   mShot.move_eshots();      t[1] = al_get_time();
-   mShot.move_pshots();      t[2] = al_get_time();
-   mLift.move_lifts(0);      t[3] = al_get_time();
-   mPlayer.move_players();   t[4] = al_get_time();
-   mEnemy.move_enemies();    t[5] = al_get_time();
-   mItem.move_items();       t[6] = al_get_time();
+   mShot.move_eshots();           t[1] = al_get_time();
+   mShot.move_pshots();           t[2] = al_get_time();
+   mLevel.mLift.move_lifts(0);    t[3] = al_get_time();
+   mPlayer.move_players();        t[4] = al_get_time();
+   mLevel.mEnemy.move_enemies();  t[5] = al_get_time();
+   mLevel.mItem.move_items();     t[6] = al_get_time();
 
    mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
@@ -850,7 +847,7 @@ void mwLoop::setup_players_after_level_load(int type)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
-      mItem.set_player_start_pos(p);    // get starting position for all players, active or not
+      mLevel.mItem.set_player_start_pos(p);    // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
 }

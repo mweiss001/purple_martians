@@ -6,7 +6,6 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwSolid.h"
@@ -33,10 +32,10 @@ void mwItem::proc_bomb_collision(int p, int i)
 
 void mwItem::proc_rocket_collision(int p, int i)
 {
-   mItem.item[i][0] = 98;   // new type - lit rocket
-   mItem.item[i][13] = p;   // mark player that lit rocket
-   mItem.item[i][1] = 1026; // new ans
-   if ((mItem.item[i][3] == 0) || (mItem.item[i][3] == 1)) mItem.item[i][3] = -1;  // if stat or fall set to carryable
+   item[i][0] = 98;   // new type - lit rocket
+   item[i][13] = p;   // mark player that lit rocket
+   item[i][1] = 1026; // new ans
+   if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
    itemf[i][3] = 0;   // stop if falling
    mGameEvent.add(26, 0, 0, p, i, 0, 0);
 }
@@ -45,14 +44,14 @@ void mwItem::proc_lit_rocket(int i)
 {
    mSound.lit_item = 1;
 
-   int accel = mItem.item[i][9];
-   int max_speed = mItem.item[i][8]*1000;
-   mItem.item[i][11] += accel;                                  // add accel to speed
-   if (mItem.item[i][11] > max_speed) mItem.item[i][11] = max_speed;  // enforce max speed
+   int accel = item[i][9];
+   int max_speed = item[i][8]*1000;
+   item[i][11] += accel;                                  // add accel to speed
+   if (item[i][11] > max_speed) item[i][11] = max_speed;  // enforce max speed
 
-   float angle = ((float) mItem.item[i][10] / 1000)-ALLEGRO_PI/2;
-   itemf[i][2] = (cos(angle) * mItem.item[i][11]) / 1000;
-   itemf[i][3] = (sin(angle) * mItem.item[i][11]) / 1000;
+   float angle = ((float) item[i][10] / 1000)-ALLEGRO_PI/2;
+   itemf[i][2] = (cos(angle) * item[i][11]) / 1000;
+   itemf[i][3] = (sin(angle) * item[i][11]) / 1000;
 
    itemf[i][0] += itemf[i][2]; // apply the increments
    itemf[i][1] += itemf[i][3];
@@ -72,13 +71,13 @@ void mwItem::proc_lit_rocket(int i)
       itemf[i][2] = 0;
       itemf[i][3] = 0;
 
-      mItem.item[i][0] = 99;   // change to lit bomb
-      mItem.item[i][6] = 2;    // mode 2; explosion
+      item[i][0] = 99;   // change to lit bomb
+      item[i][6] = 2;    // mode 2; explosion
 
-      mItem.item[i][3] = 1;   // not carryable (fall)
+      item[i][3] = 1;   // not carryable (fall)
 
-      mItem.item[i][8] = 20;   // explosion timer count
-      mItem.item[i][9] = 20;   // explosion timer limit
+      item[i][8] = 20;   // explosion timer count
+      item[i][9] = 20;   // explosion timer limit
 
       // if any players are riding this rocket, make them drop it
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -260,16 +259,16 @@ void mwItem::bomb_crosshairs(float x, float y)
 void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
-      if ((mEnemy.Ei[e][0]) && (! ((mEnemy.Ei[e][0] == 9) && mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
+      if ((mLevel.mEnemy.Ei[e][0]) && (! ((mLevel.mEnemy.Ei[e][0] == 9) && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
        {
-         float dist = sqrt(pow(mEnemy.Ef[e][0]-x, 2) + pow(mEnemy.Ef[e][1]-y, 2));
+         float dist = sqrt(pow(mLevel.mEnemy.Ef[e][0]-x, 2) + pow(mLevel.mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
          {
-            if (t == 1) bomb_crosshairs(mEnemy.Ef[e][0]+10, mEnemy.Ef[e][1]+10);
+            if (t == 1) bomb_crosshairs(mLevel.mEnemy.Ef[e][0]+10, mLevel.mEnemy.Ef[e][1]+10);
             if (t == 2)
             {
-               mEnemy.Ei[e][31] = 2; // set bomb hit
-               mEnemy.Ei[e][26] = mItem.item[i][13];  // player that did bomb
+               mLevel.mEnemy.Ei[e][31] = 2; // set bomb hit
+               mLevel.mEnemy.Ei[e][26] = item[i][13];  // player that did bomb
             }
          }
       }
@@ -296,10 +295,10 @@ void mwItem::bomb_players(int i, int t, int dr, float x, float y)
                mPlayer.loc[p].last_health_adjust = 0;
                bomb_crosshairs(mPlayer.syn[p].x + 10, mPlayer.syn[p].y + 10);
             }
-            if ((t == 2) && (mItem.item[i][8] == 0)) // only do damage once at end of explosion seq
+            if ((t == 2) && (item[i][8] == 0)) // only do damage once at end of explosion seq
             {
                mPlayer.syn[p].health -= damage;
-               int p2 = mItem.item[i][13]; // player that last touched bomb
+               int p2 = item[i][13]; // player that last touched bomb
                mGameEvent.add(40, 0, 0, p2, p, 2, dmg);
             }
          }
@@ -312,28 +311,28 @@ void mwItem::proc_lit_bomb(int i)
 
    // printf("lit bomb:%d 8:%d 14:%d\n", i, mItem.item[i][8], mItem.item[i][14]);
 
-   mItem.item[i][8]--; // timer dec
+   item[i][8]--; // timer dec
 
-   if (mItem.item[i][6] == 3) // remote detonator
+   if (item[i][6] == 3) // remote detonator
    {
-      if (mPlayer.syn[mItem.item[i][13]].down)
+      if (mPlayer.syn[item[i][13]].down)
       {
-         mItem.item[i][6] = 2; // mode 2; explosion
-         mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
+         item[i][6] = 2; // mode 2; explosion
+         item[i][8] = item[i][9] = 20; // explosion timer
       }
    }
 
-   if (mItem.item[i][6] == 1) // fuse burning
+   if (item[i][6] == 1) // fuse burning
    {
       mSound.lit_item = 1;
-      if (mItem.item[i][8] < 1) // fuse done
+      if (item[i][8] < 1) // fuse done
       {
 
          // printf("lit bomb:%d changing to explode mode\n", i);
 
 
-         mItem.item[i][6] = 2; // mode 2; explosion
-         mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
+         item[i][6] = 2; // mode 2; explosion
+         item[i][8] = item[i][9] = 20; // explosion timer
 
          // force player to drop item
          for (int p=0; p<NUM_PLAYERS; p++)
@@ -341,29 +340,29 @@ void mwItem::proc_lit_bomb(int i)
 
          // check for other co-located bombs
          for (int ii=0; ii<500; ii++)
-            if (mItem.item[ii][0] == 99) // lit bomb
+            if (item[ii][0] == 99) // lit bomb
                if (ii != i) // not this one
                   if (itemf[ii][0] == itemf[i][0]) // compare x
                      if (itemf[ii][1] == itemf[i][1]) // compare y
-                        if (mItem.item[ii][15] == mItem.item[i][15]) // check if created by same cloner
-                           mItem.item[ii][0] = 0; // delete item
+                        if (item[ii][15] == item[i][15]) // check if created by same cloner
+                           item[ii][0] = 0; // delete item
       }
    }
-   if (mItem.item[i][6] == 2) // explosion
+   if (item[i][6] == 2) // explosion
    {
       // printf("lit bomb:%d explosion mode 8:%d\n", i, mItem.item[i][8]);
 
-      float r = 1 - (float)mItem.item[i][8] / (float)mItem.item[i][9]; // ratio
-      int dr = (int) (  (float)mItem.item[i][7] * r); // damage range scaled by ratio
+      float r = 1 - (float)item[i][8] / (float)item[i][9]; // ratio
+      int dr = (int) (  (float)item[i][7] * r); // damage range scaled by ratio
 
       // do damage
       bomb_blocks( i, 2, dr, itemf[i][0], itemf[i][1]);
       bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
       bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
 
-      if (mItem.item[i][8] == 16) mGameEvent.add(2,0,0,0,0,0,0); // explosion sound
+      if (item[i][8] == 16) mGameEvent.add(2,0,0,0,0,0,0); // explosion sound
 
-      if (mItem.item[i][8] < 1) mItem.item[i][0] = 0; // explosion done, erase item
+      if (item[i][8] < 1) item[i][0] = 0; // explosion done, erase item
    }
 }
 
@@ -371,7 +370,7 @@ void mwItem::proc_lit_bomb(int i)
 
 int mwItem::draw_bomb(int i, int x, int y, int shape)
 {
-   if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0); // bomb sticky spikes
+   if (item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0); // bomb sticky spikes
 
    // either draw here and mark as drawn
    // al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
@@ -390,16 +389,16 @@ int mwItem::draw_lit_bomb(int i)
    int y = itemf[i][1];
    int fuse_seq = 96;
    int expl_seq = 97;
-   float r = 1 - (float)mItem.item[i][8] / (float)mItem.item[i][9]; // countdown timer ratio (0 - 1)
+   float r = 1 - (float)item[i][8] / (float)item[i][9]; // countdown timer ratio (0 - 1)
 
-   if (mItem.item[i][6] == 3) // remote detonator
+   if (item[i][6] == 3) // remote detonator
    {
       // draw bomb
       al_draw_bitmap(mBitmap.sprite[538], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
+      if (item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
 
       // get detonator position relative to player
-      int p = mItem.item[i][13];
+      int p = item[i][13];
       int xo = mPlayer.syn[p].left_right*28-14;
       int px = mPlayer.syn[p].x + xo;
       int py = mPlayer.syn[p].y + -1;
@@ -412,12 +411,12 @@ int mwItem::draw_lit_bomb(int i)
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mColor.pc[col], 2);
+      if (col) al_draw_circle(x+10, y+10, item[i][7], mColor.pc[col], 2);
 
    }
 
 
-   if (mItem.item[i][6] == 1) // fuse burning
+   if (item[i][6] == 1) // fuse burning
    {
       int num_seq_shapes = mBitmap.zz[4][fuse_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
@@ -426,7 +425,7 @@ int mwItem::draw_lit_bomb(int i)
 
       // draw bomb
       al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
+      if (item[i][11]) al_draw_bitmap(mBitmap.sprite[440], x, y, 0);  // bomb sticky spikes
 
       // show countdown clock
       float cr = 6; // clock radius
@@ -438,31 +437,31 @@ int mwItem::draw_lit_bomb(int i)
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mColor.pc[col], 2);
+      if (col) al_draw_circle(x+10, y+10, item[i][7], mColor.pc[col], 2);
 
    }
 
-   if (mItem.item[i][6] == 2) // explosion mode
+   if (item[i][6] == 2) // explosion mode
    {
       int num_seq_shapes = mBitmap.zz[4][expl_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
       int shape = mBitmap.zz[5+si][expl_seq];             // get shape to draw
 
       // set size of explosion
-      float max_scale = mItem.item[i][7] / 10;         // max scale = damage / 10
+      float max_scale = item[i][7] / 10;         // max scale = damage / 10
       float sc = .5 + (r) * max_scale;
       //printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
       al_draw_scaled_rotated_bitmap(mBitmap.sprite[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
 
       // show damage range circle
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r-8, mColor.pc[10], 1);
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r, mColor.pc[14], 2);
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r+8, mColor.pc[10], 1);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r-8, mColor.pc[10], 1);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r, mColor.pc[14], 2);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r+8, mColor.pc[10], 1);
    }
 
-   bomb_blocks( i, 1, mItem.item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
-   bomb_enemies(i, 1, mItem.item[i][7], itemf[i][0], itemf[i][1]); // mark enemies
-   bomb_players(i, 1, mItem.item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
+   bomb_blocks( i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
+   bomb_enemies(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark enemies
+   bomb_players(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
 
    // debug show sequence numbers
    //al_draw_textf(mFont.pr8, mColor.pc[15], x, y-20, 0, "%d / %d  %f ", mItem.item[i][8], mItem.item[i][9], (float)mItem.item[i][8]/(float)mItem.item[i][9]);
@@ -473,7 +472,7 @@ int mwItem::draw_lit_bomb(int i)
 
 int mwItem::draw_rocket(int i, int x, int y, int shape)
 {
-   float rot = (float) mItem.item[i][10] / 1000;
+   float rot = (float) item[i][10] / 1000;
    al_draw_rotated_bitmap(mBitmap.sprite[shape], 10, 10, x+10, y+10, rot, 0);
    draw_rocket_lines(i);
    return 1;
@@ -487,12 +486,12 @@ void mwItem::draw_rocket_lines(int i)
    float fx = fxi; // path variables
    float fy = fyi;
 
-   float speed = mItem.item[i][11];
+   float speed = item[i][11];
    if (speed < 2000) speed = 2000; // if moving too slow, lines won't be drawn
 
-   float angle = ((float) mItem.item[i][10] / 1000 ) - ALLEGRO_PI/2;
-   float fxinc = (cos(angle) * mItem.item[i][11]) / 1000;
-   float fyinc = (sin(angle) * mItem.item[i][11]) / 1000;
+   float angle = ((float) item[i][10] / 1000 ) - ALLEGRO_PI/2;
+   float fxinc = (cos(angle) * item[i][11]) / 1000;
+   float fyinc = (sin(angle) * item[i][11]) / 1000;
 
    for (int j=0; j<1000; j++)
    {
@@ -515,13 +514,13 @@ void mwItem::draw_rocket_lines(int i)
          float fyif = fyi+10;
 
          int col = seq_color2(); // color sequence
-         if (col) al_draw_circle(fxf, fyf, mItem.item[i][7], mColor.pc[col], 2); // show damage range circle
+         if (col) al_draw_circle(fxf, fyf, item[i][7], mColor.pc[col], 2); // show damage range circle
          al_draw_filled_circle(fxf, fyf, 5, mColor.pc[col]); // show center
          al_draw_line(fxif, fyif, fxf, fyf, mColor.pc[10+80], 0); // draw connecting line
 
-         bomb_blocks( i, 1, mItem.item[i][7], x, y); // mark blocks that will be destroyed
-         bomb_enemies(i, 1, mItem.item[i][7], x, y); // mark enemies that will be destroyed
-         bomb_players(i, 1, mItem.item[i][7], x, y); // mark players in damage range
+         bomb_blocks( i, 1, item[i][7], x, y); // mark blocks that will be destroyed
+         bomb_enemies(i, 1, item[i][7], x, y); // mark enemies that will be destroyed
+         bomb_players(i, 1, item[i][7], x, y); // mark players in damage range
 
          j = 1000; // to break out of loop
       }

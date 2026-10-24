@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
-#include "mwItem.h"
+//#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLift.h"
 #include "mwScreen.h"
@@ -11,6 +11,7 @@
 #include "mwInput.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
+#include "mwDisplay.h"
 #include "mwMiscFnx.h"
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
@@ -30,6 +31,7 @@ void mwLevel::set_start_level()
 
 void mwLevel::set_start_level(int s)
 {
+   //printf("set start level%d\n", s);
    if (s < 1  ) s = 1;
    if (s > 399) s = 399;
    play_level = start_level = s;
@@ -141,77 +143,81 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
    return empty;
 }
 
-
-// #define PML_SIZE 384720
-// #define PML_SIZE2 139720
-
 #define PML_SIZE 139720
-
-
 
 void mwLevel::pml_to_var(char * b) // for load level
 {
    int sz = 0, offset = 0;
-   sz = sizeof(mLevel.l);       memcpy(mLevel.l,       b+offset, sz); offset += sz;
+   sz = sizeof(l);              memcpy(l,              b+offset, sz); offset += sz;
    sz = sizeof(mItem.item);     memcpy(mItem.item,     b+offset, sz); offset += sz;
    sz = sizeof(mEnemy.Ei);      memcpy(mEnemy.Ei,      b+offset, sz); offset += sz;
    sz = sizeof(mEnemy.Ef);      memcpy(mEnemy.Ef,      b+offset, sz); offset += sz;
    sz = sizeof(mLift.cur);      memcpy(mLift.cur,      b+offset, sz); offset += sz;
    sz = sizeof(mLift.stp);      memcpy(mLift.stp,      b+offset, sz); offset += sz;
    sz = sizeof(mItem.mMessageText.messageTextA); memcpy(mItem.mMessageText.messageTextA, b+offset, sz); offset += sz;
-
    mItem.mMessageText.AtoV();
-
-   //   sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
-   // mItem.mMessageText.initialize();
-   //
-   // for (int c=0; c<500; c++)
-   //    if (mItem.item[c][0] == 10)
-   //    {
-   //       mItem.mMessageText.set_text(c, mItem.pmsgtext[c]);
-   //    }
-
-   // print message text
-   // for (auto tmp: mItem.mMessageText.messageTextV)
-   //    printf("%d - '%s'\n", tmp.index, tmp.text.c_str());
-
-
-
 }
-
-// void mwLevel::var_to_pml(char * b) // for save level
-// {
-//    int sz = 0, offset = 0;
-//    offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
-//    offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
-//    offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
-//    offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
-//    offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
-//    offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
-//    offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
-// }
 
 void mwLevel::var_to_pml(char * b) // for save level
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
+   offset += sz; sz = sizeof(l);              memcpy(b+offset, l,              sz);
    offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
    offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
    offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
    offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
    offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
-
-
    mItem.mMessageText.VtoA();
    offset += sz; sz = sizeof(mItem.mMessageText.messageTextA); memcpy(b+offset, mItem.mMessageText.messageTextA, sz);
 }
 
 
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
+{
+   if (load_level_by_number(level, 1, 0))
+   {
+      mLevel.valid_level_loaded = 1;
+      mLift.lift_setup();
+      for (int x=0; x<500; x++)
+         if (mItem.item[x][0]) // only if active set x y
+         {
+            mItem.itemf[x][0] = mItem.item[x][4];
+            mItem.itemf[x][1] = mItem.item[x][5];
+         }
 
+      // create a bitmap to draw the full level
+      ALLEGRO_BITMAP *tmp = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(tmp);
 
+      // draw all the blocks
+      al_hold_bitmap_drawing(1);
 
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            int tile = l[x][y];
 
+            // only draw tile if non-zero
+            if (tile & PM_BTILE_TILENUM_MASK) al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
+            // draw tile overlays
+            if ((tile & PM_BTILE_SHOW_OVERLAY)) mScreen.draw_tile_overlay(tile, x, y);
+         }
+      al_hold_bitmap_drawing(0);
+
+      mLift.draw_lifts();
+      mItem.draw_items();
+      mEnemy.draw_enemies();
+
+      if (b == NULL) al_set_target_backbuffer(mDisplay.display);
+      else al_set_target_bitmap(b);
+      al_draw_scaled_bitmap(tmp, 0, 0, 2000, 2000, mx, my, size, size, 0);
+
+      al_destroy_bitmap(tmp);
+      return 1;
+   }
+   return 0;
+}
 
 
 int mwLevel::load_level_visual_select()
@@ -220,6 +226,7 @@ int mwLevel::load_level_visual_select()
    mLevelEditor.reset_variables_on_level_change();
    return ret;
 }
+
 
 
 int mwLevel::load_level_file_dialog()
@@ -313,13 +320,7 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
       if (!load_only)
       {
-
-         if (level_num == 1)
-         {
-            set_overworld_barriers();
-            // if (!level_icons_loaded) load_level_icons();
-         }
-
+         if (level_num == 1) set_overworld_barriers();
 
          mLevel.valid_level_loaded = 1;
          mLift.lift_setup();
@@ -461,12 +462,10 @@ void mwLevel::zero_level_data()
       for (int x=0; x<100; x++)
            l[c][x] = 0;
 
-
    mItem.mMessageText.initialize();
 
    for (int c=0; c<500; c++)  // items
    {
-//      for (int x=0; x<500; x++) mItem.pmsgtext[c][x] = 0;
       for (int x=0; x<16; x++)  mItem.item[c][x] = 0;
       for (int x=0; x<4; x++)   mItem.itemf[c][x] = 0;
    }

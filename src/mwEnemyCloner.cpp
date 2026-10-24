@@ -6,9 +6,7 @@
 #include "mwBitmap.h"
 #include "mwShot.h"
 #include "mwSolid.h"
-#include "mwLift.h"
 #include "mwLoop.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
@@ -57,7 +55,7 @@ void mwEnemy::cloner_create(int e)
       for (int x=0; x<100; x++)
          if ((Ei[x][0]) && (Ei[x][28] == 1000 + e)) no++;
       for (int x=0; x<500; x++)
-         if ((mItem.item[x][0]) && (mItem.item[x][15] == 1000 + e)) no++;
+         if ((mLevel.mItem.item[x][0]) && (mLevel.mItem.item[x][15] == 1000 + e)) no++;
    }
    else cl = 600; // no limit is same as max limit
    if (no < cl) // if number of objects < create limit
@@ -91,10 +89,10 @@ void mwEnemy::cloner_create(int e)
 
       // check for items in box
       for (int b=0; b<500; b++)
-         if (mItem.item[b][0])
+         if (mLevel.mItem.item[b][0])
          {
-            float ix = mItem.itemf[b][0];
-            float iy = mItem.itemf[b][1];
+            float ix = mLevel.mItem.itemf[b][0];
+            float iy = mLevel.mItem.itemf[b][1];
             if ((ix > x1) && (ix < x2) && (iy > y1) && (iy < y2) && (no < cl))
             {
                // check if new position is empty
@@ -105,23 +103,23 @@ void mwEnemy::cloner_create(int e)
                if (mLevel.is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<500; c++)
-                     if (mItem.item[c][0] == 0) // found empty
+                     if (mLevel.mItem.item[c][0] == 0) // found empty
                      {
-                        for (int y=0; y<16; y++) mItem.item[c][y] = mItem.item[b][y];
-                        mItem.itemf[c][0]= new_x_pos;
-                        mItem.itemf[c][1]= new_y_pos;
-                        mItem.itemf[c][2]= 0;
-                        mItem.itemf[c][3]= 0;
+                        for (int y=0; y<16; y++) mLevel.mItem.item[c][y] = mLevel.mItem.item[b][y];
+                        mLevel.mItem.itemf[c][0]= new_x_pos;
+                        mLevel.mItem.itemf[c][1]= new_y_pos;
+                        mLevel.mItem.itemf[c][2]= 0;
+                        mLevel.mItem.itemf[c][3]= 0;
 
                         // are we copying something that already has an expiry date?? if so leave it
-                        if (mItem.item[b][14] == 0) mItem.item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
+                        if (mLevel.mItem.item[b][14] == 0) mLevel.mItem.item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
 
 //                        if (mItem.item[c][0] == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[b]); // message
 
-                        if (mItem.item[c][0] == 10) mItem.mMessageText.set_text(c, mItem.mMessageText.get_text(b).c_str()); // message
+                        if (mLevel.mItem.item[c][0] == 10) mLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(b).c_str()); // message
 
 
-                        mItem.item[c][15] = 1000+e;   // tag with cloner id
+                        mLevel.mItem.item[c][15] = 1000+e;   // tag with cloner id
                         c = 500; // end loop
                         no++;    // one more object created
                      }
@@ -153,7 +151,7 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
       {
          if (Ei[e][8])
          {
-            float rtio = mItem.get_timer_ratio_for_event(Ei[e][8]);
+            float rtio = mLevel.mItem.get_timer_ratio_for_event(Ei[e][8]);
             //printf("ratio:%f\n", rtio);
             float ns = mBitmap.zz[4][107]; // number of shapes
             float ni = ns * rtio;

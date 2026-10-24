@@ -46537,6 +46537,303 @@ look like I already did that in draw_gate...
 
 2026-10-24 06:33:42 commit then back to transitions
 
+I am mostly concerned with gate entry transitions
+
+
+
+void mwLoop::proc_gate_enter_mode()
+{
+   int seek_time = 30;
+   int rotate_time = 80;
+   int num_rotations = 2;
+   float final_scale = .1;
+
+
+
+added these to mLoop class:
+
+   int gate_enter_seek_time = 30;
+   int gate_enter_rotate_time = 80;
+   int gate_enter_num_rotations = 2;
+   float gate_enter_player_final_scale = .1;
+
+
+
+what about when gate is hovered, draw level behind gate and player
+
+this will be a big change:
+
+draw level name above level in both normal and hovered
+do not draw status
+
+draw level icon flush with floor, behind gate
+
+when hovered show text below just like I already do
+
+when entering do open door and seek to door just like I already do.
+
+then have the players seek to start position while enlarging the level
+this will tie into existing transitions
+
+do it fool!!!
+
+start with normal icon draw...done
+now hover
+
+in hover, how can I draw gate on top?
+
+
+info pages to move above gate icon
+
+as soon as enter is started force page to 0
+
+removed all traces of draw above and below flags
+
+removed more netgame status overides in gate_collision
+
+removed all custom dev gate drawing
+
+removed the shrink and rotate
+
+
+      // // show icon for purple coin achievement
+      // if (mLevel.data[lev].max_coins_collected == mLevel.data[lev].tot_coins)
+      //    al_draw_scaled_bitmap(mBitmap.sprite[197], 0, 0, 19, 19, x-5, y-10, 12, 12, 0);
+      //
+      // if ((mLevel.data[lev].time_best_all_coins > 0) && (mLevel.data[lev].time_best_all_coins < mLevel.data[lev].time_par))
+      //     al_draw_scaled_bitmap(mBitmap.tile[27], 0, 0, 13, 13, x+12, y-10, 13, 13, 0);
+
+      // draw crosshairs
+      // al_draw_line(xc, yc-10, xc, yc+10, mColor.Red, 1);
+      // al_draw_line(xc-10, yc, xc+10, yc, mColor.Red, 1);
+
+      // if ((mGameState.gate_enter_mode == 5) && (mGameState.gate_enter_item == i)) // shrink and rotate
+      // {
+      //    // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+      //    float rotate_time = mLoop.gate_enter_rotate_time;
+      //    float ratio = (rotate_time - mGameState.gate_enter_timer) / rotate_time;
+      //
+      //    // level icon size
+      //    float size = 200 * ratio;
+      //
+      //    // level icon x and y
+      //    float lx = xc - size/2;  // level icon x pos
+      //    float ly = yc - size/2;  // level icon y pos
+      //
+      //    al_draw_filled_rectangle(   lx, ly, lx+size+1, ly+size+1, mColor.pc[0]);      // clear
+      //    mLevelIcons.draw_level_icon(lx+1, ly+1, size, lev);                           // level icon
+      //    al_draw_rectangle(          lx, ly, lx+size+1, ly+size+1, mColor.pc[col], 1); // frame
+      // }
+
+
+
+2026-10-24 10:02:16
+
+Now I am at the point where I want to patch in the transition
+
+
+I have the hover level drawn with the gate on top,
+the player rotates and shrinks into the open gate...
+
+now what?
+
+can I find the start position of the next level?
+not without loading it
+
+so here we are again, wishing I could load a level into an alternate level structure...
+am I stuck on this?
+
+right now a level has:
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 38400
+mMessageTextA  :  5000
+mItem.mMessageText.messageTextA
+
+
+what would be logical was if mLevel owned the intances of item, enemies, lifts....
+
+
+then I could just have a separate intance of mwLevel
+
+
+it would make the variable names longer
+
+mItem.item[0][4]
+
+mLevel.mItem.item[0][4]
+
+
+I think I can do this...
+
+start with item
+
+
+class mwLevel
+{
+   public:
+
+   int l[100][100];
+   mwItem mItem;
+
+
+then remove the global mItem
+
+
+fix all...
+
+2026-10-24 10:21:37
+
+2026-10-24 11:36:27
+
+holy shit! there were a lot...
+
+now do enemy
+
+2026-10-24 12:05:02
+
+next would be lifts
+
+do it fool!!
+
+2026-10-24 12:19:15
+
+done!!!
+
+now what?
+
+
+can I create a new instance of level, then load a level and get some info without messing anything else up?
+
+try it fool!
+
+I can!!!
+
+
+mwLevel l2;
+
+l2.load_level_by_number(lev, 1, 0);
+
+for (int i=0; i<500; i++)
+   if (l2.mItem.item[i][0] == 5 && l2.mItem.item[i][7] == 0) // find start with index 0
+   {
+      printf("Next Level:%d - x:%d y:%d", lev, l2.mItem.item[i][4], l2.mItem.item[i][5]);
+   }
+
+
+
+later I want to try to do other things like draw the level on to a bitmap
+
+I want to do this in visual level...
+
+hell, try it now, see how easy it might be
+
+I will need to pass either mLevel or something else
+
+or I could make draw a member of mwLevel...
+
+
+2026-10-24 14:48:01
+I now have it so that visual level select in the game does not affect resumable game!!!
+It is the same in level editor!!!
+
+
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
+{
+   if (load_level_by_number(level, 1, 0))
+   {
+      mLevel.valid_level_loaded = 1;
+      mLift.lift_setup();
+      for (int x=0; x<500; x++)
+         if (mItem.item[x][0]) // only if active set x y
+         {
+            mItem.itemf[x][0] = mItem.item[x][4];
+            mItem.itemf[x][1] = mItem.item[x][5];
+         }
+
+      // create a bitmap to draw the full level
+      ALLEGRO_BITMAP *tmp = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(tmp);
+
+      // draw all the blocks
+      al_hold_bitmap_drawing(1);
+
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            int tile = l[x][y];
+
+            // only draw tile if non-zero
+            if (tile & PM_BTILE_TILENUM_MASK) al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
+
+            // draw tile overlays
+            if ((tile & PM_BTILE_SHOW_OVERLAY)) mScreen.draw_tile_overlay(tile, x, y);
+         }
+      al_hold_bitmap_drawing(0);
+
+      mLift.draw_lifts();
+      mItem.draw_items();
+      mEnemy.draw_enemies();
+
+      if (b == NULL) al_set_target_backbuffer(mDisplay.display);
+      else al_set_target_bitmap(b);
+      al_draw_scaled_bitmap(tmp, 0, 0, 2000, 2000, mx, my, size, size, 0);
+
+      al_destroy_bitmap(tmp);
+      return 1;
+   }
+   return 0;
+}
+
+
+   mwLevel l2;
+   if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3))
+   {
+      int ty1 = l2.show_level_data(x1+2, y2+32+24, 0);
+      for (int a=0; a<16; a++)
+         al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mColor.pc[fc + (15-a)*16], 1 );
+   }
+   else al_draw_text(mFont.pr8, mColor.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
+
+   // if (mLevel.load_level_by_number(cur, 0, 1))
+   // {
+   //    mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
+   //    int ty1 = mLevel.show_level_data(x1+2, y2+32+24, 0);
+   //    for (int a=0; a<16; a++)
+   //       al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mColor.pc[fc + (15-a)*16], 1 );
+   // }
+   // else al_draw_text(mFont.pr8, mColor.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
+
+
+2026-10-24 14:53:31
+
+I should commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

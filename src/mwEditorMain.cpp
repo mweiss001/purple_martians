@@ -6,16 +6,13 @@
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwEditSelection.h"
-#include "mwEnemy.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
 #include "mwGlobalLevelTool.h"
 #include "mwHelp.h"
 #include "mwInput.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwLevelEditor.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
@@ -83,10 +80,10 @@ void mwEditorMain::show_draw_item_cursor()
             else al_draw_bitmap(mBitmap.tile[num & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
          break;
          case 2: // item
-            mItem.draw_item(num, 1, x*20, y*20);
+            mLevel.mItem.draw_item(num, 1, x*20, y*20);
          break;
          case 3: // enemy
-            mEnemy.draw_enemy(num, 1, x*20, y*20);
+            mLevel.mEnemy.draw_enemy(num, 1, x*20, y*20);
          break;
          case 5: // PDE
             int a = mSelectionWindow.pdes[num].ia[1]; // bmp or ans
@@ -111,25 +108,25 @@ void mwEditorMain::show_item_info(int x, int y, int color, int type, int num)
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", get_text_description_of_block_based_on_flags(num, msg));
       break;
       case 2:
-         mItem.draw_item(num, 1, x, y);
-         a = mItem.item[num][0]; // type
-         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mItem.item_name[a]);
-         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mItem.item_first_num[a], mItem.item_num_of_type[a]);
+         mLevel.mItem.draw_item(num, 1, x, y);
+         a = mLevel.mItem.item[num][0]; // type
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mLevel.mItem.item_name[a]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mLevel.mItem.item_first_num[a], mLevel.mItem.item_num_of_type[a]);
       break;
       case 3:
-         mEnemy.draw_enemy(num, 1, x, y);
-         a = mEnemy.Ei[num][0]; // type
-         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mEnemy.enemy_name[a][0]);
-         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mEnemy.e_first_num[a], mEnemy.e_num_of_type[a]);
+         mLevel.mEnemy.draw_enemy(num, 1, x, y);
+         a = mLevel.mEnemy.Ei[num][0]; // type
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mLevel.mEnemy.enemy_name[a][0]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mLevel.mEnemy.e_first_num[a], mLevel.mEnemy.e_num_of_type[a]);
       break;
       case 4:
       {
-         int col = mLift.cur[num].color;
-         int width = mLift.cur[num].w;
+         int col = mLevel.mLift.cur[num].color;
+         int width = mLevel.mLift.cur[num].w;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
             al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mColor.pc[col+((9-a)*16)], 1 );
-         al_draw_text(mFont.pr8, mColor.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, mLift.cur[num].lift_name);
+         al_draw_text(mFont.pr8, mColor.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, mLevel.mLift.cur[num].lift_name);
       }
       break;
       case 5:
@@ -158,10 +155,10 @@ void mwEditorMain::find_point_item()
        mo[a][1] = 0;
    }
    for (int i=0; i<500; i++) // check for item
-      if ((mItem.item[i][0]) && (ob < max_ob))
+      if ((mLevel.mItem.item[i][0]) && (ob < max_ob))
       {
-         int x = mItem.item[i][4];
-         int y = mItem.item[i][5];
+         int x = mLevel.mItem.item[i][4];
+         int y = mLevel.mItem.item[i][5];
          if ( (mLevelEditor.hx >= x) && (mLevelEditor.hx <= x+19) && (mLevelEditor.hy > y) && (mLevelEditor.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 2;
@@ -170,10 +167,10 @@ void mwEditorMain::find_point_item()
          }
       }
    for (int e=0; e<100; e++) // check for enemy
-      if ((mEnemy.Ei[e][0]) && (ob < max_ob))
+      if ((mLevel.mEnemy.Ei[e][0]) && (ob < max_ob))
       {
-         int x = mEnemy.Ef[e][0];
-         int y = mEnemy.Ef[e][1];
+         int x = mLevel.mEnemy.Ef[e][0];
+         int y = mLevel.mEnemy.Ef[e][1];
          if ( (mLevelEditor.hx >= x) && (mLevelEditor.hx <= x+19) && (mLevelEditor.hy > y) && (mLevelEditor.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 3;
@@ -182,10 +179,10 @@ void mwEditorMain::find_point_item()
          }
       }
    for (int l=0; l<NUM_LIFTS; l++) // check for lifts
-      if (mLift.cur[l].active)
+      if (mLevel.mLift.cur[l].active)
       {
-         int x = mLift.cur[l].x;
-         int y = mLift.cur[l].y;
+         int x = mLevel.mLift.cur[l].x;
+         int y = mLevel.mLift.cur[l].y;
          if ( (mLevelEditor.hx >= x) && (mLevelEditor.hx <= x+19) && (mLevelEditor.hy > y) && (mLevelEditor.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 4;
@@ -234,47 +231,47 @@ void mwEditorMain::process_mouse_on_background()
          break;
          case 2: // item
          {
-            int type = mItem.item[din][0];
-            int ofx = mLevelEditor.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
-            int ofy = mLevelEditor.gy*20 - mItem.item[din][5];
-            int c = mItem.get_empty_item(); // get a place to put it
+            int type = mLevel.mItem.item[din][0];
+            int ofx = mLevelEditor.gx*20 - mLevel.mItem.item[din][4]; // get offset of move in 2000 format
+            int ofy = mLevelEditor.gy*20 - mLevel.mItem.item[din][5];
+            int c = mLevel.mItem.get_empty_item(); // get a place to put it
             //printf("din:%d c:%d\n", din, c);
             if (c == -1)  break;
-            for (int b=0; b<16; b++) mItem.item[c][b] = mItem.item[din][b]; // copy from draw item
+            for (int b=0; b<16; b++) mLevel.mItem.item[c][b] = mLevel.mItem.item[din][b]; // copy from draw item
 
-            mItem.item[c][4] += ofx; // adjust with offsets
-            mItem.item[c][5] += ofy;
+            mLevel.mItem.item[c][4] += ofx; // adjust with offsets
+            mLevel.mItem.item[c][5] += ofy;
 
-            if (mItem.item_secondary67(type))
+            if (mLevel.mItem.item_secondary67(type))
             {
-               mItem.item[c][6] += ofx; // adjust with offsets
-               mItem.item[c][7] += ofy;
+               mLevel.mItem.item[c][6] += ofx; // adjust with offsets
+               mLevel.mItem.item[c][7] += ofy;
             }
-            if (type == 10) mItem.mMessageText.set_text(c, mItem.mMessageText.get_text(din).c_str()); // message
-            mItem.sort_item(1);
+            if (type == 10) mLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(din).c_str()); // message
+            mLevel.mItem.sort_item(1);
          }
          break;
          case 3: // enemy
          {
-            int type = mEnemy.Ei[din][0];
+            int type = mLevel.mEnemy.Ei[din][0];
 
-            int ofx = mLevelEditor.gx*20 - mEnemy.Ef[din][0]; // get offset of move in 2000 format
-            int ofy = mLevelEditor.gy*20 - mEnemy.Ef[din][1];
+            int ofx = mLevelEditor.gx*20 - mLevel.mEnemy.Ef[din][0]; // get offset of move in 2000 format
+            int ofy = mLevelEditor.gy*20 - mLevel.mEnemy.Ef[din][1];
 
-            int c = mEnemy.get_empty_enemy(type); // get a place to put it
+            int c = mLevel.mEnemy.get_empty_enemy(type); // get a place to put it
             if (c == -1)  break;
-            for (int x=0; x<32; x++) mEnemy.Ei[c][x] = mEnemy.Ei[din][x];
-            for (int x=0; x<16; x++) mEnemy.Ef[c][x] = mEnemy.Ef[din][x];
+            for (int x=0; x<32; x++) mLevel.mEnemy.Ei[c][x] = mLevel.mEnemy.Ei[din][x];
+            for (int x=0; x<16; x++) mLevel.mEnemy.Ef[c][x] = mLevel.mEnemy.Ef[din][x];
 
-            mEnemy.Ef[c][0] += ofx;  // apply offsets
-            mEnemy.Ef[c][1] += ofy;
+            mLevel.mEnemy.Ef[c][0] += ofx;  // apply offsets
+            mLevel.mEnemy.Ef[c][1] += ofy;
 
             if (type == 7) // vinepod
             {
                for (int i=3; i<13; i+=2) // move all spline and trigger x y also
                {
-                  mEnemy.Ei[c][i+0] = mEnemy.Ei[din][i+0] + ofx;
-                  mEnemy.Ei[c][i+1] = mEnemy.Ei[din][i+1] + ofy;
+                  mLevel.mEnemy.Ei[c][i+0] = mLevel.mEnemy.Ei[din][i+0] + ofx;
+                  mLevel.mEnemy.Ei[c][i+1] = mLevel.mEnemy.Ei[din][i+1] + ofy;
                }
             }
             if (type == 9) // cloner
@@ -282,43 +279,43 @@ void mwEditorMain::process_mouse_on_background()
                //if (al_show_native_message_box(mDisplay.display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                if (mInput.SHFT()) // move stuff also
                {
-                  mEnemy.Ei[c][15] = mEnemy.Ei[din][15] + ofx;
-                  mEnemy.Ei[c][16] = mEnemy.Ei[din][16] + ofy;
-                  mEnemy.Ei[c][17] = mEnemy.Ei[din][17] + ofx;
-                  mEnemy.Ei[c][18] = mEnemy.Ei[din][18] + ofy;
+                  mLevel.mEnemy.Ei[c][15] = mLevel.mEnemy.Ei[din][15] + ofx;
+                  mLevel.mEnemy.Ei[c][16] = mLevel.mEnemy.Ei[din][16] + ofy;
+                  mLevel.mEnemy.Ei[c][17] = mLevel.mEnemy.Ei[din][17] + ofx;
+                  mLevel.mEnemy.Ei[c][18] = mLevel.mEnemy.Ei[din][18] + ofy;
                }
             }
-            mEnemy.sort_enemy();
+            mLevel.mEnemy.sort_enemy();
          }
          break;
          case 5: // PDE
             if ((mSelectionWindow.pdes[din].ia[0] > 99) && (mSelectionWindow.pdes[din].ia[0] < 200)) // PDE item
             {
-               int d = mItem.get_empty_item(); // get a place to put it
+               int d = mLevel.mItem.get_empty_item(); // get a place to put it
                if (d == -1)  break;
                // copy from pde
                for (int x=0; x<16; x++) // item
-                  mItem.item[d][x] = mSelectionWindow.pdes[din].ia[x];
-               mItem.item[d][0] -= 100;
-               mItem.item[d][4] = mLevelEditor.gx*20;
-               mItem.item[d][5] = mLevelEditor.gy*20;
-               if (mItem.item[d][0] == 4)
+                  mLevel.mItem.item[d][x] = mSelectionWindow.pdes[din].ia[x];
+               mLevel.mItem.item[d][0] -= 100;
+               mLevel.mItem.item[d][4] = mLevelEditor.gx*20;
+               mLevel.mItem.item[d][5] = mLevelEditor.gy*20;
+               if (mLevel.mItem.item[d][0] == 4)
                {
-                  mItem.itemf[d][0] = mItem.item[d][4];
-                  mItem.itemf[d][1] = mItem.item[d][5];
-                  mMiscFnx.get_block_range("Block Range", mItem.item[d][6], mItem.item[d][7], mItem.item[d][8], mItem.item[d][9], 1);
+                  mLevel.mItem.itemf[d][0] = mLevel.mItem.item[d][4];
+                  mLevel.mItem.itemf[d][1] = mLevel.mItem.item[d][5];
+                  mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[d][6], mLevel.mItem.item[d][7], mLevel.mItem.item[d][8], mLevel.mItem.item[d][9], 1);
                }
-               mItem.sort_item(1);
+               mLevel.mItem.sort_item(1);
             }
             if (mSelectionWindow.pdes[din].ia[0] < 99) // PDE enemy
             {
-               int d = mEnemy.get_empty_enemy(); // get a place to put it
+               int d = mLevel.mEnemy.get_empty_enemy(); // get a place to put it
                if (d == -1)  break;
-               for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mSelectionWindow.pdes[din].ia[x];
-               for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mSelectionWindow.pdes[din].fa[x];
-               mEnemy.Ef[d][0] = mLevelEditor.gx*20;  // set new x,y
-               mEnemy.Ef[d][1] = mLevelEditor.gy*20;
-               mEnemy.sort_enemy();
+               for (int x=0; x<32; x++) mLevel.mEnemy.Ei[d][x] = mSelectionWindow.pdes[din].ia[x];
+               for (int x=0; x<16; x++) mLevel.mEnemy.Ef[d][x] = mSelectionWindow.pdes[din].fa[x];
+               mLevel.mEnemy.Ef[d][0] = mLevelEditor.gx*20;  // set new x,y
+               mLevel.mEnemy.Ef[d][1] = mLevelEditor.gy*20;
+               mLevel.mEnemy.sort_enemy();
             }
          break;
       } // end of switch case
@@ -335,18 +332,18 @@ void mwEditorMain::process_mouse_on_background()
             sprintf(mMenu.menu_string[2], "Copy Block");
          break;
          case 2:
-            sprintf(mMenu.menu_string[2], "Copy %s",   mItem.item_name[mItem.item[point_item_num][0]]);
-            sprintf(mMenu.menu_string[3], "View %s",   mItem.item_name[mItem.item[point_item_num][0]]);
-            sprintf(mMenu.menu_string[4], "Delete %s", mItem.item_name[mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[2], "Copy %s",   mLevel.mItem.item_name[mLevel.mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[3], "View %s",   mLevel.mItem.item_name[mLevel.mItem.item[point_item_num][0]]);
+            sprintf(mMenu.menu_string[4], "Delete %s", mLevel.mItem.item_name[mLevel.mItem.item[point_item_num][0]]);
          break;
          case 3:
-            sprintf(mMenu.menu_string[2], "Copy %s",   mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[3], "View %s",   mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[4], "Delete %s", mEnemy.enemy_name[mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[2], "Copy %s",   mLevel.mEnemy.enemy_name[mLevel.mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[3], "View %s",   mLevel.mEnemy.enemy_name[mLevel.mEnemy.Ei[point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[4], "Delete %s", mLevel.mEnemy.enemy_name[mLevel.mEnemy.Ei[point_item_num][0]][0]);
          break;
          case 4:
-            sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[point_item_num].lift_name);
-            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[point_item_num].lift_name);
+            sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLevel.mLift.cur[point_item_num].lift_name);
+            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLevel.mLift.cur[point_item_num].lift_name);
          break;
       }
 
@@ -374,8 +371,8 @@ void mwEditorMain::process_mouse_on_background()
                      draw_item_type = 1;
                      draw_item_num = 0;
                   }
-                  mItem.clear_item(point_item_num);
-                  mItem.sort_item(1);
+                  mLevel.mItem.clear_item(point_item_num);
+                  mLevel.mItem.sort_item(1);
                break;
                case 3: // delete enemy
                   if ((draw_item_type == 3) && (draw_item_num == point_item_num)) // are you deleting the draw item?
@@ -383,11 +380,11 @@ void mwEditorMain::process_mouse_on_background()
                      draw_item_type = 1;
                      draw_item_num = 0;
                   }
-                  mEnemy.clear_enemy(point_item_num);
-                  mEnemy.sort_enemy();
+                  mLevel.mEnemy.clear_enemy(point_item_num);
+                  mLevel.mEnemy.sort_enemy();
                break;
                case 4: // delete lift
-                  mLift.erase_lift(point_item_num);
+                  mLevel.mLift.erase_lift(point_item_num);
                break;
             }
          break;
@@ -846,10 +843,10 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       strcpy(mMenu.menu_string[7],"Show Level Data");
       strcpy(mMenu.menu_string[8],"end");
       int ret = mMenu.tmenu(1, x1+2, by1);
-      if (ret == 1) mItem.show_all_items();
-      if (ret == 2) mEnemy.show_all_enemies();
-      if (ret == 3) mLift.show_all_lifts();
-      if (ret == 4) mItem.show_all_pmsg();
+      if (ret == 1) mLevel.mItem.show_all_items();
+      if (ret == 2) mLevel.mEnemy.show_all_enemies();
+      if (ret == 3) mLevel.mLift.show_all_lifts();
+      if (ret == 4) mLevel.mItem.show_all_pmsg();
       if (ret == 5) mTriggerEvent.show_all_events();
       if (ret == 6) mLevel.level_check();
       if (ret == 7) mLevel.show_level_data(40, 40, 1);

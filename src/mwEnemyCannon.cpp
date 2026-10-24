@@ -175,11 +175,11 @@ void mwEnemy::move_bouncer(int e)
 void mwEnemy::scale_bouncer_and_cannon_speed(int e)
 {
    // new v
-   float nv =  mEnemy.Ef[e][5];
+   float nv =  Ef[e][5];
 
    // get the original x and y velocities
-   float oxv = mEnemy.Ef[e][2];
-   float oyv = mEnemy.Ef[e][3];
+   float oxv = Ef[e][2];
+   float oyv = Ef[e][3];
 
    // get the combined original velocity
    float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
@@ -187,8 +187,8 @@ void mwEnemy::scale_bouncer_and_cannon_speed(int e)
    // if this was previously stationary, set direction to 100% up
    if (ov == 0)
    {
-      mEnemy.Ef[e][3] = -mEnemy.Ef[e][5];
-      mEnemy.set_enemy_rot_from_incs(e); // set rotation
+      Ef[e][3] = -Ef[e][5];
+      set_enemy_rot_from_incs(e); // set rotation
    }
    else
    {
@@ -201,13 +201,13 @@ void mwEnemy::scale_bouncer_and_cannon_speed(int e)
          oxv *= sc;
          oyv *= sc;
 
-         mEnemy.Ef[e][2] = oxv;
-         mEnemy.Ef[e][3] = oyv;
+         Ef[e][2] = oxv;
+         Ef[e][3] = oyv;
       }
       else // if new speed not > 0, zero both x and y
       {
-         mEnemy.Ef[e][2] = 0;
-         mEnemy.Ef[e][3] = 0;
+         Ef[e][2] = 0;
+         Ef[e][3] = 0;
       }
 
    }
@@ -217,14 +217,14 @@ void mwEnemy::scale_bouncer_and_cannon_speed(int e)
 // used only in sliders for button set new direction (cannon and podzilla)
 void mwEnemy::set_new_initial_direction(int e, int x2, int y2)
 {
-   float xlen = x2 - mEnemy.Ef[e][0];                 // get the x distance between enemy and x2
-   float ylen = y2 - mEnemy.Ef[e][1];                 // get the y distance between enemy and y2
+   float xlen = x2 - Ef[e][0];                 // get the x distance between enemy and x2
+   float ylen = y2 - Ef[e][1];                 // get the y distance between enemy and y2
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2)); // hypotenuse distance
-   float speed = mEnemy.Ef[e][5];                     // speed
+   float speed = Ef[e][5];                     // speed
    float scaler = hy_dist / speed;                    // get scaler
-   mEnemy.Ef[e][2] = xlen / scaler;                   // calc xinc
-   mEnemy.Ef[e][3] = ylen / scaler;                   // calc yinc
-   mEnemy.Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
+   Ef[e][2] = xlen / scaler;                   // calc xinc
+   Ef[e][3] = ylen / scaler;                   // calc yinc
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
 }
 
 

@@ -5,13 +5,10 @@
 #include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwLoop.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwMain.h"
@@ -491,14 +488,16 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
-   if (mLevel.load_level_by_number(cur, 0, 1))
+
+   mwLevel l2;
+   if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3))
    {
-      mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
-      int ty1 = mLevel.show_level_data(x1+2, y2+32+24, 0);
+      int ty1 = l2.show_level_data(x1+2, y2+32+24, 0);
       for (int a=0; a<16; a++)
          al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mColor.pc[fc + (15-a)*16], 1 );
    }
    else al_draw_text(mFont.pr8, mColor.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
+
 }
 
 
@@ -637,6 +636,9 @@ int mwVisualLevel::visual_level_select(int max_level)
 
    // this function will reload level, so this is our last chance to save it
    if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
+
+
+
 
    mLoop.visual_level_select_running = 1;
    load_visual_level_select_done = 0;
@@ -829,7 +831,6 @@ int mwVisualLevel::visual_level_select(int max_level)
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3])
       {
-         mLevel.set_start_level(selected_level);
          quit = 2;
       }
    }

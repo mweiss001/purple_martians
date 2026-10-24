@@ -4,9 +4,9 @@
 #include "mwEnemy.h"
 #include "mwPlayer.h"
 #include "mwBitmap.h"
+#include "mwLevel.h"
 #include "mwShot.h"
 #include "mwSolid.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 
 //-------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void mwEnemy::move_jumpworm(int e)
    if (ret >= 32) // on lift
    {
       on_lift = 1;
-      Ef[e][1] += mLift.cur[ret-32].yinc;  // move with lift
+      Ef[e][1] += mLevel.mLift.cur[ret-32].yinc;  // move with lift
    }
 
    // x move when on ground (0-4 move) (5-9 retract)

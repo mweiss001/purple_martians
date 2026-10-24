@@ -9,9 +9,8 @@
 #include "mwFont.h"
 #include "mwHelp.h"
 #include "mwInput.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwLevelEditor.h"
-#include "mwLift.h"
 #include "mwLoop.h"
 #include "mwObjectViewer.h"
 #include "mwScreen.h"
@@ -1164,11 +1163,11 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
                         case 204: mObjectViewer.create_obj(3, 7, 0);  break; // vinepod
                         case 206: mObjectViewer.create_obj(2, 10,0);  break; // msg
                         case 207: mObjectViewer.create_obj(3, 9, 0);  break; // cloner
-                        case 208: mLift.create_lift();  break; // lift
+                        case 208: mLevel.mLift.create_lift();  break; // lift
 
-                        case 209: mItem.create_door(1); break; // single door item
-                        case 210: mItem.create_door(2); break; // one way linked exit door
-                        case 211: mItem.create_door(3); break; // two way door set
+                        case 209: mLevel.mItem.create_door(1); break; // single door item
+                        case 210: mLevel.mItem.create_door(2); break; // one way linked exit door
+                        case 211: mLevel.mItem.create_door(3); break; // two way door set
 
                         case 213: mObjectViewer.create_obj(2, 9, 0);  break; // trigger
                         case 214: mObjectViewer.create_obj(2, 16, 0); break; // block manip

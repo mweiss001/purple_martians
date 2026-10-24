@@ -150,24 +150,24 @@ void mwItem::proc_pmsg_collision(int i)
 void mwItem::proc_pmsg_reset_timer(int i)
 {
    int timer_count=0, timer_val=0;
-   mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
    timer_count = timer_val;
-   mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.set_int_3216(item[i][12], timer_count, timer_val);
 }
 
 void mwItem::proc_pmsg_countdown_timer(int i)
 {
    int timer_count=0, timer_val=0;
-   mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
    if (timer_count > 0) timer_count--;
-   mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.set_int_3216(item[i][12], timer_count, timer_val);
 }
 
 
 
 void mwItem::proc_pmsg(int i)
 {
-   if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
+   if (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
    {
       // count down the timer
       proc_pmsg_countdown_timer(i);
@@ -481,7 +481,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
       f[1] = (char)NULL;
       char_count = 1;
 
-      mItem.mMessageText.set_text(c, f);
+      mMessageText.set_text(c, f);
 
 
    }
@@ -489,7 +489,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    {
 //      strcpy(f, pmsgtext[c]);
 
-      strcpy(f, mItem.mMessageText.get_text(c).c_str());
+      strcpy(f, mMessageText.get_text(c).c_str());
 
 
       char_count = strlen(f);
@@ -622,7 +622,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    if (bad) return 0;
    else
    {
-      mItem.mMessageText.set_text(c, f);
+      mMessageText.set_text(c, f);
       return 1;
    }
 }

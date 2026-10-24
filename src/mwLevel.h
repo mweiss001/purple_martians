@@ -2,6 +2,9 @@
 
 #ifndef PM_MWLEVEL_H
 #define PM_MWLEVEL_H
+#include "mwEnemy.h"
+#include "mwItem.h"
+#include "mwLift.h"
 
 
 struct level_data
@@ -51,6 +54,12 @@ class mwLevel
    public:
 
    int l[100][100];
+
+   mwItem mItem;
+   mwEnemy mEnemy;
+   mwLift mLift;
+
+   int draw_level3(ALLEGRO_BITMAP *b, int level, int x, int y, int size);
 
    int start_level;
    int play_level;

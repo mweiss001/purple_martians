@@ -12,7 +12,7 @@
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwMenu.h"
 #include "mwLoop.h"
@@ -20,10 +20,6 @@
 #include "mwObjectViewer.h"
 #include "mwScreen.h"
 
-
-
-
-mwLift mLift;
 
 mwLift::mwLift()
 {
@@ -282,8 +278,8 @@ void mwLift::erase_lift(int lift)
 
       // check if lift number is referenced in bd or trigger
       for (int i=0; i<500; i++)
-         if (((mItem.item[i][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[i][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
-            if (mItem.item[i][10] == l+1) mItem.item[i][10] = l; // change link to new lift
+         if (((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_TRIGGR) && (mLevel.mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_BLKDMG) && (mLevel.mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+            if (mLevel.mItem.item[i][10] == l+1) mLevel.mItem.item[i][10] = l; // change link to new lift
 
 
 
@@ -648,8 +644,8 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 
    mWidget.mColorSelect(0, xa, xb, ya, bts, 1, col, 0, "Select Lift Step Color", d);
    int cf = col << 28; // shift 4 bits of color into place
-   mLift.stp[l][s].type &= 0b00001111111111111111111111111111; // clear old color
-   mLift.stp[l][s].type |= cf; // merge color with type
+   stp[l][s].type &= 0b00001111111111111111111111111111; // clear old color
+   stp[l][s].type |= cf; // merge color with type
 
    int dim = 48;
    int c2 = 14;
@@ -704,7 +700,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d)
 {
    int t = stp[l][s].type & 31;
-   int v = mLift.stp[l][s].val;
+   int v = stp[l][s].val;
    int c = (stp[l][s].type >> 28) & 15;
    if (stp[l][s].type & PM_LIFT_NO_DRAW) c = 0;
    int x1 = xa;
@@ -992,8 +988,6 @@ void mwLift::draw_lift(int l, mwRect<float> lr)
 
 void mwLift::draw_lifts()
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
-
    for (int l=0; l<NUM_LIFTS; l++)
       if (cur[l].active)
       {

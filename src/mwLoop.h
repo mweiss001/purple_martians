@@ -85,6 +85,19 @@ class mwLoop
    void proc_gate_enter_mode();
 
 
+   int gate_enter_seek_time = 30;
+   int gate_enter_rotate_time = 80;
+   int gate_enter_num_rotations = 2;
+   float gate_enter_player_final_scale = .1;
+
+
+
+
+
+
+
+
+
    void proc_program_state_change();
 
    void remote_control_loop();

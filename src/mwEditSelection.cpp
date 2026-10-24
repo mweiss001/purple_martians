@@ -4,13 +4,11 @@
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwEditorMain.h"
-#include "mwEnemy.h"
 #include "mwEventQueue.h"
 #include "mwLoadSelectionDialog.h"
 #include "mwFont.h"
 #include "mwHelp.h"
 #include "mwInput.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
@@ -213,7 +211,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    itemIDTranslations.clear();
    // items
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]][0]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
+      if ((mLevel.mItem.item[b][0]) && (mEditorMain.obj_filter[2][mLevel.mItem.item[b][0]][0]) && (mLevel.mItem.item[b][4] >= x1) && (mLevel.mItem.item[b][4] < x2) && (mLevel.mItem.item[b][5] >= y1) && (mLevel.mItem.item[b][5] < y2))
       {
          int c = iib++; // destination
 
@@ -221,22 +219,22 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
          itemIDTranslations.push_back({b, c});
 
          // copy all 16 variables
-         for (int y=0; y<16; y++) ftItem.item[c][y] = mItem.item[b][y];
+         for (int y=0; y<16; y++) ftItem.item[c][y] = mLevel.mItem.item[b][y];
 
          // shift x, y (now relative to the selection window ul corner)
          ftItem.item[c][4] -= x1;
          ftItem.item[c][5] -= y1;
 
-         if (mItem.item_secondary67(mItem.item[b][0]))
+         if (mLevel.mItem.item_secondary67(mLevel.mItem.item[b][0]))
          {
             ftItem.item[c][6] -= x1;
             ftItem.item[c][7] -= y1;
          }
-         if (mItem.item[b][0] == 10) // message
+         if (mLevel.mItem.item[b][0] == 10) // message
          {
             //strcpy(ftItem.pmsgtext[c], mItem.pmsgtext[b]);
 
-            ftItem.mMessageText.set_text(c, mItem.mMessageText.get_text(b).c_str()); // message
+            ftItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(b).c_str()); // message
 
          }
       }
@@ -252,12 +250,12 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // enemies
    for (int b=0; b<100; b++) // check for enemies in box
-      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]][0]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
+      if ((mLevel.mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mLevel.mEnemy.Ei[b][0]][0]) && (mLevel.mEnemy.Ef[b][0] >= x1) && (mLevel.mEnemy.Ef[b][0] < x2) && (mLevel.mEnemy.Ef[b][1] >= y1) && (mLevel.mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          int c = eib++;
-         for (int y=0; y<32; y++) ftEnemy.Ei[c][y] = mEnemy.Ei[b][y];
-         for (int y=0; y<16; y++) ftEnemy.Ef[c][y] = mEnemy.Ef[b][y];
+         for (int y=0; y<32; y++) ftEnemy.Ei[c][y] = mLevel.mEnemy.Ei[b][y];
+         for (int y=0; y<16; y++) ftEnemy.Ef[c][y] = mLevel.mEnemy.Ef[b][y];
 
          // shift x, y (now relative to the selection window ul corner)
          ftEnemy.Ef[c][0]-= x1;
@@ -286,10 +284,10 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    liftIDTranslations.clear();
    if (mEditorMain.obj_filter[4][1][0])
       for (int b=0; b<NUM_LIFTS; b++) // source, if in selection
-         if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
+         if ((mLevel.mLift.cur[b].active) && (mLevel.mLift.cur[b].x >= x1) && (mLevel.mLift.cur[b].x < x2) && (mLevel.mLift.cur[b].y >= y1) && (mLevel.mLift.cur[b].y < y2))
          {
             int c = lib++; // destination
-            ftLift.copy_lift_from_other_instance(c, mLift, b);
+            ftLift.copy_lift_from_other_instance(c, mLevel.mLift, b);
 
             // save link from old lift number to new
             liftIDTranslations.push_back({b, c});
@@ -449,29 +447,29 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
-         int l = mLift.get_empty_lift();
+         int l = mLevel.mLift.get_empty_lift();
          if (l > -1)
          {
             int lim = 0;
-            mLift.copy_lift_from_other_instance(l, ftLift, b);
+            mLevel.mLift.copy_lift_from_other_instance(l, ftLift, b);
 
             liftIDTranslations.push_back({b, l});
 
-            for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+            for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // iterate steps
             {
-               if ((mLift.stp[l][s].type & 31) == 1) // shift move steps
+               if ((mLevel.mLift.stp[l][s].type & 31) == 1) // shift move steps
                {
-                  mLift.stp[l][s].x += x3;
-                  mLift.stp[l][s].y += y3;
+                  mLevel.mLift.stp[l][s].x += x3;
+                  mLevel.mLift.stp[l][s].y += y3;
                   if (erase_out_of_bounds_main)
                   {
-                     if (mMiscFnx.check_limit(mLift.stp[l][s].x, 0, 1980)) lim = 1;
-                     if (mMiscFnx.check_limit(mLift.stp[l][s].y, 0, 1980)) lim = 1;
+                     if (mMiscFnx.check_limit(mLevel.mLift.stp[l][s].x, 0, 1980)) lim = 1;
+                     if (mMiscFnx.check_limit(mLevel.mLift.stp[l][s].y, 0, 1980)) lim = 1;
                   }
                   else // adjust if out of bounds
                   {
-                     mLift.stp[l][s].x = mMiscFnx.enforce_limit(mLift.stp[l][s].x, 0, 1980);
-                     mLift.stp[l][s].y = mMiscFnx.enforce_limit(mLift.stp[l][s].y, 0, 1980);
+                     mLevel.mLift.stp[l][s].x = mMiscFnx.enforce_limit(mLevel.mLift.stp[l][s].x, 0, 1980);
+                     mLevel.mLift.stp[l][s].y = mMiscFnx.enforce_limit(mLevel.mLift.stp[l][s].y, 0, 1980);
                   }
                }
 
@@ -479,11 +477,11 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                if (copy_mode != 2) // do not do any link translation for move, only for copy
                   for (int i=0; i<clt_last; i++) // does this lift step have an entry in the clt table?
                      if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == s)) // found match
-                        mLift.stp[l][s].val = clt[i][4];  // new event
+                        mLevel.mLift.stp[l][s].val = clt[i][4];  // new event
 
             }
-            mLift.set_lift_to_step(l, 0);
-            if (lim) mLift.erase_lift(l);
+            mLevel.mLift.set_lift_to_step(l, 0);
+            if (lim) mLevel.mLift.erase_lift(l);
          }
       }
    } // end of if copy lifts
@@ -495,54 +493,54 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
          //int copied = 0;
          for (c=0; c<100; c++)
          {
-            if (mEnemy.Ei[c][0] == 0) // found empty
+            if (mLevel.mEnemy.Ei[c][0] == 0) // found empty
             {
                int lim = 0;
-               for (y=0; y<32; y++) mEnemy.Ei[c][y] = ftEnemy.Ei[b][y]; // copy 32 ints
-               for (y=0; y<16; y++) mEnemy.Ef[c][y] = ftEnemy.Ef[b][y]; // copy 16 floats
+               for (y=0; y<32; y++) mLevel.mEnemy.Ei[c][y] = ftEnemy.Ei[b][y]; // copy 32 ints
+               for (y=0; y<16; y++) mLevel.mEnemy.Ef[c][y] = ftEnemy.Ef[b][y]; // copy 16 floats
 
                // apply offsets
-               mEnemy.Ef[c][0] += x3;
-               mEnemy.Ef[c][1] += y3;
+               mLevel.mEnemy.Ef[c][0] += x3;
+               mLevel.mEnemy.Ef[c][1] += y3;
 
 
                if (copy_mode != 2) // do not do any link translation for move, only for copy
                   for (int i=0; i<clt_last; i++) // does this enemy have an entry in the clt table?
                      if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
-                        mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
+                        mLevel.mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
 
 
                if (erase_out_of_bounds_main)
                {
-                  if (mMiscFnx.check_limit(mEnemy.Ef[c][0], 0, 1980)) lim = 1;
-                  if (mMiscFnx.check_limit(mEnemy.Ef[c][1], 0, 1980)) lim = 1;
+                  if (mMiscFnx.check_limit(mLevel.mEnemy.Ef[c][0], 0, 1980)) lim = 1;
+                  if (mMiscFnx.check_limit(mLevel.mEnemy.Ef[c][1], 0, 1980)) lim = 1;
                }
                else // adjust if out of bounds
                {
-                  mEnemy.Ef[c][0] = mMiscFnx.enforce_limit(mEnemy.Ef[c][0], 0, 1980);
-                  mEnemy.Ef[c][1] = mMiscFnx.enforce_limit(mEnemy.Ef[c][1], 0, 1980);
+                  mLevel.mEnemy.Ef[c][0] = mMiscFnx.enforce_limit(mLevel.mEnemy.Ef[c][0], 0, 1980);
+                  mLevel.mEnemy.Ef[c][1] = mMiscFnx.enforce_limit(mLevel.mEnemy.Ef[c][1], 0, 1980);
                }
 
-               if (mEnemy.Ei[c][0] == 7) // vinepod
+               if (mLevel.mEnemy.Ei[c][0] == 7) // vinepod
                {
                   for (int i=3; i<13; i+=2)
                   {
-                     mEnemy.Ei[c][i+0]+= x3;
-                     mEnemy.Ei[c][i+1]+= y3;
+                     mLevel.mEnemy.Ei[c][i+0]+= x3;
+                     mLevel.mEnemy.Ei[c][i+1]+= y3;
                   }
                }
-               if (mEnemy.Ei[c][0] == 9) // cloner
+               if (mLevel.mEnemy.Ei[c][0] == 9) // cloner
                {
-                  mEnemy.Ei[c][15]+= x3;
-                  mEnemy.Ei[c][16]+= y3;
-                  mEnemy.Ei[c][17]+= x3;
-                  mEnemy.Ei[c][18]+= y3;
+                  mLevel.mEnemy.Ei[c][15]+= x3;
+                  mLevel.mEnemy.Ei[c][16]+= y3;
+                  mLevel.mEnemy.Ei[c][17]+= x3;
+                  mLevel.mEnemy.Ei[c][18]+= y3;
                }
                if (lim)
                {
                   //copied = -1;
-                  for (y=0; y<32; y++) mEnemy.Ei[c][y] = 0;
-                  for (y=0; y<16; y++) mEnemy.Ef[c][y] = 0;
+                  for (y=0; y<32; y++) mLevel.mEnemy.Ei[c][y] = 0;
+                  for (y=0; y<16; y++) mLevel.mEnemy.Ef[c][y] = 0;
                }
                c = 100; // end loop
             } // end of found empty
@@ -559,7 +557,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
          {
-            if (mItem.item[c][0] == 0) // found empty
+            if (mLevel.mItem.item[c][0] == 0) // found empty
             {
                itemIDTranslations.push_back({b, c});
 
@@ -567,29 +565,29 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                int lim = 0;
                // copy all 16 variables
                for (y=0; y<16; y++)
-                     mItem.item[c][y] = ftItem.item[b][y];
+                  mLevel.mItem.item[c][y] = ftItem.item[b][y];
 
                // apply offsets
-               mItem.item[c][4] += x3;
-               mItem.item[c][5] += y3;
+               mLevel.mItem.item[c][4] += x3;
+               mLevel.mItem.item[c][5] += y3;
 
                if (erase_out_of_bounds_main)
                {
-                  if (mMiscFnx.check_limit(mItem.item[c][4], 0, 1980)) lim = 1;
-                  if (mMiscFnx.check_limit(mItem.item[c][5], 0, 1980)) lim = 1;
+                  if (mMiscFnx.check_limit(mLevel.mItem.item[c][4], 0, 1980)) lim = 1;
+                  if (mMiscFnx.check_limit(mLevel.mItem.item[c][5], 0, 1980)) lim = 1;
                }
                else // adjust if out of bounds
                {
-                  mItem.item[c][4] = mMiscFnx.enforce_limit(mItem.item[c][4], 0, 1980);
-                  mItem.item[c][5] = mMiscFnx.enforce_limit(mItem.item[c][5], 0, 1980);
+                  mLevel.mItem.item[c][4] = mMiscFnx.enforce_limit(mLevel.mItem.item[c][4], 0, 1980);
+                  mLevel.mItem.item[c][5] = mMiscFnx.enforce_limit(mLevel.mItem.item[c][5], 0, 1980);
                }
 
                // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
-               if (((mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+               if (((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mLevel.mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mLevel.mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
                {
                   // change link to new lift
                   for (auto lit : liftIDTranslations)
-                     if (mItem.item[c][10] == lit.oldLiftNumber) mItem.item[c][10] = lit.newLiftNumber;
+                     if (mLevel.mItem.item[c][10] == lit.oldLiftNumber) mLevel.mItem.item[c][10] = lit.newLiftNumber;
                }
 
                if (copy_mode != 2) // only do translations for copy, not move
@@ -597,26 +595,26 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                   for (int i=0; i<clt_last; i++)                   // does this copy item have an entry in the clt table?
                      if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
                      {
-                        mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+                        mLevel.mItem.item[c][clt[i][2]] = clt[i][4];  // new event
                         // printf("new item event!!\n");
                      }
                }
 
                // also adjust secondary locations
-               if (mItem.item_secondary67(mItem.item[c][0]))
+               if (mLevel.mItem.item_secondary67(mLevel.mItem.item[c][0]))
                {
-                  mItem.item[c][6] += x3;
-                  mItem.item[c][7] += y3;
+                  mLevel.mItem.item[c][6] += x3;
+                  mLevel.mItem.item[c][7] += y3;
                }
-               if (mItem.item[c][0] == 5) // start
+               if (mLevel.mItem.item[c][0] == 5) // start
                {
                   // do something here to prevent exact duplicates
                }
-               if (mItem.item[c][0] == 10) // message
+               if (mLevel.mItem.item[c][0] == 10) // message
                {
                   //strcpy(mItem.pmsgtext[c], ftItem.pmsgtext[b]);
 
-                  mItem.mMessageText.set_text(c, ftItem.mMessageText.get_text(b).c_str()); // message
+                  mLevel.mItem.mMessageText.set_text(c, ftItem.mMessageText.get_text(b).c_str()); // message
 
                }
 
@@ -624,7 +622,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                if (lim)
                {
                   printf("erase:%d\n",c);
-                  mItem.clear_item(c);
+                  mLevel.mItem.clear_item(c);
                   //copied = -1;
                }
                c = 500; // end loop
@@ -634,15 +632,15 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
    // change door refs
    for (int c=0; c<500; c++) // search for empty place to copy to
-      if (mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mItem.item[c][8] == 1) // type linked dest item
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1) // type linked dest item
       {
          // change link to new door
          for (auto lit : itemIDTranslations)
-            if (mItem.item[c][9] == lit.oldItemNumber) mItem.item[c][9] = lit.newItemNumber;
+            if (mLevel.mItem.item[c][9] == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
       }
 
-   mEnemy.sort_enemy();
-   mItem.sort_item(1);
+   mLevel.mEnemy.sort_enemy();
+   mLevel.mItem.sort_item(1);
 
    if (copy_mode == 2) copy_mode = 1; // if move (copy_mode == 2), change to copy (copy_mode == 1)
 }
@@ -657,22 +655,22 @@ void mwEditSelection::clear_area(int x1, int y1, int x2, int y2)
 
    // items
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0]) && (mEditorMain.obj_filter[2][mItem.item[i][0]][0]))
-         if ((mItem.item[i][4] >= x1*20) && (mItem.item[i][4] < x2*20) && (mItem.item[i][5] >= y1*20) && (mItem.item[i][5] < y2*20)) mItem.clear_item(i);
+      if ((mLevel.mItem.item[i][0]) && (mEditorMain.obj_filter[2][mLevel.mItem.item[i][0]][0]))
+         if ((mLevel.mItem.item[i][4] >= x1*20) && (mLevel.mItem.item[i][4] < x2*20) && (mLevel.mItem.item[i][5] >= y1*20) && (mLevel.mItem.item[i][5] < y2*20)) mLevel.mItem.clear_item(i);
 
    // enemies
    for (int e=0; e<100; e++)
-      if ((mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[e][0]][0]))
-         if ((mEnemy.Ef[e][0] >= x1*20) && (mEnemy.Ef[e][0] < x2*20) && (mEnemy.Ef[e][1] >= y1*20) && (mEnemy.Ef[e][1] < y2*20)) mEnemy.clear_enemy(e);
+      if ((mLevel.mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[3][mLevel.mEnemy.Ei[e][0]][0]))
+         if ((mLevel.mEnemy.Ef[e][0] >= x1*20) && (mLevel.mEnemy.Ef[e][0] < x2*20) && (mLevel.mEnemy.Ef[e][1] >= y1*20) && (mLevel.mEnemy.Ef[e][1] < y2*20)) mLevel.mEnemy.clear_enemy(e);
 
    // lifts
    if (mEditorMain.obj_filter[4][1][0])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward because erase_lift changes list order
-         if (mLift.cur[l].active)
-            if ((mLift.cur[l].x >= x1*20) && (mLift.cur[l].x < x2*20) && (mLift.cur[l].y >= y1*20) && (mLift.cur[l].y < y2*20)) mLift.erase_lift(l);
+         if (mLevel.mLift.cur[l].active)
+            if ((mLevel.mLift.cur[l].x >= x1*20) && (mLevel.mLift.cur[l].x < x2*20) && (mLevel.mLift.cur[l].y >= y1*20) && (mLevel.mLift.cur[l].y < y2*20)) mLevel.mLift.erase_lift(l);
 
-   mEnemy.sort_enemy();
-   mItem.sort_item(1);
+   mLevel.mEnemy.sort_enemy();
+   mLevel.mItem.sort_item(1);
 }
 
 
@@ -849,15 +847,15 @@ void mwEditSelection::show_details(int x1, int x2, int &ya, int fc)
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mEditorMain.obj_filter[2][mItem.item[b][0]][0]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
+      if ((mLevel.mItem.item[b][0]) && (mEditorMain.obj_filter[2][mLevel.mItem.item[b][0]][0]) && (mLevel.mItem.item[b][4] >= rx1) && (mLevel.mItem.item[b][4] < rx2) && (mLevel.mItem.item[b][5] >= ry1) && (mLevel.mItem.item[b][5] < ry2)) iib++;
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mEnemy.Ei[b][0]][0]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
+      if ((mLevel.mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][mLevel.mEnemy.Ei[b][0]][0]) && (mLevel.mEnemy.Ef[b][0] >= rx1) && (mLevel.mEnemy.Ef[b][0] < rx2) && (mLevel.mEnemy.Ef[b][1] >= ry1) && (mLevel.mEnemy.Ef[b][1] < ry2)) eib++;
 
    // count lifts in box
    for (int d=0; d<NUM_LIFTS; d++)
-      if ((mLift.cur[d].active) && (mEditorMain.obj_filter[4][1][0]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
+      if ((mLevel.mLift.cur[d].active) && (mEditorMain.obj_filter[4][1][0]) && (mLevel.mLift.cur[d].x >= rx1) && (mLevel.mLift.cur[d].x < rx2) && (mLevel.mLift.cur[d].y >= ry1) && (mLevel.mLift.cur[d].y < ry2)) lib++;
 
    int sx = mLevelEditor.selection.x1;
    int sy = mLevelEditor.selection.y1;

@@ -4,12 +4,10 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwEditorMain.h"
-#include "mwEnemy.h"
 #include "mwEventQueue.h"
 #include "mwFont.h"
 #include "mwHelp.h"
 #include "mwInput.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
@@ -693,8 +691,8 @@ void mwGroupEdit::set_valid_controls()
          int obt = obj_list[i][0]; // object type
          int num = obj_list[i][1]; // object num
          int typ = 0;
-         if (obt == 2) typ = mItem.item[num][0];
-         if (obt == 3) typ = mEnemy.Ei[num][0];
+         if (obt == 2) typ = mLevel.mItem.item[num][0];
+         if (obt == 3) typ = mLevel.mEnemy.Ei[num][0];
          for (int i=0; i<100; i++) // iterate control mapping table
             if (cot[i][obt][typ] == 0) ge_data[i].valid = 0; // remove controls that do not match object
       }
@@ -754,8 +752,8 @@ void mwGroupEdit::remove_obj_list_filtered_items()
       {
          int type = obj_list[i][0];
          int num = obj_list[i][1];
-         if ((type == 2) && (mEditorMain.obj_filter[type][mItem.item[num][0]][0] == 0)) remove_obj_list_item(i);
-         if ((type == 3) && (mEditorMain.obj_filter[type][ mEnemy.Ei[num][0]][0] == 0)) remove_obj_list_item(i);
+         if ((type == 2) && (mEditorMain.obj_filter[type][mLevel.mItem.item[num][0]][0] == 0)) remove_obj_list_item(i);
+         if ((type == 3) && (mEditorMain.obj_filter[type][ mLevel.mEnemy.Ei[num][0]][0] == 0)) remove_obj_list_item(i);
       }
 }
 
@@ -791,13 +789,13 @@ void mwGroupEdit::object_initial_position_random(int typ, int num)
    {
       if (typ == 2)
       {
-         mItem.itemf[num][0] = mItem.item[num][4] = x*20;
-         mItem.itemf[num][1] = mItem.item[num][5] = y*20;
+         mLevel.mItem.itemf[num][0] = mLevel.mItem.item[num][4] = x*20;
+         mLevel.mItem.itemf[num][1] = mLevel.mItem.item[num][5] = y*20;
       }
       if (typ == 3)
       {
-         mEnemy.Ef[num][0] = x*20;
-         mEnemy.Ef[num][1] = y*20;
+         mLevel.mEnemy.Ef[num][0] = x*20;
+         mLevel.mEnemy.Ef[num][1] = y*20;
       }
    }
    else printf("could not find empty space for object\n");
@@ -809,26 +807,26 @@ void mwGroupEdit::object_initial_position_random(int typ, int num)
 
 void mwGroupEdit::set_var(int gvt, int gvn, int num, float val)
 {
-   if (gvt == 2) mItem.item[num][gvn] = val;
-   if (gvt == 3) mEnemy.Ei[num][gvn]  = val;
+   if (gvt == 2) mLevel.mItem.item[num][gvn] = val;
+   if (gvt == 3) mLevel.mEnemy.Ei[num][gvn]  = val;
    if (gvt == 4)
    {
-      mEnemy.Ef[num][gvn] = val;
-      //if (gvn == 9) mEnemy.recalc_pod(num);
-      if ((gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
+      mLevel.mEnemy.Ef[num][gvn] = val;
+      //if (gvn == 9) mLevel.mEnemy.recalc_pod(num);
+      if ((gvn == 5) && ((mLevel.mEnemy.Ei[num][0] == 4) || (mLevel.mEnemy.Ei[num][0] == 6))) mLevel.mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
    }
-   if (gvt == 8) mItem.item[num][6] = val - mItem.item[num][8]/2; // given xc, set x1 (w is different for every obj) // x1 = center - 1/2 width
-   if (gvt == 9) mItem.item[num][7] = val - mItem.item[num][9];   // given y2, set y1 (h is different for every obj) // y1 = y2 - height
+   if (gvt == 8) mLevel.mItem.item[num][6] = val - mLevel.mItem.item[num][8]/2; // given xc, set x1 (w is different for every obj) // x1 = center - 1/2 width
+   if (gvt == 9) mLevel.mItem.item[num][7] = val - mLevel.mItem.item[num][9];   // given y2, set y1 (h is different for every obj) // y1 = y2 - height
 }
 
 float mwGroupEdit::get_var(int gvt, int gvn, int num)
 {
    float val = 0;
-   if (gvt == 2) val = mItem.item[num][gvn];
-   if (gvt == 3) val = mEnemy.Ei[num][gvn];
-   if (gvt == 4) val = mEnemy.Ef[num][gvn];
-   if (gvt == 8) val = mItem.item[num][6] + mItem.item[num][8]/2; // xc = x + w/2
-   if (gvt == 9) val = mItem.item[num][7] + mItem.item[num][9];   // y2 = y1 + h
+   if (gvt == 2) val = mLevel.mItem.item[num][gvn];
+   if (gvt == 3) val = mLevel.mEnemy.Ei[num][gvn];
+   if (gvt == 4) val = mLevel.mEnemy.Ef[num][gvn];
+   if (gvt == 8) val = mLevel.mItem.item[num][6] + mLevel.mItem.item[num][8]/2; // xc = x + w/2
+   if (gvt == 9) val = mLevel.mItem.item[num][7] + mLevel.mItem.item[num][9];   // y2 = y1 + h
    return val;
 }
 
@@ -844,10 +842,10 @@ void mwGroupEdit::add_selection_to_list(int set_filters)
    int ry2 = mLevelEditor.selection.y2*20+20;
 
    for (int b=0; b<100; b++) // add enemies in selection
-      if ((mEnemy.Ei[b][0]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) add_to_obj_list(3, b);
+      if ((mLevel.mEnemy.Ei[b][0]) && (mLevel.mEnemy.Ef[b][0] >= rx1) && (mLevel.mEnemy.Ef[b][0] < rx2) && (mLevel.mEnemy.Ef[b][1] >= ry1) && (mLevel.mEnemy.Ef[b][1] < ry2)) add_to_obj_list(3, b);
 
    for (int b=0; b<500; b++) // add items in selection
-      if ((mItem.item[b][0]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) add_to_obj_list(2, b);
+      if ((mLevel.mItem.item[b][0]) && (mLevel.mItem.item[b][4] >= rx1) && (mLevel.mItem.item[b][4] < rx2) && (mLevel.mItem.item[b][5] >= ry1) && (mLevel.mItem.item[b][5] < ry2)) add_to_obj_list(2, b);
 
    // set filters to what is actually in the list
    if (set_filters)
@@ -857,8 +855,8 @@ void mwGroupEdit::add_selection_to_list(int set_filters)
       {
          int typ = obj_list[i][0];
          int num = obj_list[i][1];
-         if (typ == 2) mEditorMain.obj_filter[typ][mItem.item[num][0]][0] = 1;
-         if (typ == 3) mEditorMain.obj_filter[typ][ mEnemy.Ei[num][0]][0] = 1;
+         if (typ == 2) mEditorMain.obj_filter[typ][mLevel.mItem.item[num][0]][0] = 1;
+         if (typ == 3) mEditorMain.obj_filter[typ][ mLevel.mEnemy.Ei[num][0]][0] = 1;
       }
    }
 }
@@ -879,19 +877,19 @@ void mwGroupEdit::process_mouse_on_background()
          // is mouse on item
          for (int i=0; i<500; i++)
          {
-            int type = mItem.item[i][0];
+            int type = mLevel.mItem.item[i][0];
             if ((type) && (mEditorMain.obj_filter[2][type][0])) // filter for this type of item
             {
-               if ((mLevelEditor.gx == mItem.item[i][4]/20) && (mLevelEditor.gy == mItem.item[i][5]/20)) add_to_obj_list(2, i);
+               if ((mLevelEditor.gx == mLevel.mItem.item[i][4]/20) && (mLevelEditor.gy == mLevel.mItem.item[i][5]/20)) add_to_obj_list(2, i);
             }
          }
          // is mouse on enemy
          for (int e=0; e<100; e++)
          {
-            int type = mEnemy.Ei[e][0];
+            int type = mLevel.mEnemy.Ei[e][0];
             if ((type) && (mEditorMain.obj_filter[3][type][0])) // filter for this type of enemy
             {
-               if ((mLevelEditor.gx == mEnemy.Ef[e][0]/20) && (mLevelEditor.gy == mEnemy.Ef[e][1]/20)) add_to_obj_list(3, e);
+               if ((mLevelEditor.gx == mLevel.mEnemy.Ef[e][0]/20) && (mLevelEditor.gy == mLevel.mEnemy.Ef[e][1]/20)) add_to_obj_list(3, e);
             }
          }
       }
@@ -947,8 +945,8 @@ void mwGroupEdit::draw_list_items(int x1, int y1, int &x2, int &y2, int &ni)
             al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
 
             int tn = 0;
-            if (type == 2) tn = mItem.item_tile[mItem.item[num][0]];
-            if (type == 3) tn = mEnemy.enemy_tile[mEnemy.Ei[num][0]];
+            if (type == 2) tn = mLevel.mItem.item_tile[mLevel.mItem.item[num][0]];
+            if (type == 3) tn = mLevel.mEnemy.enemy_tile[mLevel.mEnemy.Ei[num][0]];
             al_draw_scaled_bitmap(mBitmap.sprite[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
 
             al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
@@ -960,18 +958,18 @@ void mwGroupEdit::draw_list_items(int x1, int y1, int &x2, int &y2, int &ni)
                      int vt = ge_data[ge_num].vartyp;
                      int vn = ge_data[ge_num].varnum;
 
-                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][vn]);
-                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
-                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
+                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][vn]);
+                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mEnemy.Ei[num][vn]);
+                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mLevel.mEnemy.Ef[num][vn]);
 
                      if (vt == 7)  // vinepod flag
                      {
-                        if (mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
+                        if (mLevel.mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
                         else                         al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
                      }
 
-                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
-                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
+                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][6] + mLevel.mItem.item[num][8]/2); // secondary x center
+                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][7] + mLevel.mItem.item[num][9]);   // secondary y2
 
                      xt+=40;
                   }
@@ -1226,23 +1224,23 @@ int mwGroupEdit::show_controls(int x, int y, int w, int &h, int d)
                         if (obj_list[i][0])
                         {
                            int num = obj_list[i][1];
-                           mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
+                           mLevel.mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
                         }
                   }
                   if (mWidget.mButton(0, x4-28, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Aim at Start Block", d))
                   {
                      int sbx = 0, sby = 0; // start block x and y
                      for (int c=0; c<500; c++)
-                        if (mItem.item[c][0] == 5)
+                        if (mLevel.mItem.item[c][0] == 5)
                         {
-                           sbx = mItem.item[c][4];
-                           sby = mItem.item[c][5];
+                           sbx = mLevel.mItem.item[c][4];
+                           sby = mLevel.mItem.item[c][5];
                         }
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (obj_list[i][0])
                         {
                            int num = obj_list[i][1];
-                           mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
+                           mLevel.mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
                         }
                   } // end of aim at start block
                } // end of type 5
@@ -1266,15 +1264,15 @@ int mwGroupEdit::show_controls(int x, int y, int w, int &h, int d)
                   int fx4 = x1 + 200;
                   if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                        if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
                   if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+                        if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
                   if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                      {
-                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mEnemy.Ei[obj_list[i][1]][20] |= gvn;
-                        else                             mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+                        else                             mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
                      }
                }
 
@@ -1321,21 +1319,21 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
    // mark objects on map that are capable of being added to list
    for (int i=0; i<500; i++)
    {
-      int type = (mItem.item[i][0]);
+      int type = (mLevel.mItem.item[i][0]);
       if ((type) && (mEditorMain.obj_filter[2][type][0]))
       {
-         x = mItem.item[i][4];
-         y = mItem.item[i][5];
+         x = mLevel.mItem.item[i][4];
+         y = mLevel.mItem.item[i][5];
          al_draw_rectangle(x, y, x+20, y+20, mColor.pc[13], 1);
       }
    }
    for (int e=0; e<100; e++)
    {
-      int type = (mEnemy.Ei[e][0]);
+      int type = (mLevel.mEnemy.Ei[e][0]);
       if ((type) && (mEditorMain.obj_filter[3][type][0]))
       {
-         x = mEnemy.Ef[e][0];
-         y = mEnemy.Ef[e][1];
+         x = mLevel.mEnemy.Ef[e][0];
+         y = mLevel.mEnemy.Ef[e][1];
          al_draw_rectangle(x, y, x+20, y+20, mColor.pc[13], 1);
       }
    }
@@ -1351,13 +1349,13 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
             int num = obj_list[i][1];
             if (typ == 2) // item
             {
-               x = mItem.item[num][4]/20;
-               y = mItem.item[num][5]/20;
+               x = mLevel.mItem.item[num][4]/20;
+               y = mLevel.mItem.item[num][5]/20;
             }
             if (typ == 3) // enemy
             {
-               x = mEnemy.Ef[num][0]/20;
-               y = mEnemy.Ef[num][1]/20;
+               x = mLevel.mEnemy.Ef[num][0]/20;
+               y = mLevel.mEnemy.Ef[num][1]/20;
             }
             if ((mLevelEditor.gx == x) && (mLevelEditor.gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
          }
@@ -1372,13 +1370,13 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
          int num = obj_list[i][1];
          if (typ == 2)
          {
-            x = mItem.item[num][4];
-            y = mItem.item[num][5];
+            x = mLevel.mItem.item[num][4];
+            y = mLevel.mItem.item[num][5];
          }
          if (typ == 3)
          {
-            x = mEnemy.Ef[num][0];
-            y = mEnemy.Ef[num][1];
+            x = mLevel.mEnemy.Ef[num][0];
+            y = mLevel.mEnemy.Ef[num][1];
          }
          if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.Flash1, 1); // highlight
          else                al_draw_rectangle(x,   y,   x+20,   y+20,   mColor.pc[10], 1);

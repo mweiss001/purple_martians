@@ -315,7 +315,7 @@ int mwEnemy::create_vinepod()
 
       if (mMiscFnx.getxy("VinePod Extended Position", 90, 17, e) == 1)
       {
-         mEnemy.vinepod_set_cp_thirds(e);
+         vinepod_set_cp_thirds(e);
          if (!mMiscFnx.get_block_range("Trigger Box", Ei[e][11], Ei[e][12], Ei[e][13], Ei[e][14], 2)) aborted_create = 1;
       }
       else aborted_create = 1;

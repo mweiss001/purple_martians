@@ -119,6 +119,5 @@ class mwLift
    int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
 
 };
-extern mwLift mLift;
 
 #endif //PM_MWLIFT_H

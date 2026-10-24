@@ -6,12 +6,10 @@
 #include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwLoop.h"
 
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwGameEvent.h"
@@ -29,7 +27,6 @@
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
 
-mwItem mItem;
 
 mwItem::mwItem()
 {
@@ -113,10 +110,10 @@ int mwItem::item_secondary67_hires(int type)
 
 void mwItem::draw_items()
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
+
    for (int i=0; i<500; i++)
    {
-      if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16))))) // skip drawing level stats message here, do it later
+      if ((item[i][0]) && (!((item[i][0] == 10) && (!strncmp(mMessageText.get_text(i).c_str(), "Level Statistics", 16))))) // skip drawing level stats message here, do it later
          draw_item(i, 0, 0, 0);
    }
 }
@@ -379,25 +376,25 @@ void mwItem::move_items()
                      {
                         int capture = 0;
 
-                        if (mLift.cur[a-32].yinc < 0) // lift is moving up
+                        if (mLevel.mLift.cur[a-32].yinc < 0) // lift is moving up
                         {
-                           int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early when lift going up
+                           int offset = mLevel.mLift.cur[a-32].y - y;   // to prevent lift from picking up early when lift going up
                            if (offset < 21) capture = 1;
                         }
-                        if (mLift.cur[a-32].yinc >= 0) // lift is moving down or steady
+                        if (mLevel.mLift.cur[a-32].yinc >= 0) // lift is moving down or steady
                         {
                            if (mSolid.is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
                            else capture = 1;
-                           int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early when item going down
+                           int offset = mLevel.mLift.cur[a-32].y - y;   // to prevent lift from picking up early when item going down
                            if (offset > 21) capture = 0;
                         }
                         if (capture)
                         {
-                           float lxi = mLift.cur[a-32].xinc;
-                           float lyi = mLift.cur[a-32].yinc;
+                           float lxi = mLevel.mLift.cur[a-32].xinc;
+                           float lyi = mLevel.mLift.cur[a-32].yinc;
 
                            itemf[i][0] += lxi;                 // move x with lift's xinc
-                           itemf[i][1]  = mLift.cur[a-32].y - 20;  // align with lift's y
+                           itemf[i][1]  = mLevel.mLift.cur[a-32].y - 20;  // align with lift's y
 
                            x = itemf[i][0];
                            y = itemf[i][1];
@@ -625,7 +622,7 @@ void mwItem::proc_sproingy_collision(int p, int i)
 
 float mwItem::get_sproingy_jump_height(int num)
 {
-   float t1 = mItem.item[num][7] / 7.1;
+   float t1 = item[num][7] / 7.1;
    float t2 = -15; // jump starts not at zero, but at almost one block height off ground
 
    while (t1 > 0)

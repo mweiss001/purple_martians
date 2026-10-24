@@ -274,12 +274,6 @@
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
 
 
-#define PM_ITEM_GATE_LEVEL_ICON_DIR  0b00000000000000001
-#define PM_ITEM_GATE_HOVER_PAGE_DIR  0b00000000000000010
-
-
-
-
 #define PM_CFG_SAVE_DISPLAY                        1
 #define PM_CFG_SAVE_SOUND                          2
 #define PM_CFG_SAVE_CONTROLS                       3

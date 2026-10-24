@@ -6,18 +6,16 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwWidget.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwNetgame.h"
 #include "mwPlayer.h"
 #include "mwConfig.h"
+#include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwTileSets.h"
 
@@ -719,57 +717,57 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
    if (obj_type == 2) // items
    {
-      original_dx = mItem.item[num][4];
-      original_dy = mItem.item[num][5];
+      original_dx = mLevel.mItem.item[num][4];
+      original_dy = mLevel.mItem.item[num][5];
    }
    if (obj_type == 3) // enemies
    {
-      original_dx = mEnemy.Ef[num][0];
-      original_dy = mEnemy.Ef[num][1];
+      original_dx = mLevel.mEnemy.Ef[num][0];
+      original_dy = mLevel.mEnemy.Ef[num][1];
    }
    if (obj_type == 98) // cloner destination
    {
-      original_dx = mEnemy.Ei[num][17];
-      original_dy = mEnemy.Ei[num][18];
+      original_dx = mLevel.mEnemy.Ei[num][17];
+      original_dy = mLevel.mEnemy.Ei[num][18];
    }
    if (obj_type == 97) // rocket initial direction
    {
-      original_rot = mItem.item[num][10];
+      original_rot = mLevel.mItem.item[num][10];
    }
 
 
    if (obj_type == 95) // block manip source area
    {
-      original_dx = mItem.item[num][13];
-      original_dy = mItem.item[num][14];
+      original_dx = mLevel.mItem.item[num][13];
+      original_dy = mLevel.mItem.item[num][14];
    }
 
    if (obj_type == 96) // cannon or bouncer initial direction
    {
-      original_rot  = mEnemy.Ef[num][14];
-      original_xinc = mEnemy.Ef[num][2];
-      original_yinc = mEnemy.Ef[num][3];
+      original_rot  = mLevel.mEnemy.Ef[num][14];
+      original_xinc = mLevel.mEnemy.Ef[num][2];
+      original_yinc = mLevel.mEnemy.Ef[num][3];
    }
    if (obj_type == 90) // vinepod extended
    {
-      original_dx = mEnemy.Ei[num][9];
-      original_dy = mEnemy.Ei[num][10];
+      original_dx = mLevel.mEnemy.Ei[num][9];
+      original_dy = mLevel.mEnemy.Ei[num][10];
    }
    if (obj_type == 91) // vinepod cp1
    {
-      original_dx = mEnemy.Ei[num][5];
-      original_dy = mEnemy.Ei[num][6];
+      original_dx = mLevel.mEnemy.Ei[num][5];
+      original_dy = mLevel.mEnemy.Ei[num][6];
    }
    if (obj_type == 92) // vinepod cp2
    {
-      original_dx = mEnemy.Ei[num][7];
-      original_dy = mEnemy.Ei[num][8];
+      original_dx = mLevel.mEnemy.Ei[num][7];
+      original_dy = mLevel.mEnemy.Ei[num][8];
    }
 
    if (obj_type == 4) // lift
    {
-      original_dx = mLift.stp[lift][step].x;
-      original_dy = mLift.stp[lift][step].y;
+      original_dx = mLevel.mLift.stp[lift][step].x;
+      original_dy = mLevel.mLift.stp[lift][step].y;
    }
 
    while(!quit)
@@ -778,14 +776,14 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
       crosshairs_full(mLevelEditor.gx*20+10, mLevelEditor.gy*20+10, 15, 1);
 
-      if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
+      if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mLevel.mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
 
       if (obj_type == 98) // move cloner destination
       {
-         float dx1 = (float)mEnemy.Ei[num][17];
-         float dy1 = (float)mEnemy.Ei[num][18];
-         float dx2 = dx1 + (float)mEnemy.Ei[num][19];
-         float dy2 = dy1 + (float)mEnemy.Ei[num][20];
+         float dx1 = (float)mLevel.mEnemy.Ei[num][17];
+         float dy1 = (float)mLevel.mEnemy.Ei[num][18];
+         float dx2 = dx1 + (float)mLevel.mEnemy.Ei[num][19];
+         float dy2 = dy1 + (float)mLevel.mEnemy.Ei[num][20];
          int dc1 = 10 + 128; // destination box color
          rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
@@ -793,34 +791,34 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
       if (obj_type == 95) // block manip source area
       {
-         float dx1 = mItem.item[num][13];
-         float dy1 = mItem.item[num][14];
-         float dx2 = dx1 + mItem.item[num][8];
-         float dy2 = dy1 + mItem.item[num][9];
+         float dx1 = mLevel.mItem.item[num][13];
+         float dy1 = mLevel.mItem.item[num][14];
+         float dx2 = dx1 + mLevel.mItem.item[num][8];
+         float dy2 = dy1 + mLevel.mItem.item[num][9];
          int dc1 = 10 + 128; // color
          rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
 
       if (obj_type == 97) // set new rocket direction
       {
-         int ix = mItem.item[num][4]+10;
-         int iy = mItem.item[num][5]+10;
+         int ix = mLevel.mItem.item[num][4]+10;
+         int iy = mLevel.mItem.item[num][5]+10;
          int dx = mLevelEditor.gx*20+10;
          int dy = mLevelEditor.gy*20+10;
 
-         float rot = (float)mItem.item[num][10] / 1000;
-         al_draw_rotated_bitmap(mBitmap.sprite[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
+         float rot = (float)mLevel.mItem.item[num][10] / 1000;
+         al_draw_rotated_bitmap(mBitmap.sprite[mLevel.mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
 
          al_draw_line(ix, iy, dx, dy, mColor.pc[10], 1);     // connect with line
       }
       if (obj_type == 96) // set cannon or bouncer direction
       {
-         int ex = mEnemy.Ef[num][0]+10;
-         int ey = mEnemy.Ef[num][1]+10;
+         int ex = mLevel.mEnemy.Ef[num][0]+10;
+         int ey = mLevel.mEnemy.Ef[num][1]+10;
          int dx = mLevelEditor.gx*20+10;
          int dy = mLevelEditor.gy*20+10;
-         float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mBitmap.sprite[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
+         float rot = mLevel.mEnemy.Ef[num][14];
+         al_draw_scaled_rotated_bitmap(mBitmap.sprite[mLevel.mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
       }
 
@@ -841,62 +839,62 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       switch (obj_type)
       {
          case 2: // items
-            mItem.itemf[num][0] = mItem.item[num][4] = mLevelEditor.gx*20;
-            mItem.itemf[num][1] = mItem.item[num][5] = mLevelEditor.gy*20;
+            mLevel.mItem.itemf[num][0] = mLevel.mItem.item[num][4] = mLevelEditor.gx*20;
+            mLevel.mItem.itemf[num][1] = mLevel.mItem.item[num][5] = mLevelEditor.gy*20;
          break;
          case 3: // show enem
-            mEnemy.Ef[num][0] = mLevelEditor.gx*20;
-            mEnemy.Ef[num][1] = mLevelEditor.gy*20;
+            mLevel.mEnemy.Ef[num][0] = mLevelEditor.gx*20;
+            mLevel.mEnemy.Ef[num][1] = mLevelEditor.gy*20;
          break;
          case 4: // show lift
          {
-            mLift.stp[lift][step].x = mLevelEditor.gx*20;
-            mLift.stp[lift][step].y = mLevelEditor.gy*20;
-            mLift.set_lift_to_step(lift, step);   // set current step in current lift
+            mLevel.mLift.stp[lift][step].x = mLevelEditor.gx*20;
+            mLevel.mLift.stp[lift][step].y = mLevelEditor.gy*20;
+            mLevel.mLift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
          case 98: // cloner destination
          {
-            mEnemy.Ei[num][17] = mLevelEditor.gx*20;
-            mEnemy.Ei[num][18] = mLevelEditor.gy*20;
+            mLevel.mEnemy.Ei[num][17] = mLevelEditor.gx*20;
+            mLevel.mEnemy.Ei[num][18] = mLevelEditor.gy*20;
          }
          break;
          case 97: // set new rocket direction
          {
-            float xlen = mLevelEditor.gx*20 - mItem.item[num][4];      // get the x distance between item and x2
-            float ylen = mLevelEditor.gy*20 - mItem.item[num][5];      // get the y distance between item and y2
+            float xlen = mLevelEditor.gx*20 - mLevel.mItem.item[num][4];      // get the x distance between item and x2
+            float ylen = mLevelEditor.gy*20 - mLevel.mItem.item[num][5];      // get the y distance between item and y2
             float a = atan2(ylen, xlen) + ALLEGRO_PI/2;
-            mItem.item[num][10] = a * 1000;
+            mLevel.mItem.item[num][10] = a * 1000;
          }
          break;
          case 96: // set cannon or bouncer direction
          {
-            mEnemy.set_new_initial_direction(num, mLevelEditor.gx*20, mLevelEditor.gy*20);
+            mLevel.mEnemy.set_new_initial_direction(num, mLevelEditor.gx*20, mLevelEditor.gy*20);
          }
          break;
          case 90: // vinepod extended
          {
-            mEnemy.Ei[num][9] = mLevelEditor.gx*20;
-            mEnemy.Ei[num][10] = mLevelEditor.gy*20;
+            mLevel.mEnemy.Ei[num][9] = mLevelEditor.gx*20;
+            mLevel.mEnemy.Ei[num][10] = mLevelEditor.gy*20;
          }
          break;
          case 91: // vinepod cp1
          {
-            mEnemy.Ei[num][5] = mLevelEditor.gx*20;
-            mEnemy.Ei[num][6] = mLevelEditor.gy*20;
+            mLevel.mEnemy.Ei[num][5] = mLevelEditor.gx*20;
+            mLevel.mEnemy.Ei[num][6] = mLevelEditor.gy*20;
          }
          break;
          case 92: // vinepod cp2
          {
-            mEnemy.Ei[num][7] = mLevelEditor.gx*20;
-            mEnemy.Ei[num][8] = mLevelEditor.gy*20;
+            mLevel.mEnemy.Ei[num][7] = mLevelEditor.gx*20;
+            mLevel.mEnemy.Ei[num][8] = mLevelEditor.gy*20;
          }
          break;
 
          case 95: // manip source area
          {
-            mItem.item[num][13] = mLevelEditor.gx*20;
-            mItem.item[num][14] = mLevelEditor.gy*20;
+            mLevel.mItem.item[num][13] = mLevelEditor.gx*20;
+            mLevel.mItem.item[num][14] = mLevelEditor.gy*20;
          }
 
       }
@@ -929,57 +927,57 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
    {
       if (obj_type == 2)
       {
-         mItem.item[num][4] = original_dx;
-         mItem.item[num][5] = original_dy;
-         mItem.itemf[num][0] = original_dx;
-         mItem.itemf[num][1] = original_dy;
+         mLevel.mItem.item[num][4] = original_dx;
+         mLevel.mItem.item[num][5] = original_dy;
+         mLevel.mItem.itemf[num][0] = original_dx;
+         mLevel.mItem.itemf[num][1] = original_dy;
       }
       if (obj_type == 3)
       {
-         mEnemy.Ef[num][0] = original_dx;
-         mEnemy.Ef[num][1] = original_dy;
+         mLevel.mEnemy.Ef[num][0] = original_dx;
+         mLevel.mEnemy.Ef[num][1] = original_dy;
       }
       if (obj_type == 90)
       {
-         mEnemy.Ei[num][9] = original_dx;
-         mEnemy.Ei[num][10] = original_dy;
+         mLevel.mEnemy.Ei[num][9] = original_dx;
+         mLevel.mEnemy.Ei[num][10] = original_dy;
       }
       if (obj_type == 91)
       {
-         mEnemy.Ei[num][5] = original_dx;
-         mEnemy.Ei[num][6] = original_dy;
+         mLevel.mEnemy.Ei[num][5] = original_dx;
+         mLevel.mEnemy.Ei[num][6] = original_dy;
       }
       if (obj_type == 92)
       {
-         mEnemy.Ei[num][7] = original_dx;
-         mEnemy.Ei[num][8] = original_dy;
+         mLevel.mEnemy.Ei[num][7] = original_dx;
+         mLevel.mEnemy.Ei[num][8] = original_dy;
       }
       if (obj_type == 98) // cloner destination
       {
-         mEnemy.Ei[num][17] = original_dx;
-         mEnemy.Ei[num][18] = original_dy;
+         mLevel.mEnemy.Ei[num][17] = original_dx;
+         mLevel.mEnemy.Ei[num][18] = original_dy;
       }
 
       if (obj_type == 95) // manip source area
       {
-         mItem.item[num][13] = original_dx;
-         mItem.item[num][14] = original_dy;
+         mLevel.mItem.item[num][13] = original_dx;
+         mLevel.mItem.item[num][14] = original_dy;
       }
 
       if (obj_type == 97) // restore rocket direction
       {
-         mItem.item[num][10] = original_rot;
+         mLevel.mItem.item[num][10] = original_rot;
       }
       if (obj_type == 96) // cannon or bouncer initial direction
       {
-         mEnemy.Ef[num][14] = original_rot;
-         mEnemy.Ef[num][2]  = original_xinc;
-         mEnemy.Ef[num][3]  = original_yinc;
+         mLevel.mEnemy.Ef[num][14] = original_rot;
+         mLevel.mEnemy.Ef[num][2]  = original_xinc;
+         mLevel.mEnemy.Ef[num][3]  = original_yinc;
       }
       if (obj_type == 4)
       {
-         mLift.stp[lift][step].x = original_dx;
-         mLift.stp[lift][step].y = original_dy;
+         mLevel.mLift.stp[lift][step].x = original_dx;
+         mLevel.mLift.stp[lift][step].y = original_dy;
       }
    }
    return retval;
@@ -1068,8 +1066,8 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
    int itx=0, ity=0;
 
-   int x2 = mItem.item[num][4]+10; // get the originating door's location
-   int y2 = mItem.item[num][5]+10;
+   int x2 = mLevel.mItem.item[num][4]+10; // get the originating door's location
+   int y2 = mLevel.mItem.item[num][5]+10;
 
    while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
 
@@ -1096,10 +1094,10 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
       mouse_on_item = 0;
       for (int x=0; x<500; x++)
-         if (mItem.item[x][0] == 1)    // door only
+         if (mLevel.mItem.item[x][0] == 1)    // door only
          {
-            itx = mItem.item[x][4]/20;
-            ity = mItem.item[x][5]/20;
+            itx = mLevel.mItem.item[x][4]/20;
+            ity = mLevel.mItem.item[x][5]/20;
             if ((mLevelEditor.gx == itx) && (mLevelEditor.gy == ity))
             {
                mouse_on_item = 1;
@@ -1107,8 +1105,8 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
             }
          }
 
-      itx = mItem.item[ret_item][4];
-      ity = mItem.item[ret_item][5];
+      itx = mLevel.mItem.item[ret_item][4];
+      ity = mLevel.mItem.item[ret_item][5];
 
       while (mInput.mouse_b[1][0])
       {

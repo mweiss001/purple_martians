@@ -1,9 +1,6 @@
 #ifndef PM_MWEDITSELECTION
 #define PM_MWEDITSELECTION
-#include "mwEnemy.h"
-#include "mwItem.h"
 #include "mwLevel.h"
-#include "mwLift.h"
 #include "mwWindow.h"
 
 //#define SEL_SIZE 384800

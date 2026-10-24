@@ -6,14 +6,11 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
-#include "mwEnemy.h"
 #include "mwInput.h"
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
-#include "mwLift.h"
 
 
 mwGlobalLevelTool mGlobalLevelTool;
@@ -67,13 +64,13 @@ void mwGlobalLevelTool::countTiles()
       {
          // block manip counter
          for (int y=0; y<500; y++)
-            if (mItem.item[y][0] == 16)
+            if (mLevel.mItem.item[y][0] == 16)
             {
-               int t = mItem.item[y][10] & PM_BTILE_TILENUM_MASK;
+               int t = mLevel.mItem.item[y][10] & PM_BTILE_TILENUM_MASK;
                tileCount[t][0]++;
                tileCount[t][le[i]]++;
 
-               t = mItem.item[y][11] & PM_BTILE_TILENUM_MASK;
+               t = mLevel.mItem.item[y][11] & PM_BTILE_TILENUM_MASK;
                tileCount[t][0]++;
                tileCount[t][le[i]]++;
             }
@@ -82,9 +79,9 @@ void mwGlobalLevelTool::countTiles()
       {
          // block walker counter
          for (int y=0; y<100; y++)
-            if (mEnemy.Ei[y][0] == 4)
+            if (mLevel.mEnemy.Ei[y][0] == 4)
             {
-               int t = mEnemy.Ei[y][13] & PM_BTILE_TILENUM_MASK;
+               int t = mLevel.mEnemy.Ei[y][13] & PM_BTILE_TILENUM_MASK;
                tileCount[t][0]++;
                tileCount[t][le[i]]++;
             }
@@ -117,21 +114,21 @@ void mwGlobalLevelTool::changeBlockNumber(int oldNum, int newNum)
 
    // block manip changer
    for (int y=0; y<500; y++)
-      if (mItem.item[y][0] == 16)
+      if (mLevel.mItem.item[y][0] == 16)
       {
-         replaceTileIfMatch(mItem.item[y][10], oldNum, newNum);
-         replaceTileIfMatch(mItem.item[y][11], oldNum, newNum);
+         replaceTileIfMatch(mLevel.mItem.item[y][10], oldNum, newNum);
+         replaceTileIfMatch(mLevel.mItem.item[y][11], oldNum, newNum);
       }
 
    // block walker changer
    for (int y=0; y<100; y++)
-      if (mEnemy.Ei[y][0] == 4)
-         replaceTileIfMatch(mEnemy.Ei[y][13], oldNum, newNum);
+      if (mLevel.mEnemy.Ei[y][0] == 4)
+         replaceTileIfMatch(mLevel.mEnemy.Ei[y][13], oldNum, newNum);
 
    // lift changer
    for (int l=0; l<NUM_LIFTS; l++)
-      if (mLift.cur[l].active)
-         replaceTileIfMatch(mLift.cur[l].draw_mode_val1, oldNum, newNum);
+      if (mLevel.mLift.cur[l].active)
+         replaceTileIfMatch(mLevel.mLift.cur[l].draw_mode_val1, oldNum, newNum);
 
 
 

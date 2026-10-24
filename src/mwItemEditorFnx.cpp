@@ -414,7 +414,7 @@ void mwItem::show_all_pmsg()
    al_draw_text(mFont.pr8, mColor.pc[15], 20, text_pos, 0, "List of pop messages:");
    text_pos +=8;
 
-   for (auto tmp: mItem.mMessageText.messageTextV)
+   for (auto tmp: mLevel.mItem.mMessageText.messageTextV)
       al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d - %s", tmp.index, tmp.text.c_str());
 
 
@@ -650,7 +650,7 @@ int mwItem::create_timer(int i)
    if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
    {
       item[i][0] = 13;  // type 13 - timer
-      mItem.item[i][2] = 0; // default no progress bar display
+      item[i][2] = 0; // default no progress bar display
    }
    else return 0;
    mObjectViewer.object_viewer(2, i);

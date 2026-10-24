@@ -23,7 +23,6 @@
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwLevelEditor.h"
-#include "mwMessageText.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 

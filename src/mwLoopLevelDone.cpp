@@ -14,8 +14,6 @@
 #include "mwDemoMode.h"
 
 #include "mwPlayer.h"
-#include "mwEnemy.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwShot.h"
 
@@ -27,14 +25,21 @@
 
 void mwLoop::proc_gate_enter_mode()
 {
-   int seek_time = 30;
-   int rotate_time = 80;
-   int num_rotations = 2;
-   float final_scale = .1;
+   // int seek_time = 30;
+   // int rotate_time = 80;
+   // int num_rotations = 2;
+   // float final_scale = .1;
+   //
+   // int gate_enter_seek_time = 30;
+   // int gate_enter_rotate_time = 80;
+   // int gate_enter_num_rotations = 2;
+   // float gate_enter_player_final_scale = .1;
+   //
+
 
 
    int i = mGameState.gate_enter_item;
-   int draw_mode = mItem.item[i][1];
+   int draw_mode = mLevel.mItem.item[i][1];
 
    int enter_gate = 0;
 
@@ -46,8 +51,8 @@ void mwLoop::proc_gate_enter_mode()
 
       if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
       {
-         int x = mItem.itemf[i][0];
-         int y = mItem.itemf[i][1];
+         int x = mLevel.mItem.itemf[i][0];
+         int y = mLevel.mItem.itemf[i][1];
 
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
@@ -59,8 +64,8 @@ void mwLoop::proc_gate_enter_mode()
                float dy = (y - mPlayer.syn[p].y) -15;
 
                // get move
-               mPlayer.syn[p].xinc = dx/seek_time;
-               mPlayer.syn[p].yinc = dy/seek_time;
+               mPlayer.syn[p].xinc = dx/gate_enter_seek_time;
+               mPlayer.syn[p].yinc = dy/gate_enter_seek_time;
 
                // set left right direction
                if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
@@ -81,8 +86,8 @@ void mwLoop::proc_gate_enter_mode()
 
       if (mGameState.gate_enter_mode == 5) // shrink and rotate
       {
-         float scale_inc = (1.0 - final_scale) / rotate_time;
-         float rot_inc = num_rotations * (ALLEGRO_PI * 2) / rotate_time;
+         float scale_inc = (1.0 - gate_enter_player_final_scale) / gate_enter_rotate_time;
+         float rot_inc = gate_enter_num_rotations * (ALLEGRO_PI * 2) / gate_enter_rotate_time;
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
@@ -97,8 +102,8 @@ void mwLoop::proc_gate_enter_mode()
             mGameState.gate_enter_mode--;
             if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // partially open door
             if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
-            if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = seek_time; // players seek gate
-            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = rotate_time; // players shrink and rotate
+            if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = gate_enter_seek_time; // players seek gate
+            if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = gate_enter_rotate_time; // players shrink and rotate
             if (mGameState.gate_enter_mode == 4) mGameState.gate_enter_timer = 0;  // not used
             if (mGameState.gate_enter_mode == 3) mGameState.gate_enter_timer = 0;  // not used
             if (mGameState.gate_enter_mode == 2) mGameState.gate_enter_timer = 0;  // not used
@@ -109,7 +114,7 @@ void mwLoop::proc_gate_enter_mode()
 
    if (enter_gate)
    {
-      int lev = mItem.item[i][6];
+      int lev = mLevel.mItem.item[i][6];
 
       // server to set last touched gate for all clients
       if (mNetgame.ima_server)
@@ -219,8 +224,8 @@ void mwLoop::proc_level_done_mode()
 
 
       // actually erase everything else from level
-      for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
-      for (int i=0; i<500; i++) if (mItem.item[i][0] != 6) mItem.item[i][0] = 0; // items (except orb)
+      for (int i=0; i<100; i++) if (mLevel.mEnemy.Ei[i][0] != 19) mLevel.mEnemy.Ei[i][0] = 0; // enemies (except crew)
+      for (int i=0; i<500; i++) if (mLevel.mItem.item[i][0] != 6) mLevel.mItem.item[i][0] = 0; // items (except orb)
       mShot.clear_shots();
 
       // blocks
@@ -250,9 +255,10 @@ void mwLoop::proc_level_done_mode()
          cutscene_bg_x += cutscene_accel;
          cutscene_accel += 0.07;
          al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
-         mEnemy.draw_enemies();
+         mLevel.mEnemy.draw_enemies();
          mPlayer.draw_players();
-         mItem.draw_items();
+         al_set_target_bitmap(mBitmap.level_buffer);
+         mLevel.mItem.draw_items();
          mScreen.draw_scaled_level_region_to_display();
          mScreen.draw_screen_overlay();
          al_flip_display();

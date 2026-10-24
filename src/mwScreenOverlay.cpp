@@ -20,7 +20,6 @@
 #include "mwDemoRecord.h"
 #include "mwInput.h"
 #include "mwLoop.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwEventQueue.h"
@@ -1118,8 +1117,8 @@ void mwScreen::draw_top_frame(int p)
       else  mMiscFnx.chrms(mLoop.frame_num, tmr);
 
 
-      if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mEnemy.num_enemy); // special case for narrow screens
-      else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, tmr, mEnemy.num_enemy);
+      if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mLevel.mEnemy.num_enemy); // special case for narrow screens
+      else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, tmr, mLevel.mEnemy.num_enemy);
       al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+1,  0, msg);
       tdx += strlen(msg)*8;
 

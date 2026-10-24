@@ -6,13 +6,10 @@
 #include "mwTally.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwLoop.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
@@ -152,7 +149,7 @@ void mwPlayer::proc_player_xy_move(int p)
 
    syn[p].xinc = syn[p].left_xinc + syn[p].right_xinc;  // calc xinc
 
-   if (syn[p].player_ride) syn[p].xinc += mLift.cur[syn[p].player_ride-32].xinc; // if player is riding lift add lift xinc
+   if (syn[p].player_ride) syn[p].xinc += mLevel.mLift.cur[syn[p].player_ride-32].xinc; // if player is riding lift add lift xinc
 
    syn[p].x += syn[p].xinc; // apply xinc to players x
 
@@ -164,8 +161,8 @@ void mwPlayer::proc_player_xy_move(int p)
          if (!mSolid.is_right_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            syn[p].x = mLift.cur[l].x + mLift.cur[l].w + 1; // snap to lift pos + width
-            syn[p].right_xinc = mLift.cur[l].xinc;          // set players xinc from lift
+            syn[p].x = mLevel.mLift.cur[l].x + mLevel.mLift.cur[l].w + 1; // snap to lift pos + width
+            syn[p].right_xinc = mLevel.mLift.cur[l].xinc;          // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -187,8 +184,8 @@ void mwPlayer::proc_player_xy_move(int p)
          if (!mSolid.is_left_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            syn[p].x = mLift.cur[l].x - 20;            // snap to lift pos - 20
-            syn[p].left_xinc = mLift.cur[a-32].xinc;  // set players xinc from lift
+            syn[p].x = mLevel.mLift.cur[l].x - 20;            // snap to lift pos - 20
+            syn[p].left_xinc = mLevel.mLift.cur[a-32].xinc;  // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -222,22 +219,22 @@ void mwPlayer::proc_player_xy_move(int p)
    else if (syn[p].player_ride != a)   // lift detected below player, and player is not currently riding that lift
    {
       if (debug_print) printf("detect new lift below:%d\n", a );
-      if (mLift.cur[a-32].yinc > 0)          // is lift going down
+      if (mLevel.mLift.cur[a-32].yinc > 0)          // is lift going down
       {
          syn[p].player_ride = a;             // now we are riding this lift
-         syn[p].y = mLift.cur[a-32].y - 20;  // align with lift
-         syn[p].yinc = mLift.cur[a-32].yinc; // same speed as lift
+         syn[p].y = mLevel.mLift.cur[a-32].y - 20;  // align with lift
+         syn[p].yinc = mLevel.mLift.cur[a-32].yinc; // same speed as lift
       }
-      if (mLift.cur[a-32].yinc <= 0)         // is lift going up or steady
+      if (mLevel.mLift.cur[a-32].yinc <= 0)         // is lift going up or steady
       {
          int y = syn[p].y;
-         int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early
+         int offset = mLevel.mLift.cur[a-32].y - y;   // to prevent lift from picking up early
          if (debug_print) printf("offset from rising lift:%d\n", offset );
          if (offset < 21)
          {
             syn[p].player_ride = a;             // now we are riding this lift
-            syn[p].y = mLift.cur[a-32].y - 20;  // align with lift
-            syn[p].yinc = mLift.cur[a-32].yinc; // same speed as lift
+            syn[p].y = mLevel.mLift.cur[a-32].y - 20;  // align with lift
+            syn[p].yinc = mLevel.mLift.cur[a-32].yinc; // same speed as lift
          }
       }
    }
@@ -250,7 +247,7 @@ void mwPlayer::proc_player_xy_move(int p)
       if (debug_print) printf("player riding lift\n");
       int d = syn[p].player_ride - 32; // lift number
 
-      syn[p].yinc = mLift.cur[d].yinc;
+      syn[p].yinc = mLevel.mLift.cur[d].yinc;
 
 
       // check for collision with lift above
@@ -263,7 +260,7 @@ void mwPlayer::proc_player_xy_move(int p)
       }
 
       // if moving up and solid block above
-      if ((mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(syn[p].x, syn[p].y, 0, 1) == 1))
+      if ((mLevel.mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(syn[p].x, syn[p].y, 0, 1) == 1))
       {
          if (debug_print) printf("moving up and solid block above\n");
          syn[p].player_ride = 0;  // player knocked off lift
@@ -273,7 +270,7 @@ void mwPlayer::proc_player_xy_move(int p)
       }
 
       // if moving down and solid block below
-      if ((mLift.cur[d].yinc > 0) && (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))) // no lift check
+      if ((mLevel.mLift.cur[d].yinc > 0) && (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))) // no lift check
       {
          if (debug_print) printf("moving down and solid block below\n");
          syn[p].player_ride = 0;
@@ -286,7 +283,7 @@ void mwPlayer::proc_player_xy_move(int p)
          if (debug_print) printf("jump while riding lift\n");
 
          syn[p].player_ride = 0;
-         syn[p].yinc = initial_jump_velocity + mLift.cur[d].yinc;
+         syn[p].yinc = initial_jump_velocity + mLevel.mLift.cur[d].yinc;
 
          syn[p].y += syn[p].yinc; // apply yinc
          mGameEvent.add(5, 0, 0, 0, 0, 0, 0);
@@ -295,7 +292,7 @@ void mwPlayer::proc_player_xy_move(int p)
       if (syn[p].player_ride)
       {
          if (debug_print) printf("still riding\n");
-         syn[p].y = mLift.cur[d].y - 20;  // if still riding, align with fy
+         syn[p].y = mLevel.mLift.cur[d].y - 20;  // if still riding, align with fy
       }
 
    }
@@ -352,7 +349,7 @@ void mwPlayer::proc_player_xy_move(int p)
 
             // check for collision with lift above if lift is moving down
             int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
-            if ((a > 31) && (mLift.cur[a-32].yinc > 0))
+            if ((a > 31) && (mLevel.mLift.cur[a-32].yinc > 0))
             {
                if (debug_print) printf("player moving down or steady and collision with lift moving down\n");
                //syn[p].health -= 1; // take some damage
@@ -380,7 +377,7 @@ void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
 
-   if (syn[p].paused_type == 2) mItem.proc_player_door_move(p);
+   if (syn[p].paused_type == 2) mLevel.mItem.proc_player_door_move(p);
 
    if (syn[p].paused_type == 3) syn[p].paused = 1; // headless server player
 
@@ -392,9 +389,9 @@ void mwPlayer::proc_player_paused(int p)
       {
          // does this player have any bomb remotes?
          for (int i=0; i<500; i++)
-            if ((mItem.item[i][0] == 99) && (mItem.item[i][6] == 3) && (mItem.item[i][13] == p))  // lit bomb with remote detonator that was lit by this player
+            if ((mLevel.mItem.item[i][0] == 99) && (mLevel.mItem.item[i][6] == 3) && (mLevel.mItem.item[i][13] == p))  // lit bomb with remote detonator that was lit by this player
             {
-               mItem.item[i][0] = 8; // change back to unlit bomb or...
+               mLevel.mItem.item[i][0] = 8; // change back to unlit bomb or...
 
                // set bomb to explode!
                //mItem.item[i][6] = 2; // mode 2; explosion
@@ -420,7 +417,7 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].right_xinc = 0;
          syn[p].xinc = 0;
          syn[p].yinc = 0;
-         mItem.set_player_start_pos(p);
+         mLevel.mItem.set_player_start_pos(p);
       }
    }
 }
@@ -434,7 +431,7 @@ void mwPlayer::reset_player_scale_and_rot(int p)
 
 int mwPlayer::is_player_riding_rocket(int p)
 {
-   if ((syn[p].carry_item) && (mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
+   if ((syn[p].carry_item) && (mLevel.mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
    return 0;
 }
 
@@ -472,17 +469,17 @@ void mwPlayer::proc_player_stuck_in_blocks(int p)
 void mwPlayer::proc_player_riding_rocket(int p)
 {
    int c = syn[p].carry_item-1;
-   float rot_inc = mItem.item[c][6];
-   if (syn[p].left)  mItem.item[c][10] -= rot_inc;
-   if (syn[p].right) mItem.item[c][10] += rot_inc;
+   float rot_inc = mLevel.mItem.item[c][6];
+   if (syn[p].left)  mLevel.mItem.item[c][10] -= rot_inc;
+   if (syn[p].right) mLevel.mItem.item[c][10] += rot_inc;
 
-   syn[p].x    = mItem.itemf[c][0];  // set the player's position and incs the same as the rocket
-   syn[p].y    = mItem.itemf[c][1];
-   syn[p].xinc = mItem.itemf[c][2];
-   syn[p].yinc = mItem.itemf[c][3];
+   syn[p].x    = mLevel.mItem.itemf[c][0];  // set the player's position and incs the same as the rocket
+   syn[p].y    = mLevel.mItem.itemf[c][1];
+   syn[p].xinc = mLevel.mItem.itemf[c][2];
+   syn[p].yinc = mLevel.mItem.itemf[c][3];
 
    syn[p].left_xinc = syn[p].right_xinc = 0;
-   syn[p].draw_rot = (float)mItem.item[c][10] / 1000;
+   syn[p].draw_rot = (float)mLevel.mItem.item[c][10] / 1000;
    syn[p].draw_scale = 0.5;
 }
 
@@ -508,27 +505,27 @@ void mwPlayer::proc_player_collisions(int p)
 
    for (int x=0; x<500; x++)
    {
-      if ((mItem.item[x][0]) && (mItem.item[x][0] != 9) && (mItem.item[x][0] != 16) && (mItem.item[x][0] != 17))
+      if ((mLevel.mItem.item[x][0]) && (mLevel.mItem.item[x][0] != 9) && (mLevel.mItem.item[x][0] != 16) && (mLevel.mItem.item[x][0] != 17))
       {
-         float ix1 = mItem.itemf[x][0] - 16;
-         float ix2 = mItem.itemf[x][0] + 16;
-         float iy1 = mItem.itemf[x][1] - 16;
-         float iy2 = mItem.itemf[x][1] + 16;
-         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!syn[p].paused) ) mItem.proc_item_collision(p, x);
+         float ix1 = mLevel.mItem.itemf[x][0] - 16;
+         float ix2 = mLevel.mItem.itemf[x][0] + 16;
+         float iy1 = mLevel.mItem.itemf[x][1] - 16;
+         float iy2 = mLevel.mItem.itemf[x][1] + 16;
+         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!syn[p].paused) ) mLevel.mItem.proc_item_collision(p, x);
       }
    }
 
    // enemies
    for (int e=0; e<100; e++)
    {
-      if ((mEnemy.Ei[e][0]) && (mEnemy.Ei[e][0] != 99)) // if active and not deathcount
+      if ((mLevel.mEnemy.Ei[e][0]) && (mLevel.mEnemy.Ei[e][0] != 99)) // if active and not deathcount
       {
-         float b = mEnemy.Ei[e][29]; // collision box size
-         float ex1 = mEnemy.Ef[e][0] - b;
-         float ex2 = mEnemy.Ef[e][0] + b;
-         float ey1 = mEnemy.Ef[e][1] - b;
-         float ey2 = mEnemy.Ef[e][1] + b;
-         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) mEnemy.Ei[e][22] = p+1;
+         float b = mLevel.mEnemy.Ei[e][29]; // collision box size
+         float ex1 = mLevel.mEnemy.Ef[e][0] - b;
+         float ex2 = mLevel.mEnemy.Ef[e][0] + b;
+         float ey1 = mLevel.mEnemy.Ef[e][1] - b;
+         float ey2 = mLevel.mEnemy.Ef[e][1] + b;
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) mLevel.mEnemy.Ei[e][22] = p+1;
       }
    }
 
@@ -1001,7 +998,7 @@ void mwPlayer::move_players()
             }
             // common to all not paused modes
             mShot.proc_player_shoot(p);
-            mItem.proc_player_carry(p);
+            mLevel.mItem.proc_player_carry(p);
             proc_player_collisions(p);
             proc_player_health(p);
             proc_player_bounds_check(p);
@@ -1253,7 +1250,7 @@ void mwPlayer::set_players_shape(int p)
    // if player riding lift animate with player's xpos relative to lift
    if (syn[p].player_ride)
    {
-      int rx = 20 + (int) (syn[p].x - mLift.cur[syn[p].player_ride-32].x);
+      int rx = 20 + (int) (syn[p].x - mLevel.mLift.cur[syn[p].player_ride-32].x);
 //      printf("rx:%d\n", rx);
 
 
@@ -1270,7 +1267,7 @@ void mwPlayer::set_players_shape(int p)
 
 
    // if riding rocket use static shape
-   if ((syn[p].carry_item) && (mItem.item[syn[p].carry_item-1][0] == 98)) syn[p].shape = 1;
+   if ((syn[p].carry_item) && (mLevel.mItem.item[syn[p].carry_item-1][0] == 98)) syn[p].shape = 1;
 
 
    if (syn[p].on_rope)

@@ -12,9 +12,7 @@
 #include "mwInput.h"
 #include "mwMain.h"
 #include "mwConfig.h"
-#include "mwItem.h"
 #include "mwScreen.h"
-#include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwSql.h"
 #include "mwBitmap.h"
@@ -312,7 +310,7 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    sqlite3_bind_int(  stmt, i++, mLevel.play_level);
    sqlite3_bind_int(  stmt, i++, mLoop.frame_num );
    sqlite3_bind_int(  stmt, i++, mGameMoves.entry_pos );
-   sqlite3_bind_int(  stmt, i++, mEnemy.num_enemy); // 10
+   sqlite3_bind_int(  stmt, i++, mLevel.mEnemy.num_enemy); // 10
 
    if (sqlite3_step(   stmt) != SQLITE_DONE) printf("Error: %s\n", sqlite3_errmsg(mSql.db_server_status));
 
@@ -432,7 +430,7 @@ void mwNetgame::server_send_snfo_packet() // send info to remote control
    mPlayer.loc[0].srv_uptime = al_get_time();
    sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
 
-   mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
+   mPlayer.loc[0].srv_num_enemy = mLevel.mEnemy.num_enemy;
 
    char src[5800];
    char dst[5800];
