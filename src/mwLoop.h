@@ -9,7 +9,6 @@ class mwLoop
 
    int state[8] = {0};
 
-
    char state_names[50][80];
 
    const char* quit_action_names[4] = {"QUIT", "MENU", "OVERWORLD", "SETTINGS" };
@@ -46,7 +45,6 @@ class mwLoop
    int eco_draw = 0;
 
 
-
    double frame_start_timestamp = 0;
 
    // some global strings
@@ -56,17 +54,11 @@ class mwLoop
 
    int ff_state; // if fast forwarding, do not resend game events
 
-   ALLEGRO_BITMAP * cutscene_background;
-   float cutscene_original_zoom;
-   float cutscene_accel;
-   float cutscene_bg_x;
 
    int load_and_setup_level(int level, int type);
-   void setup_players_after_level_load(int type);
 
    void move_frame();
    void loop_frame(int);
-
 
    void initialize_and_resize_remote_graphs();
 
@@ -78,24 +70,7 @@ class mwLoop
 
    void add_local_cpu_data(double cpu);
 
-   static int have_all_players_acknowledged();
    void game_menu();
-
-   void proc_level_done_mode();
-   void proc_gate_enter_mode();
-
-
-   int gate_enter_seek_time = 30;
-   int gate_enter_rotate_time = 80;
-   int gate_enter_num_rotations = 2;
-   float gate_enter_player_final_scale = .1;
-
-
-
-
-
-
-
 
 
    void proc_program_state_change();

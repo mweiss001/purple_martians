@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
@@ -75,7 +74,7 @@ void mwLog::init_log_types()
 
 void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2, float v3, float v4, float v5, float v6, float v7, float v8, float v9, const char* t1, const char* t2)
 {
-   if (p == -1) p = mPlayer.active_local_player;
+   if (p == -1) p = mLevel.mPlayer.active_local_player;
 
 
 
@@ -567,7 +566,7 @@ void mwLog::log_append_textf(int type, const char *format, ...)
 // [%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
 void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
 {
-   if (player == -1) player = mPlayer.active_local_player;
+   if (player == -1) player = mLevel.mPlayer.active_local_player;
    log_append_textf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
 }
 
@@ -591,7 +590,7 @@ void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...
 // [%2d][%d][%d]tmst %s", type, player, mLoop.frame_num, txt);
 void mwLog::add_tmr(int type, const char *txt)
 {
-   log_append_textf(type, "[%2d][%d][%d]tmst %s", LOG_TMR, mPlayer.active_local_player, mLoop.frame_num, txt);
+   log_append_textf(type, "[%2d][%d][%d]tmst %s", LOG_TMR, mLevel.mPlayer.active_local_player, mLoop.frame_num, txt);
 }
 
 // wrapper for 'add_tmr' that takes a printf style format
@@ -670,7 +669,7 @@ void mwLog::add_fwf(int type, int player, int width, int pos, const char *border
 // adds fixed width formatted text string
 void mwLog::add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt)
 {
-   if (player == -1) player = mPlayer.active_local_player;
+   if (player == -1) player = mLevel.mPlayer.active_local_player;
    int l = strlen(txt);
    int j1 = pos-2;
    int j2 = width - l - pos;
@@ -722,7 +721,7 @@ void mwLog::add_headerf(int type, int player, int blank_lines, const char *forma
 
 void mwLog::add_header(int type, int player, int blank_lines, const char *txt)
 {
-   if (player == -1) player = mPlayer.active_local_player;
+   if (player == -1) player = mLevel.mPlayer.active_local_player;
    add_fw(type, player, 76, 10, "+", "-", "");
    for (int i=0; i<blank_lines; i++) add_fw(type, player, 76, 10, "|", " ", "");
    add_fw(type, player, 76, (76 - strlen(txt))/2, "|", " ", txt);
@@ -753,20 +752,20 @@ void mwLog::log_versions()
 
 void mwLog::log_ending_stats_client(int type, int p)
 {
-   if (p == -1) p = mPlayer.active_local_player;
-   add_headerf(type, p, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
+   if (p == -1) p = mLevel.mPlayer.active_local_player;
+   add_headerf(type, p, 0, "Client %d (%s) ending stats", p, mLevel.mPlayer.loc[p].hostname);
 
    add_fwf(type, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
-   add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mLevel.mPlayer.loc[p].join_frame);
 
-   if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-   add_fwf(type, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
+   if (mLevel.mPlayer.loc[p].quit_frame == 0) mLevel.mPlayer.loc[p].quit_frame = mLoop.frame_num;
+   add_fwf(type, p, 76, 10, "|", " ", "frame when client quit....[%d]", mLevel.mPlayer.loc[p].quit_frame);
 
    log_reason_for_player_quit(type, p);
 
-   add_fwf(type, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-   add_fwf(type, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-   add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
+   add_fwf(type, p, 76, 10, "|", " ", "frames client was active..[%d]", mLevel.mPlayer.loc[p].quit_frame - mLevel.mPlayer.loc[p].join_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "cdat packets total........[%d]", mLevel.mPlayer.loc[p].client_cdat_packets_tx);
+   add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mLevel.mPlayer.syn[p].late_cdats);
 
    log_bandwidth_stats(type, p);
    add_fwf(type, p, 76, 10, "+", "-", "");
@@ -788,19 +787,19 @@ void mwLog::log_ending_stats_server(int type)
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
-      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN))
+      if ((mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN))
       {
-         add_fwf(type, 0, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
-         add_fwf(type, 0, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
+         add_fwf(type, 0, 76, 10, "|", " ", "Player:%d (%s)", p, mLevel.mPlayer.loc[p].hostname);
+         add_fwf(type, 0, 76, 10, "|", " ", "frame when client joined..[%d]", mLevel.mPlayer.loc[p].join_frame);
 
-         if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-         add_fwf(type, 0, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
+         if (mLevel.mPlayer.loc[p].quit_frame == 0) mLevel.mPlayer.loc[p].quit_frame = mLoop.frame_num;
+         add_fwf(type, 0, 76, 10, "|", " ", "frame when client quit....[%d]", mLevel.mPlayer.loc[p].quit_frame);
 
          log_reason_for_player_quit(type, p);
 
-         add_fwf(type, 0, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
+         add_fwf(type, 0, 76, 10, "|", " ", "frames client was active..[%d]", mLevel.mPlayer.loc[p].quit_frame - mLevel.mPlayer.loc[p].join_frame);
+         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets total........[%d]", mLevel.mPlayer.loc[p].client_cdat_packets_tx);
+         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets late.........[%d]", mLevel.mPlayer.syn[p].late_cdats);
 
          log_bandwidth_stats(type, p);
 
@@ -823,21 +822,21 @@ void mwLog::log_player_array(int type)
       char ms[80];
       sprintf(ms, " ");
 
-      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+      if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          sprintf(ms, " <-- active client");
 
-      if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+      if ((!mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          sprintf(ms, " <-- syncing client");
 
-      if (p == mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
+      if (p == mLevel.mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
       if (p == 0) sprintf(ms, " <-- server");
 
       sprintf(msg, "[%d][%d][%2d][%d] - %s %s",
                                               p,
-                                              mPlayer.syn[p].active,
-                                              mPlayer.syn[p].color,
-                                              mPlayer.syn[p].control_method,
-                                              mPlayer.loc[p].hostname,
+                                              mLevel.mPlayer.syn[p].active,
+                                              mLevel.mPlayer.syn[p].color,
+                                              mLevel.mPlayer.syn[p].control_method,
+                                              mLevel.mPlayer.loc[p].hostname,
                                               ms );
       add_fw(type, 0, 76, 10, "|", " ", msg);
    }
@@ -850,9 +849,9 @@ void mwLog::log_player_array2(int type)
    add_fw(type, 0, 76, 10, "|", " ", "[p][a][m][sy]");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      float sy = mPlayer.loc[p].pdsync;
+      float sy = mLevel.mPlayer.loc[p].pdsync;
       if (p == 0) sy = 0;
-      add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
+      add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mLevel.mPlayer.syn[p].active, mLevel.mPlayer.syn[p].control_method, sy );
    }
 }
 
@@ -862,23 +861,23 @@ void mwLog::log_player_array3(int type)
    for (int p=0; p<NUM_PLAYERS; p++)
       add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%2d][%2d][%2d][%2d][%2d]",
                                            p,
-                                               mPlayer.syn[p].active,
-                                                   mPlayer.syn[p].control_method,
-                                                       mPlayer.syn[p].color,
-                                                            mPlayer.syn[p].paused,
-                                                                 mPlayer.syn[p].paused_type,
-                                                                      mPlayer.syn[p].paused_mode,
-                                                                           mPlayer.syn[p].paused_mode_count );
+                                               mLevel.mPlayer.syn[p].active,
+                                                   mLevel.mPlayer.syn[p].control_method,
+                                                       mLevel.mPlayer.syn[p].color,
+                                                            mLevel.mPlayer.syn[p].paused,
+                                                                 mLevel.mPlayer.syn[p].paused_type,
+                                                                      mLevel.mPlayer.syn[p].paused_mode,
+                                                                           mLevel.mPlayer.syn[p].paused_mode_count );
 }
 
 */
 
 void mwLog::log_reason_for_player_quit(int type, int p)
 {
-   if (p == -1) p = mPlayer.active_local_player;
+   if (p == -1) p = mLevel.mPlayer.active_local_player;
    char tmsg[80];
    sprintf(tmsg,"unknown");
-   int r = mPlayer.loc[p].quit_reason;
+   int r = mLevel.mPlayer.loc[p].quit_reason;
    if (r == PM_PLAYER_QUIT_REASON_MENU_KEY)                      sprintf(tmsg,"player pressed ESC or menu key");
    if (r == PM_PLAYER_QUIT_REASON_CLIENT_LOST_SERVER_CONNECTION) sprintf(tmsg,"client lost server connection");
    if (r == PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME)             sprintf(tmsg,"client ended game");
@@ -888,23 +887,23 @@ void mwLog::log_reason_for_player_quit(int type, int p)
 
 void mwLog::log_bandwidth_stats(int type, int p)
 {
-   if (p == -1) p = mPlayer.active_local_player;
-   add_fwf(type, p, 76, 10, "|", " ", "total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
-   add_fwf(type, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
-   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
-   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
-   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
-   add_fwf(type, p, 76, 10, "|", " ", "total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
-   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
-   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
-   add_fwf(type, p, 76, 10, "|", " ", "total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
-   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
-   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
-   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
-   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
-   add_fwf(type, p, 76, 10, "|", " ", "total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
-   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
-   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
+   if (p == -1) p = mLevel.mPlayer.active_local_player;
+   add_fwf(type, p, 76, 10, "|", " ", "total tx bytes............[%d]", mLevel.mPlayer.loc[p].tx_total_bytes);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mLevel.mPlayer.loc[p].tx_max_bytes_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mLevel.mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mLevel.mPlayer.loc[p].tx_max_bytes_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per sec......[%d]", (mLevel.mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "total tx packets..........[%d]", mLevel.mPlayer.loc[p].tx_total_packets);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per frame..[%d]", mLevel.mPlayer.loc[p].tx_max_packets_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per second.[%d]", mLevel.mPlayer.loc[p].tx_max_packets_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "total rx bytes............[%d]", mLevel.mPlayer.loc[p].rx_total_bytes);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per frame....[%d]", mLevel.mPlayer.loc[p].rx_max_bytes_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per frame....[%d]", mLevel.mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mLevel.mPlayer.loc[p].rx_max_bytes_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per sec......[%d]", (mLevel.mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "total rx packets..........[%d]", mLevel.mPlayer.loc[p].rx_total_packets);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mLevel.mPlayer.loc[p].rx_max_packets_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mLevel.mPlayer.loc[p].rx_max_packets_per_tally);
 }
 
 

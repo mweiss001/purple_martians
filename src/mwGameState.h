@@ -16,6 +16,14 @@ class mwGameState
    int gate_enter_timer;
    int gate_enter_item;
 
+
+   int transition_mode;
+   int transition_timer;
+
+
+
+
+
    int player_vs_player_shots;
    int player_vs_player_shot_damage;
    int player_vs_self_shots;

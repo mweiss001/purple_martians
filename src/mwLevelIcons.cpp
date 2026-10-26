@@ -62,14 +62,14 @@ void mwLevelIcons::create_level_icon(int level, int save_web)
          }
 
       // draw blocks on level_background
-      mScreen.init_level_background();
+      mLevel.init_level_background();
 
       // temp bitmap to draw level on
       ALLEGRO_BITMAP *tmp = al_create_bitmap(size, size);
 
       // draw level
       al_set_target_bitmap(tmp);
-      mScreen.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0);
+      mLevel.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0);
 
       // save level icon
       char fname[256];

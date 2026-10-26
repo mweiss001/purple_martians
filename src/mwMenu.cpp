@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwMenu.h"
 #include "mwWindowManager.h"
-#include "mwPlayer.h"
 #include "mwLogo.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
@@ -186,7 +185,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       while (strcmp(menu_string[c],"end") != 0)
       {
          int sl = strlen(menu_string[c]) * 4;
-         int b = 15; // b = mPlayer.syn[mPlayer.active_local_player].color;
+         int b = 15; // b = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color;
 
          if ((menu_num == 1) && (!mLevel.resume_allowed) && (c==2)) b+=80; // dimmer if can't resume
 
@@ -214,21 +213,21 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
 //      if (highlight > last_list_item) highlight = last_list_item;
 
-      if (((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mLevel.mPlayer.syn[0].right)) && (right_held == 0))
       {
          right_held = 1;
          selection = highlight + 100;
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
-      if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
+      if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mLevel.mPlayer.syn[0].right)) )  right_held = 0;
+      if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mLevel.mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mLevel.mPlayer.syn[0].left)) )  left_held = 0;
 
 
-      if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mLevel.mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          if ((menu_num == 1) && (!mLevel.resume_allowed) && (highlight == 2)) highlight = 3; // skip
@@ -236,10 +235,10 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mLevel.mPlayer.syn[0].down))) down_held = 0;
 
 
-      if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mLevel.mPlayer.syn[0].up)) && (up_held == 0))
       {
          if (--highlight < 0) highlight = 0;
 
@@ -249,7 +248,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mLevel.mPlayer.syn[0].up))) up_held = 0;
 
 
       if (menu_num == 1) // classic mode
@@ -286,7 +285,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 int mwMenu::tmenu(int menu_pos, int x1, int y1)
 // used only for level editor main menu
 {
-   int pc = mPlayer.syn[mPlayer.active_local_player].color;
+   int pc = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color;
 
    int highlight = menu_pos;
    int selection = 999;

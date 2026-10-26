@@ -5,6 +5,7 @@
 #include "mwEnemy.h"
 #include "mwItem.h"
 #include "mwLift.h"
+#include "mwPlayer.h"
 
 
 struct level_data
@@ -48,18 +49,68 @@ struct overworld_area
 
 
 
-
 class mwLevel
 {
    public:
-
-   int l[100][100];
 
    mwItem mItem;
    mwEnemy mEnemy;
    mwLift mLift;
 
+   int l[100][100];
+
+   mwPlayer mPlayer;
+
+   mwLevel() : mItem(*this), mEnemy(*this), mLift(*this), mPlayer(*this) {}
+   ~mwLevel(); // default destructor
+
+
+   ALLEGRO_BITMAP *level_background = nullptr;
+   ALLEGRO_BITMAP *level_buffer = nullptr;
+
+   void create_bitmaps();
+
+   void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
+
+
    int draw_level3(ALLEGRO_BITMAP *b, int level, int x, int y, int size);
+   void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
+   void init_level_background();
+   void get_new_background();
+
+   void setup_players_after_level_load(int type);
+
+
+   void set_screen_display_variables();
+   void set_level_display_region_xy();
+   void draw_scaled_level_region_to_display();
+
+
+   int screen_display_x;
+   int screen_display_y;
+   int screen_display_w;
+   int screen_display_h;
+
+   float level_display_region_x;
+   float level_display_region_y;
+   float level_display_region_xinc;
+   float level_display_region_yinc;
+   int level_display_region_w;
+   int level_display_region_h;
+
+   int ldr_xmx_h;
+   int ldr_xmn_h;
+   int ldr_ymx_h;
+   int ldr_ymn_h;
+
+   int ldr_xmx_a;
+   int ldr_xmn_a;
+   int ldr_ymx_a;
+   int ldr_ymn_a;
+
+
+
+
 
    int start_level;
    int play_level;
@@ -203,5 +254,6 @@ class mwLevel
 
 };
 extern mwLevel mLevel;
+extern mwLevel l2;
 
 #endif //PM_MWLEVEL_H

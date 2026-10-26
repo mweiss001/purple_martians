@@ -13,7 +13,6 @@
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwScreen.h"
 #include "mwTriggerEvent.h"
 #include "mwWidget.h"
@@ -144,7 +143,7 @@ void mwObjectViewer::ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, in
 
 void mwObjectViewer::ov_draw_overlays(int legend_highlight)
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
+   al_set_target_bitmap(mLevel.level_buffer);
 
    if (obt == 4)  // lifts
    {
@@ -1059,7 +1058,7 @@ void mwObjectViewer::ov_process_keypress()
                {
                   for (int t=0; t<2; t++) mLevel.mLift.move_lifts(1);  // move lifts for 2 frames
                   ov_draw_overlays(0);
-                  mScreen.draw_scaled_level_region_to_display();
+                  mLevel.draw_scaled_level_region_to_display();
                   mLevelEditor.mWM.cycle_windows(1); // draw only
                }
             }

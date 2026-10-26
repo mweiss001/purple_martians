@@ -4,7 +4,6 @@
 #include "mwDemoMode.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
-#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -17,6 +16,7 @@
 #include "mwGmInfo.h"
 #include "mwSound.h"
 #include "mwSql.h"
+#include "mwTransitions.h"
 
 
 mwDemoMode mDemoMode;
@@ -201,25 +201,25 @@ int mwDemoMode::load_random_demo()
 
 void mwDemoMode::check_valid_active_local_player()
 {
-   if (mPlayer.is_player_active_and_not_hidden(mPlayer.active_local_player)) return;
+   if (mLevel.mPlayer.is_player_active_and_not_hidden(mLevel.mPlayer.active_local_player)) return;
 
    // not valid, search for first one that is valid
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if (mPlayer.is_player_active_and_not_hidden(p))
+      if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
       {
-         mPlayer.active_local_player = p;
+         mLevel.mPlayer.active_local_player = p;
          return;
       }
    }
    printf("Error in demo mode, no active non-hidden players found\n");
-   mPlayer.active_local_player = 0;
+   mLevel.mPlayer.active_local_player = 0;
 }
 
 void mwDemoMode::set_active_local_player(int p)
 {
    // if p is active and not hidden, set active_local_player to p
-   if (mPlayer.is_player_active_and_not_hidden(p)) mPlayer.active_local_player = p;
+   if (mLevel.mPlayer.is_player_active_and_not_hidden(p)) mLevel.mPlayer.active_local_player = p;
 
    mDrawSequence.ds_draw(0, 1);
 
@@ -378,7 +378,7 @@ bool mwDemoMode::check_level_done()
 // this is used in all modes that end after the level is done
 void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 {
-   mScreen.transition_cutscene(ti, tf); // initial to final (game)
+   mTransitions.transition_cutscene(ti, tf); // initial to final (game)
    while (play_mode_active)
    {
       mEventQueue.proc(1);
@@ -389,7 +389,7 @@ void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
       }
    }
    common_exit();
-   mScreen.transition_cutscene(tf, ti); // initial (game) to final
+   mTransitions.transition_cutscene(tf, ti); // initial (game) to final
 
    if (restore_level != -1)
    {
@@ -402,7 +402,7 @@ void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 void mwDemoMode::common_exit()
 {
    mSound.stop_sound();
-   mPlayer.active_local_player = 0;
+   mLevel.mPlayer.active_local_player = 0;
    mScreen.demo_controls_paused = 0;
    mConfig.load_config();  // restore player color and name and speed
    mLoop.frame_speed = 40;
@@ -413,10 +413,10 @@ void mwDemoMode::common_exit()
 void mwDemoMode::continuous_random_next_level()
 {
    mSound.stop_sound();
-   mScreen.transition_cutscene(1, 0); // game to nothing
+   mTransitions.transition_cutscene(1, 0); // game to nothing
    if (!load_random_demo()) return;
    mLoop.load_and_setup_level(mLevel.play_level, 4);
-   mScreen.transition_cutscene(0, 1); // nothing to game
+   mTransitions.transition_cutscene(0, 1); // nothing to game
 }
 
 void mwDemoMode::run_continuous_random()

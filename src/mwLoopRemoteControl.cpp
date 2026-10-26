@@ -10,7 +10,6 @@
 #include "mwEventQueue.h"
 #include "mwInput.h"
 
-#include "mwPlayer.h"
 #include "mwMiscFnx.h"
 #include "mwLevel.h"
 
@@ -29,7 +28,7 @@ void mwLoop::remote_control_loop()
 
    mPacketBuffer.rx_and_proc();
 
-   int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
+   int fn = mLevel.mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
 
    // check how long since last rtcl packet has been sent, and send keep alive packet if too long
    if (++remote_frames_since_last_rctl_sent > 100) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
@@ -42,8 +41,8 @@ void mwLoop::remote_control_loop()
    int cx = 10, cy = 10;
 
    al_draw_textf(mFont.pr8, mColor.pc[13], cx,     cy, 0, "Server Remote Control ");
-   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Version:%s  Uptime:%s", mPlayer.loc[0].srv_version, mMiscFnx.chrmhd(mPlayer.loc[0].srv_uptime, msg));
-   al_draw_textf(mFont.pr8, mColor.pc[15], cx,   cy+10, 0, "Level:[%d] - Time:[%s] - Moves:[%d] - Enemies:[%d]", mPlayer.loc[0].srv_level, mMiscFnx.chrms(fn, msg), mPlayer.loc[0].srv_total_game_moves, mPlayer.loc[0].srv_num_enemy); cy+=20;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Version:%s  Uptime:%s", mLevel.mPlayer.loc[0].srv_version, mMiscFnx.chrmhd(mLevel.mPlayer.loc[0].srv_uptime, msg));
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx,   cy+10, 0, "Level:[%d] - Time:[%s] - Moves:[%d] - Enemies:[%d]", mLevel.mPlayer.loc[0].srv_level, mMiscFnx.chrms(fn, msg), mLevel.mPlayer.loc[0].srv_total_game_moves, mLevel.mPlayer.loc[0].srv_num_enemy); cy+=20;
 
    mScreen.sdg_show(cx, cy); // server debug grid
 
@@ -178,7 +177,7 @@ void mwLoop::remote_control_loop()
    gfc = 8; // group frame color
    if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mLevel.mPlayer.loc[0].srv_zlib_cmp);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
 
 
@@ -192,7 +191,7 @@ void mwLoop::remote_control_loop()
    gfc = 14; // group frame color
    if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, -1);
 
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mLevel.mPlayer.loc[0].srv_extra_packets_num);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_num_adj, 1);
 
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "number of extra packets");
@@ -202,7 +201,7 @@ void mwLoop::remote_control_loop()
 
    cy+=cs-2;
    if (mWidget.mButtonNB(0, b1x, b1x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "-",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, -100);
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mLevel.mPlayer.loc[0].srv_extra_packets_size);
    if (mWidget.mButtonNB(0, b2x, b2x+btw,   1, cy, bth-2,    1, 2, 0, 1,   btc, 0, 15, 0, 0, "+",   0)) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_extra_packet_siz_adj, 100);
    al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "extra packet size");
    al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);

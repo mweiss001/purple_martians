@@ -7,7 +7,6 @@
 #include "mwLog.h"
 #include "mwSound.h"
 #include "mwSettings.h"
-#include "mwPlayer.h"
 #include "mwNetgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
@@ -23,6 +22,7 @@
 #include "mwScreen.h"
 #include "mwGameMoves.h"
 #include "mwGameState.h"
+#include "mwTransitions.h"
 #include "mwWindowManager.h"
 
 
@@ -79,11 +79,11 @@ void mwConfig::save_config(int type)
       // these are different, only save if specifically requested to, not with all
       if (type == PM_CFG_SAVE_LOCAL_PLAYER_COLOR)
       {
-         asci(GAME, mPlayer.syn[0].color)
+         asci(GAME, mLevel.mPlayer.syn[0].color)
       }
       if (type == PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED)
       {
-         asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
+         asci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate)
       }
 
 
@@ -94,14 +94,14 @@ void mwConfig::save_config(int type)
       }
 
 
-      asci(GAME, mPlayer.loc[0].name_display)
+      asci(GAME, mLevel.mPlayer.loc[0].name_display)
 
 
 
       asci(GAME, mMain.classic_mode)
 
-      asci(GAME, mScreen.transition_num_steps)
-      asci(GAME, mScreen.transition_delay)
+      asci(GAME, mTransitions.transition_num_steps)
+      asci(GAME, mTransitions.transition_delay)
 
       asci(GAME, mScreen.viewport_mode)
       asci(GAME, mScreen.viewport_show_hyst)
@@ -117,13 +117,13 @@ void mwConfig::save_config(int type)
       asci(GAME, mLoop.frame_speed)
       asci(GAME, mLoop.reset_frame_speed_at_program_start)
 
-      asci(GAMECONTROLS, mPlayer.loc[0].up_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].down_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].left_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].right_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].jump_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].fire_key)
-      asci(GAMECONTROLS, mPlayer.loc[0].menu_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].up_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].down_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].left_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].right_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].jump_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].fire_key)
+      asci(GAMECONTROLS, mLevel.mPlayer.loc[0].menu_key)
 
       asci(FUNCTIONKEYS, mInput.function_key_fullscreen)
       asci(FUNCTIONKEYS, mInput.function_key_text_double)
@@ -153,7 +153,7 @@ void mwConfig::save_config(int type)
 
       if (type == PM_CFG_SAVE_PLAYER_NAME)
       {
-         al_set_config_value(cfg, "NETWORK", "player_name", mPlayer.syn[0].name);
+         al_set_config_value(cfg, "NETWORK", "player_name", mLevel.mPlayer.syn[0].name);
       }
 
       if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_SHOTS))
@@ -261,10 +261,10 @@ void mwConfig::load_config(int type)
    // get player color and name first
 
    val = al_get_config_value(cfg, "NETWORK", "player_name");
-   if (!val) sprintf(mPlayer.syn[0].name, "default");
-   else snprintf(mPlayer.syn[0].name, 9, "%s", val);
+   if (!val) sprintf(mLevel.mPlayer.syn[0].name, "default");
+   else snprintf(mLevel.mPlayer.syn[0].name, 9, "%s", val);
 
-   agci(GAME, mPlayer.syn[0].color, 8)
+   agci(GAME, mLevel.mPlayer.syn[0].color, 8)
 
    // if set, this is the only thing we will load
    if (type == PM_CFG_LOAD_PLAYER_NAME_AND_COLOR) return;
@@ -290,17 +290,17 @@ void mwConfig::load_config(int type)
    agci(SCREEN, mLogo.show_splash_screen, 1)
    if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
 
-   agci(GAME, mPlayer.loc[0].name_display, 1)
+   agci(GAME, mLevel.mPlayer.loc[0].name_display, 1)
 
 
    agci(GAME, mLevel.start_level, 1)
-   agci(GAME, mPlayer.syn[0].overworld_last_touched_gate, 0)
+   agci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate, 0)
 
 
    agci(GAME, mMain.classic_mode, 0)
 
-   agci(GAME, mScreen.transition_num_steps, 80)
-   agci(GAME, mScreen.transition_delay, 8)
+   agci(GAME, mTransitions.transition_num_steps, 80)
+   agci(GAME, mTransitions.transition_delay, 8)
 
 
    agci(GAME, mScreen.viewport_mode, 1)
@@ -322,13 +322,13 @@ void mwConfig::load_config(int type)
       agci(GAME, mLoop.frame_speed, 40)
    }
 
-   agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
-   agci(GAMECONTROLS, mPlayer.loc[0].down_key,  ALLEGRO_KEY_DOWN)
-   agci(GAMECONTROLS, mPlayer.loc[0].left_key,  ALLEGRO_KEY_LEFT)
-   agci(GAMECONTROLS, mPlayer.loc[0].right_key, ALLEGRO_KEY_RIGHT)
-   agci(GAMECONTROLS, mPlayer.loc[0].jump_key,  ALLEGRO_KEY_SPACE)
-   agci(GAMECONTROLS, mPlayer.loc[0].fire_key,  ALLEGRO_KEY_ALT)
-   agci(GAMECONTROLS, mPlayer.loc[0].menu_key,  ALLEGRO_KEY_ESCAPE)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].down_key,  ALLEGRO_KEY_DOWN)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].left_key,  ALLEGRO_KEY_LEFT)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].right_key, ALLEGRO_KEY_RIGHT)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].jump_key,  ALLEGRO_KEY_SPACE)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].fire_key,  ALLEGRO_KEY_ALT)
+   agci(GAMECONTROLS, mLevel.mPlayer.loc[0].menu_key,  ALLEGRO_KEY_ESCAPE)
 
    agci(FUNCTIONKEYS, mInput.function_key_zoom_out,        ALLEGRO_KEY_F5)
    agci(FUNCTIONKEYS, mInput.function_key_zoom_in,         ALLEGRO_KEY_F6)

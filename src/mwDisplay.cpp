@@ -8,7 +8,6 @@
 #include "mwConfig.h"
 #include "mwScreen.h"
 #include "mwInput.h"
-#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
 #include "mwLevel.h"
@@ -58,6 +57,7 @@ void mwDisplay::proc_scale_factor_change()
    {
        scale_factor_current *= (1.0 + scale_factor_mlt);
        if (scale_factor_current > scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
+
    }
    if (scale_factor_current > scale_factor)
    {
@@ -641,7 +641,7 @@ void mwDisplay::show_var_sizes()
 
    printf("\nVariables used for netgame state exchange\n\n");
 
-   printf("mPlayer.syn                 :%6d\n", (int)sizeof(mPlayer.syn)          );
+   printf("mPlayer.syn                 :%6d\n", (int)sizeof(mLevel.mPlayer.syn)          );
    printf("mEnemy.Ei                   :%6d\n", (int)sizeof(mLevel.mEnemy.Ei)            );
    printf("mEnemy.Ef                   :%6d\n", (int)sizeof(mLevel.mEnemy.Ef)            );
    printf("mItem.item                  :%6d\n", (int)sizeof(mLevel.mItem.item)           );
@@ -658,7 +658,7 @@ void mwDisplay::show_var_sizes()
    printf("mLevel.overworld_area_array :%6d\n", (int)sizeof(mLevel.overworld_area_array) );
 
    sz = 0;
-   sz+= sizeof(mPlayer.syn);
+   sz+= sizeof(mLevel.mPlayer.syn);
    sz+= sizeof(mLevel.mEnemy.Ei);
    sz+= sizeof(mLevel.mEnemy.Ef);
    sz+= sizeof(mLevel.mItem.item);
@@ -682,13 +682,13 @@ void mwDisplay::show_var_sizes()
 
 
    printf("\nVariables used to send info to remote\n\n"   );
-   printf("mPlayer.syn         :%6d\n", (int)sizeof(mPlayer.syn)          );
-   printf("mPlayer.loc         :%6d\n", (int)sizeof(mPlayer.loc)          );
+   printf("mLevel.mPlayer.syn         :%6d\n", (int)sizeof(mLevel.mPlayer.syn)          );
+   printf("mLevel.mPlayer.loc         :%6d\n", (int)sizeof(mLevel.mPlayer.loc)          );
    printf("mGameState          :%6d\n", (int)sizeof(mGameState) );
 
    sz = 0;
-   sz+= sizeof(mPlayer.syn);
-   sz+= sizeof(mPlayer.loc);
+   sz+= sizeof(mLevel.mPlayer.syn);
+   sz+= sizeof(mLevel.mPlayer.loc);
    sz+= sizeof(mGameState);
 
    printf("---------------:------\n");
@@ -718,8 +718,8 @@ void mwDisplay::show_var_sizes()
 
 
 
-   sz = (int)sizeof(mPlayer.loc);
-   printf("mPlayer.loc   :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   sz = (int)sizeof(mLevel.mPlayer.loc);
+   printf("mLevel.mPlayer.loc   :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mGameMoves.arr);
    printf("game_moves    :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );

@@ -11,7 +11,6 @@
 #include "mwGmInfo.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
-#include "mwPlayer.h"
 #include "mwWidget.h"
 
 
@@ -236,7 +235,7 @@ void mwDemoRecord::start_record()
    play = 1;
    record = 1;
 
-   int p = mPlayer.active_local_player;
+   int p = mLevel.mPlayer.active_local_player;
 
    //printf("erase all game moves for Player:%d with frame number >= current frame number:%d\n", p, mLoop.frame_num);
    for (int x=0; x<mGameMoves.entry_pos; x++)
@@ -255,21 +254,21 @@ void mwDemoRecord::start_record()
    {
       //printf("no active game move left\n");
 
-      int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
-      mPlayer.init_player(p, 1);                  // full player reset
-      mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
+      int spi = mLevel.mPlayer.syn[p].spawn_point_index; // save spawn_point_index
+      mLevel.mPlayer.init_player(p, 1);                  // full player reset
+      mLevel.mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
       mLevel.mItem.set_player_start_pos(p);              // set starting position
 
-      mPlayer.syn[p].active = 1;
+      mLevel.mPlayer.syn[p].active = 1;
 
       // insert 'active' game move
       int fn = mLoop.frame_num;
       if (fn < 1) fn = 1;
 
-      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+      mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mLevel.mPlayer.syn[p].color);
    }
 
-   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
+   mLevel.mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 }
 
 
@@ -347,13 +346,13 @@ void mwDemoRecord::draw_transport_controls(mwWindow w)
    int xc = (x8 + xb) / 2;
    if (record_punch_in_armed) al_draw_text(mFont.pixl, mColor.pc[10], xc, ya-4, ALLEGRO_ALIGN_CENTER, "punch-in armed");
 
-   int plr = mPlayer.active_local_player;
-   int clr = mPlayer.syn[plr].color;
+   int plr = mLevel.mPlayer.active_local_player;
+   int clr = mLevel.mPlayer.syn[plr].color;
 
    al_draw_filled_rectangle(xc-18, ya+23, xc+17, ya+30, mColor.pc[0]);
    al_draw_textf(mFont.pixl, mColor.pc[clr], xc, ya+19, ALLEGRO_ALIGN_CENTER, "Player:%d", plr);
 
-   if ((mInput.mouse_x > xc-18) && (mInput.mouse_x < xc+17) && (mInput.mouse_y > ya+23) && (mInput.mouse_y < ya+30)) change_player_num_menu(mPlayer.active_local_player);
+   if ((mInput.mouse_x > xc-18) && (mInput.mouse_x < xc+17) && (mInput.mouse_y > ya+23) && (mInput.mouse_y < ya+30)) change_player_num_menu(mLevel.mPlayer.active_local_player);
 
    ya+=bts+1;
 
@@ -490,13 +489,13 @@ void mwDemoRecord::draw_transport_controls_seek(int fx1, int fy1, int h, int d)
    int xc = (x8 + xb) / 2;
    if (record_punch_in_armed) al_draw_text(mFont.pixl, mColor.pc[10], xc, ya-4, ALLEGRO_ALIGN_CENTER, "punch-in armed");
 
-   int plr = mPlayer.active_local_player;
-   int clr = mPlayer.syn[plr].color;
+   int plr = mLevel.mPlayer.active_local_player;
+   int clr = mLevel.mPlayer.syn[plr].color;
 
    al_draw_filled_rectangle(xc-18, ya+23, xc+17, ya+30, mColor.pc[0]);
    al_draw_textf(mFont.pixl, mColor.pc[clr], xc, ya+19, ALLEGRO_ALIGN_CENTER, "Player:%d", plr);
 
-   if ((mInput.mouse_x > xc-18) && (mInput.mouse_x < xc+17) && (mInput.mouse_y > ya+23) && (mInput.mouse_y < ya+30)) change_player_num_menu(mPlayer.active_local_player);
+   if ((mInput.mouse_x > xc-18) && (mInput.mouse_x < xc+17) && (mInput.mouse_y > ya+23) && (mInput.mouse_y < ya+30)) change_player_num_menu(mLevel.mPlayer.active_local_player);
 
    ya+=bts+1;
 

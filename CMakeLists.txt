@@ -89,7 +89,6 @@ add_executable(pm
         src/mwLogViewer.cpp
         src/mwLoop.cpp
         src/mwLoop.h
-        src/mwLoopLevelDone.cpp
         src/mwLoopRemoteControl.cpp
         src/mwMain.cpp
         src/mwMain.h
@@ -187,6 +186,8 @@ add_executable(pm
         src/mwGameState.h
         src/mwMessageText.h
         src/mwMessageText.cpp
+        src/mwTransitions.cpp
+        src/mwTransitions.h
 )
 
 

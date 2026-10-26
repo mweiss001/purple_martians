@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwNetgame.h"
-#include "mwPlayer.h"
 #include "mwMiscFnx.h"
 #include "mwLog.h"
 #include "mwSql.h"
@@ -24,7 +23,7 @@ void mwNetgame::session_close(int p, int er)
    if (er == 8) sprintf(endreason, "server quit");
 
    session_update(p, endreason);
-   mPlayer.loc[p].session_id = 0;
+   mLevel.mPlayer.loc[p].session_id = 0;
 }
 
 // this is called every frame from server_control() to check and clean up active sessions
@@ -32,7 +31,7 @@ void mwNetgame::session_check_active()
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if ((mPlayer.loc[p].session_id) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+      if ((mLevel.mPlayer.loc[p].session_id) && (!mLevel.mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }
 
 
@@ -53,7 +52,7 @@ void mwNetgame::session_check_active_in_db()
       // check if id matches a currently active player
       int still_active = 0;
       for (int p=1; p<8; p++)
-         if (mPlayer.loc[p].session_id == id) still_active = 1;
+         if (mLevel.mPlayer.loc[p].session_id == id) still_active = 1;
 
       if (!still_active)
       {
@@ -71,7 +70,7 @@ void mwNetgame::session_flush_active_at_server_exit()
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if (mPlayer.loc[p].session_id)
+      if (mLevel.mPlayer.loc[p].session_id)
          session_close(p, 8);
 }
 
@@ -85,10 +84,10 @@ void mwNetgame::session_update_at_level_done()
    // printf("frame:%d - session_save_active_at_level_done() level:%d  ffs:%d  )\n ", mLoop.frame_num, mLevel.play_level, mLoop.ff_state);
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if (mPlayer.loc[p].session_id)
+      if (mLevel.mPlayer.loc[p].session_id)
       {
-         if (mLevel.play_level != 1) mPlayer.syn[p].stat_next_levels++;
-         if (p == mGameState.level_done_player) mPlayer.syn[p].stat_exits++;
+         if (mLevel.play_level != 1) mLevel.mPlayer.syn[p].stat_next_levels++;
+         if (p == mGameState.level_done_player) mLevel.mPlayer.syn[p].stat_exits++;
          session_update(p);
       }
 
@@ -117,16 +116,16 @@ void mwNetgame::session_open(const char* address, const char* hostname, int p, i
    mMiscFnx.chop_first_x_char(ad, c+1);
    int port = atoi(ad);
 
-   std::string name = mPlayer.getName(p);
+   std::string name = mLevel.mPlayer.getName(p);
 
    char sql[500];
    sprintf(sql,
    "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
-                          ts.c_str(),   ip, port, hostname, p,          mPlayer.syn[p].color, name.c_str());
+                          ts.c_str(),   ip, port, hostname, p,          mLevel.mPlayer.syn[p].color, name.c_str());
 
-   mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
+   mLevel.mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
 
-   mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
+   mGameMoves.create_gm_session_link(mLevel.mPlayer.loc[p].session_id);
 
 
    // close immediately if server full endreason
@@ -153,7 +152,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
    // get session id from player
-   int sid = mPlayer.loc[p].session_id;
+   int sid = mLevel.mPlayer.loc[p].session_id;
    if (!sid)
    {
       printf("session_update_sql(%d, %s) - session_id is zero! exiting\n", p, m_endreason);
@@ -275,25 +274,25 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    //printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
 
-   cdats_rx     += mPlayer.loc[p].client_cdat_packets_tx;
-   respawns     += mPlayer.syn[p].stat_respawns;
-   shots_fired  += mPlayer.syn[p].stat_shots_fired;
-   enemy_hits   += mPlayer.syn[p].stat_enemy_hits;
-   player_hits  += mPlayer.syn[p].stat_player_hits;
-   self_hits    += mPlayer.syn[p].stat_self_hits;
-   purple_coins += mPlayer.syn[p].stat_purple_coins;
-   next_levels  += mPlayer.syn[p].stat_next_levels;
-   exits        += mPlayer.syn[p].stat_exits;
+   cdats_rx     += mLevel.mPlayer.loc[p].client_cdat_packets_tx;
+   respawns     += mLevel.mPlayer.syn[p].stat_respawns;
+   shots_fired  += mLevel.mPlayer.syn[p].stat_shots_fired;
+   enemy_hits   += mLevel.mPlayer.syn[p].stat_enemy_hits;
+   player_hits  += mLevel.mPlayer.syn[p].stat_player_hits;
+   self_hits    += mLevel.mPlayer.syn[p].stat_self_hits;
+   purple_coins += mLevel.mPlayer.syn[p].stat_purple_coins;
+   next_levels  += mLevel.mPlayer.syn[p].stat_next_levels;
+   exits        += mLevel.mPlayer.syn[p].stat_exits;
 
-   tx_bytes_total     += mPlayer.loc[p].tx_total_bytes;
-   tx_packets_total   += mPlayer.loc[p].tx_total_packets;
-   rx_bytes_total     += mPlayer.loc[p].rx_total_bytes;
-   rx_packets_total   += mPlayer.loc[p].rx_total_packets;
+   tx_bytes_total     += mLevel.mPlayer.loc[p].tx_total_bytes;
+   tx_packets_total   += mLevel.mPlayer.loc[p].tx_total_packets;
+   rx_bytes_total     += mLevel.mPlayer.loc[p].rx_total_bytes;
+   rx_packets_total   += mLevel.mPlayer.loc[p].rx_total_packets;
 
-   if (mPlayer.loc[p].tx_max_bytes_per_frame   > tx_bytes_max_per_frame)   tx_bytes_max_per_frame   = mPlayer.loc[p].tx_max_bytes_per_frame;
-   if (mPlayer.loc[p].rx_max_bytes_per_frame   > rx_bytes_max_per_frame)   rx_bytes_max_per_frame   = mPlayer.loc[p].rx_max_bytes_per_frame;
-   if (mPlayer.loc[p].tx_max_packets_per_frame > tx_packets_max_per_frame) tx_packets_max_per_frame = mPlayer.loc[p].tx_max_packets_per_frame;
-   if (mPlayer.loc[p].rx_max_packets_per_frame > rx_packets_max_per_frame) rx_packets_max_per_frame = mPlayer.loc[p].rx_max_packets_per_frame;
+   if (mLevel.mPlayer.loc[p].tx_max_bytes_per_frame   > tx_bytes_max_per_frame)   tx_bytes_max_per_frame   = mLevel.mPlayer.loc[p].tx_max_bytes_per_frame;
+   if (mLevel.mPlayer.loc[p].rx_max_bytes_per_frame   > rx_bytes_max_per_frame)   rx_bytes_max_per_frame   = mLevel.mPlayer.loc[p].rx_max_bytes_per_frame;
+   if (mLevel.mPlayer.loc[p].tx_max_packets_per_frame > tx_packets_max_per_frame) tx_packets_max_per_frame = mLevel.mPlayer.loc[p].tx_max_packets_per_frame;
+   if (mLevel.mPlayer.loc[p].rx_max_packets_per_frame > rx_packets_max_per_frame) rx_packets_max_per_frame = mLevel.mPlayer.loc[p].rx_max_packets_per_frame;
 
    // average per seconds = totals / duration
 

@@ -1161,7 +1161,7 @@ void mwTileHelper::draw_frame_fills(bool preview)
    for (int i=0; i<size; i++) draw_frame_fill(frameFills[i], preview);
    if (!preview)
    {
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 }
@@ -1179,7 +1179,7 @@ void mwTileHelper::draw_pattern(bool preview)
 
    if (!preview)
    {
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 }
@@ -1246,7 +1246,7 @@ void mwTileHelper::draw_replace(bool preview)
 
    if (!preview)
    {
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 }
@@ -1382,7 +1382,7 @@ void mwTileHelper::remove_bound()
       for (int b=0; b<100; b++)
          if (thl[a][b] && !mLevel.l[a][b]) thl[a][b] = 0;
 
-   mScreen.init_level_background();
+   mLevel.init_level_background();
 }
 
 
@@ -1865,7 +1865,7 @@ int mwTileHelper::show_pattern_controls(int x1, int x2, int y1, int color, int d
 
    al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mColor.Black);
    al_draw_rectangle(sx1-1, sy1-1, sx2+1, sy2+1, mColor.White, 1);
-   al_draw_bitmap_region(mBitmap.level_background, bx1*20, by1*20, bw*20+20, bh*20+20, sx1, sy1, 0);
+   al_draw_bitmap_region(mLevel.level_background, bx1*20, by1*20, bw*20+20, bh*20+20, sx1, sy1, 0);
 
    return height;
 }

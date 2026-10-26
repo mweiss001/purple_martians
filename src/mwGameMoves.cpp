@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwGameMoves.h"
-#include "mwPlayer.h"
 #include "mwNetgame.h"
 #include "mwLog.h"
 #include "mwLoop.h"
@@ -294,7 +293,7 @@ void mwGameMoves::remove_doubled_moves()
 
 int mwGameMoves::has_player_acknowledged(int p)
 {
-   if (mPlayer.syn[p].paused_type == 3) return 1; // headless server player
+   if (mLevel.mPlayer.syn[p].paused_type == 3) return 1; // headless server player
    int start_pos = entry_pos;
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
@@ -336,7 +335,7 @@ void mwGameMoves::proc()
             int p, c;
             char name[9] = { 0 };
             mMiscFnx.gma_to_val(arr[x][1], arr[x][2], arr[x][3], p, c, name);
-            snprintf(mPlayer.syn[p].name, 9, "%s", name);
+            snprintf(mLevel.mPlayer.syn[p].name, 9, "%s", name);
 
             //printf("proc gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, name, arr[x][1], arr[x][2], arr[x][3]);
             proc_game_move_player_active(p, c);
@@ -348,16 +347,16 @@ void mwGameMoves::proc()
          if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) {  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); }
          if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   {  proc_game_move_player_hidden(        arr[x][2]            ); }
          if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     {  proc_game_move_shot_config(          arr[x][2], arr[x][3] ); }
-         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     {  mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     {  mLevel.mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); }
       }
    }
 
    // at this point all the players' controls are set for the frame - save them in bitf
    for (int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.syn[p].active)
+      if (mLevel.mPlayer.syn[p].active)
       {
-         mPlayer.syn[p].old_ctrl_bitf = mPlayer.syn[p].ctrl_bitf; // move current to old
-         mPlayer.syn[p].ctrl_bitf = mPlayer.comp_move_from_players_current_controls(p); // get new
+         mLevel.mPlayer.syn[p].old_ctrl_bitf = mLevel.mPlayer.syn[p].ctrl_bitf; // move current to old
+         mLevel.mPlayer.syn[p].ctrl_bitf = mLevel.mPlayer.comp_move_from_players_current_controls(p); // get new
       }
 }
 
@@ -380,9 +379,9 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    {
       // convert to new player active type with embedded name
       int t, d1, d2;
-      mMiscFnx.val_to_gma(t, d1, d2, p, c, mPlayer.syn[p].name);
+      mMiscFnx.val_to_gma(t, d1, d2, p, c, mLevel.mPlayer.syn[p].name);
       add_game_move2(frame, t, d1, d2);
-      //printf("add gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, mPlayer.syn[p].name, t, d1, d2);
+      //printf("add gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, mLevel.mPlayer.syn[p].name, t, d1, d2);
       return;
    }
 
@@ -420,7 +419,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       // single player mode quit - do not enter inactive game move (so game can be resumed)
       // ----------------------------------------------------------------------------------------
-      if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (mPlayer.active_local_player == 0))
+      if ((mLevel.mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (mLevel.mPlayer.active_local_player == 0))
       {
          mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT;
          return;
@@ -429,7 +428,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       // demo record player quit
       // ----------------------------------------------------------------------------------------
-      if ((mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
+      if ((mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) && (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
          add_game_move2(frame, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_MENU_KEY);
          return;
@@ -444,9 +443,9 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          {
             // first set all connected clients to inactive
             for (int p=1; p<NUM_PLAYERS; p++)
-               if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+               if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                {
-                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN; // this lets the clients quit gracefully instead of timing out with lost server connection
+                  mLevel.mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN; // this lets the clients quit gracefully instead of timing out with lost server connection
                   add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
                }
 
@@ -499,28 +498,29 @@ void mwGameMoves::proc_game_move_shot_config(int shot, int damg)
 
 void mwGameMoves::proc_game_move_player_hidden(int p)
 {
-   mPlayer.syn[p].paused = 1;
-   mPlayer.syn[p].paused_type = 3;
+   mLevel.mPlayer.syn[p].paused = 1;
+   mLevel.mPlayer.syn[p].paused_type = 3;
 }
 
 
 
 void mwGameMoves::proc_game_move_player_active(int p, int color)
 {
-   mPlayer.syn[p].color = color;
+   mLevel.mPlayer.syn[p].color = color;
 
    // player was inactive before and just now changes to active
-   if (mPlayer.syn[p].active == 0)
+   if (mLevel.mPlayer.syn[p].active == 0)
    {
       mLevel.mItem.set_player_start_pos(p);
-      mPlayer.syn[p].active = 1;
-      mPlayer.loc[p].join_frame = mLoop.frame_num;
+      mLevel.mPlayer.syn[p].active = 1;
+      mLevel.mPlayer.loc[p].join_frame = mLoop.frame_num;
 
-      if ((mNetgame.ima_server) || (mNetgame.ima_client))
-         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+//      if ((mNetgame.ima_server) || (mNetgame.ima_client))
+      if (mNetgame.active())
+         if (p != mLevel.mPlayer.active_local_player) mLevel.mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
 
       // if player 0 is file play all added players will be too
-      if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+      if (mLevel.mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mLevel.mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
       if (mLoop.frame_num > 1) // don't show notifications if player was made active at the start of the level
       {
@@ -534,15 +534,15 @@ void mwGameMoves::proc_game_move_player_active(int p, int color)
 
 void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
 {
-   mPlayer.loc[p].quit_reason = reason;
-   mPlayer.loc[p].quit_frame = mLoop.frame_num;
+   mLevel.mPlayer.loc[p].quit_reason = reason;
+   mLevel.mPlayer.loc[p].quit_frame = mLoop.frame_num;
 
-   if (mPlayer.syn[p].active)
+   if (mLevel.mPlayer.syn[p].active)
    {
       if (!mLoop.ff_state) mLog.add(LOG_NET,LOG_NET_SUBTYPE_PLAYER_INACTIVE,p); // Player became INACTIVE!
       mScreen.add_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
-      mPlayer.syn[p].active = 0;
+      mLevel.mPlayer.syn[p].active = 0;
       if (mNetgame.ima_server)
       {
          if (p == 0) // local server player quit
@@ -570,13 +570,13 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
          else // a client quit
          {
 
-            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+            if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
             {
                // printf("Local Client Quit:%d\n", mLoop.frame_num);
                mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
             }
 
-            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) // remote client quit
+            if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) // remote client quit
             {
                // printf("Remote Client Quit:%d\n", mLoop.frame_num);
 
@@ -594,7 +594,7 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       int col;
       char name[9] = { 0 };
       mMiscFnx.gma_to_val(mGameMoves.arr[gm][1], mGameMoves.arr[gm][2], mGameMoves.arr[gm][3], p, col, name);
-      snprintf(mPlayer.syn[p].name, 9, "%s", name);
+      snprintf(mLevel.mPlayer.syn[p].name, 9, "%s", name);
       sprintf(dsc, " P%d ACTIVE", p);
    }
 
@@ -1410,7 +1410,7 @@ void mwGameMoves::create_gm_session_links()
 {
    if (mNetgame.ima_server)
       for (int p=1; p<8; p++)
-         if (mPlayer.loc[p].session_id) create_gm_session_link(mPlayer.loc[p].session_id);
+         if (mLevel.mPlayer.loc[p].session_id) create_gm_session_link(mLevel.mPlayer.loc[p].session_id);
 }
 
 // creates a link from the passed 'session_id' to the current HEADER_muid

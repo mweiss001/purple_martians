@@ -29,6 +29,7 @@
 #include "mwHelp.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
+#include "mwTransitions.h"
 #include "mwWindowManager.h"
 
 mwSettings mSettings;
@@ -158,13 +159,13 @@ int mwSettings::redraw_all_controls(int x, int y, int bts, int tc, int show_butt
    al_draw_line            (x+x9, y-1, x+x9, ya + bts*7-1, mColor.pc[15], 0);  // frame
 
 
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 0, mPlayer.loc[0].up_key,    "Up   ");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 1, mPlayer.loc[0].down_key,  "Down ");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 2, mPlayer.loc[0].left_key,  "Left ");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 3, mPlayer.loc[0].right_key, "Right");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 4, mPlayer.loc[0].jump_key,  "Jump ");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 5, mPlayer.loc[0].fire_key,  "Fire ");
-   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 6, mPlayer.loc[0].menu_key,  "Menu ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 0, mLevel.mPlayer.loc[0].up_key,    "Up   ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 1, mLevel.mPlayer.loc[0].down_key,  "Down ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 2, mLevel.mPlayer.loc[0].left_key,  "Left ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 3, mLevel.mPlayer.loc[0].right_key, "Right");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 4, mLevel.mPlayer.loc[0].jump_key,  "Jump ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 5, mLevel.mPlayer.loc[0].fire_key,  "Fire ");
+   redraw_one_control(x, y, ya, bts, tc, show_buttons, num, 6, mLevel.mPlayer.loc[0].menu_key,  "Menu ");
 
    return ya;
 }
@@ -295,7 +296,7 @@ int mwSettings::settings_pages_redraw(int disable_input)
       }
    }
 
-   fc = mPlayer.syn[0].color; // frame color
+   fc = mLevel.mPlayer.syn[0].color; // frame color
 
    al_show_mouse_cursor(mDisplay.display);
    al_set_target_backbuffer(mDisplay.display);
@@ -511,13 +512,13 @@ void mwSettings::page_main()
    // ---------------------------------------
    // player color
    // ---------------------------------------
-   fc = mPlayer.syn[0].color;
+   fc = mLevel.mPlayer.syn[0].color;
    int frame_y1 = ya;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
    ya+=7;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa,     ya, 0, "Current player color:");
-   cfp_draw_player(mPlayer.syn[0].color,  xa+180, ya-7);
+   cfp_draw_player(mLevel.mPlayer.syn[0].color,  xa+180, ya-7);
 
    ya+=13;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -531,7 +532,7 @@ void mwSettings::page_main()
       if ( (mInput.mouse_x > (xa + px1)) && (mInput.mouse_x < (xa + px1 + spacing)) && (mInput.mouse_y > (ya + py1)) && (mInput.mouse_y < (ya + py1 +22)) && (mInput.mouse_b[1][0]))
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
-         mPlayer.syn[0].color = i;
+         mLevel.mPlayer.syn[0].color = i;
          mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       }
       px1 += spacing;
@@ -862,7 +863,7 @@ void mwSettings::page_netgame()
    ya += line_spacing;
 
    al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-   if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[0].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[0].name, 8);
+   if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mLevel.mPlayer.syn[0].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mLevel.mPlayer.syn[0].name, 8);
    ya+=20;
    al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, "Optional. Shown in netgame. (max 8 char)");
    ya+=8;
@@ -870,7 +871,7 @@ void mwSettings::page_netgame()
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
    al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "Show player name above players head.");
    ya += 8 + line_spacing;
-   mWidget.mButtonCustom(0, xa, xa+220, 1, ya, bts-2, 1, 2, 0, 1,   12, 0, 15, 0, 0, 1017, mPlayer.loc[0].name_display, 0, 0, 0);
+   mWidget.mButtonCustom(0, xa, xa+220, 1, ya, bts-2, 1, 2, 0, 1,   12, 0, 15, 0, 0, 1017, mLevel.mPlayer.loc[0].name_display, 0, 0, 0);
 
    ya = nrect.y2 + section_spacing;
 
@@ -1025,7 +1026,7 @@ void mwSettings::page_bottom_msg(int draw_only)
 
 
    // redraw bottom frame to remove version that we will draw over
-   int color = mPlayer.syn[mPlayer.active_local_player].color;
+   int color = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color;
    for (int x = 0; x < BORDER_WIDTH; x++)
       al_draw_line(BORDER_WIDTH+10, (mDisplay.SCREEN_H-1-x)+0.5f, mDisplay.SCREEN_W-(BORDER_WIDTH+10), (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[color + (x * 16)], 1);
 
@@ -1493,22 +1494,22 @@ void mwSettings::page_transitions()
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mScreen.transition_num_steps, 400, 4, 1, "Number of steps:", 0, 0); ya+=bts;
+   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mTransitions.transition_num_steps, 400, 4, 1, "Number of steps:", 0, 0); ya+=bts;
    ya +=8;
-   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mScreen.transition_delay, 100, 1, 1, "Step delay:", 0, 0); ya+=bts;
+   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mTransitions.transition_delay, 100, 1, 1, "Step delay:", 0, 0); ya+=bts;
 
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-   al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transition Time:%1.2fs", (float)(mScreen.transition_num_steps * mScreen.transition_delay)/1000);
+   al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transition Time:%1.2fs", (float)(mTransitions.transition_num_steps * mTransitions.transition_delay)/1000);
    ya +=8;
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
 
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mScreen.transition_num_steps = 1;    mScreen.transition_delay = 1;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mScreen.transition_num_steps = 60;   mScreen.transition_delay = 4;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mScreen.transition_num_steps = 80;   mScreen.transition_delay = 8;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mScreen.transition_num_steps = 120;  mScreen.transition_delay = 12;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mScreen.transition_num_steps = 180;  mScreen.transition_delay = 16;  }
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mTransitions.transition_num_steps = 1;    mTransitions.transition_delay = 1;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mTransitions.transition_num_steps = 60;   mTransitions.transition_delay = 4;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mTransitions.transition_num_steps = 80;   mTransitions.transition_delay = 8;   }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mTransitions.transition_num_steps = 120;  mTransitions.transition_delay = 12;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mTransitions.transition_num_steps = 180;  mTransitions.transition_delay = 16;  }
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 }

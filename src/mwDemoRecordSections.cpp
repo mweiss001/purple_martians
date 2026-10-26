@@ -10,10 +10,10 @@
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
 #include "mwInput.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwWidget.h"
 
 
@@ -239,8 +239,8 @@ void mwDemoRecord::set_active_section(int i)
    if ((i < 0) || (i >= (int) mGmInfo.gmPlayerInfo.size())) return;
    current_section = i;
 
-   mPlayer.active_local_player = mGmInfo.gmPlayerInfo[i].playerNum;
-   mPlayer.syn[mPlayer.active_local_player].color = mGmInfo.gmPlayerInfo[i].playerCol;
+   mLevel.mPlayer.active_local_player = mGmInfo.gmPlayerInfo[i].playerNum;
+   mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color = mGmInfo.gmPlayerInfo[i].playerCol;
 
    load_lnk_arr();    // load games moves into link array
 }
@@ -264,7 +264,7 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    int f2  = mGmInfo.gmPlayerInfo[i].endFrame;
 
    // write the gmInfo name to the player struct
-   sprintf(mPlayer.syn[p].name,"%s", mGmInfo.gmPlayerInfo[i].playerName.c_str());
+   sprintf(mLevel.mPlayer.syn[p].name,"%s", mGmInfo.gmPlayerInfo[i].playerName.c_str());
 
 
 
@@ -285,12 +285,12 @@ void mwDemoRecord::draw_current_section(mwWindow w)
    al_draw_text( mFont.pr8, mColor.pc[15], x, ya, 0, "Player Name:");
    ya-=2;
 
-   if (mWidget.mButton(3, x+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0))
+   if (mWidget.mButton(3, x+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mLevel.mPlayer.syn[p].name, 0))
    {
-      if (mMiscFnx.edit_string_simple(x+98, ya, mPlayer.syn[0].name, 8))
+      if (mMiscFnx.edit_string_simple(x+98, ya, mLevel.mPlayer.syn[0].name, 8))
       {
          int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
-         if (gi != -1) mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+         if (gi != -1) mGameMoves.gma_change_name(gi, mLevel.mPlayer.syn[p].name);
       }
       refresh();
    }
@@ -350,7 +350,7 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
       int ya = rect.y1+16;
 
       al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-      if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[p].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[p].name, 8);
+      if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mLevel.mPlayer.syn[p].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mLevel.mPlayer.syn[p].name, 8);
 
       ya+=16; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6; // spacer line
 
@@ -368,7 +368,7 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
          if (gi != -1)
          {
             mGameMoves.gma_change_color(gi, col);
-            mGameMoves.gma_change_name(gi, mPlayer.syn[p].name);
+            mGameMoves.gma_change_name(gi, mLevel.mPlayer.syn[p].name);
          }
          quit = 1;
       }
@@ -407,7 +407,7 @@ void mwDemoRecord::add_new_section_dialog()
    for (int i=0; i<NUM_PLAYERS; i++)
    {
       // first check if player is active right now
-      bool player_used = mPlayer.syn[i].active;
+      bool player_used = mLevel.mPlayer.syn[i].active;
 
       if (!player_used)
       {
@@ -453,18 +453,18 @@ void mwDemoRecord::add_new_section_dialog()
          ya+= bts+4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=4;
 
          al_draw_text( mFont.pr8, mColor.pc[15], xa, ya+2, 0, "Player Name:");
-         if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mPlayer.syn[player_num].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[player_num].name, 8);
+         if (mWidget.mButton(3, xa+98, 0,   1, ya, 12,   0, 0, 3, 3,   0, 15, 15,  10, 0, mLevel.mPlayer.syn[player_num].name, 0)) mMiscFnx.edit_string_simple(xa+98, ya, mLevel.mPlayer.syn[player_num].name, 8);
 
 
          ya+= 15; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=6;
 
-         int col = mPlayer.syn[player_num].color;
+         int col = mLevel.mPlayer.syn[player_num].color;
 
 
          al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
          ya+=12;
          int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, 0, "Player Color", 0);
-         if (cl != -1) mPlayer.syn[player_num].color = cl;
+         if (cl != -1) mLevel.mPlayer.syn[player_num].color = cl;
 
          ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5;
 
@@ -472,7 +472,7 @@ void mwDemoRecord::add_new_section_dialog()
          if (mWidget.mButton(1, xa+10, 70,  1, ya, bts, 0, 2, 0, 2, 9, 0, 15, 0, 0, "Commit", 0))
          {
             // add active game move for player_num at current frame number
-            mGameMoves.add_game_move(add_fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, player_num, mPlayer.syn[player_num].color);
+            mGameMoves.add_game_move(add_fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, player_num, mLevel.mPlayer.syn[player_num].color);
 
             // look forward for any other active moves with player_num
             int na = mGameMoves.find_first_active_game_move_for_player(player_num, add_fn+1);

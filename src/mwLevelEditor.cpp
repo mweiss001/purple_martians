@@ -222,24 +222,24 @@ void mwLevelEditor::process_scrolledge()
    int swb = mDisplay.SCREEN_W-bw;
    int shb = mDisplay.SCREEN_H-bw;
 
-   if (mInput.mouse_y > shb) mScreen.level_display_region_y+=(mInput.mouse_y - shb)*2; // scroll down
-   if (mInput.mouse_x > swb) mScreen.level_display_region_x+=(mInput.mouse_x - swb)*2; // scroll right
-   if (mInput.mouse_x < bw)  mScreen.level_display_region_x-=(bw - mInput.mouse_x)*2;  // scroll left
-   if (mInput.mouse_y < 4)   mScreen.level_display_region_y-=(4  - mInput.mouse_y)*7;  // scroll up (is different because of menu)
+   if (mInput.mouse_y > shb) mLevel.level_display_region_y+=(mInput.mouse_y - shb)*2; // scroll down
+   if (mInput.mouse_x > swb) mLevel.level_display_region_x+=(mInput.mouse_x - swb)*2; // scroll right
+   if (mInput.mouse_x < bw)  mLevel.level_display_region_x-=(bw - mInput.mouse_x)*2;  // scroll left
+   if (mInput.mouse_y < 4)   mLevel.level_display_region_y-=(4  - mInput.mouse_y)*7;  // scroll up (is different because of menu)
 
    // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(mDisplay.SCREEN_W - bw *2) / mDisplay.scale_factor_current);
    int SH = (int)( (float)(mDisplay.SCREEN_H - bw *2) / mDisplay.scale_factor_current);
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
-   mScreen.level_display_region_w = SW;
-   mScreen.level_display_region_h = SH;
+   mLevel.level_display_region_w = SW;
+   mLevel.level_display_region_h = SH;
 
    // correct for edges
-   if (mScreen.level_display_region_x < 0)         mScreen.level_display_region_x = 0;
-   if (mScreen.level_display_region_y < 0)         mScreen.level_display_region_y = 0;
-   if (mScreen.level_display_region_x > (2000-SW)) mScreen.level_display_region_x = 2000-SW;
-   if (mScreen.level_display_region_y > (2000-SH)) mScreen.level_display_region_y = 2000-SH;
+   if (mLevel.level_display_region_x < 0)         mLevel.level_display_region_x = 0;
+   if (mLevel.level_display_region_y < 0)         mLevel.level_display_region_y = 0;
+   if (mLevel.level_display_region_x > (2000-SW)) mLevel.level_display_region_x = 2000-SW;
+   if (mLevel.level_display_region_y > (2000-SH)) mLevel.level_display_region_y = 2000-SH;
 }
 
 
@@ -371,7 +371,7 @@ bool mwLevelEditor::get_new_selection(const char* text, bool preview)
 
          mTileSets.drawRect(1);
       }
-      mScreen.draw_scaled_level_region_to_display();
+      mLevel.draw_scaled_level_region_to_display();
    }
 
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
@@ -413,8 +413,8 @@ void mwLevelEditor::get_mouse_position_on_background()
    float my2 = my1 / (mDisplay.scale_factor_current * 20);
 
    // get block position of WX
-   float mx3 = (float)mScreen.level_display_region_x / 20;
-   float my3 = (float)mScreen.level_display_region_y / 20;
+   float mx3 = (float)mLevel.level_display_region_x / 20;
+   float my3 = (float)mLevel.level_display_region_y / 20;
 
    // add
    float mx4 = mx3 + mx2;
@@ -436,8 +436,8 @@ void mwLevelEditor::get_mouse_position_on_background()
    my2 = my1 / mDisplay.scale_factor_current;
 
    // get position of WX
-   mx3 = (float)mScreen.level_display_region_x;
-   my3 = (float)mScreen.level_display_region_y;
+   mx3 = (float)mLevel.level_display_region_x;
+   my3 = (float)mLevel.level_display_region_y;
 
    // add
    mx4 = mx3 + mx2;
@@ -468,7 +468,7 @@ void mwLevelEditor::process_keypress()
    {
       mEditorMain.show_template_overlays = !mEditorMain.show_template_overlays;
       mBitmap.rebuild_bitmaps();
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 
@@ -518,7 +518,7 @@ int mwLevelEditor::redraw_background()
       process_scrolledge();
       mDisplay.proc_scale_factor_change();
 
-      mScreen.get_new_background(0);
+      mLevel.get_new_background();
 
       // draw lifts
       if (mEditorMain.obj_filter[4][1][1]) mLevel.mLift.draw_lifts();
@@ -543,7 +543,7 @@ int mwLevelEditor::redraw_background()
       if (mode == 3) mGroupEdit.draw_level_editor_background_overlays(mWM.mouse_on_window);     // Group Edit
       if (mode == 4) mObjectViewer.draw_level_editor_background_overlays(mWM.mouse_on_window);  // Object Viewer
       if (mode == 9) mTileHelper.draw_level_editor_background_overlays(mWM.mouse_on_window);    // Tile Helper
-      if (mode) mScreen.draw_scaled_level_region_to_display();
+      if (mode) mLevel.draw_scaled_level_region_to_display();
    }
    return drawn;
 }
@@ -556,7 +556,7 @@ int mwLevelEditor::redraw_background()
 void mwLevelEditor::redraw_callback()
 {
    redraw_background(0);
-   mScreen.draw_scaled_level_region_to_display();
+   mLevel.draw_scaled_level_region_to_display();
    mWM.cycle_windows(1); // draw only
 }
 
@@ -603,8 +603,8 @@ void mwLevelEditor::save_mW()
       fwrite(&mObjectViewer.num,                      sizeof(mObjectViewer.num),                      1, fp);
       fwrite(&mObjectViewer.viewer_lock,              sizeof(mObjectViewer.viewer_lock),              1, fp);
       fwrite(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
-      fwrite(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
-      fwrite(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+      fwrite(&mLevel.level_display_region_x,          sizeof(mLevel.level_display_region_x),          1, fp);
+      fwrite(&mLevel.level_display_region_y,          sizeof(mLevel.level_display_region_y),          1, fp);
 
       fwrite(&mTileHelper.add_del,                    sizeof(mTileHelper.add_del),                    1, fp);
       fwrite(&mTileHelper.match,                      sizeof(mTileHelper.match),                      1, fp);
@@ -667,8 +667,8 @@ bool mwLevelEditor::load_mW()
       fread(&mObjectViewer.num,                      sizeof(mObjectViewer.num),                      1, fp);
       fread(&mObjectViewer.viewer_lock,              sizeof(mObjectViewer.viewer_lock),              1, fp);
       fread(&mObjectViewer.snap,                     sizeof(mObjectViewer.snap),                     1, fp);
-      fread(&mScreen.level_display_region_x,         sizeof(mScreen.level_display_region_x),         1, fp);
-      fread(&mScreen.level_display_region_y,         sizeof(mScreen.level_display_region_y),         1, fp);
+      fread(&mLevel.level_display_region_x,          sizeof(mLevel.level_display_region_x),          1, fp);
+      fread(&mLevel.level_display_region_y,          sizeof(mLevel.level_display_region_y),          1, fp);
 
       fread(&mTileHelper.add_del,                    sizeof(mTileHelper.add_del),                    1, fp);
       fread(&mTileHelper.match,                      sizeof(mTileHelper.match),                      1, fp);

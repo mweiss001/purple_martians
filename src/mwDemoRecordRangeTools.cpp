@@ -7,9 +7,9 @@
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
 #include "mwInput.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
-#include "mwPlayer.h"
 #include "mwWidget.h"
 
 void mwDemoRecord::range_tools_set_fire_moves(int f, int clear_set)
@@ -129,7 +129,7 @@ void mwDemoRecord::proc_range_tools_menu()
       if (mp == 13)
       {
          int sp = rt_player;
-         int dp = mPlayer.active_local_player;
+         int dp = mLevel.mPlayer.active_local_player;
 
          int sp_f1 = rt_start_frame;
          int sp_f2 = rt_end_frame;
@@ -198,7 +198,7 @@ void mwDemoRecord::draw_range_tools(mwWindow w)
    if (pmrect.contains(mInput.mouse_x, mInput.mouse_y)) change_player_num_menu(rt_player);
 
    mWidget.mCheckBox(0, xa, xa+40, y1, 12, 0, rt_player_mode,  "Use Active Player", 15, 15, d);
-   if (rt_player_mode) rt_player = mPlayer.active_local_player;
+   if (rt_player_mode) rt_player = mLevel.mPlayer.active_local_player;
 
    mWidget.mCheckBox(0, xa, xa+40, y1, 12, 0, rt_all_players,  "All Players", 15, 15, d);
 

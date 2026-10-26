@@ -5,7 +5,6 @@
 #include "mwConfig.h"
 #include "mwInput.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwDemoMode.h"
 #include "mwEditSelection.h"
 #include "mwGmInfo.h"

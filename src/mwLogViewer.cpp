@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwWidget.h"
@@ -12,6 +11,7 @@
 #include "mwHelp.h"
 #include "mwMiscFnx.h"
 #include "mwFileIterator.h"
+#include "mwLevel.h"
 
 int mwLog::load_log_lines_array_from_static_file(const char* f)
 {
@@ -187,7 +187,7 @@ int mwLog::log_file_viewer(int type)
    // set players colors
    for (int i=0; i<8; i++)
       if (lp[i][1]) // we have moves for this player
-         mPlayer.syn[i].color = 8+i;
+         mLevel.mPlayer.syn[i].color = 8+i;
 
    while (!quit)
    {

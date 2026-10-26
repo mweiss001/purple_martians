@@ -11,7 +11,6 @@
 #include "mwMain.h"
 #include "mwSound.h"
 #include "mwScreen.h"
-#include "mwPlayer.h"
 
 mwBottomMessage mBottomMessage;
 
@@ -182,24 +181,24 @@ void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo)
 
 void mwBottomMessage::draw_player(int p, int &xpos)
 {
-   ALLEGRO_BITMAP *tmp = mBitmap.player_tile[mPlayer.syn[p].color][1];
+   ALLEGRO_BITMAP *tmp = mBitmap.player_tile[mLevel.mPlayer.syn[p].color][1];
 
    std::stringstream ss;
-   if (disp_player_text_long) ss << mPlayer.getName(p);
+   if (disp_player_text_long) ss << mLevel.mPlayer.getName(p);
    else  ss << "P" << std::to_string(p);
 
    int dp = disp_player;
    if (dp == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
-   if (dp == 1) draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str()); // text only
+   if (dp == 1) draw_text(xpos, mLevel.mPlayer.syn[p].color, ss.str().c_str()); // text only
    if (dp == 2) // tile + text
    {
       draw_bmp(tmp, xpos, 0, 0);
       xpos += 6;
-      draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str());
+      draw_text(xpos, mLevel.mPlayer.syn[p].color, ss.str().c_str());
    }
    if (dp == 3) // text + tile
    {
-      draw_text(xpos, mPlayer.syn[p].color, ss.str().c_str());
+      draw_text(xpos, mLevel.mPlayer.syn[p].color, ss.str().c_str());
       xpos += 4;
       draw_bmp(tmp, xpos, 0, 0);
    }
@@ -502,7 +501,7 @@ int mwBottomMessage::bmsg_draw(int outline)
          if (0)
          {
             // shorten the list if the player is near the bottom of the screen
-            int dfb = 2000 - mPlayer.syn[mPlayer.active_local_player].y; // player distance from bottom of level
+            int dfb = 2000 - mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y; // player distance from bottom of level
             if (dfb < 300)  nb = 4;
             if (dfb < 200)  nb = 2;
          }

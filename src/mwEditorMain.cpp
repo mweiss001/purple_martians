@@ -17,7 +17,6 @@
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
 #include "mwObjectViewer.h"
-#include "mwPlayer.h"
 #include "mwScreen.h"
 #include "mwSelectionWindow.h"
 #include "mwTileEditor.h"
@@ -224,7 +223,7 @@ void mwEditorMain::process_mouse_on_background()
             if (mLevelEditor.get_new_selection("preview", true))
             {
                mTileSets.drawRect(0);
-               mScreen.init_level_background();
+               mLevel.init_level_background();
                al_set_target_backbuffer(mDisplay.display);
             }
          }
@@ -347,7 +346,7 @@ void mwEditorMain::process_mouse_on_background()
          break;
       }
 
-      switch (mMenu.pmenu(2, mPlayer.syn[mPlayer.active_local_player].color, -20, 2))
+      switch (mMenu.pmenu(2, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color, -20, 2))
       {
          case 2:  // copy
             if (point_item_type > 0 && point_item_type < 4)
@@ -504,7 +503,7 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    x3=x2-44;
    if (mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, by1-2, 11, 1, -1, show_tile_overlays, "ovr", 9, 15, d, "show tile overlays"))
    {
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 
@@ -512,7 +511,7 @@ void mwEditorMain::draw_status_window(mwRect<int> &rect, int d, int have_focus)
    x3-=48;
    if (mWidget.mCheckBoxWithToolTip(1, x3, 50, 1, by1-2, 11, 1, -1, show_non_default_blocks, "ndf", 9, 15, d, "mark non-default blocks"))
    {
-      mScreen.init_level_background();
+      mLevel.init_level_background();
       al_set_target_backbuffer(mDisplay.display);
    }
 
@@ -747,7 +746,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
 {
    int d = w.disable_input;
 
-   int c = mPlayer.syn[mPlayer.active_local_player].color;
+   int c = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].color;
 
 
    al_set_target_backbuffer(mDisplay.display);

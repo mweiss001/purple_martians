@@ -9,7 +9,6 @@
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwSound.h"
 #include "mwSql.h"
 
@@ -42,7 +41,7 @@ void mwGmInfo::fill()
    lastFrame = mGameMoves.arr[mGameMoves.entry_pos-1][0];
 
    // save current control method to restore later
-   int old_mPlayer0_control_method = mPlayer.syn[0].control_method;
+   int old_mPlayer0_control_method = mLevel.mPlayer.syn[0].control_method;
 
    // load level and seek start
    mDemoMode.seek_to_frame(0, 0);
@@ -63,7 +62,7 @@ void mwGmInfo::fill()
    mSound.mute = 0;
 
    // restore old control method
-   mPlayer.syn[0].control_method = old_mPlayer0_control_method;
+   mLevel.mPlayer.syn[0].control_method = old_mPlayer0_control_method;
 
    calc();
 }

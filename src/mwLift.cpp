@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwLift.h"
-#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWindowManager.h"
@@ -21,10 +20,6 @@
 #include "mwScreen.h"
 
 
-mwLift::mwLift()
-{
-   initialize();
-}
 
 void mwLift::initialize()
 {
@@ -833,8 +828,8 @@ void mwLift::set_lift_to_step(int l, int s)
 // int mwLift::is_player_riding_lift(int l)
 // {
 //    for (int p=0; p<NUM_PLAYERS; p++)
-//       if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-//          if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
+//       if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+//          if ((m_parent.mPlayer.syn[p].player_ride) && (l == m_parent.mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
 //    return 0;
 // }
 //
@@ -845,8 +840,8 @@ void mwLift::set_lift_to_step(int l, int s)
 bool mwLift::is_player_riding_lift(int l, int &pr)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-         if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32))
+      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+         if ((m_parent.mPlayer.syn[p].player_ride) && (l == m_parent.mPlayer.syn[p].player_ride - 32))
          {
             pr = p; // player is riding this lift
             return true;
@@ -1006,7 +1001,7 @@ void mwLift::draw_lifts()
             int p = 0;
             // if (is_player_riding_lift(l,p))
             // {
-            //    int pc = mPlayer.syn[p].color;
+            //    int pc = m_parent.mPlayer.syn[p].color;
             //    if (pc == color) pc = 127;
             //    lr.draw_rounded_rectangle(4, 4, mColor.pc[pc], 2);
             // }
@@ -1131,8 +1126,8 @@ int mwLift::lift_check_prox(int l, int pd)
    float by2 = cur[l].y + cur[l].h + pd - 10;
 
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-         if ((mPlayer.syn[p].x > bx1) && (mPlayer.syn[p].x < bx2) && (mPlayer.syn[p].y > by1) && (mPlayer.syn[p].y < by2)) return 1;
+      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+         if ((m_parent.mPlayer.syn[p].x > bx1) && (m_parent.mPlayer.syn[p].x < bx2) && (m_parent.mPlayer.syn[p].y > by1) && (m_parent.mPlayer.syn[p].y < by2)) return 1;
    return 0;
 }
 

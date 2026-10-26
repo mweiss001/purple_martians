@@ -62,6 +62,14 @@ class mwNetgame
    int ima_server = 0;
    int ima_client = 0;
 
+
+
+
+   bool active();
+
+
+
+
    char server_address[256] = "purplemartians.org";
    int server_port = 24785;
 

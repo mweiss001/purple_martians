@@ -2,13 +2,13 @@
 
 #include "pm.h"
 #include "mwItem.h"
-#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwGameEvent.h"
 #include "mwEventQueue.h"
+#include "mwLevel.h"
 
 // item[x][1]  draw type (0=hidden, 1=static door, 2=animated warp)
 // item[x][6]  color
@@ -71,7 +71,7 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       if (!drawn)
       {
          for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
-            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_door == i))
+            if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_door == i))
             {
                if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
                   al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
@@ -102,17 +102,17 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
 void mwItem::proc_door_collision(int p, int i)
 {
-   if ((mPlayer.syn[p].marked_door == -1)  // player has no marked door yet
-     && (mPlayer.syn[p].carry_item != i+1)) // player is not carrying this door
+   if ((m_parent.mPlayer.syn[p].marked_door == -1)  // player has no marked door yet
+     && (m_parent.mPlayer.syn[p].carry_item != i+1)) // player is not carrying this door
    {
 
 
       if (item[i][8]) // do nothing if exit only
       {
-         mPlayer.syn[p].marked_door = i;
+         m_parent.mPlayer.syn[p].marked_door = i;
          int do_entry = 0;
          if (item[i][11] == 0) do_entry = 1; // enter immed
-         if (mPlayer.syn[p].carry_item-1 != i) // cant trigger entry if carrying this door
+         if (m_parent.mPlayer.syn[p].carry_item-1 != i) // cant trigger entry if carrying this door
          {
             if (item[i][11] == 1) // enter with <up>
             {
@@ -122,9 +122,9 @@ void mwItem::proc_door_collision(int p, int i)
                if (item[i][10] && item[i][10] < mLoop.frame_num-1) item[i][10] = 0;
 
                // up pressed and !pressed last frame
-               if ((mPlayer.syn[p].up) && (!item[i][10])) do_entry = 1;
+               if ((m_parent.mPlayer.syn[p].up) && (!item[i][10])) do_entry = 1;
 
-               if (mPlayer.syn[p].up) item[i][10] = mLoop.frame_num;
+               if (m_parent.mPlayer.syn[p].up) item[i][10] = mLoop.frame_num;
                else item[i][10] = 0;
 
             }
@@ -137,9 +137,9 @@ void mwItem::proc_door_collision(int p, int i)
                if (item[i][10] && item[i][10] < mLoop.frame_num-1) item[i][10] = 0;
 
                // down pressed and !pressed last frame
-               if ((mPlayer.syn[p].down) && (!item[i][10])) do_entry = 1;
+               if ((m_parent.mPlayer.syn[p].down) && (!item[i][10])) do_entry = 1;
 
-               if (mPlayer.syn[p].down) item[i][10] = mLoop.frame_num;
+               if (m_parent.mPlayer.syn[p].down) item[i][10] = mLoop.frame_num;
                else item[i][10] = 0;
             }
          }
@@ -153,9 +153,9 @@ void mwItem::proc_door_collision(int p, int i)
             if (item[i][9] == i) bad_exit = 1;
 
             // is player carrying an item ?
-            if (mPlayer.syn[p].carry_item)
+            if (m_parent.mPlayer.syn[p].carry_item)
             {
-                int ci = mPlayer.syn[p].carry_item - 1;
+                int ci = m_parent.mPlayer.syn[p].carry_item - 1;
                 //printf("do entry, player is carrying item:%d\n", ci);
 
                // check to see if player is carrying this door
@@ -191,18 +191,18 @@ void mwItem::proc_door_collision(int p, int i)
                if (item[i][7] == 0) instant_move = 1; // 1 = force instant
                if (item[i][7] == 1) instant_move = 0; // 2 = force move
 
-               if (mPlayer.is_player_riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
+               if (m_parent.mPlayer.is_player_riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
 
                if (instant_move)
                {
-                  mPlayer.syn[p].x = itemf[li][0];
-                  mPlayer.syn[p].y = itemf[li][1];
+                  m_parent.mPlayer.syn[p].x = itemf[li][0];
+                  m_parent.mPlayer.syn[p].y = itemf[li][1];
 
-                  if (mPlayer.is_player_riding_rocket(p))
+                  if (m_parent.mPlayer.is_player_riding_rocket(p))
                   {
-                     int c = mPlayer.syn[p].carry_item-1;
-                     itemf[c][0] = mPlayer.syn[p].x;
-                     itemf[c][1] = mPlayer.syn[p].y;
+                     int c = m_parent.mPlayer.syn[p].carry_item-1;
+                     itemf[c][0] = m_parent.mPlayer.syn[p].x;
+                     itemf[c][1] = m_parent.mPlayer.syn[p].y;
                   }
 
                   item[li][10] = mLoop.frame_num;
@@ -210,36 +210,36 @@ void mwItem::proc_door_collision(int p, int i)
                else
                {
                   // snap player to the source door
-                  mPlayer.syn[p].x = itemf[i][0];
-                  mPlayer.syn[p].y = itemf[i][1];
+                  m_parent.mPlayer.syn[p].x = itemf[i][0];
+                  m_parent.mPlayer.syn[p].y = itemf[i][1];
 
-                  mPlayer.syn[p].right_xinc = 0;
-                  mPlayer.syn[p].left_xinc  = 0;
+                  m_parent.mPlayer.syn[p].right_xinc = 0;
+                  m_parent.mPlayer.syn[p].left_xinc  = 0;
 
                   // set player's xinc and yinc
-                  float xlen = mPlayer.syn[p].x - dx;                 // get the x distance between player and exit
-                  float ylen = mPlayer.syn[p].y - dy;                 // get the y distance between player and exit
+                  float xlen = m_parent.mPlayer.syn[p].x - dx;                 // get the x distance between player and exit
+                  float ylen = m_parent.mPlayer.syn[p].y - dy;                 // get the y distance between player and exit
                   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
                   float speed = 15;                                   // speed
                   float scaler = hy_dist / speed;                     // get scaler (time)
-                  mPlayer.syn[p].door_xinc = xlen / scaler;           // calc xinc
-                  mPlayer.syn[p].door_yinc = ylen / scaler;           // calc yinc
+                  m_parent.mPlayer.syn[p].door_xinc = xlen / scaler;           // calc xinc
+                  m_parent.mPlayer.syn[p].door_yinc = ylen / scaler;           // calc yinc
 
                   // set players rotation from xinc, yinc
-                  mPlayer.syn[p].door_draw_rot = atan2(mPlayer.syn[p].door_yinc, mPlayer.syn[p].door_xinc) - ALLEGRO_PI/2;
+                  m_parent.mPlayer.syn[p].door_draw_rot = atan2(m_parent.mPlayer.syn[p].door_yinc, m_parent.mPlayer.syn[p].door_xinc) - ALLEGRO_PI/2;
 
                   int num_steps = scaler;
 
                   if ((num_steps > 0) && (num_steps < 2000))
                   {
-                     int ddrns = mPlayer.syn[p].door_draw_rot_num_steps = 12;
-                     mPlayer.syn[p].door_num_steps = num_steps;
-                     mPlayer.syn[p].paused = 1;
-                     mPlayer.syn[p].paused_type = 2;
-                     mPlayer.syn[p].paused_mode = 1;
-                     mPlayer.syn[p].paused_mode_count = ddrns;
-                     mPlayer.syn[p].door_item = i;
-                     mPlayer.syn[p].door_draw_rot_inc = mPlayer.syn[p].door_draw_rot / ddrns;
+                     int ddrns = m_parent.mPlayer.syn[p].door_draw_rot_num_steps = 12;
+                     m_parent.mPlayer.syn[p].door_num_steps = num_steps;
+                     m_parent.mPlayer.syn[p].paused = 1;
+                     m_parent.mPlayer.syn[p].paused_type = 2;
+                     m_parent.mPlayer.syn[p].paused_mode = 1;
+                     m_parent.mPlayer.syn[p].paused_mode_count = ddrns;
+                     m_parent.mPlayer.syn[p].door_item = i;
+                     m_parent.mPlayer.syn[p].door_draw_rot_inc = m_parent.mPlayer.syn[p].door_draw_rot / ddrns;
                   }
                   // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, mPlayer.syn[p].xinc, mPlayer.syn[p].yinc);
                } // end of if not instant move
@@ -252,70 +252,70 @@ void mwItem::proc_door_collision(int p, int i)
 
 void mwItem::proc_player_door_move(int p)
 {
-   int x = mPlayer.syn[p].door_item;
-   int ddrns = mPlayer.syn[p].door_draw_rot_num_steps;
+   int x = m_parent.mPlayer.syn[p].door_item;
+   int ddrns = m_parent.mPlayer.syn[p].door_draw_rot_num_steps;
    float amount_to_shrink = 0.5;
    float sa = amount_to_shrink / ddrns;  // shrink and grow player inc
 
-   if (mPlayer.syn[p].paused_mode == 1) // mode 1: enter door
+   if (m_parent.mPlayer.syn[p].paused_mode == 1) // mode 1: enter door
    {
-      mPlayer.syn[p].paused_mode_count--;
-      if (mPlayer.syn[p].paused_mode_count)
+      m_parent.mPlayer.syn[p].paused_mode_count--;
+      if (m_parent.mPlayer.syn[p].paused_mode_count)
       {
-         mPlayer.syn[p].draw_scale -= sa; // shrink player
-         mPlayer.syn[p].draw_rot += mPlayer.syn[p].door_draw_rot_inc; // rotate player
+         m_parent.mPlayer.syn[p].draw_scale -= sa; // shrink player
+         m_parent.mPlayer.syn[p].draw_rot += m_parent.mPlayer.syn[p].door_draw_rot_inc; // rotate player
       }
       else // next mode
       {
-         mPlayer.syn[p].paused_mode = 2;
-         mPlayer.syn[p].paused_mode_count = mPlayer.syn[p].door_num_steps;
-         mPlayer.syn[p].xinc = mPlayer.syn[p].door_xinc;
-         mPlayer.syn[p].yinc = mPlayer.syn[p].door_yinc;
-         mPlayer.syn[p].draw_rot = mPlayer.syn[p].door_draw_rot;
+         m_parent.mPlayer.syn[p].paused_mode = 2;
+         m_parent.mPlayer.syn[p].paused_mode_count = m_parent.mPlayer.syn[p].door_num_steps;
+         m_parent.mPlayer.syn[p].xinc = m_parent.mPlayer.syn[p].door_xinc;
+         m_parent.mPlayer.syn[p].yinc = m_parent.mPlayer.syn[p].door_yinc;
+         m_parent.mPlayer.syn[p].draw_rot = m_parent.mPlayer.syn[p].door_draw_rot;
       }
    }
 
-   if (mPlayer.syn[p].paused_mode == 2) // mode 2: player move
+   if (m_parent.mPlayer.syn[p].paused_mode == 2) // mode 2: player move
    {
-      mPlayer.syn[p].paused_mode_count--;
-      if (mPlayer.syn[p].paused_mode_count)
+      m_parent.mPlayer.syn[p].paused_mode_count--;
+      if (m_parent.mPlayer.syn[p].paused_mode_count)
       {
-         mPlayer.syn[p].x -= mPlayer.syn[p].xinc;
-         mPlayer.syn[p].y -= mPlayer.syn[p].yinc;
+         m_parent.mPlayer.syn[p].x -= m_parent.mPlayer.syn[p].xinc;
+         m_parent.mPlayer.syn[p].y -= m_parent.mPlayer.syn[p].yinc;
       }
       else // mode 2 done
       {
-         mPlayer.syn[p].paused_mode = 3;
-         mPlayer.syn[p].paused_mode_count = ddrns;
+         m_parent.mPlayer.syn[p].paused_mode = 3;
+         m_parent.mPlayer.syn[p].paused_mode_count = ddrns;
 
-         mPlayer.syn[p].xinc=0;
-         mPlayer.syn[p].yinc=0;
+         m_parent.mPlayer.syn[p].xinc=0;
+         m_parent.mPlayer.syn[p].yinc=0;
 
 
          // snap to dest...
          if (item[x][8] == 0) // regular dest
          {
-            mPlayer.syn[p].x  = item[x][6] * 20;
-            mPlayer.syn[p].y  = item[x][7] * 20;
+            m_parent.mPlayer.syn[p].x  = item[x][6] * 20;
+            m_parent.mPlayer.syn[p].y  = item[x][7] * 20;
          }
          if (item[x][8] == 1) // linked item dest
          {
             int li = item[x][9]; // linked item number
-            mPlayer.syn[p].x  = itemf[li][0];
-            mPlayer.syn[p].y  = itemf[li][1];
+            m_parent.mPlayer.syn[p].x  = itemf[li][0];
+            m_parent.mPlayer.syn[p].y  = itemf[li][1];
             // set destination key held to prevent immediate retriggering
             item[li][10] = mLoop.frame_num;
          }
        }
    } // end of mode 2
 
-   if (mPlayer.syn[p].paused_mode == 3) // mode 3: exit
+   if (m_parent.mPlayer.syn[p].paused_mode == 3) // mode 3: exit
    {
-      mPlayer.syn[p].paused_mode_count--;
-      if (mPlayer.syn[p].paused_mode_count)
+      m_parent.mPlayer.syn[p].paused_mode_count--;
+      if (m_parent.mPlayer.syn[p].paused_mode_count)
       {
-         mPlayer.syn[p].draw_scale += sa;                             // un-shrink player
-         mPlayer.syn[p].draw_rot -= mPlayer.syn[p].door_draw_rot_inc; // un-rotate player
+         m_parent.mPlayer.syn[p].draw_scale += sa;                             // un-shrink player
+         m_parent.mPlayer.syn[p].draw_rot -= m_parent.mPlayer.syn[p].door_draw_rot_inc; // un-rotate player
       }
       else // next mode (done)
       {
@@ -325,7 +325,7 @@ void mwItem::proc_player_door_move(int p)
             int li = item[x][9]; // linked item number
             item[li][10] = mLoop.frame_num;   // key hold off
          }
-         mPlayer.syn[p].paused = 0;  // the entire thing is done
+         m_parent.mPlayer.syn[p].paused = 0;  // the entire thing is done
       }
    }
    proc_player_carry(p);

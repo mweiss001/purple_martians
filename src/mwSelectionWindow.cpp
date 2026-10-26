@@ -1233,7 +1233,7 @@ void mwSelectionWindow::draw(mwRect<int> &rect, int d, int have_focus)
       {
          mEditorMain.show_template_overlays = !mEditorMain.show_template_overlays;
          mBitmap.rebuild_bitmaps();
-         mScreen.init_level_background();
+         mLevel.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
       mWidget.mToolTip(4, 0,  x2-2,     1, by1-13, 10,   1, 1, 1, 1,  0, 15, 15, "Template", ttx, by1, ttx+8, by1+8);

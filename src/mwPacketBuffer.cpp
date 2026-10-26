@@ -5,10 +5,11 @@
 #include "mwNetgame.h"
 #include "mwLoop.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 
 #include <thread>
 #include <chrono>
+
+#include "mwLevel.h"
 
 mwPacketBuffer mPacketBuffer;
 
@@ -69,7 +70,8 @@ void mwPacketBuffer::proc_rx_buffer()
 // receives all waiting packets and puts them in the rx buffer or processes them immediately
 void mwPacketBuffer::check_for_packets()
 {
-   if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) return;
+   //if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) return;
+   if (!mNetgame.active()) return;
 
    char data[PACKET_BUFFER_SIZE] = {0};
    char address[256];
@@ -87,19 +89,19 @@ void mwPacketBuffer::check_for_packets()
          else
          {
             add_to_rx_buffer_single(data, p);
-            mPlayer.loc[p].rx_current_bytes_for_this_frame += (len + 42);
-            mPlayer.loc[p].rx_current_packets_for_this_frame++;
-            mPlayer.loc[0].rx_current_bytes_for_this_frame += (len + 42);
-            mPlayer.loc[0].rx_current_packets_for_this_frame++;
+            mLevel.mPlayer.loc[p].rx_current_bytes_for_this_frame += (len + 42);
+            mLevel.mPlayer.loc[p].rx_current_packets_for_this_frame++;
+            mLevel.mPlayer.loc[0].rx_current_bytes_for_this_frame += (len + 42);
+            mLevel.mPlayer.loc[0].rx_current_packets_for_this_frame++;
          }
       }
 
       if (mNetgame.ima_client)
       {
-         int p = mPlayer.active_local_player;
+         int p = mLevel.mPlayer.active_local_player;
          add_to_rx_buffer_single(data, p);
-         mPlayer.loc[p].rx_current_bytes_for_this_frame+= (len + 42);
-         mPlayer.loc[p].rx_current_packets_for_this_frame++;
+         mLevel.mPlayer.loc[p].rx_current_bytes_for_this_frame+= (len + 42);
+         mLevel.mPlayer.loc[p].rx_current_packets_for_this_frame++;
       }
    }
 }

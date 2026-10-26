@@ -5,7 +5,6 @@
 #include "mwNetgame.h"
 #include "mwPacketBuffer.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
@@ -56,8 +55,8 @@ void mwNetgame::serverExitNetwork()
    ima_server = 0;
 
    // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
-   mPlayer.syn[0].active = 1;
+   for (int p=0; p<NUM_PLAYERS; p++) mLevel.mPlayer.init_player(p, 1);
+   mLevel.mPlayer.syn[0].active = 1;
 
    if (mLog.log_types[LOG_NET_SESSION].action) session_flush_active_at_server_exit();
 }
@@ -85,12 +84,12 @@ void mwNetgame::serverSendTo(void *data, int len, int p)
    net_send(Channel, data, len);
 
    // add to server's counts
-   mPlayer.loc[0].tx_current_bytes_for_this_frame += (len + 42);
-   mPlayer.loc[0].tx_current_packets_for_this_frame++;
+   mLevel.mPlayer.loc[0].tx_current_bytes_for_this_frame += (len + 42);
+   mLevel.mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
    // add to client's counts
-   mPlayer.loc[p].tx_current_bytes_for_this_frame += (len + 42);
-   mPlayer.loc[p].tx_current_packets_for_this_frame++;
+   mLevel.mPlayer.loc[p].tx_current_bytes_for_this_frame += (len + 42);
+   mLevel.mPlayer.loc[p].tx_current_packets_for_this_frame++;
 }
 
 void mwNetgame::headless_server_setup()
@@ -104,7 +103,7 @@ void mwNetgame::headless_server_setup()
    mLevel.unlock_all_levels_and_areas();
 
    // make the hidden server player color taan (6)
-   mPlayer.syn[0].color = 6;
+   mLevel.mPlayer.syn[0].color = 6;
 
 
    //printf("mLog.clear_all_log_actions()\n");
@@ -166,10 +165,10 @@ void mwNetgame::server_rewind()
    int sfco = mGameState.server_force_client_offset;
    int lcd[8][2] = { 0 };
    for (int pp=0; pp<NUM_PLAYERS; pp++)
-      if (mPlayer.syn[pp].active)
+      if (mLevel.mPlayer.syn[pp].active)
       {
-         lcd[pp][0] = mPlayer.syn[pp].late_cdats;
-         lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
+         lcd[pp][0] = mLevel.mPlayer.syn[pp].late_cdats;
+         lcd[pp][1] = mLevel.mPlayer.syn[pp].late_cdats_last_sec;
       }
 
    mStateHistory[0].apply_rewind_state(server_dirty_frame);
@@ -182,10 +181,10 @@ void mwNetgame::server_rewind()
    mGameState.server_force_fakekey = sffk;
    mGameState.server_force_client_offset = sfco;
    for (int pp=0; pp<NUM_PLAYERS; pp++)
-      if (mPlayer.syn[pp].active)
+      if (mLevel.mPlayer.syn[pp].active)
       {
-         mPlayer.syn[pp].late_cdats = lcd[pp][0];
-         mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
+         mLevel.mPlayer.syn[pp].late_cdats = lcd[pp][0];
+         mLevel.mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
       }
 
    mLog.add_tmr1(LOG_TMR_rwnd, "rwnd", al_get_time() - t0);
@@ -218,7 +217,7 @@ void mwNetgame::server_create_new_state()
 void mwNetgame::server_send_dif(int frame_num)
 {
    for (int p=1; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active) && ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN)))
+      if ((mLevel.mPlayer.syn[p].active) && ((mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN)))
       {
          // save current state in history as base for next clients send
          mStateHistory[p].add_state(frame_num);
@@ -231,7 +230,7 @@ void mwNetgame::server_send_dif(int frame_num)
          // get client's most recent base state (the last one acknowledged to the server) if not found, leaves base as is (zero)
          mStateHistory[p].get_last_ack_state(base, base_frame_num);
 
-         if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
+         if (base_frame_num == 0) mLevel.mPlayer.loc[p].client_base_resets++;
 
          // make a new dif from base and current
          get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
@@ -254,8 +253,8 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    // break compressed dif into smaller pieces
    int num_packets = (cmp_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
-   mPlayer.loc[p].cmp_dif_size = cmp_size;
-   mPlayer.loc[p].num_dif_packets = num_packets;
+   mLevel.mPlayer.loc[p].cmp_dif_size = cmp_size;
+   mLevel.mPlayer.loc[p].num_dif_packets = num_packets;
 
    mLog.add(LOG_NET_DIF_TRX, 0, p, src, dst, cmp_size, cr, num_packets);
 
@@ -421,23 +420,23 @@ void mwNetgame::server_process_db_control()
 void mwNetgame::server_send_snfo_packet() // send info to remote control
 {
    // copy values into loc
-   mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
-   mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
-   mPlayer.loc[0].srv_level = mLevel.play_level;
-   mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
-   mPlayer.loc[0].srv_extra_packets_num = mNetgame.srv_exp_num;
-   mPlayer.loc[0].srv_extra_packets_size = mNetgame.srv_exp_siz;
-   mPlayer.loc[0].srv_uptime = al_get_time();
-   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
+   mLevel.mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
+   mLevel.mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
+   mLevel.mPlayer.loc[0].srv_level = mLevel.play_level;
+   mLevel.mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
+   mLevel.mPlayer.loc[0].srv_extra_packets_num = mNetgame.srv_exp_num;
+   mLevel.mPlayer.loc[0].srv_extra_packets_size = mNetgame.srv_exp_siz;
+   mLevel.mPlayer.loc[0].srv_uptime = al_get_time();
+   sprintf(mLevel.mPlayer.loc[0].srv_version, PM_VERSION);
 
-   mPlayer.loc[0].srv_num_enemy = mLevel.mEnemy.num_enemy;
+   mLevel.mPlayer.loc[0].srv_num_enemy = mLevel.mEnemy.num_enemy;
 
    char src[5800];
    char dst[5800];
 
    int sz=0, offset=0;
-   offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
-   offset += sz; sz = sizeof(mPlayer.loc); memcpy(src + offset, mPlayer.loc, sz);
+   offset += sz; sz = sizeof(mLevel.mPlayer.syn); memcpy(src + offset, mLevel.mPlayer.syn, sz);
+   offset += sz; sz = sizeof(mLevel.mPlayer.loc); memcpy(src + offset, mLevel.mPlayer.loc, sz);
    offset += sz; sz = sizeof(mGameState);  memcpy(src + offset, &mGameState, sz);
 
 
@@ -568,30 +567,30 @@ void mwNetgame::server_proc_stak_packet(int i)
       return;
    }
 
-   mPlayer.loc[p].client_chase_fps   = mPacketBuffer.PacketGetDouble(i);
-   mPlayer.loc[p].pdsync             = mPacketBuffer.PacketGetDouble(i);
-   mPlayer.loc[p].rewind             = mPacketBuffer.PacketGetInt32(i);
-   mPlayer.loc[p].client_loc_plr_cor = mPacketBuffer.PacketGetDouble(i);
-   mPlayer.loc[p].client_rmt_plr_cor = mPacketBuffer.PacketGetDouble(i);
-   mPlayer.loc[p].cpu                = mPacketBuffer.PacketGetDouble(i);
+   mLevel.mPlayer.loc[p].client_chase_fps   = mPacketBuffer.PacketGetDouble(i);
+   mLevel.mPlayer.loc[p].pdsync             = mPacketBuffer.PacketGetDouble(i);
+   mLevel.mPlayer.loc[p].rewind             = mPacketBuffer.PacketGetInt32(i);
+   mLevel.mPlayer.loc[p].client_loc_plr_cor = mPacketBuffer.PacketGetDouble(i);
+   mLevel.mPlayer.loc[p].client_rmt_plr_cor = mPacketBuffer.PacketGetDouble(i);
+   mLevel.mPlayer.loc[p].cpu                = mPacketBuffer.PacketGetDouble(i);
 
    // add lcor and rcor to tally object
-   mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
-   mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
+   mTally_client_loc_plr_cor_last_sec[p].add_data(mLevel.mPlayer.loc[p].client_loc_plr_cor);
+   mTally_client_rmt_plr_cor_last_sec[p].add_data(mLevel.mPlayer.loc[p].client_rmt_plr_cor);
 
    // calculate stak_sync
    int stak_sync = mLoop.frame_num - mStateHistory[p].newest_state_frame_num;
 
    // calculate stak_dsync
-   mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
+   mLevel.mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
 
    // this is used to see if client is still alive
-   mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
+   mLevel.mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
 
    // make sure we have a copy of acknowledged state in history, finds and sets values, or sets to -1 if not found
    mStateHistory[p].set_ack_state(ack_frame_num);
 
-   mLog.add(LOG_NET_DIF_ACK, 1, p, ack_frame_num, client_frame_num, slsn, mPlayer.loc[p].pdsync, mPlayer.loc[p].client_chase_fps);
+   mLog.add(LOG_NET_DIF_ACK, 1, p, ack_frame_num, client_frame_num, slsn, mLevel.mPlayer.loc[p].pdsync, mLevel.mPlayer.loc[p].client_chase_fps);
 }
 
 
@@ -609,11 +608,11 @@ void mwNetgame::server_proc_player_drop()
 
       // check to see if we need to drop clients
       for (int p=1; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mLevel.mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             session_close(p, 4); // reason 4 - comm loss
-            mLog.add(LOG_NET, LOG_NET_SUBTYPE_SERVER_DROP, p, mPlayer.loc[p].server_last_stak_rx_frame_num); // "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+            mLog.add(LOG_NET, LOG_NET_SUBTYPE_SERVER_DROP, p, mLevel.mPlayer.loc[p].server_last_stak_rx_frame_num); // "Server dropped player:%d (last stak rx:%d)", p, mLevel.mPlayer.loc[p].server_last_stak_rx_frame_num);
          }
    }
 }
@@ -680,7 +679,7 @@ void mwNetgame::server_proc_cdat_packet(int i)
    // reject cdats if server_lev_seq_num does not match
    if (slsn != server_lev_seq_num) // wrong slsn - dropped
    {
-      mLog.add(LOG_NET_CDAT, 3, p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn, server_lev_seq_num);
+      mLog.add(LOG_NET_CDAT, 3, p, cdat_frame_num, mLevel.mPlayer.loc[p].server_game_move_sync, slsn, server_lev_seq_num);
       return;
    }
 
@@ -688,9 +687,9 @@ void mwNetgame::server_proc_cdat_packet(int i)
    int of = mStateHistory[0].oldest_state_frame_num;
    if (cdat_frame_num < of) // late - dropped
    {
-      mPlayer.syn[p].late_cdats++;
+      mLevel.mPlayer.syn[p].late_cdats++;
       mTally_late_cdats_last_sec[p].add_data(1); // add to tally
-      mLog.add(LOG_NET_CDAT, 2, p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn);
+      mLog.add(LOG_NET_CDAT, 2, p, cdat_frame_num, mLevel.mPlayer.loc[p].server_game_move_sync, slsn);
       return;
    }
 
@@ -703,19 +702,19 @@ void mwNetgame::server_proc_cdat_packet(int i)
    // this is the server's version of client sync...clients also calculate their own sync
 
    // calculate game_move_sync
-   mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
+   mLevel.mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
 
    // calculate game_move_dsync
-   mPlayer.loc[p].game_move_dsync = ( (double) mPlayer.loc[p].server_game_move_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
+   mLevel.mPlayer.loc[p].game_move_dsync = ( (double) mLevel.mPlayer.loc[p].server_game_move_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
 
    // add to average tally
-   mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync);
+   mTally_game_move_dsync_avg_last_sec[p].add_data(mLevel.mPlayer.loc[p].game_move_dsync);
 
    // tally cdats received
-   mPlayer.loc[p].client_cdat_packets_tx++;
+   mLevel.mPlayer.loc[p].client_cdat_packets_tx++;
 
    // add log entry
-   mLog.add(LOG_NET_CDAT, 1, p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn, mGameMoves.entry_pos);
+   mLog.add(LOG_NET_CDAT, 1, p, cdat_frame_num, mLevel.mPlayer.loc[p].server_game_move_sync, slsn, mGameMoves.entry_pos);
 }
 
 
@@ -753,7 +752,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
 
    int full = 0;
 
-   int p = mPlayer.find_inactive_player();
+   int p = mLevel.mPlayer.find_inactive_player();
    if (p == 99) // no inactive player found
    {
       full = 1;
@@ -767,32 +766,32 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
    else // inactive player found, proceed with join
    {
       // initialize player
-      mPlayer.init_player(p, 1);
+      mLevel.mPlayer.init_player(p, 1);
 
       // set channel address
       mwChannels[p].channel_active = 1;
       strcpy(mwChannels[p].channel_address, address);
 
       // copy hostname to player struct
-      strcpy(mPlayer.loc[p].hostname, hostname);
+      strcpy(mLevel.mPlayer.loc[p].hostname, hostname);
 
       // copy playername to player struct
-      strcpy(mPlayer.syn[p].name, playername);
+      strcpy(mLevel.mPlayer.syn[p].name, playername);
 
       // initialize state history
       mStateHistory[p].initialize();
 
       // to prevent dropping newly added player for the first 5s
-      mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
+      mLevel.mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
 
       // keep track of when client joined
-      mPlayer.loc[p].join_frame = mLoop.frame_num;
+      mLevel.mPlayer.loc[p].join_frame = mLoop.frame_num;
 
       // try to use requested color, unless already used by another player
-      color = mPlayer.get_new_client_color(requested_color);
+      color = mLevel.mPlayer.get_new_client_color(requested_color);
 
       // set the last touched gate level
-      mPlayer.syn[p].overworld_last_touched_gate = mLevel.play_level;
+      mLevel.mPlayer.syn[p].overworld_last_touched_gate = mLevel.play_level;
 
       // add game move to make client active and set color
       mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);
@@ -869,7 +868,7 @@ void mwNetgame::server_count_clients()
 {
    server_num_clients = 0;
    for (int p=1; p<NUM_PLAYERS; p++)
-      if (mPlayer.syn[p].active) server_num_clients++;
+      if (mLevel.mPlayer.syn[p].active) server_num_clients++;
 }
 
 
@@ -894,14 +893,14 @@ void mwNetgame::server_control()
    // send extra packets (testing and debug only)
    for (int i=0; i<srv_exp_num; i++)
       for (int p=1; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          {
             char data[PACKET_BUFFER_SIZE] = {0}; int pos;
             mPacketBuffer.PacketName(data, pos, "extr");
             serverSendTo(data, pos + srv_exp_siz, p);
          }
 
-   for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
+   for (int p=0; p<NUM_PLAYERS; p++) if (mLevel.mPlayer.syn[p].active) process_bandwidth_counters(p);
 
    server_count_clients();
 

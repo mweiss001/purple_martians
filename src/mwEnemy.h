@@ -3,11 +3,28 @@
 #define MWENEMY_H
 
 
+// forward declaration
+class mwLevel;
+
+
+
+
+
+
+
+
 
 class mwEnemy
 {
+   private:
+      mwLevel& m_parent; // Store a reference to parent
+
    public:
-   mwEnemy() { fill_strings(); }
+
+   mwEnemy(mwLevel& parent) : m_parent(parent) { fill_strings(); } // default constructor
+
+
+//   mwEnemy() { fill_strings(); }
 
 
    int Ei[100][32];        // enemy ints

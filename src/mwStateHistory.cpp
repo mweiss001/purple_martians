@@ -5,8 +5,9 @@
 #include "mwLoop.h"
 #include "mwNetgame.h"
 #include <limits>
+
+#include "mwLevel.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 
 
 mwStateHistory::mwStateHistory()
@@ -171,7 +172,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
       frame_num = history_state_frame_num[indx];
 
       // how many frames to rewind
-      int ff = mPlayer.loc[0].rewind = mLoop.frame_num - frame_num;
+      int ff = mLevel.mPlayer.loc[0].rewind = mLoop.frame_num - frame_num;
 
       mLog.add(LOG_NET_DIF_REWIND, 0, -1, frame_num, ff); // rewind to...
 

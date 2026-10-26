@@ -9,10 +9,10 @@
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
 #include "mwInput.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwScreen.h"
 #include "mwWidget.h"
 
@@ -123,7 +123,7 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
       // set ry1
       float ry2 = ry1 + bts;
 
-      if (p == mPlayer.active_local_player)
+      if (p == mLevel.mPlayer.active_local_player)
       {
          ry2 += activeTrackHeightAdjust;
          frameColor = baseFrameColor;
@@ -163,12 +163,12 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
 
       // frame
       bar.draw_rectangle(mColor.pc[frameColor], 1);
-      if (p == mPlayer.active_local_player) bar.draw_rectangle(mColor.pc[frameColor], 1, -1);
+      if (p == mLevel.mPlayer.active_local_player) bar.draw_rectangle(mColor.pc[frameColor], 1, -1);
 
       // if noEnd, erase rhs frame line
       if (r.noEnd)
       {
-         if (p == mPlayer.active_local_player) al_draw_filled_rectangle(bar.x2-1.5, bar.y1+1.5, bar.x2+0.5, bar.y2-1.5, mColor.pc[c+144]);
+         if (p == mLevel.mPlayer.active_local_player) al_draw_filled_rectangle(bar.x2-1.5, bar.y1+1.5, bar.x2+0.5, bar.y2-1.5, mColor.pc[c+144]);
          else al_draw_filled_rectangle(bar.x2-1, bar.y1+0.5, bar.x2+0.5, bar.y2-0.5, mColor.pc[c+144]);
       }
 
@@ -182,7 +182,7 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
 
 
       // show record armed area on track
-      if ((p == mPlayer.active_local_player) && (record_punch_in_armed))
+      if ((p == mLevel.mPlayer.active_local_player) && (record_punch_in_armed))
       {
          // translate mLoop.frame_num and mGmInfo.lastFrame to screen positions
          float fx1 = mMiscFnx.map_range<float>((float)mLoop.frame_num, sf, lf,  ix1, ix2);
@@ -217,7 +217,7 @@ bool mwDemoRecord::draw_timeline_tracks(int x1, int x2, int y1, float bts, float
          al_draw_line(tile.x2+1, bar.y1, tile.x2+1, bar.y2, mColor.pc[frameColor], 1);
 
          // draw tile rhs border line
-         if (p == mPlayer.active_local_player) al_draw_line(tile.x2, bar.y1, tile.x2, bar.y2, mColor.pc[frameColor], 1);
+         if (p == mLevel.mPlayer.active_local_player) al_draw_line(tile.x2, bar.y1, tile.x2, bar.y2, mColor.pc[frameColor], 1);
 
          // draw tile
          al_draw_scaled_bitmap(mBitmap.player_tile[c][1], 0, 0, 20, 20, tile.x1, tile.y1, tile.h, tile.w, 0);

@@ -5,31 +5,6 @@ class mwScreen
    public:
 
 
-   // the viewport region of the level
-   float level_display_region_x;
-   float level_display_region_y;
-   float level_display_region_xinc;
-   float level_display_region_yinc;
-   int level_display_region_w;
-   int level_display_region_h;
-
-   int ldr_xmx_h;
-   int ldr_xmn_h;
-   int ldr_ymx_h;
-   int ldr_ymn_h;
-
-   int ldr_xmx_a;
-   int ldr_xmn_a;
-   int ldr_ymx_a;
-   int ldr_ymn_a;
-
-   int screen_display_x;
-   int screen_display_y;
-   int screen_display_w;
-   int screen_display_h;
-
-
-
    int viewport_mode;
    int viewport_show_hyst;
    float viewport_x_div;
@@ -41,24 +16,6 @@ class mwScreen
    int viewport_look_player_motion;
    int viewport_look_rocket;
 
-
-
-
-   void get_new_background(int full);
-
-   void transition_cutscene(int i, int f);
-
-   void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);
-
-   int gate_transition_x;
-   int gate_transition_y;
-   int gate_transition_wx;
-   int gate_transition_wy;
-   float gate_transition_scale;
-
-
-   int transition_num_steps;
-   int transition_delay;
 
 
    // the position and size of the menu
@@ -95,37 +52,14 @@ class mwScreen
    float splash_logo_y_dec;
 
 
-
-
    void draw_hyst_rect();
 
-   void set_screen_display_variables();
-
-   void set_level_display_region_xy();
-
-
-
-
-
-
-
-
-
-
-   void draw_scaled_level_region_to_display();
    void set_map_var();
    void mark_non_default_block(int x, int y, int tile);
 
    void draw_tile_overlay(int tile, int x, int y);
 
-   void init_level_background();
-
-   void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
-
-   void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
-
    void draw_level_map_under_menu();
-
 
    void draw_screen_frame();
 
@@ -185,7 +119,6 @@ class mwScreen
    void draw_client_debug_overlay(int &cx, int &cy);
 
 
-
    void draw_demo_controls_overlay();
    int draw_demo_controls_overlay_players_small(int x, int y);
    void draw_demo_controls_overlay_bottom_line();
@@ -193,13 +126,7 @@ class mwScreen
    void draw_demo_controls_overlay_transport(int x1, int y1, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h);
    void draw_demo_controls_overlay_play_stop_button(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
    void draw_demo_controls_overlay_timeline(int x1, int y1, int x2, int y2, int col);
-
-
-//   bool draw_demo_controls_overlay_timeline_tracks(int x1, int x2, int y2, int bts, int ls, bool smallText, bool sizeOnly, int &w, int &h, int &gmInfo_index, int draw_time_labels, int display_only);
-
    void draw_demo_controls_overlay_play_stop_button_small(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc);
-
-
    void draw_demo_controls_overlay_textline(int fx1, int fx2, int fy1, int bts, int ls, int tc, int fc, bool smallText, const char * txt);
 
    int demo_controls_overlay_x;
@@ -218,16 +145,11 @@ class mwScreen
    void set_demo_controls_tray_mode(bool val);
    void adj_demo_controls_mode(int val);
 
-
-
-
    void drag_move_demo_controls_overlay();
 
    int draw_demo_controls_overlay_titlebar(int x1, int y1, int y2, int x2);
 
    void draw_demo_controls_overlay_pwd_nrd(int fx1, int fx2, int fy1, int bts, int ls, bool smallText);
-
-
 
 
 };

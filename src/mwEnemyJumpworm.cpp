@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayer.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
 #include "mwShot.h"
@@ -210,9 +209,9 @@ void mwEnemy::move_jumpworm(int e)
       // check for jump if player passes above
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) )
-               if ((EXint < mPlayer.syn[p].x + Ei[e][7]) && (EXint > mPlayer.syn[p].x - Ei[e][7]) &&
-                   (EYint > mPlayer.syn[p].y)) attempt_jump = 1;
+            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused) )
+               if ((EXint < m_parent.mPlayer.syn[p].x + Ei[e][7]) && (EXint > m_parent.mPlayer.syn[p].x - Ei[e][7]) &&
+                   (EYint > m_parent.mPlayer.syn[p].y)) attempt_jump = 1;
    }
 
    if (attempt_jump)

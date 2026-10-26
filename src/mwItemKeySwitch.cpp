@@ -1,7 +1,6 @@
 // mwItemKeySwitch.cpp
 #include "pm.h"
 #include "mwItem.h"
-#include "mwPlayer.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwBitmap.h"
@@ -39,7 +38,7 @@ void mwItem::proc_hider(int i)
 
 void mwItem::erase_hider_areas()
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
+   al_set_target_bitmap(m_parent.level_buffer);
    for (int i=0; i<500; i++)
       if ((item[i][0] == 19) && (item[i][2]) && (item[i][10]))
       {
@@ -173,17 +172,17 @@ void mwItem::proc_switch_collision(int p, int i)
 {
    if (item[i][11] < mLoop.frame_num) // if not lockout
    {
-      float px = mPlayer.syn[p].x;
-      float py = mPlayer.syn[p].y;
+      float px = m_parent.mPlayer.syn[p].x;
+      float py = m_parent.mPlayer.syn[p].y;
       float ix = itemf[i][0];
       float iy = itemf[i][1];
-      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (mPlayer.syn[p].yinc > 0) )  // falling
+      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (m_parent.mPlayer.syn[p].yinc > 0) )  // falling
       {
          item[i][11] = mLoop.frame_num + 4; // switch lockout for next 4 frames
          mGameEvent.add(21, 0, 0, p, item[i][1], 0, 0);
          if (item[i][1] > 111) item[i][1] -= 16;
          else item[i][1] += 16;
-         al_set_target_bitmap(mBitmap.level_background);
+         al_set_target_bitmap(m_parent.level_background);
          proc_switch_block_range(i, 1);
       }
    }
@@ -204,7 +203,7 @@ void mwItem::proc_switch_block_range(int i, int action)
 
    if (action == 1)
    {
-      al_set_target_bitmap(mBitmap.level_background);
+      al_set_target_bitmap(m_parent.level_background);
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {

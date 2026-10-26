@@ -11,10 +11,10 @@
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
 #include "mwInput.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMenu.h"
 #include "mwMiscFnx.h"
-#include "mwPlayer.h"
 #include "mwWidget.h"
 
 
@@ -48,7 +48,7 @@ int mwDemoRecord::draw_GMList_controls(mwWindow &w)
 
    // simpler variable names for local scope
    int f = mLoop.frame_num;
-   int p = mPlayer.active_local_player;
+   int p = mLevel.mPlayer.active_local_player;
 
    // if set, edit this gm_Index after displaying list
    gm_list_edit_index = -1;
@@ -278,7 +278,7 @@ void mwDemoRecord::draw_GMList(mwWindow &w)
          mMiscFnx.gma_to_val(git, gip, giv, gip, giv, name);
 
          // why? // so that we use player name from demo file instead of local player name? ???
-         // snprintf(mPlayer.syn[gip].name, 9, "%s", name);
+         // snprintf(mLevel.mPlayer.syn[gip].name, 9, "%s", name);
       }
 
 
@@ -288,7 +288,7 @@ void mwDemoRecord::draw_GMList(mwWindow &w)
       else                sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, gif, git, gip, giv, msg));
 
       // set line color from player color
-      int text_col = mPlayer.syn[gip].color;
+      int text_col = mLevel.mPlayer.syn[gip].color;
       if (git == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
       if (gm_list_mono) text_col = 15;
 
@@ -519,7 +519,7 @@ void mwDemoRecord::proc_gm_list_menu(int gi, int sx, int sy)
       if (mr == mi++) // copy to rec_player
       {
          int sp = p;
-         int dp = mPlayer.active_local_player;
+         int dp = mLevel.mPlayer.active_local_player;
 
          //printf("copy_ptp(sp:%d, dp:%d)\n", sp,  dp);
 
@@ -652,7 +652,7 @@ void mwDemoRecord::load_lnk_arr()
          if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
 
          // add current player moves
-         if (mGameMoves.arr[i][2] == mPlayer.active_local_player) add = 1;
+         if (mGameMoves.arr[i][2] == mLevel.mPlayer.active_local_player) add = 1;
       }
 
       // in simple mode add only 'PM_GAMEMOVE_TYPE_PLAYER_MOVE'
@@ -823,7 +823,7 @@ void mwDemoRecord::edit_gm(int gi, int sx, int sy)
          ya-=2;
          if (mWidget.mButton(3, xa+98, 0,   1, ya, 11,   0, 0, 3, 3,   0, 15, 15,  10, 0, name, 0))
          {
-            if (mMiscFnx.edit_string_simple(xa+98, ya, mPlayer.syn[pp].name, 8)) mGameMoves.gma_change_name(gi, mPlayer.syn[pp].name);
+            if (mMiscFnx.edit_string_simple(xa+98, ya, mLevel.mPlayer.syn[pp].name, 8)) mGameMoves.gma_change_name(gi, mLevel.mPlayer.syn[pp].name);
             refresh();
          }
          ya+=13;

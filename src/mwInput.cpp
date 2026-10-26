@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
-#include "mwPlayer.h"
 #include "mwLog.h"
 #include "mwNetgame.h"
 #include "mwSettings.h"
@@ -22,6 +21,7 @@
 #include "mwBottomMessage.h"
 #include "mwLogo.h"
 #include "mwSound.h"
+#include "mwTransitions.h"
 
 
 mwInput mInput;
@@ -210,8 +210,8 @@ void mwInput::serial_key_check(int key)
 
    if ((serial_key_test("fakekey")) || (serial_key_test("FAKEKEY")))
    {
-      mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
-      printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
+      mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode =! mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode;
+      printf("fake keypress mode:%d\n", mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode);
    }
 
    if (serial_key_test("win800"))
@@ -228,8 +228,8 @@ void mwInput::serial_key_check(int key)
       mDemoMode.config_autoplay_enabled = 0;
       mLogo.show_splash_screen = 0;
       mSound.sound_on = 0;
-      mScreen.transition_num_steps = 1;
-      mScreen.transition_delay = 1;
+      mTransitions.transition_num_steps = 1;
+      mTransitions.transition_delay = 1;
       set_controls_to_custom_sets(4);
       mDisplay.disp_w_wind = 800;
       mDisplay.disp_h_wind = 600;
@@ -240,24 +240,24 @@ void mwInput::serial_key_check(int key)
 
    if (serial_key_test("devset0"))
    {
-      mPlayer.syn[0].color = 8;
-      sprintf(mPlayer.syn[0].name, "%s", "michael");
+      mLevel.mPlayer.syn[0].color = 8;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "michael");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset1"))
    {
-      mPlayer.syn[0].color = 3;
-      sprintf(mPlayer.syn[0].name, "%s", "Kaileb");
+      mLevel.mPlayer.syn[0].color = 3;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "Kaileb");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset2"))
    {
-      mPlayer.syn[0].color = 4;
-      sprintf(mPlayer.syn[0].name, "%s", "Zaiden");
+      mLevel.mPlayer.syn[0].color = 4;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "Zaiden");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
@@ -265,54 +265,54 @@ void mwInput::serial_key_check(int key)
 
    if (serial_key_test("devset3"))
    {
-      mPlayer.syn[0].color = 7;
-      sprintf(mPlayer.syn[0].name, "%s", "jenny!");
+      mLevel.mPlayer.syn[0].color = 7;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "jenny!");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset4"))
    {
-      mPlayer.syn[0].color = 9;
-      sprintf(mPlayer.syn[0].name, "%s", "Forest");
+      mLevel.mPlayer.syn[0].color = 9;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "Forest");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset5"))
    {
-      mPlayer.syn[0].color = 13;
-      sprintf(mPlayer.syn[0].name, "%s", "Aqualung");
+      mLevel.mPlayer.syn[0].color = 13;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "Aqualung");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset6"))
    {
-      mPlayer.syn[0].color = 6;
-      sprintf(mPlayer.syn[0].name, "%s", "Tandoori");
+      mLevel.mPlayer.syn[0].color = 6;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "Tandoori");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
    if (serial_key_test("devset7"))
    {
-      mPlayer.syn[0].color = 5;
-      sprintf(mPlayer.syn[0].name, "%s", "pinky");
+      mLevel.mPlayer.syn[0].color = 5;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "pinky");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
    if (serial_key_test("devset8"))
    {
-      mPlayer.syn[0].color = 15;
-      sprintf(mPlayer.syn[0].name, "%s", "whitey");
+      mLevel.mPlayer.syn[0].color = 15;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "whitey");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
    if (serial_key_test("devset9"))
    {
-      mPlayer.syn[0].color = 14;
-      sprintf(mPlayer.syn[0].name, "%s", "banana!");
+      mLevel.mPlayer.syn[0].color = 14;
+      sprintf(mLevel.mPlayer.syn[0].name, "%s", "banana!");
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
@@ -429,7 +429,7 @@ void mwInput::function_key_check()
       if (++mLoop.show_debug_overlay >= mSettings.number_of_debug_overlay_modes) mLoop.show_debug_overlay = 0;
 
    // force init level background
-   if (key[function_key_init_background][2]) mScreen.init_level_background();
+   if (key[function_key_init_background][2]) mLevel.init_level_background();
 
    // force instant game save and log save
    if (key[function_key_force_save][3])
@@ -452,15 +452,16 @@ void mwInput::function_key_check()
       // toggle fake keypress mode (for stress testing netgame)
       if (key[function_key_fakekey][3])
       {
-         mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
-         printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
+         mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode =! mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode;
+         printf("fake keypress mode:%d\n", mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].fake_keypress_mode);
       }
 
 
 
 
       // adjust speed (fps)
-      if ((!mLoop.speed_control_lock) && (!mNetgame.ima_client) && (!mNetgame.ima_server)) // only adjust speed if not locked and not in netgame
+      //if ((!mLoop.speed_control_lock) && (!mNetgame.ima_client) && (!mNetgame.ima_server)) // only adjust speed if not locked and not in netgame
+      if ((!mLoop.speed_control_lock) && (!mNetgame.active())) // only adjust speed if not locked and not in netgame
       {
          int old_fps = mLoop.frame_speed;
 
@@ -583,13 +584,13 @@ bool mwInput::my_readkey2(int x, int y, int tc, int bts, int num) // used only t
          int original_k = - 1;
          switch (num)
          {
-            case  0: original_k = mPlayer.loc[0].up_key;    break;
-            case  1: original_k = mPlayer.loc[0].down_key;  break;
-            case  2: original_k = mPlayer.loc[0].left_key;  break;
-            case  3: original_k = mPlayer.loc[0].right_key; break;
-            case  4: original_k = mPlayer.loc[0].jump_key;  break;
-            case  5: original_k = mPlayer.loc[0].fire_key;  break;
-            case  6: original_k = mPlayer.loc[0].menu_key;  break;
+            case  0: original_k = mLevel.mPlayer.loc[0].up_key;    break;
+            case  1: original_k = mLevel.mPlayer.loc[0].down_key;  break;
+            case  2: original_k = mLevel.mPlayer.loc[0].left_key;  break;
+            case  3: original_k = mLevel.mPlayer.loc[0].right_key; break;
+            case  4: original_k = mLevel.mPlayer.loc[0].jump_key;  break;
+            case  5: original_k = mLevel.mPlayer.loc[0].fire_key;  break;
+            case  6: original_k = mLevel.mPlayer.loc[0].menu_key;  break;
          }
          if (k == original_k) key_used = 0;
       }
@@ -605,13 +606,13 @@ bool mwInput::my_readkey2(int x, int y, int tc, int bts, int num) // used only t
    }
    else switch (num)
    {
-      case  0: mPlayer.loc[0].up_key    =  k; break;
-      case  1: mPlayer.loc[0].down_key  =  k; break;
-      case  2: mPlayer.loc[0].left_key  =  k; break;
-      case  3: mPlayer.loc[0].right_key =  k; break;
-      case  4: mPlayer.loc[0].jump_key  =  k; break;
-      case  5: mPlayer.loc[0].fire_key  =  k; break;
-      case  6: mPlayer.loc[0].menu_key  =  k; break;
+      case  0: mLevel.mPlayer.loc[0].up_key    =  k; break;
+      case  1: mLevel.mPlayer.loc[0].down_key  =  k; break;
+      case  2: mLevel.mPlayer.loc[0].left_key  =  k; break;
+      case  3: mLevel.mPlayer.loc[0].right_key =  k; break;
+      case  4: mLevel.mPlayer.loc[0].jump_key  =  k; break;
+      case  5: mLevel.mPlayer.loc[0].fire_key  =  k; break;
+      case  6: mLevel.mPlayer.loc[0].menu_key  =  k; break;
    }
    return true;
 }
@@ -665,13 +666,13 @@ int mwInput::is_key_used(int k)
    if (function_key_speed_dec == k) ret = 1;
    if (function_key_speed_inc == k) ret = 1;
 
-   if (mPlayer.loc[0].up_key    == k) ret = 1;
-   if (mPlayer.loc[0].down_key  == k) ret = 1;
-   if (mPlayer.loc[0].left_key  == k) ret = 1;
-   if (mPlayer.loc[0].right_key == k) ret = 1;
-   if (mPlayer.loc[0].jump_key  == k) ret = 1;
-   if (mPlayer.loc[0].fire_key  == k) ret = 1;
-   if (mPlayer.loc[0].menu_key  == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].up_key    == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].down_key  == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].left_key  == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].right_key == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].jump_key  == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].fire_key  == k) ret = 1;
+   if (mLevel.mPlayer.loc[0].menu_key  == k) ret = 1;
 
    return ret;
 }
@@ -719,19 +720,19 @@ void mwInput::test_keys(int x, int sy)
 
 
       y +=16;
-      if (mPlayer.syn[0].up) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
+      if (mLevel.mPlayer.syn[0].up) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
       y +=8;
-      if (mPlayer.syn[0].down) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
+      if (mLevel.mPlayer.syn[0].down) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
       y +=8;
-      if (mPlayer.syn[0].left) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
+      if (mLevel.mPlayer.syn[0].left) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
       y +=8;
-      if (mPlayer.syn[0].right) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
+      if (mLevel.mPlayer.syn[0].right) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
       y +=8;
-      if (mPlayer.syn[0].jump) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
+      if (mLevel.mPlayer.syn[0].jump) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
       y +=8;
-      if (mPlayer.syn[0].fire) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
+      if (mLevel.mPlayer.syn[0].fire) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
       y +=8;
-      if (mPlayer.syn[0].menu) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
+      if (mLevel.mPlayer.syn[0].menu) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
       al_flip_display();
       mEventQueue.proc_menu();
@@ -752,53 +753,53 @@ void mwInput::set_controls_to_custom_sets(int s)
 
    if (s == 1) // set all to joy1
    {
-      mPlayer.loc[0].up_key = 128;
-      mPlayer.loc[0].down_key = 129;
-      mPlayer.loc[0].right_key = 131;
-      mPlayer.loc[0].left_key = 130;
-      mPlayer.loc[0].jump_key = 133;
-      mPlayer.loc[0].fire_key = 132;
-      mPlayer.loc[0].menu_key = 135;
+      mLevel.mPlayer.loc[0].up_key = 128;
+      mLevel.mPlayer.loc[0].down_key = 129;
+      mLevel.mPlayer.loc[0].right_key = 131;
+      mLevel.mPlayer.loc[0].left_key = 130;
+      mLevel.mPlayer.loc[0].jump_key = 133;
+      mLevel.mPlayer.loc[0].fire_key = 132;
+      mLevel.mPlayer.loc[0].menu_key = 135;
    }
    if (s == 2) // set all to joy2
    {
-      mPlayer.loc[0].up_key = 148;
-      mPlayer.loc[0].down_key = 149;
-      mPlayer.loc[0].right_key = 151;
-      mPlayer.loc[0].left_key = 150;
-      mPlayer.loc[0].jump_key = 153;
-      mPlayer.loc[0].fire_key = 152;
-      mPlayer.loc[0].menu_key = 155;
+      mLevel.mPlayer.loc[0].up_key = 148;
+      mLevel.mPlayer.loc[0].down_key = 149;
+      mLevel.mPlayer.loc[0].right_key = 151;
+      mLevel.mPlayer.loc[0].left_key = 150;
+      mLevel.mPlayer.loc[0].jump_key = 153;
+      mLevel.mPlayer.loc[0].fire_key = 152;
+      mLevel.mPlayer.loc[0].menu_key = 155;
    }
    if (s == 3) // set all to arrows
    {
-      mPlayer.loc[0].up_key = 84;
-      mPlayer.loc[0].down_key = 85;
-      mPlayer.loc[0].right_key = 83;
-      mPlayer.loc[0].left_key = 82;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mLevel.mPlayer.loc[0].up_key = 84;
+      mLevel.mPlayer.loc[0].down_key = 85;
+      mLevel.mPlayer.loc[0].right_key = 83;
+      mLevel.mPlayer.loc[0].left_key = 82;
+      mLevel.mPlayer.loc[0].jump_key = 75;
+      mLevel.mPlayer.loc[0].fire_key = 3;
+      mLevel.mPlayer.loc[0].menu_key = 59;
    }
    if (s == 4) // set all to IJKL
    {
-      mPlayer.loc[0].up_key = 9;
-      mPlayer.loc[0].down_key = 11;
-      mPlayer.loc[0].right_key = 12;
-      mPlayer.loc[0].left_key = 10;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mLevel.mPlayer.loc[0].up_key = 9;
+      mLevel.mPlayer.loc[0].down_key = 11;
+      mLevel.mPlayer.loc[0].right_key = 12;
+      mLevel.mPlayer.loc[0].left_key = 10;
+      mLevel.mPlayer.loc[0].jump_key = 75;
+      mLevel.mPlayer.loc[0].fire_key = 3;
+      mLevel.mPlayer.loc[0].menu_key = 59;
    }
    if (s == 5) // set all to WASD
    {
-      mPlayer.loc[0].up_key = 23;
-      mPlayer.loc[0].down_key = 19;
-      mPlayer.loc[0].left_key = 1;
-      mPlayer.loc[0].right_key = 4;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mLevel.mPlayer.loc[0].up_key = 23;
+      mLevel.mPlayer.loc[0].down_key = 19;
+      mLevel.mPlayer.loc[0].left_key = 1;
+      mLevel.mPlayer.loc[0].right_key = 4;
+      mLevel.mPlayer.loc[0].jump_key = 75;
+      mLevel.mPlayer.loc[0].fire_key = 3;
+      mLevel.mPlayer.loc[0].menu_key = 59;
    }
 }
 

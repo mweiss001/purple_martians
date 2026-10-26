@@ -1,5 +1,4 @@
 // mwBottomMessage.h
-#include "mwPlayer.h"
 #include "mwLog.h"
 
 #define BMSG_MAX_LINES 30

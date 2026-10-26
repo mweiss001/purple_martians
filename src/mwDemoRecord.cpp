@@ -5,7 +5,6 @@
 #include "mwDemoMode.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
-#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwInput.h"
 #include "mwMiscFnx.h"
@@ -342,8 +341,8 @@ void mwDemoRecord::demo_record()
          // punch in
          if ((!record) && (record_punch_in_armed))
          {
-            mPlayer.set_comp_move_from_player_key_check(0);
-            if (mPlayer.loc[0].comp_move) start_record();
+            mLevel.mPlayer.set_comp_move_from_player_key_check(0);
+            if (mLevel.mPlayer.loc[0].comp_move) start_record();
          }
 
          if (play)
@@ -351,7 +350,7 @@ void mwDemoRecord::demo_record()
             mLoop.frame_num++;
 
             mBitmap.update_animation();
-            mPlayer.proc_player_input();
+            mLevel.mPlayer.proc_player_input();
             mGameMoves.proc();
             mLoop.move_frame();
             mDrawSequence.ds_draw(0, 0);
@@ -359,7 +358,7 @@ void mwDemoRecord::demo_record()
          else
          {
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            mScreen.draw_scaled_level_region_to_display();
+            mLevel.draw_scaled_level_region_to_display();
             mScreen.draw_screen_overlay();
             if (show_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, mDisplay.SCREEN_H-200);
          }
@@ -394,7 +393,7 @@ void mwDemoRecord::demo_record()
    save_mWM();
 
 
-   mPlayer.active_local_player = 0;
+   mLevel.mPlayer.active_local_player = 0;
    mConfig.load_config(); // to restore colors and other settings
 
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
@@ -407,7 +406,7 @@ void mwDemoRecord::redraw_callback()
 {
    mEventQueue.proc(1);
    al_clear_to_color(al_map_rgb(0, 0, 0));
-   mScreen.draw_scaled_level_region_to_display();
+   mLevel.draw_scaled_level_region_to_display();
    mScreen.draw_screen_overlay();
    // set transport position and size to dock above timeline
    if (mWM.mW[4].moving) mWM.mW[3].rect.setXYWH(mWM.mW[4].rect.x1, mWM.mW[4].rect.y1 - mWM.mW[3].rect.h, mWM.mW[4].rect.w, mWM.mW[3].rect.h);

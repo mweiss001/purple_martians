@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 #include "mwDrawSequence.h"
 #include <limits>
 
@@ -68,6 +67,12 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    if (mGameState.level_done_mode == 27) skip_draw = 1;
    if (mMain.headless_server) skip_draw = 1;
 
+   if (mGameState.transition_mode) skip_draw = 1;
+
+   if (mGameState.gate_enter_mode == 2) skip_draw = 1;
+
+
+
 
    if (!skip_draw)
    {
@@ -79,7 +84,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
 
       if (setup_only) ds_add_names(i, "d-bkgr", "get_new_background");
-      else { mScreen.get_new_background(1);  ds_add(i); }
+      else { mLevel.get_new_background();  ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
@@ -116,14 +121,14 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       {
          // draw hover info
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-               mLevel.mItem.draw_gate_hover_info(mPlayer.syn[p].marked_gate);
+            if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+               mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
          ds_add(i);
       }
 
 
       if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
-      else { mPlayer.draw_players(); ds_add(i); }
+      else { mLevel.mPlayer.draw_players(); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
@@ -152,7 +157,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       if (packet_check) mPacketBuffer.check_for_packets();
 
       if (setup_only) ds_add_names(i, "d-buff", "scale_buff_to_display");
-      else { mScreen.draw_scaled_level_region_to_display(); ds_add(i); }
+      else { mLevel.draw_scaled_level_region_to_display(); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 
@@ -178,7 +183,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       if (packet_check) mPacketBuffer.check_for_packets();
 
       if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
-      else { mPlayer.draw_players_direct_to_screen(); ds_add(i); }
+      else { mLevel.mPlayer.draw_players_direct_to_screen(); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 

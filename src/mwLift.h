@@ -45,11 +45,30 @@ struct lift_step
    int val;
 };
 
+
+
+
+
+
+
+
+// forward declaration
+class mwLevel;
+
+
+
 class mwLift
 {
-   public:
+private:
+   mwLevel& m_parent; // Store a reference to parent
 
-   mwLift(); // default constructor
+public:
+
+   mwLift(mwLevel& parent) : m_parent(parent) { initialize(); } // default constructor
+
+//   mwLift(); // default constructor
+
+
    void initialize();
 
    struct lift       cur[NUM_LIFTS];

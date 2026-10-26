@@ -46810,8 +46810,1106 @@ int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
 
 
 2026-10-24 14:53:31
+I should commit...done
 
-I should commit
+Now back to using the start location of the next level for gate entry transition...
+
+where will I store that?
+in mLoop with the other game entry variables
+
+int gate_enter_next_level_start_x;
+int gate_enter_next_level_start_y;
+  
+
+To start with, make the players zoom position that...
+
+I think I want the player to stay where they are, but have the level zoom into them.
+
+
+do I know where they will be at the end?
+
+
+I should make a function that will draw the level at an arbirtary scale and have one point that I will align with
+
+take a 2000x2000 bitmap
+specify a position in that bitmap
+
+specify a screen position that the bitmap anchor will align with
+
+specify a scale and rotation!!!
+
+I think ALLEGRO does that already...
+
+     
+
+al_draw_scaled_rotated_bitmap
+
+void al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
+
+make a bitmap part of loop for the next level
+draw in hover not main
+
+
+when doing first seek, draw new level bmp and slide into place
+
+I have all the tools in place, I just need to put them together
+
+
+I want the ending of the transition to match the actual start of the level.
+
+maybe I am thinking about the the wrong way...
+what if I take a bitmap from the old level and actually load the new one.
+I kind of want to load the new one live and zoom it in fast
+
+this could work...I would need to change the existing functions to let me overide positions
+
+here it what I am picturing:
+- after the player shrinks and rotates into the level icon
+- load the next level and set zoom and position to match exactly
+- then zoom out while the new level is actually running
+
+in 
+
+
+void mwScreen::set_screen_display_variables()
+
+int screen_display_pos_mode = 0;
+
+0 = auto
+1 = manual
+only have any effect when entire level is smaller than screen size (w or h)
+
+
+auto will center
+1 will let it be manually set
+
+so now what?
+
+undo all the stuff I have done and make it end with player zoomed into level icon
+
+   if ((mGameState.gate_enter_mode == 6) && (mGameState.gate_enter_item == i)) // shrink and rotate
+   {
+      // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+//      float rotate_time = mLoop.gate_enter_rotate_time;
+
+//      float ratio = .1;
+
+//      al_draw_scaled_rotated_bitmap(mLoop.gate_enter_next_level_bmp, mLoop.gate_enter_next_level_start_x, mLoop.gate_enter_next_level_start_y, xc, yc, ratio, ratio, 0, 0);
+
+   }
+
+
+   else if ((mGameState.gate_enter_mode == 4) && (mGameState.gate_enter_item == i)) // shrink and rotate
+   {
+      // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+      float rotate_time = mLoop.gate_enter_rotate_time;
+      float ratio = (rotate_time - mGameState.gate_enter_timer) / rotate_time;
+
+      al_draw_scaled_rotated_bitmap(mLoop.gate_enter_next_level_bmp, mLoop.gate_enter_next_level_start_x, mLoop.gate_enter_next_level_start_y, xc, yc, ratio, ratio, 0, 0);
+
+      
+      
+   }
+
+
+
+OK I now have the player seeking the level icon start position in mode 6
+then rotating and shrinking in mode 4
+
+next I want to start the new level with that screen size
+
+
+what zoom would that be?
+
+what is the variable
+
+scale_factor_current
+
+
+
+2026-10-24 18:57:57
+
+I can find out where the level icon is in exact screen position
+
+I think I am having troubles setting the scale factor and screen position to that
+
+
+2026-10-24 19:07:12
+
+what if I just did it like I do transistions...how do I do that again?
+
+
+draw current level centered on player
+
+
+
+2026-10-24 19:37:10
+
+I think I have something I like:
+the original transitions...
+
+//
+//
+//       mScreen.screen_display_pos_mode = 1;
+//
+//
+//       // level_icon size
+//       float size = mLevel.mItem.item[i][11];
+//
+//       float x1 = mLevel.mItem.itemf[i][0]-size/2+10;
+//       float y1 = mLevel.mItem.itemf[i][1]-size+19;
+//       float ex1, ey1;
+//       mScreen.calc_actual_screen_position(x1, y1, ex1, ey1);
+//
+// // to find the actual screen position of the hovered level icon....
+// // I need to do some math...
+//
+//       // // converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+//       // // pass it the center of the object's position, it will return the center also
+//       // void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+//       // {
+//       //    ex1 = screen_display_x + (ex - level_display_region_x) * mDisplay.scale_factor_current;
+//       //    ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
+//       // }
+//
+//
+//       mScreen.screen_display_pos_mode = 1;
+//       mScreen.screen_display_x = ex1;
+//       mScreen.screen_display_y = ey1;
+//
+//       mDisplay.scale_factor = mDisplay.scale_factor_current = (size/2000) * mDisplay.scale_factor_current;
+//
+//
+
+
+
+   // to find the actual screen position of the hovered level icon....
+   // I need to do some math...
+
+   // // converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+   // // pass it the center of the object's position, it will return the center also
+   // void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+   // {
+   //    ex1 = screen_display_x + (ex - level_display_region_x) * mDisplay.scale_factor_current;
+   //    ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
+   // }
+
+
+
+
+
+
+   // // draw crosshairs
+   // al_draw_line(xc, yc-10, xc, yc+10, mColor.Red, 1);
+   // al_draw_line(xc-10, yc, xc+10, yc, mColor.Red, 1);
+
+//    if ((mGameState.gate_enter_mode == 6) && (mGameState.gate_enter_item == i)) // shrink and rotate
+//    {
+//       // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+// //      float rotate_time = mLoop.gate_enter_rotate_time;
+//
+// //      float ratio = .1;
+//
+// //      al_draw_scaled_rotated_bitmap(mLoop.gate_enter_next_level_bmp, mLoop.gate_enter_next_level_start_x, mLoop.gate_enter_next_level_start_y, xc, yc, ratio, ratio, 0, 0);
+//
+//    }
+//
+//
+//    else if ((mGameState.gate_enter_mode == 4) && (mGameState.gate_enter_item == i)) // shrink and rotate
+//    {
+//       // ratio (0 to 1) of timer in mode 5 (rotate_time to 0)
+//       float rotate_time = mLoop.gate_enter_rotate_time;
+//       float ratio = (rotate_time - mGameState.gate_enter_timer) / rotate_time;
+//
+//       al_draw_scaled_rotated_bitmap(mLoop.gate_enter_next_level_bmp, mLoop.gate_enter_next_level_start_x, mLoop.gate_enter_next_level_start_y, xc, yc, ratio, ratio, 0, 0);
+//
+//
+//
+//    }
+//    else
+
+
+can I do transitions in netgame?
+
+if I do, they will have to have the same settings on server and client
+
+
+
+2026-10-25 05:24:28
+something causes headless server to crash when client enters gate
+fixed, creating and drawing bitmap for next level
+
+it looks like gate entry can work in netgame, but I need to try transitions
+
+
+where are all the places I disable when in netgame?
+
+
+void mwScreen::transition_cutscene(int i, int f)
+{
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mMain.headless_server))
+   {
+
+
+I want to replace these dumb calls..
+
+bool mwNetgame::active()
+{
+   if (ima_server || ima_client) return true;
+   return false;
+}
+
+
+//      if ((mNetgame.ima_server) || (mNetgame.ima_client))
+      if (mNetgame.active())
+         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+
+
+      // adjust speed (fps)
+      //if ((!mLoop.speed_control_lock) && (!mNetgame.ima_client) && (!mNetgame.ima_server)) // only adjust speed if not locked and not in netgame
+      if ((!mLoop.speed_control_lock) && (!mNetgame.active())) // only adjust speed if not locked and not in netgame
+
+   // no demo page in netgame
+   //if (((mNetgame.ima_server) || (mNetgame.ima_client)) && (item[i][7] == 4)) item[i][7] = 0;
+   if (mNetgame.active() && item[i][7] == 4) item[i][7] = 0;
+
+            // --------------------------------------------
+            // update ping variables
+            // --------------------------------------------
+            //if ((mNetgame.ima_server) || (mNetgame.ima_client))
+            if (mNetgame.active())
+
+void mwPacketBuffer::check_for_packets()
+{
+   //if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) return;
+   if (!mNetgame.active()) return;
+
+void mwScreen::transition_cutscene(int i, int f)
+{
+//   if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mMain.headless_server))
+   if (!mNetgame.active())
+
+
+   // add hostname if in netgame
+   //if ((mNetgame.ima_server) || (mNetgame.ima_client)) ss << " [" << std::string(mPlayer.loc[p].hostname) << "]";
+   if (mNetgame.active()) ss << " [" << std::string(mPlayer.loc[p].hostname) << "]";
+
+
+
+I need to save the size of the gate level icon somehwere
+int gate_enter_Level_icon_size;
+
+done
+
+made some changes...
+
+the client works in normal server mode but not headless....
+
+normal server
+do_transition(680.170044 72.595009 369.829987 375.895020 0.100000 1.000000 120.000000 0.012000
+
+headless
+do_transition(0.000000 0.000000 0.000000 0.000000 1.000000 1.000000 120.000000 0.012000
+
+
+now from the clients point of view
+
+also looks good...
+
+why does client not do transitions when server is headless?
+it works fine when server is not...
+actually it does not
+
+
+I think what might be happening is:
+- server is not sending stuff for next level while transition is running
+
+I don't think I ever want to stop the constant packet exchange and transitions does that
+
+Could I modify it to be like level_done and gate_entry?
+They seem to work well with netgame
+
+right now transitions uses steps and delay
+
+modify it to only use steps and make the delay part of the normal loop stuff
+
+you know, like the others
+
+start by removing delay
+
+
+make a class mwTransitions
+it will hold level done, gate entry and transitions
+level done has been moved
+gate enter has been moved
+transitions have been moved
+
+
+can I add it to the move loop just like these:
+
+void mwLoop::move_frame()
+{
+
+//   printf("move frame\n");
+
+   if (mGameState.level_done_mode)
+   {
+      mTransitions.proc_level_done_mode();
+      return;
+   }
+
+   if (mGameState.gate_enter_mode)
+   {
+      mTransitions.proc_gate_enter_mode();
+      return;
+   }
+
+Can I handle the frame incrementing while it runs?
+It has to if I want to keep netgame working.
+
+added
+
+   if (mGameState.transition_mode)
+   {
+      mTransitions.proc_transition_mode();
+      return;
+   }
+
+
+
+class mwGameState
+{
+   public:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int gate_enter_mode;
+   int gate_enter_timer;
+   int gate_enter_item;
+
+   
+   int transition_mode;
+   int transition_timer;
+   
+   
+void mwTransitions::proc_transition_mode()
+{
+   if (mGameState.transition_mode == 3) mGameState.transition_timer = 0; // entry point
+
+   if (mGameState.transition_mode == 2) // setup transition
+   {
+
+   }
+
+   if (mGameState.transition_mode == 1) // do transition
+   {
+
+   }
+
+   if (!mNetgame.ima_client) // clients do not set this locally, must come from server
+      if (--mGameState.transition_timer <= 0)
+      {
+         mGameState.transition_mode--;
+         // if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // partially open door
+
+now what?
+
+where do I want to try patching this in?
+
+duh, gate to level
+
+how does transitions do it?
+
+void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
+using level_buffer
+
+
+I am thinking of adding more to mwLevel
+like:
+player
+bitmaps level_background and level_buffer
+
+lets do the bitmaps....
+
+   ALLEGRO_BITMAP *level_background;
+   ALLEGRO_BITMAP *level_buffer;
+
+
+then create them in mLevel
+
+
+
+   // create level_background and level_buffer bitmaps
+   mLevel.level_background  = create_and_clear_bitmap(2000, 2000);
+   mLevel.level_buffer      = create_and_clear_bitmap(2000, 2000);
+
+
+I should make a contructor and destructor for mLevel
+
+I want things like items, etc to know what level instance invoked them:
+
+
+class Parent; // Forward declaration
+
+class Child {
+private:
+    Parent& m_parent; // Store a reference to the specific parent
+
+public:
+    // Constructor requires a parent reference
+    Child(Parent& parent) : m_parent(parent) {}
+
+    void identifyParent();
+};
+
+class Parent {
+public:
+    std::string name = "AlphaParent";
+    Child child;
+
+    // Pass 'this' object to the child during initialization
+    Parent() : child(*this) {} 
+};
+
+void Child::identifyParent() {
+    std::cout << "I was invoked by: " << m_parent.name << std::endl;
+}
+
+int main() {
+    Parent p;
+    p.child.identifyParent(); // Outputs: I was invoked by: AlphaParent
+    return 0;
+}
+
+
+
+
+add to mwItem:
+
+// forward declaration
+class mwLevel;
+
+
+class mwItem
+{
+   private:
+   mwLevel& m_parent; // Store a reference to parent
+
+   public:
+   // default constructor
+   mwItem(mwLevel& parent) : m_parent(parent) { initialize(); }
+
+
+in mLevel:
+
+class mwLevel
+{
+   public:
+
+   mwItem mItem;
+
+   mwLevel() : mItem(*this)
+   {
+      // this bitmap format will be used for all bitmaps, it is never changed
+      al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+
+      // this bitmap format is used for all other bitmaps
+      al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+
+      level_background = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(level_background);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+
+      level_buffer = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(level_buffer);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+
+   } // default constructor
+   ~mwLevel(); // default destructor
+
+   int l[100][100];
+
+//   mItem(*this)
+
+
+void mwItem::proc_switch_collision(int p, int i)
+{
+   if (item[i][11] < mLoop.frame_num) // if not lockout
+   {
+      float px = mPlayer.syn[p].x;
+      float py = mPlayer.syn[p].y;
+      float ix = itemf[i][0];
+      float iy = itemf[i][1];
+      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (mPlayer.syn[p].yinc > 0) )  // falling
+      {
+         item[i][11] = mLoop.frame_num + 4; // switch lockout for next 4 frames
+         mGameEvent.add(21, 0, 0, p, item[i][1], 0, 0);
+         if (item[i][1] > 111) item[i][1] -= 16;
+         else item[i][1] += 16;
+//         al_set_target_bitmap(mBitmap.level_background);
+
+         al_set_target_bitmap(m_parent.level_background);
+         
+         proc_switch_block_range(i, 1);
+      }
+   }
+}
+
+could this work??
+
+now in mLevel change all bmp refs to remove mBitmap.
+
+in all child use m_parent.
+
+I disabled it for now...
+2026-10-25 10:17:29
+
+I now have 
+
+   ALLEGRO_BITMAP *level_background;
+   ALLEGRO_BITMAP *level_buffer;
+
+part of the class mwLevel
+
+all refs inside the class that can, use the class instance
+those that cannot (child) use the global mLevel. reference
+those outside the call also use the global mLevel. reference
+
+I want to figure out how to have the children (items, enemies...) know what parent they belong to
+so that they know what bitmap to draw on
+
+
+-----
+now that I have all that compiling clean, try again...
+
+
+
+
+here is another example
+
+#include <iostream>
+
+// 1. Forward declaration of Parent so Child knows it exists
+class Parent; 
+
+class Child {
+private:
+    Parent& parentRef; // Store reference to the parent container
+
+public:
+    // 2. Initialize the reference in the member initializer list
+    Child(Parent& p) : parentRef(p) {} 
+    
+    void doSomething();
+};
+
+class Parent {
+private:
+    int energy = 100;
+
+public:
+    Child myChild;
+
+    // 3. Pass '*this' to the child's constructor
+    Parent() : myChild(*this) {} 
+
+    void reduceEnergy() { energy -= 10; std::cout << "Parent energy: " << energy << "\n"; }
+};
+
+// 4. Implement Child methods AFTER Parent class definition is fully visible
+void Child::doSomething() {
+    parentRef.reduceEnergy(); 
+}
+
+int main() {
+    Parent p;
+    p.myChild.doSomething(); // Outputs: "Parent energy: 90"
+}
+
+editSelection has its own raw copies of item, ene, liftss
+should just use the ones in level...fixed!!!
+
+now it compiles clean!!!
+
+now any references to bitmap is items should be changed to m_parent
+
+now do enemies...done
+now lifts...has no refs to these bitmaps...
+
+all that is done...
+
+now I want to make init background a part of mwLevel done...
+now drawlevel2..done
+now get new background..done
+
+
+2026-10-25 11:45:37
+
+this is a lot of stuff....
+
+the only other thing that might be usefull to add is player
+so I can draw them and maybe use their position for drawing level
+
+this is the last big thing...
+
+
+2026-10-25 11:52:54
+
+first I have some bugs:
+can't enter gate
+vls dies hard
+is it when creating a new mwLevel?
+I need to manually create the bitmaps...that was it!!
+
+OK they both seem to be working...
+mwPlayer
+To start with pass the parent thing
+done..
+
+what did I want to do?
+in draw level background simplify the iteration and only do it once
+use draw level2 to replace draw level3
+
+I need to somehow stop the second one from doing overworld barriers
+any way...I want to move on
+
+I could make draw 3 better..done
+
+2026-10-25 13:36:53
+so now I have players also added to mwLevel class
+
+what am I avoiding doing?
+
+I want to get transitions working with Netgame
+can I make them run without blocking?
+where to start?
+
+gate to level
+
+give them the inputs
+level icon position and size on screen
+lx1
+ly1
+ls
+player start position
+screen position
+
+
+   void set_transition_mode(int i, int f);
+   void proc_transition_mode();
+
+
+
+2026-10-25 14:49:08
+
+OK I have something on the screen!!!
+
+
+what if I did the transition at the end of gate entry, before loading the new level
+
+I don't care at all about the timer running then
+
+I could load the new level data into l2
+
+make a spot in the countdown
+
+
+
+what if I made the second l2 always available...global...
+
+then I could load it and forget
+done
+create bitmaps like other
+visual level uses it now
+this is done
+
+now in gate enter, l2 is loaded with next level
+
+
+can I get player position normally now?
+
+
+this needs to be part of level
+
+// used only in transitions
+void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
+{
+   // get player's position in level (0-2000) and scale by scale factor
+   float px = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x * scale_factor;
+   float py = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y * scale_factor;
+
+   // subtract player's position from screen position
+   // this will get the origin of where to draw the scaled level
+   // so that the players position will be at screen_x, screen_y
+   int mgx = screen_x - px;  // start x pos on level
+   int mgy = screen_y - py;  // start y pos on level
+
+   // use scale factor to determine scaled size of level
+   int sz = scale_factor * 2000;
+
+   al_draw_scaled_bitmap(mLevel.level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
+}
+
+
+
+
+I think I might need to do these also:
+
+   
+         mScreen.set_screen_display_variables();
+         mScreen.set_level_display_region_xy();
+         mScreen.set_map_var();
+
+
+
+I think what happens is:
+
+when the new level is loaded, the screen positions are set and that is what is used for the final values
+
+fuckit, do them too...
+
+
+
+
+// these probably need to be different for each level
+level_display_region_x
+level_display_region_y
+level_display_region_w
+level_display_region_h
+
+
+
+// these should be common for any level
+screen_display_x
+screen_display_y
+screen_display_w
+screen_display_h
+
+
+I think what I need to is display all the varaibales and see whey the destination I am choosing is not the same
+
+
+
+2026-10-26 04:48:06
+
+
+print the variables
+
+
+which ones?
+
+      printf("Next Level (%d) l2 load at gate enter\n", lev);
+      printf("player pos x:%d  y:%d\n", mTransitions.gate_enter_next_level_start_x, mTransitions.gate_enter_next_level_start_y);
+      printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
+
+
+now show at end of transition:
+
+
+
+I think I found something:
+
+void mwItem::set_player_start_pos(int p)
+{
+   //printf("set player:%d start pos\n", p);
+
+   int item_to_get_start_from = -1;
+
+   // in overworld level, player starts at the last gate they touched
+   if (mLevel.play_level == 1)
+   {
+      for (int i=0; i<500; i++)
+         if ((item[i][0] == 18) && (item[i][6] == m_parent.mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
+
+
+this also needs to be part of level
+
+no, just do this:
+
+   if (m_parent.play_level == 1)
+
+still off a little...
+
+this is hard but worth it
+reminds me of when I went through all my code that assumed there would only ever be one player!
+
+I think my end goal here would be to be able to run more than 1 game at the same time...
+
+If I could get everything I need to do that duplicated
+
+The one thing that would never in that class is the actual screen position
+that would need to be managed by a higher class
+
+This is a crazy lofty goal, but I can work towards it...
+
+
+
+
+
+Post load Level (80)
+player pos x:380 y:777
+ldx: 0  ldy:421  ldw:785  ldh:551
+sdx:12  sdy:12  sdw:524  sdh:368
+
+Next Level (80) l2 load at gate enter
+player pos x:380  y:777
+ldx: 0  ldy:421  ldw:785  ldh:551
+sdx:12  sdy:12  sdw:524  sdh:368
+
+Post load Level (80)
+player pos x:708 y:128
+ldx:258  ldy: 0  ldw:785  ldh:551
+sdx:12  sdy:12  sdw:524  sdh:368
+
+why???
+
+it really should be player pos x:380  y:777
+
+I have not set the player position yet...duh!!
+
+
+I think this might be a dead end...
+
+what happens after when next level is actually loaded
+
+
+move to mLevel
+
+
+void mwLoop::setup_players_after_level_load(int type)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mLevel.mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
+      mLevel.mItem.set_player_start_pos(p);    // get starting position for all players, active or not
+   }
+   mLevel.mPlayer.syn[0].active = 1;
+}
+
+
+
+test what I think the final thing should look like, vs what it is...
+
+
+after I load l2, test drawing it in final place
+
+how?
+
+      l2.draw_scaled_level_region_to_display();
+      al_flip_display()
+
+it does not line up...
+
+why?
+
+--------------------------------------------------------------------
+Next Level (80) l2 load at gate enter
+player pos x:380  y:777
+ldx:42  ldy:542  ldw:524  ldh:368
+sdx:12  sdy:12  sdw:524  sdh:368
+
+Mloop Post load next Level (80)
+player pos x:380 y:777
+ldx:432  ldy: 0  ldw:524  ldh:368
+sdx:12  sdy:12  sdw:524  sdh:368
+
+why??
+
+      l2.level_display_region_x = mLevel.level_display_region_x;
+      l2.level_display_region_y = mLevel.level_display_region_y;
+      l2.level_display_region_w = mLevel.level_display_region_w;
+      l2.level_display_region_h = mLevel.level_display_region_h;
+
+!!!!!!!
+
+
+2026-10-26 07:33:05 ..commit
+
+got to go
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

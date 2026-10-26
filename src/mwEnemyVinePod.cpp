@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayer.h"
 #include "mwBitmap.h"
 #include "mwShot.h"
 #include "mwSolid.h"
@@ -13,7 +12,7 @@
 #include "mwTriggerEvent.h"
 #include "mwScreen.h"
 #include "mwDisplay.h"
-
+#include "mwLevel.h"
 
 
 /*
@@ -446,7 +445,7 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
    if (!custom)
    {
 
-      al_set_target_bitmap(mBitmap.level_buffer);
+      al_set_target_bitmap(m_parent.level_buffer);
 
       if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
       {

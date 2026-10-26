@@ -4,8 +4,8 @@
 #include "mwNetgame.h"
 #include "mwPacketBuffer.h"
 #include "mwGameMoves.h"
+#include "mwLevel.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 
 
 void mwNetgame::server_send_file(int i)
@@ -98,7 +98,7 @@ void mwNetgame::server_send_file(int i)
 
 void mwNetgame::server_proc_sfak_packet(int i)
 {
-   int p = mPlayer.active_local_player;
+   int p = mLevel.mPlayer.active_local_player;
    int id = mPacketBuffer.PacketGetInt32(i);  // client has acknowledged getting this file id
    //mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, p, "rx sfak - client acknowledged getting file id:%d\n", id);
 //   mLog.add(LOG_NET_FILE_TRANSFER, 8,p,id,0,0,0,0,0,0,0, "rx sfak - client acknowledged getting file id:");
@@ -193,8 +193,8 @@ void mwNetgame::server_proc_files_to_send()
       for (int i=0; i<20; i++)
          if (files_to_send[i].active == 1)
          {
-            //mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, mPlayer.active_local_player, "starting file transfer [%s]\n", files_to_send[i].name);
-//            mLog.add(LOG_NET_FILE_TRANSFER, 9, mPlayer.active_local_player,0,0,0,0,0,0,0,0, "starting file transfer - ", files_to_send[i].name);
+            //mLog.log_add_prefixed_textf(LOG_NET_FILE_TRANSFER, mLevel.mPlayer.active_local_player, "starting file transfer [%s]\n", files_to_send[i].name);
+//            mLog.add(LOG_NET_FILE_TRANSFER, 9, mLevel.mPlayer.active_local_player,0,0,0,0,0,0,0,0, "starting file transfer - ", files_to_send[i].name);
 
             mLog.add(LOG_NET_FILE_TRANSFER, 9, -1, 0,0,0,0,0,0,0,0,0,0, "starting file transfer - ", files_to_send[i].name);
 

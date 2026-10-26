@@ -3,8 +3,8 @@
 #include "pm.h"
 #include "mwEventQueue.h"
 #include "mwDisplay.h"
-#include "mwPlayer.h"
 #include "mwInput.h"
+#include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwMain.h"
 
@@ -67,8 +67,8 @@ void mwEventQueue::proc_menu()
 {
    proc(1);
    // this is done so that the game controls can be used to navigate menus and visual level select
-   mPlayer.clear_controls(mPlayer.active_local_player);
-   mPlayer.set_controls_from_player_key_check(mPlayer.active_local_player);
+   mLevel.mPlayer.clear_controls(mLevel.mPlayer.active_local_player);
+   mLevel.mPlayer.set_controls_from_player_key_check(mLevel.mPlayer.active_local_player);
 }
 
 void mwEventQueue::adjust_fps_timer(int new_fps)

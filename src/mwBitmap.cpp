@@ -62,9 +62,6 @@ void mwBitmap::create_bitmaps()
    // create bottom message bitmaps
    mBottomMessage.bmsg_create_bitmaps();
 
-   // create level_background and level_buffer bitmaps
-   level_background  = create_and_clear_bitmap(2000, 2000);
-   level_buffer      = create_and_clear_bitmap(2000, 2000);
 }
 
 // done only once in initial_setup
@@ -226,7 +223,7 @@ void mwBitmap::rebuild_bitmaps()
    t[3] = al_get_time();
 
    // rebuild level_background
-   mScreen.init_level_background();
+   mLevel.init_level_background();
    t[4] = al_get_time();
 
    // misc setup

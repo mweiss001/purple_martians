@@ -7,6 +7,7 @@
 #include "mwLoop.h"
 #include "mwDisplay.h"
 #include "mwGmInfo.h"
+#include "mwLevel.h"
 #include "mwMain.h"
 #include "mwSql.h"
 
@@ -33,16 +34,16 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          int p = z1;
          float damage = (float)z4 / 100; // damage
-         mPlayer.loc[p].damage_type = z2;
-         if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num+20) mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // if holdoff is too far in future (this is where it is reset)
-         if (mPlayer.loc[p].damage_holdoff < mLoop.frame_num) // triggered and not in holdoff
+         mLevel.mPlayer.loc[p].damage_type = z2;
+         if (mLevel.mPlayer.loc[p].damage_holdoff > mLoop.frame_num+20) mLevel.mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // if holdoff is too far in future (this is where it is reset)
+         if (mLevel.mPlayer.loc[p].damage_holdoff < mLoop.frame_num) // triggered and not in holdoff
          {
-            mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // set holdoff
-            mPlayer.loc[p].damage_tally = damage; // init tally with current damage
+            mLevel.mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // set holdoff
+            mLevel.mPlayer.loc[p].damage_tally = damage; // init tally with current damage
          }
-         if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num) // triggered and in holdoff
+         if (mLevel.mPlayer.loc[p].damage_holdoff > mLoop.frame_num) // triggered and in holdoff
          {
-            mPlayer.loc[p].damage_tally += damage; // inc tally with current damage
+            mLevel.mPlayer.loc[p].damage_tally += damage; // inc tally with current damage
          }
       }
 

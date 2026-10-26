@@ -4,7 +4,6 @@
 #include "mwItem.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwPlayer.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwLoop.h"
@@ -191,8 +190,8 @@ int mwItem::draw_orb(int i, int x, int y)
 void mwItem::proc_orb_collision(int p, int i)
 {
    if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
-        ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
-        ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
+        ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (m_parent.mPlayer.syn[p].up)) ||
+        ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (m_parent.mPlayer.syn[p].down)) )
    {
       item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
       if ((item[i][12] == 99) && (!mNetgame.ima_client))
@@ -343,10 +342,10 @@ void mwItem::detect_trigger_collisions(int i)
 
    if (flags & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+         if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
          {
-            int x = mPlayer.syn[p].x;
-            int y = mPlayer.syn[p].y;
+            int x = m_parent.mPlayer.syn[p].x;
+            int y = m_parent.mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
    if (flags & PM_ITEM_TRIGGER_ENEMY)
@@ -640,20 +639,20 @@ void mwItem::proc_item_damage_collisions(int i)
 
    if (cdp)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+         if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
          {
-            int x = mPlayer.syn[p].x;
-            int y = mPlayer.syn[p].y;
+            int x = m_parent.mPlayer.syn[p].x;
+            int y = m_parent.mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
-                  mPlayer.syn[p].health = 0;
+                  m_parent.mPlayer.syn[p].health = 0;
                }
                else
                {
                   float ha = (float)item[i][12]/100; // health adjust
-                  mPlayer.syn[p].health -= ha;
+                  m_parent.mPlayer.syn[p].health -= ha;
 
                   if (ha > 0) // lose health
                   {
@@ -663,7 +662,7 @@ void mwItem::proc_item_damage_collisions(int i)
                   }
                   else // gain health
                   {
-                     if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
+                     if (m_parent.mPlayer.syn[p].health > 100) m_parent.mPlayer.syn[p].health = 100;
                   }
                }
             }

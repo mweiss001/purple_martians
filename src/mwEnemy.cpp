@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
@@ -236,7 +235,7 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
             if (Ei[e][0] == 2) hc = Ei[e][9];
 
 
-            mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
+            m_parent.mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
             mDemoRecord.mark_player_shot_used(p, mShot.p[c].active, 1);
 
             mGameEvent.add(43, 0, 0, p, e, hc, mShot.p[c].active); // event 43 - enemy shot
@@ -381,7 +380,7 @@ void mwEnemy::enemy_player_hit_proc(int e)
       if (Ei[e][22]) // player hit!
       {
          int p = Ei[e][22]-1;
-         mPlayer.syn[p].health -= Ef[e][4];
+         m_parent.mPlayer.syn[p].health -= Ef[e][4];
 
          mGameEvent.add(41, 0, 0, p, Ei[e][0], 1, Ef[e][4]);
          Ei[e][22] = 0;  // clear hit

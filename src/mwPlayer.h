@@ -207,10 +207,17 @@ struct ploc // not synced between server and client (but synced from server to r
 
 };
 
+// forward declaration
+class mwLevel;
 
 class mwPlayer
 {
-   public:
+private:
+   mwLevel& m_parent; // Store a reference to parent
+
+public:
+
+   mwPlayer(mwLevel& parent) : m_parent(parent) {  } // default constructor
 
    struct psyn syn[NUM_PLAYERS];
    struct ploc loc[NUM_PLAYERS];
@@ -263,7 +270,9 @@ class mwPlayer
    void proc_player_input();
 
 };
-extern mwPlayer mPlayer;
+
+
+//extern mwPlayer mPlayer;
 
 #endif
 

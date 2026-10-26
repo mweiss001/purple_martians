@@ -3,8 +3,6 @@
 #include "mwLevel.h"
 #include "mwWindow.h"
 
-//#define SEL_SIZE 384800
-
 #define SEL_SIZE 139800
 
 
@@ -25,14 +23,12 @@ struct itemIDTranslation
 class mwEditSelection
 {
    public:
-   mwEditSelection();
+   mwEditSelection() { init(); }
 
    void init();
    int ft_level_header[20];
    mwLevel ftLevel;
-   mwEnemy ftEnemy;
-   mwItem ftItem;
-   mwLift ftLift;
+
    ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
    int copy_mode;

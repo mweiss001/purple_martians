@@ -587,8 +587,8 @@ void mwLevel::show_level_stats(int xc, int y1, int msg_type)
    if (level_stats_bmp_msg_type == msg_type)
    {
       if (msg_type == 1) al_set_target_backbuffer(mDisplay.display);
-      if (msg_type == 3)  al_set_target_bitmap(mBitmap.level_buffer);
-      if (msg_type > 20)  al_set_target_bitmap(mBitmap.level_buffer);
+      if (msg_type == 3)  al_set_target_bitmap(level_buffer);
+      if (msg_type > 20)  al_set_target_bitmap(level_buffer);
       al_draw_bitmap(level_stats_bitmap, xc-level_stats_bmp_w/2, y1, 0);
    }
    //printf("%d - time to show level stats: %f us\n", mLoop.frame_num, (al_get_time() - t)*1000000);

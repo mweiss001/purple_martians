@@ -586,7 +586,7 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 
 {
    while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-   mScreen.init_level_background();
+   mLevel.init_level_background();
    int tx = mDisplay.SCREEN_W/2;
 
    int quit=0;
@@ -674,7 +674,7 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
          mTriggerEvent.find_and_show_event_links(obj_type, obj_num, obj_ext);
       }
 
-      mScreen.draw_scaled_level_region_to_display();
+      mLevel.draw_scaled_level_region_to_display();
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mColor.pc[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, mColor.pc[15], 1);
 

@@ -2,8 +2,8 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayer.h"
 #include "mwBitmap.h"
+#include "mwLevel.h"
 #include "mwShot.h"
 #include "mwSolid.h"
 
@@ -124,7 +124,7 @@ void mwEnemy::move_flapper(int e)
       float h = Ei[e][20]; // height_above_player
 
       // difference between actual y and desired y
-      float df = Ef[e][1] - (mPlayer.syn[p].y - h);
+      float df = Ef[e][1] - (m_parent.mPlayer.syn[p].y - h);
       if (df < 0)
       {
          if (df > -100) rat = -df / 100;

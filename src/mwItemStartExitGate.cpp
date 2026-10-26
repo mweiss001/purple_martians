@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwItem.h"
-#include "mwPlayer.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
@@ -16,8 +15,10 @@
 #include "mwScreen.h"
 #include "mwDisplay.h"
 #include "mwGameState.h"
+#include "mwInput.h"
 #include "mwLevelIcons.h"
 #include "mwNetgame.h"
+#include "mwTransitions.h"
 #include "mwTriggerEvent.h"
 
 /*
@@ -52,17 +53,17 @@ void mwItem::proc_start(int i)
 int mwItem::draw_start(int i, int x, int y, int shape)
 {
    // is this start the spawn point for the active local player?
-   if (item[i][7] == mPlayer.syn[mPlayer.active_local_player].spawn_point_index) shape = mBitmap.zz[0][21]; // show spinning
-   else                                                                          shape = mBitmap.zz[0][11]; // show static
+   if (item[i][7] == m_parent.mPlayer.syn[m_parent.mPlayer.active_local_player].spawn_point_index) shape = mBitmap.zz[0][21]; // show spinning
+   else                                                                                            shape = mBitmap.zz[0][11]; // show static
    al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
-   if (mLoop.level_editor_running) al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]); // put start seq number but only in lev editor
+   if (mLoop.level_editor_running) al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]); // in lev editor, show start seq number
    return 1;
 }
 
 
 void mwItem::proc_start_collision(int p, int i)
 {
-   int cpi = mPlayer.syn[p].spawn_point_index;  // current index for player
+   int cpi = m_parent.mPlayer.syn[p].spawn_point_index;  // current index for player
    int npi = item[i][7];                        // new spawn point index
 
    // count number of starts and put in array indexed by start index
@@ -86,11 +87,11 @@ void mwItem::proc_start_collision(int p, int i)
          if (mode == 2) // check point common
          {
             for (p=0; p<8; p++)
-               mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for all players
+               m_parent.mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for all players
          }
          if (mode == 3) // check point individual
          {
-            mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for this player
+            m_parent.mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for this player
          }
       }
    }
@@ -105,14 +106,14 @@ void mwItem::set_player_start_pos(int p)
    int item_to_get_start_from = -1;
 
    // in overworld level, player starts at the last gate they touched
-   if (mLevel.play_level == 1)
+   if (m_parent.play_level == 1)
    {
       for (int i=0; i<500; i++)
-         if ((item[i][0] == 18) && (item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
+         if ((item[i][0] == 18) && (item[i][6] == m_parent.mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
 
       // if (item_to_get_start_from == -1)
       // {
-      //    printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, mPlayer.syn[p].overworld_last_touched_gate);
+      //    printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
       // }
    }
 
@@ -135,7 +136,7 @@ void mwItem::set_player_start_pos(int p)
          // it is the current index into the array of starts
 
          // if only one start, that has to be the one we use
-         if (ns == 1) mPlayer.syn[p].spawn_point_index = 0;
+         if (ns == 1) m_parent.mPlayer.syn[p].spawn_point_index = 0;
 
          // if more than one start....
          if (ns > 1)
@@ -143,13 +144,13 @@ void mwItem::set_player_start_pos(int p)
             int mode = item[s[0]][6];
             if (mode == 0)
             {
-               printf("Lev:%d - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.\n", mLevel.play_level);
-               mPlayer.syn[p].spawn_point_index = 0;
+               printf("Lev:%d - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.\n", m_parent.play_level);
+               m_parent.mPlayer.syn[p].spawn_point_index = 0;
             }
             if (mode == 1) // team start
             {
-               if (p % 2) mPlayer.syn[p].spawn_point_index = 1; // odd
-               else       mPlayer.syn[p].spawn_point_index = 0; // even
+               if (p % 2) m_parent.mPlayer.syn[p].spawn_point_index = 1; // odd
+               else       m_parent.mPlayer.syn[p].spawn_point_index = 0; // even
             }
             if ((mode == 2) || (mode == 3)) // check point common and individual
             {
@@ -157,20 +158,20 @@ void mwItem::set_player_start_pos(int p)
             }
          }
          // translate spawn_point index into an item we can get a position from
-         item_to_get_start_from = s[mPlayer.syn[p].spawn_point_index];
+         item_to_get_start_from = s[m_parent.mPlayer.syn[p].spawn_point_index];
       }
    }
    // if after all that we do not have an item, pick a default place to start the player
    if (item_to_get_start_from == -1)
    {
-      mPlayer.syn[p].x = 100;
-      mPlayer.syn[p].y = 100;
+      m_parent.mPlayer.syn[p].x = 100;
+      m_parent.mPlayer.syn[p].y = 100;
    }
    // set the player's position from the item position
    else
    {
-      mPlayer.syn[p].x = itemf[item_to_get_start_from][0];
-      mPlayer.syn[p].y = itemf[item_to_get_start_from][1];
+      m_parent.mPlayer.syn[p].x = itemf[item_to_get_start_from][0];
+      m_parent.mPlayer.syn[p].y = itemf[item_to_get_start_from][1];
    }
 }
 
@@ -204,7 +205,7 @@ int mwItem::draw_exit(int i, int x, int y, int shape)
    if (mLoop.frame_num % 60 > 30)
       al_draw_text(mFont.pixl, mColor.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
-   int exit_enemys_left = mLevel.mEnemy.num_enemy - item[i][8];
+   int exit_enemys_left = m_parent.mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left > 0) // locked
    {
       al_draw_bitmap(mBitmap.sprite[366], x, y, 0); // show lock
@@ -216,7 +217,7 @@ int mwItem::draw_exit(int i, int x, int y, int shape)
 
 void mwItem::proc_exit_collision(int p, int i)
 {
-   int exit_enemys_left = mLevel.mEnemy.num_enemy - item[i][8];
+   int exit_enemys_left = m_parent.mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
       if ((mGameState.level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
@@ -229,7 +230,7 @@ void mwItem::proc_exit_collision(int p, int i)
          mGameState.level_done_frame = mLoop.frame_num;
 
          if (!mMain.classic_mode) mGameState.level_done_next_level = 1;                             // in story mode all exits return to overworld
-         else mGameState.level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
+         else mGameState.level_done_next_level = m_parent.get_next_level(m_parent.play_level, 199, 1);  // otherwise do next chron level
          mGameEvent.add(4, 0, 0, p, 0, 0, 0);
       }
    }
@@ -275,18 +276,18 @@ item[][11] hover level icon size
 
 void mwItem::proc_gate_collision(int p, int i)
 {
-   mPlayer.syn[p].marked_gate = i;
+   m_parent.mPlayer.syn[p].marked_gate = i;
    set_gate_level_icon_position(i);
    int lev = item[i][6];
 
-   if (mPlayer.syn[p].overworld_last_touched_gate != lev)
+   if (m_parent.mPlayer.syn[p].overworld_last_touched_gate != lev)
    {
-      mPlayer.syn[p].overworld_last_touched_gate = lev;
+      m_parent.mPlayer.syn[p].overworld_last_touched_gate = lev;
       if (p == 0) mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED); // clients do not save to config
    }
 
     // debug set level complete
-   if ((mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mPlayer.syn[p].fire) && (mLevel.data[lev].status < 2))
+   if ((mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (m_parent.mPlayer.syn[p].fire) && (mLevel.data[lev].status < 2))
    {
       //printf("debug set level complete \n");
       mLevel.add_play_data_record(lev, 2);
@@ -296,7 +297,7 @@ void mwItem::proc_gate_collision(int p, int i)
    int status = mLevel.data[lev].status;
 
    // if not already in gate_enter_mode, and not client (client can never locally enter gate) and UP pressed, start gate_enter_mode)
-   if ( !mGameState.gate_enter_mode && !mNetgame.ima_client && mPlayer.syn[p].up)
+   if ( !mGameState.gate_enter_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
    {
       mGameState.gate_enter_mode = 9;
       mGameState.gate_enter_item = i;
@@ -305,23 +306,66 @@ void mwItem::proc_gate_collision(int p, int i)
       item[i][7] = 0;
 
 
+      // load next level into l2
 
-      // see if I can load next level and get start pos
-
-      mwLevel l2;
-
-      l2.load_level_by_number(lev, 1, 0);
-
-      for (int i=0; i<500; i++)
-         if (l2.mItem.item[i][0] == 5 && l2.mItem.item[i][7] == 0) // find start with index 0
+      l2.load_level_by_number(lev, 1, 1);
+      l2.valid_level_loaded = 1;
+      l2.mLift.lift_setup();
+      for (int x=0; x<500; x++)
+         if (l2.mItem.item[x][0]) // only if active set x y
          {
-            printf("Next Level:%d - x:%d y:%d", lev, l2.mItem.item[i][4], l2.mItem.item[i][5]);
+            l2.mItem.itemf[x][0] = l2.mItem.item[x][4];
+            l2.mItem.itemf[x][1] = l2.mItem.item[x][5];
          }
+
+      // // set l2 active local player same as local active local player
+      // int alp = l2.mPlayer.active_local_player = mLevel.mPlayer.active_local_player;
+
+      l2.setup_players_after_level_load(1);
+
+
+      l2.level_display_region_x = mLevel.level_display_region_x;
+      l2.level_display_region_y = mLevel.level_display_region_y;
+      l2.level_display_region_w = mLevel.level_display_region_w;
+      l2.level_display_region_h = mLevel.level_display_region_h;
+
+
+
+
+      l2.set_screen_display_variables();
+      l2.set_level_display_region_xy();
+
+
+      l2.init_level_background();
+      l2.get_new_background();
+
+      l2.mLift.draw_lifts();
+      l2.mItem.draw_items();
+      l2.mEnemy.draw_enemies();
+
+      // test drawing this
+      l2.draw_scaled_level_region_to_display();
+      al_flip_display();
+      mInput.tsw();
+
+
+      // save start positions
+      mTransitions.gate_enter_Level_icon_size = item[i][11];
+      mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
+      mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+
+      printf("\n--------------------------------------------------------------------\n");
+      printf("Next Level (%d) l2 load at gate enter\n", lev);
+      printf("player pos x:%.0f  y:%.0f\n", l2.mPlayer.syn[0].x, l2.mPlayer.syn[0].y);
+      printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
+      printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", l2.screen_display_x, l2.screen_display_y, l2.screen_display_w, l2.screen_display_h);
+
+
+
    }
 
-
    // if DOWN pressed, cycle display pages
-   if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][7]++;
+   if (m_parent.mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][7]++;
 
    // enforce page limits
    if ((status == 0) && (item[i][7] > 1)) item[i][7] = 0;
@@ -329,7 +373,12 @@ void mwItem::proc_gate_collision(int p, int i)
    if ((status > 1)  && (item[i][7] > 4)) item[i][7] = 0;
 
    // no demo page in netgame
-   if (((mNetgame.ima_server) || (mNetgame.ima_client)) && (item[i][7] == 4)) item[i][7] = 0;
+   //if (((mNetgame.ima_server) || (mNetgame.ima_client)) && (item[i][7] == 4)) item[i][7] = 0;
+   if (mNetgame.active() && item[i][7] == 4) item[i][7] = 0;
+
+
+
+
 }
 
 
@@ -404,7 +453,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    {
       bool player_on_gate = false;
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
+         if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
 
       // draw level icon with frame and title
       if (!player_on_gate)
@@ -423,7 +472,6 @@ void mwItem::draw_gate_hover_info(int i, int page)
    int x = item[i][4];
    int y = item[i][5];
    int xc = x + 10; // center of tile
-   int lev = item[i][6];
 
    if (page == -1) page = item[i][7];
 
@@ -434,42 +482,44 @@ void mwItem::draw_gate_hover_info(int i, int page)
 
    int by = y+20; // y start pos
 
-   int status = mLevel.data[lev].status;
-   int col = mLevel.level_status_color[status];
+   int level = item[i][6];
+   int status = mLevel.data[level].status;
+   int color = mLevel.level_status_color[status];
 
-   if (status == 0)
+   if (status == 0) // locked
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
-      if (page == 0) show_page(0, xc, bs, by, lev, col, status); // level icon map
-      if (page == 1) show_page(7, xc, bs, by, lev, col, status); // not completed general
+      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      if (page == 0) show_page(i, 0, xc, bs, by); // level icon map
+      if (page == 1) show_page(i, 7, xc, bs, by); // not completed general
    }
-   if (status == 1)
+   if (status == 1) // ready (not completed)
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, col, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
-      if (page == 0) show_page( 0, xc, bs, by, lev, col, status); // level icon map
-      if (page == 1) show_page( 7, xc, bs, by, lev, col, status); // not completed general
-      if (page == 2) show_page(12, xc, bs, by, lev, col, status); // demo
+      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " UP - Start Level ");
+      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      if (page == 0) show_page(i,  0, xc, bs, by); // level icon map
+      if (page == 1) show_page(i,  7, xc, bs, by); // not completed general
+      if (page == 2) show_page(i, 12, xc, bs, by); // demo
    }
-   if (status > 1)
+   if (status > 1) // completed
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, col, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, col, 15, " DOWN - Cycle Info ");
-      if (page == 0) show_page( 0, xc, bs, by, lev, col, status); // level icon map
-      if (page == 1) show_page( 1, xc, bs, by, lev, col, status); // general
-      if (page == 2) show_page( 2, xc, bs, by, lev, col, status); // times
-      if (page == 3) show_page( 3, xc, bs, by, lev, col, status); // purple coins
-      if (page == 4) show_page(12, xc, bs, by, lev, col, status); // demo
+      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " UP - Start Level ");
+      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      if (page == 0) show_page(i,  0, xc, bs, by); // level icon map
+      if (page == 1) show_page(i,  1, xc, bs, by); // general
+      if (page == 2) show_page(i,  2, xc, bs, by); // times
+      if (page == 3) show_page(i,  3, xc, bs, by); // purple coins
+      if (page == 4) show_page(i, 12, xc, bs, by); // demo
    }
 
    // draw the gate tile on top
    draw_gate_tile(i);
+
+
 }
 
-void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int status)
+void mwItem::show_page(int i, int page, int xc, int bs, int by)
 {
    if (page) by -=40;
-
 
    float o = 0.5;
 
@@ -487,14 +537,20 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
    // debug center
    // al_draw_line(xc, ya-100, xc, ya+bs+100, mColor.Red, 1);
 
+   int level = item[i][6];
+   int status = mLevel.data[level].status;
+   int color = mLevel.level_status_color[status];
+
+
+
 
    if (page == 0) // level icon map
    {
       size = bs+1;
       float ya = by - size + o;
       al_draw_filled_rectangle(x1-pad_page, ya-pad_page, x2+pad_page, by, mColor.pc[0]);
-      mLevelIcons.draw_level_icon(x1+1, ya+1, bs, lev);
-      al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+      mLevelIcons.draw_level_icon(x1+1, ya+1, bs, level);
+      al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
    }
 
    char msg[80];
@@ -506,18 +562,18 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
       float ya = by - size + o;
 
       al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-      al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+      al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
 
       al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "General");
-      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[color], 1);
       ya+=13.5;
 
-      draw_line(x1+2, x2-1, ya, "Min Time Overall",   chrms(mLevel.data[lev].time_best,           msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Min Time w/coins",   chrms(mLevel.data[lev].time_best_all_coins, msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Min Player Deaths",  chrd(mLevel.data[lev].min_respawns,         msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Max Purple Coins",   chrd(mLevel.data[lev].max_coins_collected,  mLevel.data[lev].tot_coins, msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Max Enemies Killed", chrd(mLevel.data[lev].max_enemies_killed,   msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Min Enemies Left",   chrd(mLevel.data[lev].min_enemies_left,     msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time Overall",   chrms(mLevel.data[level].time_best,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time w/coins",   chrms(mLevel.data[level].time_best_all_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Player Deaths",  chrd(mLevel.data[level].min_respawns,         msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Purple Coins",   chrd(mLevel.data[level].max_coins_collected,  mLevel.data[level].tot_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Enemies Killed", chrd(mLevel.data[level].max_enemies_killed,   msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Enemies Left",   chrd(mLevel.data[level].min_enemies_left,     msg), 15); ya+=yi;
    }
 
    if (page == 2) // times
@@ -526,20 +582,20 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
       float ya = by - size + o;
 
       al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-      al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+      al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
       al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Time to Complete");
-      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[color], 1);
       ya+=13.5;
 
-      draw_line(x1+2, x2-1, ya, "Par Time",          chrms(mLevel.data[lev].time_par,            msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Min Time Overall",  chrms(mLevel.data[lev].time_best,           msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Min Time w/coins",  chrms(mLevel.data[lev].time_best_all_coins, msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Max Time",          chrms(mLevel.data[lev].time_worst,          msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Avg Time",          chrms(mLevel.data[lev].time_average,        msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Total Play Time",   chrms(mLevel.data[lev].time_total,          msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Times Played",      chrd(mLevel.data[lev].times_played,         msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Times Completed",   chrd(mLevel.data[lev].times_beat,           msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Times Quit",        chrd(mLevel.data[lev].times_quit,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Par Time",          chrms(mLevel.data[level].time_par,            msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time Overall",  chrms(mLevel.data[level].time_best,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Min Time w/coins",  chrms(mLevel.data[level].time_best_all_coins, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Max Time",          chrms(mLevel.data[level].time_worst,          msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Avg Time",          chrms(mLevel.data[level].time_average,        msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Total Play Time",   chrms(mLevel.data[level].time_total,          msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Played",      chrd(mLevel.data[level].times_played,         msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Completed",   chrd(mLevel.data[level].times_beat,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Quit",        chrd(mLevel.data[level].times_quit,           msg), 15); ya+=yi;
    }
 
    if (page == 3) // purple coins
@@ -548,14 +604,14 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
       float ya = by - size + o;
 
       al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-      al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+      al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
       al_draw_bitmap(mBitmap.sprite[197], x1+2, ya+2, 0); // show purple coin
       al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+8, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Purple Coins");
-      al_draw_line(x1, ya+23, x2, ya+23, mColor.pc[col], 1);
+      al_draw_line(x1, ya+23, x2, ya+23, mColor.pc[color], 1);
       ya+=25.5;
 
-      draw_line(x1+2, x2-1, ya, "Collected", chrd(mLevel.data[lev].max_coins_collected, msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Total",     chrd(mLevel.data[lev].tot_coins,           msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Collected", chrd(mLevel.data[level].max_coins_collected, msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Total",     chrd(mLevel.data[level].tot_coins,           msg), 15); ya+=yi;
    }
 
    if (page == 7) // not completed general
@@ -564,27 +620,27 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
       float ya = by - size + o;
 
       al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-      al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+      al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
       al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "General");
-      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+      al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[color], 1);
       ya+=13.5;
 
-      draw_line(x1+2, x2-1, ya, "Par Time",     chrms(mLevel.data[lev].time_par,      msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Purple Coins", chrd(mLevel.data[lev].tot_coins,      msg), 15); ya+=yi;
-      draw_line(x1+2, x2-1, ya, "Times Played", chrd(mLevel.data[lev].times_played,   msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Par Time",     chrms(mLevel.data[level].time_par,      msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Purple Coins", chrd(mLevel.data[level].tot_coins,      msg), 15); ya+=yi;
+      draw_line(x1+2, x2-1, ya, "Times Played", chrd(mLevel.data[level].times_played,   msg), 15); ya+=yi;
    }
 
    if (page == 12) // run demo for level
    {
-      if ((mLevel.data[lev].times_beat == 0) && (mLevel.data[lev].times_played > 2)) // if not beat and started > 2 time
+      if ((mLevel.data[level].times_beat == 0) && (mLevel.data[level].times_played > 2)) // if not beat and started > 2 time
       {
          size = (4*yi)+13;
          float ya = by - size + o;
 
          al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-         al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+         al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
          al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Run Demo");
-         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[color], 1);
          ya+=13.5;
 
          al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "type 'demo' to run demo");  ya+=yi*2;
@@ -594,7 +650,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
          if (mLevel.skc_trigger_demo)
          {
             mLevel.skc_trigger_demo = 0;
-            mDemoMode.run_single_from_gate(lev);
+            mDemoMode.run_single_from_gate(level);
          }
       }
       else
@@ -602,9 +658,9 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
          size = (1*yi)+13;
          float ya = by - size + o;
          al_draw_filled_rectangle(x1, ya, x2, by, mColor.pc[0]);
-         al_draw_rectangle(x1, ya, x2, by, mColor.pc[col], 1);
+         al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
          al_draw_text(mFont.pr8, mColor.pc[15], xc, ya+1, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "Run Demo");
-         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[col], 1);
+         al_draw_line(x1, ya+11, x2, ya+11, mColor.pc[color], 1);
          ya+=13.5;
 
          al_draw_textf(mFont.pr8, mColor.pc[15], xc, ya, ALLEGRO_ALIGN_CENTER | ALLEGRO_ALIGN_INTEGER, "type 'demo' to run demo"); ya+=yi;
@@ -613,14 +669,14 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
          {
             mLevel.skc_trigger_demo = 0;
             if (mLevel.skc_trigger_demo_cheat) mLevel.skc_trigger_demo_cheat = 0; // do nothing if trying to cheat here
-            else mDemoMode.run_single_from_gate(lev);
+            else mDemoMode.run_single_from_gate(level);
          }
       }
    }
 
    // draw the framed level name
    float ya = by - size - 11 + o;
-   mScreen.draw_framed_text(xc, ya, 0, mFont.pr8, col, 15, mLevel.data[lev].level_name);
+   mScreen.draw_framed_text(xc, ya, 0, mFont.pr8, color, 15, mLevel.data[level].level_name);
 
    // // draw badges
    // int badge_y = ya+14; // + mLoop.pct_y; // up
@@ -641,20 +697,22 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col, int s
 // used to save absolute screen position of gate, so transition returning to overworld lines up
 void mwItem::set_gate_level_icon_position(int i)
 {
-   // gate item locatiom
-   int x = itemf[i][0];
-   int y = itemf[i][1];
+   // gate item location
+   int x = item[i][4];
+   int y = item[i][5];
+   int size = item[i][11];
+
 
    // offset from gate item to level icon
-   x += (10 - 100);
-   y += (12 + 35);
+   x += (10 - size/2);
+   y -= (size-19);
 
    // convert to actual screen pos
-   mScreen.gate_transition_x = (x - mScreen.level_display_region_x) * mDisplay.scale_factor_current + mScreen.screen_display_x;
-   mScreen.gate_transition_y = (y - mScreen.level_display_region_y) * mDisplay.scale_factor_current + mScreen.screen_display_y;
-   mScreen.gate_transition_wx = mScreen.level_display_region_x;
-   mScreen.gate_transition_wy = mScreen.level_display_region_y;
-   mScreen.gate_transition_scale = mDisplay.scale_factor_current;
+   mTransitions.gate_transition_x = (x - m_parent.level_display_region_x) * mDisplay.scale_factor_current + m_parent.screen_display_x;
+   mTransitions.gate_transition_y = (y - m_parent.level_display_region_y) * mDisplay.scale_factor_current + m_parent.screen_display_y;
+   mTransitions.gate_transition_wx = m_parent.level_display_region_x;
+   mTransitions.gate_transition_wy = m_parent.level_display_region_y;
+   mTransitions.gate_transition_scale = mDisplay.scale_factor_current;
 }
 
 // draws left justified txt1, right justified txt2, and '...' in between

@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwVisualLevel.h"
-#include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
@@ -11,13 +10,8 @@
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
-#include "mwMain.h"
 #include "mwNetgame.h"
-
-
 #include "mwLevelIcons.h"
-
-
 
 
 mwVisualLevel mVisualLevel;
@@ -45,7 +39,7 @@ void mwVisualLevel::show_big_lev(int level, const char * text, int x, int y, int
    if (mLevel.load_level_by_number(level, 0, 1))
    {
       al_set_target_backbuffer(mDisplay.display);
-      mScreen.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0);
+      mLevel.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(mDisplay.display);
       mLevel.show_level_data(1010, y+308, 0);
    }
@@ -286,7 +280,7 @@ void mwVisualLevel::lev_draw(int full, int sel, int cur)
             int level = my*20 + mx;
             int col = 11;
             if (!mLevel.load_level_by_number(level, 0, 1)) col = 10;
-            if (mLevel.valid_level_loaded) mScreen.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            if (mLevel.valid_level_loaded) mLevel.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(mFont.pr8, mColor.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
@@ -378,7 +372,7 @@ void mwVisualLevel::level_viewer()
       if (mInput.key[ALLEGRO_KEY_S][0])
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
-         if (mLevel.load_level_by_number(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
          redraw = 1;
@@ -396,7 +390,7 @@ void mwVisualLevel::level_viewer()
          if (mInput.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (mLevel.load_level_by_number(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
             while (mInput.mouse_b[1][0]) mEventQueue.proc_menu();
@@ -489,7 +483,6 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
 
-   mwLevel l2;
    if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3))
    {
       int ty1 = l2.show_level_data(x1+2, y2+32+24, 0);
@@ -497,6 +490,7 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
          al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mColor.pc[fc + (15-a)*16], 1 );
    }
    else al_draw_text(mFont.pr8, mColor.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
+
 
 }
 
@@ -632,7 +626,7 @@ int mwVisualLevel::visual_level_select(int max_level)
    int left_held = 0;
    int right_held = 0;
 
-   while ( (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) ) mEventQueue.proc_menu();;
+   while ( (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mLevel.mPlayer.syn[0].fire) || (mLevel.mPlayer.syn[0].jump) ) mEventQueue.proc_menu();;
 
    // this function will reload level, so this is our last chance to save it
    if ((!mNetgame.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
@@ -643,7 +637,7 @@ int mwVisualLevel::visual_level_select(int max_level)
    mLoop.visual_level_select_running = 1;
    load_visual_level_select_done = 0;
 
-   int fc = mPlayer.syn[0].color; // frame color
+   int fc = mLevel.mPlayer.syn[0].color; // frame color
 
    // set initial selection
    int selected_level = mLevel.start_level;
@@ -750,10 +744,10 @@ int mwVisualLevel::visual_level_select(int max_level)
 
       mEventQueue.proc_menu();
 
-      if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mLevel.mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
-         while ((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) mEventQueue.proc_menu();
+         while ((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mLevel.mPlayer.syn[0].left)) mEventQueue.proc_menu();
          if (--grid_sel_col < 0)
          {
             grid_sel_col = grid_cols -1; // wrap at border
@@ -761,25 +755,25 @@ int mwVisualLevel::visual_level_select(int max_level)
             while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mLevel.mPlayer.syn[0].left)) )  left_held = 0;
 
 
-      if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mLevel.mPlayer.syn[0].up)) && (up_held == 0))
       {
          up_held = 1;
-         while ((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) mEventQueue.proc_menu();
+         while ((mInput.key[ALLEGRO_KEY_UP][0]) || (mLevel.mPlayer.syn[0].up)) mEventQueue.proc_menu();
          if (--grid_sel_row < 0)
          {
             grid_sel_row = grid_rows-1; // wrap at border
             while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up)) ) up_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mLevel.mPlayer.syn[0].up)) ) up_held = 0;
 
-      if (((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mLevel.mPlayer.syn[0].right)) && (right_held == 0))
       {
          right_held = 1;
-         while ((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) mEventQueue.proc_menu();
+         while ((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mLevel.mPlayer.syn[0].right)) mEventQueue.proc_menu();
          if (++grid_sel_col > grid_cols-1)
          {
             grid_sel_col = 0; // wrap at border
@@ -787,16 +781,16 @@ int mwVisualLevel::visual_level_select(int max_level)
             while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          }
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mLevel.mPlayer.syn[0].right)) )  right_held = 0;
 
-      if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) && (down_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mLevel.mPlayer.syn[0].down)) && (down_held == 0))
       {
          down_held = 1;
-         while ((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) mEventQueue.proc_menu();
+         while ((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mLevel.mPlayer.syn[0].down)) mEventQueue.proc_menu();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = 0; // wrap at border
          while (level_exists_array[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
       }
-      if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down)) ) down_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mLevel.mPlayer.syn[0].down)) ) down_held = 0;
 
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
@@ -810,9 +804,9 @@ int mwVisualLevel::visual_level_select(int max_level)
       // update selected row
       selected_level = level_exists_array[grid_sel_row * grid_cols + grid_sel_col];
 
-      if ( (mInput.key[ALLEGRO_KEY_ENTER][3]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) )
+      if ( (mInput.key[ALLEGRO_KEY_ENTER][3]) || (mLevel.mPlayer.syn[0].fire) || (mLevel.mPlayer.syn[0].jump) )
       {
-         while ((mPlayer.syn[0].jump) || (mPlayer.syn[0].fire)) mEventQueue.proc_menu();
+         while ((mLevel.mPlayer.syn[0].jump) || (mLevel.mPlayer.syn[0].fire)) mEventQueue.proc_menu();
          mLevel.set_start_level(selected_level);
          quit = 1;
       }

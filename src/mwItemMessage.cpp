@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwItem.h"
-#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWidget.h"
@@ -259,7 +258,7 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
       {
          // set where we will draw
          if (custom == 1) al_set_target_backbuffer(mDisplay.display);
-         else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
+         else if (custom == 0) al_set_target_bitmap(m_parent.level_buffer);
          // if custom == 2 do not change target
       }
 
@@ -430,7 +429,7 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
       {
          // set where we will draw
          if (custom == 1) al_set_target_backbuffer(mDisplay.display);
-         else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
+         else if (custom == 0) al_set_target_bitmap(m_parent.level_buffer);
 
          al_draw_bitmap(tmp, x, y, 0);
          al_destroy_bitmap(tmp);

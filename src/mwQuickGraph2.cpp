@@ -4,7 +4,7 @@
 #include "mwQuickGraph2.h"
 #include "mwFont.h"
 #include "mwColor.h"
-#include "mwPlayer.h"
+#include "mwLevel.h"
 
 
 
@@ -144,7 +144,7 @@ void mwQuickGraph2::autorange()
    if (type == 2) // dsync
    {
       // only allow change once per s
-      if (mPlayer.loc[0].srv_frame_num % 40 == 0)
+      if (mLevel.mPlayer.loc[0].srv_frame_num % 40 == 0)
       {
          int new_min = data_min;
          int new_max = data_max;

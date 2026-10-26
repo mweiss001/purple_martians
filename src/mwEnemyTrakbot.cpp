@@ -2,8 +2,8 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayer.h"
 #include "mwBitmap.h"
+#include "mwLevel.h"
 #include "mwShot.h"
 #include "mwSolid.h"
 
@@ -88,7 +88,7 @@ void mwEnemy::move_trakbot(int e)
       // seek player while falling
       int p = find_closest_player(e);
       float ex = Ef[e][0];
-      float px = mPlayer.syn[p].x;
+      float px = m_parent.mPlayer.syn[p].x;
 
       if (px > ex) mode = 0;
       else mode = 4;
@@ -102,10 +102,10 @@ void mwEnemy::move_trakbot(int e)
          float  ey = Ef[e][1];
          float ew = 15;
          for (int p=0; p<NUM_PLAYERS; p++) // if any player passes underneath
-            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
             {
-               float px = mPlayer.syn[p].x;
-               float py = mPlayer.syn[p].y;
+               float px = m_parent.mPlayer.syn[p].x;
+               float py = m_parent.mPlayer.syn[p].y;
                if ((px < ex + ew) && (px > ex - ew) && (py > ey))  // if directly above player
                {
                   if (dp) printf("just dropped on player:%d\n", p);

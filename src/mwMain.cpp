@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwMain.h"
 
-#include "mwPlayer.h"
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwDemoMode.h"
@@ -180,6 +179,10 @@ int mwMain::initial_setup()
       mBitmap.create_bitmaps();
       mBitmap.load_tiles();
 
+      mLevel.create_bitmaps();
+      l2.create_bitmaps();
+
+
       if(!al_init_font_addon())
       {
          mInput.m_err("Failed to initialize font addon.\n");
@@ -243,7 +246,7 @@ int mwMain::initial_setup()
    mLevel.load_data();
 
    // this needs to be after mLevel.load_data();
-   if (!headless_server) mLevelIcons.load();
+   if (!headless_server) mLevelIcons.load(0);
 
 //   if (!headless_server) mLevelIcons.load(1);
 
@@ -255,9 +258,9 @@ int mwMain::initial_setup()
 
 
    // init players
-   mPlayer.set_default_player_colors();
-   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
-   mPlayer.syn[0].active = 1;
+   mLevel.mPlayer.set_default_player_colors();
+   for (int p=0; p<NUM_PLAYERS; p++) mLevel.mPlayer.init_player(p, 1);
+   mLevel.mPlayer.syn[0].active = 1;
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
    if (classic_mode) mLevel.set_start_level();

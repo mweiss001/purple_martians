@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwItem.h"
 #include "mwSound.h"
-#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -28,10 +27,13 @@
 #include "mwDemoRecord.h"
 
 
-mwItem::mwItem()
-{
-   initialize();
-}
+// mwItem::mwItem(mwLevel& parent)
+// {
+//    m_parent = parent;
+//
+//    initialize();
+// }
+
 
 void mwItem::initialize()
 {
@@ -279,9 +281,9 @@ void mwItem::move_items()
             // check if being carried
             int pc = 0;
             for (int p=0; p<NUM_PLAYERS; p++)
-               if (mPlayer.syn[p].active)
-                  if ((!mPlayer.syn[p].paused) || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))
-                     if (i == mPlayer.syn[p].carry_item-1) pc = 1;
+               if (m_parent.mPlayer.syn[p].active)
+                  if ((!m_parent.mPlayer.syn[p].paused) || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))
+                     if (i == m_parent.mPlayer.syn[p].carry_item-1) pc = 1;
 
             if (!pc) // not being carried
             {
@@ -435,14 +437,14 @@ int mwItem::is_item_stuck_to_wall(int i)
 int mwItem::player_drop_item(int p, int i)
 {
    int wall_stuck = 0;
-   mPlayer.syn[p].carry_item = 0;
+   m_parent.mPlayer.syn[p].carry_item = 0;
    if (item[i][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
       int x = itemf[i][0];
       int y = itemf[i][1];
 
-      if (mPlayer.syn[p].left_right) // right
+      if (m_parent.mPlayer.syn[p].left_right) // right
       {
          // is item embedded in a wall to the right?
          while (mSolid.is_right_solid(x, y, 1, 1))
@@ -453,7 +455,7 @@ int mwItem::player_drop_item(int p, int i)
          itemf[i][0] = x;
       }
 
-      if (!mPlayer.syn[p].left_right) // left
+      if (!m_parent.mPlayer.syn[p].left_right) // left
       {
          // is item embedded in a wall to the left?
          while (mSolid.is_left_solid(x, y, 1, 1))
@@ -473,29 +475,29 @@ int mwItem::player_drop_item(int p, int i)
 
 void mwItem::proc_player_carry(int p)
 {
-   if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item))
-      if (!mPlayer.syn[p].paused || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))// player is carrying item
+   if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].carry_item))
+      if (!m_parent.mPlayer.syn[p].paused || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))// player is carrying item
       {
-         int i = mPlayer.syn[p].carry_item-1;  // item number
+         int i = m_parent.mPlayer.syn[p].carry_item-1;  // item number
          int type = item[i][0];
 
 
-         if (type == 0) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
+         if (type == 0) m_parent.mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
          if ((type == PM_ITEM_TYPE_LIT_RCKT) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
 
          if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
          {
             // set item position relative to player that's carrying it
-            itemf[i][1] = mPlayer.syn[p].y - 2;
-            if (!mPlayer.syn[p].left_right) itemf[i][0] = mPlayer.syn[p].x - 15;
-            if (mPlayer.syn[p].left_right)  itemf[i][0] = mPlayer.syn[p].x + 15;
+            itemf[i][1] = m_parent.mPlayer.syn[p].y - 2;
+            if (!m_parent.mPlayer.syn[p].left_right) itemf[i][0] = m_parent.mPlayer.syn[p].x - 15;
+            if (m_parent.mPlayer.syn[p].left_right)  itemf[i][0] = m_parent.mPlayer.syn[p].x + 15;
          }
-         if (!mPlayer.syn[p].fire) // drop
+         if (!m_parent.mPlayer.syn[p].fire) // drop
          {
             int wall_stuck = player_drop_item(p, i);
 
-            if (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
+            if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
             {
                itemf[i][2] = 0;
                itemf[i][3] = 0;
@@ -504,16 +506,16 @@ void mwItem::proc_player_carry(int p)
             {
                if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
                {
-                  itemf[i][2] = mPlayer.syn[p].xinc;  // inherit the players momentum
-                  itemf[i][3] = mPlayer.syn[p].yinc;
-                  if (mPlayer.syn[p].up)    itemf[i][3] -= 6; // throw item upwards
-                  if (mPlayer.syn[p].down)  itemf[i][3] =  3; // throw item downwards
-                  if (mPlayer.syn[p].left)  itemf[i][2] -= 2; // throw item left
-                  if (mPlayer.syn[p].right) itemf[i][2] += 2; // throw item right
+                  itemf[i][2] = m_parent.mPlayer.syn[p].xinc;  // inherit the players momentum
+                  itemf[i][3] = m_parent.mPlayer.syn[p].yinc;
+                  if (m_parent.mPlayer.syn[p].up)    itemf[i][3] -= 6; // throw item upwards
+                  if (m_parent.mPlayer.syn[p].down)  itemf[i][3] =  3; // throw item downwards
+                  if (m_parent.mPlayer.syn[p].left)  itemf[i][2] -= 2; // throw item left
+                  if (m_parent.mPlayer.syn[p].right) itemf[i][2] += 2; // throw item right
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
+               if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (m_parent.mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
             }
          }
@@ -530,31 +532,31 @@ void mwItem::proc_item_collision(int p, int i)
    // any item other than bonus has higher priority
    // if carrying bonus, it will be dropped and new item will be carried
    int already_carrying = 0;
-   if (mPlayer.syn[p].carry_item) // already carrying item
+   if (m_parent.mPlayer.syn[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((item[mPlayer.syn[p].carry_item][0] == 2) && (type != 2)) // carried item is bonus and new item is not bonus
+      if ((item[m_parent.mPlayer.syn[p].carry_item][0] == 2) && (type != 2)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
    // check if player can carry item
    if ( (!already_carrying) &&     // not carrying item already
          (item[i][3]<0) &&         // item is carryable
-         (mPlayer.syn[p].fire) )   // fire pressed
+         (m_parent.mPlayer.syn[p].fire) )   // fire pressed
    {
       // check to see if another player is already carrying this item
       int other_player_carrying = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
-         if ((mPlayer.syn[op].active) && (!mPlayer.syn[op].paused) && (mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
+         if ((m_parent.mPlayer.syn[op].active) && (!m_parent.mPlayer.syn[op].paused) && (m_parent.mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
 
       // allow carry
        if ((!other_player_carrying) ||         // if no other player is carrying
           (type == PM_ITEM_TYPE_LIT_RCKT))     // allow multiple player carry for rocket
-          mPlayer.syn[p].carry_item = i+1;
+          m_parent.mPlayer.syn[p].carry_item = i+1;
    }
 
    // mark for deno record
-   if (mPlayer.syn[p].carry_item) mDemoRecord.mark_player_carry(p);
+   if (m_parent.mPlayer.syn[p].carry_item) mDemoRecord.mark_player_carry(p);
 
 
    // proc item collision
@@ -580,40 +582,40 @@ void mwItem::proc_bonus_collision(int p, int i)
 {
    if (item[i][6] == 0) // health bonus
    {
-      if (mPlayer.syn[p].health < 100)
+      if (m_parent.mPlayer.syn[p].health < 100)
       {
          item[i][0] = 0;
-         mPlayer.syn[p].health += item[i][7];
-         if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
+         m_parent.mPlayer.syn[p].health += item[i][7];
+         if (m_parent.mPlayer.syn[p].health > 100) m_parent.mPlayer.syn[p].health = 100;
          mGameEvent.add(28, 0, 0, p, 0, item[i][1], item[i][7]);
       }
    }
    if (item[i][6] == 1) // purple coin
    {
       item[i][0] = 0;
-      mPlayer.syn[p].stat_purple_coins++;
+      m_parent.mPlayer.syn[p].stat_purple_coins++;
       mGameEvent.add(27, 0, 0, p, 0, 0, 0);
    }
 }
 
 void mwItem::proc_mine_collision(int p, int i)
 {
-   mPlayer.syn[p].health -= (float)item[i][8] / 100;
+   m_parent.mPlayer.syn[p].health -= (float)item[i][8] / 100;
    mGameEvent.add(11, 0, 0, p, 5, 0, item[i][8]);
 }
 
 
 void mwItem::proc_sproingy_collision(int p, int i)
 {
-   float px = mPlayer.syn[p].x;
-   float py = mPlayer.syn[p].y;
+   float px = m_parent.mPlayer.syn[p].x;
+   float py = m_parent.mPlayer.syn[p].y;
    float x1 = itemf[i][0] - 10;
    float x2 = itemf[i][0] + 10;
    float y1 = itemf[i][1] - 16;
    float y2 = itemf[i][1] - 8;
-   if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) && (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump pressed
+   if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) && (m_parent.mPlayer.syn[p].yinc > 0) && (m_parent.mPlayer.syn[p].jump) )  // falling and jump pressed
    {
-      mPlayer.syn[p].yinc = 0 - (float) item[i][7] / 7.1;
+      m_parent.mPlayer.syn[p].yinc = 0 - (float) item[i][7] / 7.1;
       mGameEvent.add(24, 0, 0, p, i, 0, 0);
    }
 }

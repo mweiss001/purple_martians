@@ -1,7 +1,6 @@
 // mwPlayer.cpp
 
 #include "pm.h"
-#include "mwPlayer.h"
 #include "mwLog.h"
 #include "mwTally.h"
 #include "mwFont.h"
@@ -23,7 +22,7 @@
 #include "mwGameState.h"
 #include "mwMain.h"
 
-mwPlayer mPlayer;
+//mwPlayer mPlayer;
 
 
 
@@ -566,13 +565,13 @@ void mwPlayer::proc_player_collisions(int p)
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
-               mPlayer.syn[pb].stat_player_hits++;
+               m_parent.mPlayer.syn[pb].stat_player_hits++;
             }
             if ((mGameState.player_vs_self_shots) && (pb == p))
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
-               mPlayer.syn[pb].stat_self_hits++;
+               m_parent.mPlayer.syn[pb].stat_self_hits++;
             }
          }
       }
@@ -1027,7 +1026,7 @@ void mwPlayer::draw_player(int p)
 {
    if (syn[p].paused_type != 3)
    {
-      al_set_target_bitmap(mBitmap.level_buffer);
+      al_set_target_bitmap(mLevel.level_buffer);
       int px = syn[p].x;
       int py = syn[p].y;
       set_players_shape(p);
@@ -1212,10 +1211,10 @@ void mwPlayer::draw_player_direct_to_screen(int p)
       {
          float px, py;
          mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
-         float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
+         float scale = m_parent.mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
          int flags = ALLEGRO_FLIP_HORIZONTAL;
-         if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, mPlayer.syn[p].draw_rot, flags);
+         if (m_parent.mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[m_parent.mPlayer.syn[p].color][m_parent.mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, m_parent.mPlayer.syn[p].draw_rot, flags);
          // printf("%d - draw direct\n", mLoop.frame_num);
       }
    }
@@ -1228,7 +1227,7 @@ void mwPlayer::draw_players_direct_to_screen()
       if (syn[p].active) draw_player_direct_to_screen(p);
 
    // do this so that that local player is always drawn on top
-   mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
+   m_parent.mPlayer.draw_player_direct_to_screen(m_parent.mPlayer.active_local_player);
 
    // in some weird cases (demo record) active local player might not be active
    if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
@@ -1317,7 +1316,7 @@ int mwPlayer::is_player_color_used(int color)
 
 std::string mwPlayer::getName(int p)
 {
-   std::string tmp(mPlayer.syn[p].name);
+   std::string tmp(m_parent.mPlayer.syn[p].name);
    if (tmp == "default") tmp = "Player " + std::to_string(p);
    return tmp;
 }
@@ -1339,7 +1338,7 @@ int mwPlayer::get_new_client_color(int color)
    if (!is_player_color_used(6))  return 6;  // taan
 
    // if all these fail, just search for next unused
-   while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
+   while (m_parent.mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
 
    return color;
 }
@@ -1359,10 +1358,8 @@ void mwPlayer::init_player(int p, int t)
 
       if (p == 0) mConfig.load_config(PM_CFG_LOAD_PLAYER_NAME_AND_COLOR); // to reset local name and color only
 
-
       loc[p].hostname[0] = 0;
       loc[p].fake_keypress_mode = 0;
-      // mGameState.server_force_fakekey = 0;
 
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc
@@ -1438,8 +1435,6 @@ void mwPlayer::init_player(int p, int t)
       mGameState.level_done_x = 0;
       mGameState.level_done_y = 0;
       mGameState.level_done_player = 0;
-
-
 
 
       syn[p].marked_gate = -1;
@@ -1539,13 +1534,13 @@ void mwPlayer::init_player(int p, int t)
 
 void mwPlayer::set_default_player_colors()
 {
-   mPlayer.syn[1].color = 10;
-   mPlayer.syn[2].color = 11;
-   mPlayer.syn[3].color = 12;
-   mPlayer.syn[4].color = 13;
-   mPlayer.syn[5].color = 14;
-   mPlayer.syn[6].color = 15;
-   mPlayer.syn[7].color = 9;
+   m_parent.mPlayer.syn[1].color = 10;
+   m_parent.mPlayer.syn[2].color = 11;
+   m_parent.mPlayer.syn[3].color = 12;
+   m_parent.mPlayer.syn[4].color = 13;
+   m_parent.mPlayer.syn[5].color = 14;
+   m_parent.mPlayer.syn[6].color = 15;
+   m_parent.mPlayer.syn[7].color = 9;
 }
 
 bool mwPlayer::if_players_ctrl_just_pressed(int p, int ctrl)

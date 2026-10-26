@@ -37,8 +37,6 @@ class mwBitmap
    ALLEGRO_BITMAP *gate_tile[7][3];
 
 
-   ALLEGRO_BITMAP *level_background;
-   ALLEGRO_BITMAP *level_buffer;
 
    ALLEGRO_BITMAP *text_title = NULL;
    int text_title_bitmaps_create = 1;

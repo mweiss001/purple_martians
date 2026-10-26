@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwScreen.h"
-#include "mwPlayer.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
@@ -18,7 +17,7 @@
 #include "mwEventQueue.h"
 #include "mwGameMoves.h"
 #include "mwGmInfo.h"
-
+#include "mwLevel.h"
 
 
 void mwScreen::draw_demo_controls_overlay_play_stop_button(int xm, int x1, int x2, int ym, int y1, int y2, int r, int pc, int sc)
@@ -602,17 +601,17 @@ int mwScreen::draw_demo_controls_overlay_players_small(int x, int y)
    // count current number of players
    int num_players = 0;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.is_player_active_and_not_hidden(p)) num_players++;
+      if (mLevel.mPlayer.is_player_active_and_not_hidden(p)) num_players++;
 
    if (num_players > 1)
    {
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         if (mPlayer.is_player_active_and_not_hidden(p))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             int highlight = 0;
-            if (p == mPlayer.active_local_player) highlight = 1;
-            if (mWidget.mButtonPlayerTile(rx, y, size, mPlayer.syn[p].color, 0, 15, highlight)) mDemoMode.set_active_local_player(p);
+            if (p == mLevel.mPlayer.active_local_player) highlight = 1;
+            if (mWidget.mButtonPlayerTile(rx, y, size, mLevel.mPlayer.syn[p].color, 0, 15, highlight)) mDemoMode.set_active_local_player(p);
             rx += size + line_spacing;
          }
       }

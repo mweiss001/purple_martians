@@ -31,7 +31,6 @@
 #include "mwMenu.h"
 #include "mwHelp.h"
 
-#include "mwPlayer.h"
 #include "mwShot.h"
 #include "mwLevel.h"
 
@@ -44,9 +43,7 @@
 #include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
-
-
-
+#include "mwTransitions.h"
 
 
 mwLoop mLoop;
@@ -119,15 +116,24 @@ void mwLoop::move_frame()
 
    if (mGameState.level_done_mode)
    {
-      proc_level_done_mode();
+      mTransitions.proc_level_done_mode();
       return;
    }
 
    if (mGameState.gate_enter_mode)
    {
-      proc_gate_enter_mode();
+      mTransitions.proc_gate_enter_mode();
       return;
    }
+
+   if (mGameState.transition_mode)
+   {
+      mTransitions.proc_transition_mode();
+      return;
+   }
+
+
+
 
    double t[8] = { 0 };
    t[0] = al_get_time();
@@ -135,7 +141,7 @@ void mwLoop::move_frame()
    mShot.move_eshots();           t[1] = al_get_time();
    mShot.move_pshots();           t[2] = al_get_time();
    mLevel.mLift.move_lifts(0);    t[3] = al_get_time();
-   mPlayer.move_players();        t[4] = al_get_time();
+   mLevel.mPlayer.move_players(); t[4] = al_get_time();
    mLevel.mEnemy.move_enemies();  t[5] = al_get_time();
    mLevel.mItem.move_items();     t[6] = al_get_time();
 
@@ -160,27 +166,6 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
 }
 
 
-int mwLoop::have_all_players_acknowledged()
-{
-   int ret = 1; // yes by default, if any have not then change to no
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
-      {
-         if (mGameMoves.has_player_acknowledged(p))
-         {
-            mPlayer.syn[p].level_done_ack = 1;
-         }
-         else
-         {
-            mPlayer.syn[p].level_done_ack = 0;
-            ret = 0;
-         }
-      }
-   }
-   return ret;
-}
 
 void mwLoop::game_menu()
 {
@@ -381,7 +366,7 @@ void mwLoop::proc_program_state_change()
 
          if (quit_action == 0)
          {
-            mScreen.transition_cutscene(1, 0); // game to nothing
+            mTransitions.transition_cutscene(1, 0); // game to nothing
             state[0] = PM_PROGRAM_STATE_QUIT; // exit program
             return;
          }
@@ -389,7 +374,7 @@ void mwLoop::proc_program_state_change()
          if (quit_action == 1) // menu (already set)
          {
             // only do this if not returning from settings or demo record
-            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mScreen.transition_cutscene(1, 2); // game to menu
+            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2); // game to menu
          }
          if (quit_action == 2)  // overworld
          {
@@ -480,8 +465,8 @@ void mwLoop::proc_program_state_change()
 
       mEventQueue.reset_fps_timer();
 
-      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
-      mPlayer.syn[0].active = 1;
+      for (int p=0; p<NUM_PLAYERS; p++) mLevel.mPlayer.init_player(p, 1); // full reset
+      mLevel.mPlayer.syn[0].active = 1;
 
 
       if (!mNetgame.clientInitNetwork())
@@ -560,8 +545,8 @@ void mwLoop::proc_program_state_change()
    {
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
       if (!load_and_setup_level(mLevel.play_level, 0)) state[0] = PM_PROGRAM_STATE_MENU;
-      if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
-      if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
+      if (quit_action == 0) mTransitions.transition_cutscene(0, 1); // nothing to game
+      if (quit_action == 1) mTransitions.transition_cutscene(2, 1); // menu to game
    }
 
 //----------------------------------------------------------------------------------------------------------
@@ -605,7 +590,7 @@ void mwLoop::proc_program_state_change()
          mLog.add(LOG_OTH_PROGRAM_STATE, 2, -1); // exit program, because done action == 0
 
          state[0] = PM_PROGRAM_STATE_QUIT; // exit
-         mScreen.transition_cutscene(1, 0); // game to nothing
+         mTransitions.transition_cutscene(1, 0); // game to nothing
          return; // to exit immediately
       }
 
@@ -664,7 +649,7 @@ void mwLoop::proc_program_state_change()
       //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "pre-load ");
       mLog.add(LOG_OTH_TRANSITIONS, 5, -1); // pre-load
 
-      mScreen.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
+//      mTransitions.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
 
 // ---------------------------------------------------
 // load the new level
@@ -674,12 +659,28 @@ void mwLoop::proc_program_state_change()
 
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
+
+      printf("Mloop Post load next Level (%d)\n", mLevel.play_level);
+      printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
+      printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+      printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+
+
+
+
+
+
+
 // ----------------------------------------
 // post-load transition
 // ----------------------------------------
       mLog.add(LOG_OTH_TRANSITIONS, 6, -1); // post-load
       //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "post-load ");
-      mScreen.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
+//      mTransitions.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
+
+//      mTransitions.set_transition_mode(post_load_transistion_initial, post_load_transistion_final, 100);
+
+
    }
 
 
@@ -689,7 +690,7 @@ void mwLoop::proc_program_state_change()
    if (state[1] == PM_PROGRAM_STATE_RESUME)
    {
       mSound.start_sound(1); // resume theme
-      mScreen.transition_cutscene(2, 1); // menu to game
+      mTransitions.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
 
@@ -712,7 +713,7 @@ void mwLoop::proc_program_state_change()
    {
       //printf("server remote control setup\n");
 
-      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
+      for (int p=0; p<NUM_PLAYERS; p++) mLevel.mPlayer.init_player(p, 1); // full reset
 
       if (!mNetgame.clientInitNetwork())
       {
@@ -768,24 +769,24 @@ int mwLoop::load_and_setup_level(int level, int type)
 
       if (type == 0) // SINGLE_PLAYER_NEW_GAME
       {
-         setup_players_after_level_load(1); // type 1 full reset,
+         mLevel.setup_players_after_level_load(1); // type 1 full reset,
       }
 
       if (type == 1) // NEXT_LEVEL
       {
-         setup_players_after_level_load(2); // type 2 partial reset,
+         mLevel.setup_players_after_level_load(2); // type 2 partial reset,
       }
 
       if (type == 2) // CLIENT_LEVEL_SETUP
       {
-         setup_players_after_level_load(2); // type 2 partial reset,
+         mLevel.setup_players_after_level_load(2); // type 2 partial reset,
       }
 
       if (type == 3) // SERVER_NEW_GAME
       {
-         setup_players_after_level_load(1); // type 1 full reset,
-         mMiscFnx.mw_strncpy(mPlayer.loc[0].hostname, local_hostname, 15);
-         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
+         mLevel.setup_players_after_level_load(1); // type 1 full reset,
+         mMiscFnx.mw_strncpy(mLevel.mPlayer.loc[0].hostname, local_hostname, 15);
+         mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
          mNetgame.server_lev_seq_num = 0;
       }
 
@@ -793,16 +794,16 @@ int mwLoop::load_and_setup_level(int level, int type)
       {
          mGameMoves.current_pos = 0;
 
-         setup_players_after_level_load(1); // type 1 full reset,
-         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+         mLevel.setup_players_after_level_load(1); // type 1 full reset,
+         mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
          // to override local name
-         sprintf(mPlayer.syn[0].name, "default");
+         sprintf(mLevel.mPlayer.syn[0].name, "default");
       }
 
       if (type == 5) // LOAD AND RESET ALL BUT DO NOT START LEVEL
       {
-         setup_players_after_level_load(1); // type 1 full reset,
+         mLevel.setup_players_after_level_load(1); // type 1 full reset,
       }
 
       initialize_graphs();
@@ -832,7 +833,7 @@ int mwLoop::load_and_setup_level(int level, int type)
 
          // save colors in game moves array
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+            if (mLevel.mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mLevel.mPlayer.syn[p].color);
 
          // add game move to hide player 0 in headless server mode
          if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
@@ -842,15 +843,6 @@ int mwLoop::load_and_setup_level(int level, int type)
    return 1;
 }
 
-void mwLoop::setup_players_after_level_load(int type)
-{
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
-      mLevel.mItem.set_player_start_pos(p);    // get starting position for all players, active or not
-   }
-   mPlayer.syn[0].active = 1;
-}
 
 
 
@@ -1000,7 +992,7 @@ void mwLoop::main_loop()
             // ------------------------------
             // process player input
             // ------------------------------
-            mPlayer.proc_player_input();
+            mLevel.mPlayer.proc_player_input();
 
             // ------------------------------
             // process game games array
@@ -1044,7 +1036,7 @@ void mwLoop::main_loop()
             float cpu = (pt / 0.025) * 100;
 
             // store in player array cpu variable
-            mPlayer.loc[mPlayer.active_local_player].cpu = cpu;
+            mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].cpu = cpu;
 
             // store in local cpu variables
             add_local_cpu_data(cpu);
@@ -1053,11 +1045,12 @@ void mwLoop::main_loop()
             // --------------------------------------------
             // update ping variables
             // --------------------------------------------
-            if ((mNetgame.ima_server) || (mNetgame.ima_client))
+            //if ((mNetgame.ima_server) || (mNetgame.ima_client))
+            if (mNetgame.active())
                for (int p=0; p<NUM_PLAYERS; p++)
                {
-                  mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
-                  mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
+                  mLevel.mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
+                  mLevel.mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
                }
          }
       }
@@ -1074,11 +1067,11 @@ void mwLoop::main_loop()
             if (mNetgame.ima_client)
             {
                mNetgame.client_send_ping_packet();
-               int p = mPlayer.active_local_player;
-               mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
-               mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
-               mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
-               mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
+               int p = mLevel.mPlayer.active_local_player;
+               mLevel.mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+               mLevel.mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+               mLevel.mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+               mLevel.mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
             }
             if (mNetgame.ima_server)
             {
@@ -1090,16 +1083,16 @@ void mwLoop::main_loop()
 
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
-                  if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+                  if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                   {
-                     mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
-                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
+                     mLevel.mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
+                     mLevel.mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
 
-                     mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
-                     mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+                     mLevel.mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+                     mLevel.mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
 
-                     mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
-                     mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
+                     mLevel.mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+                     mLevel.mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
                   }
             }
          }
