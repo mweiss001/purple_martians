@@ -294,80 +294,57 @@ void mwItem::proc_gate_collision(int p, int i)
       mLevel.load_level_by_number(1, 0, 0);
    }
 
-   int status = mLevel.data[lev].status;
 
-   // if not already in gate_enter_mode, and not client (client can never locally enter gate) and UP pressed, start gate_enter_mode)
-   if ( !mGameState.gate_enter_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
+   // if local player is hovering gate, load l2
+   if (p == mLevel.mPlayer.active_local_player) l2.load_level_l2(lev);
+
+
+
+   // -------------------------------------------------------
+   // enter
+   // -------------------------------------------------------
+
+   // if not already in gate_enter_mode
+   // and not client (client can never locally enter gate)
+   // and UP pressed:
+   // start gate_enter_mode
+   if (!mGameState.gate_enter_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
    {
       mGameState.gate_enter_mode = 9;
       mGameState.gate_enter_item = i;
 
-      // force page to 0 for transition
+      // force page 0 (level icon) for transition
       item[i][7] = 0;
 
-
-      // load next level into l2
-
-      l2.load_level_by_number(lev, 1, 1);
-      l2.valid_level_loaded = 1;
-      l2.mLift.lift_setup();
-      for (int x=0; x<500; x++)
-         if (l2.mItem.item[x][0]) // only if active set x y
-         {
-            l2.mItem.itemf[x][0] = l2.mItem.item[x][4];
-            l2.mItem.itemf[x][1] = l2.mItem.item[x][5];
-         }
-
-      // // set l2 active local player same as local active local player
-      // int alp = l2.mPlayer.active_local_player = mLevel.mPlayer.active_local_player;
-
-      l2.setup_players_after_level_load(1);
-
-
-      l2.level_display_region_x = mLevel.level_display_region_x;
-      l2.level_display_region_y = mLevel.level_display_region_y;
-      l2.level_display_region_w = mLevel.level_display_region_w;
-      l2.level_display_region_h = mLevel.level_display_region_h;
-
-
-
-
-      l2.set_screen_display_variables();
-      l2.set_level_display_region_xy();
-
-
-      l2.init_level_background();
-      l2.get_new_background();
-
-      l2.mLift.draw_lifts();
-      l2.mItem.draw_items();
-      l2.mEnemy.draw_enemies();
+      l2.load_level_l2(lev);
 
       // test drawing this
-      l2.draw_scaled_level_region_to_display();
-      al_flip_display();
-      mInput.tsw();
-
+      // l2.draw_scaled_level_region_to_display();
+      // al_flip_display();
+      // mInput.tsw();
 
       // save start positions
-      mTransitions.gate_enter_Level_icon_size = item[i][11];
       mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
       mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+      mTransitions.gate_enter_Level_icon_size = item[i][11];
 
-      printf("\n--------------------------------------------------------------------\n");
-      printf("Next Level (%d) l2 load at gate enter\n", lev);
-      printf("player pos x:%.0f  y:%.0f\n", l2.mPlayer.syn[0].x, l2.mPlayer.syn[0].y);
-      printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
-      printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", l2.screen_display_x, l2.screen_display_y, l2.screen_display_w, l2.screen_display_h);
-
-
+      // printf("\n--------------------------------------------------------------------\n");
+      // printf("Next Level (%d) l2 load at gate enter\n", lev);
+      // printf("player pos x:%.0f  y:%.0f\n", l2.mPlayer.syn[0].x, l2.mPlayer.syn[0].y);
+      // printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
+      // printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", l2.screen_display_x, l2.screen_display_y, l2.screen_display_w, l2.screen_display_h);
 
    }
+
+
 
    // if DOWN pressed, cycle display pages
    if (m_parent.mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][7]++;
 
+
    // enforce page limits
+   int status = mLevel.data[lev].status;
+
    if ((status == 0) && (item[i][7] > 1)) item[i][7] = 0;
    if ((status == 1) && (item[i][7] > 2)) item[i][7] = 0;
    if ((status > 1)  && (item[i][7] > 4)) item[i][7] = 0;
@@ -398,7 +375,7 @@ void mwItem::draw_level_icon(int i)
    int color = mLevel.level_status_color[status];
 
    al_draw_filled_rectangle(   lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[0]);        // clear background
-   mLevelIcons.draw_level_icon(lx+1, ly+1, ls, level);                             // draw level icon
+   mLevelIcons.draw_level_icon(level, lx+1, ly+1, ls);                             // draw level icon
    al_draw_rectangle(          lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[color], 1); // draw frame
 
    // draw and frame the level name
@@ -517,6 +494,45 @@ void mwItem::draw_gate_hover_info(int i, int page)
 
 }
 
+
+void mwItem::draw_level_icon_direct_to_screen(int i)
+{
+   // only draw for page 0
+   if (item[i][7] != 0) return;
+
+
+   // gate screen position
+   int x = item[i][4];
+   int y = item[i][5];
+   float size = item[i][11];
+
+   // level icon origin
+   float lix1 = x-size/2 + 11;
+   float liy1 = y-size   + 20;
+
+
+   // find actual screen position
+   float ex1=0, ey1=0;
+   mScreen.calc_actual_screen_position(lix1, liy1, ex1, ey1);
+   float ex2=0, ey2=0;
+   mScreen.calc_actual_screen_position(lix1+size, liy1+size, ex2, ey2);
+
+   // get new scaled size
+   float esize = ex2 - ex1;
+
+   // test draw
+   //al_draw_rectangle(ex1, ey1, ex2, ey2, mColor.Red, 1);
+
+   int level = item[i][6];
+
+   if (l2.valid_level_loaded && l2.last_level_loaded == level) l2.draw_level3(NULL, level, ex1, ey1, esize);
+   else                                                 mLevelIcons.draw_level_icon(level, ex1, ey1, esize);
+
+
+
+}
+
+
 void mwItem::show_page(int i, int page, int xc, int bs, int by)
 {
    if (page) by -=40;
@@ -543,13 +559,18 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
 
 
 
-
    if (page == 0) // level icon map
    {
       size = bs+1;
       float ya = by - size + o;
+
+      // clear
       al_draw_filled_rectangle(x1-pad_page, ya-pad_page, x2+pad_page, by, mColor.pc[0]);
-      mLevelIcons.draw_level_icon(x1+1, ya+1, bs, level);
+
+      // draw
+      //mLevelIcons.draw_level_icon(x1+1, ya+1, bs, level);
+
+      // frame
       al_draw_rectangle(x1, ya, x2, by, mColor.pc[color], 1);
    }
 

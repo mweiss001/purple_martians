@@ -14,7 +14,7 @@ public:
    void load(int rebuild_all = 0);
    void reload();
    bool reload_needed = true;
-   void draw_level_icon(int x, int y, int size, int level);
+   void draw_level_icon(int level, int x, int y, int size);
    void update_level_icon(int level);
 
 private:

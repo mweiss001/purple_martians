@@ -138,6 +138,8 @@ class mwLevel
    int load_level_by_number(int level_to_load, int load_only, int fail_silently);
    int load_level(const char* filename, int load_only, int fail_silently);
 
+   int load_level_l2(int level_num);
+
 
 
    void save_level(int level_to_save);

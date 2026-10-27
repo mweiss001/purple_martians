@@ -292,34 +292,29 @@ void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks,
 }
 
 
-int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
-{
-   if (load_level_by_number(level, 1, 0))
-   {
-      valid_level_loaded = 1;
-      mLift.lift_setup();
-      for (int x=0; x<500; x++)
-         if (mItem.item[x][0]) // only if active set x y
-         {
-            mItem.itemf[x][0] = mItem.item[x][4];
-            mItem.itemf[x][1] = mItem.item[x][5];
-         }
 
-      init_level_background();
-      get_new_background();
 
-      mLift.draw_lifts();
-      mItem.draw_items();
-      mEnemy.draw_enemies();
 
-      if (b == NULL) al_set_target_backbuffer(mDisplay.display);
-      else al_set_target_bitmap(b);
-      al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, size, size, 0);
 
-      return 1;
-   }
-   return 0;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -714,6 +709,69 @@ int mwLevel::load_level_file_dialog()
    }
    return 0; // user pressed cancel
 }
+
+
+
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
+{
+   if (load_level_l2(level))
+   {
+      if (b == NULL) al_set_target_backbuffer(mDisplay.display);
+      else al_set_target_bitmap(b);
+      al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, size, size, 0);
+      return 1;
+   }
+   return 0;
+}
+
+
+// this is used to load l2 only
+// skips stuff
+int mwLevel::load_level_l2(int level_num)
+{
+   if (load_level_by_number(level_num, 1, 0))
+   {
+      valid_level_loaded = 1;
+      mLift.lift_setup();
+      for (int x=0; x<500; x++)
+         if (mItem.item[x][0]) // only if active set x y
+         {
+            mItem.itemf[x][0] = mItem.item[x][4];
+            mItem.itemf[x][1] = mItem.item[x][5];
+         }
+      setup_players_after_level_load(1);
+
+      // copy the level_display_region variable from mLevel to l2
+      // this is needed to make the transition final variable match what happens when next level is actually loaded
+      level_display_region_x = mLevel.level_display_region_x;
+      level_display_region_y = mLevel.level_display_region_y;
+      level_display_region_w = mLevel.level_display_region_w;
+      level_display_region_h = mLevel.level_display_region_h;
+
+      // set the screen_display and level_display variables
+      set_screen_display_variables();
+      set_level_display_region_xy();
+
+      // draw the level
+      init_level_background();
+      get_new_background();
+      mLift.draw_lifts();
+      mItem.draw_items();
+      mEnemy.draw_enemies();
+      mPlayer.draw_players();
+
+      return 1;
+
+   }
+   return 0;
+}
+
+
+
+
+
+
+
 
 int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silently)
 {

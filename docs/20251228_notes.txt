@@ -47735,6 +47735,202 @@ why??
 
 got to go
 
+2026-10-26 11:37:50
+do some cleanup
+
+
+2026-10-26 12:58:45
+
+spent an hour lining up the initial player seek position in the level icon
+
+void mwTransitions::proc_gate_enter_mode()
+{
+   int enter_gate = 0;
+
+   if (mGameState.gate_enter_mode == 9) mGameState.gate_enter_timer = 0; // entry point
+
+   if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
+   {
+      int i = mGameState.gate_enter_item;
+
+      int x = mLevel.mItem.item[i][4];
+      int y = mLevel.mItem.item[i][5];
+
+      // level_icon size
+      float size = mLevel.mItem.item[i][11];
+
+      // level icon origin
+      float lix = x-size/2 + 10;
+      float liy = y-size   + 20;
+
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         {
+            mLevel.mPlayer.syn[p].paused = 5; // set player paused
+
+            // new level start position scaled by level_icon size
+            float px = ((mTransitions.gate_enter_next_level_start_x+10) * size) / 2000;
+            float py = ((mTransitions.gate_enter_next_level_start_y+10) * size) / 2000;
+
+            // get screen position of start position
+            float sx = lix + px - 9;
+            float sy = liy + py - 9;
+
+            // get distance between players current position and new position
+            float dx = sx - mLevel.mPlayer.syn[p].x;
+            float dy = sy - mLevel.mPlayer.syn[p].y;
+
+            // get move
+            mLevel.mPlayer.syn[p].xinc = dx/gate_enter_seek_time;
+            mLevel.mPlayer.syn[p].yinc = dy/gate_enter_seek_time;
+
+            // set left right direction
+            if (mLevel.mPlayer.syn[p].xinc > 0) mLevel.mPlayer.syn[p].left_right = 1;
+            if (mLevel.mPlayer.syn[p].xinc < 0) mLevel.mPlayer.syn[p].left_right = 0;
+         }
+   }
+
+   if (mGameState.gate_enter_mode == 6) // players seek gate
+   {
+
+      // int i = mGameState.gate_enter_item;
+      //
+      // // position of the gate icon
+      // int x = mLevel.mItem.item[i][4];
+      // int y = mLevel.mItem.item[i][5];
+      //
+      // // level_icon size
+      // float size = mLevel.mItem.item[i][11];
+      //
+      // // level icon origin
+      // float lix = (x-size/2) +10;
+      // float liy = (y-size)   +20;
+      //
+      //
+      // // new level start position offset scaled by level_icon size
+      // float px = ((mTransitions.gate_enter_next_level_start_x+10) * size) / 2000;
+      // float py = ((mTransitions.gate_enter_next_level_start_y+10) * size) / 2000;
+      //
+      //
+      // // get screen position of start position (in 0-2000 format for setting player position)
+      // float sx = lix + px - 9;
+      // float sy = liy + py - 9;
+
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         {
+            // test static pos
+            // mLevel.mPlayer.syn[p].x = sx;
+            // mLevel.mPlayer.syn[p].y = sy;
+
+            mLevel.mPlayer.syn[p].x += mLevel.mPlayer.syn[p].xinc;
+            mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
+         }
+   }
+
+
+2026-10-26 12:59:36
+now I want to line up the initial transition stuff
+fuckin' perfect!!!
+now draw players on l2..done
+now also draw existing background, but not current level_icon
+
+2026-10-27 04:40:33
+
+when zooming into level, draw background but not current hovered icon...
+
+I will need to draw it one last time without that 
+
+make another gate entry mode or use 3...
+
+
+the hover icon would look so much nicer if it was drawn from l2
+this could only work locally
+
+
+when local player hovers gate load l2...???
+
+   // if local player is hovering gate, load l2
+   if (p == mLevel.mPlayer.active_local_player) l2.load_level_l2(lev);
+
+I think I want my own version of load that I can use for l2..done
+
+now where to draw?
+
+
+I need to know what player is hovering
+
+void mwItem::draw_gate_hover_info(int i, int page)
+
+or...
+
+if l2 has a valid level loaded that matches lev then use it...
+
+this works, but still draws on level_buffer
+
+leave it blank in the page draw and make a custom function to draw either later
+
+
+2026-10-27 06:18:53
+
+leaving it blank in normal draw...done
+
+      // ---------------------------------------------------------------
+      // after this we are drawing directly on screen
+      // ---------------------------------------------------------------
+
+      // draw hover gate level icon
+      // this is to draw a nicely scaled hover level icon from the full l2 bitmap
+      // only if that level is loaded in l2, otherwise use regular level icon
+
+      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+      else
+      {
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+               mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].marked_gate);
+         ds_add(i);
+      }
+
+
+I have this thing where drawing player direct to screen does nothing is rot and scale are normal
+disabled for now...
+
+test in netgame...
+
+2026-10-27 06:50:18..commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -291,7 +291,7 @@ bool mwLevelIcons::find_level_icon_index(int &index, int level)
    return false;
 }
 
-void mwLevelIcons::draw_level_icon(int x, int y, int draw_size, int level)
+void mwLevelIcons::draw_level_icon(int level, int x, int y, int draw_size)
 {
    if (reload_needed) reload();
    int index = 0;

@@ -1017,20 +1017,14 @@ void mwPlayer::move_players()
 
 
 
-
-
-
-
-
 void mwPlayer::draw_player(int p)
 {
    if (syn[p].paused_type != 3)
    {
-      al_set_target_bitmap(mLevel.level_buffer);
+      al_set_target_bitmap(m_parent.level_buffer);
       int px = syn[p].x;
       int py = syn[p].y;
       set_players_shape(p);
-
 
 
 //      int old_draw_method = 1;
@@ -1180,7 +1174,6 @@ void mwPlayer::draw_player(int p)
          if (loc[0].name_display == 1 && p != active_local_player) draw_name = true; // remote only
 
 
-
          if (draw_name)
          {
             std::string name = getName(p);
@@ -1205,16 +1198,23 @@ void mwPlayer::draw_player_direct_to_screen(int p)
 {
    if (syn[p].paused_type != 3)
    {
-      float scale = syn[p].draw_scale;
-      float rot = syn[p].draw_rot;
-      if ((scale != 1) || (rot != 0))
+//      float scale = syn[p].draw_scale;
+//      float rot = syn[p].draw_rot;
+//      if ((scale != 1) || (rot != 0))
       {
          float px, py;
          mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
-         float scale = m_parent.mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
+
+         //float scale = m_parent.mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
+         float scale = syn[p].draw_scale * mDisplay.scale_factor_current;
+
          int flags = ALLEGRO_FLIP_HORIZONTAL;
-         if (m_parent.mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[m_parent.mPlayer.syn[p].color][m_parent.mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, m_parent.mPlayer.syn[p].draw_rot, flags);
+//         if (m_parent.mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+         if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+
+//         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[m_parent.mPlayer.syn[p].color][m_parent.mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, m_parent.mPlayer.syn[p].draw_rot, flags);
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px, py, scale, scale, syn[p].draw_rot, flags);
+
          // printf("%d - draw direct\n", mLoop.frame_num);
       }
    }
@@ -1227,7 +1227,8 @@ void mwPlayer::draw_players_direct_to_screen()
       if (syn[p].active) draw_player_direct_to_screen(p);
 
    // do this so that that local player is always drawn on top
-   m_parent.mPlayer.draw_player_direct_to_screen(m_parent.mPlayer.active_local_player);
+//   m_parent.mPlayer.draw_player_direct_to_screen(m_parent.mPlayer.active_local_player);
+   draw_player_direct_to_screen(active_local_player);
 
    // in some weird cases (demo record) active local player might not be active
    if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)

@@ -115,16 +115,22 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else { mShot.draw_pshots(); ds_add(i); }
 
 
-      // this is here to draw on top of other things, but not players
-      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
-      else
+      // skip drawing and let transition do it
+//      if (mGameState.gate_enter_mode != 3)
       {
-         // draw hover info
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
-               mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
-         ds_add(i);
+         // this is here to draw on top of other things, but not players
+         if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+         else
+         {
+            // draw hover info
+            for (int p=0; p<NUM_PLAYERS; p++)
+               if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+                  mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
+            ds_add(i);
+         }
       }
+
+
 
 
       if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
@@ -160,6 +166,28 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       else { mLevel.draw_scaled_level_region_to_display(); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
+
+
+      // ---------------------------------------------------------------
+      // after this we are drawing directly on screen
+      // ---------------------------------------------------------------
+
+      // draw hover gate level icon
+      // this is to draw a nicely scaled hover level icon from the full l2 bitmap
+      // only if that level is loaded in l2, otherwise use regular level icon
+
+      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+      else
+      {
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+               mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].marked_gate);
+         ds_add(i);
+      }
+
+
+
+
 
 
       // draw purple coins directly on the screen, so they scale nicely

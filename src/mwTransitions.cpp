@@ -7,6 +7,7 @@
 #include "mwColor.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
+#include "mwDrawSequence.h"
 #include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwGameState.h"
@@ -325,11 +326,16 @@ void mwTransitions::proc_gate_enter_mode()
    if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
    {
       int i = mGameState.gate_enter_item;
-      int x = mLevel.mItem.itemf[i][0];
-      int y = mLevel.mItem.itemf[i][1];
+
+      int x = mLevel.mItem.item[i][4];
+      int y = mLevel.mItem.item[i][5];
 
       // level_icon size
       float size = mLevel.mItem.item[i][11];
+
+      // level icon origin
+      float lix = x-size/2 + 10;
+      float liy = y-size   + 20;
 
 
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -337,22 +343,17 @@ void mwTransitions::proc_gate_enter_mode()
          {
             mLevel.mPlayer.syn[p].paused = 5; // set player paused
 
-            // get distance between player and gate center
-            // float dx = x - mLevel.mPlayer.syn[p].x;
-            // float dy = (y - mLevel.mPlayer.syn[p].y) -15;
+            // new level start position scaled by level_icon size
+            float px = ((mTransitions.gate_enter_next_level_start_x+10) * size) / 2000;
+            float py = ((mTransitions.gate_enter_next_level_start_y+10) * size) / 2000;
 
-            float px = mTransitions.gate_enter_next_level_start_x;
-            float py = mTransitions.gate_enter_next_level_start_y;
+            // get screen position of start position
+            float sx = lix + px - 9;
+            float sy = liy + py - 9;
 
-//            printf("2 - l2 player pos x:%f  y:%f\n", px, py);
-
-
-            // get distance between player and new level start position
-            float sx = x-size/2-10  + (px * size) / 2000;
-            float sy = y-size       + (py * size) / 2000;
-
-            float dx = sx - mLevel.mPlayer.syn[p].x+10;
-            float dy = sy - mLevel.mPlayer.syn[p].y+10;
+            // get distance between players current position and new position
+            float dx = sx - mLevel.mPlayer.syn[p].x;
+            float dy = sy - mLevel.mPlayer.syn[p].y;
 
             // get move
             mLevel.mPlayer.syn[p].xinc = dx/gate_enter_seek_time;
@@ -389,6 +390,12 @@ void mwTransitions::proc_gate_enter_mode()
             mLevel.mPlayer.syn[p].draw_scale -= scale_inc;
             mLevel.mPlayer.syn[p].draw_rot -= rot_inc;
          }
+
+      if (mGameState.gate_enter_timer == 1) mInput.tsw();
+
+
+
+
    }
 
 
@@ -401,8 +408,9 @@ void mwTransitions::proc_gate_enter_mode()
       float py = mTransitions.gate_enter_next_level_start_y;
 
       transition_initial_scale = mDisplay.scale_factor_current * (gate_enter_Level_icon_size / 2000.0);
-      transition_initial_x = gate_transition_x + px * transition_initial_scale;
-      transition_initial_y = gate_transition_y + py * transition_initial_scale;
+      transition_initial_x = gate_transition_x + px * transition_initial_scale + 1;
+      transition_initial_y = gate_transition_y + py * transition_initial_scale + 2;
+
 
       transition_final_scale = mDisplay.scale_factor_current;
       transition_final_x = l2.screen_display_x + (px - l2.level_display_region_x) * transition_final_scale;
@@ -425,51 +433,37 @@ void mwTransitions::proc_gate_enter_mode()
 
       mGameState.gate_enter_mode = 2;
 
+
+
    }
 
    if (mGameState.gate_enter_mode == 2) // do transition
    {
+//      printf("proc_transition_mode() - %d  x:%f  y:%f  scale:%f\n", mGameState.gate_enter_timer, transition_current_x, transition_current_y, transition_current_scale);
+//      if (mGameState.gate_enter_timer == transition_steps) mInput.tsw();
+
+      if (!mMain.headless_server)
+      {
+         al_set_target_backbuffer(mDisplay.display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+
+         mLevel.draw_scaled_level_region_to_display();
+         mScreen.draw_screen_frame();
+
+//         mDrawSequence.ds_draw(0, 0);
+//         al_set_target_backbuffer(mDisplay.display);
+
+
+         l2.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
+         al_flip_display();
+      }
       transition_current_x += transition_x_inc;
       transition_current_y += transition_y_inc;
       transition_current_scale *= transition_scale_multiplier;
 
-//      printf("proc_transition_mode() - %d  x:%f  y:%f  scale:%f\n", mGameState.gate_enter_timer, transition_current_x, transition_current_y, transition_current_scale);
+      // pause on first frame
+      if (mGameState.gate_enter_timer == transition_steps) mInput.tsw();
 
-      if (mGameState.gate_enter_timer == 1)
-      {
-
-
-         // printf("position at the end of transition\n");
-         // printf("player pos x:%d  y:%d\n", mTransitions.gate_enter_next_level_start_x, mTransitions.gate_enter_next_level_start_y);
-         // printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
-
-         mInput.tsw();
-
-
-      }
-
-
-
-
-
-
-      if (!mMain.headless_server)
-      {
-
-//         l2.set_level_display_region_xy();
-
-         al_set_target_backbuffer(mDisplay.display);
-         al_clear_to_color(al_map_rgb(0,0,0));
-//         mScreen.draw_screen_frame();
-
-         l2.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
-
-         al_flip_display();
-
-         //   al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
-         //   al_flip_display();
-         //         if (mGameState.transition_timer == 99) mInput.tsw();
-      }
 
    }
 

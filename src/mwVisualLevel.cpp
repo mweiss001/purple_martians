@@ -602,7 +602,7 @@ void mwVisualLevel::load_visual_level_select(int max_level_num, int &sel_x, int 
          int by1 = row * grid_size;
          if (lev)
          {
-            mLevelIcons.draw_level_icon(bx1, by1, grid_size, lev);
+            mLevelIcons.draw_level_icon(lev, bx1, by1, grid_size);
             al_draw_textf(mFont.pr8, mColor.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
          }
       }

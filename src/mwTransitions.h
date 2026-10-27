@@ -57,7 +57,7 @@ class mwTransitions
    float transition_y_inc;
    float transition_scale_multiplier;
 
-   int transition_steps = 100;
+   int transition_steps = 60;
 
 
 

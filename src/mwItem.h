@@ -80,6 +80,7 @@ class mwItem
 
    void draw_gate_hover_info(int i, int page = -1);
 
+   void draw_level_icon_direct_to_screen(int i);
 
 
    char * chrd(int v, char* ft);
