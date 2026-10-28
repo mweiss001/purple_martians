@@ -48474,6 +48474,40 @@ keep them both?
 2026-10-28 06:53:46 test in netgame
 looks good...commit
 
+now what?
+
+
+I want to be able to draw gate on top of level_icon
+
+does this mean I need to move it to draw_direct also? yes
+
+maybe I could hijack the draw level icon direct thing and do it there...done
+
+2026-10-28 07:19:45
+
+got to go...
+
+what do I want to do next?
+
+do something about the gate size?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

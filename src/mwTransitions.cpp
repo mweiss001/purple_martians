@@ -323,8 +323,6 @@ void mwTransitions::proc_gate_enter_mode()
 
    if (mGameState.gate_enter_mode == 9) mGameState.gate_enter_timer = 0; // entry point
 
-
-
    // pause players and set up gate seek xyincs
    if (mGameState.gate_enter_mode == 7)
    {

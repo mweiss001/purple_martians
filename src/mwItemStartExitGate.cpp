@@ -383,7 +383,15 @@ void mwItem::draw_gate_tile(int i)
    // draw the gate tile
    int x = item[i][4];
    int y = item[i][5];
-   al_draw_bitmap(mBitmap.gate_tile[gate_tile_index][seq], x-10, y-39, 0);
+
+   // full size
+   //   al_draw_bitmap(mBitmap.gate_tile[gate_tile_index][seq], x-10, y-39, 0);
+
+   // half size
+   //al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x, y-9, 20, 30, 0);
+
+   // 3/4 size
+   al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x-5, y-24, 30, 45, 0);
 
 
 
@@ -526,6 +534,50 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
    }
 
 
+   // draw the gate icon here, or it will be hidden
+
+   int lev = item[i][6];
+   int status = mLevel.data[lev].status;
+
+   int gate_tile_index = 0;
+   int draw_mode = item[i][1];
+   if (draw_mode == 1) gate_tile_index = status;
+   if (draw_mode == 2) gate_tile_index = 4;
+   if (draw_mode == 3) gate_tile_index = 5;
+   if (draw_mode == 4) gate_tile_index = 6;
+
+
+   // set the gate tile sequence
+   int seq = 0; // closed door
+   // only if gate_enter_mode is active and this door is gate_enter_item
+   if ((mGameState.gate_enter_mode) && (mGameState.gate_enter_item == i))
+   {
+      if (mGameState.gate_enter_mode)     seq = 2; // fully open door
+      if (mGameState.gate_enter_mode > 7) seq = 1; // partially open door
+   }
+
+
+   // draw the gate tile
+   float gx1 = x - 10;
+   float gy1 = y - 39;
+
+   float gx2 = x + 30;
+   float gy2 = y + 21;
+
+
+   // find actual screen position
+   float gex1=0, gey1=0;
+   mScreen.calc_actual_screen_position(gx1, gy1, gex1, gey1);
+
+   float gex2=0, gey2=0;
+   mScreen.calc_actual_screen_position(gx2, gy2, gex2, gey2);
+
+   // test
+   //al_draw_rectangle(gex1, gey1, gex2, gey2, mColor.Red, 1);
+
+   float gew = gex2 - gex1;
+   float geh = gey2 - gey1;
+   al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, gex1, gey1, gew, geh, 0);
 
 }
 
