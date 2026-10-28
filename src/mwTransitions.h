@@ -29,7 +29,7 @@ class mwTransitions
    int gate_enter_num_rotations = 2;
    float gate_enter_player_final_scale = .1;
 
-   int gate_enter_Level_icon_size;
+   float gate_enter_level_icon_size;
 
    int gate_enter_next_level_start_x;
    int gate_enter_next_level_start_y;

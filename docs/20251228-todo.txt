@@ -56,6 +56,20 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+
+
+
+
+then what am I doing with the transitions and gate entry stuff (and level_done)
+they all run while frames keep running
+
+can I make it more common?
+
+
+
+
+
+
 gates
 -----
 - colored tiles..done

@@ -73,8 +73,9 @@ class mwLevel
    void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
 
 
-   int draw_level3(ALLEGRO_BITMAP *b, int level, int x, int y, int size);
-   void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
+   int draw_level3(ALLEGRO_BITMAP *b, int level, int x, int y, int ms, int blocks, int items, int enemies, int lifts, int players, int shots);
+   void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots);
+
    void init_level_background();
    void get_new_background();
 
@@ -86,17 +87,17 @@ class mwLevel
    void draw_scaled_level_region_to_display();
 
 
-   int screen_display_x;
-   int screen_display_y;
-   int screen_display_w;
-   int screen_display_h;
+   float screen_display_x;
+   float screen_display_y;
+   float screen_display_w;
+   float  screen_display_h;
 
    float level_display_region_x;
    float level_display_region_y;
    float level_display_region_xinc;
    float level_display_region_yinc;
-   int level_display_region_w;
-   int level_display_region_h;
+   float level_display_region_w;
+   float level_display_region_h;
 
    int ldr_xmx_h;
    int ldr_xmn_h;

@@ -294,11 +294,8 @@ void mwItem::proc_gate_collision(int p, int i)
       mLevel.load_level_by_number(1, 0, 0);
    }
 
-
    // if local player is hovering gate, load l2
    if (p == mLevel.mPlayer.active_local_player) l2.load_level_l2(lev);
-
-
 
    // -------------------------------------------------------
    // enter
@@ -312,30 +309,9 @@ void mwItem::proc_gate_collision(int p, int i)
    {
       mGameState.gate_enter_mode = 9;
       mGameState.gate_enter_item = i;
-
       // force page 0 (level icon) for transition
       item[i][7] = 0;
-
-      l2.load_level_l2(lev);
-
-      // test drawing this
-      // l2.draw_scaled_level_region_to_display();
-      // al_flip_display();
-      // mInput.tsw();
-
-      // save start positions
-      mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
-      mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
-      mTransitions.gate_enter_Level_icon_size = item[i][11];
-
-      // printf("\n--------------------------------------------------------------------\n");
-      // printf("Next Level (%d) l2 load at gate enter\n", lev);
-      // printf("player pos x:%.0f  y:%.0f\n", l2.mPlayer.syn[0].x, l2.mPlayer.syn[0].y);
-      // printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
-      // printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", l2.screen_display_x, l2.screen_display_y, l2.screen_display_w, l2.screen_display_h);
-
    }
-
 
 
    // if DOWN pressed, cycle display pages
@@ -352,9 +328,6 @@ void mwItem::proc_gate_collision(int p, int i)
    // no demo page in netgame
    //if (((mNetgame.ima_server) || (mNetgame.ima_client)) && (item[i][7] == 4)) item[i][7] = 0;
    if (mNetgame.active() && item[i][7] == 4) item[i][7] = 0;
-
-
-
 
 }
 
@@ -411,6 +384,21 @@ void mwItem::draw_gate_tile(int i)
    int x = item[i][4];
    int y = item[i][5];
    al_draw_bitmap(mBitmap.gate_tile[gate_tile_index][seq], x-10, y-39, 0);
+
+
+
+   // // draw the gate tile
+   // // center of tile
+   // int x = item[i][4]+10;
+   // int y = item[i][5]+20;
+   // float w = 20;
+   // float h = 30;
+   // // w = 40 x1 -10
+   // float x1 =
+   // al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x-5, y-19, w, h, 0);
+
+
+
 
    // draw lock overlay
    int xc = x+10; // center of tile
@@ -525,8 +513,17 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
 
    int level = item[i][6];
 
-   if (l2.valid_level_loaded && l2.last_level_loaded == level) l2.draw_level3(NULL, level, ex1, ey1, esize);
-   else                                                 mLevelIcons.draw_level_icon(level, ex1, ey1, esize);
+   if (l2.valid_level_loaded && l2.last_level_loaded == level)
+   {
+      l2.draw_level3(NULL, level, ex1, ey1, esize, 1, 1, 1, 1, 0, 0 );
+      al_draw_rectangle(ex1-10, ey1, ex2, ey2, mColor.Red, 1);
+
+   }
+   else
+   {
+      mLevelIcons.draw_level_icon(level, ex1, ey1, esize);
+      al_draw_rectangle(ex1-10, ey1, ex2, ey2, mColor.Green, 1);
+   }
 
 
 

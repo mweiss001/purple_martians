@@ -260,51 +260,6 @@ void mwLevel::get_new_background()
 
 
 
-void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
-{
-   if (valid_level_loaded)
-   {
-      if (blocks)  get_new_background();
-      if (lifts)   mLift.draw_lifts();
-      if (items)   mItem.draw_items();
-      if (enemies) mEnemy.draw_enemies();
-      if (resume_allowed)
-      {
-         if (players) mPlayer.draw_players();
-         mShot.draw_eshots();
-         mShot.draw_pshots();
-      }
-   }
-
-   if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
-   {
-      // first erase hidden regions (only in not in level editor)
-      if (!mLoop.level_editor_running) mItem.erase_hider_areas();
-
-      // this will show level stats on menu level
-      //for (int i=0; i<500; i++)
-      //   if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_pmsg(i, 0, 0, 0);
-
-   }
-   if (b == NULL) al_set_target_backbuffer(mDisplay.display);
-   else al_set_target_bitmap(b);
-   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -348,7 +303,7 @@ void mwLevel::set_screen_display_variables()
 // ----------------------------------------------------------------------
 
    // default place and size to draw on screen
-   int bw = BORDER_WIDTH;
+   float bw = BORDER_WIDTH;
 
    screen_display_x = bw;
    screen_display_y = bw;
@@ -397,8 +352,8 @@ void mwLevel::set_level_display_region_xy()
    int p = mPlayer.active_local_player;
    float px = mPlayer.syn[p].x + 10;
    float py = mPlayer.syn[p].y + 10;
-   int w = level_display_region_w;
-   int h = level_display_region_h;
+   float w = level_display_region_w;
+   float h = level_display_region_h;
 
    float pvx = mPlayer.syn[p].xinc;
    float pvy = mPlayer.syn[p].yinc;
@@ -578,13 +533,8 @@ void mwLevel::draw_scaled_level_region_to_display()
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   int ldrx = level_display_region_x;
-   int ldry = level_display_region_y;
-   int ldrw = level_display_region_w;
-   int ldrh = level_display_region_h;
-
    // draw the level region from level buffer to display
-   al_draw_scaled_bitmap(level_buffer, ldrx, ldry, ldrw, ldrh, screen_display_x, screen_display_y, screen_display_w, screen_display_h, 0);
+   al_draw_scaled_bitmap(level_buffer, level_display_region_x, level_display_region_y, level_display_region_w, level_display_region_h, screen_display_x, screen_display_y, screen_display_w, screen_display_h, 0);
 
 
    // do not draw frame when game is running, only in level editor mode
@@ -596,8 +546,8 @@ void mwLevel::draw_scaled_level_region_to_display()
    {
       int col = 12;
 
-      int x_size = ldrw * mScreen.viewport_x_div/2;
-      int y_size = ldrh * mScreen.viewport_y_div/2;
+      float x_size = level_display_region_w * mScreen.viewport_x_div/2;
+      float y_size = level_display_region_h * mScreen.viewport_y_div/2;
       float hx1 = mDisplay.SCREEN_W/2 - x_size * mDisplay.scale_factor_current;
       float hx2 = mDisplay.SCREEN_W/2 + x_size * mDisplay.scale_factor_current;
       float hy1 = mDisplay.SCREEN_H/2 - y_size * mDisplay.scale_factor_current;
@@ -712,25 +662,73 @@ int mwLevel::load_level_file_dialog()
 
 
 
-int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int size)
+void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
+{
+   if (!valid_level_loaded) return;
+
+   if (blocks)  get_new_background();
+   if (lifts)   mLift.draw_lifts();
+   if (items)   mItem.draw_items();
+   if (enemies) mEnemy.draw_enemies();
+   if (players) mPlayer.draw_players(1);
+   if (shots)   mShot.draw_eshots();
+   if (shots)   mShot.draw_pshots();
+
+   if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
+   {
+      // first erase hidden regions (only in not in level editor)
+      if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+
+      // this will show level stats on menu level
+      //for (int i=0; i<500; i++)
+      //   if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_pmsg(i, 0, 0, 0);
+
+   }
+
+
+   if (b == NULL) al_set_target_backbuffer(mDisplay.display);
+   else al_set_target_bitmap(b);
+   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
+
+
+}
+
+
+
+
+
+
+
+
+
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
 {
    if (load_level_l2(level))
    {
-      if (b == NULL) al_set_target_backbuffer(mDisplay.display);
-      else al_set_target_bitmap(b);
-      al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, size, size, 0);
+      draw_level2(b, mx, my, ms, blocks, items, enemies, lifts, players, shots);
       return 1;
    }
    return 0;
 }
 
 
-// this is used to load l2 only
-// skips stuff
-int mwLevel::load_level_l2(int level_num)
+
+// this is used to load l2 only, skips stuff that normal load does
+int mwLevel::load_level_l2(int level)
 {
-   if (load_level_by_number(level_num, 1, 0))
+   //printf("\nmwLevel::load_level_l2(%d)\n", level);
+
+   if (valid_level_loaded && last_level_loaded == level)
    {
+      //printf("already loaded!!!\n");
+      return 1;
+   }
+
+
+   if (load_level_by_number(level, 1, 0))
+   {
+      printf("\nmwLevel::load_level_l2(%d)\n", level);
+      //printf("loading!!!\n");
       valid_level_loaded = 1;
       mLift.lift_setup();
       for (int x=0; x<500; x++)
@@ -739,10 +737,11 @@ int mwLevel::load_level_l2(int level_num)
             mItem.itemf[x][0] = mItem.item[x][4];
             mItem.itemf[x][1] = mItem.item[x][5];
          }
+
       setup_players_after_level_load(1);
 
       // copy the level_display_region variable from mLevel to l2
-      // this is needed to make the transition final variable match what happens when next level is actually loaded
+      // this is needed to make the transition final variables match what happens when next level is actually loaded
       level_display_region_x = mLevel.level_display_region_x;
       level_display_region_y = mLevel.level_display_region_y;
       level_display_region_w = mLevel.level_display_region_w;
@@ -752,16 +751,8 @@ int mwLevel::load_level_l2(int level_num)
       set_screen_display_variables();
       set_level_display_region_xy();
 
-      // draw the level
       init_level_background();
-      get_new_background();
-      mLift.draw_lifts();
-      mItem.draw_items();
-      mEnemy.draw_enemies();
-      mPlayer.draw_players();
-
       return 1;
-
    }
    return 0;
 }
@@ -784,7 +775,7 @@ int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silentl
 
 int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
-   //printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
+//   printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
    char msg[1024];
    FILE *fp = fopen(filename, "rb");
    if (!fp)

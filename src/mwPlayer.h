@@ -248,8 +248,8 @@ public:
    void draw_player_direct_to_screen(int p);
    void draw_players_direct_to_screen();
 
-   void draw_player(int p);
-   void draw_players();
+   void draw_player(int p, bool draw_icon_on_level_buffer);
+   void draw_players(bool);
    void set_players_shape(int p);
    int find_inactive_player();
    int is_player_color_used(int color);
@@ -257,7 +257,6 @@ public:
    int get_new_client_color(int requested_color);
 
    std::string getName(int p);
-
 
    void init_player(int p, int t);
    void set_default_player_colors();
@@ -270,9 +269,6 @@ public:
    void proc_player_input();
 
 };
-
-
-//extern mwPlayer mPlayer;
 
 #endif
 

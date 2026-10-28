@@ -662,8 +662,8 @@ void mwLoop::proc_program_state_change()
 
       printf("Mloop Post load next Level (%d)\n", mLevel.play_level);
       printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
-      printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
-      printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+      printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+      printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
 
 
 

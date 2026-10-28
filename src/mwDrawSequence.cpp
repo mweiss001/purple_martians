@@ -134,7 +134,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
 
       if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
-      else { mLevel.mPlayer.draw_players(); ds_add(i); }
+      else { mLevel.mPlayer.draw_players(0); ds_add(i); }
 
       if (packet_check) mPacketBuffer.check_for_packets();
 

@@ -39,7 +39,7 @@ void mwVisualLevel::show_big_lev(int level, const char * text, int x, int y, int
    if (mLevel.load_level_by_number(level, 0, 1))
    {
       al_set_target_backbuffer(mDisplay.display);
-      mLevel.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0);
+      mLevel.draw_level2(NULL, 1002, y+26, 276, 1, 1, 1, 1, 0, 0);
       al_set_target_backbuffer(mDisplay.display);
       mLevel.show_level_data(1010, y+308, 0);
    }
@@ -280,7 +280,7 @@ void mwVisualLevel::lev_draw(int full, int sel, int cur)
             int level = my*20 + mx;
             int col = 11;
             if (!mLevel.load_level_by_number(level, 0, 1)) col = 10;
-            if (mLevel.valid_level_loaded) mLevel.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            if (mLevel.valid_level_loaded) mLevel.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0, 0);
             al_draw_textf(mFont.pr8, mColor.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
@@ -372,7 +372,7 @@ void mwVisualLevel::level_viewer()
       if (mInput.key[ALLEGRO_KEY_S][0])
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
-         if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0, 0);
          al_flip_display();
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc_menu();
          redraw = 1;
@@ -390,7 +390,7 @@ void mwVisualLevel::level_viewer()
          if (mInput.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (mLevel.load_level_by_number(cur, 0, 1)) mLevel.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0, 0);
             al_flip_display();
             redraw = 1;
             while (mInput.mouse_b[1][0]) mEventQueue.proc_menu();
@@ -483,7 +483,8 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
 
-   if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3))
+
+   if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3, 1, 1, 1, 1, 0, 0 ))
    {
       int ty1 = l2.show_level_data(x1+2, y2+32+24, 0);
       for (int a=0; a<16; a++)

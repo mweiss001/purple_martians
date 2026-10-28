@@ -47898,341 +47898,581 @@ leaving it blank in normal draw...done
 I have this thing where drawing player direct to screen does nothing is rot and scale are normal
 disabled for now...
 
-test in netgame...
 
 2026-10-27 06:50:18..commit
 
+test in netgame...
 
+not too bad...
 
+why does client other player show same color as client blue when client hovers gate...
 
+because other player is player 0 and it is getting that from local color
+but why and how to fix?
 
+is l2 loaded constantly when gate is hovered?
 
+fixed it constantly being drawn...
 
+now what?
 
+I kind of want to make gate icons smaller...
 
+I think the whole way I do the position of gates is wrong..
 
+when it was 20x20
+the center was +10, +10
+the floor was +20
 
+then it was 40x60
+xcenter was still +10
+and floor was +20
 
+this is all fucked up...
 
 
+I need to draw the gate and player on top of the new level icon
 
+I need to figure out why player draw direct to screen and normal draw conflict
+on that note, I want to draw direct to screen all the time
+the only time I might not would be when I needed to show player in the level...
+try disabling the normal and see....
 
 
+the way it has been is:
+for scale1 and rot0 use normal draw
+otherwise use direct to screen
 
 
 
+could I be reverting? I originally drew direct to screen, but chose to draw on a level buffer for smooth drawing.
+with the big change from how things get drawn (video bitmaps instead of memory, etc...)
+could I be reverting back to direct drawing to screen?
 
 
 
 
+2026-10-28 03:28:58
 
 
+I need to figure out drawing player direct to screen.
+I want to use it all the time.
+I need to draw on top of the hovered level icon I now draw direct to screen
 
 
+why does it not line up with the other mode?
 
+offset 0.5?
 
 
 
+// converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+// pass it the center of the object's position, it will return the center also
+void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+{
+   ex1 = mLevel.screen_display_x + (ex - mLevel.level_display_region_x) * mDisplay.scale_factor_current;
+   ey1 = mLevel.screen_display_y + (ey - mLevel.level_display_region_y) * mDisplay.scale_factor_current;
+}
 
 
+void mwScreen::draw_screen_overlay()
+{
+   int p = mLevel.mPlayer.active_local_player;
 
+I think I fixed it!!!
 
+made all these floats!!
 
+   float screen_display_x;
+   float screen_display_y;
+   float screen_display_w;
+   float  screen_display_h;
 
+   float level_display_region_x;
+   float level_display_region_y;
+   float level_display_region_xinc;
+   float level_display_region_yinc;
+   float level_display_region_w;
+   float level_display_region_h;
 
 
 
+2026-10-28 04:18:15
 
+now I have permanently disabled draw in the normal stuff
+and always draw player direct to screen
 
+the only time I think I want to do direct is I am drawing the level like with
+draw_level2 or draw_level3
 
+that is kind of rare...
 
+well also when I pause...the level drawn under the map does not have the player
 
+OK how can I do this?
+how can draw player detect?
 
+what if I always do it, like before? 
+they should not confict...
+try it...
 
+It is just a very small amount off...
 
 
 
+OK back to how I can force the draw on level_buffer
 
+draw_players
 
+is called from draw_level2 and also in draw sequence
 
 
+pass a new parameter to 
 
+void mwPlayer::draw_players(bool draw_icon_on_level_buffer)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (syn[p].active) draw_player(p, draw_icon_on_level_buffer);
+   draw_player(active_local_player, draw_icon_on_level_buffer); // do this so that that local player is always drawn on top
 
+   // in some weird cases (demo record) active local player might not be active
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+      if (syn[active_local_player].active) draw_player(active_local_player, draw_icon_on_level_buffer);
+}
 
+removed
 
+      
+      
 
+//      int old_draw_method = 1;
+//      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
+//      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) old_draw_method = 0;
+//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
+//      int old_draw_method = 0;
+//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
+//      if (old_draw_method)
 
 
+//      bool draw = 0;
 
+      // // draw only if normal scale and rot
+      // if ((scale == 1) && (rot == 0)) draw = 1;
 
+      // // debug force draw never
+      // if (mLoop.pct_x % 3 == 2) draw = 0;
+      //
+      // draw = 0;
 
+//      if (draw_icon_on_level_buffer) draw = 1;
 
+      // if (draw_icon_on_level_buffer)
+      // {
+      //    float scale = syn[p].draw_scale;
+      //    float rot = syn[p].draw_rot;
+      //
+      //    int flags = ALLEGRO_FLIP_HORIZONTAL;
+      //    if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+      //    al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
 
+   //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
 
+         /*
 
+         if (syn[p].on_ladder)
+            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
 
+         if (syn[p].on_rope)
+            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
 
 
+          detect block that player is on...
 
+         int bx2, bx1 = AX / 20;
+         int am = AX % 20;
+         if (am < 9) // this block only
+         {
+            bx2 = bx1;
+         }
+         if (am > 10) // next block only
+         {
+            bx1++;
+            bx2 = bx1;
+         }
+         if ((am > 8) && (am < 11)) // both blocks
+         {
+            bx2 = bx1 + 1;
+         }
 
+         int by = AY / 20;
+         am = AY % 20;
 
+         al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
 
+         int good_height = 0;
 
+         if (am < 5) // this block only
+         {
+            good_height = 1;
+         }
+         if (am > 15) // next block only
+         {
+            good_height = 1;
+            by++;
+         }
 
+         if (good_height)
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+              if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+       for (int x=bx1; x<=bx2; x++)
+         {
+            al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
+            if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
+         }
+   */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//      }
 
  
 
 
+      // bool draw = 0;
+      //
+      // // only draw if not normal scale and rot
+      // float scale = syn[p].draw_scale;
+      // float rot = syn[p].draw_rot;
+      // if ((scale != 1) || (rot != 0)) draw = 1;
+      //
+      // // debug force always draw
+      // if (mLoop.pct_x % 3 == 1) draw = 1;
+      //
+      // draw = 1;
+      //
+      // if (draw)
+      // {
+   //       float px, py;
+   //       mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+   //
+   //       scale *= mDisplay.scale_factor_current;
+   //
+   //       int flags = ALLEGRO_FLIP_HORIZONTAL;
+   //       if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+   //
+   //       al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px, py, scale, scale, rot, flags);
+   //
+   //       // printf("%d - draw direct\n", mLoop.frame_num);
+   //    }
+   // }
+//}
+
+in mwPlayer.cpp, fixed all refs to:
+m_parent.mPlayer. (removed... it is its own instance)
+mLevel. (replaced with m_parent)
+
+2026-10-28 05:07:56 all demos still play back properly
+
+when hover level icon is drawn, player is drawn also...
+
+
+why do I need draw_level3?
+is it redundant?
+
+2 calls:
+visual level select...
+
+draw_level_icon_direct to screen
 
 
 
- 
+
+I like how 3 checks if l2 is already loaded...I should keep if for that...
+
+can I make it call 2 internally?
+
+
+
+make this take 
+
+players and eshots
+
+
+void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
+{
+   if (valid_level_loaded)
+   {
+      if (blocks)  get_new_background();
+      if (lifts)   mLift.draw_lifts();
+      if (items)   mItem.draw_items();
+      if (enemies) mEnemy.draw_enemies();
+      if (resume_allowed)
+      {
+         if (players) mPlayer.draw_players(1);
+         mShot.draw_eshots();
+         mShot.draw_pshots();
+      }
+   }
+
+
+
+simplified load when hover:
+
+   // if local player is hovering gate, load l2
+   if (p == mLevel.mPlayer.active_local_player)
+      if ((!l2.valid_level_loaded) || (l2.last_level_loaded != lev)) l2.load_level_l2(lev);
+
+
+//    // if local player is hovering gate, load l2
+//    if (p == mLevel.mPlayer.active_local_player)
+//    {
+// //      printf("p%d alp:%d  l2.valid_level_loaded:%d l2.last_level_loaded:%d lev:%d);\n", p, mLevel.mPlayer.active_local_player, l2.valid_level_loaded, l2.last_level_loaded, lev);
+//
+//       if ((!l2.valid_level_loaded) || (l2.last_level_loaded != lev))
+//       {
+//          // printf("p%d alp:%d  l2.valid_level_loaded:%d l2.last_level_loaded:%d lev:%d);\n", p, mLevel.mPlayer.active_local_player, l2.valid_level_loaded, l2.last_level_loaded, lev);
+//          l2.load_level_l2(lev);
+//       }
+//    }
+
+
+simplified gate enter:
+
+   if (!mGameState.gate_enter_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
+   {
+      mGameState.gate_enter_mode = 9;
+      mGameState.gate_enter_item = i;
+
+      // force page 0 (level icon) for transition
+      item[i][7] = 0;
 
 
 
 
 
 
+//       l2.valid_level_loaded = 0;
+// //      l2.load_level_l2(lev);
+//
+//       // top force draw on level buffer of player
+//       l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
 
+      // test drawing this
+      // l2.draw_scaled_level_region_to_display();
+      // al_flip_display();
+      // mInput.tsw();
+
+      // // save start positions
+      // mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
+      // mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+      // mTransitions.gate_enter_Level_icon_size = item[i][11];
+
+      // printf("\n--------------------------------------------------------------------\n");
+      // printf("Next Level (%d) l2 load at gate enter\n", lev);
+      // printf("player pos x:%.0f  y:%.0f\n", l2.mPlayer.syn[0].x, l2.mPlayer.syn[0].y);
+      // printf("ldx:%2.0f  ldy:%2.0f  ldw:%d  ldh:%d\n", l2.level_display_region_x, l2.level_display_region_y, l2.level_display_region_w, l2.level_display_region_h);
+      // printf("sdx:%d  sdy:%d  sdw:%d  sdh:%d\n", l2.screen_display_x, l2.screen_display_y, l2.screen_display_w, l2.screen_display_h);
+
+   }
+
+
+
+this is where I reload or make sure players are drawn 
+
+
+
+
+   if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
+   {
+      int i = mGameState.gate_enter_item;
+
+      int lev = mLevel.mItem.item[i][6];
+
+
+      int x = mLevel.mItem.item[i][4];
+      int y = mLevel.mItem.item[i][5];
+
+      // level_icon size
+      float size = mLevel.mItem.item[i][11];
+
+      // level icon origin
+      float lix = x-size/2 + 10;
+      float liy = y-size   + 20;
+
+
+      // load l2 and redraw on l2.level_buffer with player
+      // also loads proper level into l2 if not already
+      l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+
+      mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
+      mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+      mTransitions.gate_enter_level_icon_size = size;
+
+
+this is not quite right
+
+
+
+can I modify 
+
+int mwLevel::load_level_l2(int level_num)
+to not load if already loaded? 
+
+yes....
+
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
+{
+   // // load the level if not already loaded
+   // if ((!valid_level_loaded) || (last_level_loaded != level)) load_level_l2(level);
+   // // check again for level loaded
+   // if (valid_level_loaded && last_level_loaded == level)
+   // {
+   //    draw_level2(b, mx, my, ms, blocks, items, enemies, lifts, players, shots);
+   //    return 1;
+   // }
+   // return 0;
+
+
+   if (load_level_l2(level))
+   {
+      draw_level2(b, mx, my, ms, blocks, items, enemies, lifts, players, shots);
+      return 1;
+   }
+   return 0;
+
+}
+
+
+// this is used to load l2 only, skips stuff that normal load does
+int mwLevel::load_level_l2(int level)
+{
+   printf("\nmwLevel::load_level_l2(%d)\n", level);
+
+   if (valid_level_loaded && last_level_loaded == level)
+   {
+      printf("already loaded!!!\n");
+      return 1;
+   }
+
+
+   if (load_level_by_number(level, 1, 0))
+   {
+      printf("loading!!!\n");
+
+
+
+
+int mwLevel::load_level_l2(int level)
+{
+   if (valid_level_loaded && last_level_loaded == level)
+   {
+      printf("already loaded!!!\n");
+      return 1;
+   }
+   if (load_level_by_number(level, 1, 0))
+   {
+      printf("loading!!!\n");
+
+
+
+
+int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
+{
+   if (load_level_l2(level))
+   {
+      draw_level2(b, mx, my, ms, blocks, items, enemies, lifts, players, shots);
+      return 1;
+   }
+   return 0;
+}
+
+
+
+hover gate
+
+   // // if local player is hovering gate, load l2
+   // if (p == mLevel.mPlayer.active_local_player)
+   //    if ((!l2.valid_level_loaded) || (l2.last_level_loaded != lev)) l2.load_level_l2(lev);
+
+   // if local player is hovering gate, load l2
+   if (p == mLevel.mPlayer.active_local_player) l2.load_level_l2(lev);
+
+
+
+
+
+   if (mGameState.gate_enter_mode == 7) // pause players and set up gate seek xyincs
+   {
+      int i = mGameState.gate_enter_item;
+
+      int lev = mLevel.mItem.item[i][6];
+
+
+      int x = mLevel.mItem.item[i][4];
+      int y = mLevel.mItem.item[i][5];
+
+      // level_icon size
+      float size = mLevel.mItem.item[i][11];
+
+      // level icon origin
+      float lix = x-size/2 + 10;
+      float liy = y-size   + 20;
+
+      // load l2 if not already loaded and get start position
+      l2.load_level_l2(lev);
+
+      mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
+      mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+      mTransitions.gate_enter_level_icon_size = size;
+
+   if (mGameState.gate_enter_mode == 3) // setup for transition
+   {
+      // // l2 has the new level loaded
+      // int i = mGameState.gate_enter_item;
+      // int lev = mLevel.mItem.item[i][6];
+      //
+      //
+      // l2.valid_level_loaded = 0;
+      // //      l2.load_level_l2(lev);
+      //
+      // // top force draw on level buffer of player
+      // l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+      //      l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+
+
+      // actually all I really need here is these
+
+      // if local player is hovering gate, load l2
+//      l2.load_level_l2(lev);
+
+
+      // redraw to draw player also
+      int lev = mLevel.mItem.item[mGameState.gate_enter_item][6];
+      l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+
+
+
+2026-10-28 06:41:23
+this is much simpler now
+
+
+now what am I going to do about transitions?
+
+
+I made the specific case 'gate to level'
+use the transition variables, but run through gate_entry to iterate
+
+what should I do going forward?
+keep them both?
+
+
+2026-10-28 06:53:46 test in netgame
+looks good...commit
 
 
 

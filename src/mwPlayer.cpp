@@ -1,6 +1,7 @@
 // mwPlayer.cpp
 
 #include "pm.h"
+#include "mwPlayer.h"
 #include "mwLog.h"
 #include "mwTally.h"
 #include "mwFont.h"
@@ -15,15 +16,10 @@
 #include "mwShot.h"
 #include "mwSolid.h"
 #include "mwNetgame.h"
-#include "mwDemoRecord.h"
 #include "mwGameMoves.h"
-#include "mwEventQueue.h"
 #include "mwConfig.h"
 #include "mwGameState.h"
 #include "mwMain.h"
-
-//mwPlayer mPlayer;
-
 
 
 void mwPlayer::proc_player_health(int p)
@@ -148,7 +144,7 @@ void mwPlayer::proc_player_xy_move(int p)
 
    syn[p].xinc = syn[p].left_xinc + syn[p].right_xinc;  // calc xinc
 
-   if (syn[p].player_ride) syn[p].xinc += mLevel.mLift.cur[syn[p].player_ride-32].xinc; // if player is riding lift add lift xinc
+   if (syn[p].player_ride) syn[p].xinc += m_parent.mLift.cur[syn[p].player_ride-32].xinc; // if player is riding lift add lift xinc
 
    syn[p].x += syn[p].xinc; // apply xinc to players x
 
@@ -160,8 +156,8 @@ void mwPlayer::proc_player_xy_move(int p)
          if (!mSolid.is_right_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            syn[p].x = mLevel.mLift.cur[l].x + mLevel.mLift.cur[l].w + 1; // snap to lift pos + width
-            syn[p].right_xinc = mLevel.mLift.cur[l].xinc;          // set players xinc from lift
+            syn[p].x = m_parent.mLift.cur[l].x + m_parent.mLift.cur[l].w + 1; // snap to lift pos + width
+            syn[p].right_xinc = m_parent.mLift.cur[l].xinc;          // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -183,8 +179,8 @@ void mwPlayer::proc_player_xy_move(int p)
          if (!mSolid.is_left_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            syn[p].x = mLevel.mLift.cur[l].x - 20;            // snap to lift pos - 20
-            syn[p].left_xinc = mLevel.mLift.cur[a-32].xinc;  // set players xinc from lift
+            syn[p].x = m_parent.mLift.cur[l].x - 20;            // snap to lift pos - 20
+            syn[p].left_xinc = m_parent.mLift.cur[a-32].xinc;  // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -218,22 +214,22 @@ void mwPlayer::proc_player_xy_move(int p)
    else if (syn[p].player_ride != a)   // lift detected below player, and player is not currently riding that lift
    {
       if (debug_print) printf("detect new lift below:%d\n", a );
-      if (mLevel.mLift.cur[a-32].yinc > 0)          // is lift going down
+      if (m_parent.mLift.cur[a-32].yinc > 0)          // is lift going down
       {
          syn[p].player_ride = a;             // now we are riding this lift
-         syn[p].y = mLevel.mLift.cur[a-32].y - 20;  // align with lift
-         syn[p].yinc = mLevel.mLift.cur[a-32].yinc; // same speed as lift
+         syn[p].y = m_parent.mLift.cur[a-32].y - 20;  // align with lift
+         syn[p].yinc = m_parent.mLift.cur[a-32].yinc; // same speed as lift
       }
-      if (mLevel.mLift.cur[a-32].yinc <= 0)         // is lift going up or steady
+      if (m_parent.mLift.cur[a-32].yinc <= 0)         // is lift going up or steady
       {
          int y = syn[p].y;
-         int offset = mLevel.mLift.cur[a-32].y - y;   // to prevent lift from picking up early
+         int offset = m_parent.mLift.cur[a-32].y - y;   // to prevent lift from picking up early
          if (debug_print) printf("offset from rising lift:%d\n", offset );
          if (offset < 21)
          {
             syn[p].player_ride = a;             // now we are riding this lift
-            syn[p].y = mLevel.mLift.cur[a-32].y - 20;  // align with lift
-            syn[p].yinc = mLevel.mLift.cur[a-32].yinc; // same speed as lift
+            syn[p].y = m_parent.mLift.cur[a-32].y - 20;  // align with lift
+            syn[p].yinc = m_parent.mLift.cur[a-32].yinc; // same speed as lift
          }
       }
    }
@@ -246,7 +242,7 @@ void mwPlayer::proc_player_xy_move(int p)
       if (debug_print) printf("player riding lift\n");
       int d = syn[p].player_ride - 32; // lift number
 
-      syn[p].yinc = mLevel.mLift.cur[d].yinc;
+      syn[p].yinc = m_parent.mLift.cur[d].yinc;
 
 
       // check for collision with lift above
@@ -259,7 +255,7 @@ void mwPlayer::proc_player_xy_move(int p)
       }
 
       // if moving up and solid block above
-      if ((mLevel.mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(syn[p].x, syn[p].y, 0, 1) == 1))
+      if ((m_parent.mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(syn[p].x, syn[p].y, 0, 1) == 1))
       {
          if (debug_print) printf("moving up and solid block above\n");
          syn[p].player_ride = 0;  // player knocked off lift
@@ -269,7 +265,7 @@ void mwPlayer::proc_player_xy_move(int p)
       }
 
       // if moving down and solid block below
-      if ((mLevel.mLift.cur[d].yinc > 0) && (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))) // no lift check
+      if ((m_parent.mLift.cur[d].yinc > 0) && (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))) // no lift check
       {
          if (debug_print) printf("moving down and solid block below\n");
          syn[p].player_ride = 0;
@@ -282,7 +278,7 @@ void mwPlayer::proc_player_xy_move(int p)
          if (debug_print) printf("jump while riding lift\n");
 
          syn[p].player_ride = 0;
-         syn[p].yinc = initial_jump_velocity + mLevel.mLift.cur[d].yinc;
+         syn[p].yinc = initial_jump_velocity + m_parent.mLift.cur[d].yinc;
 
          syn[p].y += syn[p].yinc; // apply yinc
          mGameEvent.add(5, 0, 0, 0, 0, 0, 0);
@@ -291,7 +287,7 @@ void mwPlayer::proc_player_xy_move(int p)
       if (syn[p].player_ride)
       {
          if (debug_print) printf("still riding\n");
-         syn[p].y = mLevel.mLift.cur[d].y - 20;  // if still riding, align with fy
+         syn[p].y = m_parent.mLift.cur[d].y - 20;  // if still riding, align with fy
       }
 
    }
@@ -313,16 +309,12 @@ void mwPlayer::proc_player_xy_move(int p)
          {
             if (debug_print) printf("player moving up and collision\n");
 
-
             //            syn[p].y -= syn[p].yinc;        // take back move
 
             // instead of taking back entire move, just take back up until solid is no longer triggered
             // this change here broke many demo levels and took many, many hours to fix...:(
             // never again will I make a breaking change like that
             while (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1)) syn[p].y+=0.1;
-
-
-
 
 
             // printf("%d %d player moving up and collision\n", mLoop.frame_num, p);
@@ -348,7 +340,7 @@ void mwPlayer::proc_player_xy_move(int p)
 
             // check for collision with lift above if lift is moving down
             int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
-            if ((a > 31) && (mLevel.mLift.cur[a-32].yinc > 0))
+            if ((a > 31) && (m_parent.mLift.cur[a-32].yinc > 0))
             {
                if (debug_print) printf("player moving down or steady and collision with lift moving down\n");
                //syn[p].health -= 1; // take some damage
@@ -376,7 +368,7 @@ void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
 
-   if (syn[p].paused_type == 2) mLevel.mItem.proc_player_door_move(p);
+   if (syn[p].paused_type == 2) m_parent.mItem.proc_player_door_move(p);
 
    if (syn[p].paused_type == 3) syn[p].paused = 1; // headless server player
 
@@ -388,9 +380,9 @@ void mwPlayer::proc_player_paused(int p)
       {
          // does this player have any bomb remotes?
          for (int i=0; i<500; i++)
-            if ((mLevel.mItem.item[i][0] == 99) && (mLevel.mItem.item[i][6] == 3) && (mLevel.mItem.item[i][13] == p))  // lit bomb with remote detonator that was lit by this player
+            if ((m_parent.mItem.item[i][0] == 99) && (m_parent.mItem.item[i][6] == 3) && (m_parent.mItem.item[i][13] == p))  // lit bomb with remote detonator that was lit by this player
             {
-               mLevel.mItem.item[i][0] = 8; // change back to unlit bomb or...
+               m_parent.mItem.item[i][0] = 8; // change back to unlit bomb or...
 
                // set bomb to explode!
                //mItem.item[i][6] = 2; // mode 2; explosion
@@ -416,7 +408,7 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].right_xinc = 0;
          syn[p].xinc = 0;
          syn[p].yinc = 0;
-         mLevel.mItem.set_player_start_pos(p);
+         m_parent.mItem.set_player_start_pos(p);
       }
    }
 }
@@ -430,7 +422,7 @@ void mwPlayer::reset_player_scale_and_rot(int p)
 
 int mwPlayer::is_player_riding_rocket(int p)
 {
-   if ((syn[p].carry_item) && (mLevel.mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
+   if ((syn[p].carry_item) && (m_parent.mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
    return 0;
 }
 
@@ -446,7 +438,6 @@ bool mwPlayer::is_player_active_and_not_hidden(int p)
    if (syn[p].paused == 1 && syn[p].paused_type == 3) return false;
    return true;
 }
-
 
 
 
@@ -468,17 +459,17 @@ void mwPlayer::proc_player_stuck_in_blocks(int p)
 void mwPlayer::proc_player_riding_rocket(int p)
 {
    int c = syn[p].carry_item-1;
-   float rot_inc = mLevel.mItem.item[c][6];
-   if (syn[p].left)  mLevel.mItem.item[c][10] -= rot_inc;
-   if (syn[p].right) mLevel.mItem.item[c][10] += rot_inc;
+   float rot_inc = m_parent.mItem.item[c][6];
+   if (syn[p].left)  m_parent.mItem.item[c][10] -= rot_inc;
+   if (syn[p].right) m_parent.mItem.item[c][10] += rot_inc;
 
-   syn[p].x    = mLevel.mItem.itemf[c][0];  // set the player's position and incs the same as the rocket
-   syn[p].y    = mLevel.mItem.itemf[c][1];
-   syn[p].xinc = mLevel.mItem.itemf[c][2];
-   syn[p].yinc = mLevel.mItem.itemf[c][3];
+   syn[p].x    = m_parent.mItem.itemf[c][0];  // set the player's position and incs the same as the rocket
+   syn[p].y    = m_parent.mItem.itemf[c][1];
+   syn[p].xinc = m_parent.mItem.itemf[c][2];
+   syn[p].yinc = m_parent.mItem.itemf[c][3];
 
    syn[p].left_xinc = syn[p].right_xinc = 0;
-   syn[p].draw_rot = (float)mLevel.mItem.item[c][10] / 1000;
+   syn[p].draw_rot = (float)m_parent.mItem.item[c][10] / 1000;
    syn[p].draw_scale = 0.5;
 }
 
@@ -504,27 +495,27 @@ void mwPlayer::proc_player_collisions(int p)
 
    for (int x=0; x<500; x++)
    {
-      if ((mLevel.mItem.item[x][0]) && (mLevel.mItem.item[x][0] != 9) && (mLevel.mItem.item[x][0] != 16) && (mLevel.mItem.item[x][0] != 17))
+      if ((m_parent.mItem.item[x][0]) && (m_parent.mItem.item[x][0] != 9) && (m_parent.mItem.item[x][0] != 16) && (m_parent.mItem.item[x][0] != 17))
       {
-         float ix1 = mLevel.mItem.itemf[x][0] - 16;
-         float ix2 = mLevel.mItem.itemf[x][0] + 16;
-         float iy1 = mLevel.mItem.itemf[x][1] - 16;
-         float iy2 = mLevel.mItem.itemf[x][1] + 16;
-         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!syn[p].paused) ) mLevel.mItem.proc_item_collision(p, x);
+         float ix1 = m_parent.mItem.itemf[x][0] - 16;
+         float ix2 = m_parent.mItem.itemf[x][0] + 16;
+         float iy1 = m_parent.mItem.itemf[x][1] - 16;
+         float iy2 = m_parent.mItem.itemf[x][1] + 16;
+         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!syn[p].paused) ) m_parent.mItem.proc_item_collision(p, x);
       }
    }
 
    // enemies
    for (int e=0; e<100; e++)
    {
-      if ((mLevel.mEnemy.Ei[e][0]) && (mLevel.mEnemy.Ei[e][0] != 99)) // if active and not deathcount
+      if ((m_parent.mEnemy.Ei[e][0]) && (m_parent.mEnemy.Ei[e][0] != 99)) // if active and not deathcount
       {
-         float b = mLevel.mEnemy.Ei[e][29]; // collision box size
-         float ex1 = mLevel.mEnemy.Ef[e][0] - b;
-         float ex2 = mLevel.mEnemy.Ef[e][0] + b;
-         float ey1 = mLevel.mEnemy.Ef[e][1] - b;
-         float ey2 = mLevel.mEnemy.Ef[e][1] + b;
-         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) mLevel.mEnemy.Ei[e][22] = p+1;
+         float b = m_parent.mEnemy.Ei[e][29]; // collision box size
+         float ex1 = m_parent.mEnemy.Ef[e][0] - b;
+         float ex2 = m_parent.mEnemy.Ef[e][0] + b;
+         float ey1 = m_parent.mEnemy.Ef[e][1] - b;
+         float ey2 = m_parent.mEnemy.Ef[e][1] + b;
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) m_parent.mEnemy.Ei[e][22] = p+1;
       }
    }
 
@@ -565,13 +556,13 @@ void mwPlayer::proc_player_collisions(int p)
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
-               m_parent.mPlayer.syn[pb].stat_player_hits++;
+               syn[pb].stat_player_hits++;
             }
             if ((mGameState.player_vs_self_shots) && (pb == p))
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
-               m_parent.mPlayer.syn[pb].stat_self_hits++;
+               syn[pb].stat_self_hits++;
             }
          }
       }
@@ -618,7 +609,7 @@ int mwPlayer::is_player_within_ladder_reach(int p)
    for (int x=bx1; x<=bx2; x++)
       for (int y=by1; y<=by2; y++)
       {
-         if (mLevel.l[x][y] & PM_BTILE_LADDER_MOVE) return 1;
+         if (m_parent.l[x][y] & PM_BTILE_LADDER_MOVE) return 1;
       }
    return 0;
 }
@@ -665,7 +656,7 @@ int mwPlayer::is_player_within_rope_reach(int p)
    if (good_height)
    for (int x=bx1; x<=bx2; x++)
    {
-      if (mLevel.l[x][by] & PM_BTILE_ROPE_MOVE) return 1;
+      if (m_parent.l[x][by] & PM_BTILE_ROPE_MOVE) return 1;
    }
    return 0;
 }
@@ -997,7 +988,7 @@ void mwPlayer::move_players()
             }
             // common to all not paused modes
             mShot.proc_player_shoot(p);
-            mLevel.mItem.proc_player_carry(p);
+            m_parent.mItem.proc_player_carry(p);
             proc_player_collisions(p);
             proc_player_health(p);
             proc_player_bounds_check(p);
@@ -1017,93 +1008,26 @@ void mwPlayer::move_players()
 
 
 
-void mwPlayer::draw_player(int p)
+void mwPlayer::draw_player(int p, bool draw_icon_on_level_buffer)
 {
    if (syn[p].paused_type != 3)
    {
       al_set_target_bitmap(m_parent.level_buffer);
       int px = syn[p].x;
       int py = syn[p].y;
+
       set_players_shape(p);
 
 
-//      int old_draw_method = 1;
-//      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
-//      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) old_draw_method = 0;
-//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
-//      int old_draw_method = 0;
-//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
-//      if (old_draw_method)
-
-      float scale = syn[p].draw_scale;
-      float rot = syn[p].draw_rot;
-      if ((scale == 1) && (rot == 0))
+      // this is used in draw_level2 and 3...in normal draw sequence mode player icon is drawn direct to screen
+      if (draw_icon_on_level_buffer)
       {
+         float scale = syn[p].draw_scale;
+         float rot = syn[p].draw_rot;
          int flags = ALLEGRO_FLIP_HORIZONTAL;
          if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
          al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
-
-
-   //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
-
-         /*
-
-         if (syn[p].on_ladder)
-            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
-
-         if (syn[p].on_rope)
-            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
-
-
-          detect block that player is on...
-
-         int bx2, bx1 = AX / 20;
-         int am = AX % 20;
-         if (am < 9) // this block only
-         {
-            bx2 = bx1;
-         }
-         if (am > 10) // next block only
-         {
-            bx1++;
-            bx2 = bx1;
-         }
-         if ((am > 8) && (am < 11)) // both blocks
-         {
-            bx2 = bx1 + 1;
-         }
-
-         int by = AY / 20;
-         am = AY % 20;
-
-         al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
-
-         int good_height = 0;
-
-         if (am < 5) // this block only
-         {
-            good_height = 1;
-         }
-         if (am > 15) // next block only
-         {
-            good_height = 1;
-            by++;
-         }
-
-         if (good_height)
-            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-              if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-       for (int x=bx1; x<=bx2; x++)
-         {
-            al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
-            if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
-         }
-   */
-
       }
-
 
       if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
       {
@@ -1113,7 +1037,6 @@ void mwPlayer::draw_player(int p)
             al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);
          }
       }
-
 
       // death sequence star overlay
       if ((syn[p].paused) && (syn[p].paused_type == 1))
@@ -1127,9 +1050,6 @@ void mwPlayer::draw_player(int p)
             al_draw_bitmap(mBitmap.sprite[952+seq], px, py, 0);
          }
       }
-
-
-
 
       // health bar overlay
       if (loc[p].health_display > 0)
@@ -1168,12 +1088,8 @@ void mwPlayer::draw_player(int p)
       else
       {
          bool draw_name = false;
-
          if (loc[0].name_display == 2) draw_name = true; // always draw
-
          if (loc[0].name_display == 1 && p != active_local_player) draw_name = true; // remote only
-
-
          if (draw_name)
          {
             std::string name = getName(p);
@@ -1183,41 +1099,29 @@ void mwPlayer::draw_player(int p)
    }
 }
 
-void mwPlayer::draw_players()
+
+void mwPlayer::draw_players(bool draw_icon_on_level_buffer)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if (syn[p].active) draw_player(p);
-   draw_player(active_local_player); // do this so that that local player is always drawn on top
+      if (syn[p].active) draw_player(p, draw_icon_on_level_buffer);
+   draw_player(active_local_player, draw_icon_on_level_buffer); // do this so that that local player is always drawn on top
 
    // in some weird cases (demo record) active local player might not be active
    if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
-      if (syn[active_local_player].active) draw_player(active_local_player);
+      if (syn[active_local_player].active) draw_player(active_local_player, draw_icon_on_level_buffer);
 }
 
 void mwPlayer::draw_player_direct_to_screen(int p)
 {
-   if (syn[p].paused_type != 3)
-   {
-//      float scale = syn[p].draw_scale;
-//      float rot = syn[p].draw_rot;
-//      if ((scale != 1) || (rot != 0))
-      {
-         float px, py;
-         mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+   if (syn[p].paused_type == 3) return;
 
-         //float scale = m_parent.mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
-         float scale = syn[p].draw_scale * mDisplay.scale_factor_current;
-
-         int flags = ALLEGRO_FLIP_HORIZONTAL;
-//         if (m_parent.mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-         if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-
-//         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[m_parent.mPlayer.syn[p].color][m_parent.mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, m_parent.mPlayer.syn[p].draw_rot, flags);
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px, py, scale, scale, syn[p].draw_rot, flags);
-
-         // printf("%d - draw direct\n", mLoop.frame_num);
-      }
-   }
+   float scale = syn[p].draw_scale * mDisplay.scale_factor_current;
+   float rot = syn[p].draw_rot;
+   float px, py;
+   mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+   int flags = ALLEGRO_FLIP_HORIZONTAL;
+   if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px, py, scale, scale, rot, flags);
 }
 
 
@@ -1227,7 +1131,6 @@ void mwPlayer::draw_players_direct_to_screen()
       if (syn[p].active) draw_player_direct_to_screen(p);
 
    // do this so that that local player is always drawn on top
-//   m_parent.mPlayer.draw_player_direct_to_screen(m_parent.mPlayer.active_local_player);
    draw_player_direct_to_screen(active_local_player);
 
    // in some weird cases (demo record) active local player might not be active
@@ -1250,7 +1153,7 @@ void mwPlayer::set_players_shape(int p)
    // if player riding lift animate with player's xpos relative to lift
    if (syn[p].player_ride)
    {
-      int rx = 20 + (int) (syn[p].x - mLevel.mLift.cur[syn[p].player_ride-32].x);
+      int rx = 20 + (int) (syn[p].x - m_parent.mLift.cur[syn[p].player_ride-32].x);
 //      printf("rx:%d\n", rx);
 
 
@@ -1267,7 +1170,7 @@ void mwPlayer::set_players_shape(int p)
 
 
    // if riding rocket use static shape
-   if ((syn[p].carry_item) && (mLevel.mItem.item[syn[p].carry_item-1][0] == 98)) syn[p].shape = 1;
+   if ((syn[p].carry_item) && (m_parent.mItem.item[syn[p].carry_item-1][0] == 98)) syn[p].shape = 1;
 
 
    if (syn[p].on_rope)
@@ -1317,7 +1220,7 @@ int mwPlayer::is_player_color_used(int color)
 
 std::string mwPlayer::getName(int p)
 {
-   std::string tmp(m_parent.mPlayer.syn[p].name);
+   std::string tmp(syn[p].name);
    if (tmp == "default") tmp = "Player " + std::to_string(p);
    return tmp;
 }
@@ -1339,7 +1242,7 @@ int mwPlayer::get_new_client_color(int color)
    if (!is_player_color_used(6))  return 6;  // taan
 
    // if all these fail, just search for next unused
-   while (m_parent.mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
+   while (is_player_color_used(color)) if (++color > 15) color = 1;
 
    return color;
 }
@@ -1535,13 +1438,13 @@ void mwPlayer::init_player(int p, int t)
 
 void mwPlayer::set_default_player_colors()
 {
-   m_parent.mPlayer.syn[1].color = 10;
-   m_parent.mPlayer.syn[2].color = 11;
-   m_parent.mPlayer.syn[3].color = 12;
-   m_parent.mPlayer.syn[4].color = 13;
-   m_parent.mPlayer.syn[5].color = 14;
-   m_parent.mPlayer.syn[6].color = 15;
-   m_parent.mPlayer.syn[7].color = 9;
+   syn[1].color = 10;
+   syn[2].color = 11;
+   syn[3].color = 12;
+   syn[4].color = 13;
+   syn[5].color = 14;
+   syn[6].color = 15;
+   syn[7].color = 9;
 }
 
 bool mwPlayer::if_players_ctrl_just_pressed(int p, int ctrl)

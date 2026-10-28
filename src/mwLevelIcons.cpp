@@ -69,7 +69,7 @@ void mwLevelIcons::create_level_icon(int level, int save_web)
 
       // draw level
       al_set_target_bitmap(tmp);
-      mLevel.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0);
+      mLevel.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0, 0);
 
       // save level icon
       char fname[256];

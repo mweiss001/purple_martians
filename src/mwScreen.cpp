@@ -130,7 +130,11 @@ void mwScreen::draw_level_map_under_menu() // used only in menu
    int x = menu_level_display_x;
    int y = menu_level_display_y;
 
-   mLevel.draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 1);
+   if (mLevel.resume_allowed) mLevel.draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 1, 1);
+   else mLevel.draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 0, 0);
+
+
+
 
    if (mMain.classic_mode) al_draw_rectangle(x, y, x+sz, y+sz, mColor.pc[15], 1);
 }
