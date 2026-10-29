@@ -29,7 +29,7 @@ mwLevel l2;
 
 void mwLevel::create_bitmaps()
 {
-   printf("mwLevel::create bitmaps()\n");
+//   printf("mwLevel::create bitmaps()\n");
 
    // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
@@ -50,10 +50,10 @@ void mwLevel::create_bitmaps()
 
 mwLevel::~mwLevel()
 {
-   printf("mwLevel::destroy bitmaps()\n");
+//   printf("mwLevel::destroy bitmaps()\n");
 
-   if (level_background) al_destroy_bitmap(level_background);
-   if (level_buffer) al_destroy_bitmap(level_buffer);
+//   if (level_background) al_destroy_bitmap(level_background);
+//   if (level_buffer) al_destroy_bitmap(level_buffer);
 }
 
 
@@ -727,7 +727,7 @@ int mwLevel::load_level_l2(int level)
 
    if (load_level_by_number(level, 1, 0))
    {
-      printf("\nmwLevel::load_level_l2(%d)\n", level);
+      // printf("\nmwLevel::load_level_l2(%d)\n", level);
       //printf("loading!!!\n");
       valid_level_loaded = 1;
       mLift.lift_setup();
@@ -751,7 +751,7 @@ int mwLevel::load_level_l2(int level)
       set_screen_display_variables();
       set_level_display_region_xy();
 
-      init_level_background();
+      if (!mMain.headless_server) init_level_background();
       return 1;
    }
    return 0;

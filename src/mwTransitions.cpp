@@ -377,9 +377,14 @@ void mwTransitions::proc_gate_enter_mode()
    // setup for transition
    if (mGameState.gate_enter_mode == 3)
    {
-      // redraw to draw player also
-      int lev = mLevel.mItem.item[mGameState.gate_enter_item][6];
-      l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+      if (!mMain.headless_server)
+      {
+         // redraw to draw player also
+         int lev = mLevel.mItem.item[mGameState.gate_enter_item][6];
+         l2.draw_level3(l2.level_buffer, lev, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+      }
+
 
 
 

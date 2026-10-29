@@ -31,8 +31,7 @@ something is overwriting overworld_area_array[2].name
 changing the 5th char to 'd' then terminating the string...
 
 
-
-
+segfault on linux - destroy_bitmaps?? yes, i don't think it is required
 
 
 

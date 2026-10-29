@@ -47951,7 +47951,6 @@ could I be reverting back to direct drawing to screen?
 
 
 
-
 2026-10-28 03:28:58
 
 
@@ -48490,29 +48489,13 @@ got to go...
 what do I want to do next?
 
 do something about the gate size?
+it is done!!!
 
+what next?
 
+do the transition from level to gate
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+it will need to be at the end of level done
 
 
 

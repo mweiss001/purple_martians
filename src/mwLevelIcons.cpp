@@ -191,7 +191,7 @@ int mwLevelIcons::load_icons_to_tilemap()
    }
    else
    {
-      printf("mwLevelIcons::load_icons_to_tilemap --  %d level icon files found\n", num_files);
+      //printf("mwLevelIcons::load_icons_to_tilemap --  %d level icon files found\n", num_files);
 
       // get size of tilemaps (tilemap will be 10 icons wide and as tall as it needs to be to hold all )
       int w = size * 10;
