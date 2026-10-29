@@ -2,13 +2,9 @@
 
 #include "pm.h"
 #include "mwTransitions.h"
-
-#include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
-#include "mwDrawSequence.h"
-#include "mwFont.h"
 #include "mwGameMoves.h"
 #include "mwGameState.h"
 #include "mwInput.h"
@@ -23,15 +19,6 @@
 
 mwTransitions mTransitions;
 
-mwTransitions::mwTransitions()
-{
-   //initialize();
-}
-
-void mwTransitions::initialize()
-{
-
-}
 
 
 void mwTransitions::proc_level_done_mode()
@@ -238,7 +225,7 @@ void mwTransitions::proc_level_done_mode()
       }
       else if (!mNetgame.ima_client)
       {
-         if (have_all_players_acknowledged()) mGameState.level_done_timer = 0; // skip
+         if (mLevel.mPlayer.have_all_players_acknowledged()) mGameState.level_done_timer = 0; // skip
       }
    }
 
@@ -280,31 +267,6 @@ void mwTransitions::proc_level_done_mode()
          }
       }
 }
-
-
-int mwTransitions::have_all_players_acknowledged()
-{
-   int ret = 1; // yes by default, if any have not then change to no
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
-      {
-         if (mGameMoves.has_player_acknowledged(p))
-         {
-            mLevel.mPlayer.syn[p].level_done_ack = 1;
-         }
-         else
-         {
-            mLevel.mPlayer.syn[p].level_done_ack = 0;
-            ret = 0;
-         }
-      }
-   }
-   return ret;
-}
-
-
 
 
 

@@ -4,20 +4,20 @@ class mwTransitions
 {
    public:
 
-   mwTransitions(); // default constructor
-   void initialize();
-
 
    // level done
    // --------------------------------
    void proc_level_done_mode();
 
-   static int have_all_players_acknowledged();
+//   static int have_all_players_acknowledged();
 
    ALLEGRO_BITMAP * cutscene_background;
    float cutscene_original_zoom;
    float cutscene_accel;
    float cutscene_bg_x;
+
+
+
 
    // gate enter
    // --------------------------------
@@ -58,15 +58,6 @@ class mwTransitions
    float transition_scale_multiplier;
 
    int transition_steps = 60;
-
-
-
-
-
-
-
-
-
 
 
    void transition_cutscene(int i, int f);

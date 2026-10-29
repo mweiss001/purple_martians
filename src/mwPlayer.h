@@ -267,6 +267,7 @@ public:
    void set_comp_move_from_player_key_check(int p);
    void set_controls_from_player_key_check(int p);
    void proc_player_input();
+   int have_all_players_acknowledged();
 
 };
 

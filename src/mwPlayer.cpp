@@ -1515,6 +1515,36 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
+
+int mwPlayer::have_all_players_acknowledged()
+{
+   int ret = 1; // yes by default, if any have not then change to no
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if ((syn[p].active) && (syn[p].paused_type != 3))
+      {
+         if (mGameMoves.has_player_acknowledged(p))
+         {
+            syn[p].level_done_ack = 1;
+         }
+         else
+         {
+            syn[p].level_done_ack = 0;
+            ret = 0;
+         }
+      }
+   }
+   return ret;
+}
+
+
+
+
+
+
+
+
 void mwPlayer::proc_player_input()
 {
    if ((mGameState.level_done_mode == 0) || (mGameState.level_done_mode == 5)) // only allow player input in these modes
