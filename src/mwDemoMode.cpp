@@ -375,6 +375,7 @@ bool mwDemoMode::check_level_done()
 
 
 
+
 // this is used in all modes that end after the level is done
 void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 {
