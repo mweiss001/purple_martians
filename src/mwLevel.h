@@ -53,6 +53,9 @@ class mwLevel
 {
    public:
 
+   int instance = 0;
+
+
    mwItem mItem;
    mwEnemy mEnemy;
    mwLift mLift;
@@ -85,6 +88,9 @@ class mwLevel
    void set_screen_display_variables();
    void set_level_display_region_xy();
    void draw_scaled_level_region_to_display();
+
+   void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
+
 
 
    float screen_display_x;
@@ -246,9 +252,6 @@ class mwLevel
 
    void pml_to_var(char * b);
    void var_to_pml(char * b);
-
-
-
 
    int make_backup_on_save_level = 0;
 

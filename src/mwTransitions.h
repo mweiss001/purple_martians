@@ -9,13 +9,16 @@ class mwTransitions
    // --------------------------------
    void proc_level_done_mode();
 
-//   static int have_all_players_acknowledged();
-
    ALLEGRO_BITMAP * cutscene_background;
    float cutscene_original_zoom;
    float cutscene_accel;
    float cutscene_bg_x;
 
+   int level_done_seek_time = 10;
+   int level_done_rotate_time = 10;
+   float level_done_num_rotations = 1;
+   float level_done_player_final_scale = .1;
+   float level_done_transition_time = 40;
 
 
 
@@ -24,10 +27,14 @@ class mwTransitions
 
    void proc_gate_enter_mode();
 
-   int gate_enter_seek_time = 20;
-   int gate_enter_rotate_time = 20;
-   int gate_enter_num_rotations = 2;
+   int gate_enter_seek_time = 10;
+   int gate_enter_rotate_time = 10;
+   int gate_enter_num_rotations = 1;
    float gate_enter_player_final_scale = .1;
+   int gate_enter_transition_time = 10;
+
+
+
 
    float gate_enter_level_icon_size;
 

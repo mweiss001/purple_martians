@@ -561,7 +561,14 @@ void mwLoop::proc_program_state_change()
 // cleanup after level done
 // --------------------------------------------------------
       mSound.stop_sound();
-      mGameState.level_done_mode = 0;
+
+      // this is done here on purpose
+      // I could set this at the end of these modes, but I wait until here so I can use them to prevent drawing in mode 1
+
+
+      //mGameState.level_done_mode = 0;
+      //mGameState.gate_enter_mode = 0;
+
 
       if (mNetgame.ima_client)
       {
@@ -590,7 +597,7 @@ void mwLoop::proc_program_state_change()
          mLog.add(LOG_OTH_PROGRAM_STATE, 2, -1); // exit program, because done action == 0
 
          state[0] = PM_PROGRAM_STATE_QUIT; // exit
-         mTransitions.transition_cutscene(1, 0); // game to nothing
+         //mTransitions.transition_cutscene(1, 0); // game to nothing
          return; // to exit immediately
       }
 
@@ -598,56 +605,56 @@ void mwLoop::proc_program_state_change()
 // determine what transitions to use
 // ----------------------------------------------------------
 
-      // nothing by default
-      int pre_load_transistion_initial  = 0;
-      int pre_load_transistion_final    = 0;
-      int post_load_transistion_initial = 0;
-      int post_load_transistion_final   = 0;
+      // // nothing by default
+      // int pre_load_transistion_initial  = 0;
+      // int pre_load_transistion_final    = 0;
+      // int post_load_transistion_initial = 0;
+      // int post_load_transistion_final   = 0;
 
 
 // ----------------------------------------------------------
 // if destination is overworld
 // ----------------------------------------------------------
-      if (mGameState.level_done_next_level == 1)
-      {
-         mLog.add(LOG_OTH_TRANSITIONS, 1, -1); // "Next level to overworld\n");
-         //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level to overworld\n");
-
-         pre_load_transistion_initial = 1; // game
-         pre_load_transistion_final   = 3; // gate
-      }
+      // if (mGameState.level_done_next_level == 1)
+      // {
+      //    mLog.add(LOG_OTH_TRANSITIONS, 1, -1); // "Next level to overworld\n");
+      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level to overworld\n");
+      //
+      //    pre_load_transistion_initial = 1; // game
+      //    pre_load_transistion_final   = 3; // gate
+      // }
 
 // -----------------------------------------------------------------------------------------------------
 // if going from overworld to any other level, assume gate is used...no transition until after load
 // -----------------------------------------------------------------------------------------------------
-      if ((mLevel.play_level == 1) && (mGameState.level_done_next_level != 1))
-      {
-         mLog.add(LOG_OTH_TRANSITIONS, 2, -1); // "Next level from overworld\n");
-
-//         mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level from overworld\n");
-         post_load_transistion_initial = 3; // gate
-         post_load_transistion_final   = 1; // game
-      }
+//       if ((mLevel.play_level == 1) && (mGameState.level_done_next_level != 1))
+//       {
+//          mLog.add(LOG_OTH_TRANSITIONS, 2, -1); // "Next level from overworld\n");
+//
+// //         mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level from overworld\n");
+//          post_load_transistion_initial = 3; // gate
+//          post_load_transistion_final   = 1; // game
+//       }
 
 // -----------------------------------------------------------------------------------------------------
 // if going from any level to any level (except overworld)
 // also test that previous state == 11  to not trigger when started from menu or settings
 // -----------------------------------------------------------------------------------------------------
-      if ((mLevel.play_level != 1) && (mGameState.level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
-      {
-         mLog.add(LOG_OTH_TRANSITIONS, 3, -1); // Level to level (no overworld)
-         //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Level to level (no overworld)\n");
-         pre_load_transistion_initial  = 1; // game
-         pre_load_transistion_final    = 0; // nothing
-         post_load_transistion_initial = 0; // nothing
-         post_load_transistion_final   = 1; // game
-      }
+      // if ((mLevel.play_level != 1) && (mGameState.level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
+      // {
+      //    mLog.add(LOG_OTH_TRANSITIONS, 3, -1); // Level to level (no overworld)
+      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Level to level (no overworld)\n");
+      //    pre_load_transistion_initial  = 1; // game
+      //    pre_load_transistion_final    = 0; // nothing
+      //    post_load_transistion_initial = 0; // nothing
+      //    post_load_transistion_final   = 1; // game
+      // }
 
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ---   pre load transition
 // ------------------------------------------------------------------------------------------------------------------------------------
       //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "pre-load ");
-      mLog.add(LOG_OTH_TRANSITIONS, 5, -1); // pre-load
+//      mLog.add(LOG_OTH_TRANSITIONS, 5, -1); // pre-load
 
 //      mTransitions.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
 
@@ -657,14 +664,18 @@ void mwLoop::proc_program_state_change()
       mLevel.play_level = mGameState.level_done_next_level;
       if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
 
+
+      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
+      printf("level_display_region  x:%.0f y:%.0f w:%.0f h:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+      printf("screen_display        x:%.0f y:%.0f w:%.0f h:%.0f\n",  mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
-
-      printf("Mloop Post load next Level (%d)\n", mLevel.play_level);
-      printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
-      printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
-      printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
-
+      // printf("Mloop Post load next Level (%d)\n", mLevel.play_level);
+      // printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
+      // printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+      // printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+      //
 
 
 
@@ -674,7 +685,7 @@ void mwLoop::proc_program_state_change()
 // ----------------------------------------
 // post-load transition
 // ----------------------------------------
-      mLog.add(LOG_OTH_TRANSITIONS, 6, -1); // post-load
+//      mLog.add(LOG_OTH_TRANSITIONS, 6, -1); // post-load
       //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "post-load ");
 //      mTransitions.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
 
@@ -690,7 +701,7 @@ void mwLoop::proc_program_state_change()
    if (state[1] == PM_PROGRAM_STATE_RESUME)
    {
       mSound.start_sound(1); // resume theme
-      mTransitions.transition_cutscene(2, 1); // menu to game
+//      mTransitions.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
 

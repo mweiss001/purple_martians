@@ -294,6 +294,18 @@ void mwLevel::draw_level_centered_on_player_pos(int screen_x, int screen_y, floa
 }
 
 
+// converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+// pass it the center of the object's position, it will return the center also
+void mwLevel::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+{
+   ex1 = screen_display_x + (ex - level_display_region_x) * mDisplay.scale_factor_current;
+   ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
+}
+
+
+
+
+
 void mwLevel::set_screen_display_variables()
 {
 // ----------------------------------------------------------------------
@@ -358,6 +370,16 @@ void mwLevel::set_level_display_region_xy()
    float pvx = mPlayer.syn[p].xinc;
    float pvy = mPlayer.syn[p].yinc;
 
+//   printf("void mwLevel::set_level_display_region_xy() i:%d nl:%d p:%d  px: %.0f  py:%.0f  pvx: %.0f  pvy:%.0f  w:%.0f h:%.0f \n", instance, last_level_loaded, p, px, py, pvx, pvy, w, h);
+
+   // printf("\nvoid mwLevel::set_level_display_region_xy() instance:%d level:%d frame:%d\n", instance, last_level_loaded, mLoop.frame_num);
+   // printf("p:%d  px:%.0f  py:%.0f  pvx:%.0f  pvy:%.0f  w:%.0f  h:%.0f \n", p, px, py, pvx, pvy, w, h);
+   //
+   // printf("level_display_region_x:%.0f  level_display_region_y:%.0f\n", level_display_region_x, level_display_region_y);
+
+
+
+
    if (mScreen.viewport_mode == 0) // this method always has the player in the middle of the screen
    {
       level_display_region_x = px - w/2 - 10;
@@ -368,8 +390,8 @@ void mwLevel::set_level_display_region_xy()
       // if this is active, don't do any others
       if ((mScreen.viewport_look_rocket) && (mPlayer.is_player_riding_rocket(p)))
       {
-         level_display_region_x += mPlayer.syn[p].xinc * 1.8;
-         level_display_region_y += mPlayer.syn[p].yinc * 1.8;
+         level_display_region_x += pvx * 1.8;
+         level_display_region_y += pvy * 1.8;
       }
       else
       {
@@ -428,11 +450,9 @@ void mwLevel::set_level_display_region_xy()
       if ((pvy < 0) && (level_display_region_yinc > 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
       if ((pvy > 0) && (level_display_region_yinc < 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
 
-
       // apply x and y increments
       level_display_region_x += level_display_region_xinc;
       level_display_region_y += level_display_region_yinc;
-
 
       // get hyst variables
       float x_size = w * mScreen.viewport_x_div/2;
@@ -501,6 +521,13 @@ void mwLevel::set_level_display_region_xy()
    //   level_display_region_yinc = 0;
       ldr_ymx_a = 1;
    }
+
+   //printf("\nmwLevel::load_level_l2(%d)\n", level);
+//   printf("void mwLevel::set_level_display_region_xy() i:%d nl:%d  alp:%d  px1: %.0f  py1:%.0f   x:%.0f y:%.0f \n", instance, last_level_loaded, mPlayer.active_local_player, px, py, level_display_region_x, level_display_region_y);
+
+   //printf("level_display_region_x:%.0f  level_display_region_y:%.0f\n", level_display_region_x, level_display_region_y);
+
+
 }
 
 
@@ -716,18 +743,18 @@ int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, i
 // this is used to load l2 only, skips stuff that normal load does
 int mwLevel::load_level_l2(int level)
 {
+   instance = 1;
    //printf("\nmwLevel::load_level_l2(%d)\n", level);
-
    if (valid_level_loaded && last_level_loaded == level)
    {
       //printf("already loaded!!!\n");
       return 1;
    }
-
-
    if (load_level_by_number(level, 1, 0))
    {
-      // printf("\nmwLevel::load_level_l2(%d)\n", level);
+
+
+      //printf("\nmwLevel::load_level_l2(%d)\n", level);
       //printf("loading!!!\n");
       valid_level_loaded = 1;
       mLift.lift_setup();
@@ -737,8 +764,7 @@ int mwLevel::load_level_l2(int level)
             mItem.itemf[x][0] = mItem.item[x][4];
             mItem.itemf[x][1] = mItem.item[x][5];
          }
-
-      setup_players_after_level_load(1);
+      setup_players_after_level_load(2);
 
       // copy the level_display_region variable from mLevel to l2
       // this is needed to make the transition final variables match what happens when next level is actually loaded
@@ -752,6 +778,8 @@ int mwLevel::load_level_l2(int level)
       set_level_display_region_xy();
 
       if (!mMain.headless_server) init_level_background();
+//      printf("l2 px1: %.0f  py1:%.0f \n", mPlayer.syn[0].x, mPlayer.syn[0].y);
+//      printf("l2:%d  px1: %.0f  py1:%.0f \n", last_level_loaded, mPlayer.syn[0].x, mPlayer.syn[0].y);
       return 1;
    }
    return 0;
@@ -868,7 +896,6 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
          if (!mMain.headless_server) init_level_background(); // draw blocks on level_background
 
          mPlayer.init_player(0, 2);
-
          mItem.set_player_start_pos(0);
 
          mLoop.eco_draw = 0;
@@ -876,6 +903,7 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
       }
 
+//      printf("mLevel:%d  px1: %.0f  py1:%.0f \n", last_level_loaded, mPlayer.syn[0].x, mPlayer.syn[0].y);
 
 
 

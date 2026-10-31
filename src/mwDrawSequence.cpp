@@ -69,8 +69,18 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
    if (mGameState.transition_mode) skip_draw = 1;
 
-   if (mGameState.gate_enter_mode == 2) skip_draw = 1;
 
+
+   if (mLoop.state[0] == PM_PROGRAM_STATE_NEXT_LEVEL) skip_draw = 1;
+
+
+   if (mGameState.gate_enter_mode == 2) skip_draw = 1;
+//   if (mGameState.gate_enter_mode == 1) skip_draw = 1;
+
+
+   if (mGameState.level_done_mode == 3) skip_draw = 1;
+
+//   if (mGameState.level_done_mode == 1) skip_draw = 1;
 
 
 

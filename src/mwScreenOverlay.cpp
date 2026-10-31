@@ -90,7 +90,13 @@ void mwScreen::show_level_done()
 {
    int ldm = mGameState.level_done_mode;
 
-   if (ldm && ldm < 10) draw_large_text_overlay(2, 0);
+   if (ldm > 4 && ldm < 10) draw_large_text_overlay(2, 0);
+
+
+
+
+
+
 
    if (ldm == 5)
    {
@@ -118,8 +124,8 @@ void mwScreen::show_level_done()
       }
       if (np == 2)
       {
-         int tx = x-200;
-         int ty = y-25;
+         tx = x-200;
+         ty = y-25;
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
             {
@@ -1293,13 +1299,15 @@ void mwScreen::draw_bottom_frame(int p)
 }
 
 
-// converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
-// pass it the center of the object's position, it will return the center also
-void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
-{
-   ex1 = mLevel.screen_display_x + (ex - mLevel.level_display_region_x) * mDisplay.scale_factor_current;
-   ey1 = mLevel.screen_display_y + (ey - mLevel.level_display_region_y) * mDisplay.scale_factor_current;
-}
+// // converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+// // pass it the center of the object's position, it will return the center also
+// void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+// {
+//    ex1 = mLevel.screen_display_x + (ex - mLevel.level_display_region_x) * mDisplay.scale_factor_current;
+//    ey1 = mLevel.screen_display_y + (ey - mLevel.level_display_region_y) * mDisplay.scale_factor_current;
+// }
+
+
 
 
 void mwScreen::draw_screen_overlay()

@@ -61,6 +61,12 @@ class mwItem
    void proc_start_collision(int p, int i);
    void set_player_start_pos(int p);
 
+   int find_gate_for_level(int level);
+   int find_gate_for_player(int p);
+
+   void get_gate_tile_index_and_seq(int i, int &index, int &seq);
+
+
    void proc_start(int i);
 
 
@@ -72,7 +78,7 @@ class mwItem
 
    void draw_level_icon(int i);
 
-   void draw_gate_tile(int i);
+   void draw_gate_tile(int i, int size);
 
    int draw_gate(int i, int x, int y, int custom);
    void set_gate_level_icon_position(int i);

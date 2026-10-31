@@ -483,7 +483,6 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
 
-
    if (l2.draw_level3(NULL, cur, x1+2, y1+26, size-3, 1, 1, 1, 1, 0, 0 ))
    {
       int ty1 = l2.show_level_data(x1+2, y2+32+24, 0);

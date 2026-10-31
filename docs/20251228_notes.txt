@@ -48498,6 +48498,896 @@ do the transition from level to gate
 it will need to be at the end of level done
 
 
+when I patch it in I will need to know that we are going to overworld (or whereever)
+
+4 - setup
+3 - do it
+
+OK I have that patched in...
+
+
+first thing is to load the next level into l2 and get positions
+
+
+
+I think I have been doing it wrong
+
+I want to shrink the current level to where it will be displayed as an hovered icon on the overworld
+
+So, I don't need to load the next level?
+yes I do, but I need to get the hovered icon position and use that as final
+
+
+
+2026-10-29 06:16:02
+I am getting nowhere...
+
+first of all I want to start with draw level zoomed on player position in current level
+
+
+2nd I want to move player position to where it will be on next level
+no, I want to keep the same player position relative to the level
+I just want to move the level origin and scale
+
+I'm still not there...
+
+This transition mode only works with absolute screen positions.
+
+Initial:
+get current absolute screen position of player
+use current scale
+
+Final
+find level icon origin in overworld
+use same player offset as current
+get absolute screen position of that
+use level icon size as scale
+
+
+px  : 560  py  :740
+lix1: 681  liy1:60   size:200
+apx : 684  apy :64
+
+ex1: 811  ey1:102    esixe:93
+ex2: 905  ey2:195
+epx : 813  epy :104
+
+
+2026-10-30 02:09:51
+
+what I am trying to do is:
+- load overworld level into l2
+- find the gate item for current level
+- find its actual screen position
+- apply the players current position
+
+The end result will be where the player currently is in the level, 
+but the actual screen position of that in the overworld level icon of the level
+
+this is all the code, then I will reduce to what is needed:
+
+         // find position of hovered level icon, relative to l2 (overworld)
+         float size = l2.mItem.item[gate_index][11];
+         float lix1 = l2.mItem.item[gate_index][4] - size/2 + 11;
+         float liy1 = l2.mItem.item[gate_index][5] - size   + 20;
+
+         // float apx = lix1 + px / 2000 * size;
+         // float apy = liy1 + py / 2000 * size;
+
+         printf("px  : %.0f  py  :%.0f\n", px, py);
+         printf("lix1: %.0f  liy1:%.0f   size:%.0f\n", lix1, liy1, size);
+//         printf("apx : %.0f  apy :%.0f\n", apx, apy);
+
+
+         // add current players position scaled to size
+//         lix1 += (px * 2000) / size;
+  //       liy1 += (py * 2000) / size;
+
+//         lix1 += px;
+//         liy1 += py;
+
+
+
+         // find actual screen position
+         float ex1=0, ey1=0;
+         mScreen.calc_actual_screen_position(lix1, liy1, ex1, ey1);
+         float ex2=0, ey2=0;
+         mScreen.calc_actual_screen_position(lix1+size, liy1+size, ex2, ey2);
+
+         // float epx=0, epy=0;
+         // mScreen.calc_actual_screen_position(apx, apy, epx, epy);
+
+         // get new scaled size
+         float esize = ex2 - ex1;
+
+         float esize2 = size * mDisplay.scale_factor_current;
+
+         printf("esize : %.0f  esize2 :%.0f\n", esize, esize2);
+
+
+
+         float epx = ex1 + px / 2000 * esize;
+         float epy = ey1 + py / 2000 * esize;
+
+
+
+
+         printf("ex1: %.0f  ey1:%.0f    esixe:%.0f\n", ex1, ey1, esize);
+         printf("ex2: %.0f  ey2:%.0f\n", ex2, ey2);
+         printf("epx : %.0f  epy :%.0f\n", epx, epy);
+
+
+
+2026-10-30 02:23:38
+this is looking good
+
+
+find out why level done big text keeps flashing...
+
+
+void mwScreen::show_level_done()
+{
+   int ldm = mGameState.level_done_mode;
+
+   if (ldm && ldm < 10) draw_large_text_overlay(2, 0);
+
+new:
+
+   if (ldm>4 && ldm < 10) draw_large_text_overlay(2, 0);
+
+show frame while zooming..done
+
+when going to next level, old level shows for one frame
+
+   if (mGameState.level_done_mode == 1) skip_draw = 1;
+
+looking good!!!
+
+now I was going to make the times changeable in one easy place:
+
+done for gate:
+
+at the end of level done and gate enter I now set this:
+mGameState.level_done_mode = 0;
+mGameState.gate_enter_mode = 0;
+
+in draw sequence I use this to skip drawing:
+if (mLoop.state[0] == PM_PROGRAM_STATE_NEXT_LEVEL) skip_draw = 1;
+
+in mLoop process next level, I no longer do this:
+      //mGameState.level_done_mode = 0;
+      //mGameState.gate_enter_mode = 0;
+
+seems to work...
+
+now back to setting some times for level done:
+
+thats is done, but now I broke level done transition...
+
+Actually it only works when overworld level was zoomed way in...
+
+fix it...
+
+
+I think I need to make this part of mLevel:
+
+// converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
+// pass it the center of the object's position, it will return the center also
+void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
+{
+   ex1 = mLevel.screen_display_x + (ex - mLevel.level_display_region_x) * mDisplay.scale_factor_current;
+   ey1 = mLevel.screen_display_y + (ey - mLevel.level_display_region_y) * mDisplay.scale_factor_current;
+}
+
+done...
+
+better but still not right
+
+i think it might be where player is in l2...
+
+
+l2:1  px1: 990  py1:110
+
+nl:1  px1: 770  py1:240
+
+
+
+why?
+
+
+normal load:
+         mPlayer.init_player(0, 2);
+         mItem.set_player_start_pos(0);
+
+l2:
+      setup_players_after_level_load(1);
+
+
+nl:
+      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
+
+      if (type == 1) // NEXT_LEVEL
+      {
+         mLevel.setup_players_after_level_load(2); // type 2 partial reset,
+      }
+
+void mwLevel::setup_players_after_level_load(int type)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
+      mItem.set_player_start_pos(p);    // get starting position for all players, active or not
+   }
+   mPlayer.syn[0].active = 1;
+}
+
+
+void mwItem::set_player_start_pos(int p)
+{
+   //printf("set player:%d start pos\n", p);
+
+   int item_to_get_start_from = -1;
+
+   // in overworld level, player starts at the last gate they touched
+   if (m_parent.play_level == 1)
+   {
+      for (int i=0; i<500; i++)
+         if ((item[i][0] == 18) && (item[i][6] == m_parent.mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
+
+      if (item_to_get_start_from == -1)
+      {
+         printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
+      }
+   }
+
+
+
+I need to set last touched gate somehow
+
+
+
+
+
+l2i:1  px1: 990  py1:110
+level_display_region  x:270 y:0 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+
+l2f:1  px1: 770  py1:240
+level_display_region  x:270 y:0 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+
+nl:1  px1: 770  py1:240
+level_display_region  x:22 y:423 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+
+nl:1  px1: 770  py1:240
+level_display_region  x:50 y:45 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+
+void mwLevel::set_level_display_region_xy()
+
+
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+System ID: Windows
+Desktop Resolution: 3840x2160
+Player:1 entering overworld, but failed to find gate for level:0
+Player:2 entering overworld, but failed to find gate for level:0
+Player:3 entering overworld, but failed to find gate for level:0
+Player:4 entering overworld, but failed to find gate for level:0
+Player:5 entering overworld, but failed to find gate for level:0
+Player:6 entering overworld, but failed to find gate for level:0
+Player:7 entering overworld, but failed to find gate for level:0
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:787   x:0 y:380
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 774  py1:239   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 768  py1:228   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 762  py1:217   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 756  py1:206   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 750  py1:195   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 744  py1:184   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 738  py1:173   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 732  py1:162   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 726  py1:151   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 720  py1:140   x:50 y:0
+nl:80  alp:0  px1: 380  py1:777
+level_display_region  x:50 y:0 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:788   x:22 y:381
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:789   x:22 y:382
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:791   x:22 y:384
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:793   x:22 y:386
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:796   x:22 y:389
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:800   x:22 y:393
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:804   x:22 y:397
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:809   x:22 y:402
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:814   x:22 y:407
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:820   x:22 y:413
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:827   x:22 y:420
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 391  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 393  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 394  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 396  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 398  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 399  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 401  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 404  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 406  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 408  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 411  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 413  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 416  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 419  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 422  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 425  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 428  py1:830   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 431  py1:824   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 435  py1:817   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 438  py1:811   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 442  py1:806   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 446  py1:800   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 450  py1:795   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 454  py1:789   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 458  py1:784   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 462  py1:780   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 466  py1:775   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 470  py1:771   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 474  py1:766   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 478  py1:762   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 482  py1:759   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 486  py1:755   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 490  py1:752   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 494  py1:748   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 498  py1:745   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 502  py1:743   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 506  py1:740   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 510  py1:738   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 514  py1:735   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 518  py1:733   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 522  py1:732   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 526  py1:730   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 530  py1:729   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 534  py1:728   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 538  py1:728   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 542  py1:728   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 546  py1:729   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 550  py1:731   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 554  py1:733   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 558  py1:736   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 559  py1:737   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 560  py1:738   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 561  py1:740   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 563  py1:741   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 564  py1:743   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 565  py1:744   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 566  py1:746   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 568  py1:747   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 569  py1:749   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+
+
+
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 1000  py1:120   x:270 y:0
+l2i:1  alp:0 px1: 990  py1:110
+level_display_region  x:270 y:0 w:1098 h:611
+
+
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:270 y:0
+l2f:1  alp:0 px1: 770  py1:240
+level_display_region  x:270 y:0 w:1098 h:611
+
+
+nl:1  alp:0  px1: 770  py1:240
+level_display_region  x:22 y:423 w:1098 h:611
+
+
+void mwLevel::set_level_display_region_xy()  nl:80  alp:0  px1: 390  py1:787   x:22 y:423
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+
+nl:1  alp:0  px1: 770  py1:240
+level_display_region  x:50 y:45 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+void mwLevel::set_level_display_region_xy()  nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+
+
+looks like 
+mwLevel::set_level_display_region_xy()
+
+gives different outputs with same inputs???
+
+void mwLevel::set_level_display_region_xy() i:1 nl:1  alp:0  px1: 780  py1:250   x:270 y:0
+void mwLevel::set_level_display_region_xy() i:0 nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+
+
+Player:7 entering overworld, but failed to find gate for level:0
+nl:1  alp:0  px1: 770  py1:240
+level_display_region  x:22 y:423 w:1098 h:611
+screen_display        x:12 y:12 w:1896 h:1056
+void mwLevel::set_level_display_region_xy() i:1 nl:80 p:0  px: 390  py:787  pvx: 0  pvy:0  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:1 nl:80  alp:0  px1: 390  py1:787   x:22 y:423
+
+void mwLevel::set_level_display_region_xy() i:0 nl:1 p:0  px: 780  py:250  pvx: 0  pvy:0  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:0 nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+void mwLevel::set_level_display_region_xy() i:0 nl:80 p:0  px: 570  py:750  pvx: 1  pvy:1  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:0 nl:80  alp:0  px1: 570  py1:750   x:22 y:423
+
+
+void mwLevel::set_level_display_region_xy() i:1 nl:1 p:0  px: 1000  py:120  pvx: 0  pvy:0  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:1 nl:1  alp:0  px1: 1000  py1:120   x:270 y:0
+
+void mwLevel::set_level_display_region_xy() i:1 nl:1 p:0  px: 780  py:250  pvx: 0  pvy:0  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:1 nl:1  alp:0  px1: 780  py1:250   x:270 y:0
+
+void mwLevel::set_level_display_region_xy() i:0 nl:1 p:0  px: 780  py:250  pvx: 0  pvy:0  w:1098 h:611
+void mwLevel::set_level_display_region_xy() i:0 nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+
+2026-10-30 05:34:04
+why?
+
+When doing transition from level to gate, destination does not line up.
+Works when viewport top left is zeroed.
+
+In those cases level_display_region_x and level_display_region_y are both 0
+
+those are set in the function
+void mwLevel::set_level_display_region_xy()
+
+and when I give the same inputs to that function I get different results
+
+void mwLevel::set_level_display_region_xy() i:1 nl:1  alp:0  px1: 780  py1:250   x:270 y:0
+void mwLevel::set_level_display_region_xy() i:0 nl:1  alp:0  px1: 780  py1:250   x:50 y:45
+
+
+what I want to know is:
+when the overworld level is loaded, where will the gate icon be?
+
+I get different results from l2 load and mLevel load
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:1906  h:1061
+level_display_region_x:0  level_display_region_y:0
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:1906  h:1061
+level_display_region_x:0  level_display_region_y:0
+
+
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:242  level_display_region_y:99
+
+
+
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:242  level_display_region_y:99
+
+
+
+
+
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:242  level_display_region_y:99
+
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:242  level_display_region_y:99
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:242  level_display_region_y:99
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:242  level_display_region_y:99
+level_display_region_x:242  level_display_region_y:99
+
+
+
+
+
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:137
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+
+
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1 frame:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:242  level_display_region_y:99
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1 frame:2
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:242  level_display_region_y:99
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:242  level_display_region_y:99
+level_display_region_x:242  level_display_region_y:99
+
+
+
+
+
+
+
+
+
+
+
+
+last frame before exiting level:
+
+void mwLevel::set_level_display_region_xy() instance:0 level:80 frame:134
+p:0  px:570  py:750  pvx:1  pvy:1  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:119  level_display_region_y:531
+
+
+initial set l2 load:
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:135
+p:0  px:1000  py:120  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:462  level_display_region_y:0
+
+
+change player position and run again:
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:135
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+
+run again
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:135
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+
+
+could it be that the first set tries to set to start block position
+then never goes back because it is at the edge of the hysteresis?
+
+
+
+void mwLevel::set_level_display_region_xy() instance:0 level:80 frame:117
+p:0  px:570  py:750  pvx:1  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:119  level_display_region_y:531
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:118
+p:0  px:1000  py:120  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:462  level_display_region_y:0
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:118
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+l2f:1  alp:0 px1: 770  py1:240
+level_display_region  x:462 y:0 w:808 h:450
+
+void mwLevel::set_level_display_region_xy() instance:1 level:1 frame:118
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:462  level_display_region_y:0
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:462  level_display_region_y:0
+level_display_region_x:462  level_display_region_y:0
+l2g:1  alp:0 px1: 770  py1:240
+level_display_region  x:462 y:0 w:808 h:450
+
+Saving gm:savegame/20261030-061918-[80]-autosave on level done.gm
+nl:1  alp:0  px1: 770  py1:240
+level_display_region  x:119 y:531 w:808 h:450
+screen_display        x:12 y:12 w:1896 h:1056
+
+void mwLevel::set_level_display_region_xy() instance:1 level:80 frame:1
+p:0  px:390  py:787  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:119  level_display_region_y:531
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1 frame:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:119  level_display_region_y:531
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:119  level_display_region_y:531
+level_display_region_x:242  level_display_region_y:99
+nl:1  alp:0  px1: 770  py1:240
+level_display_region  x:242 y:99 w:808 h:450
+screen_display        x:12 y:12 w:1896 h:1056
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1 frame:1
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:242  level_display_region_y:99
+level_display_region_xinc:0  level_display_region_yinc:-0
+level_display_region_x:242  level_display_region_y:99
+level_display_region_x:242  level_display_region_y:99
+
+void mwLevel::set_level_display_region_xy() instance:0 level:1 frame:2
+p:0  px:780  py:250  pvx:0  pvy:0  w:808  h:450
+level_display_region_x:242  level_display_region_y:99
+
+
+
+
+2026-10-30 06:41:11
+
+I'm getting somewhere!!!
+
+do this before loading l2
+
+         l2.mPlayer.syn[0].active = 1;
+         l2.mPlayer.syn[0].overworld_last_touched_gate = curr_lev;
+         l2.play_level = 1;
+
+remove all debug from 
+
+
+actually just change this: 
+
+
+void mwItem::set_player_start_pos(int p)
+{
+   //printf("set player:%d start pos\n", p);
+
+   int item_to_get_start_from = -1;
+
+   // in overworld level, player starts at the last gate they touched
+//   if (m_parent.play_level == 1)
+   if (m_parent.last_level_loaded == 1)
+   {
+      for (int i=0; i<500; i++)
+
+
+
+
+
+void mwItem::set_player_start_pos(int p)...cleaned up
+
+
+thinking of moving this to l2..no
+
+      if (next_lev == 1) // overworld
+      {
+         // set all players last touched gate
+         for (int p=0; p<NUM_PLAYERS; p++)
+            l2.mPlayer.syn[p].overworld_last_touched_gate = curr_lev;
+         
+
+
+2026-10-30 07:41:48
+next should be drawing the overworld under while doing the transition...done
+
+
+2026-10-31 04:10:25
+
+now it does not line up when doing second row
+
+final position shows off top of level, but should not be
+
+
+I need to fully describe when this happens...
+
+What I think is happening is when I load l2 overworld, I am still not getting what I would get
+when I finally load it
+
+
+is it because when I load l2 I set player position to be in the overworld level?
+
+show it when I load it...
+
+I cant seem to get it to fail
+
+when transitioning from final to next level there is a very small jump
+not when on fisrt row
+
+
+
+I am going down a rabbit hole...
+make the hovered level icon and frame perfect
+the size of the level icon will be exactly [11]
+
+the frame will be one bigger
+
+what will line up at the bottom, the frame or the level? frame
+in hovered mode don't draw the underneath gate...
+
+
+I think I have the hovered level icon looking good
+what about hover pages? good
+now do normal icon
+
+I think I have all those sizes perfect...test on linux
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

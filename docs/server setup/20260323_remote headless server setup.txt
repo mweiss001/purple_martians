@@ -256,6 +256,7 @@ erase all web on remote server
 
 sudo rm -r /var/www/html/*
 
+
 restore:
 
 cp -r ~/dev/purple_martians/web/* /var/www/html

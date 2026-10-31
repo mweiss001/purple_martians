@@ -1118,7 +1118,7 @@ void mwPlayer::draw_player_direct_to_screen(int p)
    float scale = syn[p].draw_scale * mDisplay.scale_factor_current;
    float rot = syn[p].draw_rot;
    float px, py;
-   mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+   m_parent.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
    int flags = ALLEGRO_FLIP_HORIZONTAL;
    if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
    al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px, py, scale, scale, rot, flags);
@@ -1516,6 +1516,10 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
 }
 
 
+// called only in level done mode
+// checks if players have acknowledged and sets syn[p].level_done_ack for each player
+// syn[p].level_done_ack is used by show_player_stat_box()
+// needs to be like this because only server should determine this
 int mwPlayer::have_all_players_acknowledged()
 {
    int ret = 1; // yes by default, if any have not then change to no

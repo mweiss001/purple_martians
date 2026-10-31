@@ -360,7 +360,7 @@ void mwEnemy::draw_crew_screen_direct(int e)
    float sc = mDisplay.scale_factor_current;
 
    float ex1=0, ey1=0;
-   mScreen.calc_actual_screen_position(Ef[e][0]+10, Ef[e][1]+10, ex1, ey1);
+   m_parent.calc_actual_screen_position(Ef[e][0]+10, Ef[e][1]+10, ex1, ey1);
 
    float ps = Ef[e][8];  // player scale
    float scale = sc * ps;       // final draw scale

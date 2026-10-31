@@ -160,9 +160,9 @@ void mwTransitions::proc_level_done_mode()
       mGameState.level_done_next_level = 1; // always go to overworld after beating the game
    }
 
-   if (mGameState.level_done_mode == 9) // pause players and set up exit xyincs
+   if (mGameState.level_done_mode == 9) // pause players and setup seek exit
    {
-      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Pause player and setup exit xyincs");
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Pause players and setup seek exit");
       mScreen.add_player_text_overlay(mGameState.level_done_player, 2);
 
       mLevel.add_play_data_record(mLevel.play_level, 1);
@@ -179,19 +179,24 @@ void mwTransitions::proc_level_done_mode()
             float dy = mGameState.level_done_y - mLevel.mPlayer.syn[p].y;
 
             // get move
-            mLevel.mPlayer.syn[p].xinc = dx/60;
-            mLevel.mPlayer.syn[p].yinc = dy/60;
+            mLevel.mPlayer.syn[p].xinc = dx / level_done_seek_time;
+            mLevel.mPlayer.syn[p].yinc = dy / level_done_seek_time;
 
             // set left right direction
             if (mLevel.mPlayer.syn[p].xinc > 0) mLevel.mPlayer.syn[p].left_right = 1;
             if (mLevel.mPlayer.syn[p].xinc < 0) mLevel.mPlayer.syn[p].left_right = 0;
          }
+
+      mGameState.level_done_mode = 8;
+      mGameState.level_done_timer = level_done_seek_time;
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek exit");
    }
    if (mGameState.level_done_mode == 8) // players seek exit
    {
-      if (mGameState.level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek exit");
-      float fade = 0.3 + (float) mGameState.level_done_timer / 85; // 1 to .3 in 60 frames
-      if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
+      // fade sound
+      float sound_fade = 0.3 + (float) mGameState.level_done_timer / level_done_seek_time;
+      if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * sound_fade);
+
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
          {
@@ -201,14 +206,28 @@ void mwTransitions::proc_level_done_mode()
    }
    if (mGameState.level_done_mode == 7) // shrink and rotate
    {
-      if (mGameState.level_done_timer == 20) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players shrink and rotate");
+      if (mGameState.level_done_timer == level_done_rotate_time) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players shrink and rotate");
+
+      float scale_inc = (1.0 - level_done_player_final_scale) / level_done_rotate_time;
+      float rot_inc = level_done_num_rotations * (ALLEGRO_PI * 2) / level_done_rotate_time;
+
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
          {
-            mLevel.mPlayer.syn[p].draw_scale -= 0.05;
-            mLevel.mPlayer.syn[p].draw_rot -= 8;
+            mLevel.mPlayer.syn[p].draw_scale -= scale_inc;
+            mLevel.mPlayer.syn[p].draw_rot -= rot_inc;
          }
    }
+
+
+   //    if (mGameState.level_done_timer == 20) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players shrink and rotate");
+   //    for (int p=0; p<NUM_PLAYERS; p++)
+   //       if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+   //       {
+   //          mLevel.mPlayer.syn[p].draw_scale -= 0.05;
+   //          mLevel.mPlayer.syn[p].draw_rot -= 8;
+   //       }
+   // }
 
 
    if (mGameState.level_done_mode == 5) // skippable 15s timeout
@@ -229,9 +248,164 @@ void mwTransitions::proc_level_done_mode()
       }
    }
 
+
+
+   // setup for transition
+   if (mGameState.level_done_mode == 4)
+   {
+      // printf("mGameState.level_done_mode == 4 --  setup for transition\n");
+
+      // current player position
+      float px = mLevel.mPlayer.syn[0].x + 10;
+      float py = mLevel.mPlayer.syn[0].y + 10;
+
+      // get absolute screen position of player in current level
+      transition_initial_scale = mDisplay.scale_factor_current;
+      transition_initial_x = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_initial_scale;
+      transition_initial_y = mLevel.screen_display_y + (py - mLevel.level_display_region_y) * transition_initial_scale;
+
+
+      // default values
+      transition_final_scale = transition_initial_scale;
+      transition_final_x = transition_initial_x;
+      transition_final_y = transition_initial_y;
+
+
+      int next_lev = mGameState.level_done_next_level;
+      int curr_lev = mLevel.last_level_loaded;
+
+      if (next_lev == 1) // overworld
+      {
+         // set all players last touched gate
+         for (int p=0; p<NUM_PLAYERS; p++)
+            l2.mPlayer.syn[p].overworld_last_touched_gate = curr_lev;
+
+         // load the next level (overworld) into l2
+         l2.load_level_l2(next_lev);
+
+         // find the gate item for current level
+         int gate_index = l2.mItem.find_gate_for_level(curr_lev);
+         if (gate_index == -1)
+         {
+            printf("mGameState.level_done_mode == 4 --  could not find gate with level:%d\n", curr_lev);
+            return;
+         }
+
+         // get position of hovered level icon
+         float size = l2.mItem.item[gate_index][11];
+         float lix1 = l2.mItem.item[gate_index][4] - size/2 + 11;
+         float liy1 = l2.mItem.item[gate_index][5] - size   + 20;
+
+         // find actual screen position
+         float ex1=0, ey1=0;
+         l2.calc_actual_screen_position(lix1, liy1, ex1, ey1);
+
+         // get new scaled size
+         float esize = size * mDisplay.scale_factor_current;
+
+         // add player position
+         float epx = ex1 + px / 2000 * esize;
+         float epy = ey1 + py / 2000 * esize;
+
+         transition_final_scale = esize/2000;
+         transition_final_x = epx;
+         transition_final_y = epy;
+
+
+
+         if (!mMain.headless_server)
+         {
+            l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+         }
+
+         // // debug show final location
+         // al_set_target_backbuffer(mDisplay.display);
+         // al_clear_to_color(al_map_rgb(0,0,0));
+         // l2.draw_scaled_level_region_to_display();
+         //
+         // al_draw_line(transition_initial_x, transition_initial_y, epx, epy, mColor.Yellow, 4);
+         // al_draw_rectangle(ex1, ey1, ex1+esize, ey1+esize, mColor.Blue, 1);
+         // al_draw_circle(epx, epy, 10, mColor.White, 1);
+         // al_draw_circle(transition_initial_x, transition_initial_y, 20, mColor.Green, 1);
+         // al_draw_circle(transition_final_x, transition_final_y, 20, mColor.Red, 1);
+         // al_flip_display();
+         // mInput.tsw();
+
+      }
+
+
+
+      // get scale multiplier using compound interest formula
+      transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/level_done_transition_time) ) - 1;
+
+      // get x and y incs
+      transition_x_inc = (transition_final_x - transition_initial_x) / level_done_transition_time;
+      transition_y_inc = (transition_final_y - transition_initial_y) / level_done_transition_time;
+
+      // set initial values
+      transition_current_x = transition_initial_x;
+      transition_current_y = transition_initial_y;
+      transition_current_scale = transition_initial_scale;
+
+      mGameState.level_done_timer = level_done_transition_time;
+      mGameState.level_done_mode = 3;
+
+
+      // printf("initial: %f   %f   %f \n", transition_initial_x, transition_initial_y, transition_initial_scale);
+      // printf("final:   %f   %f   %f \n", transition_final_x, transition_final_y, transition_final_scale);
+      // printf("inc:     %f   %f   %f \n", transition_x_inc, transition_y_inc, transition_scale_multiplier);
+
+   }
+
+   // do transition
+   if (mGameState.level_done_mode == 3)
+   {
+      //printf("mGameState.level_done_mode == 3 --  do transition\n");
+
+      transition_current_x += transition_x_inc;
+      transition_current_y += transition_y_inc;
+      transition_current_scale *= transition_scale_multiplier;
+
+
+      if (!mMain.headless_server)
+      {
+         al_set_target_backbuffer(mDisplay.display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+
+//         al_draw_rectangle(transition_current_x, transition_current_y, transition_current_x+20, transition_current_y+20, mColor.Green, 1);
+
+//         mLevel.draw_level2(NULL, transition_current_x, transition_current_y, transition_current_scale, 1, 1, 1, 1, 1, 1);
+
+         l2.draw_scaled_level_region_to_display();
+         mScreen.draw_screen_frame();
+
+         mLevel.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
+         al_flip_display();
+      }
+
+      // pause on first frame
+//      if (mGameState.level_done_timer == transition_steps) mInput.tsw();
+
+      // pause on last frame
+      if (mGameState.level_done_timer == 1) mInput.tsw();
+
+
+
+
+   }
+
+
+
+
+
+
+
+
+
    if (mGameState.level_done_mode == 2) // delay to load next level
    {
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Delay to load next level");
+//      mGameState.level_done_mode = 1;
    }
 
    if (!mNetgame.ima_client)
@@ -245,8 +419,8 @@ void mwTransitions::proc_level_done_mode()
          if (mGameState.level_done_mode == 26) mGameState.level_done_timer = 0;   // set up for zoom in
          if (mGameState.level_done_mode == 25) mGameState.level_done_timer = 100; // zoom in
          if (mGameState.level_done_mode == 24) mGameState.level_done_timer = 0;   // jump to mode 6
-         if (mGameState.level_done_mode == 8) mGameState.level_done_timer = 60;  // players seek exit
-         if (mGameState.level_done_mode == 7) mGameState.level_done_timer = 20;  // players shrink and rotate into exit
+//         if (mGameState.level_done_mode == 8) mGameState.level_done_timer = level_done_seek_time;  // players seek exit
+         if (mGameState.level_done_mode == 7) mGameState.level_done_timer = level_done_rotate_time;  // players shrink and rotate into exit
          if (mGameState.level_done_mode == 6) mGameState.level_done_timer = 0;   // not used
          if (mGameState.level_done_mode == 5)
          {
@@ -257,13 +431,14 @@ void mwTransitions::proc_level_done_mode()
             }
             else mGameState.level_done_timer = 600; // skippable 15s delay;
          }
-         if (mGameState.level_done_mode == 4) mGameState.level_done_timer = 0;  // not used
-         if (mGameState.level_done_mode == 3) mGameState.level_done_timer = 0;  // not used
-         if (mGameState.level_done_mode == 2) mGameState.level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
+//         if (mGameState.level_done_mode == 4) mGameState.level_done_timer = 0;  // not used
+//         if (mGameState.level_done_mode == 3) mGameState.level_done_timer = 0;  // not used
+         if (mGameState.level_done_mode == 2) mGameState.level_done_mode = 1; //mGameState.level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
          if (mGameState.level_done_mode == 1)
          {
             mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Load next level");
             mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+            mGameState.level_done_mode = 0;
          }
       }
 }
@@ -306,9 +481,9 @@ void mwTransitions::proc_gate_enter_mode()
       // load l2 if not already loaded and get start position
       l2.load_level_l2(lev);
 
-      mTransitions.gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
-      mTransitions.gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
-      mTransitions.gate_enter_level_icon_size = size;
+      gate_enter_next_level_start_x = l2.mPlayer.syn[0].x;
+      gate_enter_next_level_start_y = l2.mPlayer.syn[0].y;
+      gate_enter_level_icon_size = size;
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
@@ -316,8 +491,8 @@ void mwTransitions::proc_gate_enter_mode()
             mLevel.mPlayer.syn[p].paused = 5; // set player paused
 
             // new level start position scaled by level_icon size
-            float px = ((mTransitions.gate_enter_next_level_start_x+10) * mTransitions.gate_enter_level_icon_size) / 2000;
-            float py = ((mTransitions.gate_enter_next_level_start_y+10) * mTransitions.gate_enter_level_icon_size) / 2000;
+            float px = ((gate_enter_next_level_start_x+10) * gate_enter_level_icon_size) / 2000;
+            float py = ((gate_enter_next_level_start_y+10) * gate_enter_level_icon_size) / 2000;
 
             // get screen position of start position
             float sx = lix + px - 9;
@@ -386,11 +561,9 @@ void mwTransitions::proc_gate_enter_mode()
       }
 
 
-
-
       // player's start position in next level
-      float px = mTransitions.gate_enter_next_level_start_x;
-      float py = mTransitions.gate_enter_next_level_start_y;
+      float px = gate_enter_next_level_start_x;
+      float py = gate_enter_next_level_start_y;
 
       transition_initial_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0);
       transition_initial_x = gate_transition_x + px * transition_initial_scale + 1;
@@ -403,19 +576,18 @@ void mwTransitions::proc_gate_enter_mode()
 
 
       // get scale multiplier using compound interest formula
-      transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/transition_steps) ) - 1;
+      transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/gate_enter_transition_time) ) - 1;
 
       // get x and y incs
-      transition_x_inc = (transition_final_x - transition_initial_x) / transition_steps;
-      transition_y_inc = (transition_final_y - transition_initial_y) / transition_steps;
+      transition_x_inc = (transition_final_x - transition_initial_x) / gate_enter_transition_time;
+      transition_y_inc = (transition_final_y - transition_initial_y) / gate_enter_transition_time;
 
       // set initial values
       transition_current_x = transition_initial_x;
       transition_current_y = transition_initial_y;
       transition_current_scale = transition_initial_scale;
 
-      mGameState.gate_enter_timer = transition_steps;
-
+      mGameState.gate_enter_timer = gate_enter_transition_time;
       mGameState.gate_enter_mode = 2;
 
    }
@@ -439,7 +611,7 @@ void mwTransitions::proc_gate_enter_mode()
       transition_current_scale *= transition_scale_multiplier;
 
       // pause on first frame
-//      if (mGameState.gate_enter_timer == transition_steps) mInput.tsw();
+//      if (mGameState.gate_enter_timer == gate_enter_transition_time) mInput.tsw();
 
    }
 
@@ -685,7 +857,7 @@ void mwTransitions::set_transition_mode(int i, int f, int num_steps)
    }
    if (i == 1) // game
    {
-      transition_initial_x = mDisplay.scale_factor_current;
+      transition_initial_x = mDisplay.scale_factor_current; ///??????
       transition_initial_y = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_initial_scale;
    }
    if (f == 1) // game

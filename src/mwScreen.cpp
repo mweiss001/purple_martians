@@ -39,7 +39,6 @@ void mwScreen::draw_hyst_rect()
 }
 
 
-
 void mwScreen::set_map_var()
 {
    // set menu x and y
@@ -54,11 +53,10 @@ void mwScreen::set_map_var()
    // the ypos of level_display and level_info are the same and are directly under the menu
    menu_level_info_y = menu_level_display_y = menu_y + menu_h + 4;
 
-   // level_info width is fixed at 200 or 25 char
+   // level_info width is fixed at 24 char
    menu_level_info_w = 24 * 8;
 
    if (!mMain.classic_mode) menu_level_info_w = 0;
-
 
    // determine the size of the level_display
 
@@ -133,12 +131,8 @@ void mwScreen::draw_level_map_under_menu() // used only in menu
    if (mLevel.resume_allowed) mLevel.draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 1, 1);
    else mLevel.draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 0, 0);
 
-
-
-
    if (mMain.classic_mode) al_draw_rectangle(x, y, x+sz, y+sz, mColor.pc[15], 1);
 }
-
 
 
 void mwScreen::draw_level_info() // used only in menu
@@ -308,7 +302,7 @@ void mwScreen::draw_framed_text(int xc, int y, int round, ALLEGRO_FONT *f, int f
 void mwScreen::draw_title(int x, int y, int w, int h, int color)
 {
    char msg[1024];
-   sprintf(msg, "%s Martians!", mColor.color_name[color]); // overwrite with color name
+   sprintf(msg, "%s Martians!", mColor.color_name[color]);
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(mFont.sauc, msg, &bbx1, &bby1, &bbw1, &bbh1);
    if ((mBitmap.text_title_bitmaps_create) || (mBitmap.text_title_draw_color != color))
