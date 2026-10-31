@@ -81,8 +81,6 @@ class mwItem
    void draw_gate_tile(int i, int size);
 
    int draw_gate(int i, int x, int y, int custom);
-   void set_gate_level_icon_position(int i);
-
 
    void draw_gate_hover_info(int i, int page = -1);
 

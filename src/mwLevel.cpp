@@ -644,15 +644,6 @@ void mwLevel::draw_scaled_level_region_to_display()
 }
 
 
-
-
-
-
-
-
-
-
-
 void mwLevel::setup_players_after_level_load(int type)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -662,25 +653,6 @@ void mwLevel::setup_players_after_level_load(int type)
    }
    mPlayer.syn[0].active = 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int mwLevel::load_level_visual_select()
 {
@@ -703,7 +675,6 @@ int mwLevel::load_level_file_dialog()
    }
    return 0; // user pressed cancel
 }
-
 
 
 void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
@@ -729,21 +700,10 @@ void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks,
 
    }
 
-
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
    else al_set_target_bitmap(b);
    al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
-
-
 }
-
-
-
-
-
-
-
-
 
 int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
 {
@@ -754,7 +714,6 @@ int mwLevel::draw_level3(ALLEGRO_BITMAP *b, int level, int mx, int my, int ms, i
    }
    return 0;
 }
-
 
 
 // this is used to load l2 only, skips stuff that normal load does
@@ -770,7 +729,6 @@ int mwLevel::load_level_l2(int level)
    if (load_level_by_number(level, 1, 0))
    {
 
-
       //printf("\nmwLevel::load_level_l2(%d)\n", level);
       //printf("loading!!!\n");
       valid_level_loaded = 1;
@@ -783,40 +741,20 @@ int mwLevel::load_level_l2(int level)
          }
       setup_players_after_level_load(2);
 
+      // copy player colors from mLevel
+      for (int p=0; p<NUM_PLAYERS; p++)
+         l2.mPlayer.syn[p].color = mLevel.mPlayer.syn[p].color;
+
       // copy the level_display_region variable from mLevel to l2
       // this is needed to make the transition final variables match what happens when next level is actually loaded
       level_display_region_x = mLevel.level_display_region_x;
       level_display_region_y = mLevel.level_display_region_y;
-      // level_display_region_w = mLevel.level_display_region_w;
-      // level_display_region_h = mLevel.level_display_region_h;
-      //
-      // level_display_region_xinc = mLevel.level_display_region_xinc;
-      // level_display_region_yinc = mLevel.level_display_region_yinc;
-      //
-      // screen_display_x = mLevel.screen_display_x;
-      // screen_display_y = mLevel.screen_display_y;
-      // screen_display_w = mLevel.screen_display_w;
-      // screen_display_h = mLevel.screen_display_h;
-      //
-      // ldr_xmx_h = mLevel.ldr_xmx_h;
-      // ldr_xmn_h = mLevel.ldr_xmn_h;
-      // ldr_ymx_h = mLevel.ldr_ymx_h;
-      // ldr_ymn_h = mLevel.ldr_ymn_h;
-      //
-      // ldr_xmx_a = mLevel.ldr_xmx_a;
-      // ldr_xmn_a = mLevel.ldr_xmn_a;
-      // ldr_ymx_a = mLevel.ldr_ymx_a;
-      // ldr_ymn_a = mLevel.ldr_ymn_a;
-
 
       // set the screen_display and level_display variables
       set_screen_display_variables();
       set_level_display_region_xy();
 
-
       if (!mMain.headless_server) init_level_background();
-//      printf("l2 px1: %.0f  py1:%.0f \n", mPlayer.syn[0].x, mPlayer.syn[0].y);
-//      printf("l2:%d  px1: %.0f  py1:%.0f \n", last_level_loaded, mPlayer.syn[0].x, mPlayer.syn[0].y);
       return 1;
    }
    return 0;

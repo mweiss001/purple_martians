@@ -75,7 +75,6 @@ void mwItem::proc_start_collision(int p, int i)
          ns++;
          s[item[i][7]] = i; // save index of this start
       }
-
    if (ns > 1)
    {
       // get these from start with index 0
@@ -111,8 +110,6 @@ int mwItem::find_gate_for_player(int p)
 {
    return find_gate_for_level(m_parent.mPlayer.syn[p].overworld_last_touched_gate);
 }
-
-
 
 void mwItem::set_player_start_pos(int p)
 {
@@ -287,7 +284,7 @@ item[][11] hover level icon size
 void mwItem::proc_gate_collision(int p, int i)
 {
    m_parent.mPlayer.syn[p].marked_gate = i;
-   set_gate_level_icon_position(i);
+
    int lev = item[i][6];
 
    if (m_parent.mPlayer.syn[p].overworld_last_touched_gate != lev)
@@ -345,33 +342,38 @@ void mwItem::proc_gate_collision(int p, int i)
 
 void mwItem::draw_level_icon(int i)
 {
+   // get icon size
+   float size = item[i][10];
 
-   float size = item[i][10];       // level icon size
-   float lx = item[i][4] - size/2  + 10;     // level icon x pos
-   float ly = item[i][5] - size    + 19;     // level icon y pos
+   // get position (centered on and relative to gate icon
+   float lx1 = item[i][4] - size/2  + 10;
+   float ly1 = item[i][5] - size    + 19;
+   float lx2 = lx1 + size;
+   float ly2 = ly1 + size;
+
+
 
    int level = item[i][6];
    int status = mLevel.data[level].status;
    int color = mLevel.level_status_color[status];
 
-   float lx2 = lx + size;
-   float ly2 = ly + size;
 
+   // clear background
+   al_draw_filled_rectangle(   lx1,   ly1,   lx2, ly2, mColor.pc[0]);
 
-   al_draw_filled_rectangle(   lx,   ly,   lx2, ly2, mColor.pc[0]);        // clear background
-   mLevelIcons.draw_level_icon(level, lx, ly, size);                             // draw level icon
-   al_draw_rectangle(          lx,   ly-0.5,   lx2+1, ly2+0.5, mColor.pc[color], 1); // draw frame
+   // draw level icon
+   mLevelIcons.draw_level_icon(level, lx1, ly1, size);
 
+   // draw frame
+   al_draw_rectangle(          lx1,   ly1-0.5,   lx2+1, ly2+0.5, mColor.pc[color], 1);
 
 
    // draw and frame the level name
-
    int xc = item[i][4] + 10; // x center of gate tile
-
    char name[80];
    sprintf(name, "%d %s", level, mLevel.data[level].level_name);
 
-   mScreen.draw_framed_text(xc, ly-9, 0, mFont.pixl, color, 15, name);
+   mScreen.draw_framed_text(xc, ly1-9, 0, mFont.pixl, color, 15, name);
 }
 
 
@@ -388,17 +390,15 @@ void mwItem::get_gate_tile_index_and_seq(int i, int &gate_tile_index, int &seq)
    if (draw_mode == 3) gate_tile_index = 5;
    if (draw_mode == 4) gate_tile_index = 6;
 
-
    // set the gate tile sequence
    seq = 0; // closed door
+
    // only if gate_enter_mode is active and this door is gate_enter_item
    if ((mGameState.gate_enter_mode) && (mGameState.gate_enter_item == i))
    {
       if (mGameState.gate_enter_mode)     seq = 2; // fully open door
       if (mGameState.gate_enter_mode > 7) seq = 1; // partially open door
    }
-
-
 }
 
 
@@ -411,15 +411,9 @@ void mwItem::draw_gate_tile(int i, int size)
    int x = item[i][4];
    int y = item[i][5]-1;
 
-   // full size
-   if (size == 1) al_draw_bitmap(mBitmap.gate_tile[gate_tile_index][seq], x-10, y-39, 0);
-
-   // half size
-   if (size == 2) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x, y-9, 20, 30, 0);
-
-   // 3/4 size
-   if (size == 3) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x-5, y-24, 30, 45, 0);
-
+   if (size == 1) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60,  x-10,  y-39,  40, 60,  0); // full size
+   if (size == 2) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60,  x,     y-9,   20, 30,  0); // half size
+   if (size == 3) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60,  x-5,   y-24,  30, 45,  0); // 3/4 size
 
    // draw lock overlay
    int xc = x+10; // center of tile
@@ -510,13 +504,10 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
    // only draw for page 0
    if (item[i][7] != 0) return;
 
-
-
    // level icon origin
    float size = item[i][11];
    float lix1 = item[i][4]-size/2 + 10;
    float liy1 = item[i][5]-size   + 19;
-
 
    // find actual screen position
    float ex1=0, ey1=0;
@@ -532,17 +523,15 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
 
    int level = item[i][6];
 
+   // draw from loaded l2 - this should always draw
    if (l2.valid_level_loaded && l2.last_level_loaded == level)
    {
       l2.draw_level3(NULL, level, ex1, ey1, esize, 1, 1, 1, 1, 0, 0 );
-      //al_draw_rectangle(ex1-10, ey1, ex2, ey2, mColor.Red, 1);
    }
    else
    {
       mLevelIcons.draw_level_icon(level, ex1, ey1, esize);
-      //al_draw_rectangle(ex1-10, ey1, ex2, ey2, mColor.Green, 1);
    }
-
 
    // draw gate icon on top
    float gx1 = item[i][4] - 10;
@@ -563,7 +552,6 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
    get_gate_tile_index_and_seq(i, gate_tile_index, seq);
 
    al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, gex1, gey1, gew, geh, 0);
-
 }
 
 
@@ -591,8 +579,6 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
    int status = mLevel.data[level].status;
    int color = mLevel.level_status_color[status];
 
-
-
    if (page == 0) // level icon map
    {
       size = bs+1;
@@ -601,7 +587,7 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
       // clear
       al_draw_filled_rectangle(x1-pad_page, ya-pad_page, x2+pad_page, by, mColor.pc[0]);
 
-      // draw
+      // draw -- this is now drawn direct to screen
       //mLevelIcons.draw_level_icon(x1+1, ya+1, bs, level);
 
       // frame
@@ -754,26 +740,6 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
 }
 
 
-// used to save absolute screen position of gate, so transition returning to overworld lines up
-void mwItem::set_gate_level_icon_position(int i)
-{
-   // gate item location
-   int x = item[i][4];
-   int y = item[i][5];
-   int size = item[i][11];
-
-
-   // offset from gate item to level icon
-   x += (10 - size/2);
-   y -= (size-19);
-
-   // convert to actual screen pos
-   mTransitions.gate_transition_x = (x - m_parent.level_display_region_x) * mDisplay.scale_factor_current + m_parent.screen_display_x;
-   mTransitions.gate_transition_y = (y - m_parent.level_display_region_y) * mDisplay.scale_factor_current + m_parent.screen_display_y;
-   mTransitions.gate_transition_wx = m_parent.level_display_region_x;
-   mTransitions.gate_transition_wy = m_parent.level_display_region_y;
-   mTransitions.gate_transition_scale = mDisplay.scale_factor_current;
-}
 
 // draws left justified txt1, right justified txt2, and '...' in between
 void mwItem::draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col)

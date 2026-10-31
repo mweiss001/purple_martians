@@ -137,7 +137,7 @@ void mwMain::copy_files_to_clients(int type)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
-//   sprintf(client[num_clients++], "\\\\d5414\\pm_client54");  // win 10 -- ruggedized dell d5414 - old work laptop
+   sprintf(client[num_clients++], "\\\\d5414\\pm_client54");  // win 10 -- ruggedized dell d5414 - old work laptop
 
 
    for (int c=0; c<num_clients; c++)

@@ -49394,9 +49394,79 @@ l2 is next level
 
 2026-10-31 11:26:03
 
-
 I think I have the gate entry and level done working...
 I want to test it on linux, and netgame...
+
+bug 1 - gate enter draw player on l2 is wrong color..fixed
+
+netgame seems to work at a first glance
+
+haven't seen any issues yet...
+
+2026-10-31 13:12:35
+
+
+what next?
+
+transitions...can I use them other places?
+
+classic mode menu to game and back
+
+overworld gate demo to game and back
+
+level to level
+
+
+there is aleady something at the end of demo...
+
+it uses the old transitions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
