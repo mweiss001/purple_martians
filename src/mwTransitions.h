@@ -14,12 +14,12 @@ class mwTransitions
    float cutscene_accel;
    float cutscene_bg_x;
 
-   int level_done_seek_time = 10;
-   int level_done_rotate_time = 10;
-   float level_done_num_rotations = 1;
+
+   int level_done_seek_time = 20;
+   int level_done_rotate_time = 20;
+   float level_done_num_rotations = 2;
    float level_done_player_final_scale = .1;
    float level_done_transition_time = 40;
-
 
 
    // gate enter
@@ -27,19 +27,11 @@ class mwTransitions
 
    void proc_gate_enter_mode();
 
-   int gate_enter_seek_time = 10;
-   int gate_enter_rotate_time = 10;
-   int gate_enter_num_rotations = 1;
+   int gate_enter_seek_time = 40;
+   int gate_enter_rotate_time = 40;
+   int gate_enter_num_rotations = 4;
    float gate_enter_player_final_scale = .1;
-   int gate_enter_transition_time = 10;
-
-
-
-
-   float gate_enter_level_icon_size;
-
-   int gate_enter_next_level_start_x;
-   int gate_enter_next_level_start_y;
+   int gate_enter_transition_time = 40;
 
 
 

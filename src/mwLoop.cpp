@@ -665,9 +665,9 @@ void mwLoop::proc_program_state_change()
       if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
 
 
-      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
-      printf("level_display_region  x:%.0f y:%.0f w:%.0f h:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
-      printf("screen_display        x:%.0f y:%.0f w:%.0f h:%.0f\n",  mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+//      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
+//      printf("level_display_region  x:%.0f y:%.0f w:%.0f h:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+//      printf("screen_display        x:%.0f y:%.0f w:%.0f h:%.0f\n",  mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
 
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 

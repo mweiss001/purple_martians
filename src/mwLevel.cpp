@@ -270,25 +270,42 @@ void mwLevel::get_new_background()
 
 
 
+void mwLevel::draw_scaled_level_buffer_centered_on_pos(float screen_x, float screen_y, float level_x, float level_y, float scale_factor)
+{
+   // get level position scaled by scale factor
+   float px = level_x * scale_factor;
+   float py = level_y * scale_factor;
+
+   // subtract level position from screen position
+   // this will get the origin of where to draw the scaled level, so that the level position will be at screen_x, screen_y
+   float mgx = screen_x - px;
+   float mgy = screen_y - py;
+
+   // use scale factor to determine scaled size of level
+   float sz = scale_factor * 2000;
+
+   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
+}
+
+
 
 
 
 
 // used only in transitions
-void mwLevel::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
+void mwLevel::draw_level_centered_on_player_pos(float screen_x, float screen_y, float scale_factor)
 {
    // get player's position in level (0-2000) and scale by scale factor
    float px = mPlayer.syn[mPlayer.active_local_player].x * scale_factor;
    float py = mPlayer.syn[mPlayer.active_local_player].y * scale_factor;
 
    // subtract player's position from screen position
-   // this will get the origin of where to draw the scaled level
-   // so that the players position will be at screen_x, screen_y
-   int mgx = screen_x - px;  // start x pos on level
-   int mgy = screen_y - py;  // start y pos on level
+   // this will get the origin of where to draw the scaled level, so that the players position will be at screen_x, screen_y
+   float mgx = screen_x - px;
+   float mgy = screen_y - py;
 
    // use scale factor to determine scaled size of level
-   int sz = scale_factor * 2000;
+   float sz = scale_factor * 2000;
 
    al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
 }
@@ -770,12 +787,32 @@ int mwLevel::load_level_l2(int level)
       // this is needed to make the transition final variables match what happens when next level is actually loaded
       level_display_region_x = mLevel.level_display_region_x;
       level_display_region_y = mLevel.level_display_region_y;
-      level_display_region_w = mLevel.level_display_region_w;
-      level_display_region_h = mLevel.level_display_region_h;
+      // level_display_region_w = mLevel.level_display_region_w;
+      // level_display_region_h = mLevel.level_display_region_h;
+      //
+      // level_display_region_xinc = mLevel.level_display_region_xinc;
+      // level_display_region_yinc = mLevel.level_display_region_yinc;
+      //
+      // screen_display_x = mLevel.screen_display_x;
+      // screen_display_y = mLevel.screen_display_y;
+      // screen_display_w = mLevel.screen_display_w;
+      // screen_display_h = mLevel.screen_display_h;
+      //
+      // ldr_xmx_h = mLevel.ldr_xmx_h;
+      // ldr_xmn_h = mLevel.ldr_xmn_h;
+      // ldr_ymx_h = mLevel.ldr_ymx_h;
+      // ldr_ymn_h = mLevel.ldr_ymn_h;
+      //
+      // ldr_xmx_a = mLevel.ldr_xmx_a;
+      // ldr_xmn_a = mLevel.ldr_xmn_a;
+      // ldr_ymx_a = mLevel.ldr_ymx_a;
+      // ldr_ymn_a = mLevel.ldr_ymn_a;
+
 
       // set the screen_display and level_display variables
       set_screen_display_variables();
       set_level_display_region_xy();
+
 
       if (!mMain.headless_server) init_level_background();
 //      printf("l2 px1: %.0f  py1:%.0f \n", mPlayer.syn[0].x, mPlayer.syn[0].y);

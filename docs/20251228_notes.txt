@@ -49358,6 +49358,106 @@ what about hover pages? good
 now do normal icon
 
 I think I have all those sizes perfect...test on linux
+bottom of frame should be 1 px higher...
+I now have linux lined up perfect also
+
+lower the text UP and DOWN by 1..done
+
+
+then back to seeing how it lines up...
+
+still off by 1 pixel
+
+does not seem to be off when in top left row...
+
+when zoomed in it is off by width of frame??
+
+the final position matches exactly...
+what is off is the drawing of level centered on player
+
+I think I have it fixed now...
+
+I have so much debugging now!!!
+
+It looks like level done is working great....
+
+and I have some debug stuff if is not!!!
+
+do that for gate entry also...
+
+
+in gate entry:
+
+mLevel is overworld
+l2 is next level
+
+
+2026-10-31 11:26:03
+
+
+I think I have the gate entry and level done working...
+I want to test it on linux, and netgame...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -345,23 +345,29 @@ void mwItem::proc_gate_collision(int p, int i)
 
 void mwItem::draw_level_icon(int i)
 {
-   int x = item[i][4];
-   int y = item[i][5];
 
-   int xc = x + 10;            // x center of gate tile
-   int ls = item[i][10];       // level icon size
-   float lx = -0.5 + xc-ls/2;  // level icon x pos
-   float ly = y+19-ls;         // level icon y pos
+   float size = item[i][10];       // level icon size
+   float lx = item[i][4] - size/2  + 10;     // level icon x pos
+   float ly = item[i][5] - size    + 19;     // level icon y pos
 
    int level = item[i][6];
    int status = mLevel.data[level].status;
    int color = mLevel.level_status_color[status];
 
-   al_draw_filled_rectangle(   lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[0]);        // clear background
-   mLevelIcons.draw_level_icon(level, lx+1, ly, ls);                             // draw level icon
-   al_draw_rectangle(          lx,   ly,   lx+ls+1, ly+ls+1, mColor.pc[color], 1); // draw frame
+   float lx2 = lx + size;
+   float ly2 = ly + size;
+
+
+   al_draw_filled_rectangle(   lx,   ly,   lx2, ly2, mColor.pc[0]);        // clear background
+   mLevelIcons.draw_level_icon(level, lx, ly, size);                             // draw level icon
+   al_draw_rectangle(          lx,   ly-0.5,   lx2+1, ly2+0.5, mColor.pc[color], 1); // draw frame
+
+
 
    // draw and frame the level name
+
+   int xc = item[i][4] + 10; // x center of gate tile
+
    char name[80];
    sprintf(name, "%d %s", level, mLevel.data[level].level_name);
 
@@ -413,10 +419,6 @@ void mwItem::draw_gate_tile(int i, int size)
 
    // 3/4 size
    if (size == 3) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60, x-5, y-24, 30, 45, 0);
-
-
-
-
 
 
    // draw lock overlay
@@ -474,22 +476,22 @@ void mwItem::draw_gate_hover_info(int i, int page)
 
    if (status == 0) // locked
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      mScreen.draw_framed_text(xc, y+21, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
       if (page == 0) show_page(i, 0, xc, bs, by); // level icon map
       if (page == 1) show_page(i, 7, xc, bs, by); // not completed general
    }
    if (status == 1) // ready (not completed)
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      mScreen.draw_framed_text(xc, y+21, 0, mFont.pixl, color, 15, " UP - Start Level ");
+      mScreen.draw_framed_text(xc, y+31, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
       if (page == 0) show_page(i,  0, xc, bs, by); // level icon map
       if (page == 1) show_page(i,  7, xc, bs, by); // not completed general
       if (page == 2) show_page(i, 12, xc, bs, by); // demo
    }
    if (status > 1) // completed
    {
-      mScreen.draw_framed_text(xc, y+20, 0, mFont.pixl, color, 15, " UP - Start Level ");
-      mScreen.draw_framed_text(xc, y+30, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
+      mScreen.draw_framed_text(xc, y+21, 0, mFont.pixl, color, 15, " UP - Start Level ");
+      mScreen.draw_framed_text(xc, y+31, 0, mFont.pixl, color, 15, " DOWN - Cycle Info ");
       if (page == 0) show_page(i,  0, xc, bs, by); // level icon map
       if (page == 1) show_page(i,  1, xc, bs, by); // general
       if (page == 2) show_page(i,  2, xc, bs, by); // times
@@ -509,14 +511,11 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
    if (item[i][7] != 0) return;
 
 
-   // gate screen position
-   int x = item[i][4];
-   int y = item[i][5];
-   float size = item[i][11];
 
    // level icon origin
-   float lix1 = x-size/2 + 10;
-   float liy1 = y-size   + 19;
+   float size = item[i][11];
+   float lix1 = item[i][4]-size/2 + 10;
+   float liy1 = item[i][5]-size   + 19;
 
 
    // find actual screen position
@@ -533,12 +532,10 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
 
    int level = item[i][6];
 
-   //if (l2.valid_level_loaded && l2.last_level_loaded == level)
-   if (1)
+   if (l2.valid_level_loaded && l2.last_level_loaded == level)
    {
       l2.draw_level3(NULL, level, ex1, ey1, esize, 1, 1, 1, 1, 0, 0 );
       //al_draw_rectangle(ex1-10, ey1, ex2, ey2, mColor.Red, 1);
-
    }
    else
    {
@@ -548,8 +545,8 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
 
 
    // draw gate icon on top
-   float gx1 = x - 10;
-   float gy1 = y - 40;
+   float gx1 = item[i][4] - 10;
+   float gy1 = item[i][5] - 40;
    float gx2 = gx1 + 40;
    float gy2 = gy1 + 60;
 
@@ -608,7 +605,7 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
       //mLevelIcons.draw_level_icon(x1+1, ya+1, bs, level);
 
       // frame
-      al_draw_rectangle(x1, ya-1, x2, by, mColor.pc[color], 1);
+      al_draw_rectangle(x1, ya-1, x2, by-0.5, mColor.pc[color], 1);
    }
 
    char msg[80];
