@@ -251,6 +251,7 @@ void mwTransitions::proc_level_done_mode()
 
 
 
+
    // setup for transition
    if (mGameState.level_done_mode == 4)
    {
@@ -806,6 +807,145 @@ void mwTransitions::proc_gate_enter_mode()
 
 
 
+void mwTransitions::set_transition_mode(int i, int f, int num_steps)
+{
+
+   if (!mMain.headless_server)
+   {
+      mLevel.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1, 0); // redraw entire level in case only region has been drawn
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+   mLevel.set_screen_display_variables();
+   mLevel.set_level_display_region_xy();
+   mScreen.set_map_var();
+
+   transition_initial_x = 0;
+   transition_initial_y = 0;
+   transition_initial_scale = 1;
+
+   transition_final_x = 0;
+   transition_final_y = 0;
+   transition_final_scale = 1;
+
+   // player's position in level
+   float px = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x;
+   float py = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y;
+
+   if (i == 0) // nothing
+   {
+      transition_initial_x = mDisplay.SCREEN_W/2;
+      transition_initial_y = mDisplay.SCREEN_H/2;
+      transition_initial_scale = 0.005;
+   }
+   if (f == 0) // nothing
+   {
+      transition_final_x = mDisplay.SCREEN_W/2;
+      transition_final_y = mDisplay.SCREEN_H/2;
+      transition_final_scale = 0.005;
+   }
+   if (i == 1) // game
+   {
+      transition_initial_x = mDisplay.scale_factor_current; ///??????
+      transition_initial_y = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_initial_scale;
+   }
+   if (f == 1) // game
+   {
+      transition_final_scale = mDisplay.scale_factor_current;
+      transition_final_x = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_final_scale;
+      transition_final_y = mLevel.screen_display_y + (py - mLevel.level_display_region_y) * transition_final_scale;
+   }
+   if (i == 2) // menu
+   {
+      transition_initial_x = mScreen.menu_level_display_x + px * transition_initial_scale;
+      transition_initial_y = mScreen.menu_level_display_y + py * transition_initial_scale;
+   }
+   if (f == 2) // menu
+   {
+      transition_final_scale = (float)mScreen.menu_level_display_size / 2000;
+      transition_final_x = mScreen.menu_level_display_x + px * transition_final_scale;
+      transition_final_y = mScreen.menu_level_display_y + py * transition_final_scale;
+   }
+   if (i == 3) // gate
+   {
+//      transition_initial_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
+      transition_initial_x = gate_transition_x + px * transition_initial_scale;
+      transition_initial_y = gate_transition_y + py * transition_initial_scale;
+   }
+   if (f == 3) // gate
+   {
+      // restore viewport so transition lines up
+      mLevel.level_display_region_x = gate_transition_wx;
+      mLevel.level_display_region_y = gate_transition_wy;
+      //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
+
+//      transition_final_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
+      transition_final_x = gate_transition_x + px * transition_final_scale;
+      transition_final_y = gate_transition_y + py * transition_final_scale;
+   }
+
+
+
+   // get scale multiplier using compound interest formula
+   transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/num_steps) ) - 1;
+
+   // get x and y incs
+   transition_x_inc = (transition_final_x - transition_initial_x) / num_steps;
+   transition_y_inc = (transition_final_y - transition_initial_y) / num_steps;
+
+   // set initial values
+   transition_current_x = transition_initial_x;
+   transition_current_y = transition_initial_y;
+   transition_current_scale = transition_initial_scale;
+
+
+   mGameState.transition_mode = 1;
+   mGameState.transition_timer = num_steps;
+
+
+   printf("new transition(i: %d   f:%d   steps:%d\n", i, f, num_steps);
+
+   printf("initial: %f   %f   %f \n", transition_initial_x, transition_initial_y, transition_initial_scale);
+   printf("final:   %f   %f   %f \n", transition_final_x, transition_final_y, transition_final_scale);
+   printf("inc:     %f   %f   %f \n", transition_x_inc, transition_y_inc, transition_scale_multiplier);
+
+}
+
+
+
+void mwTransitions::proc_transition_mode()
+{
+   if (mGameState.transition_mode == 1) // do transition
+   {
+
+      printf("proc_transition_mode() - %d  x:%f  y:%f  scale:%f\n", mGameState.transition_timer, transition_current_x, transition_current_y, transition_current_scale);
+
+      if (--mGameState.transition_timer <= 0) mGameState.transition_mode = 0;
+
+      transition_current_x += transition_x_inc;
+      transition_current_y += transition_y_inc;
+
+      transition_current_scale *= transition_scale_multiplier;
+
+      if (!mMain.headless_server)
+      {
+
+         al_set_target_backbuffer(mDisplay.display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         mScreen.draw_screen_frame();
+
+         mLevel.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
+
+         al_flip_display();
+
+
+         //   al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
+         //   al_flip_display();
+         if (mGameState.transition_timer == 99) mInput.tsw();
+
+      }
+   }
+}
 
 
 
@@ -819,6 +959,58 @@ void mwTransitions::proc_gate_enter_mode()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// original blocking transitions
+// -------------------------------------
 
 
 
@@ -961,167 +1153,6 @@ void mwTransitions::do_transition(float fmxi, float fmyi, float fmxf, float fmyf
 
       al_rest(delay);
    }
-
-
 }
-
-
-
-
-
-void mwTransitions::set_transition_mode(int i, int f, int num_steps)
-{
-
-   if (!mMain.headless_server)
-   {
-      mLevel.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1, 0); // redraw entire level in case only region has been drawn
-      al_set_target_backbuffer(mDisplay.display);
-   }
-
-   mLevel.set_screen_display_variables();
-   mLevel.set_level_display_region_xy();
-   mScreen.set_map_var();
-
-   transition_initial_x = 0;
-   transition_initial_y = 0;
-   transition_initial_scale = 1;
-
-   transition_final_x = 0;
-   transition_final_y = 0;
-   transition_final_scale = 1;
-
-   // player's position in level
-   float px = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x;
-   float py = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y;
-
-   if (i == 0) // nothing
-   {
-      transition_initial_x = mDisplay.SCREEN_W/2;
-      transition_initial_y = mDisplay.SCREEN_H/2;
-      transition_initial_scale = 0.005;
-   }
-   if (f == 0) // nothing
-   {
-      transition_final_x = mDisplay.SCREEN_W/2;
-      transition_final_y = mDisplay.SCREEN_H/2;
-      transition_final_scale = 0.005;
-   }
-   if (i == 1) // game
-   {
-      transition_initial_x = mDisplay.scale_factor_current; ///??????
-      transition_initial_y = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_initial_scale;
-   }
-   if (f == 1) // game
-   {
-      transition_final_scale = mDisplay.scale_factor_current;
-      transition_final_x = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_final_scale;
-      transition_final_y = mLevel.screen_display_y + (py - mLevel.level_display_region_y) * transition_final_scale;
-   }
-   if (i == 2) // menu
-   {
-      transition_initial_x = mScreen.menu_level_display_x + px * transition_initial_scale;
-      transition_initial_y = mScreen.menu_level_display_y + py * transition_initial_scale;
-   }
-   if (f == 2) // menu
-   {
-      transition_final_scale = (float)mScreen.menu_level_display_size / 2000;
-      transition_final_x = mScreen.menu_level_display_x + px * transition_final_scale;
-      transition_final_y = mScreen.menu_level_display_y + py * transition_final_scale;
-   }
-   if (i == 3) // gate
-   {
-//      transition_initial_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
-      transition_initial_x = gate_transition_x + px * transition_initial_scale;
-      transition_initial_y = gate_transition_y + py * transition_initial_scale;
-   }
-   if (f == 3) // gate
-   {
-      // restore viewport so transition lines up
-      mLevel.level_display_region_x = gate_transition_wx;
-      mLevel.level_display_region_y = gate_transition_wy;
-      //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
-
-//      transition_final_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
-      transition_final_x = gate_transition_x + px * transition_final_scale;
-      transition_final_y = gate_transition_y + py * transition_final_scale;
-   }
-
-
-
-   // get scale multiplier using compound interest formula
-   transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/num_steps) ) - 1;
-
-   // get x and y incs
-   transition_x_inc = (transition_final_x - transition_initial_x) / num_steps;
-   transition_y_inc = (transition_final_y - transition_initial_y) / num_steps;
-
-   // set initial values
-   transition_current_x = transition_initial_x;
-   transition_current_y = transition_initial_y;
-   transition_current_scale = transition_initial_scale;
-
-
-   mGameState.transition_mode = 1;
-   mGameState.transition_timer = num_steps;
-
-
-   printf("new transition(i: %d   f:%d   steps:%d\n", i, f, num_steps);
-
-   printf("initial: %f   %f   %f \n", transition_initial_x, transition_initial_y, transition_initial_scale);
-   printf("final:   %f   %f   %f \n", transition_final_x, transition_final_y, transition_final_scale);
-   printf("inc:     %f   %f   %f \n", transition_x_inc, transition_y_inc, transition_scale_multiplier);
-
-}
-
-
-
-void mwTransitions::proc_transition_mode()
-{
-   if (mGameState.transition_mode == 1) // do transition
-   {
-
-      printf("proc_transition_mode() - %d  x:%f  y:%f  scale:%f\n", mGameState.transition_timer, transition_current_x, transition_current_y, transition_current_scale);
-
-      if (--mGameState.transition_timer <= 0) mGameState.transition_mode = 0;
-
-      transition_current_x += transition_x_inc;
-      transition_current_y += transition_y_inc;
-
-      transition_current_scale *= transition_scale_multiplier;
-
-      if (!mMain.headless_server)
-      {
-
-
-
-
-         al_set_target_backbuffer(mDisplay.display);
-         al_clear_to_color(al_map_rgb(0,0,0));
-         mScreen.draw_screen_frame();
-
-         mLevel.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
-
-         al_flip_display();
-
-
-         //   al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
-         //   al_flip_display();
-         if (mGameState.transition_timer == 99) mInput.tsw();
-
-
-
-
-
-      }
-   }
-}
-
-
-
-
-
-
-
-
 
 

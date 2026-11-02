@@ -59,16 +59,20 @@ void mwLoop::initialize()
 
    for (int i=0; i<50; i++) sprintf(state_names[i], "%s", "");
 
+
    sprintf(state_names[PM_PROGRAM_STATE_QUIT],                          "QUIT");
    sprintf(state_names[PM_PROGRAM_STATE_MENU],                          "MENU");
    sprintf(state_names[PM_PROGRAM_STATE_CONFIG],                        "CONFIG");
 
-   sprintf(state_names[PM_PROGRAM_STATE_DEMO_RECORD],                   "DEMO_RECORD");
-   sprintf(state_names[PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME],        "SINGLE_PLAYER_NEW_GAME");
-   sprintf(state_names[PM_PROGRAM_STATE_MAIN_GAME_LOOP],                "MAIN_GAME_LOOP");
+   sprintf(state_names[PM_PROGRAM_STATE_GAME_LOOP_RUN],                 "GAME_LOOP_RUN");
    sprintf(state_names[PM_PROGRAM_STATE_NEXT_LEVEL],                    "NEXT_LEVEL");
-   sprintf(state_names[PM_PROGRAM_STATE_RESUME],                        "RESUME");
-   sprintf(state_names[PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT],            "SINGLE_PLAYER_EXIT");
+   sprintf(state_names[PM_PROGRAM_STATE_TRANSITION],                    "TRANSITION");
+   sprintf(state_names[PM_PROGRAM_STATE_GAME_LOOP_QUIT],                "GAME_LOOP_QUIT");
+
+
+   sprintf(state_names[PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME],        "SINGLE_PLAYER_NEW_GAME");
+   sprintf(state_names[PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME],          "SINGLE_PLAYER_RESUME");
+   sprintf(state_names[PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT],            "SINGLE_PLAYER_EXIT");
 
    sprintf(state_names[PM_PROGRAM_STATE_CLIENT_NEW_GAME],               "CLIENT_NEW_GAME");
    sprintf(state_names[PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN],          "CLIENT_WAIT_FOR_JOIN");
@@ -84,6 +88,7 @@ void mwLoop::initialize()
    sprintf(state_names[PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP],   "SERVER_REMOTE_CONTROL_SETUP");
    sprintf(state_names[PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN],     "SERVER_REMOTE_CONTROL_RUN");
 
+   sprintf(state_names[PM_PROGRAM_STATE_DEMO_RECORD],                   "DEMO_RECORD");
 
 
 
@@ -207,7 +212,7 @@ void mwLoop::game_menu()
          }
          if ((top_menu_sel == 2) && (mLevel.resume_allowed))  // resume game
          {
-            state[0] = PM_PROGRAM_STATE_RESUME;
+            state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME;
             quit_action = 1;
             return;
          }
@@ -310,7 +315,7 @@ void mwLoop::game_menu()
          if (top_menu_sel == 3) // settings
          {
             state[0] = PM_PROGRAM_STATE_CONFIG;
-            mLoop.quit_action = 1; // menu
+            quit_action = 1; // menu
             return;
          }
          if (top_menu_sel == 4) // demo mode
@@ -337,7 +342,8 @@ void mwLoop::game_menu()
 
 void mwLoop::proc_program_state_change()
 {
-   //printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
+   //printf("proc ps ps:%d nps:%d  qa:%d  da:%d\n", state[1], state[0], quit_action, done_action);
+
 
    // ----------------------------------------------------------
    // handle all the changes from one state to another
@@ -345,6 +351,7 @@ void mwLoop::proc_program_state_change()
    if (state[0] != state[1])
    {
       mLog.add(LOG_OTH_PROGRAM_STATE, 0, -1, state[1], state[0]);
+
 
 
       // mLog.log_add_prefixed_textf(LOG_OTH_PROGRAM_STATE, 0, "[%4d] --- State change from %2d to %2d  ----  ", mLoop.frame_num, state[1], state[0]);
@@ -355,36 +362,58 @@ void mwLoop::proc_program_state_change()
       // slide all down (now state[0] == state[1])
       for (int i=7; i>0; i--) state[i] = state[i-1];
 
-      if (state[1] == PM_PROGRAM_STATE_MENU) // game menu or fast exit
+      if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_QUIT) // game menu or fast exit
       {
-
 
          if (mLog.autosave_log_on_level_quit) mLog.flush_logs();
 
-
          mSound.stop_sound();
 
-         if (quit_action == 0)
+         if (quit_action == 0) // exit program
          {
-            mTransitions.transition_cutscene(1, 0); // game to nothing
+            //mTransitions.transition_cutscene(1, 0); // game to nothing
             state[0] = PM_PROGRAM_STATE_QUIT; // exit program
             return;
          }
 
-         if (quit_action == 1) // menu (already set)
+         if (quit_action == 1) // menu
          {
+            state[0] = PM_PROGRAM_STATE_MENU;
+            return;
+
+
             // only do this if not returning from settings or demo record
-            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2); // game to menu
+            //if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2); // game to menu
+
+
          }
          if (quit_action == 2)  // overworld
          {
-            mLog.add(LOG_OTH_PROGRAM_STATE, 3, -1); // instead of menu, go to overworld
-            //mLog.log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "instead of menu, go to overworld\n");
             mGameState.level_done_next_level = 1;
-            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
-            quit_action = 1;    // menu
-            done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+
+
             mLevel.add_play_data_record(mLevel.play_level, 0);
+
+            mLog.add(LOG_OTH_PROGRAM_STATE, 3, -1);
+
+
+
+            // here is where I want to patch in my new transition from game to overworld
+
+            // it's similar to level done
+
+            printf("quit level to overworld\n");
+
+            state[0] = PM_PROGRAM_STATE_TRANSITION;
+
+            return;
+
+
+
+            // state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
+            // quit_action = 1;    // menu
+            // done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+
             return;
          }
 
@@ -452,7 +481,7 @@ void mwLoop::proc_program_state_change()
       // do it like this so we can go back to settings if called from there
       if (quit_action != 3) quit_action = 1; // to prevent quitting clients from automatically going to overworld
 
-      state[0] = PM_PROGRAM_STATE_MENU;
+      state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
    }
 
 //-----------------------------------------------------------------
@@ -511,7 +540,7 @@ void mwLoop::proc_program_state_change()
 
       mNetgame.client_apply_dif();
 
-      if (frame_num > 0) state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+      if (frame_num > 0) state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
    }
 
 //---------------------------------------
@@ -535,19 +564,9 @@ void mwLoop::proc_program_state_change()
    {
       if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
       mNetgame.serverExitNetwork();
-      state[0] = PM_PROGRAM_STATE_MENU;
+      state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
    }
 
-//---------------------------------------
-// PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME
-//---------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
-   {
-      if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
-      if (!load_and_setup_level(mLevel.play_level, 0)) state[0] = PM_PROGRAM_STATE_MENU;
-      if (quit_action == 0) mTransitions.transition_cutscene(0, 1); // nothing to game
-      if (quit_action == 1) mTransitions.transition_cutscene(2, 1); // menu to game
-   }
 
 //----------------------------------------------------------------------------------------------------------
 // PM_PROGRAM_STATE_NEXT_LEVEL
@@ -662,7 +681,7 @@ void mwLoop::proc_program_state_change()
 // load the new level
 // ---------------------------------------------------
       mLevel.play_level = mGameState.level_done_next_level;
-      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
+      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
 
 
 //      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
@@ -695,25 +714,39 @@ void mwLoop::proc_program_state_change()
    }
 
 
+
+
+
    //---------------------------------------
-   // PM_PROGRAM_STATE_RESUME
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME
    //---------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_RESUME)
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
+   {
+      if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
+      if (!load_and_setup_level(mLevel.play_level, 0)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+      if (quit_action == 0) mTransitions.transition_cutscene(0, 1); // nothing to game
+      if (quit_action == 1) mTransitions.transition_cutscene(2, 1); // menu to game
+   }
+
+   //---------------------------------------
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME
+   //---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME)
    {
       mSound.start_sound(1); // resume theme
 //      mTransitions.transition_cutscene(2, 1); // menu to game
-      state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+      state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
    }
 
 
    //---------------------------------------
    // PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT
    //---------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT)
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT)
    {
       mLevel.resume_allowed = 1;
       if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
-      state[0] = PM_PROGRAM_STATE_MENU;
+      state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
    }
 
 
@@ -835,7 +868,7 @@ int mwLoop::load_and_setup_level(int level, int type)
       {
          mSound.start_sound(0); // rewind and start theme
 
-         state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+         state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
 
          mLog.add(LOG_NET, LOG_NET_SUBTYPE_LEVEL_STARTED, -1, mLevel.play_level); // LEVEL STARTED
 
@@ -972,7 +1005,7 @@ void mwLoop::main_loop()
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
 
-         if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
+         if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_RUN) // game loop running
          {
             frame_num++;
             frame_start_timestamp = al_get_time();
@@ -1033,6 +1066,7 @@ void mwLoop::main_loop()
             mDrawSequence.ds_draw(0, 1);
 
 
+
             mPacketBuffer.check_for_packets();
 
 
@@ -1073,7 +1107,7 @@ void mwLoop::main_loop()
       if (mEventQueue.program_update_1s)
       {
          mEventQueue.program_update_1s = 0;
-         if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
+         if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_RUN) // game loop running
          {
             if (mNetgame.ima_client)
             {

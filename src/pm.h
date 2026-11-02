@@ -95,13 +95,15 @@
 #define PM_PROGRAM_STATE_MENU                           1
 #define PM_PROGRAM_STATE_CONFIG                         3
 
-#define PM_PROGRAM_STATE_DEMO_RECORD                    7
+#define PM_PROGRAM_STATE_GAME_LOOP_RUN                  4
+#define PM_PROGRAM_STATE_NEXT_LEVEL                     5
+#define PM_PROGRAM_STATE_TRANSITION                     6
+#define PM_PROGRAM_STATE_GAME_LOOP_QUIT                 7
 
-#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        10
-#define PM_PROGRAM_STATE_MAIN_GAME_LOOP                11
-#define PM_PROGRAM_STATE_NEXT_LEVEL                    12
-#define PM_PROGRAM_STATE_RESUME                        13
-#define PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT            14
+
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        15
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME          16
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT            17
 
 #define PM_PROGRAM_STATE_CLIENT_NEW_GAME               20
 #define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          21
@@ -116,6 +118,8 @@
 
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
+
+#define PM_PROGRAM_STATE_DEMO_RECORD                   45
 
 
 

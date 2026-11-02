@@ -314,7 +314,7 @@ void mwDemoMode::run_single_from_gate(const int lev)
    if ((mGameMoves.load_demo_level(lev)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(3, 1, -1);
    mLevel.play_level = 1;
    mLoop.load_and_setup_level(1, 0);
-   mLoop.state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+   mLoop.state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
    play_mode_active = 0;
 }
 

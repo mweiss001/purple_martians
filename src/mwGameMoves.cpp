@@ -421,7 +421,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       if ((mLevel.mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (mLevel.mPlayer.active_local_player == 0))
       {
-         mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT;
+         mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT;
          return;
       }
 

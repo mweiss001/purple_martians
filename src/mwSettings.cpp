@@ -403,6 +403,9 @@ int mwSettings::settings_pages_redraw(int disable_input)
 
 void mwSettings::settings_pages(int set_page)
 {
+   printf("settings\n");
+
+
    // if esc is pressed on entry, wait for release
    while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
 

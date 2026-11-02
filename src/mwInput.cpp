@@ -371,14 +371,6 @@ void mwInput::serial_key_check(int key)
    }
 
 
-
-   if (serial_key_test("demr"))
-   {
-      if (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
-      else if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
-   }
-
-
    mLevel.skc_trigger_demo = 0;
 
    if ((serial_key_test("demo")) || (serial_key_test("DEMO"))) mLevel.skc_trigger_demo = 1;
@@ -441,7 +433,7 @@ void mwInput::function_key_check()
 
 
 
-   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) || (mDemoMode.play_mode_active)) // only do these when game is running or in level editor
+   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_GAME_LOOP_RUN) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) || (mDemoMode.play_mode_active)) // only do these when game is running or in level editor
    {
       // zoom controls
       if (key[function_key_zoom_out][0]) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);

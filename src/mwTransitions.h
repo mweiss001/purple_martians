@@ -5,33 +5,43 @@ class mwTransitions
    public:
 
 
+   // gate enter
+   // --------------------------------
+   void proc_gate_enter_mode();
+   int gate_enter_seek_time = 40;
+   int gate_enter_rotate_time = 40;
+   int gate_enter_num_rotations = 4;
+   float gate_enter_player_final_scale = .1;
+   int gate_enter_transition_time = 40;
+
+
    // level done
    // --------------------------------
    void proc_level_done_mode();
-
-   ALLEGRO_BITMAP * cutscene_background;
-   float cutscene_original_zoom;
-   float cutscene_accel;
-   float cutscene_bg_x;
-
-
    int level_done_seek_time = 20;
    int level_done_rotate_time = 20;
    float level_done_num_rotations = 2;
    float level_done_player_final_scale = .1;
    float level_done_transition_time = 40;
 
+   // rocket move
+   // ----------------
+   ALLEGRO_BITMAP * cutscene_background;
+   float cutscene_original_zoom;
+   float cutscene_accel;
+   float cutscene_bg_x;
 
-   // gate enter
-   // --------------------------------
 
-   void proc_gate_enter_mode();
 
-   int gate_enter_seek_time = 40;
-   int gate_enter_rotate_time = 40;
-   int gate_enter_num_rotations = 4;
-   float gate_enter_player_final_scale = .1;
-   int gate_enter_transition_time = 40;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -58,6 +68,11 @@ class mwTransitions
 
    int transition_steps = 60;
 
+
+
+
+   // original blocking transitions
+   // -------------------------------------
 
    void transition_cutscene(int i, int f);
    void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);

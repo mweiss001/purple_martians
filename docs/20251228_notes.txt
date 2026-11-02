@@ -49422,6 +49422,208 @@ there is aleady something at the end of demo...
 it uses the old transitions
 
 
+2026-11-02 05:03:59
+the next transistion I want to do is quitting level to overworld
+
+where will I patch that in?
+
+use the new transition mode:
+
+void mwTransitions::proc_transition_mode()
+
+
+I could intercept at game state level done...or before that...like the others do...
+
+
+
+I am looking at where to patch this in and I am thinking of changing program states
+
+
+it looks like I am using PM_PROGRAM_STATE_MENU for all quit cases
+
+then I decide whether or not to go to menu, quit the program, go to overworld or settings
+
+
+I think it wouod be more clear if I renamed that to GAME_QUIT or something like that.
+
+Then I could choose where to go after that...
+
+And I want to add PROGRAM_STATE_TRANSITION
+
+
+
+rename 
+
+#define PM_PROGRAM_STATE_QUIT                           0
+#define PM_PROGRAM_STATE_MENU                           1
+#define PM_PROGRAM_STATE_CONFIG                         3
+
+#define PM_PROGRAM_STATE_GAME_LOOP_RUN                  4
+#define PM_PROGRAM_STATE_NEXT_LEVEL                     5
+#define PM_PROGRAM_STATE_TRANSITION                     6
+#define PM_PROGRAM_STATE_GAME_LOOP_QUIT                 7
+
+
+
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        15
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME          16
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT            17
+
+#define PM_PROGRAM_STATE_CLIENT_NEW_GAME               20
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          21
+#define PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP            22
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE 23
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT1               24
+#define PM_PROGRAM_STATE_CLIENT_PREEXIT2               25
+#define PM_PROGRAM_STATE_CLIENT_EXIT                   26
+
+#define PM_PROGRAM_STATE_SERVER_NEW_GAME               30
+#define PM_PROGRAM_STATE_SERVER_EXIT                   31
+
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
+
+
+#define PM_PROGRAM_STATE_DEMO_RECORD                   50
+
+done
+
+
+now see iff I can patch in
+
+#define PM_PROGRAM_STATE_GAME_LOOP_QUIT                 7
+
+
+
+in void mwNetgame::client_apply_dif()
+
+   // server quit
+//   if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+
+   if (mLevel.mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN) mLoop.state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+   
+   
+old:   
+   
+void mwLoop::proc_program_state_change()
+{
+   //printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
+
+   // ----------------------------------------------------------
+   // handle all the changes from one state to another
+   // ----------------------------------------------------------
+   if (state[0] != state[1])
+   {
+      mLog.add(LOG_OTH_PROGRAM_STATE, 0, -1, state[1], state[0]);
+
+
+      // mLog.log_add_prefixed_textf(LOG_OTH_PROGRAM_STATE, 0, "[%4d] --- State change from %2d to %2d  ----  ", mLoop.frame_num, state[1], state[0]);
+      // for (int i=0; i<8; i++) mLog.log_append_textf(LOG_OTH_PROGRAM_STATE, "%2d ", state[i]);
+      // mLog.log_append_textf(LOG_OTH_PROGRAM_STATE, " --- [qa:%d] [da:%d]\n", quit_action, done_action);
+
+
+      // slide all down (now state[0] == state[1])
+      for (int i=7; i>0; i--) state[i] = state[i-1];
+
+      if (state[1] == PM_PROGRAM_STATE_MENU) // game menu or fast exit
+      {
+
+
+         if (mLog.autosave_log_on_level_quit) mLog.flush_logs();
+
+
+         mSound.stop_sound();
+
+         if (quit_action == 0)
+         {
+            mTransitions.transition_cutscene(1, 0); // game to nothing
+            state[0] = PM_PROGRAM_STATE_QUIT; // exit program
+            return;
+         }
+
+         if (quit_action == 1) // menu (already set)
+         {
+            // only do this if not returning from settings or demo record
+            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2); // game to menu
+         }
+         if (quit_action == 2)  // overworld
+         {
+            mLog.add(LOG_OTH_PROGRAM_STATE, 3, -1); // instead of menu, go to overworld
+            //mLog.log_add_prefixed_text(LOG_OTH_PROGRAM_STATE, 0, "instead of menu, go to overworld\n");
+            mGameState.level_done_next_level = 1;
+            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
+            quit_action = 1;    // menu
+            done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+            mLevel.add_play_data_record(mLevel.play_level, 0);
+            return;
+         }
+
+         if (quit_action == 3)  // settings
+         {
+            mLog.add(LOG_OTH_PROGRAM_STATE, 4, -1); // instead of menu, go to settings
+            state[0] = PM_PROGRAM_STATE_CONFIG;
+            quit_action = 1; // set new quit action to menu
+            return;
+         }
+      }
+   }
+
+
+
+I will start the process by setting:
+
+            state[0] = PM_PROGRAM_STATE_TRANSITION;
+            
+wait, do I really want to do it this way?
+
+I need to stay in the game loop mode to keep netgame running...
+
+
+Here is a really crazy thought....
+can I decouple the netgame packet exchange thing from the game loop?
+you are right, that is crazy...
+
+don't do the state PM_PROGRAM_STATE_TRANSITION
+
+do it like level done and gate entry
+
+now I am second guessing that as well
+
+do I want it to be blocking or non blocking?
+
+I suppose I could do both..
+
+I could use the same variables, but have separate players, one for blocking and one for non blocking
+
+
+I will use the non blocking ones only for things that coould possibly be in netgame...
+level_done
+gate_entry
+next level in classic mode
+
+the blocking ones could be used in all other cases
+
+this seems complex, and I would like to see if I could simplify and only have one method that works for all...
+
+2026-11-02 07:10:45
+
+go do breakfast and go to work...
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            
+
+
 
 
 
