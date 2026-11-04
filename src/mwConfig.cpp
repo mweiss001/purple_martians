@@ -15,7 +15,6 @@
 #include "mwEditorMain.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwInput.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"

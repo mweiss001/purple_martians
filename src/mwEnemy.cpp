@@ -8,7 +8,6 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwShot.h"
 #include "mwGameEvent.h"
 #include "mwLevel.h"
 #include "mwDemoRecord.h"
@@ -214,20 +213,20 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
    float y2 = Ef[e][1] + cb;
 
    for (int c=0; c<50; c++)
-      if (mShot.p[c].active)
+      if (m_parent.mShot.p[c].active)
       {
          // shot position
-         float x = mShot.p[c].x;
-         float y = mShot.p[c].y;
+         float x = m_parent.mShot.p[c].x;
+         float y = m_parent.mShot.p[c].y;
 
          // adjust enemy collision box with shot speed
-         float cx = fabs(mShot.p[c].xinc/2);
-         float cy = fabs(mShot.p[c].yinc/2);
+         float cx = fabs(m_parent.mShot.p[c].xinc/2);
+         float cy = fabs(m_parent.mShot.p[c].yinc/2);
 
          if ((x > x1-cx) && (x < x2+cx) && (y > y1-cy) && (y < y2+cy))
          {
             //printf("hit!\n");
-            int p = mShot.p[c].player;         // player number of shot
+            int p = m_parent.mShot.p[c].player;         // player number of shot
             Ei[e][31] = 1;                     // flag that this enemy got shot
             Ei[e][26] = p;                     // number of player that shot enemy
 
@@ -236,11 +235,11 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 
 
             m_parent.mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
-            mDemoRecord.mark_player_shot_used(p, mShot.p[c].active, 1);
+            mDemoRecord.mark_player_shot_used(p, m_parent.mShot.p[c].active, 1);
 
-            mGameEvent.add(43, 0, 0, p, e, hc, mShot.p[c].active); // event 43 - enemy shot
+            mGameEvent.add(43, 0, 0, p, e, hc, m_parent.mShot.p[c].active); // event 43 - enemy shot
 
-            mShot.p[c].active = 0;             // shot dies
+            m_parent.mShot.p[c].active = 0;             // shot dies
 
 
          }

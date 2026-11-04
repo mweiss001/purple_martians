@@ -1,5 +1,10 @@
 // mwShot.h
 
+#ifndef mwShot_H
+#define mwShot_H
+
+
+
 struct eshot
 {
    int active;
@@ -20,9 +25,21 @@ struct pshot
    float yinc;
 };
 
+// forward declaration
+class mwLevel;
+
+
 class mwShot
 {
-   public:
+
+private:
+   mwLevel& m_parent; // Store a reference to parent
+
+
+public:
+
+   mwShot(mwLevel& parent) : m_parent(parent) {  } // default constructor
+
 
    struct eshot e[50];
    struct pshot p[50];
@@ -56,7 +73,7 @@ class mwShot
 
 
 };
-extern mwShot mShot;
 
+#endif // mwShot_H
 
 

@@ -661,7 +661,7 @@ void mwNetgame::server_reload(int level)
    {
       if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
       if (level == -1) level = mLevel.play_level;
-      mGameState.level_done_mode = 3;
+      mGameState.level_done_mode = 1;
       mGameState.level_done_timer = 0;
       mGameState.level_done_next_level = level;
    }

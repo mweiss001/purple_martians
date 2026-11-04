@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwShot.h"
-#include "mwNetgame.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
@@ -13,33 +12,31 @@
 #include "mwGameState.h"
 
 
-mwShot mShot;
-
-void mwShot::proc_pshot_collision(int p, int b)
+void mwShot::proc_pshot_collision(int pl, int b)
 {
-   mLevel.mPlayer.syn[p].health -= mGameState.player_vs_player_shot_damage;
+   m_parent.mPlayer.syn[pl].health -= mGameState.player_vs_player_shot_damage;
 
-   float bxinc = mShot.p[b].xinc/3;
+   float bxinc = p[b].xinc/3;
 
-   if (bxinc > 0) mLevel.mPlayer.syn[p].right_xinc += bxinc;
-   if (bxinc < 0) mLevel.mPlayer.syn[p].left_xinc += bxinc;
+   if (bxinc > 0) m_parent.mPlayer.syn[pl].right_xinc += bxinc;
+   if (bxinc < 0) m_parent.mPlayer.syn[pl].left_xinc += bxinc;
 
-   if (mLevel.mPlayer.syn[p].right_xinc > 4) mLevel.mPlayer.syn[p].right_xinc = 4;
-   if (mLevel.mPlayer.syn[p].left_xinc < -4) mLevel.mPlayer.syn[p].left_xinc = -4;
+   if (m_parent.mPlayer.syn[pl].right_xinc > 4) m_parent.mPlayer.syn[pl].right_xinc = 4;
+   if (m_parent.mPlayer.syn[pl].left_xinc < -4) m_parent.mPlayer.syn[pl].left_xinc = -4;
 
-   mLevel.mPlayer.syn[p].yinc += mShot.p[b].yinc/2;
-   if (mLevel.mPlayer.syn[p].yinc >  5) mLevel.mPlayer.syn[p].yinc =  5;
-   if (mLevel.mPlayer.syn[p].yinc < -5) mLevel.mPlayer.syn[p].yinc = -5;
+   m_parent.mPlayer.syn[pl].yinc += p[b].yinc/2;
+   if (m_parent.mPlayer.syn[pl].yinc >  5) m_parent.mPlayer.syn[pl].yinc =  5;
+   if (m_parent.mPlayer.syn[pl].yinc < -5) m_parent.mPlayer.syn[pl].yinc = -5;
 
-   if (mShot.p[b].yinc < 0)  // player got shot from below
+   if (p[b].yinc < 0)  // player got shot from below
    {
-      mLevel.mPlayer.syn[p].player_ride = 0;
-      mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
+      m_parent.mPlayer.syn[pl].player_ride = 0;
+      m_parent.mPlayer.syn[pl].y += m_parent.mPlayer.syn[pl].yinc;
    }
 
-   mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 2);
+   mDemoRecord.mark_player_shot_used(p[b].player, p[b].active, 2);
 
-   mShot.p[b].active = 0;  // shot dies
+   p[b].active = 0;  // shot dies
 }
 
 
@@ -49,7 +46,7 @@ int mwShot::find_empty_pshot()
    int index = -1;
 
    for (int b=0; b<50; b++)
-      if (!mShot.p[b].active) index = b;
+      if (!p[b].active) index = b;
 
    if (index == -1) // array is full !
    {
@@ -57,9 +54,9 @@ int mwShot::find_empty_pshot()
       int lowest_fn = 9999999;
       for (int b=0; b<50; b++)
       {
-         if (mShot.p[b].active < lowest_fn)
+         if (p[b].active < lowest_fn)
          {
-            lowest_fn = mShot.p[b].active;
+            lowest_fn = p[b].active;
             index = b;
          }
       }
@@ -69,50 +66,50 @@ int mwShot::find_empty_pshot()
 
 
 
-void mwShot::proc_player_shoot(int p)
+void mwShot::proc_player_shoot(int pl)
 {
-   float x = mLevel.mPlayer.syn[p].x;
-   float y = mLevel.mPlayer.syn[p].y;
-   float bs = (float) mLevel.mPlayer.syn[p].shot_speed;
+   float x = m_parent.mPlayer.syn[pl].x;
+   float y = m_parent.mPlayer.syn[pl].y;
+   float bs = (float) m_parent.mPlayer.syn[pl].shot_speed;
 
-   if (mLevel.mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_FIRE)) // fire pressed this frame, but not last frame
+   if (m_parent.mPlayer.if_players_ctrl_just_pressed(pl, PM_COMPMOVE_FIRE)) // fire pressed this frame, but not last frame
    {
-      if (mLevel.mPlayer.syn[p].shot_wait_counter < 1)
+      if (m_parent.mPlayer.syn[pl].shot_wait_counter < 1)
       {
-         mLevel.mPlayer.syn[p].stat_shots_fired++;
+         m_parent.mPlayer.syn[pl].stat_shots_fired++;
 
          int b = find_empty_pshot();
          if (b != -1)
          {
-            mShot.p[b].active = mLoop.frame_num;
-            mShot.p[b].player = p;
-            mShot.p[b].x = x;
-            mShot.p[b].y = y + 1;
-            mShot.p[b].xinc = 0;
-            mShot.p[b].yinc = 0;
+            p[b].active = mLoop.frame_num;
+            p[b].player = pl;
+            p[b].x = x;
+            p[b].y = y + 1;
+            p[b].xinc = 0;
+            p[b].yinc = 0;
 
-            if (mLevel.mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
-            else mShot.p[b].x = x-3;
+            if (m_parent.mPlayer.syn[pl].left_right) p[b].x = x+4;
+            else p[b].x = x-3;
 
-            if      (mLevel.mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
-            else if (mLevel.mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
-            else                           mShot.p[b].xinc = (mLevel.mPlayer.syn[p].left_right*bs*2) - bs;
+            if      (m_parent.mPlayer.syn[pl].up)    p[b].yinc = -bs;
+            else if (m_parent.mPlayer.syn[pl].down)  p[b].yinc =  bs;
+            else                                  p[b].xinc = (m_parent.mPlayer.syn[pl].left_right*bs*2) - bs;
 
             // if this line is not here player cannot shoot breakable blocks when directly in front of them (when facing right/left??
-            if ((!mLevel.mPlayer.syn[p].up) && (!mLevel.mPlayer.syn[p].down) && (mLevel.mPlayer.syn[p].left_right)) mShot.p[b].x -=1;
+            if ((!m_parent.mPlayer.syn[pl].up) && (!m_parent.mPlayer.syn[pl].down) && (m_parent.mPlayer.syn[pl].left_right)) p[b].x -=1;
 
             // initial move
-            mShot.p[b].x += mShot.p[b].xinc;  // xinc
-            mShot.p[b].y += mShot.p[b].yinc;  // yinc
+            p[b].x += p[b].xinc;  // xinc
+            p[b].y += p[b].yinc;  // yinc
 
-            mLevel.mPlayer.syn[p].shot_wait_counter = mLevel.mPlayer.syn[p].shot_wait;
+            m_parent.mPlayer.syn[pl].shot_wait_counter = m_parent.mPlayer.syn[pl].shot_wait;
 
-            mGameEvent.add(1, x, y, p, b, 0, 0);
+            mGameEvent.add(1, x, y, pl, b, 0, 0);
          }
          else printf("player shot array full!\n");
       }
    }
-   if (mLevel.mPlayer.syn[p].shot_wait_counter > 0) mLevel.mPlayer.syn[p].shot_wait_counter--;
+   if (m_parent.mPlayer.syn[pl].shot_wait_counter > 0) m_parent.mPlayer.syn[pl].shot_wait_counter--;
 }
 
 
@@ -122,52 +119,49 @@ void mwShot::move_pshots()
 
    // move and process wall collisions
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active)
+      if (p[b].active)
       {
          num_pshots++;
 
          // move
-         mShot.p[b].x += mShot.p[b].xinc;
-         mShot.p[b].y += mShot.p[b].yinc;
+         p[b].x += p[b].xinc;
+         p[b].y += p[b].yinc;
 
          // bounds check
-         if ((mShot.p[b].x < 5) || (mShot.p[b].x > 1995) || (mShot.p[b].y<5) || (mShot.p[b].y > 1995) ) mShot.p[b].active = 0;
+         if ((p[b].x < 5) || (p[b].x > 1995) || (p[b].y<5) || (p[b].y > 1995) ) p[b].active = 0;
 
          // level block collision
-         int x = ((mShot.p[b].x+10) / 20);
-         int y = ((mShot.p[b].y+10) / 20);
-         int d = mLevel.l[x][y];
-
+         int x = ((p[b].x+10) / 20);
+         int y = ((p[b].y+10) / 20);
+         int d = m_parent.l[x][y];
 
          if (d & PM_BTILE_BREAKABLE_PSHOT)
          {
-            mLevel.change_block(x, y, 0);
-            mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 6);
-            mShot.p[b].active = 0;  // shot is done
+            m_parent.change_block(x, y, 0);
+            mDemoRecord.mark_player_shot_used(p[b].player, p[b].active, 6);
+            p[b].active = 0;  // shot is done
          }
-
-         if (d & PM_BTILE_SOLID_PBUL) mShot.p[b].active = 0;  // shot hit solid wall, done
-
+         if (d & PM_BTILE_SOLID_PBUL) p[b].active = 0;  // shot hit solid wall, done
       }
 }
 
 void mwShot::draw_pshots()
 {
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active)
+      if (p[b].active)
       {
-         al_draw_bitmap(mBitmap.player_tile[mLevel.mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
+         al_draw_bitmap(mBitmap.player_tile[m_parent.mPlayer.syn[p[b].player].color][18], p[b].x, p[b].y, 0);
 
          // overlay frame number of when bullet was shot (useful for doing multiplayer recording)
-         if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) al_draw_textf(mFont.pixl, mColor.pc[15], mShot.p[b].x+10, mShot.p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", mShot.p[b].active);
+         if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) al_draw_textf(mFont.pixl, mColor.pc[15], p[b].x+10, p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", p[b].active);
       }
 }
 
-void mwShot::proc_eshot_collision(int p, int b)
+void mwShot::proc_eshot_collision(int pl, int b)
 {
    int damage = 0;
    int e_type = 0;
-   switch (mShot.e[b].shape)
+   switch (e[b].shape)
    {
       case 488:   e_type = 3;  damage = 5;  break; // arrow
       case 489:   e_type = 3;  damage = 5;  break; // arrow
@@ -176,27 +170,27 @@ void mwShot::proc_eshot_collision(int p, int b)
       case 1054:  e_type = 7;  damage = 10; break; // green ball
       case 1062:  e_type = 12; damage = 8;  break; // flapper thing
    }
-   mLevel.mPlayer.syn[p].health -= damage;
-   mGameEvent.add(41, 0, 0, p, e_type, 2, damage);
+   m_parent.mPlayer.syn[pl].health -= damage;
+   mGameEvent.add(41, 0, 0, pl, e_type, 2, damage);
 
    // recoil !!
-   if (mShot.e[b].xinc > 0)
+   if (e[b].xinc > 0)
    {
-      mLevel.mPlayer.syn[p].right_xinc += mShot.e[b].xinc/2;
-      if (mLevel.mPlayer.syn[p].right_xinc > 4) mLevel.mPlayer.syn[p].right_xinc = 4;
+      m_parent.mPlayer.syn[pl].right_xinc += e[b].xinc/2;
+      if (m_parent.mPlayer.syn[pl].right_xinc > 4) m_parent.mPlayer.syn[pl].right_xinc = 4;
    }
-   if (mShot.e[b].xinc < 0)
+   if (e[b].xinc < 0)
    {
-      mLevel.mPlayer.syn[p].left_xinc += mShot.e[b].xinc/2;
-      if (mLevel.mPlayer.syn[p].left_xinc < -4) mLevel.mPlayer.syn[p].left_xinc = -4;
+      m_parent.mPlayer.syn[pl].left_xinc += e[b].xinc/2;
+      if (m_parent.mPlayer.syn[pl].left_xinc < -4) m_parent.mPlayer.syn[pl].left_xinc = -4;
    }
 
-   mLevel.mPlayer.syn[p].yinc += mShot.e[b].yinc/2;
+   m_parent.mPlayer.syn[pl].yinc += e[b].yinc/2;
 
-   if (mLevel.mPlayer.syn[p].yinc >  5) mLevel.mPlayer.syn[p].yinc =  5;
-   if (mLevel.mPlayer.syn[p].yinc < -8) mLevel.mPlayer.syn[p].yinc = -8;
+   if (m_parent.mPlayer.syn[pl].yinc >  5) m_parent.mPlayer.syn[pl].yinc =  5;
+   if (m_parent.mPlayer.syn[pl].yinc < -8) m_parent.mPlayer.syn[pl].yinc = -8;
 
-   mShot.e[b].active = 0; // shot dies
+   e[b].active = 0; // shot dies
 }
 
 void mwShot::move_eshots()
@@ -215,11 +209,11 @@ void mwShot::move_eshots()
          // check if hit wall (or more accurately if co-located with a block)
          int xi = (e[b].x+10)/20;
          int yi = (e[b].y+10)/20;
-         int d = mLevel.l[xi][yi];
+         int d = m_parent.l[xi][yi];
          if (d & PM_BTILE_SOLID_EBUL)  // shot hit solid or breakable wall
          {
             e[b].active = 0;                                   // shot dies
-            if (d & PM_BTILE_BREAKABLE_ESHOT) mLevel.change_block(xi, yi, 0); // breakable wall
+            if (d & PM_BTILE_BREAKABLE_ESHOT) m_parent.change_block(xi, yi, 0); // breakable wall
          }
       }
 }
@@ -254,19 +248,19 @@ void mwShot::clear_shots()
 {
    for (int b=0; b<50; b++)
    {
-      mShot.e[b].active = 0;
-      mShot.e[b].shape  = 0;
-      mShot.e[b].xinc   = 0;
-      mShot.e[b].yinc   = 0;
-      mShot.e[b].y      = 0;
-      mShot.e[b].x      = 0;
+      e[b].active = 0;
+      e[b].shape  = 0;
+      e[b].xinc   = 0;
+      e[b].yinc   = 0;
+      e[b].y      = 0;
+      e[b].x      = 0;
 
-      mShot.p[b].active = 0;
-      mShot.p[b].player = 0;
-      mShot.p[b].xinc   = 0;
-      mShot.p[b].yinc   = 0;
-      mShot.p[b].y      = 0;
-      mShot.p[b].x      = 0;
+      p[b].active = 0;
+      p[b].player = 0;
+      p[b].xinc   = 0;
+      p[b].yinc   = 0;
+      p[b].y      = 0;
+      p[b].x      = 0;
 
    }
 }
@@ -279,7 +273,7 @@ int mwShot::find_empty_eshot()
    int index = -1;
 
    for (int b=0; b<50; b++)
-      if (!mShot.e[b].active) index = b;
+      if (!e[b].active) index = b;
 
    if (index == -1) // array is full !
    {
@@ -290,9 +284,9 @@ int mwShot::find_empty_eshot()
       int lowest_fn = 9999999;
       for (int b=0; b<50; b++)
       {
-         if (mShot.e[b].active < lowest_fn)
+         if (e[b].active < lowest_fn)
          {
-            lowest_fn = mShot.e[b].active;
+            lowest_fn = e[b].active;
             index = b;
          }
       }
@@ -303,12 +297,12 @@ int mwShot::find_empty_eshot()
 
 
 
-void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
+void mwShot::fire_enemy_shotz(int en, int shot_ans, float px, float py)
 {
-   float xlen = px - mLevel.mEnemy.Ef[e][0];   // get the x distance between enemy and player
-   float ylen = py - mLevel.mEnemy.Ef[e][1];   // get the y distance between enemy and player
+   float xlen = px - m_parent.mEnemy.Ef[en][0];   // get the x distance between enemy and player
+   float ylen = py - m_parent.mEnemy.Ef[en][1];   // get the y distance between enemy and player
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
-   float speed = mLevel.mEnemy.Ef[e][7];            // speed
+   float speed = m_parent.mEnemy.Ef[en][7];            // speed
    float scaler = hy_dist / speed;    // get scaler
    float xinc = xlen / scaler;        // calc xinc
    float yinc = ylen / scaler;        // calc yinc
@@ -317,33 +311,33 @@ void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
    int b = find_empty_eshot();
       if (b != -1)
       {
-         mShot.e[b].active = mLoop.frame_num;
-         mShot.e[b].shape = 1000 + shot_ans;
-         mShot.e[b].x = mLevel.mEnemy.Ef[e][0];
-         mShot.e[b].y = mLevel.mEnemy.Ef[e][1];
-         mShot.e[b].xinc = xinc;
-         mShot.e[b].yinc = yinc;
+         e[b].active = mLoop.frame_num;
+         e[b].shape = 1000 + shot_ans;
+         e[b].x = m_parent.mEnemy.Ef[en][0];
+         e[b].y = m_parent.mEnemy.Ef[en][1];
+         e[b].xinc = xinc;
+         e[b].yinc = yinc;
       }
 }
-void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
+void mwShot::fire_enemy_shota(int en, int shot_ans, int p)
 {
    float rx, ry;
-   calc_where_player_will_be(e, p, rx, ry);
-   fire_enemy_shotz(e, shot_ans, rx, ry);
+   calc_where_player_will_be(en, p, rx, ry);
+   fire_enemy_shotz(en, shot_ans, rx, ry);
 }
 
-void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
+void mwShot::calc_where_player_will_be(int en, int pl, float& rx, float& ry)
 {
    // origin of the shot and velocity with no direction
-   float bx = mLevel.mEnemy.Ef[e][0];
-   float by = mLevel.mEnemy.Ef[e][1];
-   float bv = mLevel.mEnemy.Ef[e][7];
+   float bx = m_parent.mEnemy.Ef[en][0];
+   float by = m_parent.mEnemy.Ef[en][1];
+   float bv = m_parent.mEnemy.Ef[en][7];
 
    // targetted player x and y and velocity xinc and yinc
-   float px  = mLevel.mPlayer.syn[p].x;
-   float py  = mLevel.mPlayer.syn[p].y;
-   float pvx = mLevel.mPlayer.syn[p].xinc;
-   float pvy = mLevel.mPlayer.syn[p].yinc;
+   float px  = m_parent.mPlayer.syn[pl].x;
+   float py  = m_parent.mPlayer.syn[pl].y;
+   float pvx = m_parent.mPlayer.syn[pl].xinc;
+   float pvy = m_parent.mPlayer.syn[pl].yinc;
 
 
    // Edgar's method
@@ -385,26 +379,26 @@ void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
    }
 }
 
-void mwShot::fire_enemy_x_shot(int e, int p)
+void mwShot::fire_enemy_x_shot(int en, int pl)
 {
-   float x_shot_speed = mLevel.mEnemy.Ef[e][7];
+   float x_shot_speed = m_parent.mEnemy.Ef[en][7];
    for (int b=0; b<50; b++)  // find empty e_shot
-      if (!mShot.e[b].active)
+      if (!e[b].active)
       {
-         mShot.e[b].active = 1;
-         mShot.e[b].yinc = 0;
-         mShot.e[b].x = mLevel.mEnemy.Ef[e][0];
-         mShot.e[b].y = mLevel.mEnemy.Ef[e][1];
+         e[b].active = 1;
+         e[b].yinc = 0;
+         e[b].x = m_parent.mEnemy.Ef[en][0];
+         e[b].y = m_parent.mEnemy.Ef[en][1];
 
-         if (mLevel.mEnemy.Ef[e][0] < mLevel.mPlayer.syn[p].x)
+         if (m_parent.mEnemy.Ef[en][0] < m_parent.mPlayer.syn[pl].x)
          {
-            mShot.e[b].xinc = x_shot_speed;
-            mShot.e[b].shape = 488;
+            e[b].xinc = x_shot_speed;
+            e[b].shape = 488;
          }
-         if (mLevel.mEnemy.Ef[e][0] >= mLevel.mPlayer.syn[p].x)
+         if (m_parent.mEnemy.Ef[en][0] >= m_parent.mPlayer.syn[pl].x)
          {
-            mShot.e[b].xinc = -x_shot_speed;
-            mShot.e[b].shape = 489;
+            e[b].xinc = -x_shot_speed;
+            e[b].shape = 489;
          }
          b=50; // end loop
       }

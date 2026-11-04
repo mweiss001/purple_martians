@@ -121,10 +121,10 @@ void mwItem::set_player_start_pos(int p)
    if (m_parent.last_level_loaded == 1)
    {
       item_to_get_start_from = find_gate_for_player(p);
-      // if (item_to_get_start_from == -1)
-      // {
-      //    printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
-      // }
+      if (item_to_get_start_from == -1)
+      {
+         //printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
+      }
       // else printf("Player:%d entering overworld, found gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
 
    }
@@ -229,7 +229,7 @@ void mwItem::proc_exit_collision(int p, int i)
    {
       if ((mGameState.level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
       {
-         mGameState.level_done_mode = 9;
+         mGameState.level_done_mode = 12;
          mGameState.level_done_timer = 0;
          mGameState.level_done_x = itemf[i][0];
          mGameState.level_done_y = itemf[i][1];
@@ -371,8 +371,8 @@ void mwItem::draw_level_icon(int i)
    // draw and frame the level name
    int xc = item[i][4] + 10; // x center of gate tile
    char name[80];
-   sprintf(name, "%d %s", level, mLevel.data[level].level_name);
-
+   strcpy(name, mLevel.data[level].level_name);
+   if (mLevel.level_stats_show_level_number) sprintf(name, "%d %s", level, mLevel.data[level].level_name);
    mScreen.draw_framed_text(xc, ly1-9, 0, mFont.pixl, color, 15, name);
 }
 
@@ -528,6 +528,12 @@ void mwItem::draw_level_icon_direct_to_screen(int i)
    {
       l2.draw_level3(NULL, level, ex1, ey1, esize, 1, 1, 1, 1, 0, 0 );
    }
+   // if l2 does not have the level we want, try mLevel
+   else if (mLevel.valid_level_loaded && mLevel.last_level_loaded == level)
+   {
+      mLevel.draw_level2(NULL, ex1, ey1, esize, 1, 1, 1, 1, 0, 0 );
+   }
+   // last resort, draw from stored level icons (low res)
    else
    {
       mLevelIcons.draw_level_icon(level, ex1, ey1, esize);
@@ -718,10 +724,9 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
    // draw the framed level name
    float ya = by - size - 12 + o;
 
-
    char name[80];
-   sprintf(name, "%d %s", level, mLevel.data[level].level_name);
-
+   strcpy(name, mLevel.data[level].level_name);
+   if (mLevel.level_stats_show_level_number) sprintf(name, "%d %s", level, mLevel.data[level].level_name);
    mScreen.draw_framed_text(xc, ya, 0, mFont.pr8, color, 15, name);
 
    // // draw badges

@@ -11,7 +11,6 @@
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwLog.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
@@ -647,10 +646,10 @@ void mwDisplay::show_var_sizes()
    printf("mItem.item                  :%6d\n", (int)sizeof(mLevel.mItem.item)           );
    printf("mItem.itemf                 :%6d\n", (int)sizeof(mLevel.mItem.itemf)          );
    printf("mLift.cur                   :%6d\n", (int)sizeof(mLevel.mLift.cur)            );
-   printf("mLevel.l                    :%6d\n", (int)sizeof(mLevel.l)             );
-   printf("mShot.p                     :%6d\n", (int)sizeof(mShot.p)              );
-   printf("mShot.e                     :%6d\n", (int)sizeof(mShot.e)              );
-   printf("mTriggerEvent.event         :%6d\n", (int)sizeof(mTriggerEvent.event)  );
+   printf("mLevel.l                    :%6d\n", (int)sizeof(mLevel.l)                    );
+   printf("mShot.p                     :%6d\n", (int)sizeof(mLevel.mShot.p)              );
+   printf("mShot.e                     :%6d\n", (int)sizeof(mLevel.mShot.e)              );
+   printf("mTriggerEvent.event         :%6d\n", (int)sizeof(mTriggerEvent.event)         );
    printf("mGameState                  :%6d\n", (int)sizeof(mGameState) );
    printf("mMessageTextA               :%6d\n", (int)sizeof(mLevel.mItem.mMessageText.messageTextA) );
    printf("mLevel.area_array           :%6d\n", (int)sizeof(mLevel.area_array) );
@@ -665,8 +664,8 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mLevel.mItem.itemf);
    sz+= sizeof(mLevel.mLift.cur);
    sz+= sizeof(mLevel.l);
-   sz+= sizeof(mShot.p);
-   sz+= sizeof(mShot.e);
+   sz+= sizeof(mLevel.mShot.p);
+   sz+= sizeof(mLevel.mShot.e);
    sz+= sizeof(mTriggerEvent.event);
    sz+= sizeof(mGameState);
    sz+= sizeof(mLevel.mItem.mMessageText.messageTextA);

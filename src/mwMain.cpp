@@ -114,7 +114,7 @@ void mwMain::set_and_get_versions()
 
 int mwMain::initial_setup()
 {
-   // printf("initial_setup()\n");
+   //printf("initial_setup()\n");
 
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
@@ -271,6 +271,7 @@ int mwMain::initial_setup()
 
 int mwMain::pm_main(int argument_count, char **argument_array)
 {
+   //printf("pm_main()\n");
    proc_command_line_args1(argument_count, argument_array); // these args get processed before initial setup is called
    if (initial_setup())
    {

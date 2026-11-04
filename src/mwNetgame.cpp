@@ -5,7 +5,6 @@
 #include "mwGameState.h"
 #include "mwTriggerEvent.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwLog.h"
 #include "mwLoop.h"
 #include "mwInput.h"
@@ -100,8 +99,8 @@ void mwNetgame::game_vars_to_state(char * b)
    offset += sz; sz = sizeof(mLevel.mItem.itemf);              memcpy(b+offset, mLevel.mItem.itemf,              sz);
    offset += sz; sz = sizeof(mLevel.mLift.cur);                memcpy(b+offset, mLevel.mLift.cur,                sz);
    offset += sz; sz = sizeof(mLevel.l);                        memcpy(b+offset, mLevel.l,                        sz);
-   offset += sz; sz = sizeof(mShot.p);                         memcpy(b+offset, mShot.p,                         sz);
-   offset += sz; sz = sizeof(mShot.e);                         memcpy(b+offset, mShot.e,                         sz);
+   offset += sz; sz = sizeof(mLevel.mShot.p);                  memcpy(b+offset, mLevel.mShot.p,                  sz);
+   offset += sz; sz = sizeof(mLevel.mShot.e);                  memcpy(b+offset, mLevel.mShot.e,                  sz);
    offset += sz; sz = sizeof(mTriggerEvent.event);             memcpy(b+offset, mTriggerEvent.event,             sz);
    offset += sz; sz = sizeof(mGameState);                      memcpy(b+offset, &mGameState,                     sz);
    offset += sz; sz = sizeof(mLevel.area_array);               memcpy(b+offset, mLevel.area_array,               sz);
@@ -121,8 +120,8 @@ void mwNetgame::state_to_game_vars(char * b)
    sz = sizeof(mLevel.mItem.itemf);              memcpy(mLevel.mItem.itemf,              b+offset, sz); offset += sz;
    sz = sizeof(mLevel.mLift.cur);                memcpy(mLevel.mLift.cur,                b+offset, sz); offset += sz;
    sz = sizeof(mLevel.l);                        memcpy(mLevel.l,                        b+offset, sz); offset += sz;
-   sz = sizeof(mShot.p);                         memcpy(mShot.p,                         b+offset, sz); offset += sz;
-   sz = sizeof(mShot.e);                         memcpy(mShot.e,                         b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.mShot.p);                  memcpy(mLevel.mShot.p,                  b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.mShot.e);                  memcpy(mLevel.mShot.e,                  b+offset, sz); offset += sz;
    sz = sizeof(mTriggerEvent.event);             memcpy(mTriggerEvent.event,             b+offset, sz); offset += sz;
    sz = sizeof(mGameState);                      memcpy(&mGameState,                     b+offset, sz); offset += sz;
    sz = sizeof(mLevel.area_array);               memcpy(mLevel.area_array,               b+offset, sz); offset += sz;

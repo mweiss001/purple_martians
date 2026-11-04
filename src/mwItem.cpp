@@ -20,7 +20,6 @@
 #include "mwEventQueue.h"
 #include "mwInput.h"
 #include "mwWidget.h"
-#include "mwShot.h"
 #include "mwScreen.h"
 
 #include "mwDemoMode.h"

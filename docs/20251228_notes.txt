@@ -49610,6 +49610,17 @@ this seems complex, and I would like to see if I could simplify and only have on
 go do breakfast and go to work...
 
 
+2026-11-03 04:27:40
+
+I have 2 days...lets see how much I can get done
+
+what first? plan
+
+bug - need to redraw l2 level background if screen changes
+   // rebuild level_backgrounds
+   mLevel.init_level_background();
+   l2.valid_level_loaded = 0;
+done...
 
 
 

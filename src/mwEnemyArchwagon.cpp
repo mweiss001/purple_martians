@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwBitmap.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
@@ -62,7 +61,7 @@ void mwEnemy::move_archwagon(int e)
                if ((EXint > m_parent.mPlayer.syn[p].x - Ei[e][17]) && (EXint < m_parent.mPlayer.syn[p].x) )
                   if ((EYint > m_parent.mPlayer.syn[p].y - swh) && (EYint < m_parent.mPlayer.syn[p].y + swl ))
                   {
-                     mShot.fire_enemy_x_shot(e, p);
+                     m_parent.mShot.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
 
@@ -72,7 +71,7 @@ void mwEnemy::move_archwagon(int e)
                if ((EXint > m_parent.mPlayer.syn[p].x ) && (EXint < m_parent.mPlayer.syn[p].x + Ei[e][17]))
                   if ((EYint > m_parent.mPlayer.syn[p].y  - swh) && (EYint < m_parent.mPlayer.syn[p].y + swl ))
                   {
-                     mShot.fire_enemy_x_shot(e, p);
+                     m_parent.mShot.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
    }

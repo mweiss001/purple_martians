@@ -6,6 +6,7 @@
 #include "mwItem.h"
 #include "mwLift.h"
 #include "mwPlayer.h"
+#include "mwShot.h"
 
 
 struct level_data
@@ -64,9 +65,10 @@ class mwLevel
 
    mwPlayer mPlayer;
 
-   mwLevel() : mItem(*this), mEnemy(*this), mLift(*this), mPlayer(*this) {}
-   ~mwLevel(); // default destructor
+   mwShot mShot;
 
+
+   mwLevel() : mItem(*this), mEnemy(*this), mLift(*this), mPlayer(*this), mShot(*this){}
 
    ALLEGRO_BITMAP *level_background = nullptr;
    ALLEGRO_BITMAP *level_buffer = nullptr;

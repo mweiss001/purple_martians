@@ -1,22 +1,18 @@
 // mwDrawSequence.cpp
 
 #include "pm.h"
-#include "mwLog.h"
 #include "mwDrawSequence.h"
-#include <limits>
-
-#include "mwBitmap.h"
-#include "mwFont.h"
-#include "mwColor.h"
-#include "mwLoop.h"
-#include "mwScreen.h"
-#include "mwShot.h"
-#include "mwMiscFnx.h"
-#include "mwPacketBuffer.h"
-#include "mwDisplay.h"
+#include "mwLog.h"
 #include "mwGameState.h"
 #include "mwLevel.h"
+#include "mwFont.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwLoop.h"
+#include "mwScreen.h"
+#include "mwPacketBuffer.h"
 #include "mwMain.h"
+#include "mwNetgame.h"
 
 
 mwDrawSequence mDrawSequence;
@@ -32,7 +28,6 @@ mwDrawSequence::mwDrawSequence()
    // setup names
    ds_draw(1, 0);
 }
-
 
 void mwDrawSequence::ds_add_names(int &i, const char* n0, const char* n1)
 {
@@ -57,227 +52,200 @@ void mwDrawSequence::ds_add_total(int &i)
    i++;
 }
 
-
-
-void mwDrawSequence::ds_draw(int setup_only, int flip)
-{
-   bool packet_check = 1;
-
-   int skip_draw = 0;
-   if (mGameState.level_done_mode == 27) skip_draw = 1;
-   if (mMain.headless_server) skip_draw = 1;
-
-   if (mGameState.transition_mode) skip_draw = 1;
-
-
-
-   if (mLoop.state[0] == PM_PROGRAM_STATE_NEXT_LEVEL) skip_draw = 1;
-
-
-   if (mGameState.gate_enter_mode == 2) skip_draw = 1;
-//   if (mGameState.gate_enter_mode == 1) skip_draw = 1;
-
-
-   if (mGameState.level_done_mode == 3) skip_draw = 1;
-
-//   if (mGameState.level_done_mode == 1) skip_draw = 1;
-
-
-
-   if (!skip_draw)
-   {
-      int i=0;
-
-      if (!setup_only) ts[i] = al_get_time(); // get starting timestamp
-
-      i++;
-
-
-      if (setup_only) ds_add_names(i, "d-bkgr", "get_new_background");
-      else { mLevel.get_new_background();  ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-lift", "draw_lifts");
-      else { mLevel.mLift.draw_lifts();  ds_add(i); }
-
-//      if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-item", "draw_items");
-      else { mLevel.mItem.draw_items(); ds_add(i); }
-
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-enem", "draw_enemies");
-      else { mLevel.mEnemy.draw_enemies(); ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-
-      if (setup_only) ds_add_names(i, "d-esht", "draw_eshots");
-      else { mShot.draw_eshots(); ds_add(i); }
-
-
-      if (setup_only) ds_add_names(i, "d-psht", "draw_pshots");
-      else { mShot.draw_pshots(); ds_add(i); }
-
-
-      // skip drawing and let transition do it
-//      if (mGameState.gate_enter_mode != 3)
-      {
-         // this is here to draw on top of other things, but not players
-         if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
-         else
-         {
-            // draw hover info
-            for (int p=0; p<NUM_PLAYERS; p++)
-               if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
-                  mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
-            ds_add(i);
-         }
-      }
-
-
-
-
-      if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
-      else { mLevel.mPlayer.draw_players(0); ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-
-      if (setup_only) ds_add_names(i, "d-erhd", "erase hidden");
-      else
-      {
-          if (!mLoop.level_editor_running) mLevel.mItem.erase_hider_areas();
-          ds_add(i);
-      }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-
-      // Level Statistic messages are drawn here to make sure they are on top
-      if (setup_only) ds_add_names(i, "d-lsta", "level stats");
-      else
-      {
-         for (int i=0; i<500; i++)
-            if ((mLevel.mItem.item[i][0] == 10) && (!strncmp(mLevel.mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16)))
-               mLevel.mItem.draw_pmsg(i, mLevel.mItem.item[i][4], mLevel.mItem.item[i][5], 0);
-         ds_add(i);
-      }
-
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-buff", "scale_buff_to_display");
-      else { mLevel.draw_scaled_level_region_to_display(); ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-
-      // ---------------------------------------------------------------
-      // after this we are drawing directly on screen
-      // ---------------------------------------------------------------
-
-      // draw hover gate level icon
-      // this is to draw a nicely scaled hover level icon from the full l2 bitmap
-      // only if that level is loaded in l2, otherwise use regular level icon
-
-      if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
-      else
-      {
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
-               mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].marked_gate);
-         ds_add(i);
-      }
-
-
-
-
-
-
-      // draw purple coins directly on the screen, so they scale nicely
-      if (setup_only) ds_add_names(i, "d-pcds", "purple coins direct to screen");
-      else
-      {
-         for (int c=0; c<500; c++)
-            if ((mLevel.mItem.item[c][0] == 2) && (mLevel.mItem.item[c][6] == 1)) mLevel.mItem.draw_purple_coin_screen_direct(c);
-         ds_add(i);
-      }
-
-
-   //   if (setup_only) ds_add_names(i, "vpod", "vinepods direct to screen");
-   //   else
-   //   {
-   //      for (int e=0; e<100; e++)
-   //         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
-   //      add(i);
-   //   }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
-      else { mLevel.mPlayer.draw_players_direct_to_screen(); ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      // draw npc directly on the screen, so they scale nicely
-      if (setup_only) ds_add_names(i, "d-npcd", "npc direct to screen");
-      else
-      {
-         for (int e=0; e<100; e++)
-            if (mLevel.mEnemy.Ei[e][0] == 19) mLevel.mEnemy.draw_crew_screen_direct(e);
-         ds_add(i);
-      }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-ovrl", "draw_screen_overlay");
-      else { mScreen.draw_screen_overlay(); ds_add(i); }
-
-      if (packet_check) mPacketBuffer.check_for_packets();
-
-      if (setup_only) ds_add_names(i, "d-flip", "al_flip_display");
-      else { if (flip) al_flip_display(); ds_add(i); }
-
-      if (setup_only) ds_add_names(i, "d-totl", "total draw time");
-      else ds_add_total(i);
-
-      ns = i; // number of items
-
-
-
-
-      if (mLog.log_types[LOG_TMR_draw_all].action) // profile draw all
-      {
-         std::string tmp;
-         for (int i=1; i<ns-1; i++)
-         {
-            char m[256];
-            sprintf(m, " %s:[%0.4f]" , name[0][i], (ts[i] - ts[i-1]) * 1000);
-            tmp += m;
-         }
-
-         if (!mLog.log_types[LOG_TMR_draw_tot].action) // total has not already been logged
-         {
-            char m[256];
-            sprintf(m, " %s:[%0.4f]", name[0][ns-1], (ts[ns-1] - ts[0]) * 1000); // add total and end line
-            tmp += m;
-         }
-         tmp += "\n";
-         tmp.erase(0, 1);
-         mLog.add_tmr(LOG_TMR_draw_all, tmp.c_str());
-      }
-   }
-}
-
 void mwDrawSequence::ds_show_text(int x, int y)
 {
    al_draw_filled_rectangle(x, y, x+240, y+ns*9, mColor.pc[0]);
    for (int i=1; i<ns; i++)
       al_draw_textf(mFont.pr8, mColor.pc[15], 1+x, 1+y+i*9, 0, "%3.3f - %s", RA[i].avg*1000, name[1][i]);
 }
+
+
+void mwDrawSequence::ds_draw(int setup_only, int flip)
+{
+   bool packet_check = 1;
+
+   if (mMain.headless_server) return;
+   if (mGameState.transition_mode) return;
+   if (mGameState.gate_enter_mode == 2) return;
+   if (mGameState.level_done_mode == 27) return;
+
+   if (mGameState.level_done_mode && mGameState.level_done_mode < 7) return;
+
+
+
+   // setting up is done in constructor, allegro is not initialized yet, 'al_get_time()' will crash
+   if (!setup_only) ts[0] = al_get_time(); // get starting timestamp
+   int i = 1;
+
+   if (setup_only) ds_add_names(i, "d-bkgr", "get_new_background");
+   else { mLevel.get_new_background();  ds_add(i); }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-lift", "draw_lifts");
+   else { mLevel.mLift.draw_lifts();  ds_add(i); }
+
+//      if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-item", "draw_items");
+   else { mLevel.mItem.draw_items(); ds_add(i); }
+
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-enem", "draw_enemies");
+   else { mLevel.mEnemy.draw_enemies(); ds_add(i); }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+
+   if (setup_only) ds_add_names(i, "d-esht", "draw_eshots");
+   else { mLevel.mShot.draw_eshots(); ds_add(i); }
+
+
+   if (setup_only) ds_add_names(i, "d-psht", "draw_pshots");
+   else { mLevel.mShot.draw_pshots(); ds_add(i); }
+
+
+   // this is here to draw on top of other things, but not players
+   if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+   else
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+            mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
+      ds_add(i);
+   }
+
+
+
+   if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
+   else { mLevel.mPlayer.draw_players(0); ds_add(i); }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+
+   if (setup_only) ds_add_names(i, "d-erhd", "erase hidden");
+   else
+   {
+       if (!mLoop.level_editor_running) mLevel.mItem.erase_hider_areas();
+       ds_add(i);
+   }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+
+   // level statistic messages are drawn here to make sure they are on top
+   if (setup_only) ds_add_names(i, "d-lsta", "level stats");
+   else
+   {
+      for (int i=0; i<500; i++)
+         if ((mLevel.mItem.item[i][0] == 10) && (!strncmp(mLevel.mItem.mMessageText.get_text(i).c_str(), "Level Statistics", 16)))
+            mLevel.mItem.draw_pmsg(i, mLevel.mItem.item[i][4], mLevel.mItem.item[i][5], 0);
+      ds_add(i);
+   }
+
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-buff", "scale_buff_to_display");
+   else { mLevel.draw_scaled_level_region_to_display(); ds_add(i); }
+
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+
+   // ---------------------------------------------------------------
+   // after this we are drawing directly on screen
+   // ---------------------------------------------------------------
+
+   // draw hover gate level icon
+   // this is to draw a nicely scaled hover level icon from the full l2 bitmap
+   // only if that level is loaded in l2, otherwise use regular level icon
+
+   if (setup_only) ds_add_names(i, "d-ghvr", "gate hover");
+   else
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
+            mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].marked_gate);
+      ds_add(i);
+   }
+
+
+   // draw purple coins directly on the screen, so they scale nicely
+   if (setup_only) ds_add_names(i, "d-pcds", "purple coins direct to screen");
+   else
+   {
+      for (int c=0; c<500; c++)
+         if ((mLevel.mItem.item[c][0] == 2) && (mLevel.mItem.item[c][6] == 1)) mLevel.mItem.draw_purple_coin_screen_direct(c);
+      ds_add(i);
+   }
+
+
+//   if (setup_only) ds_add_names(i, "vpod", "vinepods direct to screen");
+//   else
+//   {
+//      for (int e=0; e<100; e++)
+//         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
+//      add(i);
+//   }
+
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-plyr", "draw_players");
+   else { mLevel.mPlayer.draw_players_direct_to_screen(); ds_add(i); }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   // draw npc directly on the screen, so they scale nicely
+   if (setup_only) ds_add_names(i, "d-npcd", "npc direct to screen");
+   else
+   {
+      for (int e=0; e<100; e++)
+         if (mLevel.mEnemy.Ei[e][0] == 19) mLevel.mEnemy.draw_crew_screen_direct(e);
+      ds_add(i);
+   }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-ovrl", "draw_screen_overlay");
+   else { mScreen.draw_screen_overlay(); ds_add(i); }
+
+   if (packet_check) mPacketBuffer.check_for_packets();
+
+   if (setup_only) ds_add_names(i, "d-flip", "al_flip_display");
+   else { if (flip) al_flip_display(); ds_add(i); }
+
+   if (setup_only) ds_add_names(i, "d-totl", "total draw time");
+   else ds_add_total(i);
+
+   ns = i; // number of items
+
+   if (mLog.log_types[LOG_TMR_draw_all].action) // profile draw all
+   {
+      std::string tmp;
+      for (i=1; i<ns-1; i++)
+      {
+         char m[256];
+         sprintf(m, " %s:[%0.4f]" , name[0][i], (ts[i] - ts[i-1]) * 1000);
+         tmp += m;
+      }
+
+      if (!mLog.log_types[LOG_TMR_draw_tot].action) // total has not already been logged
+      {
+         char m[256];
+         sprintf(m, " %s:[%0.4f]", name[0][ns-1], (ts[ns-1] - ts[0]) * 1000); // add total and end line
+         tmp += m;
+      }
+      tmp += "\n";
+      tmp.erase(0, 1);
+      mLog.add_tmr(LOG_TMR_draw_all, tmp.c_str());
+   }
+
+}
+
+

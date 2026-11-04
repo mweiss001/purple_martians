@@ -7,8 +7,6 @@
 // forward declaration
 class mwLevel;
 
-
-
 class mwItem
 {
    private:

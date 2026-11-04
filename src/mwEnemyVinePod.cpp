@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwBitmap.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
 #include "mwColor.h"
@@ -106,7 +105,7 @@ void mwEnemy::move_vinepod(int e)
       if (Ef[e][8] <= 0)
       {
          //if (Ei[e][19]) mTriggerEvent.event[Ei[e][19]] = 1;  // set output event
-         if (Ei[e][20] & PM_ENEMY_VINEPOD_FIRE_SHOT) mShot.fire_enemy_shota(e, 54, find_closest_player(e)); // shoot
+         if (Ei[e][20] & PM_ENEMY_VINEPOD_FIRE_SHOT) m_parent.mShot.fire_enemy_shota(e, 54, find_closest_player(e)); // shoot
          Ei[e][15] = 3;       // set next mode
          Ef[e][8] = Ef[e][9]; // init timer
       }

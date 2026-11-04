@@ -14,13 +14,9 @@ make sure target bitmaps are set properly
 rx packet buffer full? why? add some logging to see what packets...
 client had the error, but all counters were zero 
 re-did to count and print all packets listed in pm.h
+waiting for more info...
 
-
-when letting demo complete level for you, time is demo time, should be time+30s...maybe??
-
-press fire to complete level does nothing
-
-can enter level even if locked
+debug press fire to complete level does nothing
 
 
 in edit selection when copying doors (or moving) the destinations get screwed up
@@ -29,21 +25,7 @@ I think sort might be causing this...
 
 something is overwriting overworld_area_array[2].name
 changing the 5th char to 'd' then terminating the string...
-
-
-segfault on linux - destroy_bitmaps?? yes, i don't think it is required
-
-
-
-
-
-
-
-
-
-
-
-
+waiting for it to happen again...
 
 
 
@@ -58,13 +40,6 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-make a global option to show level number with name
-use in stats, level icon title, etc
-
-
-
-
 
 
 

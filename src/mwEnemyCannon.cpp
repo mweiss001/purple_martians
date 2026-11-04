@@ -3,11 +3,10 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwBitmap.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
 #include "mwDisplay.h"
-
+#include "mwLevel.h"
 
 
 void mwEnemy::move_bouncer_cannon_common(int e)
@@ -119,7 +118,7 @@ void mwEnemy::move_cannon(int e)
         if (p != -1)
          {
             Ei[e][16] = Ei[e][15]; // reset cannon shot wait
-            mShot.fire_enemy_shota(e, 55, p);
+            m_parent.mShot.fire_enemy_shota(e, 55, p);
          }
       }
    move_bouncer_cannon_common(e);

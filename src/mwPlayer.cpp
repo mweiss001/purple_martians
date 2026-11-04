@@ -13,7 +13,6 @@
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwNetgame.h"
 #include "mwGameMoves.h"
@@ -521,46 +520,46 @@ void mwPlayer::proc_player_collisions(int p)
 
    // eshots
    for (int b=0; b<50; b++)
-      if (mShot.e[b].active)  // if active
+      if (m_parent.mShot.e[b].active)  // if active
       {
          // new collision box is based on shot speed and has both x and y component
-         float ax = fabs(mShot.e[b].xinc);
-         float ay = fabs(mShot.e[b].yinc);
+         float ax = fabs(m_parent.mShot.e[b].xinc);
+         float ay = fabs(m_parent.mShot.e[b].yinc);
 
          // enforce minimums
          if (ax < 4) ax = 4;
          if (ay < 4) ay = 4;
 
-         float bx1 = mShot.e[b].x - ax;
-         float bx2 = mShot.e[b].x + ax;
-         float by1 = mShot.e[b].y - ay;
-         float by2 = mShot.e[b].y + ay;
+         float bx1 = m_parent.mShot.e[b].x - ax;
+         float bx2 = m_parent.mShot.e[b].x + ax;
+         float by1 = m_parent.mShot.e[b].y - ay;
+         float by2 = m_parent.mShot.e[b].y + ay;
 
-         if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) mShot.proc_eshot_collision(p, b);
+         if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) m_parent.mShot.proc_eshot_collision(p, b);
       }
 
    // pshots
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active)
+      if (m_parent.mShot.p[b].active)
       {
-         float bx1 = mShot.p[b].x - 10;
-         float bx2 = mShot.p[b].x + 10;
-         float by1 = mShot.p[b].y - 10;
-         float by2 = mShot.p[b].y + 10;
+         float bx1 = m_parent.mShot.p[b].x - 10;
+         float bx2 = m_parent.mShot.p[b].x + 10;
+         float by1 = m_parent.mShot.p[b].y - 10;
+         float by2 = m_parent.mShot.p[b].y + 10;
 
          if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2))
          {
-            int pb = mShot.p[b].player; // player that fired the shot
+            int pb = m_parent.mShot.p[b].player; // player that fired the shot
 
             if ((mGameState.player_vs_player_shots) && (pb != p))
             {
-               mShot.proc_pshot_collision(p, b);
+               m_parent.mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
                syn[pb].stat_player_hits++;
             }
             if ((mGameState.player_vs_self_shots) && (pb == p))
             {
-               mShot.proc_pshot_collision(p, b);
+               m_parent.mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, mGameState.player_vs_player_shot_damage);
                syn[pb].stat_self_hits++;
             }
@@ -987,7 +986,7 @@ void mwPlayer::move_players()
                   proc_player_xy_move(p);
             }
             // common to all not paused modes
-            mShot.proc_player_shoot(p);
+            m_parent.mShot.proc_player_shoot(p);
             m_parent.mItem.proc_player_carry(p);
             proc_player_collisions(p);
             proc_player_health(p);
@@ -1551,7 +1550,7 @@ int mwPlayer::have_all_players_acknowledged()
 
 void mwPlayer::proc_player_input()
 {
-   if ((mGameState.level_done_mode == 0) || (mGameState.level_done_mode == 5)) // only allow player input in these modes
+   if ((mGameState.level_done_mode == 0) || (mGameState.level_done_mode == 8)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((syn[p].active) && (syn[p].paused_type != 3)) // cycle all active players except hidden player in headless server
          {

@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 
 
 // used by vinepod
@@ -43,7 +42,7 @@ void mwEnemy::set_enemy_rot_from_players_position(int e, int p, int extrapolate)
 {
    float px = m_parent.mPlayer.syn[p].x;
    float py = m_parent.mPlayer.syn[p].y;
-   if (extrapolate) mShot.calc_where_player_will_be(e, p, px, py);
+   if (extrapolate) m_parent.mShot.calc_where_player_will_be(e, p, px, py);
    float xlen = px - Ef[e][0];
    float ylen = py - Ef[e][1];
    Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;

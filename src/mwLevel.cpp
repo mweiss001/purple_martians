@@ -20,7 +20,6 @@
 #include "mwNetgame.h"
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
-#include "mwShot.h"
 #include "mwTriggerEvent.h"
 
 
@@ -29,34 +28,11 @@ mwLevel l2;
 
 void mwLevel::create_bitmaps()
 {
-//   printf("mwLevel::create bitmaps()\n");
-
-   // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-
-   // this bitmap format is used for all other bitmaps
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-
-   if (!level_background) level_background = al_create_bitmap(2000, 2000);
-   al_set_target_bitmap(level_background);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   if (!level_buffer) level_buffer = al_create_bitmap(2000, 2000);
-   al_set_target_bitmap(level_buffer);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
+   level_background = al_create_bitmap(2000, 2000);
+   level_buffer = al_create_bitmap(2000, 2000);
 }
-
-
-
-mwLevel::~mwLevel()
-{
-//   printf("mwLevel::destroy bitmaps()\n");
-
-//   if (level_background) al_destroy_bitmap(level_background);
-//   if (level_buffer) al_destroy_bitmap(level_buffer);
-}
-
-
 
 
 void mwLevel::set_start_level()
@@ -395,6 +371,7 @@ void mwLevel::set_level_display_region_xy()
    // printf("level_display_region_x:%.0f  level_display_region_y:%.0f\n", level_display_region_x, level_display_region_y);
 
 
+//   printf("[%d] p:%d  px:%.0f  py:%.0f  pvx:%.0f  pvy:%.0f  w:%.0f  h:%.0f \n", mLoop.frame_num, p, px, py, pvx, pvy, w, h);
 
 
    if (mScreen.viewport_mode == 0) // this method always has the player in the middle of the screen
@@ -540,7 +517,10 @@ void mwLevel::set_level_display_region_xy()
    }
 
    //printf("\nmwLevel::load_level_l2(%d)\n", level);
-//   printf("void mwLevel::set_level_display_region_xy() i:%d nl:%d  alp:%d  px1: %.0f  py1:%.0f   x:%.0f y:%.0f \n", instance, last_level_loaded, mPlayer.active_local_player, px, py, level_display_region_x, level_display_region_y);
+//   printf("[%d] ldr  alp:%d  px: %.0f  py:%.0f   lx:%.0f ly:%.0f    sx:%.0f sy:%.0f\n", mLoop.frame_num, mPlayer.active_local_player, px, py, level_display_region_x, level_display_region_y, screen_display_x, screen_display_y);
+
+//   printf("[%d] ldr  alp:%d  px: %.0f  py:%.0f   lx:%.0f ly:%.0f lw:%.0f lw:%.0f    sx:%.0f sy:%.0f sw:%.0f sh:%.0f\n", mLoop.frame_num, mPlayer.active_local_player, px, py, level_display_region_x, level_display_region_y, level_display_region_w, level_display_region_h, screen_display_x, screen_display_y, screen_display_w, screen_display_h);
+
 
    //printf("level_display_region_x:%.0f  level_display_region_y:%.0f\n", level_display_region_x, level_display_region_y);
 
@@ -743,7 +723,14 @@ int mwLevel::load_level_l2(int level)
 
       // copy player colors from mLevel
       for (int p=0; p<NUM_PLAYERS; p++)
+      {
          l2.mPlayer.syn[p].color = mLevel.mPlayer.syn[p].color;
+         l2.mPlayer.syn[p].active = mLevel.mPlayer.syn[p].active;
+      }
+
+
+      l2.mPlayer.active_local_player = mLevel.mPlayer.active_local_player;
+
 
       // copy the level_display_region variable from mLevel to l2
       // this is needed to make the transition final variables match what happens when next level is actually loaded

@@ -4,7 +4,6 @@
 #include "mwEnemy.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 
 //--6--flapper-----------------------------------------------------------------------------
@@ -81,7 +80,7 @@ void mwEnemy::move_flapper(int e)
          p = find_closest_player_flapper(e);
          if (p != -1)
          {
-            mShot.fire_enemy_shota(e, 62, p);
+            m_parent.mShot.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
       }
@@ -104,7 +103,7 @@ void mwEnemy::move_flapper(int e)
          p = find_closest_player_flapper(e);
          if (p != -1)
          {
-            mShot.fire_enemy_shota(e, 62, p);
+            m_parent.mShot.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
        }

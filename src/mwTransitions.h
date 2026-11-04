@@ -18,11 +18,35 @@ class mwTransitions
    // level done
    // --------------------------------
    void proc_level_done_mode();
-   int level_done_seek_time = 20;
-   int level_done_rotate_time = 20;
+   int level_done_seek_time = 40;
+   int level_done_rotate_time = 40;
    float level_done_num_rotations = 2;
    float level_done_player_final_scale = .1;
-   float level_done_transition_time = 40;
+   float level_done_transition_time = 80;
+
+   float min_scale = 0.0001;
+   bool scale_compound_interest_mode = 0;
+
+
+   float player_exit_transition_time = 80;
+
+   float px_initial;
+   float py_initial;
+   float px_final;
+   float py_final;
+   float px_inc;
+   float py_inc;
+   float px_current;
+   float py_current;
+
+   float pscale_initial;
+   float pscale_final;
+   float pscale_current;
+   float pscale_inc;
+
+   float p_num_rotations = 4;
+   float prot_inc;
+
 
    // rocket move
    // ----------------

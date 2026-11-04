@@ -245,7 +245,7 @@ int mwDemoMode::key_check()
    int key_used = 0;
 
    // if waiting for continue at the end of a demo
-   if (mGameState.level_done_mode == 5)
+   if (mGameState.level_done_mode == 8)
    {
       // any key
       for (int k = 0; k < ALLEGRO_KEY_MAX; k++)
@@ -363,8 +363,8 @@ bool mwDemoMode::check_level_done()
    // 10s past last game move
    if (mGameState.level_done_mode == 0 && mLoop.frame_num > last_frame + 400)
    {
-      // skip players seek exit, jump to mode 5
-      mGameState.level_done_mode = 5;
+      // skip players seek exit, jump to mode 8
+      mGameState.level_done_mode = 8;
    }
 
    // divert before normal next level mode

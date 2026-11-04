@@ -8,7 +8,6 @@
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwInput.h"
-#include "mwShot.h"
 #include "mwDisplay.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
@@ -400,9 +399,9 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    }
 
    // -----------------------------------------------------------------------------------------------------------------
-   // if we are in level_done_mode 5, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
+   // if we are in level_done_mode 8, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
    // -----------------------------------------------------------------------------------------------------------------
-   if ((mGameState.level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
+   if ((mGameState.level_done_mode == 8) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
       if (!has_player_acknowledged(p)) // to prevent multiple acks
          add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);

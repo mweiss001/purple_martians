@@ -222,8 +222,9 @@ void mwBitmap::rebuild_bitmaps()
    if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
    t[3] = al_get_time();
 
-   // rebuild level_background
+   // rebuild level_backgrounds
    mLevel.init_level_background();
+   l2.valid_level_loaded = 0;
    t[4] = al_get_time();
 
    // misc setup

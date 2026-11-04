@@ -4,7 +4,6 @@
 #include "mwEnemy.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
 

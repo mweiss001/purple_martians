@@ -11,7 +11,6 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
-#include "mwShot.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
 #include "mwGameState.h"
@@ -55,13 +54,13 @@ int mwItem::proc_orb_shot_collision(int i)
    float x = itemf[i][0];
    float y = itemf[i][1];
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active)
+      if (m_parent.mShot.p[b].active)
       {
-         float bx = mShot.p[b].x;
-         float by = mShot.p[b].y;
+         float bx = m_parent.mShot.p[b].x;
+         float by = m_parent.mShot.p[b].y;
          if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s))
          {
-            mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 3);
+            mDemoRecord.mark_player_shot_used(m_parent.mShot.p[b].player, m_parent.mShot.p[b].active, 3);
             return 1;
          }
 
@@ -366,22 +365,22 @@ void mwItem::detect_trigger_collisions(int i)
          }
    if (flags & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
-         if (mShot.p[b].active)
+         if (m_parent.mShot.p[b].active)
          {
-            int x = mShot.p[b].x;
-            int y = mShot.p[b].y;
+            int x = m_parent.mShot.p[b].x;
+            int y = m_parent.mShot.p[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                flags |= PM_ITEM_TRIGGER_CURR;
-               mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 4);
+               mDemoRecord.mark_player_shot_used(m_parent.mShot.p[b].player, m_parent.mShot.p[b].active, 4);
             }
          }
    if (flags & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
-         if (mShot.e[b].active)
+         if (m_parent.mShot.e[b].active)
          {
-            int x = mShot.e[b].x;
-            int y = mShot.e[b].y;
+            int x = m_parent.mShot.e[b].x;
+            int y = m_parent.mShot.e[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
 }
@@ -698,19 +697,19 @@ void mwItem::proc_item_damage_collisions(int i)
          }
    if (cdpb) // check player shots
       for (int b=0; b<50; b++)
-         if (mShot.p[b].active)
+         if (m_parent.mShot.p[b].active)
          {
-            int x = mShot.p[b].x;
-            int y = mShot.p[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mShot.p[b].active = 0; // kill the shot
+            int x = m_parent.mShot.p[b].x;
+            int y = m_parent.mShot.p[b].y;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mShot.p[b].active = 0; // kill the shot
          }
    if (cdeb) // check enemy shots
       for (int b=0; b<50; b++)
-         if (mShot.e[b].active)
+         if (m_parent.mShot.e[b].active)
          {
-            int x = mShot.e[b].x;
-            int y = mShot.e[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mShot.e[b].active = 0; // kill the shot
+            int x = m_parent.mShot.e[b].x;
+            int y = m_parent.mShot.e[b].y;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mShot.e[b].active = 0; // kill the shot
          }
 }
 

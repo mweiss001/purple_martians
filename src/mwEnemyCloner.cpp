@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwBitmap.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
 #include "mwLevel.h"

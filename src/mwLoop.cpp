@@ -31,7 +31,6 @@
 #include "mwMenu.h"
 #include "mwHelp.h"
 
-#include "mwShot.h"
 #include "mwLevel.h"
 
 #include "mwWindowManager.h"
@@ -143,12 +142,12 @@ void mwLoop::move_frame()
    double t[8] = { 0 };
    t[0] = al_get_time();
 
-   mShot.move_eshots();           t[1] = al_get_time();
-   mShot.move_pshots();           t[2] = al_get_time();
-   mLevel.mLift.move_lifts(0);    t[3] = al_get_time();
-   mLevel.mPlayer.move_players(); t[4] = al_get_time();
-   mLevel.mEnemy.move_enemies();  t[5] = al_get_time();
-   mLevel.mItem.move_items();     t[6] = al_get_time();
+   mLevel.mShot.move_eshots();     t[1] = al_get_time();
+   mLevel.mShot.move_pshots();     t[2] = al_get_time();
+   mLevel.mLift.move_lifts(0);     t[3] = al_get_time();
+   mLevel.mPlayer.move_players();  t[4] = al_get_time();
+   mLevel.mEnemy.move_enemies();   t[5] = al_get_time();
+   mLevel.mItem.move_items();      t[6] = al_get_time();
 
    mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
@@ -404,15 +403,13 @@ void mwLoop::proc_program_state_change()
 
             printf("quit level to overworld\n");
 
-            state[0] = PM_PROGRAM_STATE_TRANSITION;
-
-            return;
-
+//            state[0] = PM_PROGRAM_STATE_TRANSITION;
+//            return;
 
 
-            // state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
-            // quit_action = 1;    // menu
-            // done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
+            quit_action = 1;    // menu
+            done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
 
             return;
          }
@@ -584,7 +581,6 @@ void mwLoop::proc_program_state_change()
       // this is done here on purpose
       // I could set this at the end of these modes, but I wait until here so I can use them to prevent drawing in mode 1
 
-
       //mGameState.level_done_mode = 0;
       //mGameState.gate_enter_mode = 0;
 
@@ -680,8 +676,20 @@ void mwLoop::proc_program_state_change()
 // ---------------------------------------------------
 // load the new level
 // ---------------------------------------------------
+
+//      if (mNetgame.ima_client) mInput.tsw();
+//      printf("[%d] before next level load\n", mLoop.frame_num);
+
       mLevel.play_level = mGameState.level_done_next_level;
       if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+
+      mGameState.level_done_mode = 0;
+
+
+//      if (mNetgame.ima_client) mInput.tsw();
+//      printf("[%d] after next level load\n", mLoop.frame_num);
+
+
 
 
 //      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
@@ -690,7 +698,7 @@ void mwLoop::proc_program_state_change()
 
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
-      // printf("Mloop Post load next Level (%d)\n", mLevel.play_level);
+      // printf("mLoop Post load next Level (%d)\n", mLevel.play_level);
       // printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
       // printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
       // printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
@@ -819,11 +827,23 @@ int mwLoop::load_and_setup_level(int level, int type)
       if (type == 1) // NEXT_LEVEL
       {
          mLevel.setup_players_after_level_load(2); // type 2 partial reset,
+
+
+
+
+
+
       }
 
       if (type == 2) // CLIENT_LEVEL_SETUP
       {
          mLevel.setup_players_after_level_load(2); // type 2 partial reset,
+
+
+
+
+
+
       }
 
       if (type == 3) // SERVER_NEW_GAME
@@ -855,11 +875,15 @@ int mwLoop::load_and_setup_level(int level, int type)
       mInput.initialize();
       mBottomMessage.initialize();
       mTriggerEvent.initialize();
-      mShot.clear_shots();
+      mLevel.mShot.clear_shots();
       mGameEvent.game_events.clear();
 
 
       frame_num = 0;
+
+
+
+
 
       if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL
 
@@ -869,6 +893,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          mSound.start_sound(0); // rewind and start theme
 
          state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
+
 
          mLog.add(LOG_NET, LOG_NET_SUBTYPE_LEVEL_STARTED, -1, mLevel.play_level); // LEVEL STARTED
 
@@ -881,6 +906,11 @@ int mwLoop::load_and_setup_level(int level, int type)
 
          // add game move to hide player 0 in headless server mode
          if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
+
+
+
+
+
       }
 
    }
@@ -972,6 +1002,12 @@ void mwLoop::main_loop()
       // ----------------------------------------------------------
       proc_program_state_change();
 
+
+      // if just changed from next level to game, run it again...why?
+//      if (state[0] == PM_PROGRAM_STATE_GAME_LOOP_RUN && state[1] == PM_PROGRAM_STATE_NEXT_LEVEL) proc_program_state_change();
+
+
+
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
@@ -991,7 +1027,6 @@ void mwLoop::main_loop()
          mInput.proc_keys_held();
 
 
-
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
 // remote control loop
@@ -1004,7 +1039,6 @@ void mwLoop::main_loop()
 // main game loop
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
-
          if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_RUN) // game loop running
          {
             frame_num++;
@@ -1065,10 +1099,7 @@ void mwLoop::main_loop()
             // ------------------------------
             mDrawSequence.ds_draw(0, 1);
 
-
-
             mPacketBuffer.check_for_packets();
-
 
             // --------------------------------------------
             // measure time to process loop
@@ -1085,7 +1116,6 @@ void mwLoop::main_loop()
 
             // store in local cpu variables
             add_local_cpu_data(cpu);
-
 
             // --------------------------------------------
             // update ping variables

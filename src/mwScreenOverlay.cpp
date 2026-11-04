@@ -50,7 +50,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    // display it
    al_draw_text(mFont.pr8, mColor.pc[c], tx+2, y, 0, ss.str().c_str());
 
-   if (mGameState.level_done_mode == 5)
+   if (mGameState.level_done_mode == 8)
    {
       if (!mLevel.mPlayer.syn[p].level_done_ack)
       {
@@ -90,7 +90,7 @@ void mwScreen::show_level_done()
 {
    int ldm = mGameState.level_done_mode;
 
-   if (ldm > 4 && ldm < 10) draw_large_text_overlay(2, 0);
+   if (ldm > 7 && ldm < 13) draw_large_text_overlay(2, 0);
 
 
 
@@ -98,7 +98,7 @@ void mwScreen::show_level_done()
 
 
 
-   if (ldm == 5)
+   if (ldm == 8)
    {
       mColor.process_flash_color();
 

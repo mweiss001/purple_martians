@@ -4,7 +4,6 @@
 #include "mwEnemy.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
-#include "mwShot.h"
 #include "mwSolid.h"
 
 
@@ -330,7 +329,7 @@ void mwEnemy::move_trakbot(int e)
          int p = find_closest_player_trakbot(e);
          if (p != -1)
          {
-            mShot.fire_enemy_shota(e, 20, p);
+            m_parent.mShot.fire_enemy_shota(e, 20, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
       }

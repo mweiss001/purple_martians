@@ -16,9 +16,7 @@ class mwDrawSequence
    mwRollingAverage RA[20];
    double ts[20];
 
-
    void ds_add_names(int& i, const char* n0, const char* n1);
-
    void ds_add(int& i);
    void ds_add_total(int &i);
 
