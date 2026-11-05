@@ -195,7 +195,7 @@ void mwItem::proc_orb_collision(int p, int i)
       item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
       if ((item[i][12] == 99) && (!mNetgame.ima_client))
       {
-         mGameState.level_done_mode = 30;
+         mGameState.level_done_mode = 40;
          mGameState.level_done_player = p;
          mGameState.level_done_frame = mLoop.frame_num;
          mGameState.level_done_next_level = 1;

@@ -19,6 +19,7 @@
 #include "mwMiscFnx.h"
 #include "mwSql.h"
 
+
 mwMain mMain;
 
 void mwMain::final_wrapup()
@@ -249,8 +250,6 @@ int mwMain::initial_setup()
    if (!headless_server) mLevelIcons.load(0);
 
 //   if (!headless_server) mLevelIcons.load(1);
-
-
 
 
 

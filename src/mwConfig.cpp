@@ -82,7 +82,7 @@ void mwConfig::save_config(int type)
       }
       if (type == PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED)
       {
-         asci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate)
+         asci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate_level)
       }
 
 
@@ -92,15 +92,11 @@ void mwConfig::save_config(int type)
          asci(GAME, mLevel.start_level)
       }
 
-
       asci(GAME, mLevel.mPlayer.loc[0].name_display)
-
-
 
       asci(GAME, mMain.classic_mode)
 
-      asci(GAME, mTransitions.transition_num_steps)
-      asci(GAME, mTransitions.transition_delay)
+      asci(GAME, mGameState.transition_speed)
 
       asci(GAME, mScreen.viewport_mode)
       asci(GAME, mScreen.viewport_show_hyst)
@@ -293,14 +289,13 @@ void mwConfig::load_config(int type)
 
 
    agci(GAME, mLevel.start_level, 1)
-   agci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate, 0)
+   agci(GAME, mLevel.mPlayer.syn[0].overworld_last_touched_gate_level, 0)
 
 
    agci(GAME, mMain.classic_mode, 0)
 
-   agci(GAME, mTransitions.transition_num_steps, 80)
-   agci(GAME, mTransitions.transition_delay, 8)
 
+   agci(GAME, mGameState.transition_speed, 2)
 
    agci(GAME, mScreen.viewport_mode, 1)
    agci(GAME, mScreen.viewport_show_hyst, 0)

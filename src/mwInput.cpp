@@ -229,7 +229,6 @@ void mwInput::serial_key_check(int key)
       mLogo.show_splash_screen = 0;
       mSound.sound_on = 0;
       mTransitions.transition_num_steps = 1;
-      mTransitions.transition_delay = 1;
       set_controls_to_custom_sets(4);
       mDisplay.disp_w_wind = 800;
       mDisplay.disp_h_wind = 600;

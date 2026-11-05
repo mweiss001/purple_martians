@@ -729,7 +729,7 @@ void mwLevel::clear_data()
 {
    mSql.execute_sql("DELETE FROM play_data", mSql.db_play_data);
 
-   mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
+   mPlayer.syn[0].overworld_last_touched_gate_level = 0; // no gate will be found and player will start from start block
    mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
 
 

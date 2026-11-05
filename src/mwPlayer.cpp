@@ -490,7 +490,7 @@ void mwPlayer::proc_player_collisions(int p)
    // items
    loc[p].potential_bomb_damage = 0;
    syn[p].marked_door = -1; // so player can touch only one door
-   syn[p].marked_gate = -1; // so player can touch only one gate
+   syn[p].hovered_gate = -1; // so player can touch only one gate
 
    for (int x=0; x<500; x++)
    {
@@ -1340,7 +1340,7 @@ void mwPlayer::init_player(int p, int t)
       mGameState.level_done_player = 0;
 
 
-      syn[p].marked_gate = -1;
+      syn[p].hovered_gate = -1;
 
       syn[p].spawn_point_index = 0;
 

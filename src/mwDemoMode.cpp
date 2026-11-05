@@ -296,14 +296,14 @@ void mwDemoMode::run_single_from_settings()
 void mwDemoMode::run_single_from_cmd_fn(const char* fn)
 {
    play_mode_active = 1;
-   if (mGameMoves.load_gm(fn) && mLoop.load_and_setup_level(mLevel.play_level, 4)) run_loop(0, 0, mLevel.play_level);
+   if (mGameMoves.load_gm(fn) && mLoop.load_and_setup_level(mLevel.play_level, 4)) run_loop(0, 1, mLevel.play_level);
    play_mode_active = 0;
 }
 
 void mwDemoMode::run_single_from_cmd_prompt()
 {
    play_mode_active = 1;
-   if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 0, mLevel.play_level);
+   if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 1, mLevel.play_level);
    play_mode_active = 0;
 }
 
@@ -379,7 +379,7 @@ bool mwDemoMode::check_level_done()
 // this is used in all modes that end after the level is done
 void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
 {
-   mTransitions.transition_cutscene(ti, tf); // initial to final (game)
+   mTransitions.transition_cutscene(ti, tf, 0); // initial to final (game)
    while (play_mode_active)
    {
       mEventQueue.proc(1);
@@ -389,8 +389,9 @@ void mwDemoMode::run_loop(const int ti, const int tf, const int restore_level)
          if (key_check() || check_level_done()) play_mode_active = 0;
       }
    }
+   mTransitions.transition_cutscene(tf, ti, 0); // initial (game) to final
+
    common_exit();
-   mTransitions.transition_cutscene(tf, ti); // initial (game) to final
 
    if (restore_level != -1)
    {
@@ -414,10 +415,10 @@ void mwDemoMode::common_exit()
 void mwDemoMode::continuous_random_next_level()
 {
    mSound.stop_sound();
-   mTransitions.transition_cutscene(1, 0); // game to nothing
+   mTransitions.transition_cutscene(1, 0, 0); // game to nothing
    if (!load_random_demo()) return;
    mLoop.load_and_setup_level(mLevel.play_level, 4);
-   mTransitions.transition_cutscene(0, 1); // nothing to game
+   mTransitions.transition_cutscene(0, 1, 0); // nothing to game
 }
 
 void mwDemoMode::run_continuous_random()
@@ -430,7 +431,7 @@ void mwDemoMode::run_continuous_random()
       if (!load_random_demo()) return;
       if (mLoop.load_and_setup_level(mLevel.play_level, 4))
       {
-         //mScreen.transition_cutscene(0, 1); // nothing to game
+         mTransitions.transition_cutscene(0, 1, 0); // nothing to game
          while (play_mode_active)
          {
             mEventQueue.proc(1);
@@ -442,7 +443,7 @@ void mwDemoMode::run_continuous_random()
                if (k == 2 || check_level_done()) continuous_random_next_level();
             }
          }
-         //mScreen.transition_cutscene(1, 0); // game to nothing
+         mTransitions.transition_cutscene(1, 0, 0); // game to nothing
          common_exit();
          mLevel.play_level = original_level;
          mLoop.load_and_setup_level(mLevel.play_level, 5);

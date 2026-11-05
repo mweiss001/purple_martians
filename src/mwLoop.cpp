@@ -2,13 +2,11 @@
 
 #include "pm.h"
 #include "mwLoop.h"
-
 #include "mwQuickGraph.h"
 #include "mwQuickGraph2.h"
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwSettings.h"
-
 #include "mwNetgame.h"
 #include "mwTally.h"
 #include "mwDrawSequence.h"
@@ -16,12 +14,9 @@
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
-
 #include "mwDisplay.h"
 #include "mwScreen.h"
 #include "mwFont.h"
-#include "mwColor.h"
-
 #include "mwVisualLevel.h"
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
@@ -30,13 +25,8 @@
 #include "mwBitmap.h"
 #include "mwMenu.h"
 #include "mwHelp.h"
-
 #include "mwLevel.h"
-
-#include "mwWindowManager.h"
-
 #include "mwMain.h"
-#include "mwConfig.h"
 #include "mwGameEvent.h"
 #include "mwGameState.h"
 #include "mwLevelEditor.h"
@@ -124,17 +114,12 @@ void mwLoop::move_frame()
       return;
    }
 
-   if (mGameState.gate_enter_mode)
-   {
-      mTransitions.proc_gate_enter_mode();
-      return;
-   }
+   // if (mGameState.gate_enter_mode)
+   // {
+   //    mTransitions.proc_gate_enter_mode();
+   //    return;
+   // }
 
-   if (mGameState.transition_mode)
-   {
-      mTransitions.proc_transition_mode();
-      return;
-   }
 
 
 
@@ -351,70 +336,54 @@ void mwLoop::proc_program_state_change()
    {
       mLog.add(LOG_OTH_PROGRAM_STATE, 0, -1, state[1], state[0]);
 
-
-
-      // mLog.log_add_prefixed_textf(LOG_OTH_PROGRAM_STATE, 0, "[%4d] --- State change from %2d to %2d  ----  ", mLoop.frame_num, state[1], state[0]);
-      // for (int i=0; i<8; i++) mLog.log_append_textf(LOG_OTH_PROGRAM_STATE, "%2d ", state[i]);
-      // mLog.log_append_textf(LOG_OTH_PROGRAM_STATE, " --- [qa:%d] [da:%d]\n", quit_action, done_action);
-
-
       // slide all down (now state[0] == state[1])
       for (int i=7; i>0; i--) state[i] = state[i-1];
 
-      if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_QUIT) // game menu or fast exit
+      // game loop quit
+      // ----------------------------------------------
+      if (state[1] == PM_PROGRAM_STATE_GAME_LOOP_QUIT)
       {
-
          if (mLog.autosave_log_on_level_quit) mLog.flush_logs();
-
          mSound.stop_sound();
 
-         if (quit_action == 0) // exit program
+         // exit program
+         // ------------------------------------------------------
+         if (quit_action == 0)
          {
-            //mTransitions.transition_cutscene(1, 0); // game to nothing
+            mTransitions.transition_cutscene(1, 0, 1); // game to nothing
             state[0] = PM_PROGRAM_STATE_QUIT; // exit program
             return;
          }
 
-         if (quit_action == 1) // menu
+         // menu
+         // ------------------------------------------------------
+         if (quit_action == 1)
          {
+            // only do this if not returning from settings or demo record
+            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2, 1); // game to menu
+
             state[0] = PM_PROGRAM_STATE_MENU;
             return;
-
-
-            // only do this if not returning from settings or demo record
-            //if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2); // game to menu
-
-
          }
-         if (quit_action == 2)  // overworld
+
+         // overworld
+         // ------------------------------------------------------
+         if (quit_action == 2)
          {
             mGameState.level_done_next_level = 1;
-
-
             mLevel.add_play_data_record(mLevel.play_level, 0);
-
             mLog.add(LOG_OTH_PROGRAM_STATE, 3, -1);
+            mTransitions.transition_cutscene(1, 3, 1); // game to gate
 
-
-
-            // here is where I want to patch in my new transition from game to overworld
-
-            // it's similar to level done
-
-            printf("quit level to overworld\n");
-
-//            state[0] = PM_PROGRAM_STATE_TRANSITION;
-//            return;
-
-
-            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
+            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
             quit_action = 1;    // menu
             done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
-
             return;
          }
 
-         if (quit_action == 3)  // settings
+         // settings
+         // ------------------------------------
+         if (quit_action == 3)
          {
             mLog.add(LOG_OTH_PROGRAM_STATE, 4, -1); // instead of menu, go to settings
             state[0] = PM_PROGRAM_STATE_CONFIG;
@@ -431,9 +400,6 @@ void mwLoop::proc_program_state_change()
    if (state[1] == PM_PROGRAM_STATE_MENU) game_menu();
    if (state[1] == PM_PROGRAM_STATE_CONFIG) mSettings.settings_pages(-1);
    if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.demo_record();
-
-
-
 
 //-----------------------------------------------------------------
 // PM_PROGRAM_STATE_CLIENT_PREEXIT1
@@ -471,9 +437,7 @@ void mwLoop::proc_program_state_change()
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_EXIT)
    {
-
       mNetgame.clientExitNetwork();
-
       //quit_action = 1; // to prevent quitting clients from automatically going to overworld
       // do it like this so we can go back to settings if called from there
       if (quit_action != 3) quit_action = 1; // to prevent quitting clients from automatically going to overworld
@@ -572,17 +536,15 @@ void mwLoop::proc_program_state_change()
    {
       mLog.add(LOG_NET, LOG_NET_SUBTYPE_NEXT_LEVEL, -1, mGameState.level_done_next_level); // NEXT LEVEL
 
+      mLog.add(LOG_OTH_PROGRAM_STATE, 5, -1, mGameState.level_done_next_level);
 
-// --------------------------------------------------------
-// cleanup after level done
-// --------------------------------------------------------
+
+
+      // --------------------------------------------------------
+      // cleanup after level done
+      // --------------------------------------------------------
+
       mSound.stop_sound();
-
-      // this is done here on purpose
-      // I could set this at the end of these modes, but I wait until here so I can use them to prevent drawing in mode 1
-
-      //mGameState.level_done_mode = 0;
-      //mGameState.gate_enter_mode = 0;
 
 
       if (mNetgame.ima_client)
@@ -602,128 +564,40 @@ void mwLoop::proc_program_state_change()
       if (mLog.autosave_log_on_level_done) mLog.flush_logs();
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
-
-// --------------------------------------------------------
-// instant program quit
-// started from command line and next level called
-// --------------------------------------------------------
+      // --------------------------------------------------------
+      // instant program quit
+      // started from command line and next level called
+      // --------------------------------------------------------
       if (done_action == 0) // command line
       {
          mLog.add(LOG_OTH_PROGRAM_STATE, 2, -1); // exit program, because done action == 0
-
          state[0] = PM_PROGRAM_STATE_QUIT; // exit
-         //mTransitions.transition_cutscene(1, 0); // game to nothing
          return; // to exit immediately
       }
 
-// ----------------------------------------------------------
-// determine what transitions to use
-// ----------------------------------------------------------
-
-      // // nothing by default
-      // int pre_load_transistion_initial  = 0;
-      // int pre_load_transistion_final    = 0;
-      // int post_load_transistion_initial = 0;
-      // int post_load_transistion_final   = 0;
-
-
-// ----------------------------------------------------------
-// if destination is overworld
-// ----------------------------------------------------------
-      // if (mGameState.level_done_next_level == 1)
-      // {
-      //    mLog.add(LOG_OTH_TRANSITIONS, 1, -1); // "Next level to overworld\n");
-      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level to overworld\n");
-      //
-      //    pre_load_transistion_initial = 1; // game
-      //    pre_load_transistion_final   = 3; // gate
-      // }
-
-// -----------------------------------------------------------------------------------------------------
-// if going from overworld to any other level, assume gate is used...no transition until after load
-// -----------------------------------------------------------------------------------------------------
-//       if ((mLevel.play_level == 1) && (mGameState.level_done_next_level != 1))
-//       {
-//          mLog.add(LOG_OTH_TRANSITIONS, 2, -1); // "Next level from overworld\n");
-//
-// //         mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level from overworld\n");
-//          post_load_transistion_initial = 3; // gate
-//          post_load_transistion_final   = 1; // game
-//       }
-
-// -----------------------------------------------------------------------------------------------------
-// if going from any level to any level (except overworld)
-// also test that previous state == 11  to not trigger when started from menu or settings
-// -----------------------------------------------------------------------------------------------------
-      // if ((mLevel.play_level != 1) && (mGameState.level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
-      // {
-      //    mLog.add(LOG_OTH_TRANSITIONS, 3, -1); // Level to level (no overworld)
-      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Level to level (no overworld)\n");
-      //    pre_load_transistion_initial  = 1; // game
-      //    pre_load_transistion_final    = 0; // nothing
-      //    post_load_transistion_initial = 0; // nothing
-      //    post_load_transistion_final   = 1; // game
-      // }
-
-// ------------------------------------------------------------------------------------------------------------------------------------
-// ---   pre load transition
-// ------------------------------------------------------------------------------------------------------------------------------------
-      //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "pre-load ");
-//      mLog.add(LOG_OTH_TRANSITIONS, 5, -1); // pre-load
-
-//      mTransitions.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
-
-// ---------------------------------------------------
-// load the new level
-// ---------------------------------------------------
-
-//      if (mNetgame.ima_client) mInput.tsw();
-//      printf("[%d] before next level load\n", mLoop.frame_num);
+      // ---------------------------------------------------
+      // load the new level
+      // ---------------------------------------------------
 
       mLevel.play_level = mGameState.level_done_next_level;
       if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
 
+      // this is done here on purpose
+      // I could set this at the end of these modes, but I wait until here so I can use it to prevent drawing in mode 1
       mGameState.level_done_mode = 0;
 
 
-//      if (mNetgame.ima_client) mInput.tsw();
-//      printf("[%d] after next level load\n", mLoop.frame_num);
+      // ---------------------------------------------------
+      // set the quit actions
+      // ---------------------------------------------------
+
+      // if we are now in overworld, quit action is menu
+      if (mLevel.play_level == 1) quit_action = 1;
 
 
-
-
-//      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
-//      printf("level_display_region  x:%.0f y:%.0f w:%.0f h:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
-//      printf("screen_display        x:%.0f y:%.0f w:%.0f h:%.0f\n",  mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
-
-      //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
-
-      // printf("mLoop Post load next Level (%d)\n", mLevel.play_level);
-      // printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
-      // printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
-      // printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
-      //
-
-
-
-
-
-
-// ----------------------------------------
-// post-load transition
-// ----------------------------------------
-//      mLog.add(LOG_OTH_TRANSITIONS, 6, -1); // post-load
-      //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "post-load ");
-//      mTransitions.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
-
-//      mTransitions.set_transition_mode(post_load_transistion_initial, post_load_transistion_final, 100);
 
 
    }
-
-
-
-
 
    //---------------------------------------
    // PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME
@@ -732,8 +606,8 @@ void mwLoop::proc_program_state_change()
    {
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
       if (!load_and_setup_level(mLevel.play_level, 0)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
-      if (quit_action == 0) mTransitions.transition_cutscene(0, 1); // nothing to game
-      if (quit_action == 1) mTransitions.transition_cutscene(2, 1); // menu to game
+      if (quit_action == 0) mTransitions.transition_cutscene(0, 1, 1); // nothing to game
+      if (quit_action == 1) mTransitions.transition_cutscene(2, 1, 1); // menu to game
    }
 
    //---------------------------------------
@@ -742,13 +616,12 @@ void mwLoop::proc_program_state_change()
    if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_RESUME)
    {
       mSound.start_sound(1); // resume theme
-//      mTransitions.transition_cutscene(2, 1); // menu to game
+      mTransitions.transition_cutscene(2, 1, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
    }
 
-
    //---------------------------------------
-   // PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT
    //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_QUIT)
    {
@@ -804,117 +677,117 @@ void mwLoop::proc_program_state_change()
 2 - CLIENT
 3 - SERVER_NEW_GAME
 4 - DEMO
-5 - LOAD AND RESET ALL BUT DO NOT START LEVEL
+5 - RELOAD LEVEL AFTER DEMO (LOAD AND RESET ALL BUT DO NOT START LEVEL)
 
 
 */
 int mwLoop::load_and_setup_level(int level, int type)
 {
-
 //   printf("int mwLoop::load_and_setup_level(int level, int type)\n");
 
 
+   // load new level or die trying
    if (!mLevel.load_level_by_number(level, 0, 0)) return 0;
-   else
+
+   // reset game moves (except in demo mode)
+   if (type != 4) mGameMoves.new_level();
+
+
+   // SINGLE_PLAYER_NEW_GAME
+   if (type == 0) mLevel.setup_players_after_level_load(1); // full reset,
+
+   // NEXT_LEVEL
+   if (type == 1) mLevel.setup_players_after_level_load(2); // partial reset,
+
+   // CLIENT_LEVEL_SETUP
+   if (type == 2) mLevel.setup_players_after_level_load(2); // partial reset,
+
+   // RELOAD LEVEL AFTER DEMO (LOAD AND RESET ALL BUT DO NOT START LEVEL)
+   if (type == 5) mLevel.setup_players_after_level_load(1); // full reset,
+
+
+
+   // SERVER_NEW_GAME
+   if (type == 3)
    {
-      if (type != 4) mGameMoves.new_level(); // do not reset game moves in demo mode
-
-      if (type == 0) // SINGLE_PLAYER_NEW_GAME
-      {
-         mLevel.setup_players_after_level_load(1); // type 1 full reset,
-      }
-
-      if (type == 1) // NEXT_LEVEL
-      {
-         mLevel.setup_players_after_level_load(2); // type 2 partial reset,
-
-
-
-
-
-
-      }
-
-      if (type == 2) // CLIENT_LEVEL_SETUP
-      {
-         mLevel.setup_players_after_level_load(2); // type 2 partial reset,
-
-
-
-
-
-
-      }
-
-      if (type == 3) // SERVER_NEW_GAME
-      {
-         mLevel.setup_players_after_level_load(1); // type 1 full reset,
-         mMiscFnx.mw_strncpy(mLevel.mPlayer.loc[0].hostname, local_hostname, 15);
-         mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-         mNetgame.server_lev_seq_num = 0;
-      }
-
-      if (type == 4) // DEMO
-      {
-         mGameMoves.current_pos = 0;
-
-         mLevel.setup_players_after_level_load(1); // type 1 full reset,
-         mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
-
-         // to override local name
-         sprintf(mLevel.mPlayer.syn[0].name, "default");
-      }
-
-      if (type == 5) // LOAD AND RESET ALL BUT DO NOT START LEVEL
-      {
-         mLevel.setup_players_after_level_load(1); // type 1 full reset,
-      }
-
-      initialize_graphs();
-      mNetgame.reset_states();
-      mInput.initialize();
-      mBottomMessage.initialize();
-      mTriggerEvent.initialize();
-      mLevel.mShot.clear_shots();
-      mGameEvent.game_events.clear();
-
-
-      frame_num = 0;
-
-
-
-
-
-      if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL
-
-
-      if ((!mDemoMode.play_mode_active) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
-      {
-         mSound.start_sound(0); // rewind and start theme
-
-         state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
-
-
-         mLog.add(LOG_NET, LOG_NET_SUBTYPE_LEVEL_STARTED, -1, mLevel.play_level); // LEVEL STARTED
-
-         // add initial special game moves
-         mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
-
-         // save colors in game moves array
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if (mLevel.mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mLevel.mPlayer.syn[p].color);
-
-         // add game move to hide player 0 in headless server mode
-         if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
-
-
-
-
-
-      }
-
+      mLevel.setup_players_after_level_load(1); // full reset
+      mMiscFnx.mw_strncpy(mLevel.mPlayer.loc[0].hostname, local_hostname, 15);
+      mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
+      mNetgame.server_lev_seq_num = 0;
    }
+
+   // DEMO MODE
+   if (type == 4)
+   {
+      mGameMoves.current_pos = 0;
+
+      mLevel.setup_players_after_level_load(1); // full reset
+      mLevel.mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+
+      // to override local name
+      sprintf(mLevel.mPlayer.syn[0].name, "default");
+   }
+
+   initialize_graphs();
+   mNetgame.reset_states();
+   mInput.initialize();
+   mBottomMessage.initialize();
+   mTriggerEvent.initialize();
+   mLevel.mShot.clear_shots();
+   mGameEvent.game_events.clear();
+
+   frame_num = 0;
+
+
+   // RELOAD LEVEL AFTER DEMO (LOAD AND RESET ALL BUT DO NOT START LEVEL)
+   if (type == 5) return 1;
+
+   if (mDemoMode.play_mode_active && mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) return 1;
+
+
+
+
+   mSound.start_sound(0); // rewind and start theme
+   state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
+   mLog.add(LOG_NET, LOG_NET_SUBTYPE_LEVEL_STARTED, -1, mLevel.play_level); // LEVEL STARTED
+
+   // add initial special game moves
+   mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
+
+   // save colors in game moves array
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mLevel.mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mLevel.mPlayer.syn[p].color);
+
+   // add game move to hide player 0 in headless server mode
+   if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
+
    return 1;
+
+
+
+
+   // if ((!mDemoMode.play_mode_active) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
+   // {
+   //    mSound.start_sound(0); // rewind and start theme
+   //    state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
+   //    mLog.add(LOG_NET, LOG_NET_SUBTYPE_LEVEL_STARTED, -1, mLevel.play_level); // LEVEL STARTED
+   //
+   //    // add initial special game moves
+   //    mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
+   //
+   //    // save colors in game moves array
+   //    for (int p=0; p<NUM_PLAYERS; p++)
+   //       if (mLevel.mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mLevel.mPlayer.syn[p].color);
+   //
+   //    // add game move to hide player 0 in headless server mode
+   //    if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
+   // }
+   //
+   //
+
+
+
+
 }
 
 
@@ -1054,7 +927,7 @@ void mwLoop::main_loop()
                // process scale factor changes
                // -----------------------------------
                int ldm = mGameState.level_done_mode;
-               if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
+               if ((ldm == 40) || (ldm == 35)) mDisplay.proc_custom_scale_factor_change();
                else                            mDisplay.proc_scale_factor_change();
             }
 

@@ -77,35 +77,22 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    if (p == -1) p = mLevel.mPlayer.active_local_player;
 
 
-
    char msg[1024];
    sprintf(msg, "%s", "");
 
    if (log_type == LOG_OTH_LEVEL_DONE)
    {
-      if (sub_type == 5) log_append_textf(log_type, "[%4d] Level Done Mode:%d - %s [%d]\n", mLoop.frame_num, sub_type, t1, (int)v0);
+      if (sub_type == 8) log_append_textf(log_type, "[%4d] Level Done Mode:%d - %s [%d]\n", mLoop.frame_num, sub_type, t1, (int)v0);
       else               log_append_textf(log_type, "[%4d] Level Done Mode:%d - %s\n", mLoop.frame_num, sub_type, t1);
    }
 
 
-
-
    if (log_type == LOG_OTH_TRANSITIONS)
    {
-      if (sub_type == 1) log_add_prefixed_text(log_type, p, "Transitions: Next level to overworld\n");
-      if (sub_type == 2) log_add_prefixed_text(log_type, p, "Transitions: Next level from overworld\n");
-      if (sub_type == 3) log_add_prefixed_text(log_type, p, "Transitions: Level to level (no overworld)\n");
-
-      if (sub_type == 5) log_add_prefixed_text(log_type, p, "Transitions: Pre-load\n");
-      if (sub_type == 6) log_add_prefixed_text(log_type, p, "Transitions: Post-load\n");
-
-      if (sub_type == 0)
-      {
-         int i = (int) v0;
-         int f = (int) v1;
-         const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-         mLog.log_add_prefixed_textf(log_type, 0, "Transition from %s to %s\n", tcn[i], tcn[f]);
-      }
+      int initial = (int) v0;
+      int final = (int) v1;
+      const char* tcn[5] = {"nothing", "game", "menu", "gate"};
+      mLog.log_add_prefixed_textf(log_type, 0, " Transition from %s to %s\n", tcn[initial], tcn[final]);
    }
 
 
@@ -113,8 +100,11 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
    {
       if (sub_type == 0)
       {
-         int s0 = (int) v0;
+         //int s0 = (int) v0;
          int s1 = (int) v1;
+         int qa = mLoop.quit_action;
+         int da = mLoop.done_action;
+
 
          // log_add_prefixed_textf(log_type, 0, "State change from [%2d]:%s to [%2d]:%s  ----  ", s0, mLoop.state_names[s0], s1, mLoop.state_names[s1]);
          // for (int i=0; i<8; i++) log_append_textf(log_type, "%2d ", mLoop.state[i]);
@@ -133,22 +123,41 @@ void mwLog::add(int log_type, int sub_type, int p, float v0, float v1, float v2,
          // log_append_textf(log_type, "quit action:%d   done action:%d\n", mLoop.quit_action, mLoop.done_action);
          // log_append_textf(log_type, "----------------------------------------------------------\n");
 
-         log_append_textf(log_type, "\n-------------------  State Change ------------------------\n");
-         log_append_textf(log_type, "Frame:[%d]\n", mLoop.frame_num, s0, mLoop.state_names[s0], s1, mLoop.state_names[s1]);
-         log_append_textf(log_type, "From: [%2d]-%s\n", s0, mLoop.state_names[s0]);
-         log_append_textf(log_type, "To:   [%2d]-%s\n", s1, mLoop.state_names[s1]);
-         log_append_textf(log_type, "Quit action:[%d]-%s\n", mLoop.quit_action, mLoop.quit_action_names[mLoop.quit_action]);
-         log_append_textf(log_type, "Done action:[%d]-%s\n", mLoop.done_action, mLoop.done_action_names[mLoop.done_action]);
-         // log_append_textf(log_type, "History:\n");
-         // log_append_textf(log_type, "--------\n");
-         // for (int i=0; i<8; i++) log_append_textf(log_type, "[%d][%2d]-%s\n", i, mLoop.state[i], mLoop.state_names[mLoop.state[i]]);
-         log_append_textf(log_type, "----------------------------------------------------------\n");
+         // log_append_textf(log_type, "\n-------------------  State Change ------------------------\n");
+         // log_append_textf(log_type, "Frame      : %2d\n", mLoop.frame_num, s0, mLoop.state_names[s0], s1, mLoop.state_names[s1]);
+         // log_append_textf(log_type, "From       : %2d - %s\n", s0, mLoop.state_names[s0]);
+         // log_append_textf(log_type, "To         : %2d - %s\n", s1, mLoop.state_names[s1]);
+         // log_append_textf(log_type, "Quit action: %2d - %s\n", mLoop.quit_action, mLoop.quit_action_names[mLoop.quit_action]);
+         // log_append_textf(log_type, "Done action: %2d - %s\n", mLoop.done_action, mLoop.done_action_names[mLoop.done_action]);
+         // // log_append_textf(log_type, "History:\n");
+         // // log_append_textf(log_type, "--------\n");
+         // // for (int i=0; i<8; i++) log_append_textf(log_type, "[%d][%2d]-%s\n", i, mLoop.state[i], mLoop.state_names[mLoop.state[i]]);
+         // log_append_textf(log_type, "----------------------------------------------------------\n");
+
+
+          // log_append_textf(log_type, "\n-------------------  State Change ------------------------\n");
+          // log_append_textf(log_type, "[%d] new:%s  old:%s\n", mLoop.frame_num, mLoop.state_names[s0], mLoop.state_names[s1]);
+          // log_append_textf(log_type, "quit action:%d   done action:%d\n", mLoop.quit_action, mLoop.done_action);
+          // log_append_textf(log_type, "----------------------------------------------------------\n");
+
+
+         log_append_textf(log_type, "\n[%d] NEW PROGRAM STATE:%s   qa:%d-%s  da:%d-%s \n", mLoop.frame_num, mLoop.state_names[s1], qa, mLoop.quit_action_names[qa], da, mLoop.done_action_names[da]);
+
+
       }
+      if (sub_type == 2) log_append_textf(log_type, "[%d] PROGRAM STATE - exit program at level done because done_action = 0\n", mLoop.frame_num);
+      if (sub_type == 3) log_append_textf(log_type, "[%d] PROGRAM STATE - instead of menu, go to overworld because quit_action = 2\n", mLoop.frame_num);
+      if (sub_type == 4) log_append_textf(log_type, "[%d] PROGRAM STATE - instead of menu, go to settings because quit_action = 3\n", mLoop.frame_num);
+
+      if (sub_type == 5) log_append_textf(log_type, "[%d] NEXT LEVEL:%d\n", mLoop.frame_num, (int) v0);
 
 
-      if (sub_type == 2) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - exit program at level done because done_action = 0");
-      if (sub_type == 3) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - instead of menu, go to overworld because quit_action = 2");
-      if (sub_type == 4) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - instead of menu, go to settings because quit_action = 3");
+
+
+
+      // if (sub_type == 2) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - exit program at level done because done_action = 0\n");
+      // if (sub_type == 3) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - instead of menu, go to overworld because quit_action = 2\n");
+      // if (sub_type == 4) log_add_prefixed_text(log_type, 0, "PROGRAM STATE - instead of menu, go to settings because quit_action = 3\n");
    }
 
 

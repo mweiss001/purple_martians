@@ -97,7 +97,6 @@ void mwItem::proc_start_collision(int p, int i)
 }
 
 
-
 int mwItem::find_gate_for_level(int level)
 {
    for (int i=0; i<500; i++)
@@ -108,7 +107,7 @@ int mwItem::find_gate_for_level(int level)
 
 int mwItem::find_gate_for_player(int p)
 {
-   return find_gate_for_level(m_parent.mPlayer.syn[p].overworld_last_touched_gate);
+   return find_gate_for_level(m_parent.mPlayer.syn[p].overworld_last_touched_gate_level);
 }
 
 void mwItem::set_player_start_pos(int p)
@@ -123,9 +122,12 @@ void mwItem::set_player_start_pos(int p)
       item_to_get_start_from = find_gate_for_player(p);
       if (item_to_get_start_from == -1)
       {
-         //printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
+         //printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate_level);
       }
-      // else printf("Player:%d entering overworld, found gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate);
+      //else printf("Player:%d entering overworld, found gate for level:%d\n", p, m_parent.mPlayer.syn[p].overworld_last_touched_gate_level);
+
+//      if (p == 0) printf("Player:%d entering overworld, found gate:%d for level:%d  x:%d y:%d x:%.0f y:%.0f\n", p, item_to_get_start_from, m_parent.mPlayer.syn[p].overworld_last_touched_gate_level, item[item_to_get_start_from][4], item[item_to_get_start_from][5], itemf[item_to_get_start_from][0], itemf[item_to_get_start_from][1] );
+
 
    }
 
@@ -283,13 +285,13 @@ item[][11] hover level icon size
 
 void mwItem::proc_gate_collision(int p, int i)
 {
-   m_parent.mPlayer.syn[p].marked_gate = i;
+   m_parent.mPlayer.syn[p].hovered_gate = i;
 
    int lev = item[i][6];
 
-   if (m_parent.mPlayer.syn[p].overworld_last_touched_gate != lev)
+   if (m_parent.mPlayer.syn[p].overworld_last_touched_gate_level != lev)
    {
-      m_parent.mPlayer.syn[p].overworld_last_touched_gate = lev;
+      m_parent.mPlayer.syn[p].overworld_last_touched_gate_level = lev;
       if (p == 0) mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED); // clients do not save to config
    }
 
@@ -312,9 +314,11 @@ void mwItem::proc_gate_collision(int p, int i)
    // and not client (client can never locally enter gate)
    // and UP pressed:
    // start gate_enter_mode
-   if (!mGameState.gate_enter_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
+
+   if (!mGameState.level_done_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
    {
-      mGameState.gate_enter_mode = 9;
+      mGameState.level_done_mode = 29;
+//      mGameState.gate_enter_mode = 9;
       mGameState.gate_enter_item = i;
       // force page 0 (level icon) for transition
       item[i][7] = 0;
@@ -393,11 +397,12 @@ void mwItem::get_gate_tile_index_and_seq(int i, int &gate_tile_index, int &seq)
    // set the gate tile sequence
    seq = 0; // closed door
 
-   // only if gate_enter_mode is active and this door is gate_enter_item
-   if ((mGameState.gate_enter_mode) && (mGameState.gate_enter_item == i))
+
+   // only if level_done_mode is active and this door is gate_enter_item
+   if ((mGameState.level_done_mode) && (mGameState.gate_enter_item == i))
    {
-      if (mGameState.gate_enter_mode)     seq = 2; // fully open door
-      if (mGameState.gate_enter_mode > 7) seq = 1; // partially open door
+      if (mGameState.level_done_mode)      seq = 2; // fully open door
+      if (mGameState.level_done_mode > 27) seq = 1; // partially open door
    }
 }
 
@@ -435,7 +440,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    {
       bool player_on_gate = false;
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_gate == i)) player_on_gate = true;
+         if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].hovered_gate == i)) player_on_gate = true;
 
       // draw level icon with frame and title
       if (!player_on_gate)

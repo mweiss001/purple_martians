@@ -1112,7 +1112,9 @@ void mwScreen::draw_top_frame(int p)
 
    int tdx = BORDER_WIDTH;
    int tdy = 0;
-   int tc = 15;
+
+   ALLEGRO_COLOR c = mColor.White;
+   ALLEGRO_FONT *f = mFont.pr8;
 
    // ----------------------------------
    // draw info on top frame
@@ -1121,74 +1123,69 @@ void mwScreen::draw_top_frame(int p)
    {
 
       // get time from either frame_num or level_done_frame
+      int level_time = mLoop.frame_num;
+      if (mGameState.level_done_mode) level_time = mGameState.level_done_frame;
       char tmr[80];
-      if (mGameState.level_done_mode) mMiscFnx.chrms(mGameState.level_done_frame, tmr);
-      else  mMiscFnx.chrms(mLoop.frame_num, tmr);
-
+      mMiscFnx.chrms(level_time, tmr);
 
       if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mLevel.mEnemy.num_enemy); // special case for narrow screens
       else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, tmr, mLevel.mEnemy.num_enemy);
-      al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+1,  0, msg);
+      al_draw_text(f, c, tdx, tdy+1,  0, msg);
       tdx += strlen(msg)*8;
 
       // draw health bar
       draw_percent_bar(tdx+44, tdy, 88, 10, (int)mLevel.mPlayer.syn[p].health);
-      al_draw_textf(mFont.pr8, mColor.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) mLevel.mPlayer.syn[p].health );
+      al_draw_textf(f, mColor.Black, tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) mLevel.mPlayer.syn[p].health );
       tdx += 88;
 
-
-      int total_purple_coins = mLevel.get_total_purple_coins(mLevel.play_level);
-
       // draw purple coins if the level has any
+      int total_purple_coins = mLevel.get_total_purple_coins(mLevel.play_level);
       if (total_purple_coins)
       {
          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
-         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), total_purple_coins);
-
-         // mBitmap.spin_shape(197, tdx+5, tdy-5, 0, 0, 19, 19, 0.5, 0.5, 60);
-         // al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+1, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), mLevel.data[mLevel.play_level].tot_coins);
-
+         al_draw_textf(f, c, tdx+19, tdy+2, 0, ":%d/%d", mGmInfo.countTotalPurpleCoinsCollected(), total_purple_coins);
       }
-
-//       // draw purple coins if the level has any
-//       int tpc = mLevel.data[mLevel.play_level].tot_coins;
-//       if (tpc)
-//       {
-//          int ct = mGmInfo.countTotalPurpleCoinsCollected();
-//          // int cp = mLevel.mPlayer.syn[p].stat_purple_coins;
-//
-//          //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
-//          //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mLevel.mPlayer.syn[p].stat_purple_coins, tpc);
-//          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
-// //         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mLevel.mPlayer.syn[p].stat_purple_coins, tpc);
-// //         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
-//
-//          al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", ct, tpc);
-//       }
-
-
-
-
-
+   }
+   else // overworld
+   {
+       //al_draw_text(f, c, tdx, tdy+1,  0, "Overworld");
+       //tdx += 80;
    }
 
 
-   if (mLoop.frame_speed != 40) al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, 2, ALLEGRO_ALIGN_CENTER, "fps:%d", mLoop.frame_speed);
+   // these start from the right side of the screen fill to the left
+   tdx = mDisplay.SCREEN_W;
 
-   // show number of active player and enemy shots
-   // al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2-120, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mShot.num_pshots, mShot.num_eshots);
+   if (mLoop.frame_speed != 40)
+   {
+      tdx -= 100;
+      al_draw_textf(f, c, tdx, 2, ALLEGRO_ALIGN_CENTER, "fps:%d", mLoop.frame_speed);
+   }
 
    if (mDisplay.show_scale_factor > 0)
    {
-      al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", mDisplay.scale_factor);
+      tdx -= 100;
+      al_draw_textf(f, c, tdx, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", mDisplay.scale_factor);
    }
    if (mDisplay.show_dtd > 0)
    {
+      tdx -= 100;
       mDisplay.show_dtd --;
       int dtd = mDisplay.saved_display_transform_double;
-      if (dtd) al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", dtd);
-      else     al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", dtd);
+      if (dtd) al_draw_textf(f, c, tdx, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", dtd);
+      else     al_draw_textf(f, c, tdx, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", dtd);
    }
+
+   // show number of active player and enemy shots
+   if (0)
+   {
+      tdx -= 120;
+      al_draw_textf(f, c, tdx, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mLevel.mShot.num_pshots, mLevel.mShot.num_eshots);
+   }
+
+
+
+
 }
 
 void mwScreen::draw_bottom_frame(int p)

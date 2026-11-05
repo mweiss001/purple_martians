@@ -12,16 +12,11 @@ class mwGameState
    int level_done_frame;
    int level_done_next_level;
 
-   int gate_enter_mode;
-   int gate_enter_timer;
+
    int gate_enter_item;
 
 
-   int transition_mode;
-   int transition_timer;
-
-
-
+   int transition_speed = 1;
 
 
    int player_vs_player_shots;

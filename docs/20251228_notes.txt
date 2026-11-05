@@ -49622,6 +49622,2520 @@ bug - need to redraw l2 level background if screen changes
    l2.valid_level_loaded = 0;
 done...
 
+should I make shots part of mLevel? yes..done
+
+now back to transitions...
+
+-------------------------------------------------------------------
+-------------------------------------------------------------------
+Should I make transitions have their own game state?
+Blocking vs non-blocking transitions.
+
+Non-blocking are the ones that will work in netgame. They run while not stopping the game_loop.
+
+I think the only other one I really need is classic mode next level.
+
+
+I am thinking of trying to patch that into level done...
+
+right now the only thing I have in level done is game to overworld
+
+to do game to game would require 2 transitions:
+- first do the current level to 0
+- then do 0 to next level
+
+then call next level
+
+I don't think I can make them common
+
+ldm 4 setup transition
+ldm 3 play transition
+
+so how will I do it then?
+
+make custom paths?
+
+ldm 4 could setup either overworld or l2l
+then play either 3 or 2
+
+
+I think I want separate modes...
+
+
+start with 9 and raise levels
+
+9 - 12
+8 - 11
+...
+
+72 hits of mGameState.level_done_mode
+all instances less than 20...add 3
+
+I think I have that transition working, but can I do the compound interest scale thing?
+Do I really need it?
+
+I have made it optional:
+
+   float min_scale = 0.0001;
+   bool scale_compound_interest_mode = 0;
+
+test on client...
+
+when client is zooming in, I want to see the client player on top
+fix: copy active local player from mLevel when loading l2...done
+
+now I have a momentary blank screen when client loads new level...
+
+how does client do next level?
+
+does it just get new level in state?
+
+I am trying to trace how it works...
+
+After some testing, I think level done mode 1 does not run on client
+
+Does client suddenly start getting difs from new level? Yes
+
+When client receives an stdf pakcet with server sequence number + 1....
+client starts next level mode
+
+this is fine, but I would like to minimize the jarring blink at the end...
+would it not be the same for gate entry? yes...
+
+so what do I do?
+dont draw until client is joined?
+
+how can I detect this?
+
+
+   if (mNetgame.ima_client && mLoop.frame_num < 1) skip_draw = 1;
+
+
+this is kind of important
+
+I want to know what happens
+
+what frame does level done mode happen on?
+how long until it draws again
+
+from the clients POV
+
+
+577 state change to level done
+
+what does load level do?
+
+I can't tell when the client draws its first frame
+
+it might be different than the second
+
+
+I think the transition lines up pretty close with the actual next loaded level
+there is just one frame that does not...the initial one 
+
+could it be that the screen values are different?
+try printing them to see...
+
+as far as I can tell they are the same
+
+what draws in between end of transition and level load?
+
+ds_draw_sequence!!!
+
+fix :   if (mGameState.level_done_mode == 2) skip_draw = 1;
+
+
+2026-11-03 12:16:54
+
+wow that was some bullshit!!!
+
+now the only thing that does not line up is the amount the client moves on the server until connected
+does it not run free like the rest?
+it might if I made the same players active...
+or at least maybe the active local player...
+where would I do that??
+
+As far as I can tell, I don't reset that at level load...
+
+make a test level where the player falls a lot at the start...
+66 67
+
+remove all this stupid debug shit...wip
+
+
+transition done, but still show one last frame from old level...why?
+
+
+      // if (mNetgame.ima_client) mInput.tsw();
+      // printf("before next level load\n");
+
+      mLevel.play_level = mGameState.level_done_next_level;
+      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+
+      if (mNetgame.ima_client) mInput.tsw();
+      printf("after next level load\n");
+
+
+what state is set here?
+         state[0] = PM_PROGRAM_STATE_GAME_LOOP_RUN;
+
+it happens before this....
+
+it happens after the end of transition and before level load...
+
+
+frame 586
+state 0 next level - skip draw
+
+
+this is getting somewhere!!!
+
+452 end of transition
+453 draw is a go
+454 state 0 next level - skip draw
+
+moved setting of level_done_mode = 0 to mLoop from proc_level_done_mode
+
+now:
+421 end of transition
+422 client processes level done mode 1
+422 before next level load
+
+I think its working...
+
+2026-11-03 15:26:08
+
+That took many hours to figure out...
+
+
+void mwDrawSequence::ds_draw(int setup_only, int flip)
+{
+   bool packet_check = 1;
+
+   if (mMain.headless_server) return;
+   if (mGameState.transition_mode) return;
+   if (mGameState.gate_enter_mode == 2) return;
+   if (mGameState.level_done_mode == 27) return;
+   if (mGameState.level_done_mode && mGameState.level_done_mode < 7) return;
+
+
+   // if (mNetgame.ima_client && mGameState.level_done_mode == 0)
+   // {
+   //    //printf("[%d]  mNetgame.ima_client && mGameState.level_done_mode == 0\n", mLoop.frame_num);
+   // }
+
+
+   // if (mLoop.state[0] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   // {
+   //
+   //    printf("[%d]  mLoop.state[0] == PM_PROGRAM_STATE_NEXT_LEVEL  skip draw\n", mLoop.frame_num);
+   //
+   //    //mInput.tsw();
+   //    return;
+   // }
+   //
+   // if (mLoop.state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   // {
+   //    printf("[%d]  mLoop.state[1] == PM_PROGRAM_STATE_NEXT_LEVEL  skip draw\n", mLoop.frame_num);
+   //
+   //    //mInput.tsw();
+   //    return;
+   // }
+
+
+
+
+   // this one never triggers
+   // if (mNetgame.ima_client)
+   // {
+   //     if (mLevel.mPlayer.loc[mLevel.mPlayer.active_local_player].client_last_dif_applied_frame_num == 0)
+   //     {
+   //        printf("[%d]  client skipped drawing\n", mLoop.frame_num);
+   //        return;
+   //     }
+   // }
+
+
+//   printf("[%d]  ds_draw is a go!!\n", mLoop.frame_num);
+
+
+//----------------------------------------------------------------------------------------------------------
+// PM_PROGRAM_STATE_NEXT_LEVEL
+//----------------------------------------------------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   {
+      mLog.add(LOG_NET, LOG_NET_SUBTYPE_NEXT_LEVEL, -1, mGameState.level_done_next_level); // NEXT LEVEL
+
+
+// --------------------------------------------------------
+// cleanup after level done
+// --------------------------------------------------------
+      mSound.stop_sound();
+
+      // this is done here on purpose
+      // I could set this at the end of these modes, but I wait until here so I can use them to prevent drawing in mode 1
+
+      //mGameState.level_done_mode = 0;
+      //mGameState.gate_enter_mode = 0;
+
+
+      if (mNetgame.ima_client)
+      {
+         mLog.add(LOG_NET_ENDING_STATS, 1, -1);
+         mNetgame.channelFlush();
+         mNetgame.server_lev_seq_num++;
+      }
+      if (mNetgame.ima_server)
+      {
+         mLog.add(LOG_NET_ENDING_STATS, 0, -1);
+         mNetgame.channelFlush();
+         mNetgame.server_lev_seq_num++;
+         if (mLog.log_types[LOG_NET_SESSION].action) mNetgame.session_update_at_level_done();
+      }
+
+      if (mLog.autosave_log_on_level_done) mLog.flush_logs();
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
+
+
+// --------------------------------------------------------
+// instant program quit
+// started from command line and next level called
+// --------------------------------------------------------
+      if (done_action == 0) // command line
+      {
+         mLog.add(LOG_OTH_PROGRAM_STATE, 2, -1); // exit program, because done action == 0
+
+         state[0] = PM_PROGRAM_STATE_QUIT; // exit
+         //mTransitions.transition_cutscene(1, 0); // game to nothing
+         return; // to exit immediately
+      }
+
+// ----------------------------------------------------------
+// determine what transitions to use
+// ----------------------------------------------------------
+
+      // // nothing by default
+      // int pre_load_transistion_initial  = 0;
+      // int pre_load_transistion_final    = 0;
+      // int post_load_transistion_initial = 0;
+      // int post_load_transistion_final   = 0;
+
+
+// ----------------------------------------------------------
+// if destination is overworld
+// ----------------------------------------------------------
+      // if (mGameState.level_done_next_level == 1)
+      // {
+      //    mLog.add(LOG_OTH_TRANSITIONS, 1, -1); // "Next level to overworld\n");
+      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level to overworld\n");
+      //
+      //    pre_load_transistion_initial = 1; // game
+      //    pre_load_transistion_final   = 3; // gate
+      // }
+
+// -----------------------------------------------------------------------------------------------------
+// if going from overworld to any other level, assume gate is used...no transition until after load
+// -----------------------------------------------------------------------------------------------------
+//       if ((mLevel.play_level == 1) && (mGameState.level_done_next_level != 1))
+//       {
+//          mLog.add(LOG_OTH_TRANSITIONS, 2, -1); // "Next level from overworld\n");
+//
+// //         mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Next level from overworld\n");
+//          post_load_transistion_initial = 3; // gate
+//          post_load_transistion_final   = 1; // game
+//       }
+
+// -----------------------------------------------------------------------------------------------------
+// if going from any level to any level (except overworld)
+// also test that previous state == 11  to not trigger when started from menu or settings
+// -----------------------------------------------------------------------------------------------------
+      // if ((mLevel.play_level != 1) && (mGameState.level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
+      // {
+      //    mLog.add(LOG_OTH_TRANSITIONS, 3, -1); // Level to level (no overworld)
+      //    //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "Level to level (no overworld)\n");
+      //    pre_load_transistion_initial  = 1; // game
+      //    pre_load_transistion_final    = 0; // nothing
+      //    post_load_transistion_initial = 0; // nothing
+      //    post_load_transistion_final   = 1; // game
+      // }
+
+// ------------------------------------------------------------------------------------------------------------------------------------
+// ---   pre load transition
+// ------------------------------------------------------------------------------------------------------------------------------------
+      //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "pre-load ");
+//      mLog.add(LOG_OTH_TRANSITIONS, 5, -1); // pre-load
+
+//      mTransitions.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
+
+// ---------------------------------------------------
+// load the new level
+// ---------------------------------------------------
+
+//      if (mNetgame.ima_client) mInput.tsw();
+//      printf("[%d] before next level load\n", mLoop.frame_num);
+
+      mLevel.play_level = mGameState.level_done_next_level;
+      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+
+      mGameState.level_done_mode = 0;
+
+      
+//      if (mNetgame.ima_client) mInput.tsw();
+//      printf("[%d] after next level load\n", mLoop.frame_num);
+
+
+
+
+//      printf("nl:%d  alp:%d  px1: %.0f  py1:%.0f \n", mLevel.last_level_loaded, mLevel.mPlayer.active_local_player, mLevel.mPlayer.syn[0].x, mLevel.mPlayer.syn[0].y);
+//      printf("level_display_region  x:%.0f y:%.0f w:%.0f h:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+//      printf("screen_display        x:%.0f y:%.0f w:%.0f h:%.0f\n",  mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+
+      //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
+
+      // printf("mLoop Post load next Level (%d)\n", mLevel.play_level);
+      // printf("player pos x:%.0f y:%.0f\n", mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x, mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y);
+      // printf("ldx:%.0f  ldy:%.0f  ldw:%.0f  ldh:%.0f\n", mLevel.level_display_region_x, mLevel.level_display_region_y, mLevel.level_display_region_w, mLevel.level_display_region_h);
+      // printf("sdx:%.0f  sdy:%.0f  sdw:%.0f  sdh:%.0f\n", mLevel.screen_display_x, mLevel.screen_display_y, mLevel.screen_display_w, mLevel.screen_display_h);
+      //
+
+
+
+
+
+
+// ----------------------------------------
+// post-load transition
+// ----------------------------------------
+//      mLog.add(LOG_OTH_TRANSITIONS, 6, -1); // post-load
+      //mLog.log_add_prefixed_text(LOG_OTH_TRANSITIONS, 0, "post-load ");
+//      mTransitions.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
+
+//      mTransitions.set_transition_mode(post_load_transistion_initial, post_load_transistion_final, 100);
+
+
+   }
+
+
+
+
+   // do nothing to level transition
+   if (mGameState.level_done_mode == 4)
+   {
+      //if (mGameState.level_done_timer == level_done_transition_time) mInput.tsw(); // pause on first frame
+      transition_current_x += transition_x_inc / 2;
+      transition_current_y += transition_y_inc / 2;
+
+      if (scale_compound_interest_mode) transition_current_scale *= transition_scale_multiplier;
+      else
+      {
+         float ratio = (float)mGameState.level_done_timer / (float)(level_done_transition_time);
+         transition_current_scale = (1-ratio) * transition_initial_scale;
+      }
+
+      al_set_target_backbuffer(mDisplay.display);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      l2.draw_scaled_level_buffer_centered_on_pos(transition_current_x, transition_current_y, l2.mPlayer.syn[0].x+10, l2.mPlayer.syn[0].y+10, transition_current_scale);
+      al_flip_display();
+
+//      if (mGameState.level_done_timer == level_done_transition_time) mInput.tsw(); // pause on first frame
+//      if (mGameState.level_done_timer == 1) mInput.tsw(); // pause on last frame
+
+      // if done, set next mode
+      if (mGameState.level_done_timer == 1)
+      {
+         mGameState.level_done_mode = 2;
+
+         //if (mNetgame.ima_client) mInput.tsw();
+         printf("[%d] end of transition\n", mLoop.frame_num);
+
+
+      }
+   }
+
+
+
+   if (!mNetgame.ima_client)
+      if (--mGameState.level_done_timer <= 0)
+      {
+         mGameState.level_done_mode--;
+         if (mGameState.level_done_mode == 30) mGameState.level_done_timer = 0;   // set up for player move and zoom out
+         if (mGameState.level_done_mode == 29) mGameState.level_done_timer = 100; // player move and zoom out
+         if (mGameState.level_done_mode == 28) mGameState.level_done_timer = 0;   // set up for rocket move
+         if (mGameState.level_done_mode == 27) mGameState.level_done_timer = 240; // rocket move
+         if (mGameState.level_done_mode == 26) mGameState.level_done_timer = 0;   // set up for zoom in
+         if (mGameState.level_done_mode == 25) mGameState.level_done_timer = 100; // zoom in
+         if (mGameState.level_done_mode == 24) mGameState.level_done_timer = 0;   // jump to mode 6
+
+         if (mGameState.level_done_mode == 8)
+         {
+            if (mDemoMode.play_mode_active)
+            {
+               if (mScreen.demo_controls_pause_when_done) mGameState.level_done_timer = 999; // special value to mark wait forever
+               else mGameState.level_done_timer = 160; // skippable 4s delay;
+            }
+            else mGameState.level_done_timer = 600; // skippable 15s delay;
+         }
+
+         if (mGameState.level_done_mode == 5)
+         {
+            if (mGameState.level_done_next_level == 1) mGameState.level_done_mode = 1; // game to overworld mode, skip to final
+         }
+
+      }
+
+   if (mGameState.level_done_mode == 1)
+   {
+
+      // this never shows, proving that client does not ever do level done mode 1
+      if (mNetgame.ima_client)
+      {
+         printf ("[%d] mGameState.level_done_mode == 1) mNetgame.ima_client\n", mLoop.frame_num);
+      }
+
+
+      mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Load next level");
+      mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+//      mGameState.level_done_mode = 0;
+   }
+
+2026-11-03 15:34:35
+
+
+I am happy with how this is working....
+
+I want to add to level done to overworld....
+
+I want the players to move to the gate instead of warping there
+
+level done mode 6
+
+I could add another mode after the transition
+or I could move the players during the transition
+
+try moving after...
+
+add another mode
+
+slide stuff around
+
+now
+6 do l-o
+5 do l-z
+4 do z-l
+
+new:
+slide 5 and 4 to 4 and 3
+
+new 5 is the move player from icon to gate
+
+what player? l2 or mLevel?
+
+at this point, l2 is the overworld and mLevel is the prev level
+
+I think it should be l2
+
+the final position will be the gate in l2 at full scale
+
+I will need to calculate where the intial position is...
+
+do this and show on screen
+
+
+
+I need to set proper player position before loading l2
+or I need to that position when drawing players
+
+I could keep my own copy of player position
+
+That did it!!!
+
+Math. If that doesn't work, use more math.
+
+Now implement the scale...
+
+now rot
+
+
+now test in netgame...
+client player is always shown when exit
+changed load l2 to copy active from mLevel...fixed
+
+test sh
+good...I am so very happy!!!!
+
+2026-11-03 18:33:44
+
+
+2026-11-04 03:23:28
+today I want to do more with transitions
+
+
+some could be blocking, like
+menu to level
+
+
+
+some could reuse existing non-blocking, like
+demo level to level
+level to menu
+overworld demo
+
+
+
+
+
+
+fixes
+
+level done mode transition shrinking player not shown on level
+he is very small!!
+
+can I make his size line up with the size of the door?
+not really...
+this is level done,
+first players seek exit
+then players shrink and rotate into exit
+the player's scale is smaller than the door
+then the whole level shrinks into the level icon of overworld
+it would look funny for the player's scale to increase here
+then the players moves from the level icon to the gate
+at this point I should be using the existing scale..done
+
+when players moving back from overworld icon to gate, I want to frame the level...done
+
+there is a flash at the end of gate entry mode...can I fix it like I did level done mode??..done
+
+2026-11-04 06:32:16
+
+looking better
+
+what next?
+menu to game
+this will be a blocking one, no need for the frame to run...
+
+where will this get called?
+
+the old one still works
+      if (quit_action == 1) mTransitions.transition_cutscene(2, 1); // menu to game
+
+how about game to menu also...would it not be simpler
+
+I now have:
+menu to game (new)
+menu to game (resume)
+game quit to menu
+
+and they all look great!!!
+
+now I also have:
+start game from commandline
+exit game to command line
+
+holy shit that is a lot, what else?
+run demo from menu
+all those work, but...might need some tweaking about where they start, etc...
+
+
+next...
+single player quit level to overworld
+
+this one is more complicated
+
+zoom out current level while drawing overworld underneath
+
+
+I am struggling here...
+
+what am I trying to do?
+
+I have the initial position
+
+I can't load overworld into l2 and have it look like it will when I actually load it...
+simple bug...
+
+
+
+
+
+         if (f == 3) // gate
+         {
+            // load overworld level into l2 and find out where player will be
+            // this will only ever be used for single player quitting level to overworld
+
+            l2.mPlayer.syn[0].overworld_last_touched_gate = mLevel.last_level_loaded;
+            l2.load_level_l2(1);
+
+            // draw l2 on its own level_buffer without players
+            if (!mMain.headless_server) l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+
+            // find the gate item for current level
+            int gate_index = l2.mItem.find_gate_for_level(mLevel.last_level_loaded);
+
+            // get position of hovered level icon
+            float size = l2.mItem.item[gate_index][11];
+            float lix1 = l2.mItem.item[gate_index][4] - size/2 + 10;
+            float liy1 = l2.mItem.item[gate_index][5] - size   + 19;
+
+            // add scaled player position
+            lix1 += mLevel.mPlayer.syn[0].x / 2000 * size;
+            liy1 += mLevel.mPlayer.syn[0].y / 2000 * size;
+
+            // get actual screen position
+            l2.calc_actual_screen_position(lix1, liy1, fmxf, fmyf);
+
+            // set scale inc
+            fmsf = mDisplay.scale_factor_current / 2000 * size;
+
+
+
+
+
+
+/*
+
+
+            // set all players last touched gate
+            for (int p=0; p<NUM_PLAYERS; p++)
+               l2.mPlayer.syn[p].overworld_last_touched_gate = curr_lev;
+
+            // load the next level (overworld) into l2
+            l2.load_level_l2(next_lev);
+
+            // draw l2 on its own level_buffer without players
+            if (!mMain.headless_server) l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+
+            // draw mLevel on its own level_buffer with players
+            if (!mMain.headless_server) mLevel.draw_level2(mLevel.level_buffer, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+
+            // find the gate item for current level
+            int gate_index = l2.mItem.find_gate_for_level(curr_lev);
+            if (gate_index == -1)
+            {
+               printf("mGameState.level_done_mode == 4 --  could not find gate with level:%d\n", curr_lev);
+               return;
+            }
+
+            // get position of hovered level icon
+            float size = l2.mItem.item[gate_index][11];
+            float lix1 = l2.mItem.item[gate_index][4] - size/2 + 10;
+            float liy1 = l2.mItem.item[gate_index][5] - size   + 19;
+
+            // find actual screen position
+            float ex1=0, ey1=0;
+            l2.calc_actual_screen_position(lix1, liy1, ex1, ey1);
+
+            // get new scaled size
+            float esize = size * mDisplay.scale_factor_current;
+
+            // add player position
+            transition_final_x = ex1 + px / 2000 * esize;
+            transition_final_y = ey1 + py / 2000 * esize;
+            transition_final_scale = esize / 2000;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // l2.mPlayer.syn[0].overworld_last_touched_gate = mLevel.last_level_loaded;
+            // l2.load_level_l2(1);
+            //
+            // // check player positions??
+            //
+            // // draw l2 on its own level_buffer without players
+            // if (!mMain.headless_server) l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+
+
+
+
+            // l2.draw_scaled_level_region_to_display();
+            // al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
+            // al_flip_display();
+            // mInput.tsw();
+
+//            return;
+
+
+            // // debug draw initial
+            // al_clear_to_color(al_map_rgb(0,0,0));
+            // mLevel.draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+            // al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
+            // al_flip_display();
+            // mInput.tsw();
+            //
+
+
+
+
+
+
+
+
+
+//             // find the gate item for current level
+//             int gate_index = l2.mItem.find_gate_for_level(mLevel.last_level_loaded);
+//             // if (gate_index == -1)
+//             // {
+//             //    printf("mGameState.level_done_mode == 4 --  could not find gate with level:%d\n", mLevel.last_level_loaded);
+//             //    return;
+//             // }
+//             //
+//             // printf("gate index:%d\n", gate_index);
+//
+//
+//
+//             // get position of hovered level icon
+//             float size = l2.mItem.item[gate_index][11];
+//             float lix1 = l2.mItem.item[gate_index][4] - size/2 + 10;
+//             float liy1 = l2.mItem.item[gate_index][5] - size   + 19;
+//
+// //            printf("size:%.0f lix1:%.0f liy1:%.0f \n", size, lix1, liy1);
+//
+//
+//             lix1 += mLevel.mPlayer.syn[0].x / 2000 * size;
+//             liy1 += mLevel.mPlayer.syn[0].y / 2000 * size;
+//
+//
+//             fmsf = mDisplay.scale_factor_current / 2000 * size;
+//             //
+            // fmxf = l2.screen_display_x + (lix1 - l2.level_display_region_x) * fmsf;
+            // fmyf = l2.screen_display_y + (liy1 - l2.level_display_region_y) * fmsf;
+
+
+
+//            fmxf = lix1;
+//            fmyf = liy1;
+
+            //            l2.calc_actual_screen_position(fmxf1, fmyf1, fmxf, fmyf);
+//              l2.calc_actual_screen_position(lix1, liy1, fmxf, fmyf);
+
+
+
+            // add player position
+//            lix1 += mLevel.mPlayer.syn[0].x / 2000 * size;
+//            liy1 += mLevel.mPlayer.syn[0].y / 2000 * size;
+            //
+            //
+            //
+            //
+            // // player's position in level
+            // float pxf = l2.mPlayer.syn[0].x;
+            // float pyf = l2.mPlayer.syn[0].y;
+
+            // float fmxf1 = lix1 + pxf;
+            // float fmyf1 = liy1 + pyf;
+
+
+//            float fmxf1 = lix1 + pxf;
+//            float fmyf1 = liy1 + pyf;
+
+            // find actual screen position
+//            l2.calc_actual_screen_position(fmxf1, fmyf1, fmxf, fmyf);
+//            l2.calc_actual_screen_position(lix1, liy1, fmxf, fmyf);
+
+            // debug show position
+
+
+
+
+  //          fmxf = lix1;
+//            fmyf = liy1;
+
+
+
+
+            //
+//             // get new scaled size
+//             float esize = size * mDisplay.scale_factor_current;
+//
+//             // add player position
+//             transition_final_x = ex1 + px / 2000 * esize;
+//             transition_final_y = ey1 + py / 2000 * esize;
+//             transition_final_scale = esize / 2000;
+//
+//             // get scale multiplier using compound interest formula
+// //            transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/level_done_transition_time) ) - 1;
+//
+//
+//             // // restore viewport so transition lines up
+//             // mLevel.level_display_region_x = gate_transition_wx;
+//             // mLevel.level_display_region_y = gate_transition_wy;
+//             // //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
+//
+//            fmsf = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
+//
+//             fmxf = gate_transition_x + pxf * fmsf;
+//             fmyf = gate_transition_y + pyf * fmsf;
+//
+
+         }
+
+
+
+
+2026-11-04 08:46:59
+I now have single player level quit to overworld working
+it is not as perfect as I would have liked, but it works
+
+what next?
+
+demo from overworld gate
+another one that will only ever be single player
+I will never run demos from netgame
+
+well I should look into the demo things anyways...
+
+
+single from command prompt...good
+pm C:\pm\savegame\demo\TAS\lev041-8P-35.gm
+
+single prompt from command prompt...good
+single from menu (classic mode)...good
+single from settings..good
+
+single from gate
+come back good
+work on send
+
+
+starting from overworld with level icon
+
+find actual screen position of player there...
+the next level has already been loaded
+
+
+
+2026-11-04 10:56:58
+
+why does return to menu not show?
+it does in classic, but not overworld
+
+actually what does not show is hovered gate on overworld when returning from overworld to menu
+that should not show anyways, hover is direct to screen, but at least I could show normal icon
+
+
+         if (f == 2) // menu
+         {
+             // this is to show gate icon and normal level icon
+             // they are normally hidden when gate is hovered
+
+            mLevel.mPlayer.syn[0].hovered_gate = -1;
+            mLevel.draw_level2(mLevel.level_buffer, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+            // // if going from overworld to menu
+            // if (mLevel.last_level_loaded == 1)
+            // {
+            //    // find gate item
+            //    int gate_item = mLevel.mItem.find_gate_for_player(0);
+            //    mLevel.mItem.draw_level_icon(gate_item);
+            //    mLevel.mItem.draw_gate_tile(gate_item, 3);
+            // }
+
+
+            fmsf = (float)mScreen.menu_level_display_size / 2000;
+            fmxf = mScreen.menu_level_display_x + px * fmsf;
+            fmyf = mScreen.menu_level_display_y + py * fmsf;
+         }
+
+
+
+
+
+2026-11-04 11:32:52
+
+I think I am at the multiple demo place...not yet
+
+return from demo to overworld does not line up....
+why the fuck not?
+now it does??
+
+test all the shit....
+cmd line game (only from classic) pm 9
+cmd line demo
+cmd line demo fn
+
+single player
+
+classic:
+menu start
+menu quit
+menu resume
+demo current level
+should have player hidden
+how can I do that?
+void mwTransitions::transition_cutscene(int i, int f, bool hide_player)
+demo from settings
+
+story:
+menu to overworld and back
+quit level to overworld
+
+demo from overworld
+starts good
+quits good
+when ends normally there are a few extra transitions
+
+3-1 then 1-3 is all that shows...
+
+I am thinking of doing something really crazy with PROGRAM_STATES
+make a separate function for when they change
+- one to process changes and one to process what they are...
+don't do it!!
+
+just find out what is going on when demo ends
+does the same thing when demo ends from classic menu
+does the same thing when demo ends from settings
+does the same thing when demo ends from cmd line
+pm C:\pm\savegame\demo\lev014.gm
+
+wow!!
+
+level done is getting triggered
+
+fixed by doing this:
+
+   // setup for transition
+   // -----------------------------------
+   if (mGameState.level_done_mode == 7)
+   {
+
+
+      if (mDemoMode.play_mode_active)
+      {
+         mGameState.level_done_mode = 1;
+         return;
+      }
+
+that made most work...
+now demo return to overworld does not line up
+it does now...?!?
+
+OK I am moving on to multiple...from menu
+starts from zero, that is fine
+ends with zero, also fine
+settings looks good also...!!!
+Am I really done with transitions???
+
+Can I remove all that shit in PROGRAM_STATE level done....done...
+
+what is left?
+
+
+
+
+
+/*
+
+void mwTransitions::set_transition_mode(int i, int f, int num_steps)
+{
+
+   if (!mMain.headless_server)
+   {
+      mLevel.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1, 0); // redraw entire level in case only region has been drawn
+      al_set_target_backbuffer(mDisplay.display);
+   }
+
+   mLevel.set_screen_display_variables();
+   mLevel.set_level_display_region_xy();
+   mScreen.set_map_var();
+
+   transition_initial_x = 0;
+   transition_initial_y = 0;
+   transition_initial_scale = 1;
+
+   transition_final_x = 0;
+   transition_final_y = 0;
+   transition_final_scale = 1;
+
+   // player's position in level
+   float px = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].x;
+   float py = mLevel.mPlayer.syn[mLevel.mPlayer.active_local_player].y;
+
+   if (i == 0) // nothing
+   {
+      transition_initial_x = mDisplay.SCREEN_W/2;
+      transition_initial_y = mDisplay.SCREEN_H/2;
+      transition_initial_scale = 0.005;
+   }
+   if (f == 0) // nothing
+   {
+      transition_final_x = mDisplay.SCREEN_W/2;
+      transition_final_y = mDisplay.SCREEN_H/2;
+      transition_final_scale = 0.005;
+   }
+   if (i == 1) // game
+   {
+      transition_initial_x = mDisplay.scale_factor_current; ///??????
+      transition_initial_y = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_initial_scale;
+   }
+   if (f == 1) // game
+   {
+      transition_final_scale = mDisplay.scale_factor_current;
+      transition_final_x = mLevel.screen_display_x + (px - mLevel.level_display_region_x) * transition_final_scale;
+      transition_final_y = mLevel.screen_display_y + (py - mLevel.level_display_region_y) * transition_final_scale;
+   }
+   if (i == 2) // menu
+   {
+      transition_initial_x = mScreen.menu_level_display_x + px * transition_initial_scale;
+      transition_initial_y = mScreen.menu_level_display_y + py * transition_initial_scale;
+   }
+   if (f == 2) // menu
+   {
+      transition_final_scale = (float)mScreen.menu_level_display_size / 2000;
+      transition_final_x = mScreen.menu_level_display_x + px * transition_final_scale;
+      transition_final_y = mScreen.menu_level_display_y + py * transition_final_scale;
+   }
+   if (i == 3) // gate
+   {
+//      transition_initial_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
+      transition_initial_x = gate_transition_x + px * transition_initial_scale;
+      transition_initial_y = gate_transition_y + py * transition_initial_scale;
+   }
+   if (f == 3) // gate
+   {
+      // restore viewport so transition lines up
+      mLevel.level_display_region_x = gate_transition_wx;
+      mLevel.level_display_region_y = gate_transition_wy;
+      //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
+
+//      transition_final_scale = mDisplay.scale_factor_current * (gate_enter_level_icon_size / 2000.0); // level icon size = 200;
+      transition_final_x = gate_transition_x + px * transition_final_scale;
+      transition_final_y = gate_transition_y + py * transition_final_scale;
+   }
+
+
+
+   // get scale multiplier using compound interest formula
+   transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/num_steps) ) - 1;
+
+   // get x and y incs
+   transition_x_inc = (transition_final_x - transition_initial_x) / num_steps;
+   transition_y_inc = (transition_final_y - transition_initial_y) / num_steps;
+
+   // set initial values
+   transition_current_x = transition_initial_x;
+   transition_current_y = transition_initial_y;
+   transition_current_scale = transition_initial_scale;
+
+
+   mGameState.transition_mode = 1;
+   mGameState.transition_timer = num_steps;
+
+
+   printf("new transition(i: %d   f:%d   steps:%d\n", i, f, num_steps);
+
+   printf("initial: %f   %f   %f \n", transition_initial_x, transition_initial_y, transition_initial_scale);
+   printf("final:   %f   %f   %f \n", transition_final_x, transition_final_y, transition_final_scale);
+   printf("inc:     %f   %f   %f \n", transition_x_inc, transition_y_inc, transition_scale_multiplier);
+
+}
+
+
+
+void mwTransitions::proc_transition_mode()
+{
+   if (mGameState.transition_mode == 1) // do transition
+   {
+
+      printf("proc_transition_mode() - %d  x:%f  y:%f  scale:%f\n", mGameState.transition_timer, transition_current_x, transition_current_y, transition_current_scale);
+
+      if (--mGameState.transition_timer <= 0) mGameState.transition_mode = 0;
+
+      transition_current_x += transition_x_inc;
+      transition_current_y += transition_y_inc;
+
+      transition_current_scale *= transition_scale_multiplier;
+
+      if (!mMain.headless_server)
+      {
+
+         al_set_target_backbuffer(mDisplay.display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         mScreen.draw_screen_frame();
+
+         mLevel.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
+
+         al_flip_display();
+
+
+         //   al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
+         //   al_flip_display();
+         if (mGameState.transition_timer == 99) mInput.tsw();
+
+      }
+   }
+}
+
+
+*/
+
+did some cleanup
+
+
+
+found a bug...demo from overworld...return to overworld does not line up
+
+scale 1.0 dtd 1
+
+I think it is only when viewport is not zero
+
+that would be transition to 3
+
+it works fine for level quit to overworld, just not demo end
+
+
+
+transition final 3 - gate mLevel:80
+px:380 py:820
+
+transition final 3 - gate mLevel:80
+px:1420 py:1080
+
+
+Saving gm:savegame/20261104-160729-[80]-autosave on level quit.gm
+transition final 3 - gate mLevel:80
+px:1431 py:1100
+lix1:823 liy1:169
+tfx:481 tfy:31
+
+Saving gm:savegame/20261104-160731-[80]-autosave on level done.gm
+transition final 3 - gate mLevel:80
+px:1420 py:1080
+lix1:822 liy1:167
+tfx:840 tfy:27
+
+why the fuck is this???
+
+transition final 3 - gate mLevel:80
+mLevel ldrx:1177 ldry:933
+px:1420 py:1080
+lix1:822 liy1:167
+ldrx:471 ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:840 tfy:27
+
+
+transition final 3 - gate mLevel:80
+mLevel ldrx:1274 ldry:933
+px:1420 py:1100
+lix1:822 liy1:169
+ldrx:624 ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:478 tfy:31
+
+
+
+
+
+
+
+
+
+Saving gm:savegame/20261104-164519-[80]-autosave on level quit.gm
+transition final 3 - gate mLevel:80
+mLevel ldrx:1273 ldry:933
+px:1419 py:1100
+lix1:822 liy1:169
+l2.ldrx:624 l2.ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:478 tfy:31
+
+Saving gm:savegame/20261104-164521-[80]-autosave on level done.gm
+transition final 3 - gate mLevel:80
+mLevel ldrx:1193 ldry:933
+px:1420 py:1080
+lix1:822 liy1:167
+l2.ldrx:471 l2.ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:840 tfy:27
+
+
+in this function, I get very different l2.ldrx
+
+
+
+FIXED!!!!
+
+all i had to do was force reload of l2
+
+
+mwLevel::load_level_l2(80)
+
+mwLevel::load_level_l2(80)
+
+Saving gm:savegame/20261104-170323-[80]-autosave on level quit.gm
+transition final 3 - gate mLevel:80
+mLevel ldrx:1284 ldry:933
+
+mwLevel::load_level_l2(1)
+px:1430 py:1100
+lix1:823 liy1:169
+l2.ldrx:624 l2.ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:481 tfy:31
+
+Saving gm:savegame/20261104-170324-[80]-autosave on level done.gm
+
+mwLevel::load_level_l2(80)
+
+mwLevel::load_level_l2(1)
+transition final 3 - gate mLevel:80
+mLevel ldrx:1232 ldry:933
+
+mwLevel::load_level_l2(1)
+px:1420 py:1080
+lix1:822 liy1:167
+l2.ldrx:624 l2.ldry:161
+sdx:12 sdy:12
+mDisplay.scale_factor_current:2
+tfx:478 tfy:27
+
+mwLevel::load_level_l2(80)
+
+
+
+   if (final == 3) // gate
+   {
+      // this will only ever be used for single player quitting level to overworld and demo quit to overworld
+      // load overworld level into l2 and find out where player will be
+
+      // printf("transition final 3 - gate mLevel:%d\n", mLevel.last_level_loaded);
+
+      // printf("mLevel.last_level_loaded:%d  l2.last_level_loaded:%d\n", mLevel.last_level_loaded, l2.last_level_loaded);
+
+      //printf("mLevel ldrx:%.0f ldry:%.0f \n", mLevel.level_display_region_x, mLevel.level_display_region_y);
+
+      // set gate level last touched, so player's position in l2 is set by that gate
+      l2.mPlayer.syn[0].overworld_last_touched_gate_level = mLevel.last_level_loaded;
+
+      // force reload
+      l2.valid_level_loaded = 0;
+
+      // load overworld into l2
+      l2.load_level_l2(1);
+
+//      l2.set_level_display_region_xy();
+
+      // draw l2 on its own level_buffer
+//      l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+
+
+
+
+      // find the gate item for current level
+      int gate_index = l2.mItem.find_gate_for_level(mLevel.last_level_loaded);
+
+      // get position of hovered level icon
+      float size = l2.mItem.item[gate_index][11];
+      float lix1 = l2.mItem.item[gate_index][4] - size/2 + 10;
+      float liy1 = l2.mItem.item[gate_index][5] - size   + 19;
+
+      // add scaled player position
+      lix1 += px / 2000 * size;
+      liy1 += py / 2000 * size;
+
+      // get actual screen position
+      l2.calc_actual_screen_position(lix1, liy1, transition_final_x, transition_final_y);
+
+
+//      printf("lix1:%.0f liy1:%.0f \n\n", lix1, liy1);
+
+      // add scaled player position
+      // is this supposed to be from current level?
+//      float px1 = l2.mPlayer.syn[0].x / 2000 * size;
+//      float py1 = l2.mPlayer.syn[0].y / 2000 * size;
+      //
+      // float px1 = l2.mPlayer.syn[0].x / 2000 * size;
+      // float py1 = l2.mPlayer.syn[0].y / 2000 * size;
+
+//      printf("px:%.0f py:%.0f \n", px, py);
+
+
+      // printf("lix1:%.0f liy1:%.0f \n", lix1, liy1);
+      //
+      // printf("l2.ldrx:%.0f l2.ldry:%.0f \n", l2.level_display_region_x, l2.level_display_region_y);
+      //
+      // printf("sdx:%.0f sdy:%.0f \n", l2.screen_display_x, l2.screen_display_y);
+      //
+      //
+      // printf("mDisplay.scale_factor_current:%.0f \n", mDisplay.scale_factor_current);
+
+//      printf("tfx:%.0f tfy:%.0f \n", transition_final_x, transition_final_y);
+
+
+      // set scale
+      transition_final_scale = mDisplay.scale_factor_current / 2000 * size;
+   }
+
+
+now:
+
+   if (final == 3) // gate
+   {
+      // this is used for single player quit level to overworld and demo quit to overworld
+      // load overworld level into l2 and find out where player will be
+
+      // set gate level last touched, so player's position in l2 is set by that gate
+      l2.mPlayer.syn[0].overworld_last_touched_gate_level = mLevel.last_level_loaded;
+
+      // force reload
+      l2.valid_level_loaded = 0;
+
+      // load overworld into l2
+      l2.load_level_l2(1);
+
+      // find the gate item for current level
+      int gate_index = l2.mItem.find_gate_for_level(mLevel.last_level_loaded);
+
+      // get position of hovered level icon
+      float size = l2.mItem.item[gate_index][11];
+      float lix1 = l2.mItem.item[gate_index][4] - size/2 + 10;
+      float liy1 = l2.mItem.item[gate_index][5] - size   + 19;
+
+      // add scaled player position from mLevel
+      lix1 += px / 2000 * size;
+      liy1 += py / 2000 * size;
+
+      // get actual screen position
+      l2.calc_actual_screen_position(lix1, liy1, transition_final_x, transition_final_y);
+
+      // set scale
+      transition_final_scale = mDisplay.scale_factor_current / 2000 * size;
+   }
+
+
+
+2026-11-04 17:18:04
+now are transitions done?
+until I find more bugs
+
+I need to make a way to set some values for speed, etc
+
+how many things do I have to set?
+
+   // original
+   int transition_num_steps;
+   int transition_delay;
+
+   // gate enter
+   // --------------------------------
+   int gate_enter_seek_time = 20;
+   int gate_enter_rotate_time = 20;
+   int gate_enter_num_rotations = 4;
+   float gate_enter_player_final_scale = .1;
+   int gate_enter_transition_time = 20;
+
+
+   // level done
+   // --------------------------------
+   void proc_level_done_mode();
+   int level_done_seek_time = 20;
+   int level_done_rotate_time = 20;
+   float level_done_num_rotations = 4;
+   float level_done_player_final_scale = .4;
+   float level_done_transition_time = 20;
+
+
+   float min_scale = 0.0001;
+   bool scale_compound_interest_mode = 0;
+
+
+   // these are set in level done mode 6 and used in mode 5
+   // controls the player moving from level icon to gate
+   // -----------------------------------------------------
+   float player_exit_transition_time = 20;
+
+
+I think I want a few defaults
+
+where will I set them?
+
+will I sync them to clients?
+
+some I will have to
+
+OK this will take some thinking about...
+
+how about I store a single int in config...
+
+transition_speed
+
+0 = fastest (disabled if possible)
+1 - hasty
+2 - normal
+3 - relaxed
+4 - lazy
+
+get rid of delay, make it fixed at say 25ms...
+
+
+
+what will the single int be called
+
+transition_speed
+
+what will own it?
+mGamestate.transition_speed
+save and load in config with a default of 2
+make it so that I can change it in settings
+done
+
+now where will I set them
+
+void mwTransitions::set_transition_speed()
+
+
+BUG!
+story mode
+overworld to level
+level done
+exit overworld
+.....big pause
+still in overworld
+exit overworld
+normal to menu
+
+I need to make the logging work before debugging this
+level done
+gate entry
+transitions
+do it fool!!!
+fix transistions first
+
+do it single player to console
+
+level done is done
+
+now do gate entry
+
+can I borrow level_done?
+
+
+no, add gate enter
+
+#define LOG_OTH_GATE_ENTER         53
+
+
+   i = LOG_OTH_GATE_ENTER;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_GATE_ENTER");
+
+   if (log_type == LOG_OTH_GATE_ENTER)
+   {
+      log_append_textf(log_type, "[%4d] Gate Enter Mode:%d - %s\n", mLoop.frame_num, sub_type, t1);
+   }
+
+gate enter is done!!!
+
+[  69] Gate Enter Mode:9 - Entry point
+[  70] Gate Enter Mode:8 - Partially open door
+[  80] Gate Enter Mode:7 - Set up players seek gate
+[  81] Gate Enter Mode:6 - Players seek gate
+[ 102] Gate Enter Mode:4 - Shrink and rotate
+[ 122] Gate Enter Mode:3 - Setup for transition
+[ 122] Gate Enter Mode:2 - Do transition
+[ 141] Gate Enter Mode:1 - Enter gate
+
+next transitions...done
+
+next program state..done
+
+
+2026-11-04 19:00:47
+
+now I am ready to look at this bug:
+
+BUG!
+story mode
+overworld to level
+level done
+exit overworld
+.....big pause
+still in overworld
+exit overworld
+normal to menu
+
+
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+-------------------  State Change ------------------------
+[0] new:MENU  old:SINGLE_PLAYER_NEW_GAME
+quit action:1   done action:2
+----------------------------------------------------------
+[51][0][0] Transition from menu to game
+
+-------------------  State Change ------------------------
+[0] new:SINGLE_PLAYER_NEW_GAME  old:GAME_LOOP_RUN
+quit action:1   done action:2
+----------------------------------------------------------
+[  20] Gate Enter Mode:9 - Entry point
+[  21] Gate Enter Mode:8 - Partially open door
+[  31] Gate Enter Mode:7 - Set up players seek gate
+[  32] Gate Enter Mode:6 - Players seek gate
+[  53] Gate Enter Mode:4 - Shrink and rotate
+[  73] Gate Enter Mode:3 - Setup for transition
+[  73] Gate Enter Mode:2 - Do transition
+[  92] Gate Enter Mode:1 - Enter gate (load next level)
+
+-------------------  State Change ------------------------
+[92] new:GAME_LOOP_RUN  old:NEXT_LEVEL
+quit action:2   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[0] new:NEXT_LEVEL  old:GAME_LOOP_RUN
+quit action:2   done action:2
+----------------------------------------------------------
+[  65] Level Done Mode:12 - Pause players and setup seek exit
+[  65] Level Done Mode:11 - Players seek exit
+[  85] Level Done Mode:10 - Players shrink and rotate
+[ 106] Level Done Mode:8 - Skippable 15s timeout  [14]
+[ 141] Level Done Mode:7 - Setup for transition
+[ 141] Level Done Mode:6 - Level to overworld transition
+[ 160] Level Done Mode:5 - Move players from overworld icon to gate
+[ 179] Level Done Mode:1 - Load next level
+
+-------------------  State Change ------------------------
+[179] new:GAME_LOOP_RUN  old:NEXT_LEVEL
+quit action:2   done action:2
+----------------------------------------------------------
+
+Saving gm:savegame/20261105-041356-[80]-autosave on level done.gm
+
+-------------------  State Change ------------------------
+[0] new:NEXT_LEVEL  old:GAME_LOOP_RUN
+quit action:2   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[36] new:GAME_LOOP_RUN  old:SINGLE_PLAYER_EXIT
+quit action:2   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[36] new:SINGLE_PLAYER_EXIT  old:GAME_LOOP_QUIT
+quit action:2   done action:2
+----------------------------------------------------------
+[50][0][36]PROGRAM STATE - instead of menu, go to overworld because quit_action = 2
+[51][0][36] Transition from game to gate
+
+-------------------  State Change ------------------------
+[36] new:GAME_LOOP_QUIT  old:NEXT_LEVEL
+quit action:1   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[0] new:NEXT_LEVEL  old:GAME_LOOP_RUN
+quit action:1   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[35] new:GAME_LOOP_RUN  old:SINGLE_PLAYER_EXIT
+quit action:1   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[35] new:SINGLE_PLAYER_EXIT  old:GAME_LOOP_QUIT
+quit action:1   done action:2
+----------------------------------------------------------
+[51][0][35] Transition from game to menu
+
+-------------------  State Change ------------------------
+[35] new:GAME_LOOP_QUIT  old:MENU
+quit action:1   done action:2
+----------------------------------------------------------
+
+-------------------  State Change ------------------------
+[35] new:MENU  old:QUIT
+quit action:0   done action:2
+----------------------------------------------------------
+
+Process finished with exit code 0
+
+
+
+added this in level done, after the new level has been loaded:
+
+      // ---------------------------------------------------
+      // set the quit actions
+      // ---------------------------------------------------
+
+      // if we are now in overworld, quit action is menu
+      if (mLevel.play_level == 1) quit_action = 1;
+
+seems to fix the issue....
+
+
+2026-11-05 04:58:14
+
+now what?
+
+I had this crazy idea last night while half awake...
+
+make gate enter mode part of level done mode
+
+why not?
+
+there is duplication between them
+they will never run simultaeously
+
+level done mode is 800 lines and gate entry is 250
+
+
+what modes are currently used:
+
+
+[  43] Gate Enter Mode:9 - Entry point
+[  44] Gate Enter Mode:8 - Partially open door
+[  54] Gate Enter Mode:7 - Set up players seek gate
+[  55] Gate Enter Mode:6 - Players seek gate
+[  76] Gate Enter Mode:4 - Shrink and rotate
+[  96] Gate Enter Mode:3 - Setup for transition
+[  96] Gate Enter Mode:2 - Do transition
+[ 115] Gate Enter Mode:1 - Enter gate (load next level)
+
+
+
+all I would need to do is find an open range in level done mode and patch them in
+
+
+[ 172] Level Done Mode:30 - Setup for players seek and zoom out
+[ 173] Level Done Mode:29 - Players seek and zoom out
+[ 273] Level Done Mode:28 - Setup for rocket move
+[ 274] Level Done Mode:27 - Rocket move
+[ 514] Level Done Mode:26 - Setup for zoom in
+[ 515] Level Done Mode:25 - Zoom in
+[ 615] Level Done Mode:24 - Jump to level done
+[ 616] Level Done Mode:8 - Skippable 15s timeout  [14]
+[ 656] Level Done Mode:8 - Skippable 15s timeout  [13]
+[ 696] Level Done Mode:7 - Setup for transition
+[ 696] Level Done Mode:6 - Level to overworld transition
+[ 715] Level Done Mode:5 - Move players from overworld icon to gate
+[ 734] Level Done Mode:1 - Load next level
+
+
+
+[51][0][0] Transition from menu to game
+
+[0] NEW PROGRAM STATE:GAME_LOOP_RUN   qa:1-MENU  da:1-MENU
+[  96] Level Done Mode:12 - Pause players and setup seek exit
+[  96] Level Done Mode:11 - Players seek exit
+[ 116] Level Done Mode:10 - Players shrink and rotate
+[ 137] Level Done Mode:8 - Skippable 15s timeout  [14]
+[ 177] Level Done Mode:7 - Setup for transition
+[ 177] Level Done Mode:4 - Level to zero transition
+[ 196] Level Done Mode:3 - Zero to level transition
+[ 215] Level Done Mode:1 - Load next level
+
+[215] NEW PROGRAM STATE:NEXT_LEVEL   qa:1-MENU  da:1-MENU
+
+
+
+I could also make defines for the modes
+
+PM_LEVEL_DONE_MODE_ROCKET_SETUP_PLAYER_SEEK   30
+PM_LEVEL_DONE_MODE_ROCKET_PLAYER_SEEK         29
+PM_LEVEL_DONE_MODE_ROCKET_SETUP_ROCKET_MOVE   28
+PM_LEVEL_DONE_MODE_ROCKET_ROCKET_MOVE         27
+PM_LEVEL_DONE_MODE_ROCKET_SETUP_FOR_ZOOM_IN   26
+PM_LEVEL_DONE_MODE_ROCKET_SETUP_ZOOM_IN       25 
+
+
+
+PM_LEVEL_DONE_MODE_EXIT_SETUP_PLAYER_SEEK     12 
+PM_LEVEL_DONE_MODE_EXIT_PLAYER_SEEK           11 
+PM_LEVEL_DONE_MODE_EXIT_PLAYER_SHRINK         10 
+
+
+PM_LEVEL_DONE_MODE_EXIT_PAUSE_FOR_PLAYER_ACK  8 
+PM_LEVEL_DONE_MODE_EXIT_SETUP_FOR_TRANSITION  7 
+
+PM_LEVEL_DONE_MODE_EXIT_TRANSITION_OVERWORLD  6
+PM_LEVEL_DONE_MODE_EXIT_MOVE_PLAYERS_TO_GATE  5
+
+PM_LEVEL_DONE_MODE_EXIT_TRANSITION_TO_ZERO    4
+PM_LEVEL_DONE_MODE_EXIT_TRANSITION_FROM_ZERO  3 
+
+PM_LEVEL_DONE_MODE_LOAD_NEXT_LEVEL            1
+
+
+
+PM_LEVEL_DONE_MODE_GATE_
+
+
+increase rocket by 10...done
+
+
+patch in gate from 29 to 22
+
+9 - 29
+8 - 28
+....
+
+wow, that was not too hard...
+
+
+how about I make it permanent:
+
+
+
+
+
+/*
+
+
+void mwTransitions::proc_gate_enter_mode()
+{
+   set_transition_speed();
+   // printf("proc_gate_enter_mode()(mode:%d timer%d\n", mGameState.gate_enter_mode, mGameState.gate_enter_timer);
+
+   // entry point
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 9)
+   {
+      mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Entry point");
+      mGameState.gate_enter_timer = 0;
+   }
+
+   // partially open door
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 8)
+   {
+      // only log once
+      if (mGameState.gate_enter_timer == 10) mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Partially open door");
+   }
+
+
+   // set up players seek gate
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 7)
+   {
+
+      mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Set up players seek gate");
+
+
+      // get gate item
+      int gate_item = mGameState.gate_enter_item;
+
+      // load next level into l2
+      int next_level = mLevel.mItem.item[gate_item][6];
+      l2.load_level_l2(next_level);
+
+      // get size and position of hovered level icon (relative to mLevel)
+      float size = mLevel.mItem.item[gate_item][11];
+      float lix1 = mLevel.mItem.item[gate_item][4] - size/2 + 10 - 10;
+      float liy1 = mLevel.mItem.item[gate_item][5] - size   + 19 - 10;
+
+
+      // player's start position in l2 (centered)
+      float l2_px = l2.mPlayer.syn[0].x+10;
+      float l2_py = l2.mPlayer.syn[0].y+10;
+
+      // scale l2 start position by l2 icon size
+      float l2_px_scaled = l2_px / 2000 * size;
+      float l2_py_scaled = l2_py / 2000 * size;
+
+      // 0-2000 position in mLevel of the next level's start position in the level icon
+      float sx = lix1 + l2_px_scaled;
+      float sy = liy1 + l2_py_scaled;
+
+
+      // set players paused and setup incs
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         {
+            mLevel.mPlayer.syn[p].paused = 5; // set player paused
+
+            // get distance between players current position and new position
+            float dx = sx - mLevel.mPlayer.syn[p].x;
+            float dy = sy - mLevel.mPlayer.syn[p].y;
+
+            // set incs
+            mLevel.mPlayer.syn[p].xinc = dx / gate_enter_seek_time;
+            mLevel.mPlayer.syn[p].yinc = dy / gate_enter_seek_time;
+
+            // set left right direction
+            if (mLevel.mPlayer.syn[p].xinc > 0) mLevel.mPlayer.syn[p].left_right = 1;
+            if (mLevel.mPlayer.syn[p].xinc < 0) mLevel.mPlayer.syn[p].left_right = 0;
+         }
+
+   }
+
+   // players seek gate
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 6)
+   {
+      // only log once
+      if (mGameState.gate_enter_timer == gate_enter_seek_time) mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek gate");
+
+
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         {
+            mLevel.mPlayer.syn[p].x += mLevel.mPlayer.syn[p].xinc;
+            mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
+         }
+   }
+
+
+   // shrink and rotate
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 4)
+   {
+      // only log once
+      if (mGameState.gate_enter_timer == gate_enter_rotate_time) mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Shrink and rotate");
+
+
+
+      float scale_inc = (1.0 - gate_enter_player_final_scale) / gate_enter_rotate_time;
+      float rot_inc = gate_enter_num_rotations * (ALLEGRO_PI * 2) / gate_enter_rotate_time;
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         {
+            mLevel.mPlayer.syn[p].draw_scale -= scale_inc;
+            mLevel.mPlayer.syn[p].draw_rot -= rot_inc;
+         }
+
+      // pause at end...
+      //if (mGameState.gate_enter_timer == 1) mInput.tsw();
+   }
+
+   // setup for transition
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 3)
+   {
+
+      mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Setup for transition");
+
+
+      // get gate item
+      int i = mGameState.gate_enter_item;
+
+      // load next level into l2
+      l2.valid_level_loaded = 0; // force reload
+      int next_level = mLevel.mItem.item[i][6];
+      l2.load_level_l2(next_level);
+
+      // redraw to draw player also
+      if (!mMain.headless_server) l2.draw_level3(l2.level_buffer, next_level, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+
+
+      // get size and position of hovered level icon (relative to mLevel)
+      float size = mLevel.mItem.item[i][11];
+      float lix1 = mLevel.mItem.item[i][4] - size/2 + 10;
+      float liy1 = mLevel.mItem.item[i][5] - size   + 19;
+
+      // player's start position in l2
+      float l2_px = l2.mPlayer.syn[0].x;
+      float l2_py = l2.mPlayer.syn[0].y;
+
+      // scale l2 start position by l2 icon size
+      float l2_px_scaled = l2_px / 2000 * size;
+      float l2_py_scaled = l2_py / 2000 * size;
+
+      // 0-2000 position in mLevel of the next level's start position in the level icon
+      float sx = lix1 + l2_px_scaled;
+      float sy = liy1 + l2_py_scaled;
+
+      // convert to actual screen position
+      float ex1=0, ey1=0;
+      mLevel.calc_actual_screen_position(sx, sy, ex1, ey1);
+
+      // set transition initial
+      transition_initial_scale = mDisplay.scale_factor_current * (size / 2000.0);
+      transition_initial_x = ex1;
+      transition_initial_y = ey1;
+
+
+      // convert l2 players start position to actual screen position
+      l2.calc_actual_screen_position(l2_px, l2_py, ex1, ey1);
+
+      // set transition final
+      transition_final_scale = mDisplay.scale_factor_current;
+      transition_final_x = ex1;
+      transition_final_y = ey1;
+
+
+
+      // get scale multiplier using compound interest formula
+      transition_scale_multiplier = 1.0 + pow((transition_final_scale/transition_initial_scale), (1.0/gate_enter_transition_time) ) - 1;
+
+      // get x and y incs
+      transition_x_inc = (transition_final_x - transition_initial_x) / gate_enter_transition_time;
+      transition_y_inc = (transition_final_y - transition_initial_y) / gate_enter_transition_time;
+
+      // set initial values
+      transition_current_x = transition_initial_x;
+      transition_current_y = transition_initial_y;
+      transition_current_scale = transition_initial_scale;
+
+      mGameState.gate_enter_timer = gate_enter_transition_time;
+      mGameState.gate_enter_mode = 2;
+   }
+
+
+   // do transition
+   // -------------------------------------
+   if (mGameState.gate_enter_mode == 2)
+   {
+      // only log once
+      if (mGameState.gate_enter_timer == gate_enter_transition_time) mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Do transition");
+
+
+      if (!mMain.headless_server)
+      {
+         al_set_target_backbuffer(mDisplay.display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+
+         mLevel.draw_scaled_level_region_to_display();
+         mScreen.draw_screen_frame();
+
+         l2.draw_level_centered_on_player_pos(transition_current_x, transition_current_y, transition_current_scale);
+         al_flip_display();
+      }
+      transition_current_x += transition_x_inc;
+      transition_current_y += transition_y_inc;
+      transition_current_scale *= transition_scale_multiplier;
+   }
+
+   // there is a good reason for this...
+   // it may seem convoluted, but clients should never advance the count or change the mode
+   bool enter_gate = 0;
+   if (!mNetgame.ima_client)
+      if (--mGameState.gate_enter_timer <= 0)
+      {
+         mGameState.gate_enter_mode--;
+         if (mGameState.gate_enter_mode == 8) mGameState.gate_enter_timer = 10; // partially open door
+         if (mGameState.gate_enter_mode == 7) mGameState.gate_enter_timer = 0;  // setup for players seek gate
+         if (mGameState.gate_enter_mode == 6) mGameState.gate_enter_timer = gate_enter_seek_time; // players seek gate
+         if (mGameState.gate_enter_mode == 5) mGameState.gate_enter_timer = 0; // setup players shrink and rotate
+         if (mGameState.gate_enter_mode == 4) mGameState.gate_enter_timer = gate_enter_rotate_time; // players shrink and rotate
+         if (mGameState.gate_enter_mode == 1) enter_gate = 1;
+      }
+
+   // enter gate
+   if (enter_gate)
+   {
+      mLog.add(LOG_OTH_GATE_ENTER, mGameState.gate_enter_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Enter gate (load next level)");
+
+      int lev = mLevel.mItem.item[mGameState.gate_enter_item][6];
+      mGameState.level_done_next_level = lev;
+      // server sets last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mLevel.mPlayer.syn[pp].active) mLevel.mPlayer.syn[pp].overworld_last_touched_gate_level = lev;
+      }
+
+      mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
+   }
+}
+
+*/
+
+2026-11-05 06:07:55 make it permanent
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

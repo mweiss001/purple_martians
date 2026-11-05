@@ -65,9 +65,10 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    bool packet_check = 1;
 
    if (mMain.headless_server) return;
-   if (mGameState.transition_mode) return;
-   if (mGameState.gate_enter_mode == 2) return;
-   if (mGameState.level_done_mode == 27) return;
+
+   if (mGameState.level_done_mode == 22) return;
+
+   if (mGameState.level_done_mode == 37) return;
 
    if (mGameState.level_done_mode && mGameState.level_done_mode < 7) return;
 
@@ -114,8 +115,8 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    else
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
-            mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].marked_gate);
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].hovered_gate != -1))
+            mLevel.mItem.draw_gate_hover_info(mLevel.mPlayer.syn[p].hovered_gate);
       ds_add(i);
    }
 
@@ -169,8 +170,8 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
    else
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].marked_gate != -1))
-            mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].marked_gate);
+         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].hovered_gate != -1))
+            mLevel.mItem.draw_level_icon_direct_to_screen(mLevel.mPlayer.syn[p].hovered_gate);
       ds_add(i);
    }
 

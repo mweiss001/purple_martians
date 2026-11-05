@@ -17,7 +17,7 @@ struct psyn // synced between server and client
 
    int level_done_ack;
 
-   int overworld_last_touched_gate;
+   int overworld_last_touched_gate_level;
 
    float x, y;        // players position
    float xinc, yinc;  // players speed
@@ -53,7 +53,7 @@ struct psyn // synced between server and client
    int door_item;
    int door_num_steps;
 
-   int marked_gate;
+   int hovered_gate;
    int spawn_point_index;
 
    // controls

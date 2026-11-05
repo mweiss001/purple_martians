@@ -245,7 +245,6 @@ void mwLevel::get_new_background()
 
 
 
-
 void mwLevel::draw_scaled_level_buffer_centered_on_pos(float screen_x, float screen_y, float level_x, float level_y, float scale_factor)
 {
    // get level position scaled by scale factor
@@ -261,6 +260,10 @@ void mwLevel::draw_scaled_level_buffer_centered_on_pos(float screen_x, float scr
    float sz = scale_factor * 2000;
 
    al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
+
+//   al_draw_rectangle(mgx-1, mgy-1, mgx+sz+1, mgy+sz+1, mColor.Red, 1);
+
+
 }
 
 
@@ -709,7 +712,7 @@ int mwLevel::load_level_l2(int level)
    if (load_level_by_number(level, 1, 0))
    {
 
-      //printf("\nmwLevel::load_level_l2(%d)\n", level);
+      // printf("\nmwLevel::load_level_l2(%d)\n", level);
       //printf("loading!!!\n");
       valid_level_loaded = 1;
       mLift.lift_setup();
@@ -721,15 +724,13 @@ int mwLevel::load_level_l2(int level)
          }
       setup_players_after_level_load(2);
 
-      // copy player colors from mLevel
+      // copy player data from mLevel
+      l2.mPlayer.active_local_player = mLevel.mPlayer.active_local_player;
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          l2.mPlayer.syn[p].color = mLevel.mPlayer.syn[p].color;
          l2.mPlayer.syn[p].active = mLevel.mPlayer.syn[p].active;
       }
-
-
-      l2.mPlayer.active_local_player = mLevel.mPlayer.active_local_player;
 
 
       // copy the level_display_region variable from mLevel to l2

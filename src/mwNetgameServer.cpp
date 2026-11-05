@@ -791,7 +791,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       color = mLevel.mPlayer.get_new_client_color(requested_color);
 
       // set the last touched gate level
-      mLevel.mPlayer.syn[p].overworld_last_touched_gate = mLevel.play_level;
+      mLevel.mPlayer.syn[p].overworld_last_touched_gate_level = mLevel.play_level;
 
       // add game move to make client active and set color
       mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);

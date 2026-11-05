@@ -1494,25 +1494,25 @@ void mwSettings::page_transitions()
 
    al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Smooth zoom transitions when changing levels."); ya +=16;
 
-   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mTransitions.transition_num_steps, 400, 4, 1, "Number of steps:", 0, 0); ya+=bts;
    ya +=8;
-   mWidget.mSliderInt(0, xa+80, xb-80,  1, ya, bts-2,  2, 2, 1, 1,  8, 8, 15, 15, 15,0, 0,  mTransitions.transition_delay, 100, 1, 1, "Step delay:", 0, 0); ya+=bts;
-
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-   al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transition Time:%1.2fs", (float)(mTransitions.transition_num_steps * mTransitions.transition_delay)/1000);
+   al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transition Speed: %s", mTransitions.transition_speed_text[mGameState.transition_speed]);
    ya +=8;
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
+   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mTransitions.transition_num_steps = 1;       }    ya +=8;
+   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mTransitions.transition_num_steps = 60;      }    ya +=8;
+   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mTransitions.transition_num_steps = 80;      }    ya +=8;
+   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mTransitions.transition_num_steps = 120;     }    ya +=8;
+   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mTransitions.transition_num_steps = 180;     }
 
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mTransitions.transition_num_steps = 1;    mTransitions.transition_delay = 1;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mTransitions.transition_num_steps = 60;   mTransitions.transition_delay = 4;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mTransitions.transition_num_steps = 80;   mTransitions.transition_delay = 8;   }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mTransitions.transition_num_steps = 120;  mTransitions.transition_delay = 12;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mTransitions.transition_num_steps = 180;  mTransitions.transition_delay = 16;  }
+
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mGameState.transition_speed = 0;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mGameState.transition_speed = 1;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mGameState.transition_speed = 2;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mGameState.transition_speed = 3;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mGameState.transition_speed = 4;  }
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 }
