@@ -51,7 +51,7 @@ void mwLoop::initialize()
 
    sprintf(state_names[PM_PROGRAM_STATE_QUIT],                          "QUIT");
    sprintf(state_names[PM_PROGRAM_STATE_MENU],                          "MENU");
-   sprintf(state_names[PM_PROGRAM_STATE_CONFIG],                        "CONFIG");
+   sprintf(state_names[PM_PROGRAM_STATE_SETTINGS],                      "SETTINGS");
 
    sprintf(state_names[PM_PROGRAM_STATE_GAME_LOOP_RUN],                 "GAME_LOOP_RUN");
    sprintf(state_names[PM_PROGRAM_STATE_NEXT_LEVEL],                    "NEXT_LEVEL");
@@ -205,7 +205,7 @@ void mwLoop::game_menu()
          }
          if (top_menu_sel == 5) // settings
          {
-            state[0] = PM_PROGRAM_STATE_CONFIG;
+            state[0] = PM_PROGRAM_STATE_SETTINGS;
             mLoop.quit_action = 1; // menu
             return;
          }
@@ -287,7 +287,7 @@ void mwLoop::game_menu()
          }
          if (top_menu_sel == 3) // settings
          {
-            state[0] = PM_PROGRAM_STATE_CONFIG;
+            state[0] = PM_PROGRAM_STATE_SETTINGS;
             quit_action = 1; // menu
             return;
          }
@@ -348,8 +348,10 @@ void mwLoop::proc_program_state_change()
          // ------------------------------------------------------
          if (quit_action == 1)
          {
+
+
             // only do this if not returning from settings or demo record
-            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2, 1); // game to menu
+            if ((state[2] != PM_PROGRAM_STATE_SERVER_EXIT) && (state[2] != PM_PROGRAM_STATE_SETTINGS) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mTransitions.transition_cutscene(1, 2, 1); // game to menu
 
             state[0] = PM_PROGRAM_STATE_MENU;
             return;
@@ -375,7 +377,7 @@ void mwLoop::proc_program_state_change()
          if (quit_action == 3)
          {
             mLog.add(LOG_OTH_PROGRAM_STATE, 4, -1); // instead of menu, go to settings
-            state[0] = PM_PROGRAM_STATE_CONFIG;
+            state[0] = PM_PROGRAM_STATE_SETTINGS;
             quit_action = 1; // set new quit action to menu
             return;
          }
@@ -387,7 +389,7 @@ void mwLoop::proc_program_state_change()
 
    // these all block
    if (state[1] == PM_PROGRAM_STATE_MENU) game_menu();
-   if (state[1] == PM_PROGRAM_STATE_CONFIG) mSettings.settings_pages(-1);
+   if (state[1] == PM_PROGRAM_STATE_SETTINGS) mSettings.settings_pages(-1);
    if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.demo_record();
 
 //-----------------------------------------------------------------
@@ -515,6 +517,10 @@ void mwLoop::proc_program_state_change()
       if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
       mNetgame.serverExitNetwork();
       state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+
+      // force server quit to go to menu, not overworld
+      quit_action = 1;
+
    }
 
 
@@ -582,8 +588,6 @@ void mwLoop::proc_program_state_change()
 
       // if we are now in overworld, quit action is menu
       if (mLevel.play_level == 1) quit_action = 1;
-
-
 
 
    }
@@ -724,6 +728,10 @@ int mwLoop::load_and_setup_level(int level, int type)
    mTriggerEvent.initialize();
    mLevel.mShot.clear_shots();
    mGameEvent.game_events.clear();
+
+   mGameState.level_done_mode = 0;
+
+
 
    frame_num = 0;
 
@@ -915,9 +923,8 @@ void mwLoop::main_loop()
                // -----------------------------------
                // process scale factor changes
                // -----------------------------------
-               int ldm = mGameState.level_done_mode;
-               if ((ldm == 40) || (ldm == 35)) mDisplay.proc_custom_scale_factor_change();
-               else                            mDisplay.proc_scale_factor_change();
+               if ((mGameState.level_done_mode == 40) || (mGameState.level_done_mode == 35)) mDisplay.proc_custom_scale_factor_change();
+               else                                                                          mDisplay.proc_scale_factor_change();
             }
 
 

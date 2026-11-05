@@ -51742,7 +51742,107 @@ why are all these reset in init player?
       mGameState.level_done_y = 0;
       mGameState.level_done_player = 0;
 
-comment them out and test
+comment them out and test..seems to have fixed it
+
+
+when server quits in a level, server goes to regular single player overworld
+I think server should go to menu
+
+
+2026-11-05 07:44:18
+netgame testing seems like it is working
+
+
+
+What do I want to do next?
+
+
+when no clients are connected to headless server, it should go to overworld...
+
+I can't even force it with remote control??
+
+fixed...
+
+changed from 1 to 2
+
+      mGameState.level_done_mode = 2;
+
+void mwNetgame::server_reload(int level)
+{
+   //  1-99 level num
+   //  0 nothing
+   // -1 current level
+   // -2 next level
+
+   if ((level != 0) && (mGameState.level_done_mode == 0)) // only trigger from level done mode 0
+   {
+      if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
+      if (level == -1) level = mLevel.play_level;
+      mGameState.level_done_mode = 2;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_next_level = level;
+
+
+
+
+- server quit goes to menu
+
+//---------------------------------------
+// PM_PROGRAM_STATE_SERVER_EXIT
+//---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
+   {
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
+      mNetgame.serverExitNetwork();
+      state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
+
+      // force server quit to go to menu, not overworld
+      quit_action = 1;
+
+   }
+
+this works but now the transition is off...
+where is it called?
+
+it tries to go from current level to menu
+but menu has overworld level loaded...
+can I just skip the transition? yes.. do that
+
+2026-11-05 08:42:47
+more netgame testing
+
+looking good...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

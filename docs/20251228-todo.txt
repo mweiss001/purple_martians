@@ -10,7 +10,6 @@ I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
 
 
-
 rx packet buffer full? why? add some logging to see what packets...
 client had the error, but all counters were zero 
 re-did to count and print all packets listed in pm.h
@@ -29,8 +28,6 @@ waiting for it to happen again...
 
 
 
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -40,16 +37,6 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
-
-then what am I doing with the transitions and gate entry stuff (and level_done)
-they all run while frames keep running
-
-can I make it more common?
-
-
-
 
 
 
@@ -65,21 +52,6 @@ gates
 
 - make the messages for each area look nice
 - names for areas
-
-
-
-make a common place to set the speed of all transitions
-- level done
-- gate enter
-- level zoom in and out
-- final rocket
-
-
-
-
-
-
-
 
 
 

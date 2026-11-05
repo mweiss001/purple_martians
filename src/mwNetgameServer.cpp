@@ -112,9 +112,10 @@ void mwNetgame::headless_server_setup()
    // always have the basic LOG_NET active and printing to console as well as saving to file
    //mLog.log_types[LOG_NET].action = LOG_ACTION_PRINT | LOG_ACTION_LOG;
 
+   mLog.log_types[LOG_NET].action = LOG_ACTION_PRINT;
 
    // always have session logging on
-   mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
+//   mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
 
 
    // add these for troubleshooting
@@ -661,7 +662,7 @@ void mwNetgame::server_reload(int level)
    {
       if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
       if (level == -1) level = mLevel.play_level;
-      mGameState.level_done_mode = 1;
+      mGameState.level_done_mode = 2;
       mGameState.level_done_timer = 0;
       mGameState.level_done_next_level = level;
    }

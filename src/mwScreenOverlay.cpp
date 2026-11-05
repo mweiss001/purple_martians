@@ -88,17 +88,10 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
 void mwScreen::show_level_done()
 {
-   int ldm = mGameState.level_done_mode;
 
-   if (ldm > 7 && ldm < 13) draw_large_text_overlay(2, 0);
+   if (mGameState.level_done_mode > 7 && mGameState.level_done_mode < 13) draw_large_text_overlay(2, 0);
 
-
-
-
-
-
-
-   if (ldm == 8)
+   if (mGameState.level_done_mode == 8)
    {
       mColor.process_flash_color();
 

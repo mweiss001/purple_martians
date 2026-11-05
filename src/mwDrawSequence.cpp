@@ -66,12 +66,11 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
    if (mMain.headless_server) return;
 
-   if (mGameState.level_done_mode == 22) return;
+   if (mGameState.level_done_mode == 22) return; // gate transition
 
-   if (mGameState.level_done_mode == 37) return;
+   if (mGameState.level_done_mode == 37) return; // rocket move
 
-   if (mGameState.level_done_mode && mGameState.level_done_mode < 7) return;
-
+   if (mGameState.level_done_mode && mGameState.level_done_mode < 7) return; // exit transitions 6, 5, 4, 3
 
 
    // setting up is done in constructor, allegro is not initialized yet, 'al_get_time()' will crash

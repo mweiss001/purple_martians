@@ -252,7 +252,7 @@ int mwDemoMode::key_check()
          if (mInput.key[k][0])
          {
             key_used = 1;
-            mGameState.level_done_mode = 1;
+            mGameState.level_done_mode = 2;
          }
    }
 

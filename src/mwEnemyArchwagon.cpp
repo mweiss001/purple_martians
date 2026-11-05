@@ -329,27 +329,37 @@ void mwEnemy::move_crew(int e)
 
 void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 {
-   if ((mLoop.state[0] != PM_PROGRAM_STATE_GAME_LOOP_RUN) || (mGameState.level_done_mode == 37))// don't draw when game is running, custom draw direct to screen in screen overlay so scaling looks nice
+   // default is to draw
+   bool draw = true;
+
+   // don't draw when game is running, custom draw direct to screen so scaling looks nice
+   if (mLoop.state[0] == PM_PROGRAM_STATE_GAME_LOOP_RUN) draw = false;
+
+   // draw in level done mode 37 (rocket move)
+   if (mGameState.level_done_mode == 37) draw = true;
+
+
+   if (!draw) return;
+
+   int x = Ef[e][0];
+   int y = Ef[e][1];
+   if (custom)
    {
-      int x = Ef[e][0];
-      int y = Ef[e][1];
-      if (custom)
-      {
-         x = cx;
-         y = cy;
-      }
-
-      int flags = 0;
-      if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-
-      int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
-      int col = Ei[e][3];
-
-      float ps = Ef[e][8];  // player scale
-      float yo = 10 * (1-ps);      // adjust y offset
-
-      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10+yo, ps, ps, 0, flags);
+      x = cx;
+      y = cy;
    }
+
+   int flags = 0;
+   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+   int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+   int col = Ei[e][3];
+
+   float ps = Ef[e][8];  // player scale
+   float yo = 10 * (1-ps);      // adjust y offset
+
+   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10+yo, ps, ps, 0, flags);
+
 }
 
 

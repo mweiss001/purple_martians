@@ -93,7 +93,7 @@
 
 #define PM_PROGRAM_STATE_QUIT                           0
 #define PM_PROGRAM_STATE_MENU                           1
-#define PM_PROGRAM_STATE_CONFIG                         3
+#define PM_PROGRAM_STATE_SETTINGS                       3
 
 #define PM_PROGRAM_STATE_GAME_LOOP_RUN                  4
 #define PM_PROGRAM_STATE_NEXT_LEVEL                     5
