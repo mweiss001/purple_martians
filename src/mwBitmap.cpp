@@ -69,6 +69,8 @@ int mwBitmap::load_tiles()
 {
    //printf("load tiles\n");
 
+
+
    // get sprites
    stilemap = al_load_bitmap("bitmaps/sprites.png");
    al_convert_mask_to_alpha(stilemap, al_map_rgb(0, 0, 0)) ;
@@ -165,9 +167,8 @@ int mwBitmap::load_tiles()
             gate_tile[a][b] = al_create_sub_bitmap(gtilemap, b*42+1, a*62+1, 40, 60);
    }
 
-
-
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
+
    return 1;
 }
 

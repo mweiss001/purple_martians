@@ -22,7 +22,7 @@ private:
    bool profile = false;
    double t0;
 
-   int size = 400;
+   int size = 200;
    int max_level = 100;
 
    void create_level_icon(int level, int save_web);

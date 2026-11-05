@@ -17,6 +17,7 @@
 #include "mwGameMoves.h"
 #include "mwLevelIcons.h"
 #include "mwMiscFnx.h"
+#include "mwProfile.h"
 #include "mwSql.h"
 
 
@@ -116,7 +117,6 @@ void mwMain::set_and_get_versions()
 int mwMain::initial_setup()
 {
    //printf("initial_setup()\n");
-
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
    if (!al_init())
@@ -125,17 +125,23 @@ int mwMain::initial_setup()
       return 0;
    }
 
+   mwProfile prof;
+
    set_exe_path();
    set_and_get_versions();
-
    al_make_directory("data"); // create if not already created
 
    mSql.init();
+   prof.add("mSql.init()");
 
    mConfig.load_config();
+   prof.add("mConfig.load_config()");
 
    show_system_id();
+   prof.add("show_system_id()");
+
    srand(time(NULL));
+   prof.add("srand(time(NULL))");
 
    // --- event queue ----------------
    mEventQueue.event_queue = al_create_event_queue();
@@ -144,9 +150,14 @@ int mwMain::initial_setup()
       printf("Failed to create event queue.\n");
       return 0;
    }
+   prof.add("al_create_event_queue())");
+
+
 
    // --- timers -------------
    mEventQueue.create_timers();
+   prof.add("mEventQueue.create_timers()");
+
 
    // --- display --------------------
    if (headless_server)
@@ -160,6 +171,9 @@ int mwMain::initial_setup()
       printf("Failed to initialize display.\n");
       return 0;
    }
+   prof.add("mDisplay.init_display()");
+
+
 
 
    // --- things not to load for headless server ---------------
@@ -177,11 +191,20 @@ int mwMain::initial_setup()
          mInput.m_err("Failed to initialize primitives addon.\n");
          return 0;
       }
+
       mBitmap.create_bitmaps();
+      prof.add("mBitmap.create_bitmaps()");
+
+
       mBitmap.load_tiles();
+      prof.add("mBitmap.load_tiles()");
+
 
       mLevel.create_bitmaps();
+      prof.add("mLevel.create_bitmaps()");
+
       l2.create_bitmaps();
+      prof.add("l2.create_bitmaps()");
 
 
       if(!al_init_font_addon())
@@ -195,6 +218,7 @@ int mwMain::initial_setup()
          return 0;
       }
       mFont.load_fonts();
+      prof.add("mFont.load_fonts()");
 
 
 
@@ -205,6 +229,10 @@ int mwMain::initial_setup()
          return 0;
       }
 
+      prof.add("al_init_native_dialog_addon()");
+
+
+
       // --- keyboard -------------------
       if (!al_install_keyboard())
       {
@@ -213,12 +241,19 @@ int mwMain::initial_setup()
       }
       al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
 
+      prof.add("al_install_keyboard()");
+
+
+
       // --- mouse ----------------------
       if (!al_install_mouse())
       {
          mInput.m_err("Failed to install mouse.\n");
          return 0;
       }
+      prof.add("al_install_mouse()");
+
+
       //else printf("installed mouse\n");
       al_register_event_source(mEventQueue.event_queue, al_get_mouse_event_source());
       al_hide_mouse_cursor(mDisplay.display);
@@ -239,31 +274,49 @@ int mwMain::initial_setup()
          }
          al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
       }
+
+      prof.add("al_install_joystick()");
+
       al_set_display_icon(mDisplay.display, mBitmap.sprite[401]);
+      prof.add("al_set_display_icon()");
+
+
       al_inhibit_screensaver(true);
+      prof.add("al_inhibit_screensaver(true)");
+
       mSound.load_sound();
+      prof.add("mSound.load_sound()");
+
+
    }
 
+
    mLevel.load_data();
+   prof.add("mLevel.load_data()");
 
    // this needs to be after mLevel.load_data();
    if (!headless_server) mLevelIcons.load(0);
+   prof.add("mLevelIcons.load(0)");
 
 //   if (!headless_server) mLevelIcons.load(1);
-
-
-
-
 
 
    // init players
    mLevel.mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mLevel.mPlayer.init_player(p, 1);
    mLevel.mPlayer.syn[0].active = 1;
+   prof.add("init players");
+
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
+
+   prof.add("set start level");
+
+   // prof.show();
+
+
 
    return 1;
 }

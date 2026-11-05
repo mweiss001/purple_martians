@@ -188,6 +188,7 @@ add_executable(pm
         src/mwMessageText.cpp
         src/mwTransitions.cpp
         src/mwTransitions.h
+        src/mwProfile.h
 )
 
 

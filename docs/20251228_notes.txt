@@ -51816,6 +51816,235 @@ looking good...
 
 
 
+what is the big delay starting the game?
+
+1 second on m36
+4 seconds on e6430
+
+
+mLevelIcons.load time:[570.6995]
+initial setup time:[1174.6173]
+
+I want a nice profiling class
+class mwProfile
+init
+add
+show
+
+
+
+
+
+
+// mwProfile.h
+#include <string>
+#include <vector>
+
+struct profilePoint
+{
+   std::string name;
+   double time;
+};
+
+class mwProfile
+{
+   std::vector<profilePoint> profilePoints;
+
+public:
+
+   mwProfile() // default constructor
+   {
+      profilePoints.clear();
+      add("init");
+   };
+   void add(std::string name)
+   {
+      double t = al_get_time();
+      profilePoints.push_back({name, t});
+
+   };
+   void show()
+   {
+      double previous_time = 0;
+      for (auto tmp: profilePoints)
+      {
+         double t = tmp.time;
+         double current_time = t - previous_time;
+         previous_time = t;
+         printf("[%0.1f] - [%0.1f]   --  %s \n", t*1000, current_time*1000, tmp.name.c_str());
+      }
+   };
+};
+
+
+usage:
+
+mwProfile prof;
+prof.add("mSql.init()");
+prof.add("mConfig.load_config()");
+prof.show();
+
+so fucking nice!!!
+
+
+m36:
+
+[0.2] - [0.2]   --  init
+[31.8] - [31.6]   --  mSql.init()
+[44.1] - [12.3]   --  mConfig.load_config()
+[45.0] - [0.9]   --  show_system_id()
+[45.0] - [0.0]   --  srand(time(NULL))
+[45.0] - [0.0]   --  al_create_event_queue())
+[45.0] - [0.1]   --  mEventQueue.create_timers()
+[257.5] - [212.5]   --  mDisplay.init_display()
+[273.4] - [15.9]   --  mBitmap.create_bitmaps()
+[375.1] - [101.7]   --  mBitmap.load_tiles()
+[378.6] - [3.4]   --  mLevel.create_bitmaps()
+[384.6] - [6.0]   --  l2.create_bitmaps()
+[392.4] - [7.8]   --  mFont.load_fonts()
+[478.8] - [86.4]   --
+[478.9] - [0.2]   --  mLevel.load_data()
+[1063.0] - [584.1]   --  mLevelIcons.load(0)
+[1063.4] - [0.4]   --  init players
+[1238.5] - [175.1]   --  set start level
+[1238.5] - [0.0]   --  done
+
+
+e6430:
+
+[0.3] - [0.3]   --  init
+[64.8] - [64.5]   --  mSql.init()
+[70.1] - [5.3]   --  mConfig.load_config()
+[72.0] - [2.0]   --  show_system_id()
+[72.0] - [0.0]   --  srand(time(NULL))
+[72.1] - [0.0]   --  al_create_event_queue())
+[72.2] - [0.1]   --  mEventQueue.create_timers()
+[982.1] - [910.0]   --  mDisplay.init_display()
+[1012.7] - [30.5]   --  mBitmap.create_bitmaps()
+[1306.7] - [294.0]   --  mBitmap.load_tiles()
+[1307.0] - [0.4]   --  mLevel.create_bitmaps()
+[1307.4] - [0.3]   --  l2.create_bitmaps()
+[1365.8] - [58.4]   --  mFont.load_fonts()
+[1406.0] - [40.2]   --
+[1406.3] - [0.3]   --  mLevel.load_data()
+[3177.0] - [1770.8]   --  mLevelIcons.load(0)
+[3177.8] - [0.8]   --  init players
+[3772.5] - [594.8]   --  set start level
+[3772.5] - [0.0]   --  done
+
+
+level_icons seems to be the worst
+init display
+load tiles
+set start level? (is it because its overworld?)
+
+now with lev 2 instead of overworld:
+m36 2.4   --  set start level
+e6430 28.2   --  set start level
+
+yes that is much faster...
+
+
+what are my settings for load level icons
+size 400
+max level 100
+
+try 200
+
+m36:
+
+[0.2] - [0.2]   --  init
+[29.7] - [29.5]   --  mSql.init()
+[32.3] - [2.6]   --  mConfig.load_config()
+[32.8] - [0.5]   --  show_system_id()
+[32.8] - [0.0]   --  srand(time(NULL))
+[32.8] - [0.0]   --  al_create_event_queue())
+[32.9] - [0.0]   --  mEventQueue.create_timers()
+[207.9] - [175.0]   --  mDisplay.init_display()
+[221.3] - [13.4]   --  mBitmap.create_bitmaps()
+[318.4] - [97.1]   --  mBitmap.load_tiles()
+[321.4] - [3.0]   --  mLevel.create_bitmaps()
+[327.3] - [5.9]   --  l2.create_bitmaps()
+[334.5] - [7.2]   --  mFont.load_fonts()
+[418.4] - [83.9]   --
+[418.5] - [0.1]   --  mLevel.load_data()
+[587.4] - [168.9]   --  mLevelIcons.load(0)
+[587.8] - [0.3]   --  init players
+[590.2] - [2.5]   --  set start level
+[590.2] - [0.0]   --  done
+
+
+e6430:
+
+[0.2] - [0.2]   --  init
+[63.7] - [63.4]   --  mSql.init()
+[69.3] - [5.7]   --  mConfig.load_config()
+[71.8] - [2.5]   --  show_system_id()
+[71.8] - [0.0]   --  srand(time(NULL))
+[71.8] - [0.0]   --  al_create_event_queue())
+[71.9] - [0.1]   --  mEventQueue.create_timers()
+[167.9] - [96.0]   --  mDisplay.init_display()
+[192.9] - [25.0]   --  mBitmap.create_bitmaps()
+[455.9] - [263.0]   --  mBitmap.load_tiles()
+[456.3] - [0.4]   --  mLevel.create_bitmaps()
+[456.5] - [0.3]   --  l2.create_bitmaps()
+[519.2] - [62.6]   --  mFont.load_fonts()
+[1013.4] - [494.2]   --
+[1013.6] - [0.2]   --  mLevel.load_data()
+[1566.3] - [552.7]   --  mLevelIcons.load(0)
+[1567.1] - [0.7]   --  init players
+[1574.3] - [7.2]   --  set start level
+[1574.3] - [0.0]   --  done
+
+
+much better
+
+how is the quality of the icons?
+
+not much different
+
+the issue is the drawing on the level_buffer, not the original size
+
+I'm going to leave it at 200 for now
+
+now what?
+
+am I done with transitions?
+
+sure, why not
+
+what else was I doing with overworld?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
