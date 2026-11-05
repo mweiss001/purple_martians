@@ -105,22 +105,11 @@ void mwLoop::initialize()
 
 void mwLoop::move_frame()
 {
-
-//   printf("move frame\n");
-
    if (mGameState.level_done_mode)
    {
       mTransitions.proc_level_done_mode();
       return;
    }
-
-   // if (mGameState.gate_enter_mode)
-   // {
-   //    mTransitions.proc_gate_enter_mode();
-   //    return;
-   // }
-
-
 
 
 

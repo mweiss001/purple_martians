@@ -51707,6 +51707,63 @@ leave it for now...
 do some netgame testing...
 
 
+server freezes everything
+
+[0] NEW PROGRAM STATE:GAME_LOOP_RUN   qa:1-MENU  da:1-MENU
+[2806] Level Done Mode:29 - Entry point
+[2807] Level Done Mode:28 - Partially open door
+[2817] Level Done Mode:27 - Set up players seek gate
+
+clients all froze also
+
+game was still running, until I forced server quit then clients lost connection
+
+server can enter gate, but not client
+
+wtf, now it works??
+
+it only works if server player and client player are on the same gate...
+
+
+and wtf is this:
+
+[ 513] Level Done Mode:29 - Entry point
+[ 514] Level Done Mode:28 - Partially open door
+[ 524] Level Done Mode:27 - Set up players seek gate
+test 27 end
+mGameState.level_done_mode:0 mGameState.level_done_timer:0
+
+
+why are all these reset in init player?
+
+      mGameState.level_done_mode = 0;
+      mGameState.level_done_timer = 0;
+      mGameState.level_done_x = 0;
+      mGameState.level_done_y = 0;
+      mGameState.level_done_player = 0;
+
+comment them out and test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

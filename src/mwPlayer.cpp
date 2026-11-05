@@ -1332,14 +1332,6 @@ void mwPlayer::init_player(int p, int t)
 
       syn[p].level_done_ack = 0;
 
-
-      mGameState.level_done_mode = 0;
-      mGameState.level_done_timer = 0;
-      mGameState.level_done_x = 0;
-      mGameState.level_done_y = 0;
-      mGameState.level_done_player = 0;
-
-
       syn[p].hovered_gate = -1;
 
       syn[p].spawn_point_index = 0;

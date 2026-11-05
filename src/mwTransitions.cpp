@@ -300,7 +300,6 @@ void mwTransitions::proc_level_done_mode()
    // -------------------------------------
    if (mGameState.level_done_mode == 27)
    {
-
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Set up players seek gate");
 
       // get gate item
@@ -314,7 +313,6 @@ void mwTransitions::proc_level_done_mode()
       float size = mLevel.mItem.item[gate_item][11];
       float lix1 = mLevel.mItem.item[gate_item][4] - size/2 + 10 - 10;
       float liy1 = mLevel.mItem.item[gate_item][5] - size   + 19 - 10;
-
 
       // player's start position in l2 (centered)
       float l2_px = l2.mPlayer.syn[0].x+10;
@@ -347,7 +345,6 @@ void mwTransitions::proc_level_done_mode()
             if (mLevel.mPlayer.syn[p].xinc > 0) mLevel.mPlayer.syn[p].left_right = 1;
             if (mLevel.mPlayer.syn[p].xinc < 0) mLevel.mPlayer.syn[p].left_right = 0;
          }
-
    }
 
    // players seek gate
@@ -1086,9 +1083,9 @@ void mwTransitions::proc_level_done_mode()
          if (mGameState.level_done_mode == 35) mGameState.level_done_timer = 100; // zoom in
          if (mGameState.level_done_mode == 34) mGameState.level_done_timer = 0;
 
-
          if (mGameState.level_done_mode == 28) mGameState.level_done_timer = 10; // partially open door
          if (mGameState.level_done_mode == 27) mGameState.level_done_timer = 0;  // setup for players seek gate
+
          if (mGameState.level_done_mode == 26) mGameState.level_done_timer = gate_enter_seek_time; // players seek gate
          if (mGameState.level_done_mode == 25) mGameState.level_done_timer = 0; // setup players shrink and rotate
          if (mGameState.level_done_mode == 24) mGameState.level_done_timer = gate_enter_rotate_time; // players shrink and rotate
