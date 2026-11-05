@@ -23,31 +23,24 @@ mwTransitions mTransitions;
 
 void mwTransitions::set_transition_speed()
 {
-   int val = 20;
+   int val = 40;
 
    if (mGameState.transition_speed == 0) // fastest
    {
-      val = 1;
+      val = 2;
    }
    if (mGameState.transition_speed == 1) // hasty
    {
-      val = 10;
+      val = 16;
    }
    if (mGameState.transition_speed == 2) // normal
    {
-      val = 20;
+      val = 32;
    }
    if (mGameState.transition_speed == 3) // relaxed
    {
-      val = 40;
+      val = 64;
    }
-   if (mGameState.transition_speed == 4) // lazy
-   {
-      val = 80;
-   }
-
-
-
 
    gate_enter_seek_time = val;
    gate_enter_rotate_time = val;
@@ -261,7 +254,16 @@ void mwTransitions::proc_level_done_mode()
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Jump to level done");
       mGameState.level_done_mode = 9;
       mGameState.level_done_timer = 0;
-      mGameState.level_done_next_level = 1; // always go to overworld after beating the game
+
+      // always go to overworld after beating the game
+      mGameState.level_done_next_level = 1;
+
+      // set so we will be in front of rocket level
+      mLevel.mPlayer.syn[0].overworld_last_touched_gate_level = 64;
+
+
+
+
    }
 
 
@@ -300,7 +302,6 @@ void mwTransitions::proc_level_done_mode()
    {
 
       mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Set up players seek gate");
-
 
       // get gate item
       int gate_item = mGameState.gate_enter_item;

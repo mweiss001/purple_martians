@@ -1501,18 +1501,10 @@ void mwSettings::page_transitions()
    ya +=8;
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mTransitions.transition_num_steps = 1;       }    ya +=8;
-   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mTransitions.transition_num_steps = 60;      }    ya +=8;
-   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mTransitions.transition_num_steps = 80;      }    ya +=8;
-   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mTransitions.transition_num_steps = 120;     }    ya +=8;
-   // if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mTransitions.transition_num_steps = 180;     }
-
-
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Fastest",   0))   { mGameState.transition_speed = 0;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, "Hasty",     0))   { mGameState.transition_speed = 1;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, "Default",   0))   { mGameState.transition_speed = 2;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, "Relaxed",   0))   { mGameState.transition_speed = 3;  }    ya +=8;
-   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   11, 0, 15, 0, 0, "Lazy",      0))   { mGameState.transition_speed = 4;  }
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   10, 0, 15, 0, 0, mTransitions.transition_speed_text[0], 0))   { mGameState.transition_speed = 0;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    4, 0, 15, 0, 0, mTransitions.transition_speed_text[1], 0))   { mGameState.transition_speed = 1;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,    8, 0, 15, 0, 0, mTransitions.transition_speed_text[2], 0))   { mGameState.transition_speed = 2;  }    ya +=8;
+   if (mWidget.mButton(5, cfp_txc, 20,   ya, bts,    1, 2, 0, 1,   13, 0, 15, 0, 0, mTransitions.transition_speed_text[3], 0))   { mGameState.transition_speed = 3;  }
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 }

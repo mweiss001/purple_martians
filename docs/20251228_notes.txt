@@ -51657,7 +51657,58 @@ void mwTransitions::proc_gate_enter_mode()
 
 */
 
-2026-11-05 06:07:55 make it permanent
+2026-11-05 06:07:55 make it permanent and commit
+what happens after rocket?
+
+      // always go to overworld after beating the game
+      mGameState.level_done_next_level = 1;
+
+      // set so we will be in front of rocket level
+      mLevel.mPlayer.syn[0].overworld_last_touched_gate_level = 64;
+
+
+
+
+2026-11-05 06:19:09
+
+now can I simplify the number of things I set with transition_speed
+
+
+I have 8 things that are all set the same:
+
+   gate_enter_seek_time = val;
+   gate_enter_rotate_time = val;
+   //gate_enter_num_rotations = 4;
+   //gate_enter_player_final_scale = .1;
+   gate_enter_transition_time = val;
+
+
+   level_done_seek_time = val;
+   level_done_rotate_time = val;
+   //level_done_num_rotations = 4;
+   //level_done_player_final_scale = .4;
+   level_done_transition_time = val;
+
+   // min_scale = 0.0001;
+   // scale_compound_interest_mode = 0;
+
+   // these are set in level done mode 6 and used in mode 5
+   // controls the player moving from level icon to gate
+   // -----------------------------------------------------
+   player_exit_transition_time = val;
+   //p_num_rotations = 4;
+
+   transition_num_steps = val;
+   // transition_delay;
+
+
+leave it for now...
+
+do some netgame testing...
+
+
+
+
 
 
 

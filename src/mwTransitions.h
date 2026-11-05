@@ -6,7 +6,7 @@ class mwTransitions
 
    void set_transition_speed();
 
-   const char* transition_speed_text[5]  = { "Fastest", "Hasty", "Normal", "Relaxed", "Lazy"};
+   const char* transition_speed_text[5]  = { "Fastest", "Hasty", "Normal", "Relaxed"};
 
 
    // gate enter
