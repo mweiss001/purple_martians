@@ -262,7 +262,14 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       if (menu_num == 2)
       {
          // shortcut keys
-         //if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
+         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
+
+         if (mInput.key[ALLEGRO_KEY_Q][0])                                    return 6; // level editor
+
+
+
+
+
       }
       if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
       if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 0;

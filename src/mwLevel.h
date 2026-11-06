@@ -42,6 +42,8 @@ struct overworld_area
    int color;
    int visible;
 
+   int locked;
+
    int x;
    int y;
    int w;
@@ -205,10 +207,10 @@ class mwLevel
 
 
 
-   void overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h);
+   void overworld_area_array_add(int area, const char* name, int color, int visible, int locked, int x, int y, int w, int h);
 
    void create_door_helper(int x1, int y1, int x2, int y2, int enter_type, int tile);
-   void create_msg_helper(int area);
+   void create_area_msg(int area);
 
    void create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol, int mx, int my, int mw, int mh, int mcol, int mflags, const char *msg);
    void create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, int mcol, int mfs, const char *msg);
@@ -221,13 +223,8 @@ class mwLevel
    struct level_data data[100];
    struct overworld_area overworld_area_array[20];
 
-
-
-
    const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };
    int         level_status_color[4] = {       10,      13,         12,        8  };
-
-   void unlock_all_level_in_area(int area);
 
 
    void reset_level_data();
@@ -252,6 +249,10 @@ class mwLevel
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
    void check_achievements();
+
+   float calc_area_percent_complete(int area);
+   int count_area_levels_complete(int area);
+
 
    int level_exists(int level);
 

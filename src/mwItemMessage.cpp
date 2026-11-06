@@ -244,6 +244,8 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
       if (!strncmp(pt, "Level Statistics Area:5",          23)) show_stats_msg = 25;
       if (!strncmp(pt, "Level Statistics Area:6",          23)) show_stats_msg = 26;
       if (!strncmp(pt, "Level Statistics Area:7",          23)) show_stats_msg = 27;
+      if (!strncmp(pt, "Level Statistics Area:8",          23)) show_stats_msg = 28;
+
    }
    if (show_stats_msg) mLevel.show_level_stats(x+w/2, y, show_stats_msg);
    else

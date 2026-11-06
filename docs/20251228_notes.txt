@@ -52015,6 +52015,384 @@ sure, why not
 
 what else was I doing with overworld?
 
+I think I like the size of 120 for main icon and 180 for big one
+
+I don't like the group edit step sliders
+I want to make a nice way to control the step amounts
+made an auto range thingy
+
+
+raise the area message in area 1 like all the rest...
+
+what determines the width of level stats message?
+
+
+what is the height of each area and can I increase it by one?
+
+h = 10
+top one is 14
+
+what if I made them all 12?
+
+test to see what lowering top on would look like
+
+shortened the top area by 2 blocks, then raised everything
+
+
+
+I am very happy with how that looks
+
+I also rearranged the levels
+8
+8
+10
+10
+10
+final
+---
+47
+
+now make the 
+
+
+I need an area for the final rocket, or should I leave it in the last area
+
+
+how did it used to be?
+
+I don't know about area, but in stats display it was on a line by itself
+
+I think I want it to have its own area
+
+done, added area 6 escape
+
+make its message look good
+
+
+I want escape to be visible but locked
+
+just draw it with dungeon, even if it is unlocked
+
+
+struct overworld_area
+{
+   char name[24];
+   int color;
+   int visible;
+   int locked;
+   
+   }
+   
+   turns out it is synced with netgame...
+   
+
+Variables used for netgame state exchange
+
+mPlayer.syn                 :  2080
+mEnemy.Ei                   : 12800
+mEnemy.Ef                   :  6400
+mItem.item                  : 32000
+mItem.itemf                 :  8000
+mLift.cur                   :  5120
+mLevel.l                    : 40000
+mShot.p                     :  1200
+mShot.e                     :  1200
+mTriggerEvent.event         :  4000
+mGameState                  :    60
+mMessageTextA               :  5000
+mLevel.area_array           :   800
+mLevel.data                 :  9200
+mLevel.overworld_area_array :  1040
+----------------------------:------
+total                       :128900
+
+#define STATE_SIZE 128900
+
+OK I have locked working
+
+now do a message for final
+
+
+move final area to make it look better
+
+I think I have it looking better
+
+I am not satisfied with the placement of the area name icons and the stats display
+
+
+what if the name was centered in the wide open area
+
+and the name held a semisolid block hidden underneath
+
+and when you stood on it a nice centered stats display would show
+
+2026-11-06 07:13:27
+make a hot key to edit level 70..done
+this is so cool!, why did I not do this earlier?
+
+
+2026-11-06 07:25:52
+
+I think I have all these new area messages in place and looking good..
+remove old way...
+
+
+done..
+
+next:
+- make main stats trigger on welcome banner..done
+- make locked messages better..done
+
+- do dev and extra levels
+dev demo looks good
+
+2026-11-06 09:54:33
+now extra:
+
+I have 17 extra (2 are muliplayer bomb toss)
+
+how to arrange?
+
+also so that it would be easy to add more later
+
+
+It would appear that I have a lot of extra space....
+
+Do I want multiplayer bomb toss to be a part of extra?
+The only reason not would be to exclude it from stats...
+
+If I leave it out, how will I copy it to overworld?
+
+I think I will just manually exclude them from stats....level 60 and 61
+
+
+I still want to count how many times they have been completed maybe??
+60 i can complete, but I have no idea about 61...???
+
+both levels have purple coins and a par time
+what they do not have is a demo, but I could make one
+they count in stats for extra area and in grand totals
+
+OK write down what is happening in 61
+
+Each player has an area above where they start.
+
+-
+each player has 3 cloners that will drops bomb for them
+
+p2 is set up so that his cloners will only run if he is close to the wall
+p1 is set up the same way
+
+this does not make sense, its probabaly a wip
+
+there used to be trigger areas for each player to trigger the bomb drops, but it looks like they are not used anymore
+
+
+There is a breakable block high in the air for each player.
+There is a damage field that will destroy player's bullets if they shoot directly up.
+The damage field can be disabled by the other player coming close to the wall.
+So each player needs the other to stand there so he can shoot upwards.
+
+If a player manages to kill the other polayer, when they respawn they will land in the unlock area...
+unless they immediately move away....
+
+
+this is not complete, but could be 
+
+I could extend the trigger area upward so that it is not possible to avoid...
+this has the disadvantge of:
+at the very start, each player could shoot up while the other player was in the trigger zone.
+that is even possible now!!
+
+
+I want to give the player a need to stand in their own zone...like if they needed to do that to spawn bombs...
+
+how about stand there to spawn a new set of bombs, but don't actually let them drop...
+
+or have to stand there for a certain amount of time to drop
+
+try that:
+
+
+make a few nice place holders for the three bombs
+backup this level before doing any changes
+make trigger and timer combos for each bomb cloner
+
+put 61 on todo list and packet to extra...
+
+OMG I think I've got it...it looks perfect!!!!
+
+2026-11-06 11:53:30
+
+
+arrange levels in extra by y also to make 60 and 61 last..done
+when escape area is complete, also add doors down from dungeon..done
+width of stats messages lines up too perfectly with level icon edges
+reduced size of level icons from 120 to 118
+actually I don't need to do them all...just the 6 in this middle...done
+Is there anything else?
+
+I current have debug things setup for area unlocks...
+what should the final be?
+2, 4, 6, 8, 10
+should I store these somewhere? nah...
+now what??
+its fucking perfect...I have no notes...test on linux...test netgame and headless server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

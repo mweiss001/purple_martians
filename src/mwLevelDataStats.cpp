@@ -469,7 +469,7 @@ void mwLevel::show_level_stats_main_area(int x1, int x2, int &y, int draw, int b
    int y_size = 52;
 
    // for every visible area, add 8 for every level in the area and add 4 for padding
-   for (int area=2; area<6; area++)
+   for (int area=2; area<7; area++)
       if (overworld_area_array[area].visible)
       {
          for (int i=0; i<100; i++)
@@ -492,7 +492,7 @@ void mwLevel::show_level_stats_main_area(int x1, int x2, int &y, int draw, int b
    y+=4;
 
    // draw rows
-   for (int area=2; area<6; area++)
+   for (int area=2; area<7; area++)
       if (overworld_area_array[area].visible)
       {
          //int c = overworld_area_array[area].color;
@@ -622,8 +622,8 @@ void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
       row_type = 1;
       show_level_stats_area(1, x1, x2, y, draw, bco, gy, ty, max_x); // training
       show_level_stats_main_area(x1, x2, y, draw, bco, gy, ty, max_x); // main
-      show_level_stats_area(6, x1, x2, y, draw, bco, gy, ty, max_x); // extra
-      show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // demo
+      show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // extra
+      show_level_stats_area(8, x1, x2, y, draw, bco, gy, ty, max_x); // demo
       show_level_stats_grand_total(x1, x2, y, draw, bco, gy, ty, max_x); // grand totals
    }
 
@@ -634,18 +634,19 @@ void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
 
       // only show main if any area in main is visible
       int show_main = 0;
-      for (int area=2; area<6; area++)
+      for (int area=2; area<7; area++)
          if (overworld_area_array[area].visible) show_main = 1;
       if (show_main) show_level_stats_main_area(x1, x2, y, draw, bco, gy, ty, max_x);
 
-      if (overworld_area_array[6].visible) show_level_stats_area(6, x1, x2, y, draw, bco, gy, ty, max_x); // extra
-      if (overworld_area_array[7].visible) show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // demo
+      if (overworld_area_array[7].visible) show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // extra
+      if (overworld_area_array[8].visible) show_level_stats_area(8, x1, x2, y, draw, bco, gy, ty, max_x); // demo
       show_level_stats_grand_total(x1, x2, y, draw, bco, gy, ty, max_x); // grand totals
 
    }
 
    if (msg_type > 20) // show single area
    {
+      row_type = 0;
       int area = msg_type - 20;
       show_level_stats_area(area, x1, x2, y, draw, bco, gy, ty, max_x);
       y+=5; // add space between sections

@@ -18,13 +18,19 @@ waiting for more info...
 debug press fire to complete level does nothing
 
 
+
 in edit selection when copying doors (or moving) the destinations get screwed up
 I think sort might be causing this...
 
 
-something is overwriting overworld_area_array[2].name
-changing the 5th char to 'd' then terminating the string...
-waiting for it to happen again...
+work on level 61 multiplayer bomb toss
+make it good
+
+
+
+
+
+
 
 
 
@@ -49,13 +55,8 @@ gates
 - info about badges in hover pages..done
 - transitions
 
-
 - make the messages for each area look nice
 - names for areas
-
-
-
-
 
 
 can I get some nicer shapes?
@@ -99,9 +100,6 @@ gates are not shown
 
 
 
-
-
-
 ------------------------------------------------
 I would like to add a secondary level structure
 ------------------------------------------------
@@ -117,8 +115,6 @@ this way if I need to load a level to show something, like in visual load
 I do not have to lose what is already in the variables
 
 I can also use it to copy sections in overworld
-
-
 
 
 ------------------------------------------------

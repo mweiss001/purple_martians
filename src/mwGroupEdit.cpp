@@ -1174,8 +1174,18 @@ int mwGroupEdit::show_controls(int x, int y, int w, int &h, int d)
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, .1, .01, .1, "v1:", 0, d); y1+=bts;
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, .1, .01, .1, "v2:", 0, d); y1+=bts;
+
+                  // auto set incs based on range
+                  float adj1 = .1;
+                  float rng = mxa - mna;
+                  if (rng > 10) adj1 = 1;
+                  if (rng > 100) adj1 = 10;
+                  float adj2 = adj1/10;
+
+
+
+                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, adj2, adj2, adj1, "v1:", 0, d); y1+=bts;
+                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, adj2, adj2, adj1, "v2:", 0, d); y1+=bts;
                   mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
 
                   if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))

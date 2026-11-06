@@ -31,12 +31,20 @@ void mwLevel::reset_level_data()
 void mwLevel::unlock_all_levels_and_areas()
 {
    // only change levels that were locked to start with
-   for(int i=0; i<100; i++)
+   for (int i=0; i<100; i++)
       if (data[i].status < 1) data[i].status = 1;
 
-   // make all areas visible
-   for(int i=1; i<8; i++)
+   // make all areas visible and unlocked
+   for (int i=1; i<9; i++)
+   {
       overworld_area_array[i].visible = 1;
+      overworld_area_array[i].locked = 0;
+   }
+
+   // debug make 6 locked
+   // overworld_area_array[5].visible = 0;
+   // overworld_area_array[6].visible = 0;
+   // overworld_area_array[6].locked = 1;
 
    save_data();
    level_stats_bmp_msg_type = 0;                  // to force recreation
@@ -157,52 +165,81 @@ void mwLevel::calc_level_stats(int lev)
 }
 
 
-void mwLevel::check_achievements()
+float mwLevel::calc_area_percent_complete(int area)
 {
-   // check for completed areas
-
-
-   // area 1 - training
-   // if more than 2 levels done
-   int done = 0;
+   int total = 0;
+   int complete = 0;
    for (int l=0; l<99; l++)
-      if ((data[l].area == 1) && (data[l].status > 1)) done++;
-
-   if (done > 0) overworld_area_array[2].visible = 1; // make next area visible
-
-
-
-   // main areas (2-5)
-   for (int a=2; a<6; a++)
-   {
-      //int tot = overworld_area_array[a].num_levels_tot;
-
-      int tot = 0;
-
-
-      done = 0;
-      for (int l=0; l<99; l++)
-         if (data[l].area == a)
-         {
-            tot++;
-            if (data[l].status > 1) done++;
-         }
-
-      float pd = 100 * (float)done / (float)tot;
-
-      if (pd > 1) // greater than 1%
+      if (data[l].area == area)
       {
-         overworld_area_array[a+1].visible = 1; // make next area visible
+         total++;
+         if (data[l].status > 1) complete++;
       }
-   }
+   if (total == 0) return 0;
+   return (float)complete / (float)total;
+}
 
-
-
+int mwLevel::count_area_levels_complete(int area)
+{
+   int complete = 0;
+   for (int l=0; l<99; l++)
+      if (data[l].area == area && data[l].status > 1) complete++;
+   return complete;
 }
 
 
 
 
+void mwLevel::check_achievements()
+{
+   // check for completed areas
+
+   printf("check_achievements()\n");
+
+
+
+   // area 1
+   if (count_area_levels_complete(1) >= 1) // 2
+   {
+      overworld_area_array[2].visible = 1; // make next area visible
+   }
+
+   // area 2
+   if (count_area_levels_complete(2) >= 1) // 4
+   {
+      overworld_area_array[3].visible = 1; // make next area visible
+   }
+
+   // area 3
+   if (count_area_levels_complete(3) >= 1) // 6
+   {
+      overworld_area_array[4].visible = 1; // make next area visible
+   }
+
+   // area 4
+   if (count_area_levels_complete(4) >= 1) // 8
+   {
+      overworld_area_array[5].visible = 1; // make next area 5 (dungeon) visible
+      overworld_area_array[6].visible = 1; // make next area 6 (escape) also visible (but it still should be locked)
+   }
+
+   // area 5 (dungeon)
+   if (count_area_levels_complete(5) >= 1) // 10
+   {
+      overworld_area_array[6].locked = 0; // unlock final area (escape)
+   }
+   else
+   {
+      overworld_area_array[6].locked = 1; // lock final area (escape)
+   }
+
+   // area 6 (escape)
+   if (count_area_levels_complete(6))
+   {
+      overworld_area_array[7].visible = 1; // make next area visible
+      overworld_area_array[8].visible = 1; // make next area visible
+   }
+}
 
 
 
@@ -232,8 +269,6 @@ void mwLevel::create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, 
 //   strcpy(mItem.pmsgtext[i], msg);
 
    mItem.mMessageText.set_text(i, msg);
-
-
 
 }
 
@@ -291,104 +326,91 @@ void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol
 
    mItem.mMessageText.set_text(i, msg);
 
-
-
 }
 
-
-
-void mwLevel::create_msg_helper(int area)
+void mwLevel::create_area_msg(int area)
 {
    int col = overworld_area_array[area].color;
 
-   int ax1 = overworld_area_array[area].x;
-   int aw = overworld_area_array[area].w;
-   //int ax2 = ax1 + aw;
-   int axc = ax1 + aw/2;
+   float ax1 = overworld_area_array[area].x;
+   float aw = overworld_area_array[area].w;
+   // float ax2 = ax1 + aw;
+   float axc = ax1 + aw/2;
 
-   int ay1 = overworld_area_array[area].y;
-   int ah = overworld_area_array[area].h;
-   int ay2 = ay1 + ah;
-   //int ayc = ay1 + ah/2;
-
-
-
-
-   // int ss_flags = 0;
-   // ss_flags |= PM_BTILE_SOLID_PLAYER;
-   // ss_flags |= PM_BTILE_SOLID_ENEMY;
-   // ss_flags |= PM_BTILE_SOLID_ITEM;
-   // ss_flags |= PM_BTILE_SEMISOLID_PLAYER;
-   // ss_flags |= PM_BTILE_SEMISOLID_ENEMY;
-   // ss_flags |= PM_BTILE_SEMISOLID_ITEM;
-
-   // add semisolid platform of blocks below
-   // int by = y/20+3;
-   // for (int bx=x/20; bx<x/20+6; bx++) mLevel.l[bx][by] = 899 + ss_flags;
-   // mLevel.l[x/20][by] = 898 + ss_flags;
-   // mLevel.l[x/20+5][by] = 900 + ss_flags;
-
-   // int bx = x/20+2;
-   // int by = y/20+3;
-   // mLevel.l[bx][by] = 910 + ss_flags;
-   // mLevel.l[bx][by+3] = 910 + ss_flags;
+   float ay1 = overworld_area_array[area].y;
+   float ah = overworld_area_array[area].h;
+   float ay2 = ay1 + ah;
+   // float ayc = ay1 + ah/2;
 
 
    // create always on message with area name
    // ----------------------------------------------
-   int msg_name_x = (axc-9)*20 + 3;
-   int msg_name_y = ay1     *20 + 2;
-   if (area == 1) msg_name_y+=130;
-   create_msg_helper(msg_name_x-20, msg_name_y, msg_name_x, msg_name_y, 95, 23, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
+
+   // by default the y position is the top block y position of the area
+   int by = ay1;
+
+   // area 1 is a bit lower to avoid the title message
+   if (area == 1) by += 3;
+
+   // message size and position
+   int mw = 95;
+   int mh =  23;
+   int mx = axc*20 - mw/2;
+   int my = by*20;
+
+   // create the area name message
+   create_msg_helper(mx-20, my, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
 
 
+   // put a row of invisible semi-solid blocks beneath to stand on
+   int ss_flags = PM_BTILE_SOLID_PLAYER | PM_BTILE_SOLID_ENEMY | PM_BTILE_SOLID_ITEM | PM_BTILE_SEMISOLID_PLAYER | PM_BTILE_SEMISOLID_ENEMY | PM_BTILE_SEMISOLID_ITEM;
+   for (int x = axc-2; x<axc+2; x++) mLevel.l[x][by+1] = ss_flags;
 
-   // create trigger and message for area stats
-   // ----------------------------------------------
-   // msg area stats scroll
-   int msg_stats_scroll_x = msg_name_x+40;
-   int msg_stats_scroll_y = msg_name_y+60;
 
-   // msg area stats msg
-   int msg_stats_msg_x = 1204;
-   int msg_stats_msg_y = msg_name_y;
-   if (area == 1) msg_stats_scroll_y-=10;
+   // create a trigger then same size as always on message to display area stats message directly below
    char msg[80];
    sprintf(msg, "Level Statistics Area:%d", area);
-
-   // scroll
-   create_msg_helper(msg_stats_scroll_x, msg_stats_scroll_y, msg_stats_msg_x, msg_stats_msg_y, 0, 0, col, PM_ITEM_PMSG_FRAME0 + PM_ITEM_PMSG_SHOW_SCROLL, msg);
-
-   // visible trigger
-   // create_msg_helper_trigger(x, y+40, 20, 20, col, 1000, y+70, 0, 0, col, PM_ITEM_PMSG_FRAME0, msg);
-
-   // hidden trigger with tile
-   //create_msg_helper_trigger(x, y+40, 20, 20, 0, 1000, y+70, 0, 0, col, PM_ITEM_PMSG_FRAME0, msg);
-   //mLevel.l[x/20][(y+40)/20] = 134;
+   create_msg_helper_trigger(mx, my, mw, mh, 0, axc*20, my+mh+1, 0, 0, col, PM_ITEM_PMSG_FRAME4, msg );
 
 
+   // create trigger and message for what needs to be completed to unlock next area
+   // -----------------------------------------------------------------------------
 
-   // create trigger and message for what needs to be completed to continue
-   // ---------------------------------------------------------------------
-   int msg_unlock_x = (axc-4) * 20;
-   int msg_unlock_w = 160;
-   int msg_unlock_y = ay2 * 20;
-   int msg_unlock_h =  40;
+   // trigger position
+   int tw = 160;
+   int tx = (axc*20) - tw/2;
+   int th = 20;
+   int ty = (ay2-2)*20;
 
+   // message position
+   mw = 190;
+   mx = (axc*20) - mw / 2;
+   mh =  29;
+   my = ay2 * 20;
 
-   if (area == 1)//  && overworld_area_array[2].visible == 0)
+   if (area == 1 && overworld_area_array[2].visible == 0)
    {
-      create_msg_helper_trigger(msg_unlock_x, msg_unlock_y-40, msg_unlock_w, 20, 0, msg_unlock_x, msg_unlock_y+4, msg_unlock_w, msg_unlock_h, col, PM_ITEM_PMSG_FRAME4, "Complete two\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 2 Surface\nlevels to unlock");
    }
-
    if (area == 2 && overworld_area_array[3].visible == 0)
    {
-      create_msg_helper_trigger(msg_unlock_x, msg_unlock_y-40, msg_unlock_w, 20, 0, msg_unlock_x, msg_unlock_y+4, msg_unlock_w, msg_unlock_h, col, PM_ITEM_PMSG_FRAME4, "Complete three\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 4 Outskirts\nlevels to unlock");
    }
-
-
-
+   if (area == 3 && overworld_area_array[4].visible == 0)
+   {
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 6 Suburbs\nlevels to unlock");
+   }
+   if (area == 4 && overworld_area_array[5].visible == 0)
+   {
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 8 Downtown\nlevels to unlock");
+   }
+   if (area == 5 && overworld_area_array[6].locked == 1)
+   {
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete all Dungeon\nlevels to unlock");
+   }
 }
+
+
 
 
 // creates an invisible door set from x1,y1 to x2,x2
@@ -420,128 +442,119 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
 
 
 
-
 // only ever called from load level after loading level 1
 void mwLevel::set_overworld_barriers()
 {
-   // printf("void mwLevel::set_overworld_barriers()\n");
+   //printf("void mwLevel::set_overworld_barriers()\n");
 
-   //   double t = al_get_time();
+   // always copy area 1 and do it with full clear
+   mEditSelection.copy_sel_from_level(70, overworld_area_array[1].x, overworld_area_array[1].y, overworld_area_array[1].w, overworld_area_array[1].h, 1, overworld_area_array[1].x, overworld_area_array[1].y, 2);
 
-   // debug all areas visible
-   // overworld_area_array[2].visible = 1;
-   // overworld_area_array[3].visible = 1;
-   // overworld_area_array[4].visible = 1;
-   // overworld_area_array[5].visible = 1;
-   // overworld_area_array[6].visible = 1;
-   // overworld_area_array[7].visible = 1;
-
-   // // debug all areas visible
-   // overworld_area_array[1].visible = 1;
-   // overworld_area_array[2].visible = 0;
-   // overworld_area_array[3].visible = 0;
-   // overworld_area_array[4].visible = 0;
-   // overworld_area_array[5].visible = 0;
-   // overworld_area_array[6].visible = 0;
-   // overworld_area_array[7].visible = 0;
-
-   // always copy area 1 - clear all first
-   int i = 1;
-   int x = overworld_area_array[i].x;
-   int y = overworld_area_array[i].y;
-   int w = overworld_area_array[i].w;
-   int h = overworld_area_array[i].h;
+   // copy other visible areas from level 70
+   for (int i=2; i<9; i++)
+      if (overworld_area_array[i].visible)
+         mEditSelection.copy_sel_from_level(70, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h, 1, overworld_area_array[i].x, overworld_area_array[i].y, 1);
 
 
-   mEditSelection.copy_sel_from_level(70, x, y, w, h, 1, x, y, 2);
 
-   // copy other areas if visible
-   for (i=2; i<8; i++)
-   {
-      x = overworld_area_array[i].x;
-      y = overworld_area_array[i].y;
-      w = overworld_area_array[i].w;
-      h = overworld_area_array[i].h;
-      if (overworld_area_array[i].visible) mEditSelection.copy_sel_from_level(70, x, y, w, h, 1, x, y, 1);
-   }
+   // for some reason I have to do all the copying first, then modify
+   // bad things happen if I try to copy then modify in the same iteration loop
+
 
    // modify visible areas
-   for (i=1; i<8; i++)
+   for (int i=1; i<9; i++)
       if (overworld_area_array[i].visible)
       {
          // create msg
-         create_msg_helper(i);
+         create_area_msg(i);
 
          // add side to side doors
-         if (i>0 && i<6)
+         // only for areas 1 - 5
+         if (i >= 1 && i <= 5)
          {
-            y = overworld_area_array[i].y + overworld_area_array[i].h - 2;
-            if (i==5) y-=4; // this area has a different height
+            int y = overworld_area_array[i].y + overworld_area_array[i].h - 2;
             create_door_helper(0,  y,  97, y, 0, 11);
             create_door_helper(99, y,   2, y, 0, 12);
          }
 
 
-         // remove blocks from bottom of area above and create doors from area above
-         if (i>1 && i<6) // only for areas 2 - 5
+         // if area is visible (which I have already tested for),
+         // remove blocks from bottom of area above
+         // and create doors from area above
+         // only for areas 2 - 5
+         if (i >= 2 && i <= 5)
          {
             // top y position of this area
-            y = overworld_area_array[i].y;
+            int y = overworld_area_array[i].y;
 
             // remove blocks from bottom of area above
-            for (x=46; x<54; x++) mLevel.l[x][y-1] = 0;
+            for (int x=46; x<54; x++) mLevel.l[x][y-1] = 0;
 
             // add doors from area above
             create_door_helper(1,  y-2, 1,  y+2, 2, 15);
             create_door_helper(98, y-2, 98, y+2, 2, 15);
          }
-   }
+
+
+         // if escape area is unlocked,
+         // remove blocks from bottom of area above
+         if (i == 6 && !overworld_area_array[6].locked) // escape
+         {
+            // top y position of this area
+            int y = overworld_area_array[i].y;
+
+            // remove blocks from bottom of area above
+            for (int x=46; x<54; x++) mLevel.l[x][y-1] = 0;
+         }
+
+
+         if (i == 7) // this means escape is complete
+         {
+            // remove blocks from escape area
+            for (int y=52; y<62; y++)
+               for (int x=36; x<42; x++) mLevel.l[x][y] = 0;
+
+            for (int y=52; y<62; y++)
+               for (int x=58; x<64; x++) mLevel.l[x][y] = 0;
+
+
+            // top y position of escape area
+            int y = overworld_area_array[6].y;
+
+            // add doors from dungeon down to open area below
+            create_door_helper(1,  y-2, 1,  y+2, 2, 15);
+            create_door_helper(98, y-2, 98, y+2, 2, 15);
+         }
+      }
 
    save_level(1); // save overworld level
-
    if (!mMain.headless_server) mLevelIcons.update_level_icon(1);
-
-
-
-
-
-
-
-   // printf("void mwLevel::set_overworld_barriers() -- complete\n");
-
-
-
-//   printf("time to set overworld barriers: %f\n", al_get_time() - t);
-
-
-//   mEditSelection.add_sel_to_level(1, "sel/test123.sel", 10, 2);
-
-//   mEditSelection.copy_sel_from_level(70, 45, 48, 10, 10, 1, 70, 50, 2);
-
-//   mEditSelection.copy_sel_from_level(70, 0, 0, 100, 100, 1, 0, 0, 2);
-
 }
 
 
+
 // fills the area array (used only to control the order of levels in each area for stat listings)
+// another possible uses could be to unlock levels in a certain order (but I don't do that)
+// also with this approach I could have the same level in more than one area
+// but that would break returning to a specific gate based on level
 void mwLevel::fill_area_array(int area, int xasc, int &aai)
 {
+   int results_array[50][3] = { 0 };
+   int results_array_index = 0;
+
    int x1 = overworld_area_array[area].x * 20;
    int y1 = overworld_area_array[area].y * 20;
    int x2 = x1 + overworld_area_array[area].w * 20;
    int y2 = y1 + overworld_area_array[area].h * 20;
 
-   int res[50][3] = { 0 }; // results array
-   int resi = 0;
-
    // find all gates in the area
-   for(int i=0; i<100; i++)
+   for(int i=0; i<500; i++)
       if ((mItem.item[i][0] == 18) && (mItem.item[i][4] >= x1) && (mItem.item[i][4] <= x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] <= y2))
       {
-         res[resi][0] = mItem.item[i][6]; // level num
-         res[resi][1] = mItem.item[i][4]; // x
-         res[resi][2] = mItem.item[i][5]; // y
-         resi++;
+         results_array[results_array_index][0] = mItem.item[i][6]; // level num
+         results_array[results_array_index][1] = mItem.item[i][4]; // x
+         results_array[results_array_index][2] = mItem.item[i][5]; // y
+         results_array_index++;
       }
 
    // sort results by x position
@@ -549,23 +562,45 @@ void mwLevel::fill_area_array(int area, int xasc, int &aai)
    while (swap_flag)
    {
       swap_flag = 0;
-      for(int i=0; i<resi-1; i++)
-         if ( ((xasc == 1) && (res[i][1] > res[i+1][1])) || ((xasc == 0) && (res[i][1] < res[i+1][1])) )  // sort by x position, ascending or desc
+      for(int i=0; i<results_array_index-1; i++)
+         if ( ((xasc == 1) && (results_array[i][1] > results_array[i+1][1])) || ((xasc == 0) && (results_array[i][1] < results_array[i+1][1])) )  // sort by x position, ascending or desc
          {
             swap_flag = 1;
             for (int k=0; k<3; k++)
             {
-               res[49 ][k]  = res[i  ][k];  // use 49 for temp swap
-               res[i  ][k]  = res[i+1][k];
-               res[i+1][k]  = res[49 ][k];
+               results_array[49 ][k]  = results_array[i  ][k];  // use 49 for temp swap
+               results_array[i  ][k]  = results_array[i+1][k];
+               results_array[i+1][k]  = results_array[49 ][k];
             }
          }
    }
 
-   // add to area array
-   for (int i=0; i<resi; i++)
+
+   // sort results by y position
+   swap_flag = 1;
+   while (swap_flag)
    {
-      area_array[aai][0] = res[i][0];
+      swap_flag = 0;
+      for(int i=0; i<results_array_index-1; i++)
+         if (results_array[i][2] > results_array[i+1][2])  // sort by y position, ascending
+         {
+            swap_flag = 1;
+            for (int k=0; k<3; k++)
+            {
+               results_array[49 ][k]  = results_array[i  ][k];  // use 49 for temp swap
+               results_array[i  ][k]  = results_array[i+1][k];
+               results_array[i+1][k]  = results_array[49 ][k];
+            }
+         }
+   }
+
+
+
+
+   // add to area array
+   for (int i=0; i<results_array_index; i++)
+   {
+      area_array[aai][0] = results_array[i][0];
       area_array[aai][1] = area;
       aai++;
    }
@@ -573,7 +608,7 @@ void mwLevel::fill_area_array(int area, int xasc, int &aai)
 
 
 
-void mwLevel::overworld_area_array_add(int area, const char* name, int color, int visible, int x, int y, int w, int h)
+void mwLevel::overworld_area_array_add(int area, const char* name, int color, int visible, int locked, int x, int y, int w, int h)
 {
    sprintf(overworld_area_array[area].name, "%s", name);
    overworld_area_array[area].color = color;
@@ -600,34 +635,29 @@ void mwLevel::fill_overworld_area_array()
    // load base overworld level
    load_level_by_number(70, 1, 0);
 
-   overworld_area_array_add(1, "Surface",     11, 1, 0, 0,  100, 14);
-   overworld_area_array_add(2, "Outskirts",   13, 0, 0, 14, 100, 10);
-   overworld_area_array_add(3, "Suburbs",      6, 0, 0, 24, 100, 10);
-   overworld_area_array_add(4, "Downtown",     7, 0, 0, 34, 100, 10);
-   overworld_area_array_add(5, "Dungeon",      8, 0, 0, 44, 100, 14);
-   overworld_area_array_add(6, "Extra",        9, 0, 0, 74, 100, 6);
-   overworld_area_array_add(7, "Dev Demo",    10, 0, 0, 85, 100, 15);
+   overworld_area_array_add(1, "Surface",     11, 1, 0,   0,  0,   100,  12);
+   overworld_area_array_add(2, "Outskirts",   13, 0, 0,   0,  12,  100,  10);
+   overworld_area_array_add(3, "Suburbs",      6, 0, 0,   0,  22,  100,  10);
+   overworld_area_array_add(4, "Downtown",     7, 0, 0,   0,  32,  100,  10);
+   overworld_area_array_add(5, "Dungeon",      8, 0, 0,   0,  42,  100,  10);
+   overworld_area_array_add(6, "Escape",      10, 0, 1,  34,  52,   32,  20);
+   overworld_area_array_add(7, "Extra",        9, 0, 0,   2,  69,   44,  21);
+   overworld_area_array_add(8, "Dev Demo",     8, 0, 0,   0,  90,  100,  10);
 
    // print all levels and areas they belong to
-   //for (int i=0; i<100; i++) printf("level:%d - area:%d\n", i, data[i].area);
+//   for (int i=0; i<100; i++) printf("level:%d - area:%d\n", i, data[i].area);
 
    // fills the area array (used only to control the order of levels in each area for stat listings)
    int aai = 0;
-   for (int area=1; area<8; area++) fill_area_array(area, 1, aai);
+   for (int area=1; area<9; area++) fill_area_array(area, 1, aai);
 }
 
 
-void mwLevel::unlock_all_level_in_area(int area)
-{
-   for (int i=0; i<100; i++)
-      if (data[i].area == area)
-         if (data[i].status < 1) data[i].status = 1;
-}
 
 void mwLevel::data_helper(int i, int time_par, const char *name)
 {
    strcpy(data[i].level_name, name);
-   data[i].time_par = time_par; // 4:00 demo 3:15
+   data[i].time_par = time_par;
 }
 
 void mwLevel::set_level_names_and_par_time()
@@ -635,7 +665,7 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(1,   0,     "Overworld Map");
    data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
    data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
-   data_helper(4,   7200,  "Blue Key Fall");       // 3:00 demo 2:20
+   data_helper(4,   7200,  "Switch Puzzle");       // 3:00 demo 2:20
    data_helper(5,   6400,  "Kill Kill Kill");      // 2:40 demo 2:18
    data_helper(6,   9600,  "Breakable");           // 4:00 demo 2:58
    data_helper(7,   2400,  "Ranger Bob");          // 1:00 demo 0:46.5
@@ -724,7 +754,6 @@ void mwLevel::set_level_names_and_par_time()
 
 
 
-
 void mwLevel::clear_data()
 {
    mSql.execute_sql("DELETE FROM play_data", mSql.db_play_data);
@@ -744,6 +773,7 @@ void mwLevel::clear_data()
       strcpy(overworld_area_array[i].name, "");
       overworld_area_array[i].color = 0;
       overworld_area_array[i].visible = 0;
+      overworld_area_array[i].locked = 0;
       overworld_area_array[i].x = 0;
       overworld_area_array[i].y = 0;
       overworld_area_array[i].w = 0;
@@ -782,6 +812,11 @@ void mwLevel::clear_data()
          for (int i=0; i<500; i++)
             if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 1)) data[lv].tot_coins++;
       }
+
+   // area 1 is always visible
+   overworld_area_array[1].visible = 1;
+
+
 
    load_level_by_number(1, 1, 0); // load overworld level to force initial setup
 

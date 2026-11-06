@@ -264,6 +264,14 @@ void mwLoop::game_menu()
             state[0] = PM_PROGRAM_STATE_QUIT;
             return;
          }
+
+
+         if (top_menu_sel == 6) mLevelEditor.loop(70); // level editor
+
+         if (top_menu_sel == 6) top_menu_sel = 0;
+
+
+
          if (top_menu_sel == 0) // start new game
          {
             state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
@@ -297,6 +305,10 @@ void mwLoop::game_menu()
          }
 
          if (top_menu_sel == 5) mHelp.help(""); // help
+
+
+
+
 
          while (top_menu_sel >= 100) top_menu_sel-=100; // to account for left and right which are not used
       }
