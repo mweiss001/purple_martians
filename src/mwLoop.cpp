@@ -445,6 +445,11 @@ void mwLoop::proc_program_state_change()
       // do it like this so we can go back to settings if called from there
       if (quit_action != 3) quit_action = 1; // to prevent quitting clients from automatically going to overworld
 
+
+      // to restore local overworld area data
+      mLevel.load_data();
+
+
       state[0] = PM_PROGRAM_STATE_GAME_LOOP_QUIT;
    }
 

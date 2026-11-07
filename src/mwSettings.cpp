@@ -2133,12 +2133,6 @@ void mwSettings::page_misc()
 
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-
-   if (mWidget.mButton(0, xa+200,  xa+370,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Dump Level Data",   0)) mLevel.dump_level_data();
-
-
-   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
-
 //   ya+=bts+4;
    mWidget.mCheckBox(1, xa, xb, 1, ya, bts, 0, mLevel.make_backup_on_save_level, "Make backup when saving level", 15, 15, 0);
    ya+=bts+4;

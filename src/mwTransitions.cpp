@@ -691,13 +691,16 @@ void mwTransitions::proc_level_done_mode()
             l2.mPlayer.syn[p].overworld_last_touched_gate_level = curr_lev;
 
          // load the next level (overworld) into l2
-         l2.load_level_l2(next_lev);
+         l2.load_level_l2(1);
 
-         // draw l2 on its own level_buffer without players
-         if (!mMain.headless_server) l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+         if (!mMain.headless_server)
+         {
+            // draw l2 on its own level_buffer without players
+            l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
 
-         // draw mLevel on its own level_buffer with players
-         if (!mMain.headless_server) mLevel.draw_level2(mLevel.level_buffer, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+            // draw mLevel on its own level_buffer with players
+            mLevel.draw_level2(mLevel.level_buffer, 0, 0, 2000, 1, 1, 1, 1, 1, 0);
+         }
 
          // find the gate item for current level
          int gate_index = l2.mItem.find_gate_for_level(curr_lev);
@@ -838,8 +841,6 @@ void mwTransitions::proc_level_done_mode()
       // only log once
       if (mGameState.level_done_timer == level_done_transition_time) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Level to overworld transition");
 
-
-
       // do the increments
       transition_current_x += transition_x_inc;
       transition_current_y += transition_y_inc;
@@ -848,6 +849,7 @@ void mwTransitions::proc_level_done_mode()
       // draw
       if (!mMain.headless_server)
       {
+         // draw on display
          al_set_target_backbuffer(mDisplay.display);
          al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -941,7 +943,6 @@ void mwTransitions::proc_level_done_mode()
       py_current += py_inc;
       pscale_current += pscale_inc;
 
-
       // set player variables to final before drawing background (overworld)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((l2.mPlayer.syn[p].active) && (l2.mPlayer.syn[p].paused_type != 3))
@@ -965,7 +966,6 @@ void mwTransitions::proc_level_done_mode()
 
          // draw direct to screen, hovered level icon in overworld for current level
          l2.mItem.draw_level_icon_direct_to_screen(i);
-
       }
 
       // set player variables to current before drawing players
@@ -980,8 +980,12 @@ void mwTransitions::proc_level_done_mode()
 
       if (!mMain.headless_server)
       {
+         // draw players
          l2.mPlayer.draw_players_direct_to_screen();
+
+         // draw screen frame
          mScreen.draw_screen_frame();
+
          al_flip_display();
       }
 
@@ -1121,10 +1125,10 @@ void mwTransitions::proc_level_done_mode()
 
       int lev = mLevel.mItem.item[mGameState.gate_enter_item][6];
       mGameState.level_done_next_level = lev;
-      // server sets last touched gate for all clients
+      // server sets last touched gate for all clients (and itself!)
       if (mNetgame.ima_server)
       {
-         for (int pp=1; pp<8; pp++)
+         for (int pp=0; pp<8; pp++)
             if (mLevel.mPlayer.syn[pp].active) mLevel.mPlayer.syn[pp].overworld_last_touched_gate_level = lev;
       }
 

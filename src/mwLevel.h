@@ -244,8 +244,6 @@ class mwLevel
    void load_data();
    void save_data();
 
-   void dump_level_data();
-
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
    void check_achievements();

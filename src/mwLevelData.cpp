@@ -20,36 +20,6 @@
 #include "pm.h"
 #include "pm.h"
 
-void mwLevel::reset_level_data()
-{
-   clear_data();
-   save_data();
-   level_stats_bmp_msg_type = 0;                  // to force recreation
-   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
-}
-
-void mwLevel::unlock_all_levels_and_areas()
-{
-   // only change levels that were locked to start with
-   for (int i=0; i<100; i++)
-      if (data[i].status < 1) data[i].status = 1;
-
-   // make all areas visible and unlocked
-   for (int i=1; i<9; i++)
-   {
-      overworld_area_array[i].visible = 1;
-      overworld_area_array[i].locked = 0;
-   }
-
-   // debug make 6 locked
-   // overworld_area_array[5].visible = 0;
-   // overworld_area_array[6].visible = 0;
-   // overworld_area_array[6].locked = 1;
-
-   save_data();
-   level_stats_bmp_msg_type = 0;                  // to force recreation
-   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
-}
 
 
 
@@ -228,10 +198,6 @@ void mwLevel::check_achievements()
    {
       overworld_area_array[6].locked = 0; // unlock final area (escape)
    }
-   else
-   {
-      overworld_area_array[6].locked = 1; // lock final area (escape)
-   }
 
    // area 6 (escape)
    if (count_area_levels_complete(6))
@@ -330,6 +296,10 @@ void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol
 
 void mwLevel::create_area_msg(int area)
 {
+   // don't draw for escape room if it is still locked
+   if (area == 6 && overworld_area_array[area].locked) return;
+
+
    int col = overworld_area_array[area].color;
 
    float ax1 = overworld_area_array[area].x;
@@ -593,10 +563,6 @@ void mwLevel::fill_area_array(int area, int xasc, int &aai)
             }
          }
    }
-
-
-
-
    // add to area array
    for (int i=0; i<results_array_index; i++)
    {
@@ -613,6 +579,7 @@ void mwLevel::overworld_area_array_add(int area, const char* name, int color, in
    sprintf(overworld_area_array[area].name, "%s", name);
    overworld_area_array[area].color = color;
    overworld_area_array[area].visible = visible;
+   overworld_area_array[area].locked = locked;
    overworld_area_array[area].x = x;
    overworld_area_array[area].y = y;
    overworld_area_array[area].w = w;
@@ -635,14 +602,14 @@ void mwLevel::fill_overworld_area_array()
    // load base overworld level
    load_level_by_number(70, 1, 0);
 
-   overworld_area_array_add(1, "Surface",     11, 1, 0,   0,  0,   100,  12);
-   overworld_area_array_add(2, "Outskirts",   13, 0, 0,   0,  12,  100,  10);
-   overworld_area_array_add(3, "Suburbs",      6, 0, 0,   0,  22,  100,  10);
-   overworld_area_array_add(4, "Downtown",     7, 0, 0,   0,  32,  100,  10);
-   overworld_area_array_add(5, "Dungeon",      8, 0, 0,   0,  42,  100,  10);
-   overworld_area_array_add(6, "Escape",      10, 0, 1,  34,  52,   32,  20);
-   overworld_area_array_add(7, "Extra",        9, 0, 0,   2,  69,   44,  21);
-   overworld_area_array_add(8, "Dev Demo",     8, 0, 0,   0,  90,  100,  10);
+   overworld_area_array_add(1, "Surface",     11,   1, 0,    0,  0,   100,  12);
+   overworld_area_array_add(2, "Outskirts",   13,   0, 0,    0,  12,  100,  10);
+   overworld_area_array_add(3, "Suburbs",      6,   0, 0,    0,  22,  100,  10);
+   overworld_area_array_add(4, "Downtown",     7,   0, 0,    0,  32,  100,  10);
+   overworld_area_array_add(5, "Dungeon",      8,   0, 0,    0,  42,  100,  10);
+   overworld_area_array_add(6, "Escape",      10,   0, 1,   34,  52,   32,  20);
+   overworld_area_array_add(7, "Extra",        9,   0, 0,    2,  69,   44,  21);
+   overworld_area_array_add(8, "Dev Demo",     8,   0, 0,    0,  90,  100,  10);
 
    // print all levels and areas they belong to
 //   for (int i=0; i<100; i++) printf("level:%d - area:%d\n", i, data[i].area);
@@ -749,10 +716,17 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(96,  600,   "Flappers");             // 0:15 demo 0:03.9
    data_helper(97,  3600,  "Jumpworms");            // 1:30 demo 1:18
    data_helper(98,  3600,  "Lifts");                // 1:30 demo 1:11
-
 }
 
 
+
+void mwLevel::reset_level_data()
+{
+   clear_data();
+   save_data();
+   level_stats_bmp_msg_type = 0;                  // to force recreation
+   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
+}
 
 void mwLevel::clear_data()
 {
@@ -813,13 +787,7 @@ void mwLevel::clear_data()
             if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 1)) data[lv].tot_coins++;
       }
 
-   // area 1 is always visible
-   overworld_area_array[1].visible = 1;
-
-
-
    load_level_by_number(1, 1, 0); // load overworld level to force initial setup
-
    save_data();
    level_stats_bmp_msg_type = 0;
 }
@@ -844,7 +812,6 @@ void mwLevel::load_data()
 
 void mwLevel::save_data()
 {
-   //save_level_data_to_db();
    FILE *fp =fopen("data/level_data.pm","wb");
    if (fp)
    {
@@ -865,15 +832,20 @@ int mwLevel::get_total_purple_coins(int level)
 }
 
 
-
-void mwLevel::dump_level_data()
+void mwLevel::unlock_all_levels_and_areas()
 {
-//   printf("Play Data:\n");
-//   for (int i=0; i<play_data_num; i++)
-//      printf("i:%d lev:%d tmr:%d cmp:%d ek:%d\n", i, play_data[i].level, play_data[i].timer, play_data[i].completed, play_data[i].enemies_killed);
-//
-//   printf("\nLevel Data:\n");
-//   for(int i=80; i<85; i++)
-//      printf("i:%d t_b:%d ek:%d st:%d stc:%d sts:%s \n", i, data[i].time_best, data[i].max_enemies_killed, data[i].status, data[i].status_color, data[i].status_text);
+   // only change levels that were locked to start with
+   for (int i=0; i<100; i++)
+      if (data[i].status < 1) data[i].status = 1;
+
+   // make all areas visible and unlocked
+   for (int i=1; i<9; i++)
+   {
+      overworld_area_array[i].visible = 1;
+      overworld_area_array[i].locked = 0;
+   }
+   save_data();
+   level_stats_bmp_msg_type = 0;                  // to force recreation
+   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
 }
 

@@ -208,7 +208,9 @@ int mwItem::draw_pmsg(int i, int x, int y, int custom)
       if (timer_count) draw = 1;
 
       // skip draw if always on (already drawn on level background)
-      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
+      //if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
+
+      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 1;
 
       if (draw) draw_message(i, 0);
    }
@@ -218,14 +220,9 @@ int mwItem::draw_pmsg(int i, int x, int y, int custom)
 
 void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
-
-
    // make a copy of the string
    char pt[500];
-//   strcpy(pt, pmsgtext[i]); // get text from pmsg
-
    strcpy(pt, mMessageText.get_text(i).c_str()); // get text from pmsg
-
 
    int x = item[i][6];
    int y = item[i][7];
@@ -265,9 +262,6 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
       }
 
 
-
-
-
       if (custom == 1) // get custom x and y
       {
          x = xpos_c - w/2 - 8;
@@ -291,10 +285,8 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
          dx1 = 0;
          dy1 = 0;
       }
-
       int dx2 = dx1+w;
       int dy2 = dy1+h;
-
 
       // get text and frame colors
       int tc=0, fc=0;
@@ -302,10 +294,6 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
 
       // get frame width
       int frame_width = get_frame_size(i);
-
-
-
-
       if (frame_width == 0)
       {
          if (mLoop.level_editor_running) al_draw_rectangle(dx1, dy1, dx2, dy2, mColor.pc[15], 1);
@@ -367,7 +355,6 @@ void mwItem::draw_message(int i, int custom, int xpos_c, int ypos, int cursor_po
 
       // figure out what line height to use so that text is justified vertically
       float line_height = 7.9; // initial line height
-
       int max_text_width = w - 16;
 
       // do_multiline callback to figure out number of lines that will be used

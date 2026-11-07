@@ -111,7 +111,6 @@ int mwItem::item_secondary67_hires(int type)
 
 void mwItem::draw_items()
 {
-
    for (int i=0; i<500; i++)
    {
       if ((item[i][0]) && (!((item[i][0] == 10) && (!strncmp(mMessageText.get_text(i).c_str(), "Level Statistics", 16))))) // skip drawing level stats message here, do it later
@@ -155,7 +154,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.sprite[shape], x, y, 0);
 
-   // if item is expiring show how many seconds left it has
+   //if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)
    {
       if ((item[i][14]>10) && (type != 9) && (type != 13) && (type != 16) && (type != 17))

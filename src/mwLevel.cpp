@@ -219,9 +219,10 @@ void mwLevel::init_level_background() // fill level_background with block tiles
             mScreen.mark_non_default_block(x, y, l[x][y]);
 
    // draw messages that are always on
-   for (int i=0; i<500; i++)
-      if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-         mItem.draw_message(i, 2);
+   // for (int i=0; i<500; i++)
+   //    if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+   //       mItem.draw_message(i, 2);
+
 
    //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 
@@ -233,12 +234,6 @@ void mwLevel::get_new_background()
    al_set_target_bitmap(level_buffer);
    al_draw_bitmap(level_background, 0, 0, 0);
 }
-
-
-
-
-
-
 
 
 
@@ -663,6 +658,10 @@ int mwLevel::load_level_file_dialog()
 void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
 {
    if (!valid_level_loaded) return;
+
+   // set its own level_buffer before drawing
+   al_set_target_bitmap(level_buffer);
+   al_clear_to_color(al_map_rgb(0,0,0));
 
    if (blocks)  get_new_background();
    if (lifts)   mLift.draw_lifts();

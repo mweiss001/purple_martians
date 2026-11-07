@@ -52241,6 +52241,227 @@ its fucking perfect...I have no notes...test on linux...test netgame and headles
 
 
 
+headless server unlocking everything, does not unlock escape area...
+
+in clear data...
+
+   // area 1 is always visible
+   // overworld_area_array[1].visible = 1;
+
+in check achievments...
+
+   // area 5 (dungeon)
+   if (count_area_levels_complete(5) >= 1) // 10
+   {
+      overworld_area_array[6].locked = 0; // unlock final area (escape)
+   }
+   // else
+   // {
+   //    overworld_area_array[6].locked = 1; // lock final area (escape)
+   // }
+
+
+
+void mwLevel::unlock_all_levels_and_areas()
+{
+   // only change levels that were locked to start with
+   for (int i=0; i<100; i++)
+      if (data[i].status < 1) data[i].status = 1;
+
+   // make all areas visible and unlocked
+   for (int i=1; i<9; i++)
+   {
+      overworld_area_array[i].visible = 1;
+      overworld_area_array[i].locked = 0;
+   }
+
+
+that is better....
+
+messages do not show on client
+remind me again how client saves local copy??
+there should be no local copy
+
+clients should not run set overworld barriers???
+
+but then, client would not have a base...does it still need one? don't I sync things now?
+
+
+it looks like client does run set overworld barriers
+
+well, as long as it is using the right overworld_area_array
+
+its is synced, but when the client loads level, it has not been synced yet
+
+   offset += sz; sz = sizeof(mLevel.overworld_area_array);     memcpy(b+offset, mLevel.overworld_area_array,     sz);
+
+so the client is using its local copy at at that point...
+
+should all this matter?
+
+probably...the messages that are always on are not on the level buffer....
+
+could it be as simple as that?
+
+all the other messages work, just the always on do not display...
+
+that seemed to fix it:
+
+int mwItem::draw_pmsg(int i, int x, int y, int custom)
+{
+
+   // when to draw message
+   if (custom == 0)
+   {
+      int draw = 0;
+
+      // draw if timer running
+      int timer_count=0, timer_val=0;
+      mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
+      if (timer_count) draw = 1;
+
+      // skip draw if always on (already drawn on level background)
+//      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
+      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 1;
+
+
+
+void mwLevel::init_level_background() // fill level_background with block tiles
+{
+
+   // draw messages that are always on
+   // for (int i=0; i<500; i++)
+   //    if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+   //       mItem.draw_message(i, 2);
+
+
+on client, as soon as client is no longer in netgame, force reload of overworld array from disk...
+
+void mwLevel::load_data()
+only ever called from initial_setup()
+now also called at client exit
+
+lets try regular locked server game
+
+server only sets all last touched gates for client, not server itself
+
+      // server sets last touched gate for all clients (and itself!)
+      if (mNetgame.ima_server)
+      {
+         for (int pp=0; pp<8; pp++)
+            if (mLevel.mPlayer.syn[pp].active) mLevel.mPlayer.syn[pp].overworld_last_touched_gate_level = lev;
+      }
+
+escape area is unlocked by default...fixed
+now escape area name message covers dungeon unlock message
+maybe I could not add it until escape is unlocked..done
+
+all seems to be working so far...
+commit again and test on linux...
+
+
+
+what about that weird artifact on welcome message at level done?
+Its there statically for 6 "Level to overworld transition"
+Then moves for 5: "Move players from overworld icon to gate"
+
+it is draw items on l2.level_buffer
+
+specifically the welcome message
+
+specifically on l2...
+
+
+what if I undo the always on gate stuff to see...
+yes!!
+
+draw_message(i, 0);
+
+not this:
+   if (show_stats_msg) mLevel.show_level_stats(x+w/2, y, show_stats_msg);
+//   if (show_stats_msg) m_parent.show_level_stats(x+w/2, y, show_stats_msg);
+
+
+
+this uses custom 2???
+
+   // draw messages that are always on
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+         mItem.draw_message(i, 2);
+
+
+I am beginning to think it is not message....
+
+I just could not see what it was doing on black background...
+
+I think it is the blocks
+
+when I draw the blocks before it seems to mess with it...
+
+drawing the blocks is just calling:
+
+void mwLevel::get_new_background()
+{
+   al_set_target_bitmap(level_buffer);
+   al_draw_bitmap(level_background, 0, 0, 0);
+}
+
+the literally the next thing is drawing
+
+
+   if (blocks)  get_new_background();
+   if (lifts)   mLift.draw_lifts();
+   if (items)   mItem.draw_items();
+
+
+so why when that is called before does it have weird artifacts?
+
+looks like I needed to clear l2.buffer before I drew on it?
+
+         al_set_target_bitmap(l2.level_buffer);
+         al_clear_to_color(al_map_rgb(0,0,0));
+
+         // draw l2 on its own level_buffer without players
+         l2.draw_level3(l2.level_buffer, 1, 0, 0, 2000, 1, 1, 1, 1, 0, 0);
+
+still not sure why...
+
+
+do it here:
+
+void mwLevel::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players, int shots)
+{
+   if (!valid_level_loaded) return;
+   
+   // set its own level_buffer before drawing
+   al_set_target_bitmap(level_buffer);
+   al_clear_to_color(al_map_rgb(0,0,0));
+  
+   
+   if (blocks)  get_new_background();
+   if (lifts)   mLift.draw_lifts();
+   if (items)   mItem.draw_items();
+   if (enemies) mEnemy.draw_enemies();
+   if (players) mPlayer.draw_players(1);
+   if (shots)   mShot.draw_eshots();
+   if (shots)   mShot.draw_pshots();
+
+   if (!mNetgame.server_remote_control) // why am I testing for this? // probably because there is no point is doing it in remote mode
+
+seems to have fixed the problem....
+
+
+I still can't do the draw message on the background...they don't show on client...
+anyways that is more complex and I don't think itis required from a performance concern...
+
+2026-11-06 18:26:39
+i was at commit and test on linux...
+
+
+
+
+
 
 
 
