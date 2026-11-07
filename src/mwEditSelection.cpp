@@ -1,5 +1,6 @@
 #include "pm.h"
 #include "mwEditSelection.h"
+#include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwEditorMain.h"
@@ -10,13 +11,11 @@
 #include "mwInput.h"
 #include "mwLevelEditor.h"
 #include "mwMiscFnx.h"
-#include "mwScreen.h"
 #include "mwTriggerEvent.h"
 #include "mwWidget.h"
 
 
 mwEditSelection mEditSelection;
-
 
 void mwEditSelection::init()
 {
@@ -24,30 +23,62 @@ void mwEditSelection::init()
 }
 
 
+
+
+
 void mwEditSelection::clear_ft_variables()
 {
-   // ft_level_header
    for (int x=0; x<20; x++) ft_level_header[x] = 0;
 
-   // level
-   for (int x=0; x<100; x++)
-      for (int y=0; y<100; y++) ftLevel.l[x][y] = 0;
+   ftLevel.zero_level_data();
+}
 
-   // items
-   for (int i=0; i<500; i++) ftLevel.mItem.clear_item(i);
 
-   // enemies
-   for (int e=0; e<100; e++) ftLevel.mEnemy.clear_enemy(e);
 
-   // lifts
-   ftLevel.mLift.clear_lifts();
+
+// copies selection from slev to current level
+// loads slev into l2 and uses custom copy from l2 to ft
+void mwEditSelection::copy_area_from_l2(int slev, int sx, int sy, int sw, int sh)
+{
+   //printf("copy_sel_from_level(slev:%d sx:%d sy:%d, sw:%d sh:%d dlev:%d dx:%d dy:%d)\n", slev, sx, sy, sw, sh, dlev, dx, dy);
+
+   // load source level
+   if (!l2.load_level_l2(slev)) return;
+
+   // set selection
+   mLevelEditor.selection.x1 = sx;
+   mLevelEditor.selection.y1 = sy;
+   mLevelEditor.selection.x2 = sx+sw-1;
+   mLevelEditor.selection.y2 = sy+sh-1;
+
+   // make a copy of the object filters
+   int temp_obj_filter[5][20][2];
+   memcpy(temp_obj_filter, mEditorMain.obj_filter, sizeof(temp_obj_filter));
+
+   // set all object filters on
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+      {
+         mEditorMain.obj_filter[i][j][0] = 1;
+         mEditorMain.obj_filter[i][j][1] = 1;
+      }
+
+   // fill ft from selection
+   fill_ft_variables_from_selection_l2();
+
+   // paste to level
+   copy_mode = 1;
+   copy_ft_variables_to_level(sx, sy);
+
+   // restore original object filters
+   memcpy(mEditorMain.obj_filter, temp_obj_filter, sizeof(temp_obj_filter));
 }
 
 
 
 
 
-
+// loads slev, copies to ft, loads dlev, pastes ft, saves
 void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy, int clear)
 {
    //printf("copy_sel_from_level(slev:%d sx:%d sy:%d, sw:%d sh:%d dlev:%d dx:%d dy:%d)\n", slev, sx, sy, sw, sh, dlev, dx, dy);
@@ -95,6 +126,7 @@ void mwEditSelection::copy_sel_from_level(int slev, int sx, int sy, int sw, int 
 }
 
 
+
 void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int y)
 {
    // printf("add_sel_to_level(lev:%d, sel_filename:%s, x:%d, y:%d)\n", lev, sel_file, x, y);
@@ -130,6 +162,7 @@ void mwEditSelection::add_sel_to_level(int lev, const char* sel_file, int x, int
    // save level
    mLevel.save_level(lev);
 }
+
 
 
 int mwEditSelection::load_selection_prompt()
@@ -203,6 +236,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
             if ((!mEditorMain.obj_filter[1][1][0]) && (mEditorMain.obj_filter[1][2][0])) ftLevel.l[x][y] = mLevel.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
          }
 
+
    itemIDTranslations.clear();
    // items
    for (int b=0; b<500; b++)
@@ -228,9 +262,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
          if (mLevel.mItem.item[b][0] == 10) // message
          {
             //strcpy(ftItem.pmsgtext[c], mItem.pmsgtext[b]);
-
             ftLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(b).c_str()); // message
-
          }
       }
 
@@ -341,6 +373,158 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
       }
    }
 }
+
+
+
+
+
+
+
+void mwEditSelection::fill_ft_variables_from_selection_l2()
+{
+   int eib=0;
+   int iib=0;
+   int lib=0;
+   int x1 = mLevelEditor.selection.x1*20;
+   int y1 = mLevelEditor.selection.y1*20;
+   int x2 = mLevelEditor.selection.x2*20+20;
+   int y2 = mLevelEditor.selection.y2*20+20;
+
+   clear_ft_variables();
+
+   // blocks
+   for (int x=0; x<(mLevelEditor.selection.x2-mLevelEditor.selection.x1+1); x++)
+      for (int y=0; y<(mLevelEditor.selection.y2-mLevelEditor.selection.y1+1); y++)
+         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mLevelEditor.selection.x1+x >= 0) && (mLevelEditor.selection.x1+x < 100) && (mLevelEditor.selection.y1+y >= 0) && (mLevelEditor.selection.y1+y < 100) )
+         {
+            if (mEditorMain.obj_filter[1][1][0])                                         ftLevel.l[x][y] = l2.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y];                      // get block and flags
+            if ((!mEditorMain.obj_filter[1][1][0]) && (mEditorMain.obj_filter[1][2][0])) ftLevel.l[x][y] = l2.l[mLevelEditor.selection.x1+x][mLevelEditor.selection.y1+y] & PM_BTILE_ALL_FLAGS; // get flags only
+         }
+
+   itemIDTranslations.clear();
+   // items
+   for (int b=0; b<500; b++)
+      if ((l2.mItem.item[b][0]) && (mEditorMain.obj_filter[2][l2.mItem.item[b][0]][0]) && (l2.mItem.item[b][4] >= x1) && (l2.mItem.item[b][4] < x2) && (l2.mItem.item[b][5] >= y1) && (l2.mItem.item[b][5] < y2))
+      {
+         int c = iib++; // destination
+
+         // save link from old item number to new
+         itemIDTranslations.push_back({b, c});
+
+         // copy all 16 variables
+         for (int y=0; y<16; y++) ftLevel.mItem.item[c][y] = l2.mItem.item[b][y];
+
+         // shift x, y (now relative to the selection window ul corner)
+         ftLevel.mItem.item[c][4] -= x1;
+         ftLevel.mItem.item[c][5] -= y1;
+
+         if (l2.mItem.item_secondary67(l2.mItem.item[b][0]))
+         {
+            ftLevel.mItem.item[c][6] -= x1;
+            ftLevel.mItem.item[c][7] -= y1;
+         }
+         if (l2.mItem.item[b][0] == 10) // message
+         {
+            //strcpy(ftItem.pmsgtext[c], mItem.pmsgtext[b]);
+
+            ftLevel.mItem.mMessageText.set_text(c, l2.mItem.mMessageText.get_text(b).c_str()); // message
+
+         }
+      }
+
+   // change door refs in items
+   for (int b=0; b<iib; b++)
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][8] == 1) // type linked dest item
+      {
+         // change link to new door
+         for (auto lit : itemIDTranslations)
+            if (ftLevel.mItem.item[b][9] == lit.oldItemNumber) ftLevel.mItem.item[b][9] = lit.newItemNumber;
+      }
+
+   // enemies
+   for (int b=0; b<100; b++) // check for enemies in box
+      if ((l2.mEnemy.Ei[b][0]) && (mEditorMain.obj_filter[3][l2.mEnemy.Ei[b][0]][0]) && (l2.mEnemy.Ef[b][0] >= x1) && (l2.mEnemy.Ef[b][0] < x2) && (l2.mEnemy.Ef[b][1] >= y1) && (l2.mEnemy.Ef[b][1] < y2))
+      {
+         //printf("copying enemy:%d to ft\n", b);
+         int c = eib++;
+         for (int y=0; y<32; y++) ftLevel.mEnemy.Ei[c][y] = l2.mEnemy.Ei[b][y];
+         for (int y=0; y<16; y++) ftLevel.mEnemy.Ef[c][y] = l2.mEnemy.Ef[b][y];
+
+         // shift x, y (now relative to the selection window ul corner)
+         ftLevel.mEnemy.Ef[c][0]-= x1;
+         ftLevel.mEnemy.Ef[c][1]-= y1;
+
+         if (ftLevel.mEnemy.Ei[c][0] == 7) // vinepod
+         {
+            for (int i=3; i<13; i+=2)
+            {
+               ftLevel.mEnemy.Ei[c][i+0]-= x1;
+               ftLevel.mEnemy.Ei[c][i+1]-= y1;
+            }
+         }
+         if (ftLevel.mEnemy.Ei[c][0] == 9 ) // cloner
+         {
+            ftLevel.mEnemy.Ei[c][15]-= x1;
+            ftLevel.mEnemy.Ei[c][16]-= y1;
+            ftLevel.mEnemy.Ei[c][17]-= x1;
+            ftLevel.mEnemy.Ei[c][18]-= y1;
+         }
+      }
+
+
+   // lifts
+   liftIDTranslations.clear();
+   if (mEditorMain.obj_filter[4][1][0])
+      for (int b=0; b<NUM_LIFTS; b++) // source, if in selection
+         if ((l2.mLift.cur[b].active) && (l2.mLift.cur[b].x >= x1) && (l2.mLift.cur[b].x < x2) && (l2.mLift.cur[b].y >= y1) && (l2.mLift.cur[b].y < y2))
+         {
+            int c = lib++; // destination
+            ftLevel.mLift.copy_lift_from_other_instance(c, l2.mLift, b);
+
+            // save link from old lift number to new
+            liftIDTranslations.push_back({b, c});
+
+            // shift x, y of move steps (now relative to the selection window ul corner)
+            for (int s=0; s<ftLevel.mLift.cur[c].num_steps; s++)
+               if ((ftLevel.mLift.stp[c][s].type & 31) == 1)
+               {
+                  ftLevel.mLift.stp[c][s].x -= x1;
+                  ftLevel.mLift.stp[c][s].y -= y1;
+               }
+         }
+
+   // change lift refs in items (only trigger and block damage)
+   for (int b=0; b<iib; b++)
+      if (((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGR) && (ftLevel.mItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_BLKDMG) && (ftLevel.mItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+      {
+         // change link to new lift
+         for (auto lit : liftIDTranslations)
+            if (ftLevel.mItem.item[b][10] == lit.oldLiftNumber) ftLevel.mItem.item[b][10] = lit.newLiftNumber;
+      }
+
+   ft_level_header[3] = iib; // num_of_items
+   ft_level_header[4] = eib; // num_of_enemies
+   ft_level_header[5] = lib; // num_of_lifts
+   ft_level_header[8] =  mLevelEditor.selection.x2-mLevelEditor.selection.x1+1; // width
+   ft_level_header[9] =  mLevelEditor.selection.y2-mLevelEditor.selection.y1+1; // height
+
+   //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
+
+   ftLevel.mLift.lift_setup(); // set all lifts to step 0
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
@@ -542,10 +726,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
          }  // end if iterate real enemy array
       } // end of attempt copy
 
-
    // items
-   itemIDTranslations.clear();
-
    for (b=0; b<500; b++)
       if ((ftLevel.mItem.item[b][0]) && (mEditorMain.obj_filter[2][ftLevel.mItem.item[b][0]][0]))
       {
@@ -554,13 +735,14 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
          {
             if (mLevel.mItem.item[c][0] == 0) // found empty
             {
-               itemIDTranslations.push_back({b, c});
-
                //copied = 1000+c;
                int lim = 0;
                // copy all 16 variables
                for (y=0; y<16; y++)
                   mLevel.mItem.item[c][y] = ftLevel.mItem.item[b][y];
+
+               // mark newly added doors with original item number + 1000
+               if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 1000 + b;
 
                // apply offsets
                mLevel.mItem.item[c][4] += x3;
@@ -625,17 +807,30 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
          }  // end if iterate real item array
       } // end of attempt copy
 
-   // change door refs
-   for (int c=0; c<500; c++) // search for empty place to copy to
-      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1) // type linked dest item
+
+   // fix door links
+   // ---------------------------------------------
+   itemIDTranslations.clear();
+
+   // add all newly added doors to link translation table with current id
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000) itemIDTranslations.push_back({mLevel.mItem.item[c][15], c});
+
+   // find all newly added doors that link to something and fix those links
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1 && mLevel.mItem.item[c][15] >= 1000)
       {
-         // change link to new door
          for (auto lit : itemIDTranslations)
-            if (mLevel.mItem.item[c][9] == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
+            if (mLevel.mItem.item[c][9]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
       }
 
+   // clear all temporary marks for newly added door
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 0;
+
+
    mLevel.mEnemy.sort_enemy();
-   mLevel.mItem.sort_item(1);
+   mLevel.mItem.sort_item();
 
    if (copy_mode == 2) copy_mode = 1; // if move (copy_mode == 2), change to copy (copy_mode == 1)
 }
@@ -665,7 +860,7 @@ void mwEditSelection::clear_area(int x1, int y1, int x2, int y2)
             if ((mLevel.mLift.cur[l].x >= x1*20) && (mLevel.mLift.cur[l].x < x2*20) && (mLevel.mLift.cur[l].y >= y1*20) && (mLevel.mLift.cur[l].y < y2*20)) mLevel.mLift.erase_lift(l);
 
    mLevel.mEnemy.sort_enemy();
-   mLevel.mItem.sort_item(1);
+   mLevel.mItem.sort_item();
 }
 
 
@@ -704,10 +899,8 @@ void mwEditSelection::set_block_with_flag_filters(int x, int y, int tn)
 
 void mwEditSelection::draw_fsel()
 {
-
    int sw = ft_level_header[8];
    int sh = ft_level_header[9];
-
 
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(sw*20, sh*20);
@@ -719,7 +912,7 @@ void mwEditSelection::draw_fsel()
    {
       for (int x=0; x<sw; x++)
          for (int y=0; y<sh; y++)
-            if (mEditorMain.show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ftLevel.l[x][y], x*20, y*20);
+             al_draw_bitmap(mBitmap.tile[ftLevel.l[x][y]& PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
    }
 
    // draw items

@@ -9,7 +9,6 @@ do something about viewport
 I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
 
-
 rx packet buffer full? why? add some logging to see what packets...
 client had the error, but all counters were zero 
 re-did to count and print all packets listed in pm.h
@@ -18,19 +17,8 @@ waiting for more info...
 debug press fire to complete level does nothing
 
 
-
-in edit selection when copying doors (or moving) the destinations get screwed up
-I think sort might be causing this...
-
-
 work on level 61 multiplayer bomb toss
 make it good
-
-
-
-
-
-
 
 
 
@@ -44,77 +32,35 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+I have some extra shapes for door (warps)
 
-
-gates
------
-- colored tiles..done
-- optional different tiles..done
-- tiles on their own tilemap..done
-- badges..done
-- info about badges in hover pages..done
-- transitions
-
-- make the messages for each area look nice
-- names for areas
-
-
-can I get some nicer shapes?
-like a nicer gate and maybe nicer door
-
-move levels not used to + 100
-
-
------------------------------------------------------------
-Redo the overworld level to rearrange the levels once again
------------------------------------------------------------
-
-
-what are my big goals with this?
-
-currently:
-8 areas with 5 levels each = 40 levels
-
-1 final level
-
-8 training levels
-
-20 TAS levels
-
-I think I biggest overall thing I want is to do is thin the marginal levels....
-
-maybe I should start with the best levels and work backwards
-
-using my existing gate system each platform is 9 blocks apart vertically 0, 9, 18, 27...etc
-and 7 blocks apart horizontally... 5, 12, 19 
-
-
-what if I have 4 great areas with 5 levels each all around the final level
-
-try to draw it out and see what you can make it look like
-
-
-saved lev 1 as 68
-
-gates are not shown
+I should patch them in....
 
 
 
-------------------------------------------------
-I would like to add a secondary level structure
-------------------------------------------------
 
-It would duplicate everything that gets loaded from a level
-blocks
-items
-enemies
-lifts
-...
 
-this way if I need to load a level to show something, like in visual load
-I do not have to lose what is already in the variables
 
-I can also use it to copy sections in overworld
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ------------------------------------------------
@@ -136,29 +82,6 @@ things I do not want them to be able to change:
 - color
 - name
 - shot config
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -212,9 +135,6 @@ add to settings:
 - debug keyboard shortcuts (documented in docs/HOWTO/Keyboard Shortcuts.txt)
 
 
-
-
-
 help screens
 ----------------
 - fix references to bombable blocks, breakable, switchable...done
@@ -224,12 +144,6 @@ help screens
 - get a new pic for lift
 - redo tile helper
 - redo block selection
-
-
-
-
-
-
 
 
 
@@ -268,14 +182,10 @@ I am unsure of the benefits of this
 ----------------------------------------
 
 
-
 ----------------------------------
 what if this gmInfo I am generating is saved in a database?
 that was where i was going with the stats thing anyway, was I not?
 ----------------------------------
-
-
-
 
 
 
@@ -285,43 +195,6 @@ make a cool method to determine is there is a shot possible that will kill an en
 at a certain frame and certain player,
 test all possible fire directions to see if any would hit an enemy that was not already hit
 -----------------------------------------
-
-
-
-
------------------------------------------------
-major change!!
-
-I want a new data structure the keeps track of a bunch of game state variables
-right now I am doing that with a kind of hack where I add variables to the the player struct, then use only p0 instance
-examples:
-
-   int level_done_mode;
-   int level_done_timer;
-   int level_done_ack; (this is per player)
-   int level_done_x;
-   int level_done_y;
-   int level_done_player;
-   int level_done_frame;
-   int level_done_next_level;
-
-   int player_vs_player_shots;
-   int player_vs_player_shot_damage;
-   int player_vs_self_shots;
-
-   int server_force_fakekey = 0;
-   int server_force_client_offset = 0;
-
-what am I going to call this?
-
-game_state_data
-game_state_meta_data
-current_running_game_data
-game_state
-gameState
-
-then I can just sync that from server to client
-
 
 
 
@@ -361,7 +234,6 @@ sessions to do:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-
 ------------------------------------------------------------------------------
 Big things:
 - logging
@@ -369,6 +241,7 @@ Big things:
 - level stats to use database
 - rearrange levels again (too many crappy ones polluting the good/great ones)
 - sessions timeline
+
 
 
 ------------------------------------------------------------------------------
@@ -506,6 +379,128 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+major change!!
+
+I want a new data structure the keeps track of a bunch of game state variables
+right now I am doing that with a kind of hack where I add variables to the the player struct, then use only p0 instance
+examples:
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_ack; (this is per player)
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+   int server_force_fakekey = 0;
+   int server_force_client_offset = 0;
+
+what am I going to call this?
+
+game_state_data
+game_state_meta_data
+current_running_game_data
+game_state
+gameState
+
+then I can just sync that from server to client
+
+
+
+
+
+
+
+
+
+------------------------------------------------
+I would like to add a secondary level structure
+------------------------------------------------
+
+It would duplicate everything that gets loaded from a level
+blocks
+items
+enemies
+lifts
+...
+
+this way if I need to load a level to show something, like in visual load
+I do not have to lose what is already in the variables
+
+I can also use it to copy sections in overworld
+
+
+
+
+gates
+-----
+- colored tiles..done
+- optional different tiles..done
+- tiles on their own tilemap..done
+- badges..done
+- info about badges in hover pages..done
+- transitions..done
+
+- make the messages for each area look nice
+- names for areas
+
+can I get some nicer shapes?
+like a nicer gate and maybe nicer door
+
+move levels not used to + 100
+
+
+-----------------------------------------------------------
+Redo the overworld level to rearrange the levels once again
+-----------------------------------------------------------
+
+
+what are my big goals with this?
+
+currently:
+8 areas with 5 levels each = 40 levels
+
+1 final level
+
+8 training levels
+
+20 TAS levels
+
+I think I biggest overall thing I want is to do is thin the marginal levels....
+
+maybe I should start with the best levels and work backwards
+
+using my existing gate system each platform is 9 blocks apart vertically 0, 9, 18, 27...etc
+and 7 blocks apart horizontally... 5, 12, 19 
+
+
+what if I have 4 great areas with 5 levels each all around the final level
+
+try to draw it out and see what you can make it look like
+
+
+saved lev 1 as 68
+
+gates are not shown
+
 
 
 

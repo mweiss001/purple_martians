@@ -247,7 +247,7 @@ void mwEditorMain::process_mouse_on_background()
                mLevel.mItem.item[c][7] += ofy;
             }
             if (type == 10) mLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(din).c_str()); // message
-            mLevel.mItem.sort_item(1);
+            mLevel.mItem.sort_item();
          }
          break;
          case 3: // enemy
@@ -304,7 +304,7 @@ void mwEditorMain::process_mouse_on_background()
                   mLevel.mItem.itemf[d][1] = mLevel.mItem.item[d][5];
                   mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[d][6], mLevel.mItem.item[d][7], mLevel.mItem.item[d][8], mLevel.mItem.item[d][9], 1);
                }
-               mLevel.mItem.sort_item(1);
+               mLevel.mItem.sort_item();
             }
             if (mSelectionWindow.pdes[din].ia[0] < 99) // PDE enemy
             {
@@ -371,7 +371,7 @@ void mwEditorMain::process_mouse_on_background()
                      draw_item_num = 0;
                   }
                   mLevel.mItem.clear_item(point_item_num);
-                  mLevel.mItem.sort_item(1);
+                  mLevel.mItem.sort_item();
                break;
                case 3: // delete enemy
                   if ((draw_item_type == 3) && (draw_item_num == point_item_num)) // are you deleting the draw item?

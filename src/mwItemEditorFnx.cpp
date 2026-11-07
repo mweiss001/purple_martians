@@ -17,7 +17,7 @@
 int mwItem::item_data(int x, int y)
 {
    char msg[1024];
-   int inum = sort_item(0);
+   int inum = sort_item();
                                al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
                                al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "--------");                            y+=8;
                                al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
@@ -55,14 +55,14 @@ void mwItem::show_all_items()
    ALLEGRO_BITMAP *tmp;
    tmp = al_create_bitmap(20, 20);
 
-   sort_item(1);
+   sort_item();
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
    test_items();
    int text_pos = 0;
 
-   int num_items = sort_item(1);
+   int num_items = sort_item();
    text_pos = item_data(10, text_pos);
 
    int rh = 10; // row height
@@ -98,13 +98,19 @@ void mwItem::show_all_items()
    al_destroy_bitmap(tmp);
 }
 
-int mwItem::sort_item(int set_pos)
+int mwItem::sort_item()
 {
-//   char msg[1024];
-   // to not break linked items
-   for (int c=0; c < 500; c++)
-      if (item[c][0] == 1) //door
-         item[c][15] = c; // tag this door with its original item number
+   //printf("sort item\n");
+
+   // to not break linked doors
+   for (int c=0; c<500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR)
+      {
+         if (item[c][8] == 1) item[c][15] = c; // if door has linked item, tag door with its original item number
+         else item[c][15] = -1; // otherwise set -1 so nothing will match
+      }
+
+
    int inum, c, d, quit, temp, iswap;
    quit=0;
    while (!quit) // sort item list
@@ -112,11 +118,8 @@ int mwItem::sort_item(int set_pos)
       quit=1; // quit if no iswap
       for (c=0; c < 499; c++)
       {
-         if (set_pos)
-         {
-            itemf[c][0] = item[c][4];
-            itemf[c][1] = item[c][5];
-         }
+         itemf[c][0] = item[c][4];
+         itemf[c][1] = item[c][5];
 
          if (item[c][0] < item[c+1][0]) iswap = 1; // sort by first value 'type'
 
@@ -211,20 +214,24 @@ int mwItem::sort_item(int set_pos)
                item_first_num[c] = d;
                d=500;   // exit loop
             }
-   // to not break linked items
+
+
+   // fix linked doors
    for (int c=0; c < 500; c++)
-      if ((item[c][0] == 1) && (item[c][8] == 1))           // if door && exit mode == link
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // if door && exit mode is linked item
       {
-         int link = item[c][9];                                   // look for doors with that link in 15
+         int linked_item_id = item[c][9];                         // look for doors with that link in 15
          for (int d=0; d < 500; d++)
-            if ((item[d][0] == 1) && (item[d][15] == link)) // found a door with link in 15
-               item[c][9] = d;                                    // update to new link number
+            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15] == linked_item_id)) // found a door with link in 15
+               item[c][9] = d;  // update to new link number
       }
 
    // erase what we put in 15
    for (int c=0; c < 500; c++)
-      if (item[c][0] == 1)     // door
-         item[c][15] = 0;
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
+
+
+
 
    // set number of starts...
    mLevel.number_of_starts = item_num_of_type[5];
@@ -255,7 +262,7 @@ int mwItem::get_empty_item(int type) // finds, sets type, sorts, refinds
       clear_item(mt);
       item[mt][0] = type; // set type
       item[mt][9] = 9999; // mark to find after sort !!
-      sort_item(1);
+      sort_item();
       mt = 0;
       while ((mt < 500) && (item[mt][9] != 9999)) mt++;
       item[mt][9] = 0; // remove mark
@@ -614,7 +621,7 @@ int mwItem::create_door(int type)
       }
       break;
    }
-   return sort_item(1);
+   return sort_item();
 }
 
 int mwItem::create_item(int type)
@@ -635,7 +642,7 @@ int mwItem::create_item(int type)
       case 19: if (!create_hider(i))        clear_item(i); break;
 
    }
-   sort_item(1);
+   sort_item();
    i = item_first_num[type]+item_num_of_type[type]-1;
    return i;
 }

@@ -1074,7 +1074,7 @@ void mwObjectViewer::ov_process_keypress()
          if (obt == 2)
          {
             mLevel.mItem.clear_item(num);
-            mLevel.mItem.sort_item(1);
+            mLevel.mItem.sort_item();
             if (num >= mLevel.mItem.item_first_num[type]+ mLevel.mItem.item_num_of_type[type]) num--;
             ov_check_if_valid();
          }

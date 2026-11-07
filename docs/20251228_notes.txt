@@ -52459,6 +52459,180 @@ anyways that is more complex and I don't think itis required from a performance 
 i was at commit and test on linux...
 
 
+2026-11-07 04:26:18
+
+all tests good on linux
+
+
+to do today:
+
+finish multiplayer bomb toss
+make demos for them
+
+use l2 to do copy from other level...done
+
+figure out door wrongness when copying selection
+this could be a big one
+
+
+to ft:
+
+
+   itemIDTranslations.clear();
+   // items
+   for (int b=0; b<500; b++)
+      if ((mLevel.mItem.item[b][0]) && (mEditorMain.obj_filter[2][mLevel.mItem.item[b][0]][0]) && (mLevel.mItem.item[b][4] >= x1) && (mLevel.mItem.item[b][4] < x2) && (mLevel.mItem.item[b][5] >= y1) && (mLevel.mItem.item[b][5] < y2))
+      {
+         int c = iib++; // destination
+
+         // save link from old item number to new
+         itemIDTranslations.push_back({b, c});
+
+
+
+
+   // change door refs in items
+   for (int b=0; b<iib; b++)
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][8] == 1) // type linked dest item
+      {
+         // change link to new door
+         for (auto lit : itemIDTranslations)
+            if (ftLevel.mItem.item[b][9] == lit.oldItemNumber) ftLevel.mItem.item[b][9] = lit.newItemNumber;
+      }
+
+
+from ft:
+
+   // items
+   itemIDTranslations.clear();
+
+   for (b=0; b<500; b++)
+      if ((ftLevel.mItem.item[b][0]) && (mEditorMain.obj_filter[2][ftLevel.mItem.item[b][0]][0]))
+      {
+         //int copied = 0;
+         for (c=0; c<500; c++) // search for empty place to copy to
+         {
+            if (mLevel.mItem.item[c][0] == 0) // found empty
+            {
+               itemIDTranslations.push_back({b, c});
+
+
+   // change door refs
+   for (int c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1) // type linked dest item
+      {
+         // change link to new door
+         for (auto lit : itemIDTranslations)
+            if (mLevel.mItem.item[c][9] == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
+      }
+
+
+
+and this is what I do in sort:
+
+
+   // to not break linked items
+   for (int c=0; c < 500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = c; // tag door with its original item number
+
+
+sort.........
+
+
+   // fix linked doors
+   for (int c=0; c < 500; c++)
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // if door && exit mode is linked item
+      {
+         int linked_item_id = item[c][9];                         // look for doors with that link in 15
+         for (int d=0; d < 500; d++)
+            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15] == linked_item_id)) // found a door with link in 15
+               item[c][9] = d;  // update to new link number
+      }
+
+   // erase what we put in 15
+   for (int c=0; c < 500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
+
+
+
+I need to setup a way to test this....
+
+
+make a level...66
+
+put some doors in it 
+
+try copying them...
+
+yes its fucked...
+
+how about if I skip the sort...
+
+it is used in so many places...
+
+
+
+   // to not break linked doors
+   for (int c=0; c<500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR)
+      {
+         if (item[c][8] == 1) item[c][15] = c; // if door has linked item, tag door with its original item number
+         else item[c][15] = -1; // otherwise set -1 so nothing will match
+      }
+
+
+in sort item i optionally can set position...on 15 of 16 calls I do
+
+
+this is what it does:
+
+         if (set_pos)
+         {
+            itemf[c][0] = item[c][4];
+            itemf[c][1] = item[c][5];
+         }
+
+
+I can think of no reason why I should not do that every time...
+
+this is the only time that is is called with 0
+
+int mwItem::item_data(int x, int y)
+{
+   char msg[1024];
+   int inum = sort_item(0);
+                               al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
+                               al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "--------");                            y+=8;
+
+fuck it, I'm removing that...
+
+
+I don't do the sort in ft copy and it is still fucked...
+
+I think that is where the problem lies...
+
+the code looks good, I need to print out what is happening....
+
+
+copy to ft -- doors in selection
+door item:1 8:1 9:2
+door item:2 8:0 9:0
+door item:3 8:1 9:4
+door item:4 8:0 9:0
+
+copy to ft -- doors in ft - pre change ref
+door item:0 8:1 9:2
+door item:1 8:0 9:0
+door item:2 8:1 9:4
+door item:3 8:0 9:0
+
+copy to ft -- doors in ft - post change ref
+door item:0 8:1 9:1
+door item:1 8:0 9:0
+door item:2 8:1 9:3
+door item:3 8:0 9:0
+
+this looks good...
 
 
 
@@ -52471,11 +52645,170 @@ i was at commit and test on linux...
 
 
 
+copy to ft -- doors in selection
+door item:1 8:1 9:2
+door item:2 8:0 9:0
+door item:3 8:1 9:4
+door item:4 8:0 9:0
+copy to ft -- doors in ft - pre change ref
+door item:0 8:1 9:2
+door item:1 8:0 9:0
+door item:2 8:1 9:4
+door item:3 8:0 9:0
+copy to ft -- doors in ft - post change ref
+door item:0 8:1 9:1
+door item:1 8:0 9:0
+door item:2 8:1 9:3
+door item:3 8:0 9:0
+
+copy from ft -- doors in ft
+door item:0 8:1 9:1
+door item:1 8:0 9:0
+door item:2 8:1 9:3
+door item:3 8:0 9:0
+
+copy from ft -- doors in level - prefix
+door item:1 8:1 9:2
+door item:2 8:0 9:0
+door item:3 8:1 9:4
+door item:4 8:0 9:0
+door item:5 8:1 9:1
+door item:6 8:0 9:0
+door item:7 8:1 9:3
+door item:8 8:0 9:0
+
+copy from ft -- doors in level - postfix
+door item:1 8:1 9:7
+door item:2 8:0 9:0
+door item:3 8:1 9:4
+door item:4 8:0 9:0
+door item:5 8:1 9:6
+door item:6 8:0 9:0
+door item:7 8:1 9:8
+door item:8 8:0 9:0
+
+it is also changing the original doors...
+
+my whole high level algorithm is wrong
+
+what if I do it like I do in sort?
+
+or get a better high level algorithm
+
+
+before I insert into new level:
+mark all destination doors 15 as -1
+
+as I am inserting into new level,
+newly inserted dest door is set to 15
+only add to link translation table if new
 
 
 
 
+then when I am done...
 
+iterate the link translation table, which should only contain newly added doors
+
+
+this seems complicated
+
+
+how about 
+
+as I am inserting into new level,
+only add doors to link translation table
+
+then when I am done...
+iterate the link translation table, which should only contain newly added doors
+
+
+
+not quite
+
+what I really need to do is:
+
+check if the item is being used as a destination for anything
+only add those
+
+then when I fix, only change destination
+
+but there will still be a collision from the destination with others that aleady have the same destination
+
+how about when I save in ft I add 1000 to destination
+
+or I could do that when I add them back
+
+when inserting add 1000 to dest items and add to link table
+
+add 1000 to 
+
+I am sure I can solve this at the insert point
+
+but how?
+
+I need to mark the newly added somehow so I can tell later when I fix them
+
+how about I just add their old id numbers to 15 + 1000
+do it for all doors, exit and non exit alike
+
+then after
+
+iterate all doors and make link translation table for anything with 15 > 1000
+
+then iterate all door and fix
+
+this looks promising...try it
+
+               // mark newly added doors with original item number + 1000
+               if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 1000 + b; 
+
+I think I have it!!!
+
+Like I thought, I do not have to change anything until I insert the new doors...
+
+// copy all 16 variables
+for (y=0; y<16; y++)
+   mLevel.mItem.item[c][y] = ftLevel.mItem.item[b][y];
+
+// mark newly added doors with original item number + 1000
+if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 1000 + b;
+
+
+then after they have all been added:
+
+
+   // fix door links
+   // ---------------------------------------------
+   itemIDTranslations.clear();
+
+   // add all newly added doors to link translation table with current id
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000) itemIDTranslations.push_back({mLevel.mItem.item[c][15], c});
+
+   // find all newly added doors that link to something and fix those links
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1 && mLevel.mItem.item[c][15] >= 1000)
+      {
+         for (auto lit : itemIDTranslations)
+            if (mLevel.mItem.item[c][9]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
+      }
+
+   // clear all temporary marks for newly added door
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 0;
+
+this is done!!!!
+
+
+
+2026-11-07 08:14:35
+
+
+still on the to do list for today
+
+finish multiplayer bomb toss
+make demos for them
 
 
 

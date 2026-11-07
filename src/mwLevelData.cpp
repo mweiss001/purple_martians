@@ -417,14 +417,13 @@ void mwLevel::set_overworld_barriers()
 {
    //printf("void mwLevel::set_overworld_barriers()\n");
 
-   // always copy area 1 and do it with full clear
-   mEditSelection.copy_sel_from_level(70, overworld_area_array[1].x, overworld_area_array[1].y, overworld_area_array[1].w, overworld_area_array[1].h, 1, overworld_area_array[1].x, overworld_area_array[1].y, 2);
+   // fully clear the level
+   zero_level_data();
 
-   // copy other visible areas from level 70
-   for (int i=2; i<9; i++)
+   // copy visible areas from level 70
+   for (int i=1; i<9; i++)
       if (overworld_area_array[i].visible)
-         mEditSelection.copy_sel_from_level(70, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h, 1, overworld_area_array[i].x, overworld_area_array[i].y, 1);
-
+         mEditSelection.copy_area_from_l2(70, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h);
 
 
    // for some reason I have to do all the copying first, then modify

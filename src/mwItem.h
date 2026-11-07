@@ -188,7 +188,7 @@ class mwItem
    // mwItemEditorFnx.cpp
    int item_data(int x, int y);
    void show_all_items();
-   int sort_item(int set_pos);
+   int sort_item();
    int get_empty_item();
    int get_empty_item(int type);
    void test_items();

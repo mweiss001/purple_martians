@@ -43,9 +43,14 @@ class mwEditSelection
 
    void copy_sel_from_level(int slev, int sx, int sy, int sw, int sh, int dlev, int dx, int dy, int clear);
 
+   void copy_area_from_l2(int slev, int sx, int sy, int sw, int sh);
+
+
 
    int load_selection(const char* filename);
    int load_selection_prompt();
+
+   void fill_ft_variables_from_selection_l2();
 
    void fill_ft_variables_from_selection(int save_to_disk);
    void copy_ft_variables_to_level(int qx1, int qy1);

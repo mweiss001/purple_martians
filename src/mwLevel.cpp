@@ -765,7 +765,7 @@ int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silentl
 
 int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
-//   printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
+   //printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
    char msg[1024];
    FILE *fp = fopen(filename, "rb");
    if (!fp)
@@ -845,7 +845,7 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
          if (mLoop.level_editor_running)
          {
-            mItem.sort_item(1);
+            mItem.sort_item();
             mEnemy.sort_enemy();
          }
 
@@ -904,7 +904,7 @@ void mwLevel::save_level(int level_num)
    last_level_loaded = level_num;
    level_check();
 
-   mItem.sort_item(1);
+   mItem.sort_item();
    mEnemy.sort_enemy();
    mLift.lift_setup();
 
@@ -978,32 +978,22 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
 
 void mwLevel::zero_level_data()
 {
-   for (int c=0; c<100; c++)    // blocks
-      for (int x=0; x<100; x++)
-           l[c][x] = 0;
-
-   mItem.mMessageText.initialize();
-
-   for (int c=0; c<500; c++)  // items
-   {
-      for (int x=0; x<16; x++)  mItem.item[c][x] = 0;
-      for (int x=0; x<4; x++)   mItem.itemf[c][x] = 0;
-   }
-   mItem.sort_item(1);
-
+   // blocks
    for (int c=0; c<100; c++)
-   {
-      for (int x=0; x<16; x++)  mEnemy.Ef[c][x] = 0; // enemy floats
-      for (int x=0; x<32; x++)  mEnemy.Ei[c][x] = 0; // enemy ints
-   }
+      for (int x=0; x<100; x++) l[c][x] = 0;
+
+   // items
+   mItem.mMessageText.initialize();
+   for (int c=0; c<500; c++) mItem.clear_item(c);
+   mItem.sort_item();
+
+   // enemies
+   for (int c=0; c<100; c++) mEnemy.clear_enemy(c);
    mEnemy.sort_enemy();
 
-   for (int c=0; c<40; c++) // lifts
-   {
-      mLift.clear_lift(c);
-      for (int x=0; x<40; x++)
-         mLift.clear_lift_step(c,x);
-   }
+   // lifts
+   mLift.clear_lifts();
+
 }
 
 void mwLevel::level_check()

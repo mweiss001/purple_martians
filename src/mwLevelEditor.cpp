@@ -47,7 +47,7 @@ void mwLevelEditor::init(int level)
 
    selection.setXYWH(0,0,0,0);
    mLevel.mEnemy.sort_enemy();
-   mLevel.mItem.sort_item(1);
+   mLevel.mItem.sort_item();
    mInput.initialize();
    init_windows();
 }

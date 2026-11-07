@@ -7,13 +7,6 @@
 class mwLevel;
 
 
-
-
-
-
-
-
-
 class mwEnemy
 {
    private:
@@ -22,9 +15,6 @@ class mwEnemy
    public:
 
    mwEnemy(mwLevel& parent) : m_parent(parent) { fill_strings(); } // default constructor
-
-
-//   mwEnemy() { fill_strings(); }
 
 
    int Ei[100][32];        // enemy ints
