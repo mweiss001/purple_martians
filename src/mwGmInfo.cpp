@@ -2,6 +2,7 @@
 
 #include "pm.h"
 #include "mwGmInfo.h"
+
 #include "mwDemoMode.h"
 #include "mwGameEvent.h"
 #include "mwGameMoves.h"
@@ -27,13 +28,9 @@ void mwGmInfo::clear()
 }
 
 
-
 // reloads and plays back the current level with the current game moves array to fill mGameEvent.game_event vector
-
 void mwGmInfo::fill()
 {
-   //printf("mwGmInfo::fill()\n");
-
    // clear game_event vector
    mGameEvent.game_events.clear();
 
@@ -58,7 +55,6 @@ void mwGmInfo::fill()
       // if 10s past last game move and level not done, stop and leave completed = false and last frame as last game move frame
       if (mLoop.frame_num > lastFrame + 400) done = 1;
    }
-
    mSound.mute = 0;
 
    // restore old control method
@@ -70,8 +66,6 @@ void mwGmInfo::fill()
 // calculates a bunch of stuff
 void mwGmInfo::calc()
 {
-   //printf("mwGmInfo::calc()\n");
-
    clear();
 
    if (mGameState.level_done_mode)
@@ -85,14 +79,7 @@ void mwGmInfo::calc()
    {
       // get last frame from last game move
       lastFrame = mGameMoves.arr[mGameMoves.entry_pos-1][0];
-
    }
-
-
-
-
-
-
 
    findPlayerTracks();
    findPlayerTracksLastMoves();

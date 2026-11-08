@@ -979,21 +979,12 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
 void mwLevel::zero_level_data()
 {
    // blocks
-   for (int c=0; c<100; c++)
-      for (int x=0; x<100; x++) l[c][x] = 0;
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++) l[x][y] = 0;
 
-   // items
-   mItem.mMessageText.initialize();
-   for (int c=0; c<500; c++) mItem.clear_item(c);
-   mItem.sort_item();
-
-   // enemies
-   for (int c=0; c<100; c++) mEnemy.clear_enemy(c);
-   mEnemy.sort_enemy();
-
-   // lifts
+   mItem.clear_items();
+   mEnemy.clear_enemies();
    mLift.clear_lifts();
-
 }
 
 void mwLevel::level_check()

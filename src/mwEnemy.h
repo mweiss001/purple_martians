@@ -115,6 +115,9 @@ class mwEnemy
    int show_enemy_data(int x_pos, int y_pos);
    void show_all_enemies();
    void sort_enemy();
+
+   void clear_enemies();
+
    void clear_enemy(int e);
    int get_empty_enemy();
    int get_empty_enemy(int type);

@@ -1839,23 +1839,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                else
                {
                   ya+=2; // spacer
-                  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 10, 1); // Block 1
-                  ya+=6; // spacer
-                  if (mLevel.mItem.item[n][3] > 1)
-                  {
-                     odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 11, 2); // Block 2
-                     ya+=6; // spacer
-                  }
-                  if (mLevel.mItem.item[n][3] > 4)
-                  {
-                     odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 12, 3); // Block 3
-                     ya+=6; // spacer
-                  }
-                  if (mLevel.mItem.item[n][3] > 5)
-                  {
-                     odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 14, 4); // Block 4
-                     ya+=6; // spacer
-                  }
+                                                      odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 10, 1); ya+=6;   // Block 1
+                  if (mLevel.mItem.item[n][3] > 1) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 11, 2); ya+=6; } // Block 2
+                  if (mLevel.mItem.item[n][3] > 4) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 13, 3); ya+=6; } // Block 3
+                  if (mLevel.mItem.item[n][3] > 5) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 14, 4); ya+=6; } // Block 4
                }
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
@@ -1894,7 +1881,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_PLAYER)
             {
                odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15);
-               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))  odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][15], 2000, -2000, 1,  1, 10, "Player Damage:");
+               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))  odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][12], 2000, -2000, 1,  1, 10, "Player Damage:");
             }
             odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15);
             odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15);

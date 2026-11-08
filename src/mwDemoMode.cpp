@@ -69,7 +69,7 @@ int mwDemoMode::load_demo_file_array()
    files_for_random_loaded = 1;
    //printf("\nDemo mode. List of demo files found\n");
    //for (int i=0; i< num_demo_filenames; i++)
-   //   printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
+     // printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
    return 1;
 }
 
@@ -87,14 +87,11 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
    demo_debug_running_demo_saves_level_data = 1; // force save stats
    mSound.sound_on = 0; // no sound
 
-
-//   num_demo_filenames = 10; // debug smaller list
-
+   //num_demo_filenames = 10; // debug smaller list
 
    for (int i=0; i<num_demo_filenames; i++)
    {
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]), false);
-      //printf("i:%d - filename:%s - lev:%d ", i, al_get_fs_entry_name(demo_FS_filenames[i]), mLevel.play_level);
       mGmInfo.fill();
       mGmInfo.add();
       mLevel.calc_level_stats(mLevel.play_level);
@@ -116,10 +113,7 @@ void mwDemoMode::play_all_demos_and_save_stats(const int x, const int y)
    // restore local player color and name
    mConfig.load_config();
 
-
    printf("play_all_demos_and_save_stats time:%f\n", (al_get_time() - t0));
-
-
 }
 
 

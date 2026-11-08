@@ -157,7 +157,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    //if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)
    {
-      if ((item[i][14]>10) && (type != 9) && (type != 13) && (type != 16) && (type != 17))
+      if ((item[i][14]>10) && (type != PM_ITEM_TYPE_TRIGGR) && (type != PM_ITEM_TYPE_TIMER) && (type != PM_ITEM_TYPE_BLKMNP) && (type != PM_ITEM_TYPE_BLKDMG))
          al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
    }
 }
@@ -241,7 +241,7 @@ void mwItem::move_items()
             {
                if (ttl < 11)       // start ans seq
                {
-                  item[i][0] = 66; // change to different type to prevent use
+                  item[i][0] = PM_ITEM_TYPE_EXPIRING; // change to different type to prevent use
                   int sq = 10-ttl;
                   item[i][1] = mBitmap.zz[5+sq][74];
                }
@@ -259,7 +259,6 @@ void mwItem::move_items()
          if (type == PM_ITEM_TYPE_GATE)     moveable = 0;
          if (type == PM_ITEM_TYPE_HIDER)    moveable = 0;
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
-
 
 
          // // not stationary and not lit rocket, trigger, bm, bd or moving key

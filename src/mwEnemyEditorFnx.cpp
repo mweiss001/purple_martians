@@ -75,6 +75,14 @@ void mwEnemy::fill_strings()
 }
 
 
+void mwEnemy::clear_enemies()
+{
+   for (int e=0; e<100; e++) clear_enemy(e);
+   sort_enemy();
+}
+
+
+
 void mwEnemy::clear_enemy(int e)
 {
    for (int a=0; a<32; a++) Ei[e][a] = 0;

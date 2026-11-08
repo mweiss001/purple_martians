@@ -295,14 +295,20 @@ void mwItem::test_items()
       }
 }
 
+
+void mwItem::clear_items()
+{
+   for (int c=0; c<500; c++) clear_item(c);
+   mMessageText.initialize();
+   sort_item();
+}
+
+
 void mwItem::clear_item(int num)
 {
-//   if (item[num][0] == 10) pmsgtext[num][0] = 0;
-
-   if (item[num][0] == 10) mMessageText.remove(num);
-
-
+   if (item[num][0] == PM_ITEM_TYPE_MSG) mMessageText.remove(num);
    for (int x=0; x<16; x++) item[num][x] = 0;
+   for (int x=0; x<4; x++) itemf[num][x] = 0;
 }
 
 int mwItem::create_trigger(int i)

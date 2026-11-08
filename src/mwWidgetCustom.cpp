@@ -737,6 +737,7 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
          {  3,  "MODE:Toggle Block 2 To Block 1" },
          {  5,  "MODE:Cycle 3 Blocks" },
          {  6,  "MODE:Cycle 4 Blocks" },
+         {  7,  "MODE:Cycle 4 Blocks no loop" },
          {  4,  "MODE:Copy Area" }
       };
    }

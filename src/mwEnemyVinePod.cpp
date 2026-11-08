@@ -443,9 +443,6 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
 
    if (!custom)
    {
-
-      al_set_target_bitmap(m_parent.level_buffer);
-
       if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
       {
          // create and fill the spline array
@@ -510,6 +507,7 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
                al_draw_filled_circle(x1, y1, 2, c2);
             }
          }
+
       }
       else
       {

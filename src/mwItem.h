@@ -192,6 +192,9 @@ class mwItem
    int get_empty_item();
    int get_empty_item(int type);
    void test_items();
+
+   void clear_items();
+
    void clear_item(int i);
 
    int create_trigger(int i);

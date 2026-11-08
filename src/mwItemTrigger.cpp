@@ -424,6 +424,7 @@ item[][12] = draw color
 item[][13] = copy x or block 3
 item[][14] = copy y or block 4
 
+
 mode 3 toggle
 mode 4 copy
 mode 5 cycle 3
@@ -494,6 +495,13 @@ void mwItem::proc_block_manip(int i)
                   else if (mLevel.l[x][y] == block4) mLevel.change_block(x, y, block1);
                }
 
+               if (mode == 7) // 4 way cycle with no loop
+               {
+                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
+                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
+                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block4);
+                  //else if (mLevel.l[x][y] == block4) mLevel.change_block(x, y, block1);
+               }
 
 
 
@@ -686,12 +694,14 @@ void mwItem::proc_item_damage_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                // orb, trig, bm, bd -- kill these immed
-               if ((item[i][0] == 6) || (item[i][0] == 9) || (item[i][0] == 16) || (item[i][0] == 17)) item[i][0] = 0;
+               if ((item[i][0] == PM_ITEM_TYPE_ORB) || (item[i][0] == PM_ITEM_TYPE_TRIGGR) || (item[i][0] == PM_ITEM_TYPE_BLKMNP) || (item[i][0] == PM_ITEM_TYPE_BLKDMG)) item[i][0] = 0;
 
-               if ((item[i][0] != 66) && (item[i][0] != 5)) // never kill start
+               if ((item[i][0] != PM_ITEM_TYPE_EXPIRING) && (item[i][0] != PM_ITEM_TYPE_START)) // never kill start
                {
-                  //item[i][0] = 66;
-                  item[i][14] = 10;
+                  //item[i][0] = PM_ITEM_TYPE_EXPIRING; // wtf is this ???
+                  item[i][14] = 10; // does this set ttl to 10?
+
+
                }
             }
          }

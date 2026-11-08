@@ -226,6 +226,8 @@ int mwItem::draw_exit(int i, int x, int y, int shape)
 
 void mwItem::proc_exit_collision(int p, int i)
 {
+   //printf("proc_exit_collision(p:%d, i:%d)\n", p, i);
+
    int exit_enemys_left = m_parent.mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {

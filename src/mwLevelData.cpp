@@ -164,7 +164,7 @@ void mwLevel::check_achievements()
 {
    // check for completed areas
 
-   printf("check_achievements()\n");
+   // printf("check_achievements()\n");
 
 
 

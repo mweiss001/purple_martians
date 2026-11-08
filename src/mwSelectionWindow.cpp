@@ -47,9 +47,6 @@ void mwSelectionWindow::setupTileSetGroups()
    tileSetGroups[i].visible = 1;
 
 
-
-
-
    i++;
    tileSetGroups[i].name = "Columns";
    tileSetGroups[i].display_tile = 612;
@@ -883,13 +880,13 @@ void mwSelectionWindow::load_pde()
 
 
 
-   p.ia = { 102, 1023, 1, 1, 0, 0, 1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   p.ia = { 102, 1023, 1, 1, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Health Bonus 10", 1,  "1/10 of Full Health");
 
-   p.ia = { 102, 1027, 1, 1, 0, 0, 1, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   p.ia = { 102, 1027, 1, 1, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Health Bonus 50", 1,  "1/2 of Full Health");
 
-   p.ia = { 102, 197, 0, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   p.ia = { 102, 197,  0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Purple Coin", 1,  "");
 
 

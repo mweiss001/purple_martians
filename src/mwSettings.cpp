@@ -403,7 +403,7 @@ int mwSettings::settings_pages_redraw(int disable_input)
 
 void mwSettings::settings_pages(int set_page)
 {
-   printf("settings\n");
+   // printf("settings\n");
 
 
    // if esc is pressed on entry, wait for release

@@ -23,7 +23,7 @@ private:
    double t0;
 
    int size = 200;
-   int max_level = 100;
+   int max_level = 400;
 
    void create_level_icon(int level, int save_web);
 
