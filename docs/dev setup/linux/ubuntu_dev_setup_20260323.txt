@@ -141,3 +141,91 @@ then upload the targz file to github as a release
 
 very easy....
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I am trying to get CLion working on linux
+-----------------------------------------------------------
+
+
+m@scat:~/dev/allegro5$ pkg-config --list-all | grep allegro
+allegro_monolith-5             allegro_monolith - Allegro game programming library (all addons included)
+
+
+
+To configure Allegro 5 in CLion on Linux, you can use pkg-config within your CMakeLists.txt file to locate the libraries and include directories.
+First, make sure you have installed Allegro and pkg-config via your Linux package manager (for example, on Ubuntu/Debian: sudo apt install liballegro5-dev pkg-config).
+
+CMakeLists.txt Example
+
+cmake
+cmake_minimum_required(VERSION 3.15)
+project(allegro_clion_app C CXX)
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+
+# Find pkg-config
+find_package(PkgConfig REQUIRED)
+
+# Search for Allegro 5 (core and standard addons)
+pkg_check_modules(ALLEGRO REQUIRED
+        allegro-5
+        allegro_image-5
+        allegro_font-5
+        allegro_ttf-5
+        allegro_primitives-5
+        allegro_audio-5
+        allegro_acodec-5
+)
+
+add_executable(allegro_clion_app main.cpp)
+
+# Include directories and link libraries
+target_include_directories(allegro_clion_app PRIVATE ${ALLEGRO_INCLUDE_DIRS})
+target_link_libraries(allegro_clion_app PRIVATE ${ALLEGRO_LIBRARIES})
+target_compile_options(allegro_clion_app PRIVATE ${ALLEGRO_CFLAGS_OTHER})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

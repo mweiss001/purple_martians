@@ -53327,10 +53327,49 @@ it is taking sometime and validating each before installing the next
 2025.3.6.1
 2025.3.6.2
 2025.3.6.3
-
 this is taking forever.....
-
 omg it is finally back...that took over an hour...
+
+
+CLion 2025.3.6.3
+Build #CL-253.33813.108, built on October 29, 2026
+Source revision: 22a182d25295d
+Licensed to Michael Weiss
+Subscription is active until January 12, 2027.
+For non-commercial use only.
+Runtime version: 21.0.11+1-b1163.125 amd64 (JCEF 137.0.17)
+VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
+Toolkit: sun.awt.windows.WToolkit
+Windows 10.0
+.NET Core v9.0.11 x64 (Server GC)
+GC: G1 Young Generation, G1 Concurrent GC, G1 Old Generation
+Memory: 16384M
+Cores: 12
+Registry:
+  actionSystem.update.actions.warn.dataRules.on.edt=false
+  ide.balloon.shadow.size=0
+  run.processes.with.pty=TRUE
+  ide.new.editor.tabs.vertical.borders=true
+  new.search.everywhere.font.size.delta=4
+  ide.animate.toolwindows=true
+  ide.experimental.ui=true
+  ide.editor.tab.selection.animation=true
+  ide.colorful.toolbar.gradient.radius=2000
+  idea.islands.color.gradient.enabled=true
+  rdclient.patch.engine.enabled=false
+  clion.hide.welcome.screen.onboarding.feedback.promo=false
+  llm.show.ai.promotion.window.on.start=false
+Non-Bundled Plugins:
+  com.berzanmikaili.intellij.monokai_pro (2.0.2c)
+  com.jetbrains.gerryPurpleTheme (2026.1.1024)
+  com.thvardhan.gradianto (5.5)
+  com.jetbrains.darkPurpleTheme (1.3)
+  Subversion (253.33813.109)
+  com.markskelton.one-dark-theme (6.2.5)
+  com.tylerthrailkill.intellij.solarized (3.0.1)
+  Statistic (5.4)
+  com.arcticicestudio.nord.jetbrains (0.13.0)
+  com.chrisrm.idea.MaterialThemeUI (10.10.1)
 
 
 
@@ -53348,9 +53387,42 @@ I think I want to make a dedicated fast desktop linux box
 
 What hardware?
 
-Could this be an excuse for a new computer?
+Could this be an excuse for a new computer? no
 
 
+cmake_minimum_required(VERSION 3.20)
+project(MultiPlatformApp VERSION 1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 1. Define your project files
+add_executable(${PROJECT_NAME} main.cpp)
+
+# 2. Example A: Find an external framework (e.g., OpenCV)
+# This works seamlessly on both OSes if OpenCV is installed via vcpkg/conan or system paths.
+find_package(OpenCV REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+
+# 3. Example B: Handle completely different libraries per platform
+# Use this when Windows and Linux require entirely different dependencies.
+if (WIN32)
+    # --- Windows Specific ---
+    # Example: Link a Windows system library (like Winsock for networking)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
+    
+    # Or link a custom static library if you have a local folder setup
+    # target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/libs/win/my_win_lib.lib")
+
+elseif (UNIX AND NOT APPLE)
+    # --- Linux Specific ---
+    # Example: Multi-threading requiring pthread
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+    
+    # Example: Linking a standard Linux system library directly
+    target_link_libraries(${PROJECT_NAME} PRIVATE uuid math)
+endif()
 
 
 
