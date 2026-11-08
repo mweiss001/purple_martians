@@ -1064,7 +1064,7 @@ void mwItem::proc_timer(int i)
 
    if (state == 1)
    {
-      if (t1_op_mode) mTriggerEvent.event[item[i][13]] = 1; // emit timer 1 event continuosly
+      if (t1_op_mode) mTriggerEvent.event[item[i][13]] = 1; // emit timer 1 event continuously
       // check to see if we should run down the timer
       switch (t1_mode)
       {

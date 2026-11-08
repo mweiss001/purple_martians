@@ -65,7 +65,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       int t = v1; // object sub type
 
       // get the object name
-      char object_name[256];
+      char object_name[32];
       strcpy(object_name, "??"); // default if no name found
       if (o == 2) strcpy(object_name, mLevel.mItem.item_name[mLevel.mItem.item[t][0]]);
       if (o == 3) strcpy(object_name, mLevel.mEnemy.enemy_name[mLevel.mEnemy.Ei[t][0]][0]);

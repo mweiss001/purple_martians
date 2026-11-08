@@ -31,13 +31,75 @@ TO DO
 
 
 work on level 61 multiplayer bomb toss
-make it good
+tested wuth zaiden...
+notes...
+make mines tossable
 
 
-I have some extra shapes for door (warps)
+
+
+
+
+
+
+
+I have some extra shapes for doors (portals)
+
+https://actuallykron.itch.io/portals-premium
 
 I should patch them in....
 
+what size are they?
+64x64
+5 type of portals
+10 colors for each
+each has 3 animations, open, close and idle
+
+each one has 36 frames (well 36 but 2 are blank)
+
+how am I going to get them into my game?
+
+full size?
+
+
+one set is 36 frame x 10 colors 
+
+lets just say 40 frames wide x 64 = 2560
+10 frame high x 64 = 640
+2560x640 = 1.6M
+
+compared with
+sprite 704x704 = .5M
+tiles 1M
+
+level buffer 2000x2000 = 4M
+
+what if I went with 32x32?
+
+lets just say 40 frames wide x 32 = 1280
+10 frame high x 32 = 320
+1280x320 = .4M
+
+how will I test this?
+make some data structures and get them loaded
+I see why I held off...
+
+
+make a new class to test
+
+how large of a bitmap will I need for everything
+
+I think there is a lot of duplication
+
+how about just 18 for now, take them at full size
+see what I can do with them
+
+import into gimp to see what they look like and what grid they are on
+
+they are definitely on a 64x64 grid, but there is a fair amount of margin
+the actual image might fit on 32x32
+
+so make a place to put them
 
 
 
@@ -59,6 +121,18 @@ I should patch them in....
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+could I make each area on the overworld have a very slight color tint?
 
 
 

@@ -60,6 +60,8 @@ void mwBitmap::create_bitmaps()
 
 
    // create bottom message bitmaps
+
+
    mBottomMessage.bmsg_create_bitmaps();
 
 }

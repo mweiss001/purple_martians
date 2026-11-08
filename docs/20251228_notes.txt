@@ -53316,6 +53316,51 @@ Non-Bundled Plugins:
 
 
 
+updating from 2025.3.1
+it is taking sometime and validating each before installing the next
+2025.3.2
+2025.3.3
+2025.3.4
+2025.3.4.1
+2025.3.5
+2025.3.6
+2025.3.6.1
+2025.3.6.2
+2025.3.6.3
+
+this is taking forever.....
+
+omg it is finally back...that took over an hour...
+
+
+
+
+
+while I am waiting I am installing clion on scat
+
+version 2026.3 2GB
+
+it installed very fast
+
+compiles but has link errors
+
+I think I want to make a dedicated fast desktop linux box
+
+What hardware?
+
+Could this be an excuse for a new computer?
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
