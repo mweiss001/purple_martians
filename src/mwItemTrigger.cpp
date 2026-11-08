@@ -148,12 +148,6 @@ void mwItem::proc_orb(int i)
    if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[item[i][12]] = 1;
    if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[item[i][13]] = 1;
 
-
-
-
-
-
-
 }
 
 int mwItem::draw_orb(int i, int x, int y)
@@ -193,6 +187,9 @@ void mwItem::proc_orb_collision(int p, int i)
         ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (m_parent.mPlayer.syn[p].down)) )
    {
       item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
+
+
+      // custom final rocket orb
       if ((item[i][12] == 99) && (!mNetgame.ima_client))
       {
          mGameState.level_done_mode = 40;
@@ -249,7 +246,7 @@ void mwItem::proc_trigger(int i)
 {
    int& flags = item[i][3];
 
-   if (flags & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i);
+   if (flags & PM_ITEM_TRIGGER_LIFT_ON) set_trigger_location_from_lift(i);
 
    flags &= ~PM_ITEM_TRIGGER_TGON;  // clear toggle ON  trigger flag
    flags &= ~PM_ITEM_TRIGGER_TGOF;  // clear toggle OFF trigger flag
@@ -283,14 +280,14 @@ void mwItem::proc_trigger(int i)
    if   (flags & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
 }
 
-void mwItem::set_item_trigger_location_from_lift(int i)
+void mwItem::set_trigger_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
-   if (mLevel.mLift.cur[d].active) // only proceed if lift number is valid
+   if (m_parent.mLift.cur[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = mLevel.mLift.cur[d].x;
-      int lx2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
+      int lx1 = m_parent.mLift.cur[d].x;
+      int lx2 = m_parent.mLift.cur[d].x + m_parent.mLift.cur[d].w;
       int C = item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
       int F = item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
       int L = item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
@@ -307,8 +304,8 @@ void mwItem::set_item_trigger_location_from_lift(int i)
          if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = mLevel.mLift.cur[d].y;
-      int ly2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
+      int ly1 = m_parent.mLift.cur[d].y;
+      int ly2 = m_parent.mLift.cur[d].y + m_parent.mLift.cur[d].h;
       C = item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
       F = item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
       L = item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
@@ -349,10 +346,10 @@ void mwItem::detect_trigger_collisions(int i)
          }
    if (flags & PM_ITEM_TRIGGER_ENEMY)
       for (int e=0; e<100; e++)
-         if (mLevel.mEnemy.Ei[e][0])
+         if (m_parent.mEnemy.Ei[e][0])
          {
-            int x = mLevel.mEnemy.Ef[e][0];
-            int y = mLevel.mEnemy.Ef[e][1];
+            int x = m_parent.mEnemy.Ef[e][0];
+            int y = m_parent.mEnemy.Ef[e][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
    if (flags & PM_ITEM_TRIGGER_ITEM)
@@ -391,7 +388,7 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.sprite[991], x, y, 0); // draw item shape in level editor, invisible when game running
-      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i); // snap to lift here because main function won't be called while in level editor
+      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_trigger_location_from_lift(i); // snap to lift here because main function won't be called while in level editor
    }
 
    if ((item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
@@ -408,16 +405,16 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
 
 
 /*
-item[][0] = 16 - Block Manip
+item[][0] = 16 - Alter Tiles
 item[][1] = pm_event_trigger
 item[][2] = draw on
 item[][3] = mode
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
-item[][6] = trigger field x (2000)
-item[][7] = trigger field y (2000)
-item[][8] = trigger field w (2000)
-item[][9] = trigger field x (2000)
+item[][6] = field x (2000)
+item[][7] = field y (2000)
+item[][8] = field w (2000)
+item[][9] = field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
@@ -436,7 +433,7 @@ mode 7 cycle and don't loop, one way only
 
 
 
-void mwItem::proc_block_manip(int i)
+void mwItem::proc_alter_tiles(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
    if (mTriggerEvent.event[et])
@@ -444,10 +441,8 @@ void mwItem::proc_block_manip(int i)
       int mode = item[i][3];
       int block1 = item[i][10];
       int block2 = item[i][11];
-
       int block3 = item[i][13]; // shared with copy source
       int block4 = item[i][14]; // shared with copy source
-
 
       int x1 = item[i][6]/20;
       int y1 = item[i][7]/20;
@@ -466,52 +461,46 @@ void mwItem::proc_block_manip(int i)
          for (int y=y1; y<y2; y++)
             if ((x >= 0) && (y >= 0) && (x<100) && (y<100)) // valid level block position
             {
-               if (mode == 1) mLevel.change_block(x, y, block1); // set all to block 1
-               if (mode == 2) if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block1); // set all block2 to block 1
+               if (mode == 1) m_parent.change_block(x, y, block1); // set all to block 1
+               if (mode == 2) if (m_parent.l[x][y] == block2) m_parent.change_block(x, y, block1); // set all block2 to block 1
                if (mode == 3) // toggle block1 and block 2
                {
-                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
-                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block1);
+                  if      (m_parent.l[x][y] == block1) m_parent.change_block(x, y, block2);
+                  else if (m_parent.l[x][y] == block2) m_parent.change_block(x, y, block1);
                }
                if (mode == 4) // copy rect area
                {
                   int sx = x+x4;
                   int sy = y+y4;
-                  if ((sx >= 0) && (sy >= 0) && (sx<100) && (sy<100)) mLevel.change_block(x, y, mLevel.l[sx][sy]); // valid level block position
+                  if ((sx >= 0) && (sy >= 0) && (sx<100) && (sy<100)) m_parent.change_block(x, y, m_parent.l[sx][sy]); // valid level block position
                }
 
                if (mode == 5) // 3 way cycle
                {
-                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
-                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
-                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block1);
+                  if      (m_parent.l[x][y] == block1) mLevel.change_block(x, y, block2);
+                  else if (m_parent.l[x][y] == block2) mLevel.change_block(x, y, block3);
+                  else if (m_parent.l[x][y] == block3) mLevel.change_block(x, y, block1);
                }
 
                if (mode == 6) // 4 way cycle
                {
-                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
-                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
-                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block4);
-                  else if (mLevel.l[x][y] == block4) mLevel.change_block(x, y, block1);
+                  if      (m_parent.l[x][y] == block1) m_parent.change_block(x, y, block2);
+                  else if (m_parent.l[x][y] == block2) m_parent.change_block(x, y, block3);
+                  else if (m_parent.l[x][y] == block3) m_parent.change_block(x, y, block4);
+                  else if (m_parent.l[x][y] == block4) m_parent.change_block(x, y, block1);
                }
 
                if (mode == 7) // 4 way cycle with no loop
                {
-                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
-                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block3);
-                  else if (mLevel.l[x][y] == block3) mLevel.change_block(x, y, block4);
-                  //else if (mLevel.l[x][y] == block4) mLevel.change_block(x, y, block1);
+                  if      (m_parent.l[x][y] == block1) m_parent.change_block(x, y, block2);
+                  else if (m_parent.l[x][y] == block2) m_parent.change_block(x, y, block3);
+                  else if (m_parent.l[x][y] == block3) m_parent.change_block(x, y, block4);
                }
-
-
-
-
-
          }
    }
 }
 
-int mwItem::draw_block_manip(int i, int x, int y)
+int mwItem::draw_alter_tiles(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
@@ -535,14 +524,19 @@ int mwItem::draw_block_manip(int i, int x, int y)
          y2 = y1 + item[i][9];
          mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
-
    }
    return 1;
 }
 
+
+
+
+
+
+
 /*
 
-item[][0]  = 17 - Block Damage
+item[][0]  = 17 - Damage Area
 item[][1]  = event trigger number
 item[][2]  = damage draw type
 item[][3]  = flags
@@ -573,23 +567,23 @@ item[][12] = damage
 */
 
 
-void mwItem::set_item_damage_location_from_lift(int i)
+void mwItem::set_damage_area_location_from_lift(int i)
 {
    int d = item[i][10]; // lift number
-   if (mLevel.mLift.cur[d].active) // only proceed if lift number is valid
+   if (m_parent.mLift.cur[d].active) // only proceed if lift number is valid
    {
       if (item[i][3] & PM_ITEM_DAMAGE_LIFT_MS) // mirror geometry from lift
       {
-         item[i][6] = mLevel.mLift.cur[d].x;
-         item[i][7] = mLevel.mLift.cur[d].y;
-         item[i][8] = mLevel.mLift.cur[d].w;
-         item[i][9] = mLevel.mLift.cur[d].h;
+         item[i][6] = m_parent.mLift.cur[d].x;
+         item[i][7] = m_parent.mLift.cur[d].y;
+         item[i][8] = m_parent.mLift.cur[d].w;
+         item[i][9] = m_parent.mLift.cur[d].h;
       }
       else
       {
          // x axis
-         int lx1 = mLevel.mLift.cur[d].x;
-         int lx2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
+         int lx1 = m_parent.mLift.cur[d].x;
+         int lx2 = m_parent.mLift.cur[d].x + m_parent.mLift.cur[d].w;
          int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
          int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
          int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
@@ -606,8 +600,8 @@ void mwItem::set_item_damage_location_from_lift(int i)
             if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
          }
          // y axis
-         int ly1 = mLevel.mLift.cur[d].y;
-         int ly2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
+         int ly1 = m_parent.mLift.cur[d].y;
+         int ly2 = m_parent.mLift.cur[d].y + m_parent.mLift.cur[d].h;
          C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
          F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
          L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
@@ -628,7 +622,7 @@ void mwItem::set_item_damage_location_from_lift(int i)
    }
 }
 
-void mwItem::proc_item_damage_collisions(int i)
+void mwItem::proc_damage_area_collisions(int i)
 {
    int FLAGS = item[i][3];
    int cd  =            FLAGS & PM_ITEM_DAMAGE_CURR;     // damage active
@@ -676,13 +670,13 @@ void mwItem::proc_item_damage_collisions(int i)
          }
    if (cde)
       for (int e2=0; e2<100; e2++)
-         if (mLevel.mEnemy.Ei[e2][0])
+         if (m_parent.mEnemy.Ei[e2][0])
          {
-            int x = mLevel.mEnemy.Ef[e2][0];
-            int y = mLevel.mEnemy.Ef[e2][1];
+            int x = m_parent.mEnemy.Ef[e2][0];
+            int y = m_parent.mEnemy.Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               mLevel.mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
+               m_parent.mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
             }
          }
    if (cdi)
@@ -694,7 +688,7 @@ void mwItem::proc_item_damage_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                // orb, trig, bm, bd -- kill these immed
-               if ((item[i][0] == PM_ITEM_TYPE_ORB) || (item[i][0] == PM_ITEM_TYPE_TRIGGR) || (item[i][0] == PM_ITEM_TYPE_BLKMNP) || (item[i][0] == PM_ITEM_TYPE_BLKDMG)) item[i][0] = 0;
+               if ((item[i][0] == PM_ITEM_TYPE_ORB) || (item[i][0] == PM_ITEM_TYPE_TRIGGER) || (item[i][0] == PM_ITEM_TYPE_ALTERTILES) || (item[i][0] == PM_ITEM_TYPE_DAMAGEAREA)) item[i][0] = 0;
 
                if ((item[i][0] != PM_ITEM_TYPE_EXPIRING) && (item[i][0] != PM_ITEM_TYPE_START)) // never kill start
                {
@@ -723,13 +717,13 @@ void mwItem::proc_item_damage_collisions(int i)
          }
 }
 
-int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
+int mwItem::draw_damage_area(int i, int xt, int yt, int custom)
 {
    int FLAGS = item[i][3];
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.sprite[988], xt, yt, 0);                                 // only draw item shape in level editor, invisible when game running
-      if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // set this here only when level editor is running
+      if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_damage_area_location_from_lift(i); // set this here only when level editor is running
    }
    // get dimensions of damage field from item int variables
    mwRect<float> f = mwRect<float>::fromX1Y1WH(item[i][6], item[i][7], item[i][8], item[i][9]);
@@ -738,7 +732,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    if ((FLAGS & PM_ITEM_DAMAGE_LIFT_ON) && (FLAGS & PM_ITEM_DAMAGE_LIFT_MS))
    {
       int d = item[i][10]; // lift number
-      f.setXYWH(mLevel.mLift.cur[d].x, mLevel.mLift.cur[d].y, mLevel.mLift.cur[d].w, mLevel.mLift.cur[d].h);
+      f.setXYWH(m_parent.mLift.cur[d].x, m_parent.mLift.cur[d].y, m_parent.mLift.cur[d].w, m_parent.mLift.cur[d].h);
       f.round();
    }
 
@@ -881,8 +875,6 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
             mwRect<float> lh = mwRect<float>::fromX1Y1WH(f.x1, f.y1+f.h/2, f.w, f.h/2); // lower half
 
 
-
-
             uh.set_clipping_rectangle();
             for (int hx=f.x1; hx<f.x2; hx+=20)
                for (int hy=uh.y1; hy<uh.y2; hy+=20)
@@ -927,15 +919,6 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
       }
 
 
-
-
-
-
-
-
-
-
-
       if (draw_mode == 2) // spikey floor
       {
          int tn = 804; // off by default
@@ -974,7 +957,7 @@ int mwItem::draw_block_damage(int i, int xt, int yt, int custom)
    return 1;
 }
 
-void mwItem::proc_block_damage(int i)
+void mwItem::proc_damage_area(int i)
 {
    int& flags = item[i][3];
 
@@ -982,9 +965,9 @@ void mwItem::proc_block_damage(int i)
    int trig = mTriggerEvent.event[et];  // is the trigger event set?
    if (et == 0) trig = 0;               // if event is zero, ignore
 
-   if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i); // follow lift location
+   if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_damage_area_location_from_lift(i); // follow lift location
 
-   proc_item_damage_collisions(i);
+   proc_damage_area_collisions(i);
 
    int mode = item[i][11];
    if (mode == 0) flags |= PM_ITEM_DAMAGE_CURR;             // current damage always set

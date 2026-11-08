@@ -53,69 +53,30 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       pressed = true;
    }
 
+
    char msg[256];
    sprintf(msg, "%s", "");
 
 
-
+   // object viewer common help button
    if (type == 57)
    {
-      int n = v1;
-      int o = v2;
+      int o = v2; // object type
+      int t = v1; // object sub type
 
-      int t = 0;
-      sprintf(msg,"?? Help");
+      // get the object name
+      char object_name[256];
+      strcpy(object_name, "??"); // default if no name found
+      if (o == 2) strcpy(object_name, mLevel.mItem.item_name[mLevel.mItem.item[t][0]]);
+      if (o == 3) strcpy(object_name, mLevel.mEnemy.enemy_name[mLevel.mEnemy.Ei[t][0]][0]);
+      if (o == 4) strcpy(object_name, "Lift");
 
-      if (o == 2)
-      {
-         t = mLevel.mItem.item[n][0];
-         sprintf(msg,"%s Help", mLevel.mItem.item_name[t]);
-      }
-      if (o == 3)
-      {
-         t = mLevel.mEnemy.Ei[n][0];
-         sprintf(msg,"%s Help", mLevel.mEnemy.enemy_name[t][0]);
-      }
-      if (o == 4) sprintf(msg,"Lift Help");
+      sprintf(msg, "%s Help", object_name);
 
       if (pressed)
       {
-         if (o==2)
-         {
-            if (t == 1)  mHelp.help("Door Viewer");
-            if (t == 2)  mHelp.help("Bonus Viewer");
-            if (t == 3)  mHelp.help("Exit Viewer");
-            if (t == 4)  mHelp.help("Key Viewer");
-            if (t == 5)  mHelp.help("Start Viewer");
-            if (t == 6)  mHelp.help("Orb Viewer");
-            if (t == 7)  mHelp.help("Mine Viewer");
-            if (t == 8)  mHelp.help("Bomb Viewer");
-            if (t == 9)  mHelp.help("Trigger Viewer");
-            if (t == 10) mHelp.help("Message Viewer");
-            if (t == 11) mHelp.help("Rocket Viewer");
-            if (t == 12) mHelp.help("Warp Viewer");
-            if (t == 13) mHelp.help("Timer Viewer");
-            if (t == 14) mHelp.help("Switch Viewer");
-            if (t == 15) mHelp.help("Sproingy Viewer");
-            if (t == 16) mHelp.help("Block Manip Viewer");
-            if (t == 17) mHelp.help("Block Damage Viewer");
-         }
-         if (o==3)
-         {
-            if (t == 1) mHelp.help("Bouncer Viewer");
-            if (t == 2) mHelp.help("Cannon Viewer");
-            if (t == 3) mHelp.help("Archwagon Viewer");
-            if (t == 4) mHelp.help("BlokWalk Viewer");
-            if (t == 5) mHelp.help("Jumpworm Viewer");
-            if (t == 6) mHelp.help("Flapper Viewer");
-            if (t == 7) mHelp.help("Vinepod Viewer");
-            if (t == 8) mHelp.help("Trakbot Viewer");
-            if (t == 9) mHelp.help("Cloner Viewer");
-         }
-         if (o==4)
-         {
-            mHelp.help("Lift Viewer");
-         }
+         sprintf(msg,"%s Viewer", object_name);
+         mHelp.help(msg);
       }
    }
 

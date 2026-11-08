@@ -29,11 +29,9 @@ class mwLevelEditor
 
    int last_level_num_edit = 0;
 
-
    int show_gate_info;
    int show_gate_info_item;
    int show_gate_info_page;
-
 
 
    void get_mouse_position_on_background();
@@ -56,8 +54,6 @@ class mwLevelEditor
 
 
    int exit_level_editor_dialog();
-
-
 
    void save_mW();
 

@@ -723,15 +723,11 @@ void mwLevelEditor::reset_variables_on_level_change()
    // clear all tile helper marks
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++) mTileHelper.thl[x][y] = 0;
-
-   mEditorMain.draw_item_type = 1;
-   mEditorMain.draw_item_num = 1;
-
+   mEditorMain.draw_item_type = PM_OBJECT_TYPE_BLOCK;
+   mEditorMain.draw_item_num = 0;
    mObjectViewer.obt = 0;
    mObjectViewer.num = 0;
-
    mGroupEdit.clear_obj_list();
-
 }
 
 

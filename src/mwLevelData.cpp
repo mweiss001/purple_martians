@@ -703,8 +703,8 @@ void mwLevel::set_level_names_and_par_time()
    // ---------------------------------------
    data_helper(85,  4800,  "Doors");                // 2:00 demo 1:48
    data_helper(86,  3600,  "Triggers and Timers");  // 1:30 demo 1:26
-   data_helper(87,  2400,  "Block Manip");          // 1:00 demo 0:28.4
-   data_helper(88,  3600,  "Block Damage");         // 1:30 demo 1:24
+   data_helper(87,  2400,  "Alter Tiles");          // 1:00 demo 0:28.4
+   data_helper(88,  3600,  "Damage Area");          // 1:30 demo 1:24
    data_helper(89,  2400,  "Orbs");                 // 1:00 demo 0:51.8
    data_helper(90,  4800,  "Archwagons");           // 2:00 demo 1:51
    data_helper(91,  800,   "Trakbots");             // 0:20 demo 0:18.9

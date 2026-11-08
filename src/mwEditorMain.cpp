@@ -631,8 +631,8 @@ void mwEditorMain::draw_filter_window(mwWindow &w)
    odbdc(d, xa, ya, bts, 2, 13, "Timer");
    odbdc(d, xa, ya, bts, 2, 14, "Switch");
    odbdc(d, xa, ya, bts, 2, 15, "Sproingy");
-   odbdc(d, xa, ya, bts, 2, 16, "Blk Manip");
-   odbdc(d, xa, ya, bts, 2, 17, "Blk Damage");
+   odbdc(d, xa, ya, bts, 2, 16, "AlterTiles");
+   odbdc(d, xa, ya, bts, 2, 17, "DamageArea");
    odbdc(d, xa, ya, bts, 2, 18, "Gate");
    odbdc(d, xa, ya, bts, 2, 19, "Hider");
    al_draw_line(x1, ya+1, x2, ya+1, mColor.pc[c], 1);

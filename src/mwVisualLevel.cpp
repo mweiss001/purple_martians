@@ -714,7 +714,7 @@ int mwVisualLevel::visual_level_select(int max_level)
             al_draw_rectangle(x1-a, y1-a, x2+a, y2+a, mColor.pc[fc + (15-a)*16], 1 );
 
          // draw the legend
-         al_draw_text(mFont.pr8, mColor.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
+         al_draw_text(mFont.pr8, mColor.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTttER>");
          al_draw_text(mFont.pr8, mColor.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
          al_draw_text(mFont.pr8, mColor.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
          //al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);

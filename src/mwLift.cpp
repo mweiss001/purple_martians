@@ -273,7 +273,7 @@ void mwLift::erase_lift(int lift)
 
       // check if lift number is referenced in bd or trigger
       for (int i=0; i<500; i++)
-         if (((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_TRIGGR) && (mLevel.mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_BLKDMG) && (mLevel.mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+         if (((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_TRIGGER) && (mLevel.mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DAMAGEAREA) && (mLevel.mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
             if (mLevel.mItem.item[i][10] == l+1) mLevel.mItem.item[i][10] = l; // change link to new lift
 
 

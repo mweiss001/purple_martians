@@ -276,7 +276,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
             ftLevel.mItem.item[c][7] -= y1;
             if (mirror_x) ftLevel.mItem.item[c][6] = bw*20 - ftLevel.mItem.item[c][6] - ftLevel.mItem.item[c][8]+20;
          }
-         if (mLevel.mItem.item[b][0] == PM_ITEM_TYPE_MSG) ftLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(b).c_str());
+         if (mLevel.mItem.item[b][0] == PM_ITEM_TYPE_MESSAGE) ftLevel.mItem.mMessageText.set_text(c, mLevel.mItem.mMessageText.get_text(b).c_str());
       }
 
    // change door refs in items
@@ -361,7 +361,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // change lift refs in items (only trigger and block damage)
    for (int b=0; b<iib; b++)
-      if (((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGR) && (ftLevel.mItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_BLKDMG) && (ftLevel.mItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+      if (((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGER) && (ftLevel.mItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DAMAGEAREA) && (ftLevel.mItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
       {
          // change link to new lift
          for (auto lit : liftIDTranslations)
@@ -524,7 +524,7 @@ void mwEditSelection::fill_ft_variables_from_selection_l2()
 
    // change lift refs in items (only trigger and block damage)
    for (int b=0; b<iib; b++)
-      if (((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGR) && (ftLevel.mItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_BLKDMG) && (ftLevel.mItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+      if (((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGER) && (ftLevel.mItem.item[b][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DAMAGEAREA) && (ftLevel.mItem.item[b][3] & PM_ITEM_DAMAGE_LIFT_ON)))
       {
          // change link to new lift
          for (auto lit : liftIDTranslations)
@@ -789,7 +789,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                }
 
                // is this block damage or trigger that has a link to a lift (mItem.item[c][10])
-               if (((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_TRIGGR) && (mLevel.mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_BLKDMG) && (mLevel.mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
+               if (((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_TRIGGER) && (mLevel.mItem.item[c][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DAMAGEAREA) && (mLevel.mItem.item[c][3] & PM_ITEM_DAMAGE_LIFT_ON)))
                {
                   // change link to new lift
                   for (auto lit : liftIDTranslations)

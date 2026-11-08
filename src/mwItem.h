@@ -28,6 +28,7 @@ class mwItem
    char item_name[30][40];
    int item_tile[30];
 
+
    mwMessageText mMessageText;
 
    int item_secondary67(int type);
@@ -165,16 +166,20 @@ class mwItem
 
    int draw_trigger(int i, int x, int y, int custom);
    void proc_trigger(int i);
-   void set_item_trigger_location_from_lift(int i);
+   void set_trigger_location_from_lift(int i);
    void detect_trigger_collisions(int i);
 
-   int draw_block_manip(int i, int x, int y);
-   void proc_block_manip(int i);
 
-   int draw_block_damage(int i, int x, int y, int custom);
-   void proc_block_damage(int i);
-   void set_item_damage_location_from_lift(int i);
-   void proc_item_damage_collisions(int i);
+   int draw_alter_tiles(int i, int x, int y);
+   void proc_alter_tiles(int i);
+
+
+   int draw_damage_area(int i, int x, int y, int custom);
+   void proc_damage_area(int i);
+   void set_damage_area_location_from_lift(int i);
+   void proc_damage_area_collisions(int i);
+
+
 
    int draw_timer(int i, int x, int y, int custom);
    void proc_timer(int i);

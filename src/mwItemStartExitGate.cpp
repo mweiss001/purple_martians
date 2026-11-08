@@ -158,7 +158,7 @@ void mwItem::set_player_start_pos(int p)
             int mode = item[s[0]][6];
             if (mode == 0)
             {
-               printf("Lev:%d - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.\n", m_parent.play_level);
+               printf("Lev:%d - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.\n", m_parent.last_level_loaded);
                m_parent.mPlayer.syn[p].spawn_point_index = 0;
             }
             if (mode == 1) // team start

@@ -23,10 +23,7 @@ void mwEnemy::fill_strings()
    strcpy (enemy_name[7][0],  "VinePod");
    strcpy (enemy_name[8][0],  "TrakBot");
    strcpy (enemy_name[9][0],  "Cloner");
-
-
-   strcpy (enemy_name[19][0],  "Crew");
-
+   strcpy (enemy_name[19][0], "Crew");
 
    strcpy (enemy_name[0][1],  "mpty");
    strcpy (enemy_name[1][1],  "boun");
@@ -38,12 +35,11 @@ void mwEnemy::fill_strings()
    strcpy (enemy_name[7][1],  "vine");
    strcpy (enemy_name[8][1],  "trak");
    strcpy (enemy_name[9][1],  "clon");
-
-   strcpy (enemy_name[19][1],  "crew");
-
+   strcpy (enemy_name[19][1], "crew");
 
    strcpy (enemy_name[66][1], "dth2");
    strcpy (enemy_name[99][1], "dth1");
+
 
    strcpy (enemy_name[0][2],  "empty");
    strcpy (enemy_name[1][2],  "bouncer");
@@ -55,22 +51,19 @@ void mwEnemy::fill_strings()
    strcpy (enemy_name[7][2],  "vinepod");
    strcpy (enemy_name[8][2],  "trakbot");
    strcpy (enemy_name[9][2],  "cloner");
-
    strcpy (enemy_name[19][2],  "crew");
 
 
    enemy_tile[1]  = 508;
    enemy_tile[2]  = 415;
    enemy_tile[3]  = 496;
-   enemy_tile[4] = 866;
+   enemy_tile[4]  = 866;
    enemy_tile[5]  = 706;
    enemy_tile[6]  = 159;
    enemy_tile[7]  = 374;
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
-
-   enemy_tile[19]  = 401;
-
+   enemy_tile[19] = 401;
 
 }
 
@@ -78,7 +71,7 @@ void mwEnemy::fill_strings()
 void mwEnemy::clear_enemies()
 {
    for (int e=0; e<100; e++) clear_enemy(e);
-   sort_enemy();
+//   sort_enemy();
 }
 
 

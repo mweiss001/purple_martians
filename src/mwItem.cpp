@@ -8,78 +8,63 @@
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwLoop.h"
-
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwGameEvent.h"
-
 #include "mwSolid.h"
-
 #include "mwTriggerEvent.h"
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
 #include "mwWidget.h"
 #include "mwScreen.h"
-
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
 
-
-// mwItem::mwItem(mwLevel& parent)
-// {
-//    m_parent = parent;
-//
-//    initialize();
-// }
-
-
 void mwItem::initialize()
 {
+   strcpy(item_name[0],                       "item_empty");
+   strcpy(item_name[PM_ITEM_TYPE_DOOR],       "Door");
+   strcpy(item_name[PM_ITEM_TYPE_BONUS],      "Bonus");
+   strcpy(item_name[PM_ITEM_TYPE_EXIT],       "Exit");
+   strcpy(item_name[PM_ITEM_TYPE_KEY],        "Key");
+   strcpy(item_name[PM_ITEM_TYPE_START],      "Start");
+   strcpy(item_name[PM_ITEM_TYPE_ORB],        "Orb");
+   strcpy(item_name[PM_ITEM_TYPE_MINE],       "Mine");
+   strcpy(item_name[PM_ITEM_TYPE_BOMB],       "Bomb");
+   strcpy(item_name[PM_ITEM_TYPE_TRIGGER],    "Trigger");
+   strcpy(item_name[PM_ITEM_TYPE_MESSAGE],    "Message");
+   strcpy(item_name[PM_ITEM_TYPE_ROCKET],     "Rocket");
+   strcpy(item_name[12],                      "undef");
+   strcpy(item_name[PM_ITEM_TYPE_TIMER],      "Timer");
+   strcpy(item_name[PM_ITEM_TYPE_SWITCH],     "Switch");
+   strcpy(item_name[PM_ITEM_TYPE_SPRING],     "Sproingy");
+   strcpy(item_name[PM_ITEM_TYPE_ALTERTILES], "Alter Tiles");
+   strcpy(item_name[PM_ITEM_TYPE_DAMAGEAREA], "Damage Area");
+   strcpy(item_name[PM_ITEM_TYPE_GATE],       "Gate");
+   strcpy(item_name[PM_ITEM_TYPE_HIDER],      "Hider");
 
-   strcpy(item_name[0],  "item_empty");
 
-   strcpy(item_name[PM_ITEM_TYPE_DOOR],   "Door");
-   strcpy(item_name[PM_ITEM_TYPE_BONUS],  "Bonus");
-   strcpy(item_name[PM_ITEM_TYPE_EXIT],   "Exit");
-   strcpy(item_name[PM_ITEM_TYPE_KEY],    "Key");
-   strcpy(item_name[PM_ITEM_TYPE_START],  "Start");
-   strcpy(item_name[PM_ITEM_TYPE_ORB],    "Orb");
-   strcpy(item_name[PM_ITEM_TYPE_MINE],   "Mine");
-   strcpy(item_name[PM_ITEM_TYPE_BOMB],   "Bomb");
-   strcpy(item_name[PM_ITEM_TYPE_TRIGGR], "Trigger");
-   strcpy(item_name[PM_ITEM_TYPE_MSG],    "Message");
-   strcpy(item_name[PM_ITEM_TYPE_ROCKET], "Rocket");
-   strcpy(item_name[12], "undef");
-   strcpy(item_name[PM_ITEM_TYPE_TIMER],  "Timer");
-   strcpy(item_name[PM_ITEM_TYPE_SWITCH], "Switch");
-   strcpy(item_name[PM_ITEM_TYPE_SPRING], "Sproingy");
-   strcpy(item_name[PM_ITEM_TYPE_BLKMNP], "Block Manip");
-   strcpy(item_name[PM_ITEM_TYPE_BLKDMG], "Block Damage");
-   strcpy(item_name[PM_ITEM_TYPE_GATE],   "Gate");
-   strcpy(item_name[PM_ITEM_TYPE_HIDER],  "Hider");
-
-   item_tile[0]  = 0;
-
-   item_tile[PM_ITEM_TYPE_DOOR]   = 448;
-   item_tile[PM_ITEM_TYPE_BONUS]  = 304;
-   item_tile[PM_ITEM_TYPE_EXIT]   = 398;
-   item_tile[PM_ITEM_TYPE_KEY]    = 272;
-   item_tile[PM_ITEM_TYPE_START]  = 383;
-   item_tile[PM_ITEM_TYPE_ORB]    = 418;
-   item_tile[PM_ITEM_TYPE_MINE]   = 456;
-   item_tile[PM_ITEM_TYPE_BOMB]   = 538;
-   item_tile[PM_ITEM_TYPE_TRIGGR] = 991;
-   item_tile[PM_ITEM_TYPE_MSG]    = 256;
-   item_tile[PM_ITEM_TYPE_ROCKET] = 249;
-   item_tile[12] = 825; // not used
-   item_tile[PM_ITEM_TYPE_TIMER] = 987;
-   item_tile[PM_ITEM_TYPE_SWITCH] = 745;
-   item_tile[PM_ITEM_TYPE_SPRING] = 237;
-   item_tile[PM_ITEM_TYPE_BLKMNP] = 989;
-   item_tile[PM_ITEM_TYPE_BLKDMG] = 988;
-   item_tile[PM_ITEM_TYPE_HIDER]  = 476;
-   item_tile[PM_ITEM_TYPE_GATE]   = 135;
+   item_tile[0]                       = 0;
+   item_tile[PM_ITEM_TYPE_DOOR]       = 448;
+   item_tile[PM_ITEM_TYPE_BONUS]      = 304;
+   item_tile[PM_ITEM_TYPE_EXIT]       = 398;
+   item_tile[PM_ITEM_TYPE_KEY]        = 272;
+   item_tile[PM_ITEM_TYPE_START]      = 383;
+   item_tile[PM_ITEM_TYPE_ORB]        = 418;
+   item_tile[PM_ITEM_TYPE_MINE]       = 456;
+   item_tile[PM_ITEM_TYPE_BOMB]       = 538;
+   item_tile[PM_ITEM_TYPE_TRIGGER]    = 991;
+   item_tile[PM_ITEM_TYPE_MESSAGE]    = 256;
+   item_tile[PM_ITEM_TYPE_ROCKET]     = 249;
+   item_tile[12]                      = 825; // not used
+   item_tile[PM_ITEM_TYPE_TIMER]      = 987;
+   item_tile[PM_ITEM_TYPE_SWITCH]     = 745;
+   item_tile[PM_ITEM_TYPE_SPRING]     = 237;
+   item_tile[PM_ITEM_TYPE_ALTERTILES] = 989;
+   item_tile[PM_ITEM_TYPE_DAMAGEAREA] = 988;
+   item_tile[PM_ITEM_TYPE_HIDER]      = 476;
+   item_tile[PM_ITEM_TYPE_GATE]       = 135;
 
 }
 
@@ -87,22 +72,22 @@ void mwItem::initialize()
 int mwItem::item_secondary67(int type)
 {
    if (type == PM_ITEM_TYPE_KEY)    return 1; // key
-   if (type == PM_ITEM_TYPE_TRIGGR) return 1; // trigger
-   if (type == PM_ITEM_TYPE_MSG)    return 1; // message
+   if (type == PM_ITEM_TYPE_TRIGGER) return 1; // trigger
+   if (type == PM_ITEM_TYPE_MESSAGE)    return 1; // message
    if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
    if (type == PM_ITEM_TYPE_SWITCH) return 1; // switch
-   if (type == PM_ITEM_TYPE_BLKMNP) return 1; // block manip
-   if (type == PM_ITEM_TYPE_BLKDMG) return 1; // block damage
+   if (type == PM_ITEM_TYPE_ALTERTILES) return 1; // block manip
+   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1; // block damage
    if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
    return 0;
 }
 
 int mwItem::item_secondary67_hires(int type)
 {
-   if (type == PM_ITEM_TYPE_TRIGGR) return 1; // trigger
-   if (type == PM_ITEM_TYPE_MSG)    return 1; // message
+   if (type == PM_ITEM_TYPE_TRIGGER) return 1; // trigger
+   if (type == PM_ITEM_TYPE_MESSAGE)    return 1; // message
    if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
-   if (type == PM_ITEM_TYPE_BLKDMG) return 1; // block damage
+   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1; // block damage
    if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
    return 0;
 }
@@ -131,23 +116,23 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
       y = cy;
    }
    int drawn = 0;
-   if (type == PM_ITEM_TYPE_DOOR)     drawn = draw_door         (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_BONUS)    drawn = draw_bonus        (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_EXIT)     drawn = draw_exit         (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_KEY)      drawn = draw_key          (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_START)    drawn = draw_start        (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_ORB)      drawn = draw_orb          (i, x, y);
-   if (type == PM_ITEM_TYPE_BOMB)     drawn = draw_bomb         (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_TRIGGR)   drawn = draw_trigger      (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_MSG)      drawn = draw_pmsg         (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_ROCKET)   drawn = draw_rocket       (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_TIMER)    drawn = draw_timer        (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_BLKMNP)   drawn = draw_block_manip  (i, x, y);
-   if (type == PM_ITEM_TYPE_BLKDMG)   drawn = draw_block_damage (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_HIDER)    drawn = draw_hider        (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_LIT_RCKT) drawn = draw_rocket       (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_LIT_BOMB) drawn = draw_lit_bomb     (i);
-   if (type == PM_ITEM_TYPE_GATE)     drawn = draw_gate         (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_DOOR)         drawn = draw_door         (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_BONUS)        drawn = draw_bonus        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_EXIT)         drawn = draw_exit         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_KEY)          drawn = draw_key          (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_START)        drawn = draw_start        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_ORB)          drawn = draw_orb          (i, x, y);
+   if (type == PM_ITEM_TYPE_BOMB)         drawn = draw_bomb         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TRIGGER)      drawn = draw_trigger      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_MESSAGE)      drawn = draw_pmsg         (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_ROCKET)       drawn = draw_rocket       (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TIMER)        drawn = draw_timer        (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_ALTERTILES)   drawn = draw_alter_tiles  (i, x, y);
+   if (type == PM_ITEM_TYPE_DAMAGEAREA)   drawn = draw_damage_area  (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_HIDER)        drawn = draw_hider        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)   drawn = draw_rocket       (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_LIT_BOMB)     drawn = draw_lit_bomb     (i);
+   if (type == PM_ITEM_TYPE_GATE)         drawn = draw_gate         (i, x, y, custom);
 //   if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
 
 
@@ -157,7 +142,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    //if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)
    {
-      if ((item[i][14]>10) && (type != PM_ITEM_TYPE_TRIGGR) && (type != PM_ITEM_TYPE_TIMER) && (type != PM_ITEM_TYPE_BLKMNP) && (type != PM_ITEM_TYPE_BLKDMG))
+      if ((item[i][14]>10) && (type != PM_ITEM_TYPE_TRIGGER) && (type != PM_ITEM_TYPE_TIMER) && (type != PM_ITEM_TYPE_ALTERTILES) && (type != PM_ITEM_TYPE_DAMAGEAREA))
          al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
    }
 }
@@ -213,14 +198,14 @@ void mwItem::move_items()
 
 
          if (type == PM_ITEM_TYPE_ORB)      proc_orb(i);
-         if (type == PM_ITEM_TYPE_TRIGGR)   proc_trigger(i);
-         if (type == PM_ITEM_TYPE_MSG)      proc_pmsg(i);
+         if (type == PM_ITEM_TYPE_TRIGGER)   proc_trigger(i);
+         if (type == PM_ITEM_TYPE_MESSAGE)      proc_pmsg(i);
          if (type == PM_ITEM_TYPE_TIMER)    proc_timer(i);
-         if (type == PM_ITEM_TYPE_BLKMNP)   proc_block_manip(i);
-         if (type == PM_ITEM_TYPE_BLKDMG)   proc_block_damage(i);
+         if (type == PM_ITEM_TYPE_ALTERTILES)   proc_alter_tiles(i);
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)   proc_damage_area(i);
          if (type == PM_ITEM_TYPE_HIDER)    proc_hider(i);
          if (type == PM_ITEM_TYPE_LIT_BOMB) proc_lit_bomb(i);
-         if (type == PM_ITEM_TYPE_LIT_RCKT) proc_lit_rocket(i);
+         if (type == PM_ITEM_TYPE_LIT_ROCKET) proc_lit_rocket(i);
          if (type == PM_ITEM_TYPE_START)    proc_start(i);
 
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
@@ -228,10 +213,10 @@ void mwItem::move_items()
 
          // check for time to live
          bool ttl_check = 1;
-         if (type == PM_ITEM_TYPE_TRIGGR)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_TRIGGER)   ttl_check = 0;
          if (type == PM_ITEM_TYPE_TIMER)    ttl_check = 0;
-         if (type == PM_ITEM_TYPE_BLKMNP)   ttl_check = 0;
-         if (type == PM_ITEM_TYPE_BLKDMG)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_ALTERTILES)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)   ttl_check = 0;
          if (type == PM_ITEM_TYPE_GATE)     ttl_check = 0;
          if (type == PM_ITEM_TYPE_LIT_BOMB) ttl_check = 0;
          if (ttl_check)
@@ -251,11 +236,11 @@ void mwItem::move_items()
          }
 
          bool moveable = item[i][3];        // not stationary;
-         if (type == PM_ITEM_TYPE_LIT_RCKT) moveable = 0;
-         if (type == PM_ITEM_TYPE_TRIGGR)   moveable = 0;
+         if (type == PM_ITEM_TYPE_LIT_ROCKET) moveable = 0;
+         if (type == PM_ITEM_TYPE_TRIGGER)   moveable = 0;
          if (type == PM_ITEM_TYPE_TIMER)    moveable = 0;
-         if (type == PM_ITEM_TYPE_BLKMNP)   moveable = 0;
-         if (type == PM_ITEM_TYPE_BLKDMG)   moveable = 0;
+         if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
          if (type == PM_ITEM_TYPE_GATE)     moveable = 0;
          if (type == PM_ITEM_TYPE_HIDER)    moveable = 0;
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
@@ -481,9 +466,9 @@ void mwItem::proc_player_carry(int p)
 
          if (type == 0) m_parent.mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
-         if ((type == PM_ITEM_TYPE_LIT_RCKT) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
+         if ((type == PM_ITEM_TYPE_LIT_ROCKET) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
 
-         if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
+         if (type != PM_ITEM_TYPE_LIT_ROCKET)            // not lit rocket
          {
             // set item position relative to player that's carrying it
             itemf[i][1] = m_parent.mPlayer.syn[p].y - 2;
@@ -501,7 +486,7 @@ void mwItem::proc_player_carry(int p)
             }
             else if (wall_stuck < 6)
             {
-               if (type != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
+               if (type != PM_ITEM_TYPE_LIT_ROCKET)            // not lit rocket
                {
                   itemf[i][2] = m_parent.mPlayer.syn[p].xinc;  // inherit the players momentum
                   itemf[i][3] = m_parent.mPlayer.syn[p].yinc;
@@ -548,7 +533,7 @@ void mwItem::proc_item_collision(int p, int i)
 
       // allow carry
        if ((!other_player_carrying) ||         // if no other player is carrying
-          (type == PM_ITEM_TYPE_LIT_RCKT))     // allow multiple player carry for rocket
+          (type == PM_ITEM_TYPE_LIT_ROCKET))     // allow multiple player carry for rocket
           m_parent.mPlayer.syn[p].carry_item = i+1;
    }
 
@@ -565,7 +550,7 @@ void mwItem::proc_item_collision(int p, int i)
    if (type == PM_ITEM_TYPE_ORB)     proc_orb_collision(p, i);
    if (type == PM_ITEM_TYPE_MINE)    proc_mine_collision(p, i);
    if (type == PM_ITEM_TYPE_BOMB)    proc_bomb_collision(p, i);
-   if (type == PM_ITEM_TYPE_MSG)     proc_pmsg_collision(i);
+   if (type == PM_ITEM_TYPE_MESSAGE)     proc_pmsg_collision(i);
    if (type == PM_ITEM_TYPE_ROCKET)  proc_rocket_collision(p, i);
    if (type == PM_ITEM_TYPE_SWITCH)  proc_switch_collision(p, i);
    if (type == PM_ITEM_TYPE_SPRING)  proc_sproingy_collision(p, i);

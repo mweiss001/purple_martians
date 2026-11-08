@@ -52812,6 +52812,562 @@ make demos for them
 
 
 
+can I do something crazy in edit selection?
+when I paste can I paste with x axis mirrored?
+
+How would I do that?
+
+when I am copying, copy to ft reversed?
+
+when I am pasting, paste reversed?
+
+I am leaning towards
+
+or could I have something that would reverse what I have loaded into ft?
+
+try that!
+copy reversed if shift held...
+I found a bug... when drawing vinepod it sets 
+      //al_set_target_bitmap(m_parent.level_buffer);
+and this does not work well with ftLevel .....
+I now have all enemy and lifts working
+now make sure secondary in items is good as well
+probably need to do width
+
+2026-11-07 10:46:20
+
+it is done!!!
+now if shift is held when clicking copy, a reversed copy is put in ft...you're welcome!!
+
+now back to level 61
+
+
+
+
+when the other player dies and falls through a field, the way is temporarily opened for you to shoot upwards
+if you die the way for you is closed
+
+the way for player to shoot up is normally blocked by 2 things
+one is opened when the other player is waiting for bomb
+
+the other is toggled by the last player to die
+
+the starting spawn position should only be used once then??
+
+I want the way for both to be initially locked...
+when a player dies, his way is locked and the others is opened
+how can I make this happen?
+
+
+Or I could have a layer of blocks that cycles and the exit lowers once per enemy death
+that sounds cool!!
+how does cycle 4 or 3 work? foudn a bug
+what if I had a mode where the cycle did not loop..i do now!!
+
+so to make this work I need to kill the other player x times
+
+I am quite happy with how this is turning out
+
+
+now I want to do something to open the middle area (for bombs only)
+
+how about a moveable blocking lift
+
+
+OK now what will trigger it?
+
+rest lowered
+
+either player in zone will raise
+
+it will wait raised until...
+either player leaves zone
+
+Now I want to make a lot of mines that can fall...
+
+
+why doesn't damage affect lit bombs??
+
+it is disabled....
+
+if I try to renable it I need to check all levels....
+
+I have already broken something....
+
+does not play back!!!
+
+it was fucked at the last commit also
+
+
+can I go back one further....
+
+trying 6b4cd7e that is good!!!
+my notes say it is from  2026-11-06 11:53:30
+
+OK look at the one after that
+4700c6..good as well...
+
+16b0431 is the one...
+
+looked at the changes and nothing looks bad...
+
+sort item??
+
+The levels that is says did not complete?  the demos play back properly...???
+
+what is up with gm fill and calc..its like it did not even try to play...
+
+
+fill done l:84 f:2508
+add  l:84  t:1  completed:0  respawns:2  enemies_killed:0   enemies_left:8   coins:0
+
+
+fill done l:85 f:4720
+add  l:85  t:1  completed:0  respawns:0  enemies_killed:0   enemies_left:0   coins:5
+
+
+and right there, we have it:
+fill done l:84 f:2508 lastFrame:2107 ldm:0
+
+
+it did not complete...
+but why?
+
+
+normal demo loop:
+
+      mLoop.frame_num++;
+      mBitmap.update_animation();
+      mGameMoves.proc();
+      mLoop.move_frame();
+      mDrawSequence.ds_draw(0, 1);
+
+fill demo loop
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+
+
+now it just fucking randomly works, without me changing anything??? wtf!!!!
+
+now its back broken...
+
+it seems to work if it is the only one run...
+
+
+I can reproduce it
+make play all demos do another level before 84...
+
+then 84 does not work....
+
+only if I do 83 before 84
+
+3 before 84 is OK...
+
+are they levels that end with me riding a rocket into the exit?  I think so!!!!
+
+what is the difference?
+
+
+add  l:32  completed:1  t:7992  respawns:0  enemies_killed:0   enemies_left:0   coins:2
+add  l:33  completed:0  t:1  respawns:0  enemies_killed:0   enemies_left:5   coins:4
+add  l:34  completed:1  t:2598  respawns:0  enemies_killed:0   enemies_left:0   coins:1
+
+
+
+add  l:47  completed:1  t:1086  respawns:0  enemies_killed:0   enemies_left:1   coins:3
+add  l:48  completed:1  t:1544  respawns:0  enemies_killed:0   enemies_left:0   coins:2
+add  l:49  completed:0  t:1  respawns:2  enemies_killed:0   enemies_left:29   coins:0
+add  l:50  completed:1  t:1207  respawns:0  enemies_killed:0   enemies_left:0   coins:1
+
+add  l:54  completed:1  t:1277  respawns:0  enemies_killed:0   enemies_left:0   coins:1
+add  l:55  completed:1  t:4781  respawns:0  enemies_killed:0   enemies_left:0   coins:1
+add  l:56  completed:0  t:1  respawns:4  enemies_killed:0   enemies_left:61   coins:0
+add  l:57  completed:1  t:6550  respawns:0  enemies_killed:0   enemies_left:1   coins:1
+
+add  l:81  completed:1  t:2136  respawns:1  enemies_killed:0   enemies_left:0   coins:1
+add  l:82  completed:1  t:5286  respawns:0  enemies_killed:0   enemies_left:0   coins:4
+add  l:83  completed:1  t:2970  respawns:0  enemies_killed:0   enemies_left:5   coins:5
+add  l:84  completed:0  t:1  respawns:2  enemies_killed:0   enemies_left:8   coins:0
+add  l:85  completed:0  t:1  respawns:0  enemies_killed:0   enemies_left:0   coins:5
+add  l:86  completed:1  t:3455  respawns:0  enemies_killed:0   enemies_left:7   coins:1
+add  l:87  completed:1  t:1102  respawns:0  enemies_killed:0   enemies_left:0   coins:1
+
+
+
+
+83 yes
+84 no
+32 no
+48 no
+55 no
+
+
+when I play demo for 84 the controls show deaths, but that is not how it plays back
+
+what the hell is gmInfo doing different
+
+check this:
+
+from menu, play demo for 84...good
+from menu, play demo for 83...good
+from menu, play demo for 84...gmInfo bad
+
+
+what gets me is this used to work, what did I break?
+
+zero level data???
+
+
+OMG! I think it is this:
+
+   // items
+   mItem.mMessageText.initialize();
+   for (int c=0; c<500; c++) mItem.clear_item(c);
+   mItem.sort_item();
+
+
+should be in this order:
+
+   // items
+   for (int c=0; c<500; c++) mItem.clear_item(c);
+   mItem.mMessageText.initialize();
+   mItem.sort_item();
+
+no that was not it...
+
+
+this was it:
+   for (int x=0; x<4; x++) itemf[num][x] = 0;
+
+not clearing itemf
+
+
+such a simple bug, but what unintended cascading problems...
+
+now I have clear functions for item and enemies...
+
+void mwLevel::zero_level_data()
+{
+   // blocks
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++) l[x][y] = 0;
+
+   mItem.clear_items();
+   mEnemy.clear_enemies();
+   mLift.clear_lifts();
+}
+
+clean up all this debug stuff...done
+
+do a commit...
+
+2026-11-08 07:09:08
+
+now back to 
+
+why doesn't block damages affect lit bombs??
+
+it is disabled....
+
+if I try to renable it I need to check all levels....
+
+where and how?
+
+What if I rename block damage and block manip
+
+block_damage:
+------------
+damage
+damage_field
+damage_area
+
+
+
+block_manip:
+------------
+block_swap
+tile_swap
+tile_alt
+alter_block
+alter_tiles
+
+
+I am going to do it:
+
+New names:
+AlterTiles
+DamageArea
+
+Do It Fool!!!
+
+Changed the names in the string constants
+
+
+changed the names in the defines
+
+
+
+
+
+#define PM_ITEM_TYPE_DOOR        1
+#define PM_ITEM_TYPE_BONUS       2
+#define PM_ITEM_TYPE_EXIT        3
+#define PM_ITEM_TYPE_KEY         4
+#define PM_ITEM_TYPE_START       5
+#define PM_ITEM_TYPE_ORB         6
+#define PM_ITEM_TYPE_MINE        7
+#define PM_ITEM_TYPE_BOMB        8
+#define PM_ITEM_TYPE_TRIGGER     9
+#define PM_ITEM_TYPE_MESSAGE    10
+#define PM_ITEM_TYPE_ROCKET     11
+#define PM_ITEM_TYPE_TIMER      13
+#define PM_ITEM_TYPE_SWITCH     14
+#define PM_ITEM_TYPE_SPRING     15
+#define PM_ITEM_TYPE_ALTERTILES 16
+#define PM_ITEM_TYPE_DAMAGEAREA 17
+#define PM_ITEM_TYPE_GATE       18
+#define PM_ITEM_TYPE_HIDER      19
+
+#define PM_ITEM_TYPE_EXPIRING   66
+
+#define PM_ITEM_TYPE_LIT_ROCKET 98
+#define PM_ITEM_TYPE_LIT_BOMB   99
+
+
+change the names of the functions
+
+also changed references from mLevel to m_parent
+change names in filters done
+
+names are still too long for x of x title thing in object viewer....
+
+make new tiles
+
+change names in object viewer
+
+change names in help
+
+            // if (t == 1)  mHelp.help("Door Viewer");
+            // if (t == 2)  mHelp.help("Bonus Viewer");
+            // if (t == 3)  mHelp.help("Exit Viewer");
+            // if (t == 4)  mHelp.help("Key Viewer");
+            // if (t == 5)  mHelp.help("Start Viewer");
+            // if (t == 6)  mHelp.help("Orb Viewer");
+            // if (t == 7)  mHelp.help("Mine Viewer");
+            // if (t == 8)  mHelp.help("Bomb Viewer");
+            // if (t == 9)  mHelp.help("Trigger Viewer");
+            // if (t == 10) mHelp.help("Message Viewer");
+            // if (t == 11) mHelp.help("Rocket Viewer");
+            // if (t == 13) mHelp.help("Timer Viewer");
+            // if (t == 14) mHelp.help("Switch Viewer");
+            // if (t == 15) mHelp.help("Sproingy Viewer");
+            // if (t == 16) mHelp.help("Alter Tile Viewer");
+            // if (t == 17) mHelp.help("Damage Area Viewer");
+
+
+all done
+
+Now I want to make the enemy names consistant with help
+
+   strcpy (enemy_name[1][0],  "Bouncer");
+   strcpy (enemy_name[2][0],  "Cannon");
+   strcpy (enemy_name[3][0],  "ArchWagon");
+   strcpy (enemy_name[4][0],  "BlokWalk");
+   strcpy (enemy_name[5][0],  "JumpWorm");
+   strcpy (enemy_name[6][0],  "Flapper");
+   strcpy (enemy_name[7][0],  "VinePod");
+   strcpy (enemy_name[8][0],  "TrakBot");
+   strcpy (enemy_name[9][0],  "Cloner");
+
+OK that is all done
+
+what is up with start on bd level 88
+can't seem to reproduce...
+
+Change the messages in the dev levels...done
+Then change the level names in level data..done
+A few more things:
+object viewer widths and title x of x widths
+
+#define PM_OBJECT_TYPE_BLOCK  1
+#define PM_OBJECT_TYPE_ITEM   2
+#define PM_OBJECT_TYPE_ENEMY  3
+#define PM_OBJECT_TYPE_LIFT   4
+
+I want to know why the default draw item gets set to block 1...
+I would rather have 0
+it looks like it might be:
+void mwLevelEditor::reset_variables_on_level_change()
+try that...
+
+
+now only  title x of x widths
+
+enemy:
+
+al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+mLevel.mEnemy.draw_enemy(num, 1, xc-92, yt+1);
+al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "%s %d of %d", mLevel.mEnemy.enemy_name[type][0],1+num - mLevel.mEnemy.e_first_num[type],mLevel.mEnemy.e_num_of_type[type]);
+
+item:
+al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+mLevel.mItem.draw_item(num, 1, xc-94, yt+1);
+al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "%s %d of %d", mLevel.mItem.item_name[type], 1+num - mLevel.mItem.item_first_num[type], mLevel.mItem.item_num_of_type[type]);
+
+the text is centered
+but what if I just made it after the icon?
+or I could just make the damn thing wider...
+or I could do both...done
+
+now, why is level 0 checking starts
+
+Lev:0 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:0 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:0 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+this is in visual level...i think...
+
+Lev:102 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:102 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:102 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:102 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+Lev:102 - Error setting player position: In start mode:0 there should be only one start.. all other starts are ignored.
+now shows last level loaded...
+it is beacuse I hover level 102...duh
+
+OK this is all good...
+
+
+I want to commit they eat. Then go back to
+
+why doesn't block damages affect lit bombs??
+
+2026-11-08 12:00:54 commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

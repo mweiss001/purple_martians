@@ -341,7 +341,7 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 <a61> Bounces and flaps.
 
 
-<l13>    Block Walker
+<l13>    BlokWalk
 <a56> Turns into a solid block when shot.
 
 
@@ -2186,44 +2186,47 @@ The actual shape <s987> is only visible in the level editor.
 <l15> - Re-size display area by dragging from the lower right corner on the map.
 
 
-<section>Block Manip Viewer
+<section>Alter Tiles Viewer
 
 
-<h14>    Block Manip
+<h14>    Alter Tiles
 <s989>
 <b15>
 
 <l04>    Description:
 
-<l15> Specifies a rectangular area for Block Manipulation.
+<l15> Specifies a rectangular area for block manipulation.
 
 <l15> Needs to be triggered by another object that emits trigger events.
 <l15> Some examples are Trigger and Orb.
 
-<l15> When triggered, it changes blocks in the Block Manip Field.
+<l15> When triggered, it changes blocks in the specified area.
 
 <l15> - Mode: Set all to block 1.
 <l15> - Mode: Set all block 2 to block 1
 <l15> - Mode: Toggle block 2 to block 1
 <l15> - Mode: Copy Area
+<l15> - Mode: Cycle 3 blocks
+<l15> - Mode: Cycle 4 blocks
+<l15> - Mode: Cycle 4 blocks (no loop)
 
 <b15>
 
 
 The actual shape <s989> is only visible in the level editor.
 
-The Block Manip Field can be hidden or shown in various colors.
+The Alter Tiles area can be hidden or shown in various colors.
 
 <b15>
 
 <l04>    Buttons:
 
-<l09> Get New Block Manip Field
-<l15>  - Prompts you to draw a new Block Manip Field.
+<l09> Get New Alter Tiles area
+<l15>  - Prompts you to draw a new area.
 <l12>    (shown on the map as a blue rectangle)
 
 
-<l09> Draw Block Manip Field: [ON|OFF]
+<l09> Draw Area: [ON|OFF]
 <l15>  - Shows or hides the Block Manip Field and lets you select the color. 
 
 
@@ -2244,27 +2247,24 @@ The Block Manip Field can be hidden or shown in various colors.
 
 <l04>   Map Controls:
 
-<l15> - Move the Field by dragging from the upper left corner on the map.
+<l15> - Move the area by dragging from the upper left corner on the map.
 
-<l15> - Re-size the Field by dragging from the lower right corner on the map.
-
-
-<section>Block Damage Viewer
+<l15> - Re-size the area by dragging from the lower right corner on the map.
 
 
-<h14>    Block Damage
+<section>Damage Area Viewer
+
+
+<h14>    Damage Area
 <s988>
 <b15>
 
 <l04>    Description:
 
-<l15> Specifies a rectangular area called a Damage Field that destroys or
+<l15> Specifies an area that destroys or causes damage to certain 
+<l15> specified types of objects.
 
-<l15> causes damage to certain specified types of objects.
-
-
-<l15> Can always on, or triggered by another object that emits trigger events,
-
+<l15> Can be always on, or triggered by another object that emits events,
 <l15> like Timers, Triggers, Orbs....
 
 <b15>
@@ -2286,23 +2286,23 @@ The Block Manip Field can be hidden or shown in various colors.
 
 <b15>
 
-<l09> Block Damage Modes:
+<l09> Damage Area Modes:
 
 <l09> - Always ON
-<l15>   The Damage Field is always active.
+<l15>   The Damage Area is always active.
 
 <l09> - Mode: Toggle
-<l15>   When triggered the Damage Field toggles ON and OFF.
+<l15>   When triggered the Damage Area toggles ON and OFF.
 <l15>   In this mode the only trigger type that makes sense is a toggle.
-<l15>   If you choose a constant trigger, the field will toggle every frame.
+<l15>   If you choose a constant trigger, it will toggle every frame.
 <l15>   (Which is probably not what you want)
 
 <l09> - Mode: ON until triggered
-<l15>   In this mode, the Damage Field is normally ON.
+<l15>   In this mode, the Damage Area is normally ON.
 <l15>   When triggered, it turns OFF.
 
 <l09> - Mode: OFF until triggered
-<l15>   In this mode, the Damage Field is normally OFF.
+<l15>   In this mode, the Damage Area is normally OFF.
 <l15>   When triggered, it turns ON.
 
 
@@ -2311,14 +2311,14 @@ The Block Manip Field can be hidden or shown in various colors.
 
 The actual shape <s988> is only visible in the level editor.
 
-The Block Damage Field can be hidden or shown in various ways.
+The Damage Area can be hidden or shown in various ways.
 
 <b15>
 
 <l04>    Buttons:
 
-<l09> Get New Block Damage Field
-<l15>  - Prompts you to draw a new Block Damage Field.
+<l09> Get New Damage Area
+<l15>  - Prompts you to draw a new Damage Area.
 <l10>    (shown on the map as a red rectangle)
 
 
@@ -2333,7 +2333,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 <l09> Follows lift
-<l15>  - The Damage Field can follow the motion of a lift.
+<l15>  - The Damage Area can follow the motion of a lift.
 <l15>    Set the lift number of the lift to follow.
 <l15>    There are options for aligning to the lift in the X and Y axis.
 
@@ -2341,9 +2341,9 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>   Map Controls:
 
-<l15> - Move the field by dragging from the upper left corner on the map.
+<l15> - Move the area by dragging from the upper left corner on the map.
 
-<l15> - Re-size the field by dragging from the lower right corner on the map.
+<l15> - Re-size the area by dragging from the lower right corner on the map.
 
 
 <section>Mine Viewer
@@ -2648,16 +2648,16 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
-<section>Archwagon Viewer
+<section>ArchWagon Viewer
 
 
-<h14>    Archwagon
+<h14>    ArchWagon
 <a02>
 <b15>
 
 <l04>    Description:
 
-<l15> Archwagons roll, jump and shoot arrows at the player.
+<l15> ArchWagons roll, jump and shoot arrows at the player.
 
 <b15>
 
@@ -2724,10 +2724,10 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15> - Change the Shot Proximity by dragging the yellow circle.
 
 
-<section>Trakbot Viewer
+<section>TrakBot Viewer
 
 
-<h14>    Trakbot
+<h14>    TrakBot
 <a17>
 <b15>
 
@@ -2785,10 +2785,10 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15> - Change Shot Proximity by dragging the yellow circle.
 
 
-<section>Jumpworm Viewer
+<section>JumpWorm Viewer
 
 
-<h14>    Jumpworm
+<h14>    JumpWorm
 <a47>
 <b15>
 
@@ -3121,10 +3121,10 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
-<section>Vinepod Viewer
+<section>VinePod Viewer
 
 
-<h14>    Vinepod
+<h14>    VinePod
 <a15>
 <b15>
 

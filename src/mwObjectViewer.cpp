@@ -34,7 +34,7 @@ void mwObjectViewer::init()
 
 int mwObjectViewer::create_obj(int obt, int type, int num)
 {
-   if (obt == 2) // items
+   if (obt == PM_OBJECT_TYPE_ITEM) // items
    {
       int ret = mLevel.mItem.create_item(type);
       if (ret > 500)
@@ -46,9 +46,9 @@ int mwObjectViewer::create_obj(int obt, int type, int num)
       }
       else num = ret;
    }
-   if (obt == 3)
+   if (obt == PM_OBJECT_TYPE_ENEMY)
    {
-      if (type == 7)
+      if (type == PM_ENEMY_TYPE_VINEPOD)
       {
          int e = mLevel.mEnemy.create_vinepod();
          if ((e>=0) && (e<99) && (mLevel.mEnemy.Ei[e][0] == 13))
@@ -57,7 +57,7 @@ int mwObjectViewer::create_obj(int obt, int type, int num)
             num = e;
          }
       }
-      if (type == 9)
+      if (type == PM_ENEMY_TYPE_CLONER)
       {
          int e = mLevel.mEnemy.create_cloner();
          if ((e>=0) && (e<99) && (mLevel.mEnemy.Ei[e][0] == 9))
@@ -67,51 +67,52 @@ int mwObjectViewer::create_obj(int obt, int type, int num)
          }
       }
    }
-   if (obt == 4) mLevel.mLift.create_lift();
+   if (obt == PM_OBJECT_TYPE_LIFT) mLevel.mLift.create_lift();
    return num;  // return number of created obj or sent_num if bad create
 }
 void mwObjectViewer::ov_set_width(mwWindow & ww)
 {
+   int w=300;
 
-   int type=0, w=300;
+   if (obt == PM_OBJECT_TYPE_ITEM)
+   {
+      int type = mLevel.mItem.item[num][0];
+      if (type == PM_ITEM_TYPE_DOOR)       w = 210;
+      if (type == PM_ITEM_TYPE_BONUS)      w = 200;
+      if (type == PM_ITEM_TYPE_EXIT)       w = 200;
+      if (type == PM_ITEM_TYPE_KEY)        w = 200;
+      if (type == PM_ITEM_TYPE_START)      w = 200;
+      if (type == PM_ITEM_TYPE_ORB)        w = 280;
+      if (type == PM_ITEM_TYPE_MINE)       w = 200;
+      if (type == PM_ITEM_TYPE_BOMB)       w = 260;
+      if (type == PM_ITEM_TYPE_TRIGGER)    w = 280;
+      if (type == PM_ITEM_TYPE_MESSAGE)    w = 260;
+      if (type == PM_ITEM_TYPE_ROCKET)     w = 260;
+      if (type == PM_ITEM_TYPE_TIMER)      w = 260;
+      if (type == PM_ITEM_TYPE_SWITCH)     w = 200;
+      if (type == PM_ITEM_TYPE_SPRING)     w = 240;
+      if (type == PM_ITEM_TYPE_ALTERTILES) w = 280;
+      if (type == PM_ITEM_TYPE_DAMAGEAREA) w = 290;
+      if (type == PM_ITEM_TYPE_GATE)       w = 280;
+      if (type == PM_ITEM_TYPE_HIDER)      w = 260;
+   }
 
-   if (obt == 2) type = mLevel.mItem.item[num][0];
-   if (obt == 3) type = mLevel.mEnemy.Ei[num][0];
 
-   if ((obt == 2) && (type == 1 )) w = 210; // door
-   if ((obt == 2) && (type == 2 )) w = 200; // bonus
-   if ((obt == 2) && (type == 3 )) w = 200; // exit
-   if ((obt == 2) && (type == 4 )) w = 200; // key
-   if ((obt == 2) && (type == 5 )) w = 200; // start
-   if ((obt == 2) && (type == 6 )) w = 280; // orb
-   if ((obt == 2) && (type == 7 )) w = 200; // mine
-   if ((obt == 2) && (type == 8 )) w = 260; // bomb
-   if ((obt == 2) && (type == 9 )) w = 280; // trigger
-   if ((obt == 2) && (type == 10)) w = 260; // message
-   if ((obt == 2) && (type == 11)) w = 260; // rocket
-   if ((obt == 2) && (type == 13)) w = 260; // timer
-   if ((obt == 2) && (type == 14)) w = 200; // switch
-   if ((obt == 2) && (type == 15)) w = 240; // sproingy
-   if ((obt == 2) && (type == 16)) w = 280; // bm
-   if ((obt == 2) && (type == 17)) w = 290; // bd
-   if ((obt == 2) && (type == 18)) w = 280; // gate
-   if ((obt == 2) && (type == 19)) w = 260; // hider
+   if (obt == PM_OBJECT_TYPE_ENEMY)
+   {
+      int type = mLevel.mEnemy.Ei[num][0];
+      // if (type == PM_ENEMY_TYPE_BOUNCER)   w = 300;
+      // if (type == PM_ENEMY_TYPE_CANNON)    w = 300;
+      // if (type == PM_ENEMY_TYPE_ARCHWAGON) w = 300;
+      // if (type == PM_ENEMY_TYPE_BLOCKWALK) w = 300;
+      // if (type == PM_ENEMY_TYPE_JUMPWORM)  w = 300;
+      // if (type == PM_ENEMY_TYPE_FLAPPER)   w = 300;
+      // if (type == PM_ENEMY_TYPE_VINEPOD)   w = 300;
+      // if (type == PM_ENEMY_TYPE_TRAKBOT)   w = 300;
+      if (type == PM_ENEMY_TYPE_CLONER)    w = 320;
+   }
 
-   if (obt == 3) w = 300; // all enemies
-
-   if ((obt == 3) && (type == 9 )) w = 320; // cloner
-
-   // if ((obt == 3) && (type == 1 )) w = 300; // bouncer
-   // if ((obt == 3) && (type == 2 )) w = 300; // cannon
-   // if ((obt == 3) && (type == 3 )) w = 300; // archwagon
-   // if ((obt == 3) && (type == 4 )) w = 300; // blokwalk
-   // if ((obt == 3) && (type == 5 )) w = 300; // jumpworm
-   // if ((obt == 3) && (type == 6 )) w = 300; // flapper
-   // if ((obt == 3) && (type == 7 )) w = 300; // vinepod
-   // if ((obt == 3) && (type == 8 )) w = 300; // trakbot
-   // if ((obt == 3) && (type == 9 )) w = 300; // cloner
-
-   if (obt == 4)                   w = 300; // lift
+   if (obt == PM_OBJECT_TYPE_LIFT)         w = 300;
 
    ww.rect.setWidth(w);
 }
@@ -145,7 +146,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
 {
    al_set_target_bitmap(mLevel.level_buffer);
 
-   if (obt == 4)  // lifts
+   if (obt == PM_OBJECT_TYPE_LIFT)  // lifts
    {
       int lift = num;
       int step = mLevel.mLift.cur[lift].current_step;
@@ -177,7 +178,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       al_draw_line(x2, yc, 2000, yc, mColor.pc[color], 1);
 
    }
-   if (obt == 3)  // enemies
+   if (obt == PM_OBJECT_TYPE_ENEMY)  // enemies
    {
       int type = mLevel.mEnemy.Ei[num][0];
       int obj_x = mLevel.mEnemy.Ef[num][0]+10;
@@ -187,12 +188,12 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       if (legend_highlight == 1) color = mColor.flash_color;
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
 
-      if ((type == 2) || (type == 3) || (type == 6) || (type == 8)) // // draw yellow shot prox circle for cannon, archwagon, flapper, trakbot
+      if ((type == PM_ENEMY_TYPE_CANNON) || (type == PM_ENEMY_TYPE_ARCHWAGON) || (type == PM_ENEMY_TYPE_FLAPPER) || (type == PM_ENEMY_TYPE_TRAKBOT)) // // draw yellow shot prox circle for cannon, archwagon, flapper, trakbot
       {
          (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
          al_draw_circle(obj_x, obj_y, mLevel.mEnemy.Ei[num][17], mColor.pc[color], 1);
       }
-      if (type == 6) // flapper
+      if (type == PM_ENEMY_TYPE_FLAPPER) // flapper
       {
          (legend_highlight == 3) ? color = mColor.flash_color : color = 10;
 
@@ -205,12 +206,12 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
          al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mColor.pc[12], 1);
          al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mColor.pc[12], 1);
       }
-      if (type == 7)
+      if (type == PM_ENEMY_TYPE_VINEPOD)
       {
          mLevel.mEnemy.draw_vinepod_controls(num, legend_highlight);
          mTriggerEvent.find_and_show_event_links(obt, num, 0);
       }
-      if (type == 9) // cloner
+      if (type == PM_ENEMY_TYPE_CLONER) // cloner
       {
          int color2 = 11;
          if (legend_highlight == 2) color2 = mColor.flash_color;
@@ -222,7 +223,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
          mTriggerEvent.find_and_show_event_links(obt, num, 0);
       }
    }
-   if (obt == 2)  // items
+   if (obt == PM_OBJECT_TYPE_ITEM)  // items
    {
       int type = mLevel.mItem.item[num][0];
       int obj_x = mLevel.mItem.item[num][4]+10;
@@ -232,7 +233,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
       switch (type)
       {
-         case 1: // door
+         case PM_ITEM_TYPE_DOOR: // door
          {
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             if (mLevel.mItem.item[num][8] == 0)  // exit only, no destination
@@ -260,34 +261,34 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
             }
          }
          break;
-         case 4: // key
+         case PM_ITEM_TYPE_KEY: // key
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             mLevel.mItem.proc_key_block_range(num, 2); // show blocks that will be affected
          break;
 
-         case 5: // start
+         case PM_ITEM_TYPE_START: // start
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
 
-         case 14: // switch
+         case PM_ITEM_TYPE_SWITCH: // switch
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             mLevel.mItem.proc_switch_block_range(num, 2); // show blocks that will be affected
          break;
-         case 8: // bomb
+         case PM_ITEM_TYPE_BOMB: // bomb
             (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
          break;
-         case 9: // trigger
+         case PM_ITEM_TYPE_TRIGGER: // trigger
             (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
-         case 6: // orb
+         case PM_ITEM_TYPE_ORB: // orb
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
-         case 10: // pmsg
+         case PM_ITEM_TYPE_MESSAGE: // message
          {
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             int mx = mLevel.mItem.item[num][6];
@@ -300,23 +301,23 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
-         case 11: // rocket
+         case PM_ITEM_TYPE_ROCKET: // rocket
             (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
          break;
-         case 13: // timer
+         case PM_ITEM_TYPE_TIMER: // timer
             (legend_highlight == 2) ? color = mColor.flash_color : color = 11;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
-         case 15: // sproingy
+         case PM_ITEM_TYPE_SPRING: // sproingy
          {
             (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             int y = mLevel.mItem.get_sproingy_jump_height(num);
             mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
          }
          break;
-         case 16: // block manip
+         case PM_ITEM_TYPE_ALTERTILES: // alter tiles
             (legend_highlight == 2) ? color = mColor.flash_color : color = 12;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             if (mLevel.mItem.item[num][3] == 4)
@@ -326,12 +327,12 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
             }
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
-         case 17: // block damage
+         case PM_ITEM_TYPE_DAMAGEAREA: // damage area
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
-         case 19: // hider
+         case PM_ITEM_TYPE_HIDER: // hider
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
          break;
@@ -342,7 +343,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
 void mwObjectViewer::ov_process_mouse_on_background()
 {
    int lift=0, step=0;
-   if (obt == 4)
+   if (obt == PM_OBJECT_TYPE_LIFT)
    {
       lift = num;
       step = mLevel.mLift.cur[lift].current_step;
@@ -411,7 +412,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
       }
 
    // if current object is enemy, check for secondaries
-   if (obt == 3)
+   if (obt == PM_OBJECT_TYPE_ENEMY)
    {
       int e = num;
       int type = mLevel.mEnemy.Ei[e][0];
@@ -431,7 +432,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          }
       }
 
-      if (type == 7) // vinepod
+      if (type == PM_ENEMY_TYPE_VINEPOD) // vinepod
       {
          // vinepod trigger box
          int x1 = mLevel.mEnemy.Ei[e][11];
@@ -480,7 +481,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          }
       }
 
-      if (type == 9) // cloner source and destination boxes
+      if (type == PM_ENEMY_TYPE_CLONER) // cloner source and destination boxes
       {
          int w  = mLevel.mEnemy.Ei[e][19];  // width
          int h  = mLevel.mEnemy.Ei[e][20];  // height
@@ -535,11 +536,11 @@ void mwObjectViewer::ov_process_mouse_on_background()
       }
 
    // if current object is item, check for secondaries
-   if (obt == 2)
+   if (obt == PM_OBJECT_TYPE_ITEM)
    {
       int type = mLevel.mItem.item[num][0];
 
-      if ((type == 8) || (type == 11)) // bomb or rocket
+      if ((type == PM_ITEM_TYPE_BOMB) || (type == PM_ITEM_TYPE_ROCKET)) // bomb or rocket
       {
          float x0 = (float) mLevel.mItem.item[num][4]+10; // get center of item location
          float y0 = (float) mLevel.mItem.item[num][5]+10;
@@ -554,7 +555,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
             mouse_move = 1;
          }
       }
-      if (type == 15) // sproingy
+      if (type == PM_ITEM_TYPE_SPRING) // sproingy
       {
          int x1 = mLevel.mItem.item[num][4];
          int y1 = mLevel.mItem.item[num][5];
@@ -565,7 +566,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
             mouse_move = 1;
          }
       }
-      if (type == 16) // block manip source
+      if (type == PM_ITEM_TYPE_ALTERTILES) // alter tile source
       {
          int x1 = mLevel.mItem.item[num][13];
          int y1 = mLevel.mItem.item[num][14];
@@ -626,7 +627,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
 
 
       // locked, but locked to lift
-      if (((mInput.key[MAP_LOCK_KEY][0]) || (viewer_lock)) && (obt == 4))
+      if (((mInput.key[MAP_LOCK_KEY][0]) || (viewer_lock)) && (obt == PM_OBJECT_TYPE_LIFT))
       {
          int x = lift; // check only current lift
 
@@ -697,7 +698,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
       {
          if (mouse_on_obj)
          {
-            if (obt == 3) // move enemy
+            if (obt == PM_OBJECT_TYPE_ENEMY) // move enemy
             {
                if (mInput.key[ALLEGRO_KEY_UP]   [3]) ov_move_enemy(num,  0, -1);
                if (mInput.key[ALLEGRO_KEY_DOWN] [3]) ov_move_enemy(num,  0,  1);
@@ -981,7 +982,7 @@ void mwObjectViewer::ov_move_enemy(int num, int x_offset, int y_offset)
 {
    mLevel.mEnemy.Ef[num][0] += x_offset;
    mLevel.mEnemy.Ef[num][1] += y_offset;
-   if (mLevel.mEnemy.Ei[num][0] == 7) // vinepod
+   if (mLevel.mEnemy.Ei[num][0] == PM_ENEMY_TYPE_VINEPOD) // vinepod
    {
       // vinepod also stores this as initial position
       mLevel.mEnemy.Ei[num][3] = mLevel.mEnemy.Ef[num][0];
@@ -999,7 +1000,7 @@ void mwObjectViewer::ov_move_enemy(int num, int x_offset, int y_offset)
          mLevel.mEnemy.Ei[num][12] += y_offset;
       }
    }
-   if ((mLevel.mEnemy.Ei[num][0] == 9) && (mInput.SHFT())) // cloner secondaries
+   if ((mLevel.mEnemy.Ei[num][0] == PM_ENEMY_TYPE_CLONER) && (mInput.SHFT())) // cloner secondaries
    {
       mLevel.mEnemy.Ei[num][15] += x_offset; // source
       mLevel.mEnemy.Ei[num][16] += y_offset;
@@ -1012,19 +1013,19 @@ void mwObjectViewer::ov_move_enemy(int num, int x_offset, int y_offset)
 void mwObjectViewer::ov_check_if_valid()
 {
    // check if the current object is valid
-   if (obt==0)                               mLevelEditor.set_mode(1);
-   if ((obt==2) && (!mLevel.mItem.item[num][0]))    mLevelEditor.set_mode(1);
-   if ((obt==3) && (!mLevel.mEnemy.Ei[num][0]))     mLevelEditor.set_mode(1);
-   if ((obt==4) && (!mLevel.mLift.cur[num].active)) mLevelEditor.set_mode(1);
+   if  (obt == 0)                                                        mLevelEditor.set_mode(1);
+   if ((obt == PM_OBJECT_TYPE_ITEM)  && (!mLevel.mItem.item[num][0]))    mLevelEditor.set_mode(1);
+   if ((obt == PM_OBJECT_TYPE_ENEMY) && (!mLevel.mEnemy.Ei[num][0]))     mLevelEditor.set_mode(1);
+   if ((obt == PM_OBJECT_TYPE_LIFT)  && (!mLevel.mLift.cur[num].active)) mLevelEditor.set_mode(1);
 }
 
 void mwObjectViewer::ov_process_keypress()
 {
    char msg[1024];
    int type=0, lift=0, step=0;
-   if (obt == 2) type = mLevel.mItem.item[num][0];
-   if (obt == 3) type = mLevel.mEnemy.Ei[num][0];
-   if (obt == 4)
+   if (obt == PM_OBJECT_TYPE_ITEM)  type = mLevel.mItem.item[num][0];
+   if (obt == PM_OBJECT_TYPE_ENEMY) type = mLevel.mEnemy.Ei[num][0];
+   if (obt == PM_OBJECT_TYPE_LIFT)
    {
       lift = num;
       step = mLevel.mLift.cur[num].current_step;
@@ -1040,17 +1041,17 @@ void mwObjectViewer::ov_process_keypress()
    {
       case 18: // move
       {
-         if (obt==2)
+         if (obt == PM_OBJECT_TYPE_ITEM)
          {
             sprintf(msg,"%s", mLevel.mItem.item_name[type]);
             mMiscFnx.getxy(msg, obt, type, num);
          }
-         if (obt==3)
+         if (obt == PM_OBJECT_TYPE_ENEMY)
          {
             sprintf(msg,"%s", mLevel.mEnemy.enemy_name[type][0]);
             mMiscFnx.getxy(msg, obt, type, num);
          }
-         if (obt==4)
+         if (obt == PM_OBJECT_TYPE_LIFT)
          {
             while (!mInput.key[ALLEGRO_KEY_ESCAPE][0])
             {
@@ -1071,21 +1072,21 @@ void mwObjectViewer::ov_process_keypress()
          num = create_obj(obt, type, num);
       break;
       case 20: // delete
-         if (obt == 2)
+         if (obt == PM_OBJECT_TYPE_ITEM)
          {
             mLevel.mItem.clear_item(num);
             mLevel.mItem.sort_item();
             if (num >= mLevel.mItem.item_first_num[type]+ mLevel.mItem.item_num_of_type[type]) num--;
             ov_check_if_valid();
          }
-         if (obt == 3)
+         if (obt == PM_OBJECT_TYPE_ENEMY)
          {
             mLevel.mEnemy.Ei[num][0] = 0;
             mLevel.mEnemy.sort_enemy();
             if (num >= mLevel.mEnemy.e_first_num[type]+mLevel.mEnemy.e_num_of_type[type]) num--;
             ov_check_if_valid();
          }
-         if (obt == 4)
+         if (obt == PM_OBJECT_TYPE_LIFT)
          {
             mLevel.mLift.erase_lift(num);
             if (--num < 0) num = 0;      // set to prev lift or zero
@@ -1093,14 +1094,14 @@ void mwObjectViewer::ov_process_keypress()
          }
       break;
       case 21: // next
-         if ((obt==2) && (++num >= mLevel.mItem.item_first_num[type] + mLevel.mItem.item_num_of_type[type])) num--;
-         if ((obt==3) && (++num >= mLevel.mEnemy.e_first_num[type] + mLevel.mEnemy.e_num_of_type[type])) num--;
-         if (obt==4) num = mLevel.mLift.get_next_lift(num);
+         if ((obt == PM_OBJECT_TYPE_ITEM)  && (++num >= mLevel.mItem.item_first_num[type] + mLevel.mItem.item_num_of_type[type])) num--;
+         if ((obt == PM_OBJECT_TYPE_ENEMY) && (++num >= mLevel.mEnemy.e_first_num[type] + mLevel.mEnemy.e_num_of_type[type])) num--;
+         if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_next_lift(num);
       break;
       case 22: // previous
-         if ((obt==3) && (--num < mLevel.mEnemy.e_first_num[type])) num++;
-         if ((obt==2) && (--num < mLevel.mItem.item_first_num[type])) num++;
-         if (obt==4) num = mLevel.mLift.get_prev_lift(num);
+         if ((obt == PM_OBJECT_TYPE_ITEM)  && (--num < mLevel.mEnemy.e_first_num[type])) num++;
+         if ((obt == PM_OBJECT_TYPE_ENEMY) && (--num < mLevel.mItem.item_first_num[type])) num++;
+         if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_prev_lift(num);
       break;
    } // end of switch (mb)
 }
@@ -1170,9 +1171,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
    int n = num;
    int type=0;
-   if (obt == 2) type = mLevel.mItem.item[n][0];
-   if (obt == 3) type = mLevel.mEnemy.Ei[n][0];
-
+   if (obt == PM_OBJECT_TYPE_ITEM)  type = mLevel.mItem.item[n][0];
+   if (obt == PM_OBJECT_TYPE_ENEMY) type = mLevel.mEnemy.Ei[n][0];
 
    mb = 0;
 
@@ -1206,8 +1206,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    if (mWidget.mButton(0, x57+1,   xb,  1, ya, bts-2,    1, 2, 0, 1,    9, 9, 15, 0, 0, "Next", d)) mb = 21;
    ya+=bts;
 
-   if (obt == 4) { if (mWidget.mButton(0, xa, x13-1,  1, ya, bts-2,    1, 2, 0, 1,    13, 13, 15, 0, 0, "Run Lifts", d)) mb = 18; }
-   else          { if (mWidget.mButton(0, xa, x13-1,  1, ya, bts-2,    1, 2, 0, 1,    13, 13, 15, 0, 0, "Move",      d)) mb = 18; }
+   if (obt == PM_OBJECT_TYPE_LIFT) { if (mWidget.mButton(0, xa, x13-1,  1, ya, bts-2,    1, 2, 0, 1,    13, 13, 15, 0, 0, "Run Lifts", d)) mb = 18; }
+   else                            { if (mWidget.mButton(0, xa, x13-1,  1, ya, bts-2,    1, 2, 0, 1,    13, 13, 15, 0, 0, "Move",      d)) mb = 18; }
    if (mWidget.mButton(0, x13+1, x23-1,  1, ya, bts-2,    1, 2, 0, 1,    14, 14, 15, 0, 0, "Create", d)) mb = 19;
    if (mWidget.mButton(0, x23+1, xb,     1, ya, bts-2,    1, 2, 0, 1,    10, 10, 15, 0, 0, "Delete", d)) mb = 20;
    ya+=bts;
@@ -1220,7 +1220,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // --------------------------------------------------
    // --- Lifts ----------------------------------------
    // --------------------------------------------------
-   if (obt == 4) // lifts
+   if (obt == PM_OBJECT_TYPE_LIFT) // lifts
    {
       int step = mLevel.mLift.cur[n].current_step;
       odbp(d, xa, xb, ya, bts, 13, 500, mLevel.mLift.cur[n].mode); // lift mode
@@ -1303,11 +1303,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // --------------------------------------------------
    // --- Enemies --------------------------------------
    // --------------------------------------------------
-   if (obt == 3)    // enemies
+   if (obt == PM_OBJECT_TYPE_ENEMY)
    {
       switch (type) // enemy subtypes
       {
-         case 1: // bouncer
+         case PM_ENEMY_TYPE_BOUNCER: // bouncer
             odbf(d, xa, xb, ya, bts,  9, mLevel.mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
@@ -1322,7 +1322,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
-         case 2: // cannon
+         case PM_ENEMY_TYPE_CANNON: // cannon
             odbf(d, xa, xb, ya, bts,  9, mLevel.mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
@@ -1339,7 +1339,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
-         case 3: // archwag
+         case PM_ENEMY_TYPE_ARCHWAGON: // archwag
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
@@ -1360,7 +1360,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
-         case 4: // block walker
+         case PM_ENEMY_TYPE_BLOCKWALK: // block walker
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
@@ -1380,7 +1380,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][29],       20,        0,        1,        1,       10,      "Collision Box:");
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
          break;
-         case 5: // jumpworm
+         case PM_ENEMY_TYPE_JUMPWORM: // jumpworm
             odbi(d, xa, xb, ya, bts, 11, mLevel.mEnemy.Ei[n][4],        12,        1,        1,        1,        0,     "X-Speed (Ground):1/");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],        12,      0.4,     0.01,     0.01,      0.1,     "X-Speed (jump):");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        12,      0.4,     0.01,     0.01,      0.1,     "Y-Speed:");
@@ -1398,7 +1398,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
-         case 6: // flapper
+         case PM_ENEMY_TYPE_FLAPPER: // flapper
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][5],         8,      0.5,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         1,     0.01,     0.01,     0.01,      0.1,     "X-Accel:");
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        12, 12,  "Initial Direction:Left ",    "Initial Direction:Right");
@@ -1417,7 +1417,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
 
-         case 7: // vinepod
+         case PM_ENEMY_TYPE_VINEPOD: // vinepod
          {
             if (odbb(d, xa, xb, ya, bts, 10, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][17],      400,        2,        1,        1,       10,      "Extend Time:");
@@ -1481,7 +1481,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          }
          break;
-         case 8: // trakbot
+         case PM_ENEMY_TYPE_TRAKBOT: // trakbot
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][2],        10,      0.5,     0.01,     0.01,      0.1,      "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        10,      0.5,     0.01,     0.01,      0.1,      "Y-Speed:");
             ya+=4; // spacer
@@ -1503,7 +1503,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
 
-         case 9: // cloner
+         case PM_ENEMY_TYPE_CLONER: // cloner
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][30],    12, 10,  "Not Invincible", "Invincible!");
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
@@ -1523,7 +1523,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
 
-         case 19: // crew
+         case PM_ENEMY_TYPE_CREW: // crew
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
@@ -1547,11 +1547,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    // --------------------------------------------------
    // --- Items ----------------------------------------
    // --------------------------------------------------
-   if (obt == 2) // items
+   if (obt == PM_OBJECT_TYPE_ITEM) // items
    {
       switch (type) // item subtypes
       {
-         case 1: // door
+         case PM_ITEM_TYPE_DOOR: // door
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
@@ -1582,7 +1582,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], 0, "Select Door Color", d);
             if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
          break;
-         case 2: // bonus
+         case PM_ITEM_TYPE_BONUS: // bonus
             if (mLevel.mItem.item[n][6] == 0) // health bonus
             {
                odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
@@ -1603,13 +1603,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mLevel.mItem.item[n][2] = 0;
             }
          break;
-         case 3: // exit
+         case PM_ITEM_TYPE_EXIT: // exit
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbb(1, xa, xb, ya, bts, 12, "Enemy Count Lock");
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 100, 0, 1,  1, 10, "");
          break;
-         case 4: // key
+         case PM_ITEM_TYPE_KEY: // key
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3],  13, 13,  "Stationary",    "Fall");
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 13, 102, mLevel.mItem.item[n][1]); // key color
@@ -1618,7 +1618,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][12],  7, 7,  "Remove All Blocks", "Remove Only Matching");
          break;
-         case 5: // start
+         case PM_ITEM_TYPE_START: // start
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 11, 1078, mLevel.mItem.item[n][6]); // start mode
@@ -1628,7 +1628,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (odbb(d, xa, xb, ya, bts, 13, "Set Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
             odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][9],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
          break;
-         case 6: // orb
+         case PM_ITEM_TYPE_ORB: // orb
          {
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
@@ -1653,12 +1653,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][12], 99, 0, 1,  1, 0,  "On:",  "-");
             odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][13], 99, 0, 1,  1, 0,  "Off:", "-");
          }         break;
-         case 7: // mine
+         case PM_ITEM_TYPE_MINE: // mine
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:");
          break;
-         case 8: // bomb
+         case PM_ITEM_TYPE_BOMB: // bomb
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
@@ -1674,7 +1674,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
          break;
 
-         case 10: // message
+         case PM_ITEM_TYPE_MESSAGE: // message
          {
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
             ya+=4; // spacer
@@ -1716,7 +1716,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=bts*8;
          }
          break;
-         case 11: // rocket
+         case PM_ITEM_TYPE_ROCKET: // rocket
             odbp(d, xa, xb, ya, bts, 13, 1023, mLevel.mItem.item[n][3]); // stat | fall | ride through door
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, 11, n);
@@ -1727,7 +1727,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
          break;
-         case 14: // switch
+         case PM_ITEM_TYPE_SWITCH: // switch
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
@@ -1738,12 +1738,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15);
             mLevel.mItem.set_switch_tile(n);
          break;
-         case 15: // sproingy
+         case PM_ITEM_TYPE_SPRING: // sproingy
             odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][7], 200, 40, 1,  1, 10, "Sproinginess:");
          break;
-         case 13: // timer
+         case PM_ITEM_TYPE_TIMER: // timer
          {
             int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
             mLevel.mItem.get_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
@@ -1783,7 +1783,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mLevel.mItem.set_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
          }
          break;
-         case 9: // trigger
+         case PM_ITEM_TYPE_TRIGGER: // trigger
          {
             if (odbb(d, xa, xb, ya, bts, 14, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             int q = 14;
@@ -1820,12 +1820,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
-         case 16: // block manip
+         case PM_ITEM_TYPE_ALTERTILES: // alter tiles
          {
-            if (odbb(d, xa, xb, ya, bts, 12, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            if (odbb(d, xa, xb, ya, bts, 12, "Get New Alter Tile Area")) mMiscFnx.get_block_range("Alter Tile Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],   15+96, mLevel.mItem.item[n][12],  "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON");
-            if (mLevel.mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Select Block Manip Field Color", d);
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],   15+96, mLevel.mItem.item[n][12],  "Show Area:OFF", "Show Area:ON");
+            if (mLevel.mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Area Color", d);
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 14, 301, mLevel.mItem.item[n][3]); // mode
             if (mLevel.mItem.item[n][3]) // all modes except 0
@@ -1849,9 +1849,9 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
-         case 17: // block damage
+         case PM_ITEM_TYPE_DAMAGEAREA: // damage area
          {
-            if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            if (odbb(d, xa, xb, ya, bts, 10, "Get New Damage Area")) mMiscFnx.get_block_range("Damage Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             int q = 10;
             odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
             odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
@@ -1901,7 +1901,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
-         case 18: // gate
+         case PM_ITEM_TYPE_GATE: // gate
          {
             odbp(d, xa, xb, ya, bts, 8, 405, mLevel.mItem.item[n][1]); // draw mode
             ya+=4; // spacer
@@ -1928,7 +1928,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          }
          break;
-         case 19: // hider
+         case PM_ITEM_TYPE_HIDER: // hider
          {
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             int q = 10;
@@ -1963,7 +1963,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
      }
    }
    // set height
-   if (obt != 4)
+   if (obt != PM_OBJECT_TYPE_LIFT)
    {
       int llo = (3 - num_legend_lines)*8; // legend line offset
       mLevelEditor.mWM.mW[7].rect.h = ya-y1+32-llo;
@@ -2008,13 +2008,13 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
    // title bar
    window_title[0] = 0;
 
-   if (obt == 4)  // lifts
+   if (obt == PM_OBJECT_TYPE_LIFT)  // lifts
    {
       sprintf(window_title, "Viewer - Lift:%d", num);
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
       al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d", num+1, mLevel.mLift.get_num_lifts());
    }
-   if (obt == 3)  // enemies
+   if (obt == PM_OBJECT_TYPE_ENEMY)  // enemies
    {
       int type = mLevel.mEnemy.Ei[num][0];
       sprintf(window_title, "Viewer - Enemy:%d", num);
@@ -2031,30 +2031,30 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
       switch (type)
       {
-         case 1: // bouncer
+         case PM_ENEMY_TYPE_BOUNCER: // bouncer
          break;
-         case 2: // cannon
+         case PM_ENEMY_TYPE_CANNON: // cannon
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 3: // archwagon
+         case PM_ENEMY_TYPE_ARCHWAGON: // archwagon
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 4: // blockwalk
+         case PM_ENEMY_TYPE_BLOCKWALK: // blockwalk
          break;
-         case 5: // jumpworm
+         case PM_ENEMY_TYPE_JUMPWORM: // jumpworm
          break;
-         case 6: // flapper
+         case PM_ENEMY_TYPE_FLAPPER: // flapper
             num_legend_lines = 4;
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
             legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
-         case 7: // vinepod
+         case PM_ENEMY_TYPE_VINEPOD: // vinepod
          {
             sprintf(lmsg[2],"Extended Position");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
@@ -2077,12 +2077,12 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
             num_legend_lines = legend_count;
          }
          break;
-         case 8: // trakbot
+         case PM_ENEMY_TYPE_TRAKBOT: // trakbot
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 9: // cloner
+         case PM_ENEMY_TYPE_CLONER: // cloner
             num_legend_lines = 4;
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
@@ -2091,13 +2091,14 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
          break;
       }
    }
-   if (obt == 2)  // items
+   if (obt == PM_OBJECT_TYPE_ITEM)  // items
    {
+      int w = 196;
       int type = mLevel.mItem.item[num][0];
       sprintf(window_title, "Viewer - Item:%d", num);
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
-      mLevel.mItem.draw_item(num, 1, xc-94, yt+1);
-      al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "%s %d of %d", mLevel.mItem.item_name[type], 1+num - mLevel.mItem.item_first_num[type], mLevel.mItem.item_num_of_type[type]);
+      al_draw_rectangle(xc-w/2, yt, xc+w/2, yt+22, mColor.pc[15], 1);
+      mLevel.mItem.draw_item(num, 1, xc-(w/2)+2, yt+1);
+      al_draw_textf(mFont.pr8, mColor.pc[13], xc-(w/2)+25, yt+8, 0, "%s %d of %d", mLevel.mItem.item_name[type], 1+num - mLevel.mItem.item_first_num[type], mLevel.mItem.item_num_of_type[type]);
 
       // legend line 1 is "[object] Location" by default
       sprintf(lmsg[1],"%s Location", mLevel.mItem.item_name[type]);
@@ -2108,7 +2109,7 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
       switch (type)
       {
-         case 1: // door
+         case PM_ITEM_TYPE_DOOR: // door
          {
             num_legend_lines = 3;
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
@@ -2134,76 +2135,76 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
             }
          }
          break;
-         case 2: // bonus
+         case PM_ITEM_TYPE_BONUS: // bonus
          break;
-         case 3: // exit
+         case PM_ITEM_TYPE_EXIT: // exit
          break;
-         case 4: // key
+         case PM_ITEM_TYPE_KEY: // key
             num_legend_lines = 3;
             sprintf(lmsg[2],"Block Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case 5: // start
+         case PM_ITEM_TYPE_START: // start
          break;
-         case 6: // orb
+         case PM_ITEM_TYPE_ORB: // orb
          break;
-         case 7: // mine
+         case PM_ITEM_TYPE_MINE: // mine
          break;
-         case 8: // bomb
+         case PM_ITEM_TYPE_BOMB: // bomb
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 9: // trigger
+         case PM_ITEM_TYPE_TRIGGER: // trigger
             num_legend_lines = 3;
             sprintf(lmsg[2],"Trigger Field");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 10: // message
+         case PM_ITEM_TYPE_MESSAGE: // message
             num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case 11: // rocket
+         case PM_ITEM_TYPE_ROCKET: // rocket
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 13: // timer
+         case PM_ITEM_TYPE_TIMER: // timer
             num_legend_lines = 3;
             sprintf(lmsg[2],"Display Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 14: // switch
+         case PM_ITEM_TYPE_SWITCH: // switch
             num_legend_lines = 3;
             sprintf(lmsg[2],"Block Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case 15: // sproingy
+         case PM_ITEM_TYPE_SPRING: // sproingy
             num_legend_lines = 3;
             sprintf(lmsg[2],"Jump Height");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case 16: // block manip
+         case PM_ITEM_TYPE_ALTERTILES: // alter tiles
             num_legend_lines = 3;
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 12;
-            sprintf(lmsg[2],"Manip Field");
+            sprintf(lmsg[2],"Alter Area");
             if (mLevel.mItem.item[num][3] == 4)
             {
                num_legend_lines = 4;
-               sprintf(lmsg[3],"Source Field");
+               sprintf(lmsg[3],"Source Area");
                legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 11;
             }
          break;
-         case 17: // block damage
+         case PM_ITEM_TYPE_DAMAGEAREA: // damage area
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case 18: // gate
+         case PM_ITEM_TYPE_GATE: // gate
          break;
-         case 19: // hider
+         case PM_ITEM_TYPE_HIDER: // hider
             num_legend_lines = 3;
             sprintf(lmsg[2],"Hidden Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
@@ -2230,34 +2231,6 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwObjectViewer::object_viewer(int o, int n)
 {
    obt = o;
@@ -2265,7 +2238,6 @@ void mwObjectViewer::object_viewer(int o, int n)
    mLevelEditor.set_mode(4); // object viewer
    al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 }
-
 
 void mwObjectViewer::draw(mwWindow & w)
 {
@@ -2278,12 +2250,14 @@ void mwObjectViewer::draw(mwWindow & w)
 
 void mwObjectViewer::draw_level_editor_background_overlays(int mouse_on_window)
 {
+   // no. this is annoying.
+
    // if current object is message, show all messages
-   if ((obt == 2) && (mLevel.mItem.item[num][0] == 10))
-   {
-      for (int i=0; i<500; i++)
-         if (mLevel.mItem.item[i][0] == 10) mLevel.mItem.draw_message(i, 0);
-   }
+   // if ((obt == 2) && (mLevel.mItem.item[num][0] == PM_ITEM_TYPE_MESSAGE))
+   // {
+   //    for (int i=0; i<500; i++)
+   //       if (mLevel.mItem.item[i][0] == PM_ITEM_TYPE_MESSAGE) mLevel.mItem.draw_message(i, 0);
+   // }
 
    // if mouse on legend line, show highlight
    legend_line_highlight = 0;
