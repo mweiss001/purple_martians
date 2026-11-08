@@ -17,12 +17,6 @@ waiting for more info...
 debug press fire to complete level does nothing
 
 
-work on level 61 multiplayer bomb toss
-make it good
-
-
-sort items also counts starts, maybe I don't need to sort do that when clearing items
-also maybe same with enemies...
 
 
 ------------------------------------------------------------------------------
@@ -34,6 +28,11 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+
+work on level 61 multiplayer bomb toss
+make it good
+
 
 I have some extra shapes for door (warps)
 

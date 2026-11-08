@@ -625,20 +625,17 @@ void mwItem::set_damage_area_location_from_lift(int i)
 void mwItem::proc_damage_area_collisions(int i)
 {
    int FLAGS = item[i][3];
-   int cd  =            FLAGS & PM_ITEM_DAMAGE_CURR;     // damage active
-   int cdp =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_PLAYER)); // damage active and player flag
-   int cde =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ENEMY));  // damage active and enemy flag
-   int cdi =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ITEM));   // damage active and item flag
-   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PSHOT));  // damage active and player shot flag
-   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_ESHOT));  // damage active and enemy shot flag
 
-   // damage field
+   if (!(FLAGS & PM_ITEM_DAMAGE_CURR)) return;
+
+   // damage area
    int tfx1 = item[i][6]-10;
    int tfy1 = item[i][7]-10;
    int tfx2 = tfx1 + item[i][8];
    int tfy2 = tfy1 + item[i][9];
 
-   if (cdp)
+   // players
+   if (FLAGS & PM_ITEM_DAMAGE_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
          {
@@ -646,15 +643,11 @@ void mwItem::proc_damage_area_collisions(int i)
             int y = m_parent.mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
-               {
-                  m_parent.mPlayer.syn[p].health = 0;
-               }
+               if (FLAGS & PM_ITEM_DAMAGE_INSTGIB) m_parent.mPlayer.syn[p].health = 0;
                else
                {
                   float ha = (float)item[i][12]/100; // health adjust
                   m_parent.mPlayer.syn[p].health -= ha;
-
                   if (ha > 0) // lose health
                   {
                      int damage_type = 1; // default
@@ -668,18 +661,15 @@ void mwItem::proc_damage_area_collisions(int i)
                }
             }
          }
-   if (cde)
+   if (FLAGS & PM_ITEM_DAMAGE_ENEMY)
       for (int e2=0; e2<100; e2++)
          if (m_parent.mEnemy.Ei[e2][0])
          {
             int x = m_parent.mEnemy.Ef[e2][0];
             int y = m_parent.mEnemy.Ef[e2][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
-            {
-               m_parent.mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
-            }
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mEnemy.Ei[e2][31] = 3; // flag that this enemy got hit
          }
-   if (cdi)
+   if (FLAGS & PM_ITEM_DAMAGE_ITEM)
       for (int i=0; i<500; i++)
          if (item[i][0])
          {
@@ -687,19 +677,15 @@ void mwItem::proc_damage_area_collisions(int i)
             int y = itemf[i][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               // orb, trig, bm, bd -- kill these immed
+               // kill these immediately
                if ((item[i][0] == PM_ITEM_TYPE_ORB) || (item[i][0] == PM_ITEM_TYPE_TRIGGER) || (item[i][0] == PM_ITEM_TYPE_ALTERTILES) || (item[i][0] == PM_ITEM_TYPE_DAMAGEAREA)) item[i][0] = 0;
 
-               if ((item[i][0] != PM_ITEM_TYPE_EXPIRING) && (item[i][0] != PM_ITEM_TYPE_START)) // never kill start
-               {
-                  //item[i][0] = PM_ITEM_TYPE_EXPIRING; // wtf is this ???
-                  item[i][14] = 10; // does this set ttl to 10?
+               // set time to live to  10
+               if ((item[i][0] != PM_ITEM_TYPE_EXPIRING) && (item[i][0] != PM_ITEM_TYPE_START)) item[i][14] = 10;
 
-
-               }
             }
          }
-   if (cdpb) // check player shots
+   if (FLAGS & PM_ITEM_DAMAGE_PSHOT)
       for (int b=0; b<50; b++)
          if (m_parent.mShot.p[b].active)
          {
@@ -707,7 +693,7 @@ void mwItem::proc_damage_area_collisions(int i)
             int y = m_parent.mShot.p[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mShot.p[b].active = 0; // kill the shot
          }
-   if (cdeb) // check enemy shots
+   if (FLAGS & PM_ITEM_DAMAGE_ESHOT)
       for (int b=0; b<50; b++)
          if (m_parent.mShot.e[b].active)
          {

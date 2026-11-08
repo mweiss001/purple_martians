@@ -53245,6 +53245,82 @@ why doesn't block damages affect lit bombs??
 2026-11-08 12:00:54 commit
 
 
+this is ok:
+
+if ((item[i][0] != PM_ITEM_TYPE_EXPIRING) && (item[i][0] != PM_ITEM_TYPE_START)) // never kill start
+{
+   //item[i][0] = PM_ITEM_TYPE_EXPIRING; // wtf is this ???
+   item[i][14] = 10; // does this set ttl to 10?
+}
+
+this is where I might change it:
+
+         // check for time to live
+         bool ttl_check = 1;
+         if (type == PM_ITEM_TYPE_TRIGGER)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_TIMER)    ttl_check = 0;
+         if (type == PM_ITEM_TYPE_ALTERTILES)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)   ttl_check = 0;
+         if (type == PM_ITEM_TYPE_GATE)     ttl_check = 0;
+         if (type == PM_ITEM_TYPE_LIT_BOMB) ttl_check = 0;
+
+         if (ttl_check)
+         {
+            int ttl = item[i][14];
+
+It kills one demo, big apple
+
+never mind, leave it like it is
+
+why does show all stats die??
+
+I get weird shit, like crashes and while I am debugging stuff just starts working...
+
+
+CLion 2025.3.1
+Build #CL-253.29346.141, built on December 18, 2025
+Source revision: 9478cb03fae44
+Licensed to Michael Weiss
+Subscription is active until January 12, 2027.
+For non-commercial use only.
+Runtime version: 21.0.9+1-b1163.86 amd64 (JCEF 137.0.17)
+VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
+Toolkit: sun.awt.windows.WToolkit
+Windows 10.0
+.NET Core v9.0.11 x64 (Server GC)
+GC: G1 Young Generation, G1 Concurrent GC, G1 Old Generation
+Memory: 16384M
+Cores: 12
+Registry:
+  actionSystem.update.actions.warn.dataRules.on.edt=false
+  ide.balloon.shadow.size=0
+  run.processes.with.pty=TRUE
+  ide.new.editor.tabs.vertical.borders=true
+  ide.animate.toolwindows=true
+  ide.experimental.ui=true
+  ide.editor.tab.selection.animation=true
+  ide.colorful.toolbar.gradient.radius=2000
+  idea.islands.color.gradient.enabled=true
+  rdclient.patch.engine.enabled=false
+  llm.show.ai.promotion.window.on.start=false
+Non-Bundled Plugins:
+  com.berzanmikaili.intellij.monokai_pro (2.0.2c)
+  com.jetbrains.gerryPurpleTheme (2026.1.0108)
+  com.thvardhan.gradianto (5.5)
+  com.jetbrains.darkPurpleTheme (1.3)
+  com.markskelton.one-dark-theme (6.2.0)
+  com.tylerthrailkill.intellij.solarized (3.0.1)
+  Statistic (5.2)
+  com.arcticicestudio.nord.jetbrains (0.13.0)
+  com.chrisrm.idea.MaterialThemeUI (10.8.0)
+
+
+
+
+
+
+
+
 
 
 

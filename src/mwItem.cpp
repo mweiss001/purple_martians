@@ -176,7 +176,6 @@ void mwItem::move_items()
          int x = itemf[i][0];
          int y = itemf[i][1];
 
-
          if ((x<0) || (x>1980) || (y<0) || (y>1980))
          {
             int action = 1; // delete
@@ -196,29 +195,29 @@ void mwItem::move_items()
             }
          }
 
-
-         if (type == PM_ITEM_TYPE_ORB)      proc_orb(i);
-         if (type == PM_ITEM_TYPE_TRIGGER)   proc_trigger(i);
-         if (type == PM_ITEM_TYPE_MESSAGE)      proc_pmsg(i);
-         if (type == PM_ITEM_TYPE_TIMER)    proc_timer(i);
-         if (type == PM_ITEM_TYPE_ALTERTILES)   proc_alter_tiles(i);
-         if (type == PM_ITEM_TYPE_DAMAGEAREA)   proc_damage_area(i);
-         if (type == PM_ITEM_TYPE_HIDER)    proc_hider(i);
-         if (type == PM_ITEM_TYPE_LIT_BOMB) proc_lit_bomb(i);
-         if (type == PM_ITEM_TYPE_LIT_ROCKET) proc_lit_rocket(i);
-         if (type == PM_ITEM_TYPE_START)    proc_start(i);
+         if (type == PM_ITEM_TYPE_ORB)         proc_orb(i);
+         if (type == PM_ITEM_TYPE_TRIGGER)     proc_trigger(i);
+         if (type == PM_ITEM_TYPE_MESSAGE)     proc_pmsg(i);
+         if (type == PM_ITEM_TYPE_TIMER)       proc_timer(i);
+         if (type == PM_ITEM_TYPE_ALTERTILES)  proc_alter_tiles(i);
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)  proc_damage_area(i);
+         if (type == PM_ITEM_TYPE_HIDER)       proc_hider(i);
+         if (type == PM_ITEM_TYPE_LIT_BOMB)    proc_lit_bomb(i);
+         if (type == PM_ITEM_TYPE_LIT_ROCKET)  proc_lit_rocket(i);
+         if (type == PM_ITEM_TYPE_START)       proc_start(i);
 
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
 
 
          // check for time to live
          bool ttl_check = 1;
-         if (type == PM_ITEM_TYPE_TRIGGER)   ttl_check = 0;
-         if (type == PM_ITEM_TYPE_TIMER)    ttl_check = 0;
-         if (type == PM_ITEM_TYPE_ALTERTILES)   ttl_check = 0;
-         if (type == PM_ITEM_TYPE_DAMAGEAREA)   ttl_check = 0;
-         if (type == PM_ITEM_TYPE_GATE)     ttl_check = 0;
-         if (type == PM_ITEM_TYPE_LIT_BOMB) ttl_check = 0;
+         if (type == PM_ITEM_TYPE_TRIGGER)     ttl_check = 0;
+         if (type == PM_ITEM_TYPE_TIMER)       ttl_check = 0;
+         if (type == PM_ITEM_TYPE_ALTERTILES)  ttl_check = 0;
+         if (type == PM_ITEM_TYPE_DAMAGEAREA)  ttl_check = 0;
+         if (type == PM_ITEM_TYPE_GATE)        ttl_check = 0;
+         if (type == PM_ITEM_TYPE_LIT_BOMB)    ttl_check = 0;
+
          if (ttl_check)
          {
             int ttl = item[i][14];
@@ -235,28 +234,15 @@ void mwItem::move_items()
             }
          }
 
-         bool moveable = item[i][3];        // not stationary;
-         if (type == PM_ITEM_TYPE_LIT_ROCKET) moveable = 0;
-         if (type == PM_ITEM_TYPE_TRIGGER)   moveable = 0;
-         if (type == PM_ITEM_TYPE_TIMER)    moveable = 0;
+         bool moveable = item[i][3];  // not stationary;
+         if (type == PM_ITEM_TYPE_LIT_ROCKET)   moveable = 0;
+         if (type == PM_ITEM_TYPE_TRIGGER)      moveable = 0;
+         if (type == PM_ITEM_TYPE_TIMER)        moveable = 0;
          if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
          if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
-         if (type == PM_ITEM_TYPE_GATE)     moveable = 0;
-         if (type == PM_ITEM_TYPE_HIDER)    moveable = 0;
+         if (type == PM_ITEM_TYPE_GATE)         moveable = 0;
+         if (type == PM_ITEM_TYPE_HIDER)        moveable = 0;
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
-
-
-         // // not stationary and not lit rocket, trigger, bm, bd or moving key
-         // if ((item[i][3]) &&  // not stationary
-         //     (type != PM_ITEM_TYPE_LIT_RCKT) &&
-         //     (type != PM_ITEM_TYPE_TRIGGR) &&
-         //     (type != PM_ITEM_TYPE_TIMER) &&
-         //     (type != PM_ITEM_TYPE_BLKMNP) &&
-         //     (type != PM_ITEM_TYPE_BLKDMG) &&
-         //     (type != PM_ITEM_TYPE_GATE) &&
-         //     (type != PM_ITEM_TYPE_HIDER) &&
-         //     (! ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)))    ) // not moving key
-
 
          if (moveable)
          {

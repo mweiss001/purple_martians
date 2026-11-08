@@ -565,12 +565,13 @@ void mwLevel::show_level_stats_area(int area, int x1, int x2, int &y, int draw, 
 
 void mwLevel::show_level_stats(int xc, int y1, int msg_type)
 {
-   // printf("show_level_stats\n");
+    //printf("show_level_stats\n");
    //double t = al_get_time();
    if (level_stats_bmp_msg_type != msg_type)
    {
       // run draw to get w and h
       draw_level_stats(level_stats_bmp_w, level_stats_bmp_h, 0, msg_type);
+
 
       // recreate bitmap
       al_destroy_bitmap(level_stats_bitmap);
@@ -578,8 +579,12 @@ void mwLevel::show_level_stats(int xc, int y1, int msg_type)
       al_set_target_bitmap(level_stats_bitmap);
       al_clear_to_color(mColor.pc[0]);
 
+
+
       // draw
       draw_level_stats(level_stats_bmp_w, level_stats_bmp_h, 1, msg_type);
+
+
 
       level_stats_bmp_msg_type = msg_type;
    }
@@ -597,6 +602,9 @@ void mwLevel::show_level_stats(int xc, int y1, int msg_type)
 
 void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
 {
+   //printf("draw_level_stats draw:%d  type:%d\n", draw, msg_type);
+
+
    int x1 = 2;   // these are based on a frame width of 2
    int x2 = w-2;
    int y = 2;
