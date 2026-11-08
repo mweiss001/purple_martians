@@ -6,9 +6,36 @@ set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -static")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -pedantic -static")
 
-set(ALLEGRO_ROOT_DIR "C:/allegro")
-include_directories(${ALLEGRO_ROOT_DIR}/include)
-link_directories(${ALLEGRO_ROOT_DIR}/lib)
+
+
+
+if (WIN32)
+    set(ALLEGRO_ROOT_DIR "C:/allegro")
+    include_directories(${ALLEGRO_ROOT_DIR}/include)
+    link_directories(${ALLEGRO_ROOT_DIR}/lib)
+
+
+elseif (UNIX AND NOT APPLE)
+#    set(ALLEGRO_ROOT_DIR "/home/m/dev/allegro5")
+
+    # Find pkg-config
+    find_package(PkgConfig REQUIRED)
+
+    # Search for Allegro 5 (core and standard addons)
+    pkg_check_modules(ALLEGRO REQUIRED
+            allegro-monolith-5
+    )
+
+
+endif()
+
+
+
+
+
+
+
+
 
 add_executable(pm
         src/icon.rc
@@ -192,6 +219,9 @@ add_executable(pm
 )
 
 
+
+if (WIN32)
+
 target_link_libraries(pm
         allegro_monolith-static
         dumb
@@ -229,6 +259,21 @@ target_link_libraries(pm
         net
         wsock32
 )
+
+elseif (UNIX AND NOT APPLE)
+
+
+
+    # Include directories and link libraries
+    target_include_directories(pm PRIVATE ${ALLEGRO_INCLUDE_DIRS})
+    target_link_libraries(pm PRIVATE ${ALLEGRO_LIBRARIES})
+    target_compile_options(pm PRIVATE ${ALLEGRO_CFLAGS_OTHER})
+
+
+
+endif()
+
+
 
 set_target_properties(pm PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
