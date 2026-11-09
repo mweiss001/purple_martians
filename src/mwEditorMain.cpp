@@ -845,7 +845,7 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 1) mLevel.mItem.show_all_items();
       if (ret == 2) mLevel.mEnemy.show_all_enemies();
       if (ret == 3) mLevel.mLift.show_all_lifts();
-      if (ret == 4) mLevel.mItem.show_all_pmsg();
+      if (ret == 4) mLevel.mItem.show_all_messages();
       if (ret == 5) mTriggerEvent.show_all_events();
       if (ret == 6) mLevel.level_check();
       if (ret == 7) mLevel.show_level_data(40, 40, 1);

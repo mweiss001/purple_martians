@@ -61,8 +61,8 @@ void mwGroupEdit::init()
       ge_data[i].adj_max = 0;
       ge_data[i].min_allowed = 0;
       ge_data[i].max_allowed = 0;
-      sprintf(ge_data[i].name, " ");
-      sprintf(ge_data[i].snam, " ");
+      strcpy(ge_data[i].name, "");
+      strcpy(ge_data[i].snam, "");
    }
    int i = 0;
 
@@ -75,35 +75,32 @@ void mwGroupEdit::init()
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 0;
 
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CLONER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
-   cot[i][3][1] = 1; // bouncer
-   cot[i][3][2] = 1; // cannon
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][7] = 1; // vinepod
-   cot[i][3][8] = 1; // trakbot
-   cot[i][3][9] = 1; // cloner
-   cot[i][3][19] = 1; // crew
-
-   cot[i][2][1]  = 1; // door
-   cot[i][2][2]  = 1; // bonus
-   cot[i][2][3]  = 1; // exit
-   cot[i][2][4]  = 1; // key
-   cot[i][2][5]  = 1; // start
-   cot[i][2][6]  = 1; // orb
-   cot[i][2][7]  = 1; // mine
-   cot[i][2][8]  = 1; // bomb
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][11] = 1; // rocket
-   cot[i][2][12] = 1; // warp
-   cot[i][2][13] = 1; // timer
-   cot[i][2][14] = 1; // switch
-   cot[i][2][15] = 1; // sproingy
-   cot[i][2][16] = 1; // block manip
-   cot[i][2][17] = 1; // block damage
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+   cot[i][2][PM_ITEM_TYPE_BONUS] = 1;
+   cot[i][2][PM_ITEM_TYPE_EXIT] = 1;
+   cot[i][2][PM_ITEM_TYPE_KEY] = 1;
+   cot[i][2][PM_ITEM_TYPE_START] = 1;
+   cot[i][2][PM_ITEM_TYPE_ORB] = 1;
+   cot[i][2][PM_ITEM_TYPE_MINE] = 1;
+   cot[i][2][PM_ITEM_TYPE_BOMB] = 1;
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_ROCKET] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_SWITCH] = 1;
+   cot[i][2][PM_ITEM_TYPE_SPRING] = 1;
+   cot[i][2][PM_ITEM_TYPE_ALTERTILES] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
 
 
    i++;
@@ -115,11 +112,11 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // block walker
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Initial Direction");
@@ -130,8 +127,8 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 0;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 0;
-   cot[i][3][1] = 1; // bouncer
-   cot[i][3][2] = 1; // cannon
+   cot[i][3][PM_ENEMY_TYPE_BOUNCER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Initial Direction");
@@ -142,7 +139,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 8;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 8;
-   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X speed");
@@ -153,9 +150,9 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X speed");
@@ -166,7 +163,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X Speed");
@@ -177,7 +174,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 4;
    ge_data[i].min_allowed = 1;
    ge_data[i].max_allowed = 20;
-   cot[i][3][6] = 1; // flapper
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X Acceleration");
@@ -188,7 +185,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 3;
    ge_data[i].min_allowed = .01;
    ge_data[i].max_allowed = 5;
-   cot[i][3][6] = 1; // flapper
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X ground speed (1/x)");
@@ -199,7 +196,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 12;
    ge_data[i].min_allowed = 1;
    ge_data[i].max_allowed = 12;
-   cot[i][3][5] = 1; // jumpworm
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
 
    i++;
    sprintf(ge_data[i].name, "X jump speed");
@@ -210,7 +207,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Y speed");
@@ -221,12 +218,12 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][8] = 1; // trakbot
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Wall Jump Boost");
@@ -237,7 +234,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2;
-   cot[i][3][5] = 1; // jumpworm
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Drop Mode");
@@ -248,7 +245,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2;
-   cot[i][3][8] = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Turn Before Hole");
@@ -259,10 +256,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 10;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 180;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Hole");
@@ -273,10 +270,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 10;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 180;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Wall");
@@ -287,10 +284,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 120;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Jump Under Width");
@@ -301,10 +298,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 500;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Jump Wait");
@@ -315,10 +312,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 500;
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][4] = 1; // blokwalk
-   cot[i][3][5] = 1; // jumpworm
-   cot[i][3][19] = 1; // crew
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Flap Height");
@@ -329,7 +326,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 40;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 200;
-   cot[i][3][6] = 1; // flapper
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Flap Speed");
@@ -340,7 +337,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 4;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 20;
-   cot[i][3][6] = 1; // flapper
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Height Above Player");
@@ -351,7 +348,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 80;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 200;
-   cot[i][3][6] = 1; // flapper
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Seek Count");
@@ -362,8 +359,8 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 100;
-   cot[i][3][1] = 1; // bouncer
-   cot[i][3][2] = 1; // cannon
+   cot[i][3][PM_ENEMY_TYPE_BOUNCER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Seek Speed");
@@ -374,8 +371,8 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 40;
-   cot[i][3][1] = 1; // bouncer
-   cot[i][3][2] = 1; // cannon
+   cot[i][3][PM_ENEMY_TYPE_BOUNCER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Extra Hits To Kill");
@@ -386,7 +383,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 3;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 20;
-   cot[i][3][2] = 1; // cannon
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Shot Speed");
@@ -397,11 +394,15 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .1;
    ge_data[i].max_allowed = 80;
-   cot[i][3][2] = 1; // cannon
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][7] = 1; // vinepod
-   cot[i][3][8] = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
+
+
+
+
 
    i++;
    sprintf(ge_data[i].name, "Shot Retrigger");
@@ -412,10 +413,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 200;
    ge_data[i].min_allowed = 2;
    ge_data[i].max_allowed = 1000;
-   cot[i][3][2] = 1; // cannon
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][8] = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Shot Proximity");
@@ -426,10 +427,17 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 200;
    ge_data[i].min_allowed = 2;
    ge_data[i].max_allowed = 2000;
-   cot[i][3][2] = 1; // cannon
-   cot[i][3][3] = 1; // archwagon
-   cot[i][3][6] = 1; // flapper
-   cot[i][3][8] = 1; // trakbot
+   cot[i][3][PM_ENEMY_TYPE_CANNON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_TRAKBOT] = 1;
+
+
+
+
+
+
+
 
 
 
@@ -442,10 +450,6 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 2000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2000;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
 
 
    i++;
@@ -457,10 +461,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 2000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2000;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Item Secondary w");
@@ -471,10 +475,11 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 8;
    ge_data[i].max_allowed = 1000;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
+
 
    i++;
    sprintf(ge_data[i].name, "Item Secondary h");
@@ -485,11 +490,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 8;
    ge_data[i].max_allowed = 1000;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
-
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Item Secondary xc");
@@ -500,11 +504,10 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1980;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 1980;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
-
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Item Secondary y2");
@@ -515,10 +518,23 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1980;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 1980;
-   cot[i][2][9]  = 1; // trigger
-   cot[i][2][10] = 1; // message
-   cot[i][2][13] = 1; // timer
-   cot[i][2][17] = 1; // block damage
+   cot[i][2][PM_ITEM_TYPE_TRIGGER] = 1;
+   cot[i][2][PM_ITEM_TYPE_MESSAGE] = 1;
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Player Damage");
+   sprintf(ge_data[i].snam, "pldm");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 12;
+   ge_data[i].adj_min = -2000;
+   ge_data[i].adj_max = 2000;
+   ge_data[i].min_allowed = -2000;
+   ge_data[i].max_allowed = 2000;
+   cot[i][2][PM_ITEM_TYPE_DAMAGEAREA] = 1;
+
+
 
    i++;
    sprintf(ge_data[i].name, "Extend Time");
@@ -529,7 +545,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 100;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 800;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Pause Time");
@@ -540,7 +556,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 100;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 800;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
 
    i++;
@@ -552,7 +568,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 1000;
-   cot[i][2][13] = 1; // timer
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Timer 2");
@@ -563,8 +579,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 1000;
-   cot[i][2][13] = 1; // timer
-
+   cot[i][2][PM_ITEM_TYPE_TIMER] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Gate Draw Mode");
@@ -575,7 +590,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 5;
-   cot[i][2][18] = 1; // gate
+   cot[i][2][PM_ITEM_TYPE_GATE] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Level Icon Size");
@@ -586,7 +601,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 400;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 400;
-   cot[i][2][18] = 1; // gate
+   cot[i][2][PM_ITEM_TYPE_GATE] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Hover Icon Size");
@@ -597,11 +612,7 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 400;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 400;
-   cot[i][2][18] = 1; // gate
-
-
-
-
+   cot[i][2][PM_ITEM_TYPE_GATE] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Control Point Multiplier");
@@ -612,7 +623,8 @@ void mwGroupEdit::init()
    ge_data[i].adj_max = 4;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 8;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
+
 
 
 
@@ -622,28 +634,28 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].snam, "shpt");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_SHOW_PATH;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Invincible Initial Position");
    sprintf(ge_data[i].snam, "invi");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_INIT;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Invincible Extended Position");
    sprintf(ge_data[i].snam, "inve");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_EXTN;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Invincible While Moving");
    sprintf(ge_data[i].snam, "invm");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_MOVE;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
 
    i++;
@@ -651,21 +663,21 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].snam, "ussp");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_USE_SPLINE;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Use Trigger");
    sprintf(ge_data[i].snam, "ustr");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_USE_TRIGGER;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    i++;
    sprintf(ge_data[i].name, "Fire Shot");
    sprintf(ge_data[i].snam, "frsh");
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_FIRE_SHOT;
-   cot[i][3][7]  = 1; // vinepod
+   cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
    //printf("i:%d\n", i);
 

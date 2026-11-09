@@ -1,4 +1,4 @@
-// mw_ItemBombRocket.cpp
+// mwItemBombRocket.cpp
 
 #include "pm.h"
 #include "mwItem.h"
@@ -8,13 +8,79 @@
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwSolid.h"
-#include "mwFont.h"
 #include "mwSound.h"
+
+
+
+
+/*
+item[][0] = 8 - bomb
+item[][1] = bitmap
+item[][2] =
+item[][3] = stat | fall | carry
+item[][4] = x pos (2000)
+item[][5] = y pos (2000)
+
+item[][6]  = exploding mode (0-inactive) (1-lit) (2-exploding) (3-armed)
+item[][7]  = damage range
+item[][8]  = fuse length counter
+item[][9]  = fuse length value
+item[][10] = unused as far as I can tell
+item[][11] = sticky
+item[][12] = type (0-fuse) (1-detonator)
+item[][13] = player that lit
+
+
+item[][14] = time to live
+item[][15] = tag with cloner item id
+
+
+
+item[][0] = 11 - rocket
+item[][1] = bitmap
+item[][2] =
+item[][3] = stat | fall | carry
+item[][4] = x pos (2000)
+item[][5] = y pos (2000)
+
+item[][6]  = steerability
+item[][7]  = damage range
+item[][8]  = max speed
+item[][9]  = acceleration
+item[][10] = rotation
+item[][11] = current speed
+item[][12] =
+item[][13] = player that lit
+
+item[][14] = time to live
+item[][15] = tag with cloner item id
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void mwItem::proc_bomb_collision(int p, int i)
 {
-   item[i][0] = 99;            // change to lit bomb
+   item[i][0] = PM_ITEM_TYPE_LIT_BOMB;
    item[i][13] = p;            // mark player that lit bomb
 
    if (item[i][12] == 0)       // fuse timer
@@ -24,14 +90,14 @@ void mwItem::proc_bomb_collision(int p, int i)
    }
    if (item[i][12] == 1)       // remote detonator
    {
-      item[i][6] = 3;
+      item[i][6] = 3;          // mode == armed
    }
    mGameEvent.add(25, 0, 0, p, item[i][7]/20, item[i][9]/40, item[i][12]);
 }
 
 void mwItem::proc_rocket_collision(int p, int i)
 {
-   item[i][0] = 98;   // new type - lit rocket
+   item[i][0] = PM_ITEM_TYPE_LIT_ROCKET;
    item[i][13] = p;   // mark player that lit rocket
    item[i][1] = 1026; // new ans
    if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
@@ -70,7 +136,7 @@ void mwItem::proc_lit_rocket(int i)
       itemf[i][2] = 0;
       itemf[i][3] = 0;
 
-      item[i][0] = 99;   // change to lit bomb
+      item[i][0] = PM_ITEM_TYPE_LIT_BOMB;   // change to lit bomb
       item[i][6] = 2;    // mode 2; explosion
 
       item[i][3] = 1;   // not carryable (fall)
@@ -95,12 +161,6 @@ void mwItem::proc_lit_rocket(int i)
    }
 }
 
-int mwItem::seq_color(int mod, int c1, int c2)
-{
-   int col = c1; // initial color
-   if ( (mLoop.frame_num % mod) < mod/2) col = c2; // other color
-   return col;
-}
 
 int mwItem::seq_color2()
 {
@@ -147,9 +207,6 @@ int mwItem::seq_color2()
    ca[ci] = b+128; ci++;
    ca[ci] = b+160; ci++;
    ca[ci] = b+192; ci++;
-
-
-
 
    int mod = mLoop.frame_num % 40;
    return ca[mod];
@@ -255,11 +312,12 @@ void mwItem::bomb_crosshairs(float x, float y)
    }
 }
 
+
 void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
-   for (int e=0; e<100 ; e++) // enemies in damage window?
-      if ((mLevel.mEnemy.Ei[e][0]) && (! ((mLevel.mEnemy.Ei[e][0] == 9) && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
-       {
+   for (int e=0; e<100; e++) // enemies in damage window?
+      if ((mLevel.mEnemy.Ei[e][0]) && (! (mLevel.mEnemy.Ei[e][0] == PM_ENEMY_TYPE_CLONER && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
+      {
          float dist = sqrt(pow(mLevel.mEnemy.Ef[e][0]-x, 2) + pow(mLevel.mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
          {
@@ -329,7 +387,6 @@ void mwItem::proc_lit_bomb(int i)
 
          // printf("lit bomb:%d changing to explode mode\n", i);
 
-
          item[i][6] = 2; // mode 2; explosion
          item[i][8] = item[i][9] = 20; // explosion timer
 
@@ -337,7 +394,7 @@ void mwItem::proc_lit_bomb(int i)
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].carry_item-1 == i)) player_drop_item(p, i);
 
-         // check for other co-located bombs
+         // check for other co-located lit bombs
          for (int ii=0; ii<500; ii++)
             if (item[ii][0] == 99) // lit bomb
                if (ii != i) // not this one

@@ -19,6 +19,9 @@ debug press fire to complete level does nothing
 
 
 
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -28,6 +31,27 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+
+move level 111 to main gain and make it work well
+where? I have a gap at 58...do it
+what will I name it? tbd
+what do I need to do to finish it?
+
+make the bomb that kill archwag and jumpworm cloners not able to get wrong
+right now if player does not kill them the bomb will go away...
+player can still shoot down to kill cloners....
+
+
+
+
+
+
+
+
+
+
+
 
 
 work on level 61 multiplayer bomb toss
@@ -109,30 +133,23 @@ so make a place to put them
 
 
 
+---------------------------------------------
+I really miss wrap
+could I bring it back
+I had 2 different types
+one was a single line and one was double
+
+at the very simplest:
+A pair of vertical or horizonatal lines
+when passing through it you instantly jump to the other line
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---------------------------------------------
 could I make each area on the overworld have a very slight color tint?
+would I do that are draw level background?
 
 
 
@@ -158,6 +175,31 @@ things I do not want them to be able to change:
 - color
 - name
 - shot config
+
+
+
+
+
+
+--------------------------------------------------
+test items
+make custom tests for each item type
+
+
+
+
+
+
+---------------------------
+more creators
+like cloner trigger pair
+cloner timer trigger set
+alter trigger set
+
+
+
+
+
 
 
 

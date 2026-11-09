@@ -53428,35 +53428,116 @@ endif()
 
 
 
+2026-11-08 18:07:12
+
+make group do damage area player damage
+
+done...
+
+
+2026-11-09 06:00:56
+
+I have introduced a bug...doors get broken easily
+they get linked to each other? why? where?
+I suspect sort item.
+until I get that fixed it is probably better to not use level editor
+adding new item does it...
+
+
+sort pre
+
+   // to not break linked doors
+   for (int c=0; c<500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR)
+      {
+         if (item[c][8] == 1) item[c][15] = c; // if door has linked item, tag door with its original item number
+         else item[c][15] = -1; // otherwise set -1 so nothing will match
+      }
+
+
+sort post
+
+   // fix linked doors
+   for (int c=0; c<500; c++)
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // if door && exit mode is linked item
+      {
+         int linked_item_id = item[c][9];                         // look for doors with that link in 15
+         for (int d=0; d<500; d++)
+            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15] == linked_item_id)) // found a door with link in 15
+               item[c][9] = d;  // update to new link number
+      }
+
+   // erase what we put in 15
+   for (int c=0; c < 500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
+
+
+pre is wrong...
+
+   // to not break linked doors
+   for (int c=0; c<500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = c; // tag door with its original item number
+
+
+FIXED!!
+
+sort pre:
+
+   // to not break linked doors
+   for (int c=0; c<500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 1000 + c; // tag door with its original item number + 1000
+
+
+sort post:
+   
+   // fix linked doors
+   for (int c=0; c<500; c++)
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // doors with exit links
+      {
+         int old_linked_item_id = item[c][9];
+         for (int d=0; d<500; d++)
+            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15]-1000 == old_linked_item_id)) // found a door with old_link in 15
+               item[c][9] = d;  // update to new link number
+      }
+
+   // erase what we put in 15
+   for (int c=0; c < 500; c++)
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
+
+now fix doors...done...
 
 
 
+why do I have steerability minimum of 1 for rockets?
+why not zero?
 
 
 
+I want rocket to have separate settings for ride through door and ride
 
+standard fall, carry, stationary, should only apply when the rocket is not lit
 
+add a variable, ride
 
+this will make possible:
 
+stationary rocket when not lit, but player can still ride it through door
 
+rockets that player cannot ride
+this will be helpfull when I don't want the player to be able to pass through wall that the rocket can
 
+what variable to use? I should have plenty...
+Bomb and rocket actually look quite busy
+documented the variables used
+how about 12?
 
+I might want to do flags...
 
+I could do sticky or not, fuse or detonator, ride and ride through door
 
+does bomb even have the option to carry through door?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+2026-11-09 07:26:18 time to commit and go to work...
 
 
 

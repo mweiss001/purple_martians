@@ -104,11 +104,7 @@ int mwItem::sort_item()
 
    // to not break linked doors
    for (int c=0; c<500; c++)
-      if (item[c][0] == PM_ITEM_TYPE_DOOR)
-      {
-         if (item[c][8] == 1) item[c][15] = c; // if door has linked item, tag door with its original item number
-         else item[c][15] = -1; // otherwise set -1 so nothing will match
-      }
+      if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 1000 + c; // tag door with its original item number + 1000
 
 
    int inum, c, d, quit, temp, iswap;
@@ -217,12 +213,12 @@ int mwItem::sort_item()
 
 
    // fix linked doors
-   for (int c=0; c < 500; c++)
-      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // if door && exit mode is linked item
+   for (int c=0; c<500; c++)
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // doors with exit links
       {
-         int linked_item_id = item[c][9];                         // look for doors with that link in 15
-         for (int d=0; d < 500; d++)
-            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15] == linked_item_id)) // found a door with link in 15
+         int old_linked_item_id = item[c][9];
+         for (int d=0; d<500; d++)
+            if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15]-1000 == old_linked_item_id)) // found a door with old_link in 15
                item[c][9] = d;  // update to new link number
       }
 
@@ -313,195 +309,132 @@ void mwItem::clear_item(int num)
 
 int mwItem::create_trigger(int i)
 {
-   int bad = 0;
    // set the item location
-   if (mMiscFnx.getxy("Trigger", 2, 9, i) == 1)
-   {
-      item[i][0] = 9;  // type 9 - trigger
-      item[i][2] = 14; // draw color
-      item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
-      item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
-   }
-   else bad = 1;
-   // then set the block range
-   if (!bad)
-   {
-      if (!mMiscFnx.get_block_range("Trigger Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, i);
+   if (mMiscFnx.getxy("Trigger", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_TRIGGER, i) != 1) return 0;
+   item[i][0] = PM_ITEM_TYPE_TRIGGER;
+   item[i][2] = 14; // draw color
+   item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+   item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
+
+   // set the block range
+   if (!mMiscFnx.get_block_range("Trigger Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
+
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
+
    return 1;
 }
 
 
-int mwItem::create_block_manip(int i)
+int mwItem::create_alter_tiles(int i)
 {
-   int bad = 0;
-
    // set the item location
-   if (mMiscFnx.getxy("Block Manip Object", 2, 16, i) == 1)
-   {
-      item[i][0] = 16; // type 16 - block manip
-      item[i][2] = 1; // draw mode on
-      item[i][12] = 12; // default color
-   }
-   else bad = 1;
-   // then set the block range
-   if (!bad)
-   {
-      if (!mMiscFnx.get_block_range("Block Manip Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, i);
+   if (mMiscFnx.getxy("Alter Tiles Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_ALTERTILES, i) != 1) return 0;
+   item[i][0] = PM_ITEM_TYPE_ALTERTILES;
+   item[i][2] = 1; // draw mode on
+   item[i][12] = 12; // default color
+
+   // set the alter area
+   if (!mMiscFnx.get_block_range("Alter Tiles Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
+
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
+
    return 1;
 }
 
-int mwItem::create_block_damage(int i)
+int mwItem::create_damage_area(int i)
 {
-   int bad = 0;
-
    // set the item location
-   if (mMiscFnx.getxy("Block Damage Object", 2, 17, i) == 1)
-   {
-      item[i][0] = 17; // type 16 - block damage
-      item[i][2] = 1;  // draw type
-      item[i][3] |= PM_ITEM_DAMAGE_CURR;
-      item[i][12] = 100;
-      item[i][13] = 0;
-      item[i][14] = 100;
-   }
-   else bad = 1;
-   // then set the block range
-   if (!bad)
-   {
-      if (!mMiscFnx.get_block_range("Block Damage Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, i);
+   if (mMiscFnx.getxy("Damage Area Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DAMAGEAREA, i) != 1) return 0;
+   item[i][0] = PM_ITEM_TYPE_DAMAGEAREA;
+   item[i][2] = 1;  // draw type
+   item[i][3] |= PM_ITEM_DAMAGE_CURR;
+   item[i][12] = 100;
+   item[i][13] = 0;
+   item[i][14] = 100;
+
+   // set the damage area
+   if (!mMiscFnx.get_block_range("Damage Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
+
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
+
    return 1;
 }
 
 
-int mwItem::create_start_block(int c)
+int mwItem::create_start(int i)
 {
-   item[c][0] = 5 ;           // type 5 - start
-   item[c][1] = 1021;         // default animation seq
-   item[c][2] = 1;            // draw mode
-   item[c][3] = 0;            // stationary
-   item[c][6] = 2;            // mode = checkpoint common
+   // set the item location
+   if (mMiscFnx.getxy("Start", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_START, i) != 1) return 0;
+
+   item[i][0] = PM_ITEM_TYPE_START ;
+   item[i][1] = 1021;         // default animation seq
+   item[i][2] = 1;            // draw mode
+   item[i][3] = 0;            // stationary
+   item[i][6] = 2;            // mode = checkpoint common
 
    // find highest existing start index
    int hesi = -1;
    for (int x=0; x<500; x++)
-      if ((item[x][0] == 5) && (x != c))
+      if ((item[x][0] == 5) && (x != i))
          if (item[x][7] > hesi) hesi = item[x][7];
-   item[c][7] = hesi + 1;     // start index
+   item[i][7] = hesi + 1;     // start index
 
-   if (mMiscFnx.getxy("Start", 2, 5, c) == 1) return 1;
-   else return 0;
+   return 1;
 }
 
-int mwItem::create_exit(int c)
+int mwItem::create_exit(int i)
 {
-   item[c][0] = 3 ;           // type 3 - exit
-   item[c][1] = 1022;         // default animation seq
-   item[c][2] = 1;            // draw mode
-   item[c][3] = 0;            // stationary
-
-
-   item[c][8] = 100;          // num enemies left alive to activate this exit
-   if (mMiscFnx.getxy("Exit", 2, 3, c) == 1) // xorg, yorg
-   {
-      mLevel.l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
-      return 1;
-   }
-   else return 0;
+   // set the item location
+   if (mMiscFnx.getxy("Exit", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_EXIT, i) != 1) return 0;
+   item[i][0] = PM_ITEM_TYPE_EXIT ;           // type 3 - exit
+   item[i][1] = 1022;         // default animation seq
+   item[i][2] = 1;            // draw mode
+   item[i][3] = 0;            // stationary
+   item[i][8] = 100;          // num enemies left alive to activate this exit
+   return 1;
 }
 
-void mwItem::show_all_pmsg()
+void mwItem::show_all_messages()
 {
    int text_pos = 0;
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_text(mFont.pr8, mColor.pc[15], 20, text_pos, 0, "List of pop messages:");
+   al_draw_text(mFont.pr8, mColor.pc[15], 20, text_pos, 0, "List of messages:");
    text_pos +=8;
 
    for (auto tmp: mLevel.mItem.mMessageText.messageTextV)
       al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d - %s", tmp.index, tmp.text.c_str());
 
-
-   // for (int i=0; i<500; i++)
-   // {
-   //    int len = strlen(pmsgtext[i]);
-   //    if (len > 0)
-   //    {
-   //       // count lines and max line length
-   //       int lines = 1;
-   //       int mll = 0; // max line length
-   //       int tlc = 0; // temp line counter
-   //       for (int j=0; j<len; j++)
-   //       {
-   //          if (pmsgtext[i][j] == 10)
-   //          {
-   //             lines++;
-   //             if (tlc > mll) mll = tlc;
-   //             tlc = 0;
-   //          }
-   //          else tlc++;
-   //       }
-   //       if (lines == 1) mll = tlc;
-   //
-   //       al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
-   //
-   //       for (int j=0; j<len; j++)
-   //       {
-   //          int col = 15;
-   //          if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
-   //          if (pmsgtext[i][j] == 10) col = 9; // LF
-   //          al_draw_textf(mFont.pr8, mColor.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
-   //
-   //          if (text_pos > mDisplay.SCREEN_H - 20)
-   //          {
-   //             al_flip_display();
-   //             mInput.tsw(); // wait for keypress
-   //             al_clear_to_color(al_map_rgb(0,0,0));
-   //             text_pos = 0;
-   //          }
-   //       }
-   //       text_pos +=8;
-   //    }
-   // }
-
-
-
    al_flip_display();
    mInput.tsw(); // wait for keypress
 }
 
-int mwItem::create_pmsg(int c)
+int mwItem::create_message(int i)
 {
-   item[c][0] = 10 ;  // type 10 - msg
-   item[c][1] = 0;    // trigger event
-   item[c][3] = 0;    // stationary
-   item[c][2] = 0;    // flags
-   item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
-   item[c][2] |= PM_ITEM_PMSG_FRAME12;
+   // set the item location
+   if (mMiscFnx.getxy("Message Scroll", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_MESSAGE, i) != 1) return 0;
+   item[i][0] = PM_ITEM_TYPE_MESSAGE;  // type 10 - msg
+   item[i][1] = 0;    // trigger event
+   item[i][3] = 0;    // stationary
+   item[i][2] = 0;    // flags
+   item[i][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+   item[i][2] |= PM_ITEM_PMSG_FRAME12;
+   item[i][12] = 120;  // default message time
+   mMiscFnx.set_int_3216(item[i][13], 15, 13); // default text color (white) and frame color (blue)
 
-   item[c][12] = 120;  // default message time
+   // set the message area
+   if (!mMiscFnx.get_block_range("Message Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
 
-   mMiscFnx.set_int_3216(item[c][13], 15, 13); // default text color (white) and frame color (blue)
+   // get text of message
+   if (!edit_pmsg_text(i, 1)) return 0;
 
-   int bad=0;
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
 
-   if (mMiscFnx.getxy("Message Object", 2, 10, c) != 1) bad = 1;
-
-   if (!bad) mMiscFnx.get_block_range("Message Area", item[c][6], item[c][7], item[c][8], item[c][9], 1);
-
-   if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
-
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, c);
    return 1;
 }
 
@@ -516,7 +449,7 @@ int mwItem::create_door(int type)
          int c = get_empty_item(); // get 1st item
          if (c != -1)
          {
-            if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
+            if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
             {
                item[c][0] = 1;    // type 1
                item[c][1] = 2;    // draw type
@@ -546,10 +479,10 @@ int mwItem::create_door(int type)
 
          if (found_empty_items)
          {
-            if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
+            if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
             {
 
-               item[c][0] = 1;    // type 1
+               item[c][0] = PM_ITEM_TYPE_DOOR;    // type 1
                item[c][1] = 2;    // draw type
                item[c][3] = 0;    // stationary
                item[c][6] = 13;   // default color = lt blue
@@ -558,10 +491,10 @@ int mwItem::create_door(int type)
                item[c][11] = 0;   // enter immed
                item[c][12] = 1;   // always draw line
 
-               if (mMiscFnx.getxy("Destination Door", 2, 1, d) == 1)
+               if (mMiscFnx.getxy("Destination Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
                {
                   item[c][9] = d;  // linked exit
-                  item[d][0] = 1;  // type 1
+                  item[d][0] = PM_ITEM_TYPE_DOOR;  // type 1
                   item[d][1] = 2;  // draw type
                   item[d][3] = 0;  // stationary
                   item[d][6] = 13; // default color = lt blue
@@ -593,9 +526,9 @@ int mwItem::create_door(int type)
 
          if (found_empty_items)
          {
-            if (mMiscFnx.getxy("1st Door", 2, 1, c) == 1)
+            if (mMiscFnx.getxy("1st Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
             {
-               item[c][0] = 1;    // type 1
+               item[c][0] = PM_ITEM_TYPE_DOOR;
                item[c][1] = 2;    // draw type
                item[c][3] = 0;    // stationary
                item[c][6] = 13;   // default color = lt blue
@@ -604,12 +537,12 @@ int mwItem::create_door(int type)
                item[c][11] = 1;   // trigger with up
                item[c][12] = 1;   // always draw line
 
-               if (mMiscFnx.getxy("2nd Door", 2, 1, d) == 1)
+               if (mMiscFnx.getxy("2nd Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
                {
                   item[c][9] = d;    // linked exit
                   item[d][9] = c;    // linked exit
 
-                  item[d][0] = 1;    // type 1
+                  item[d][0] = PM_ITEM_TYPE_DOOR;
                   item[d][1] = 2;    // draw type
                   item[d][3] = 0;    // stationary
                   item[d][6] = 13;   // default color = lt blue
@@ -633,19 +566,23 @@ int mwItem::create_door(int type)
 int mwItem::create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 5) && (type != 9) && (type != 10) && (type != 13) && (type != 16) && (type != 17) && (type != 19)) return 9999;
+   if ((type != PM_ITEM_TYPE_DOOR) && (type != PM_ITEM_TYPE_EXIT) && (type != PM_ITEM_TYPE_START)
+    && (type != PM_ITEM_TYPE_TRIGGER) && (type != PM_ITEM_TYPE_MESSAGE) && (type != PM_ITEM_TYPE_TIMER)
+    && (type != PM_ITEM_TYPE_ALTERTILES) && (type != PM_ITEM_TYPE_DAMAGEAREA) && (type != PM_ITEM_TYPE_HIDER)) return 9999;
+
+
    int i = get_empty_item(type); // get a place to put it
    if (i > 499) return i; // no items
    switch (type)
    {
-      case 3:  if (!create_exit(i))         clear_item(i); break;
-      case 5:  if (!create_start_block(i))  clear_item(i); break;
-      case 9:  if (!create_trigger(i))      clear_item(i); break;
-      case 10: if (!create_pmsg(i))         clear_item(i); break;
-      case 13: if (!create_timer(i))        clear_item(i); break;
-      case 16: if (!create_block_manip(i))  clear_item(i); break;
-      case 17: if (!create_block_damage(i)) clear_item(i); break;
-      case 19: if (!create_hider(i))        clear_item(i); break;
+      case PM_ITEM_TYPE_EXIT:       if (!create_exit(i))         clear_item(i); break;
+      case PM_ITEM_TYPE_START:      if (!create_start(i))        clear_item(i); break;
+      case PM_ITEM_TYPE_TRIGGER:    if (!create_trigger(i))      clear_item(i); break;
+      case PM_ITEM_TYPE_MESSAGE:    if (!create_message(i))         clear_item(i); break;
+      case PM_ITEM_TYPE_TIMER:      if (!create_timer(i))        clear_item(i); break;
+      case PM_ITEM_TYPE_ALTERTILES: if (!create_alter_tiles(i))  clear_item(i); break;
+      case PM_ITEM_TYPE_DAMAGEAREA: if (!create_damage_area(i))  clear_item(i); break;
+      case PM_ITEM_TYPE_HIDER:      if (!create_hider(i))        clear_item(i); break;
 
    }
    sort_item();
@@ -654,41 +591,35 @@ int mwItem::create_item(int type)
 }
 
 
-
-
-
 int mwItem::create_timer(int i)
 {
    // set the item location
-   if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
-   {
-      item[i][0] = 13;  // type 13 - timer
-      item[i][2] = 0; // default no progress bar display
-   }
-   else return 0;
-   mObjectViewer.object_viewer(2, i);
+   if (mMiscFnx.getxy("Timer Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_TIMER, i) != 1) return 0;
+   item[i][0] = 13;  // type 13 - timer
+   item[i][2] = 0; // default no progress bar display
+
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
+
    return 1;
 }
 
 
 int mwItem::create_hider(int i)
 {
-   int bad = 0;
    // set the item location
-   if (mMiscFnx.getxy("Hider", 2, 19, i) == 1)
-   {
-      item[i][0] = 19; // type 13 - timer
-      item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
-      item[i][2] = 1;  // initial action: hide
-      item[i][3] = 1;  // mode:1 (always hide)
-   }
-   else bad = 1;
-   if (!bad)
-   {
-      if (!mMiscFnx.get_block_range("Hidden Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else mObjectViewer.object_viewer(2, i);
+   if (mMiscFnx.getxy("Hider Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_HIDER, i) != 1) return 0;
+   item[i][0] = 19; // type 13 - timer
+   item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
+   item[i][2] = 1;  // initial action: hide
+   item[i][3] = 1;  // mode:1 (always hide)
+
+   // set the hidden area
+   if (!mMiscFnx.get_block_range("Hidden Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
+
+   // open in viewer
+   mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
+
    return 1;
 }
 

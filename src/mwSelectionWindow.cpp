@@ -864,8 +864,8 @@ void mwSelectionWindow::load_pde()
    pushCreator("Cloner Creator",  1, 207, 551, "Step 1 - Set cloner location.\n\nStep 2 - Draw source area.\n\nStep 3 - Position destination area.");
 
    pushCreator("Trigger Creator",      1, 213, 991, "");
-   pushCreator("Block Manip Creator",  1, 214, 989, "");
-   pushCreator("Block Damage Creator", 1, 215, 988, "");
+   pushCreator("Alter Tiles Creator",  1, 214, 989, "");
+   pushCreator("Damage Area Creator",  1, 215, 988, "");
    pushCreator("Timer Creator",        1, 217, 987, "");
 
    p.ia = { 106, 418, 16, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -878,8 +878,6 @@ void mwSelectionWindow::load_pde()
    pushRegular(p, "Sproingy", 1,  "");
 
 
-
-
    p.ia = { 102, 1023, 1, 1, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Health Bonus 10", 1,  "1/10 of Full Health");
 
@@ -888,8 +886,6 @@ void mwSelectionWindow::load_pde()
 
    p.ia = { 102, 197,  0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    pushRegular(p, "Purple Coin", 1,  "");
-
-
 
 
    p.ia = { 108, 464, 1, -1, 0, 0, 0, 20, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

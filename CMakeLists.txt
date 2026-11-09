@@ -23,7 +23,7 @@ elseif (UNIX AND NOT APPLE)
 
     # Search for Allegro 5 (core and standard addons)
     pkg_check_modules(ALLEGRO REQUIRED
-            allegro-monolith-5
+            allegro_monolith-5
     )
 
 

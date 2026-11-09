@@ -107,7 +107,6 @@ class mwItem
    int draw_rocket(int i, int x, int y, int shape);
    void draw_rocket_lines(int i);
 
-   int seq_color(int mod, int c1, int c2);
    int seq_color2();
    int seq_color3();
    void bomb_block_crosshairs(int e, int f);
@@ -204,12 +203,12 @@ class mwItem
 
    int create_trigger(int i);
    int create_timer(int i);
-   int create_block_manip(int i);
-   int create_block_damage(int i);
-   int create_start_block(int c);
+   int create_alter_tiles(int i);
+   int create_damage_area(int i);
+   int create_start(int c);
    int create_exit(int c);
-   void show_all_pmsg();
-   int create_pmsg(int c);
+   void show_all_messages();
+   int create_message(int c);
    int create_door(int type);
    int create_item(int type);
 
@@ -242,8 +241,8 @@ list of items
 [13] - timer
 [14] - switch
 [15] - sproingy
-[16] - block manip
-[17] - block damage
+[16] - alter tiles
+[17] - damage area
 [18] - gate
 [19] - hider
 
@@ -326,18 +325,14 @@ item[][13] = TGOF pm_event
 
 
 
-
-
 [7] - mine
 item[][8] mine damage
 
 [8] - bomb
-item[][6]  mode (2=explosion)
-item[][7]  blast size
-item[][8]  fuse length counter
-item[][9]  fuse length value
-item[][11]  sticky
-item[][12]  timer / remote
+see mwItemBombRocket.cpp
+
+
+
 
 
 [9]  - Trigger
@@ -379,19 +374,11 @@ item[][11]
 item[][12] timer count and val  (packed)
 item[][13] text and frame color (packed)
 
-
-
-
-
-
 [11] - rocket
-item[][6]  steerability
-item[][7]  blast size
-item[][8]  max speed
-item[][9]  accel
-item[][10] rocket rotation (scaled by 10)
+see mwItemBombRocket.cpp
 
 [12] not used
+
 
 
 [13] - timer
@@ -433,14 +420,14 @@ item[][11]  lockout
 item[][6] jump length (only used in level editor)
 item[][7] sproinginess
 
-[16] - Block Manip
+[16] - Alter Tiles
 item[][1] = pm_event_trigger
 item[][2] = draw on
 item[][3] = mode
-item[][6]  = trigger field x (2000)
-item[][7]  = trigger field y (2000)
-item[][8]  = trigger field w (2000)
-item[][9]  = trigger field x (2000)
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
@@ -448,7 +435,7 @@ item[][13] = copy x or block 3
 item[][14] = copy y or block 4
 
 
-[17] - Block Damage
+[17] - Damage Area
 item[][6]  = field x (2000)
 item[][7]  = field y (2000)
 item[][8]  = field w (2000)
@@ -456,7 +443,6 @@ item[][9]  = field h (2000)
 item[][10] = lift number
 item[][11] = mode
 item[][12] = damage
-
 
 
 [18] - gate

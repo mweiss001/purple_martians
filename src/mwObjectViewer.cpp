@@ -1557,22 +1557,15 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
             if (mLevel.mItem.item[n][8]) // regular door (not exit only)
             {
-               // check for bad link
-               // int link = mItem.item[num][9];
-               // if (mItem.item[link][0] != 1) // link is not door
-               // {
-               //    mItem.item[num][9] = num;  // link to self
-               //    mItem.item[num][11] = 1;   // trigger with up
-               // }
-
                ya+=4; // spacer
                char msg[80];
                sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][9]);
-               if (odbb(d, xa, xb, ya, bts, 11, msg))
+               if (odbb(d, xa, xb, ya, bts, 9, msg))
                {
-                  int i = mMiscFnx.get_item(2, 1, num );
+                  int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
                   if (i > -1) mLevel.mItem.item[num][9] = i;
                }
+               ya+=4; // spacer
                odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][11]); // door entry type
                odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
                odbp(d, xa, xb, ya, bts, 11, 1051, mLevel.mItem.item[n][12]); // exit link show
@@ -1719,11 +1712,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case PM_ITEM_TYPE_ROCKET: // rocket
             odbp(d, xa, xb, ya, bts, 13, 1023, mLevel.mItem.item[n][3]); // stat | fall | ride through door
             ya+=4; // spacer
-            if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, 11, n);
+            if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, PM_ITEM_TYPE_ROCKET, n);
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 20,  1, 1,  1, 0, "Maximum Speed:");
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 200, 1, 1,  1, 0, "Acceleration:");
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 100, 1, 1,  1, 0, "Steerability:");
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 100, 0, 1,  1, 0, "Steerability:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
          break;

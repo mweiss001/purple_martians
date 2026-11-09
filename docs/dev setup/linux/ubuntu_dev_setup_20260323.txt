@@ -214,6 +214,40 @@ target_compile_options(allegro_clion_app PRIVATE ${ALLEGRO_CFLAGS_OTHER})
 
 
 
+Configure CMakeLists.txt Manually (No pkg-config)
+
+If you prefer or need to avoid pkg-config completely, configure your CMakeLists.txt to point directly to Allegro's header and library files (typically located under /usr/include and /usr/lib, or /usr/local/...).
+Replace the contents of your CMakeLists.txt with a manual setup like this:
+cmake
+cmake_minimum_required(VERSION 3.20)
+project(AllegroTest C)
+
+set(CMAKE_C_STANDARD 99)
+
+# 1. Manually specify paths to Allegro headers and libraries
+find_path(ALLEGRO_INCLUDE_DIR allegro5/allegro.h
+        PATHS
+        /usr/include
+        /usr/local/include
+)
+
+find_library(ALLEGRO_LIB NAMES allegro
+        PATHS
+        /usr/lib
+        /usr/lib/x86_64-linux-gnu
+        /usr/local/lib
+)
+
+# Add other addons if needed (e.g., allegro_image, allegro_font, allegro_primitives)
+find_library(ALLEGRO_IMAGE_LIB NAMES allegro_image
+        PATHS
+        /usr/lib
+        /usr/lib/x86_64-linux-gnu
+        /usr/local/lib
+)
+
+if (NOT ALLEGRO_INCLUDE_DIR OR NOT ALLEGRO_LIB)
+    message(FATAL_ERROR "Allegro headers or libraries not found. Please ch
 
 
 
