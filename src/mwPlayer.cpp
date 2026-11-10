@@ -421,7 +421,7 @@ void mwPlayer::reset_player_scale_and_rot(int p)
 
 int mwPlayer::is_player_riding_rocket(int p)
 {
-   if ((syn[p].carry_item) && (m_parent.mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
+   if ((syn[p].carry_item) && (m_parent.mItem.item[syn[p].carry_item-1][0] == PM_ITEM_TYPE_LIT_ROCKET)) return 1;
    return 0;
 }
 
@@ -971,7 +971,6 @@ void mwPlayer::move_players()
       mScreen.proc_player_text_overlay_timer(p);
       if (syn[p].active)
       {
-
          if (syn[p].paused) proc_player_paused(p);
          else // not paused
          {

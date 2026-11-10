@@ -162,7 +162,7 @@ void mwItem::proc_door_collision(int p, int i)
                 if (ci == i) player_drop_item(p, ci);
 
                // check to see if player is carrying an item without the carry through door flag set
-               if (item[ci][3] != -2)  player_drop_item(p, ci);
+               if (!is_item_carryable_through_door(ci)) player_drop_item(p, ci);
             }
 
             // get the destination

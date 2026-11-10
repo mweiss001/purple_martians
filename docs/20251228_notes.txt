@@ -53540,39 +53540,476 @@ does bomb even have the option to carry through door?
 2026-11-09 07:26:18 time to commit and go to work...
 
 
+can I use 2 for flags?
+does anything else use it?
+
+
+I dont think so...
+
+do it for rocket
+
+
+#define PM_ITEM_ROCKET_RIDE                   0b00000000000000001  
+#define PM_ITEM_ROCKET_RIDE_THROUGH_DOOR      0b00000000000000010  
+
+
+now rocket wiil go from this type:
+
+   if (type == 1023)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Stationary"  },
+         {  1,    "Fall" },
+         {  -2,   "Ride Through Door" }
+      };
+   }
+
+
+to this type:
+
+   if (type == 1021)
+   {
+      valid_type = 1;
+      listItems =
+      {
+         {  0,    "Stationary"  },
+         {  1,    "Fall" }
+      };
+   }
+
+
+to convert old to new:
+
+all will set PM_ITEM_ROCKET_RIDE
+any -2 will set PM_ITEM_ROCKET_RIDE_THROUGH_DOOR
+
+all 0 will still be 0-stationary
+all non-zero will now be 1-fall
+
+Where will I patch in this new player ride?
+
+
+void mwItem::proc_item_collision(int p, int i)
+{
+   int type = item[i][0];
+
+   // any item other than bonus has higher priority
+   // if carrying bonus, it will be dropped and new item will be carried
+   int already_carrying = 0;
+   if (m_parent.mPlayer.syn[p].carry_item) // already carrying item
+   {
+      already_carrying = 1;
+      if ((item[m_parent.mPlayer.syn[p].carry_item][0] == PM_ITEM_TYPE_BONUS) && (type != PM_ITEM_TYPE_BONUS)) // carried item is bonus and new item is not bonus
+         already_carrying = 0;
+   }
+
+   // check if player can carry item
+   if ( (!already_carrying) &&     // not carrying item already
+         (item[i][3]<0) &&         // item is carryable
+         (m_parent.mPlayer.syn[p].fire) )   // fire pressed
+
+
+
+bool mwItem::is_item_carryable(int i)
+{
+   if ((item[i][0] != PM_ITEM_TYPE_ROCKET) && (item[i][3] < 0)) return true;
+   if ((item[i][0] == PM_ITEM_TYPE_ROCKET) && (item[i][2] & PM_ITEM_ROCKET_PLAYER_RIDE)) return true;
+   return false;
+}
+
+
+   // check if player can carry item
+   if ( (!already_carrying) &&     // not carrying item already
+         (is_item_carryable(i)) && 
+         (m_parent.mPlayer.syn[p].fire) )   // fire pressed
 
 
 
 
+what about ride through door?
 
 
 
 
+void mwItem::proc_door_collision(int p, int i)
+{
+   if ((m_parent.mPlayer.syn[p].marked_door == -1)  // player has no marked door yet
+     && (m_parent.mPlayer.syn[p].carry_item != i+1)) // player is not carrying this door
+   {
+
+
+         if (do_entry)
+         {
+            int bad_exit = 0;
+            item[i][10] = 0; // clear the key hold for the door you just left
+
+           // check if dest item is same as source item
+            if (item[i][9] == i) bad_exit = 1;
+
+            // is player carrying an item ?
+            if (m_parent.mPlayer.syn[p].carry_item)
+            {
+                int ci = m_parent.mPlayer.syn[p].carry_item - 1;
+                //printf("do entry, player is carrying item:%d\n", ci);
+
+               // check to see if player is carrying this door
+                if (ci == i) player_drop_item(p, ci);
+
+               // check to see if player is carrying an item without the carry through door flag set
+               if (item[ci][3] != -2)  player_drop_item(p, ci);
+            }
+
+
+now change in glt
+
+
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+            mLevel.mItem.item[y][2] = PM_ITEM_ROCKET_PLAYER_RIDE;
+
+            if (mLevel.mItem.item[y][3] == -2)
+            {
+               mLevel.mItem.item[y][2] = 3;
+               mLevel.mItem.item[y][3] = 1;
+            }
+         }
+
+
+this works...
+
+//               if (!is_item_carryable_through_door(i)) player_drop_item(p, ci);
+
+               // check to see if player is carrying an item without the carry through door flag set
+               if (item[ci][3] != -2)  player_drop_item(p, ci);
 
 
 
+2026-11-10 05:35:09
+
+
+go back to working:
+
+
+bool mwItem::is_item_carryable(int i)
+{
+   if (item[i][3] < 0) return true;
+
+   // if ((item[i][0] != PM_ITEM_TYPE_ROCKET) && (item[i][3] < 0)) return true;
+   // if ((item[i][0] == PM_ITEM_TYPE_ROCKET) && (item[i][2] & PM_ITEM_ROCKET_PLAYER_RIDE)) return true;
+   return false;
+}
+
+bool mwItem::is_item_carryable_through_door(int i)
+{
+   if (item[i][3] == -2) return true;
+
+   // if ((item[i][0] != PM_ITEM_TYPE_ROCKET) && (item[i][3] == -2)) return true;
+   // if ((item[i][0] == PM_ITEM_TYPE_ROCKET) && (item[i][2] & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR)) return true;
+   return false;
+}
+
+
+void mwItem::proc_rocket_collision(int p, int i)
+{
+   item[i][0] = PM_ITEM_TYPE_LIT_ROCKET;
+   item[i][13] = p;   // mark player that lit rocket
+   item[i][1] = 1026; // new ans
+
+   if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
+
+
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+            mLevel.mItem.item[y][2] = PM_ITEM_ROCKET_PLAYER_RIDE;
+            if (mLevel.mItem.item[y][3] == -2) mLevel.mItem.item[y][2] = 3;
+            if (mLevel.mItem.item[y][3]) mLevel.mItem.item[y][3] = 1;
+         }
+
+
+I can't seem to figure it out...
+
+revert to original and see if 2 is used for other shit...
+
+set all 2's from 2 to zero and all plays back well...
+
+there are only 18 levels < 100 that have rockets
+
+start simple...
+
+make all have 2 ride (1)
+
+
+there is still something that looks for negative 3 to player ride
 
 
 
+fixed this:
+
+bool mwItem::is_item_carryable(int i)
+{
+   //if (item[i][3] < 0) return true;
+
+   if ((item[i][0] == PM_ITEM_TYPE_ROCKET) || (item[i][0] == PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][2] & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+   }
+   else
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
+
+bool mwItem::is_item_carryable_through_door(int i)
+{
+//   if (item[i][3] == -2) return true;
+
+   if ((item[i][0] == PM_ITEM_TYPE_ROCKET) || (item[i][0] == PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][2] & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+   }
+   else
+   {
+      if (item[i][3] == -2) return true;
+   }
+
+   return false;
+}
 
 
+check with glt that I am setting what I think I am...
+
+before:
 
 
+Running Global Level Test
+
+num levels:82
+l:6 rocket 2:2  3:1
+l:8 rocket 2:2  3:1
+l:11 rocket 2:2  3:1
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:-2
+l:11 rocket 2:2  3:0
+l:12 rocket 2:2  3:1
+l:12 rocket 2:2  3:1
+l:17 rocket 2:2  3:1
+l:22 rocket 2:2  3:1
+l:23 rocket 2:2  3:1
+l:26 rocket 2:2  3:-2
+l:28 rocket 2:2  3:-2
+l:36 rocket 2:2  3:-2
+l:36 rocket 2:2  3:0
+l:36 rocket 2:2  3:0
+l:41 rocket 2:2  3:1
+l:41 rocket 2:2  3:1
+l:49 rocket 2:2  3:1
+l:55 rocket 2:2  3:1
+l:56 rocket 2:2  3:1
+l:58 rocket 2:2  3:-2
+l:58 rocket 2:2  3:0
+l:59 rocket 2:2  3:1
+l:83 rocket 2:2  3:1
+l:84 rocket 2:2  3:1
+
+after:
 
 
+num levels:82
+l:6 rocket 2:1  3:1
+l:8 rocket 2:1  3:1
+l:11 rocket 2:1  3:1
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:3  3:-2
+l:11 rocket 2:1  3:0
+l:12 rocket 2:1  3:1
+l:12 rocket 2:1  3:1
+l:17 rocket 2:1  3:1
+l:22 rocket 2:1  3:1
+l:23 rocket 2:1  3:1
+l:26 rocket 2:3  3:-2
+l:28 rocket 2:3  3:-2
+l:36 rocket 2:3  3:-2
+l:36 rocket 2:1  3:0
+l:36 rocket 2:1  3:0
+l:41 rocket 2:1  3:1
+l:41 rocket 2:1  3:1
+l:49 rocket 2:1  3:1
+l:55 rocket 2:1  3:1
+l:56 rocket 2:1  3:1
+l:58 rocket 2:3  3:-2
+l:58 rocket 2:1  3:0
+l:59 rocket 2:1  3:1
+l:83 rocket 2:1  3:1
+l:84 rocket 2:1  3:1
+
+looks good...
+
+so what is the deal?
+
+how about I test on one level?
+
+they all act like I would expect...
+
+what if I set -2 to 1 in glt and test that....
+
+still bad...
+
+check out one of those levels that fails....
+It might just be a subtle thing
+
+plays back very close...
+
+void mwItem::proc_rocket_collision(int p, int i)
+{
+   // change to lit rocket
+   item[i][0] = PM_ITEM_TYPE_LIT_ROCKET;
+   item[i][13] = p;   // mark player that lit rocket
+   item[i][1] = 1026; // new ans
+
+//   if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
+
+//   item[i][3] = -1;  // if stat or fall set to carryable
+
+   itemf[i][3] = 0;   // stop if falling
+   mGameEvent.add(26, 0, 0, p, i, 0, 0);
+}
 
 
+This could be a one frame difference of when rocket becomes carryable...
+
+could I compensate like this:
+
+old:
+
+bool mwItem::is_item_carryable(int i)
+{
+   //if (item[i][3] < 0) return true;
+
+   if ((item[i][0] == PM_ITEM_TYPE_ROCKET) || (item[i][0] == PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][2] & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+   }
+   else
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
 
 
+new:
+
+bool mwItem::is_item_carryable(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   //if (item[i][3] < 0) return true;
+
+   // old -2 was carryable always
+   if ((type == PM_ITEM_TYPE_ROCKET) && (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR)) return true;
+
+   // old 0 or 1 was not carryable until lit
+   if (type == PM_ITEM_TYPE_ROCKET) return false;
+
+   // if lit rocket, look at the flag
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+   }
+
+   // not rocket or lit rocket (all other items)
+   if ((type != PM_ITEM_TYPE_ROCKET) && (type != PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
+
+this was it!!!
+
+it is a little convoluted...
+
+what was happening was:
+
+In the old version if rocket was set to 0-stationary or 1-fall, it technically was not carryable
+
+as soon as it was lit and converted to PM_ITEM_TYPE_LIT_ROCKET it was changed to -1 carryable
+unless it was already -2 carry through door
+
+so when a player attempted to ride the rocket with mode 0 or 1, the player could not until one frame later
+when lit rocket was now carryable
+
+I had to replicate this one frame delay or I would break every demo that uses rockets
+
+The way it works is:
+- rockets are not technically carryable until lit
+- unless they are ride through door
 
 
+bool mwItem::is_item_carryable(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   if (type == PM_ITEM_TYPE_ROCKET)
+   {
+      // old -2 was carryable always
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+
+      // old 0 or 1 was not carryable until lit
+      else return false;
+   }
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+      else return false;
+   }
+
+   // not rocket or lit rocket (all other items)
+   if ((type != PM_ITEM_TYPE_ROCKET) && (type != PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
+
+bool mwItem::is_item_carryable_through_door(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+   }
+   else
+   {
+      if (item[i][3] == -2) return true;
+   }
+   return false;
+}
 
 
-
-
-
-
-
+2026-11-10 07:35:38 - commit and go
 
 
 

@@ -260,6 +260,24 @@ void mwGlobalLevelTool::execute()
 
 
 /*
+
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+//            if (mLevel.mItem.item[y][3] == -1) printf("l:%d rocket 3 == -1 \n", le[x] );
+
+//            printf("l:%d rocket 2:%d  3:%d\n", le[x],  mLevel.mItem.item[y][2],  mLevel.mItem.item[y][3]);
+
+            mLevel.mItem.item[y][2] = 1;
+            if (mLevel.mItem.item[y][3] == -2) mLevel.mItem.item[y][2] = 3;
+            if (mLevel.mItem.item[y][3]) mLevel.mItem.item[y][3] = 1;
+         }
+
+*/
+
+
+
+/*
       int msg_size = 0;
 
 

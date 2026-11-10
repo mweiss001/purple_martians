@@ -2,24 +2,17 @@
 
 #include "pm.h"
 #include "mwItem.h"
-#include "mwSound.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwDisplay.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwGameEvent.h"
 #include "mwSolid.h"
-#include "mwTriggerEvent.h"
-#include "mwWindowManager.h"
-#include "mwEventQueue.h"
-#include "mwInput.h"
-#include "mwWidget.h"
-#include "mwScreen.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
+
 
 void mwItem::initialize()
 {
@@ -71,24 +64,24 @@ void mwItem::initialize()
 // does the item type have a secondary position at 6,7?
 int mwItem::item_secondary67(int type)
 {
-   if (type == PM_ITEM_TYPE_KEY)    return 1; // key
-   if (type == PM_ITEM_TYPE_TRIGGER) return 1; // trigger
-   if (type == PM_ITEM_TYPE_MESSAGE)    return 1; // message
-   if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
-   if (type == PM_ITEM_TYPE_SWITCH) return 1; // switch
-   if (type == PM_ITEM_TYPE_ALTERTILES) return 1; // block manip
-   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1; // block damage
-   if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
+   if (type == PM_ITEM_TYPE_KEY)        return 1;
+   if (type == PM_ITEM_TYPE_TRIGGER)    return 1;
+   if (type == PM_ITEM_TYPE_MESSAGE)    return 1;
+   if (type == PM_ITEM_TYPE_TIMER)      return 1;
+   if (type == PM_ITEM_TYPE_SWITCH)     return 1;
+   if (type == PM_ITEM_TYPE_ALTERTILES) return 1;
+   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1;
+   if (type == PM_ITEM_TYPE_HIDER)      return 1;
    return 0;
 }
 
 int mwItem::item_secondary67_hires(int type)
 {
-   if (type == PM_ITEM_TYPE_TRIGGER) return 1; // trigger
-   if (type == PM_ITEM_TYPE_MESSAGE)    return 1; // message
-   if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
-   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1; // block damage
-   if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
+   if (type == PM_ITEM_TYPE_TRIGGER)    return 1;
+   if (type == PM_ITEM_TYPE_MESSAGE)    return 1;
+   if (type == PM_ITEM_TYPE_TIMER)      return 1;
+   if (type == PM_ITEM_TYPE_DAMAGEAREA) return 1;
+   if (type == PM_ITEM_TYPE_HIDER)      return 1;
    return 0;
 }
 
@@ -97,10 +90,11 @@ int mwItem::item_secondary67_hires(int type)
 void mwItem::draw_items()
 {
    for (int i=0; i<500; i++)
-   {
-      if ((item[i][0]) && (!((item[i][0] == 10) && (!strncmp(mMessageText.get_text(i).c_str(), "Level Statistics", 16))))) // skip drawing level stats message here, do it later
-         draw_item(i, 0, 0, 0);
-   }
+      if (item[i][0])
+      {
+         if (!((item[i][0] == PM_ITEM_TYPE_MESSAGE) && (!strncmp(mMessageText.get_text(i).c_str(), "Level Statistics", 16)))) // skip drawing level stats message here, do it later
+            draw_item(i, 0, 0, 0);
+      }
 }
 
 void mwItem::draw_item(int i, int custom, int cx, int cy)
@@ -165,6 +159,77 @@ void mwItem::draw_purple_coin_screen_direct(int i)
    m_parent.calc_actual_screen_position(itemf[i][0]+10, itemf[i][1]+10, ex1, ey1);
    mBitmap.spin_shape2(item[i][1], ex1, ey1, 0.8, 0.5, 40);
 }
+
+bool mwItem::is_item_being_carried(int i)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (m_parent.mPlayer.syn[p].active)
+         if ((!m_parent.mPlayer.syn[p].paused) || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))
+            if (i == m_parent.mPlayer.syn[p].carry_item-1) return true;
+
+   return false;
+}
+
+bool mwItem::is_item_moveable(int i, int type)
+{
+   bool moveable = item[i][3];
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)   moveable = 0;
+   if (type == PM_ITEM_TYPE_TRIGGER)      moveable = 0;
+   if (type == PM_ITEM_TYPE_TIMER)        moveable = 0;
+   if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
+   if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
+   if (type == PM_ITEM_TYPE_GATE)         moveable = 0;
+   if (type == PM_ITEM_TYPE_HIDER)        moveable = 0;
+   if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
+   return moveable;
+}
+
+
+bool mwItem::is_item_carryable(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   if (type == PM_ITEM_TYPE_ROCKET)
+   {
+      // old -2 was carryable always
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+
+      // old 0 or 1 was not carryable until lit
+      else return false;
+   }
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+      else return false;
+   }
+
+   // not rocket or lit rocket (all other items)
+   if ((type != PM_ITEM_TYPE_ROCKET) && (type != PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
+
+bool mwItem::is_item_carryable_through_door(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+   }
+   else
+   {
+      if (item[i][3] == -2) return true;
+   }
+   return false;
+}
+
 
 
 void mwItem::move_items()
@@ -234,30 +299,17 @@ void mwItem::move_items()
             }
          }
 
-         bool moveable = item[i][3];  // not stationary;
-         if (type == PM_ITEM_TYPE_LIT_ROCKET)   moveable = 0;
-         if (type == PM_ITEM_TYPE_TRIGGER)      moveable = 0;
-         if (type == PM_ITEM_TYPE_TIMER)        moveable = 0;
-         if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
-         if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
-         if (type == PM_ITEM_TYPE_GATE)         moveable = 0;
-         if (type == PM_ITEM_TYPE_HIDER)        moveable = 0;
-         if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
-
-         if (moveable)
+         if (is_item_moveable(i, type))
          {
-            // check if being carried
-            int pc = 0;
-            for (int p=0; p<NUM_PLAYERS; p++)
-               if (m_parent.mPlayer.syn[p].active)
-                  if ((!m_parent.mPlayer.syn[p].paused) || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))
-                     if (i == m_parent.mPlayer.syn[p].carry_item-1) pc = 1;
-
-            if (!pc) // not being carried
+            // if not being carried
+            if (!is_item_being_carried(i))
             {
-               // check for sticky bomb stuck to wall
-               int sticky = 0;
+               // is item sticky
+               bool sticky = 0;
                if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11])) sticky = 1;
+
+
+               // check for sticky bomb stuck to wall
                if ((sticky) && (is_item_stuck_to_wall(i)) )
                {
                   itemf[i][2] = 0;  // xinc
@@ -272,15 +324,13 @@ void mwItem::move_items()
                   // slow down xinc (friction)
                   if (itemf[i][2] > 0)
                   {
-                     itemf[i][2] -= .01;                    // slow down +xinc
+                     itemf[i][2] -= .01;                   // slow down +xinc
                      if (itemf[i][2] < 0) itemf[i][2] = 0; // set to zero if crosses zero
                   }
-
                   if (itemf[i][2] < 0)
                   {
                      itemf[i][2] += .01;                    // slow down -xinc
                      if (itemf[i][2] > 0) itemf[i][2] = 0; // set to zero if crosses zero
-
                   }
 
                   x = itemf[i][0];
@@ -363,15 +413,15 @@ void mwItem::move_items()
                            float lxi = mLevel.mLift.cur[a-32].xinc;
                            float lyi = mLevel.mLift.cur[a-32].yinc;
 
-                           itemf[i][0] += lxi;                 // move x with lift's xinc
-                           itemf[i][1]  = mLevel.mLift.cur[a-32].y - 20;  // align with lift's y
+                           itemf[i][0] += lxi;                           // move x with lift's xinc
+                           itemf[i][1] = mLevel.mLift.cur[a-32].y - 20;  // align with lift's y
 
                            x = itemf[i][0];
                            y = itemf[i][1];
 
                            if (lyi > 0) // down
-                              if (mSolid.is_down_solid(x, y, 0, 3))       // no lift check
-                                 itemf[i][1] = (y - (y % 20));    // item not on lift anymore, align with block
+                              if (mSolid.is_down_solid(x, y, 0, 3))      // no lift check
+                                 itemf[i][1] = (y - (y % 20));           // item not on lift anymore, align with block
 
                            if (lyi < 0) // up
                               if (mSolid.is_up_solid(x, y, 0, 3) == 1)
@@ -406,7 +456,7 @@ int mwItem::player_drop_item(int p, int i)
 {
    int wall_stuck = 0;
    m_parent.mPlayer.syn[p].carry_item = 0;
-   if (item[i][0] != 99) // not lit bomb
+   if (item[i][0] != PM_ITEM_TYPE_LIT_BOMB) // not lit bomb
    {
       // check to see if the item is embedded in the wall
       int x = itemf[i][0];
@@ -443,52 +493,72 @@ int mwItem::player_drop_item(int p, int i)
 
 void mwItem::proc_player_carry(int p)
 {
-   if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].carry_item))
-      if (!m_parent.mPlayer.syn[p].paused || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))// player is carrying item
+   // player is inactive
+   if (!m_parent.mPlayer.syn[p].active) return;
+
+   // player is not carrying item
+   if (!m_parent.mPlayer.syn[p].carry_item) return;
+
+   // player is paused and not in door travel
+   if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type != 2) return;
+
+
+   // get item number and type
+   int i = m_parent.mPlayer.syn[p].carry_item-1;
+   int type = item[i][0];
+
+
+   // if player is carrying inactive item, drop item
+   if (type == 0)
+   {
+      m_parent.mPlayer.syn[p].carry_item = 0;
+      return;
+   }
+
+
+   // mark player carrying lit bomb or rocket
+   if ((type == PM_ITEM_TYPE_LIT_ROCKET) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p;
+
+   // set item position relative to player that's carrying it
+   if (type != PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      itemf[i][1] = m_parent.mPlayer.syn[p].y - 2;
+      if (!m_parent.mPlayer.syn[p].left_right) itemf[i][0] = m_parent.mPlayer.syn[p].x - 15;
+      if (m_parent.mPlayer.syn[p].left_right)  itemf[i][0] = m_parent.mPlayer.syn[p].x + 15;
+   }
+
+   // if player is not holding fire, drop the item
+   if (!m_parent.mPlayer.syn[p].fire)
+   {
+      int wall_stuck = player_drop_item(p, i);
+
+      if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
       {
-         int i = m_parent.mPlayer.syn[p].carry_item-1;  // item number
-         int type = item[i][0];
-
-
-         if (type == 0) m_parent.mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
-
-         if ((type == PM_ITEM_TYPE_LIT_ROCKET) || (type == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
-
+         itemf[i][2] = 0;
+         itemf[i][3] = 0;
+      }
+      else if (wall_stuck < 6)
+      {
          if (type != PM_ITEM_TYPE_LIT_ROCKET)            // not lit rocket
          {
-            // set item position relative to player that's carrying it
-            itemf[i][1] = m_parent.mPlayer.syn[p].y - 2;
-            if (!m_parent.mPlayer.syn[p].left_right) itemf[i][0] = m_parent.mPlayer.syn[p].x - 15;
-            if (m_parent.mPlayer.syn[p].left_right)  itemf[i][0] = m_parent.mPlayer.syn[p].x + 15;
+            itemf[i][2] = m_parent.mPlayer.syn[p].xinc;  // inherit the players momentum
+            itemf[i][3] = m_parent.mPlayer.syn[p].yinc;
+            if (m_parent.mPlayer.syn[p].up)    itemf[i][3] -= 6; // throw item upwards
+            if (m_parent.mPlayer.syn[p].down)  itemf[i][3] =  3; // throw item downwards
+            if (m_parent.mPlayer.syn[p].left)  itemf[i][2] -= 2; // throw item left
+            if (m_parent.mPlayer.syn[p].right) itemf[i][2] += 2; // throw item right
          }
-         if (!m_parent.mPlayer.syn[p].fire) // drop
-         {
-            int wall_stuck = player_drop_item(p, i);
 
-            if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
-            {
-               itemf[i][2] = 0;
-               itemf[i][3] = 0;
-            }
-            else if (wall_stuck < 6)
-            {
-               if (type != PM_ITEM_TYPE_LIT_ROCKET)            // not lit rocket
-               {
-                  itemf[i][2] = m_parent.mPlayer.syn[p].xinc;  // inherit the players momentum
-                  itemf[i][3] = m_parent.mPlayer.syn[p].yinc;
-                  if (m_parent.mPlayer.syn[p].up)    itemf[i][3] -= 6; // throw item upwards
-                  if (m_parent.mPlayer.syn[p].down)  itemf[i][3] =  3; // throw item downwards
-                  if (m_parent.mPlayer.syn[p].left)  itemf[i][2] -= 2; // throw item left
-                  if (m_parent.mPlayer.syn[p].right) itemf[i][2] += 2; // throw item right
-               }
+         // prevent sticky bombs from sticking to the ground when throwing upwards
+         if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (m_parent.mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
-               // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (m_parent.mPlayer.syn[p].up)) itemf[i][1] -= 2;
-
-            }
-         }
       }
+   }
 }
+
+
+
+
 
 
 
@@ -497,19 +567,23 @@ void mwItem::proc_item_collision(int p, int i)
 {
    int type = item[i][0];
 
-   // any item other than bonus has higher priority
-   // if carrying bonus, it will be dropped and new item will be carried
+
+   // check if this player is already carrying item
    int already_carrying = 0;
    if (m_parent.mPlayer.syn[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((item[m_parent.mPlayer.syn[p].carry_item][0] == 2) && (type != 2)) // carried item is bonus and new item is not bonus
+
+      // any item other than bonus has higher priority
+      // if carrying bonus, it will be dropped and new item will be carried
+
+      if ((item[m_parent.mPlayer.syn[p].carry_item][0] == PM_ITEM_TYPE_BONUS) && (type != PM_ITEM_TYPE_BONUS)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
-   // check if player can carry item
+   // check if player can start carrying item
    if ( (!already_carrying) &&     // not carrying item already
-         (item[i][3]<0) &&         // item is carryable
+         (is_item_carryable(i)) && // item is carryable
          (m_parent.mPlayer.syn[p].fire) )   // fire pressed
    {
       // check to see if another player is already carrying this item
@@ -536,7 +610,7 @@ void mwItem::proc_item_collision(int p, int i)
    if (type == PM_ITEM_TYPE_ORB)     proc_orb_collision(p, i);
    if (type == PM_ITEM_TYPE_MINE)    proc_mine_collision(p, i);
    if (type == PM_ITEM_TYPE_BOMB)    proc_bomb_collision(p, i);
-   if (type == PM_ITEM_TYPE_MESSAGE)     proc_pmsg_collision(i);
+   if (type == PM_ITEM_TYPE_MESSAGE) proc_pmsg_collision(i);
    if (type == PM_ITEM_TYPE_ROCKET)  proc_rocket_collision(p, i);
    if (type == PM_ITEM_TYPE_SWITCH)  proc_switch_collision(p, i);
    if (type == PM_ITEM_TYPE_SPRING)  proc_sproingy_collision(p, i);

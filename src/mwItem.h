@@ -44,6 +44,13 @@ class mwItem
    int player_drop_item(int p, int i);
    void proc_player_carry(int p);
 
+   bool is_item_being_carried(int i);
+   bool is_item_moveable(int i, int type);
+
+   bool is_item_carryable(int i);
+   bool is_item_carryable_through_door(int i);
+
+
    void proc_item_collision(int p, int i);
    void proc_bonus_collision(int p, int i);
    void proc_mine_collision(int p, int i);

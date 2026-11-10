@@ -28,6 +28,7 @@ item[][9]  = fuse length value
 item[][10] = unused as far as I can tell
 item[][11] = sticky
 item[][12] = type (0-fuse) (1-detonator)
+
 item[][13] = player that lit
 
 
@@ -49,7 +50,9 @@ item[][8]  = max speed
 item[][9]  = acceleration
 item[][10] = rotation
 item[][11] = current speed
-item[][12] =
+item[][12] = unused as far as I can tell
+
+
 item[][13] = player that lit
 
 item[][14] = time to live
@@ -97,10 +100,11 @@ void mwItem::proc_bomb_collision(int p, int i)
 
 void mwItem::proc_rocket_collision(int p, int i)
 {
+   // change to lit rocket
    item[i][0] = PM_ITEM_TYPE_LIT_ROCKET;
    item[i][13] = p;   // mark player that lit rocket
    item[i][1] = 1026; // new ans
-   if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
+
    itemf[i][3] = 0;   // stop if falling
    mGameEvent.add(26, 0, 0, p, i, 0, 0);
 }
@@ -131,18 +135,16 @@ void mwItem::proc_lit_rocket(int i)
         ((itemf[i][2]<-1.1) && (mSolid.is_left_solid( x, y, 0, 3) == 1)) ||
         ((itemf[i][2]>1.1)  && (mSolid.is_right_solid(x, y, 0, 3) == 1)) )
    {
-
       // stop movement
       itemf[i][2] = 0;
       itemf[i][3] = 0;
 
-      item[i][0] = PM_ITEM_TYPE_LIT_BOMB;   // change to lit bomb
-      item[i][6] = 2;    // mode 2; explosion
-
+      // change to lit bomb
+      item[i][0] = PM_ITEM_TYPE_LIT_BOMB;
       item[i][3] = 1;   // not carryable (fall)
-
-      item[i][8] = 20;   // explosion timer count
-      item[i][9] = 20;   // explosion timer limit
+      item[i][6] = 2;   // mode 2; explosion
+      item[i][8] = 20;  // explosion timer count
+      item[i][9] = 20;  // explosion timer limit
 
       // if any players are riding this rocket, make them drop it
       for (int p=0; p<NUM_PLAYERS; p++)
