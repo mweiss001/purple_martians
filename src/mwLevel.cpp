@@ -191,6 +191,41 @@ void mwLevel::init_level_background() // fill level_background with block tiles
    al_set_target_bitmap(level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
 
+   // overworld tint areas
+   if (last_level_loaded == 1)
+      for (int area=1; area<9; area++)
+         if (overworld_area_array[area].visible)
+         {
+            float x1 = overworld_area_array[area].x * 20;
+            float x2 = x1 + overworld_area_array[area].w * 20;
+            float y1 = ((overworld_area_array[area].y-1) * 20) + 10;
+            float h = (overworld_area_array[area].h+1) * 20;
+
+            if (area == 8) y1+=11;
+
+            if (area == 6)
+            {
+               x1 = 0;
+               x2 = 1999;
+            }
+
+            ALLEGRO_COLOR area_color = mColor.pc[overworld_area_array[area].color];
+
+            float ac_hue, ac_sat, ac_lit;
+            mColor.map_rgb_to_hsl(area_color, ac_hue, ac_sat, ac_lit);
+
+            for (float y=0; y<h; y++)
+            {
+               float ratio = y / h;
+               float iratio = 1-ratio;
+               float lightness = iratio/8;
+
+               al_draw_line(x1, y1+y, x2, y1+y, al_color_hsl(ac_hue, ac_lit, lightness), 1);
+            }
+         }
+
+
+
    bool force_draw_tile_overlays = false;
    if (mLoop.level_editor_running && mEditorMain.show_tile_overlays) force_draw_tile_overlays = true;
 

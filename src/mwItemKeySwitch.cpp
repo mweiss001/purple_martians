@@ -40,7 +40,7 @@ void mwItem::erase_hider_areas()
 {
    al_set_target_bitmap(m_parent.level_buffer);
    for (int i=0; i<500; i++)
-      if ((item[i][0] == 19) && (item[i][2]) && (item[i][10]))
+      if ((item[i][0] == PM_ITEM_TYPE_HIDER) && (item[i][2]) && (item[i][10]))
       {
          int x1 = item[i][6];
          int y1 = item[i][7];

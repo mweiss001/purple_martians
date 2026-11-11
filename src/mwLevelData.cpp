@@ -328,6 +328,10 @@ void mwLevel::create_area_msg(int area)
    int mx = axc*20 - mw/2;
    int my = by*20;
 
+   if (area > 1 && area < 7) my -=10;
+
+
+
    // create the area name message
    create_msg_helper(mx-20, my, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
 
@@ -606,8 +610,8 @@ void mwLevel::fill_overworld_area_array()
    overworld_area_array_add(3, "Suburbs",      6,   0, 0,    0,  22,  100,  10);
    overworld_area_array_add(4, "Downtown",     7,   0, 0,    0,  32,  100,  10);
    overworld_area_array_add(5, "Dungeon",      8,   0, 0,    0,  42,  100,  10);
-   overworld_area_array_add(6, "Escape",      10,   0, 1,   34,  52,   32,  20);
-   overworld_area_array_add(7, "Extra",        9,   0, 0,    2,  69,   44,  21);
+   overworld_area_array_add(6, "Escape",      10,   0, 1,   34,  52,   32,  12);
+   overworld_area_array_add(7, "Extra",        9,   0, 0,    2,  67,   39,  23);
    overworld_area_array_add(8, "Dev Demo",     8,   0, 0,    0,  90,  100,  10);
 
    // print all levels and areas they belong to
@@ -682,7 +686,7 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(55,  7200,  "Ancient Ruins");       // 3:00 demo 1:59
    data_helper(56,  9600,  "Zaiden");              // 4:00 demo 2:44
    data_helper(57,  7200,  "Valentine");           // 3:00 demo 2:43
-   data_helper(58,  9600,  "unnamed");             // 4:00 demo
+   data_helper(58,  9600,  "Psycho Killer");       // 4:00 demo
    data_helper(60,  2400,  "Bomb Toss");           // 2:00 demo not done
    data_helper(61,  2400,  "Bomb Toss 2");         // 2:00 demo not done
    data_helper(64,  12000, "Escape Rocket!");      // 5:00 demo 4:38

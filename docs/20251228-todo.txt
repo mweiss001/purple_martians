@@ -16,12 +16,6 @@ waiting for more info...
 
 debug press fire to complete level does nothing
 
-
-
-
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -31,54 +25,6 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
-move level 111 to main gain and make it work well
-where? I have a gap at 58...do it
-what will I name it? tbd
-what do I need to do to finish it?
-
-make the bomb that kill archwag and jumpworm cloners not able to get wrong
-right now if player does not kill them the bomb will go away...
-player can still shoot down to kill cloners....
-
-
-
-
-make it so that while in the shaft you always have a spring
-use the spring to jump up and get a bomb
-extend jump on spring to get higher and send rocket
-only one rocket at a time
-
-
-can you take a spring through
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -93,8 +39,8 @@ make mines tossable
 
 
 
-
-I have some extra shapes for doors (portals)
+Portal shapes for doors
+-----------------------
 
 https://actuallykron.itch.io/portals-premium
 
@@ -160,6 +106,18 @@ so make a place to put them
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------------
 I really miss wrap
 could I bring it back
@@ -176,9 +134,17 @@ when passing through it you instantly jump to the other line
 
 
 
----------------------------------------------
-could I make each area on the overworld have a very slight color tint?
-would I do that are draw level background?
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -213,6 +179,7 @@ things I do not want them to be able to change:
 --------------------------------------------------
 test items
 make custom tests for each item type
+
 
 
 

@@ -1099,8 +1099,8 @@ void mwObjectViewer::ov_process_keypress()
          if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_next_lift(num);
       break;
       case 22: // previous
-         if ((obt == PM_OBJECT_TYPE_ITEM)  && (--num < mLevel.mEnemy.e_first_num[type])) num++;
-         if ((obt == PM_OBJECT_TYPE_ENEMY) && (--num < mLevel.mItem.item_first_num[type])) num++;
+         if ((obt == PM_OBJECT_TYPE_ITEM) && (--num < mLevel.mItem.item_first_num[type])) num++;
+         if ((obt == PM_OBJECT_TYPE_ENEMY)  && (--num < mLevel.mEnemy.e_first_num[type])) num++;
          if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_prev_lift(num);
       break;
    } // end of switch (mb)

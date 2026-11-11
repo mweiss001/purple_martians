@@ -38,6 +38,9 @@ item[][7] start index
 item[][8] no backsies
 item[][9] trigger event number
 
+
+
+
 */
 
 
@@ -282,6 +285,7 @@ item[][7] = current display page
 item[][10] level icon size
 item[][11] hover level icon size
 
+
 */
 
 
@@ -312,15 +316,14 @@ void mwItem::proc_gate_collision(int p, int i)
    // enter
    // -------------------------------------------------------
 
-   // if not already in gate_enter_mode
+   // if not already in level_done_mode
    // and not client (client can never locally enter gate)
    // and UP pressed:
-   // start gate_enter_mode
+   // start level_done_mode
 
    if (!mGameState.level_done_mode && !mNetgame.ima_client && m_parent.mPlayer.syn[p].up)
    {
       mGameState.level_done_mode = 29;
-//      mGameState.gate_enter_mode = 9;
       mGameState.gate_enter_item = i;
       // force page 0 (level icon) for transition
       item[i][7] = 0;
@@ -422,6 +425,8 @@ void mwItem::draw_gate_tile(int i, int size)
    if (size == 2) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60,  x,     y-9,   20, 30,  0); // half size
    if (size == 3) al_draw_scaled_bitmap(mBitmap.gate_tile[gate_tile_index][seq], 0, 0, 40, 60,  x-5,   y-24,  30, 45,  0); // 3/4 size
 
+
+
    // draw lock overlay
    int xc = x+10; // center of tile
    int yc = y-5;  // center of tile
@@ -448,7 +453,9 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       if (!player_on_gate)
       {
          draw_level_icon(i);
-         draw_gate_tile(i, 3);
+         int gate_size = 3;
+         if (item[i][10]<100) gate_size = 2;
+         draw_gate_tile(i, gate_size);
       }
    }
    return 1;
@@ -574,7 +581,7 @@ void mwItem::show_page(int i, int page, int xc, int bs, int by)
 
    float o = 0.5;
 
-   int pad_page = 4; // mLoop.pct_y;
+   int pad_page = 0; // mLoop.pct_y;
 
    // page x1 and x2 from xc and level icon width
    float x1 = (float)(xc-bs/2 - 1) + o;

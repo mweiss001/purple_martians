@@ -54883,7 +54883,69 @@ I don't feel like doing any of that now
 
 I do a little more work on level 58
 
+move level 111 to main gain and make it work well
+where? I have a gap at 58...do it
+what will I name it? tbd
+what do I need to do to finish it?
+
+make the bomb that kill archwag and jumpworm cloners not able to get wrong
+right now if player does not kill them the bomb will go away...
+player can still shoot down to kill cloners....
+
+
+make it so that while in the shaft you always have a spring
+use the spring to jump up and get a bomb
+extend jump on spring to get higher and send rocket
+only one rocket at a time
+
+
+can you take a spring through
+
+
+LEVEL058
+
+make a spring always available in shaft
+destroy if taken out
+centered
+only create if player is in shaft
+done
+
+next
+create bomb similar
+It can be taken out when lit
+
+I like that area, I think it is done
+what else needs fixing?
+
+psycho killer qu'est-ce que c'est
+
+level 58 is done!!!
+
+it took hours, but damn it looks good!!
+
+
+
 then I want to do portals
+why am I procrastinating?
+
+
+ make gate icon size adjustable
+I already have 2 sizes, one for normal and one for hover
+just make normal one smaller if level icon < 100
+that looks goood...
+
+
+---------------------------------------------
+could I make each area on the overworld have a very slight color tint?
+would I do that on draw level background?
+--------------------------
+what do I need to do to make tiles draw with alpha?
+
+2026-11-11 17:44:19
+this looks so good!!!
+
+
+
 
 
 
