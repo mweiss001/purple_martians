@@ -53,6 +53,13 @@ public:
 
 
 
+
+   bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int16_t &var, int disable_input);
+   bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int16_t &var, int disable_input);
+
+
+
+
    bool mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
    bool mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int &var, int disable_input);
 
@@ -128,6 +135,16 @@ public:
                  int r, int backgroundType, int frameType, int textType,
                  int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
                  int text_just, int &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input);
+
+   void mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                 int r, int backgroundType, int frameType, int textType,
+                 int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                 int text_just, int16_t &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input);
+
+
+
+
+
 
    void mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int yb,
                  int r, int backgroundType, int frameType, int textType,

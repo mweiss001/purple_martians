@@ -54015,6 +54015,879 @@ bool mwItem::is_item_carryable_through_door(int i)
 
 
 
+made flags for rocket
+I would like to make more common fall, stationary, carry, carry through door
+
+right now stat/fall/carry takes an entire 32 bit integer
+
+proposed common new:
+
+flags in 2
+
+0 stat/fall
+1 carry
+2 carry through door
+
+secondary pos at 6789
+hires sec position
+
+bomb or rocket trigger active
+
+
+what if I had a simple way to pack 2 16 bit integers into a 32 bit
+I could use that for position xy each would have a range of 0-65535
+all this to save a few bytes?
+
+
+what if item was a struct?
+an array of struct would not matter when I saved to disk, or sent via state
+
+
+what if item was a plain chunk of bits? 16x32
+I could fill them however I wanted
+I could have bits, uint8, uint16, uint32, floats, doubles
+
+why am I so concerned about them all being the same size?
+I need POD types for my save to disk and state stuff
+
+to start with I think I want to explore array of struct
+
+I can make most ints 16
+I can use floats for pos
+
+how many ints need to be 32 bit?
+-flags
+-blocks
+
+   uint8_t type;
+   uint16_t tile;
+   uint32_t flags;
+
+
+to start with, combine itemf and item
+
+struct item
+{
+   float x;
+   float y;
+   float xinc
+   float yinc;
+  
+   int i32[16];
+};
+
+
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   int active;
+   int flags;
+   int mode;
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color;
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+
+   char lift_name[40];
+};
+
+how much space does lift take currently?
+
+mLift.cur                   :  5120
+
+
+what if I did this:
+
+   uint16_t active;
+   uint16_t flags;
+   uint16_t mode;
+   uint16_t mode_countdown_timer;
+   uint16_t mode_reset_value;
+   uint16_t color;
+
+   uint16_t draw_mode;
+   uint16_t draw_mode_val1;
+   uint16_t draw_mode_val2;
+   uint16_t draw_mode_val3;
+
+   uint16_t current_step;
+   uint16_t num_steps;
+   uint16_t limit_counter;
+   uint16_t limit_type;
+
+then I would neet to convert levels
+
+mLift.cur      :  4000
+
+what about lift steps also:
+
+mLift.stp      : 38400
+
+struct lift_step
+{
+   int type;
+   int x;
+   int y;
+   int w;
+   int h;
+   int val;
+};
+
+
+4 x 6 x 40 x 40 = 38400
+2 x 6 x 40 x 40 = 19200
+
+
+how will I convert?
+
+use glt to load and save in new format
+
+make a new 
+
+struct lift_step2
+{
+   uint8_t type;
+   uint16_t x;
+   uint16_t y;
+   uint16_t w;
+   uint16_t h;
+   uint16_t val;
+};
+
+struct lift_step
+{
+   int type;
+   int x;
+   int y;
+   int w;
+   int h;
+   int val;
+};
+
+
+   struct lift_step  stp[NUM_LIFTS][40];
+   struct lift_step2  stp2[NUM_LIFTS][40];
+
+
+when loading, copy to stp2...
+
+
+get new size for save:
+
+
+#define PML_SIZE 139720
+
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 38400
+mMessageTextA  :  5000
+---------------:------
+total          :139720
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp2      : 19200
+mMessageTextA  :  5000
+---------------:------
+total          :120520
+
+
+
+#define PML_SIZE2 120520
+
+   offset += sz; sz = sizeof(mLift.stp2);                       memcpy(b+offset, mLift.stp2,                       sz);
+
+
+
+   // put variables in pml
+   char pml[PML_SIZE2];
+   var_to_pml(pml);
+
+   // compress pml to cmp
+   char cmp[PML_SIZE2];
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), -1);
+   int cmp_size = destLen;
+
+
+   // write cmp to file
+   FILE *fp = fopen(filename,"wb");
+   fwrite(cmp, cmp_size, 1, fp);
+   fclose(fp);
+
+
+backup levels...
+
+
+run glt....
+
+change load
+
+actually....type is more complex than I thought
+It has step type, color and flags
+
+#define PM_LIFT_TYPE_BITS        0b00000000000000000000000000011111
+#define PM_LIFT_FLAG_BITS        0b00001111111111111111111111100000
+#define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
+#define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
+#define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
+#define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
+#define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+#define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+
+
+this would be better:
+
+struct lift_step2
+{
+   uint8_t type;
+   uint8_t color;
+   uint32_t flags;
+   uint16_t x;
+   uint16_t y;
+   uint16_t w;
+   uint16_t h;
+   uint16_t val;
+};
+
+this is making things much more complex!!!
+
+is it worth it? yes!
+
+
+for now, make 
+
+
+struct lift_step2
+{
+   uint32_t type;
+   uint8_t color;
+   uint8_t step_type;
+   uint16_t x;
+   uint16_t y;
+   uint16_t w;
+   uint16_t h;
+   uint16_t val;
+};
+
+these 2 can be fixed later, but for now make type do what is used to do
+   uint8_t color;
+   uint8_t step_type;
+
+revert levels
+revert load
+confirm all demos play
+
+struct lift_step2
+{
+   uint32_t type;
+   uint8_t color;
+   uint8_t step_type;
+   uint16_t x;
+   uint16_t y;
+   uint16_t w;
+   uint16_t h;
+   uint16_t val;
+};
+
+
+
+   // copy to stp2
+   for (int ll=0; ll<40; ll++)
+      for (int s=0; s<40; s++)
+      {
+         mLift.stp2[ll][s].type = mLift.stp[ll][s].type;
+         mLift.stp2[ll][s].x    = mLift.stp[ll][s].x;
+         mLift.stp2[ll][s].y    = mLift.stp[ll][s].y;
+         mLift.stp2[ll][s].w    = mLift.stp[ll][s].w;
+         mLift.stp2[ll][s].h    = mLift.stp[ll][s].h;
+         mLift.stp2[ll][s].val  = mLift.stp[ll][s].val;
+      }
+
+save:
+
+//   offset += sz; sz = sizeof(mLift.stp);                       memcpy(b+offset, mLift.stp,                       sz);
+   offset += sz; sz = sizeof(mLift.stp2);                       memcpy(b+offset, mLift.stp2,                       sz);
+
+
+get new size:
+
+
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp2      : 25600
+mMessageTextA  :  5000
+---------------:------
+total          :126920
+
+run glt
+
+
+many functions want int instead of uint32
+
+
+I cant cast like this:
+I get warnings and it does not work
+
+
+
+   switch (stp[l][s].type & 31)
+   {
+      case 1: // move and resize
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  (int&)stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  (int&)stp[l][s].w,   1600, 0, 20, 1, 10, "Width:",  1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  (int&)stp[l][s].h,   1600, 0, 20, 1, 10, "Height:", 1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  (int&)stp[l][s].x,   1999, 0, 20, 1, 10, "X:",      1, d); ya+=bts+1;
+         mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  (int&)stp[l][s].y,   1999, 0, 20, 1, 10, "Y:",      1, d); ya+=bts+1;
+
+
+can I make an overload for mStepSliderInt
+
+yes...
+
+
+// overload for int16
+void mwWidget::mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                          int text_just, int16_t &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input)
+{
+   int var1 = var;
+   mStepSliderInt(xType, xa, xb, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, var1, ul, ll, slinc, stinc1, stinc2, txt, update, disable_input);
+   var = var1;
+}
+
+
+now an overload for 
+
+mWidget.mButtonPD
+
+
+now an overload for:
+
+            mMiscFnx.mw_round((int&)mLevel.mLift.stp[lift][step].x, snap);
+
+or I could just have this return the int...then type will not matter...
+
+how many times is this used?
+do it!
+done
+
+now am I happy with lift steps?
+it compiles with no errors
+
+remove the old 
+
+struct lift_step
+{
+   int type;
+   int8_t color;
+   int8_t step_type;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
+};
+
+
+now can I use the new color and step type?
+
+in load, set these vars
+
+now use them...
+
+where do I set color and use color
+
+
+
+current lift copies type from step, which includes color, type and flags
+maybe not....
+
+cur has flags and color, but are they set when changing step?
+
+could I simply just find them from current step?
+
+
+lift current has:
+current lift step
+current lift step type
+current lift step color
+current lift step flags
+
+it seems like a lot of duplication
+these could all be found from current step:
+current lift step type
+current lift step color
+current lift step flags
+
+lets try to do it that way...
+
+change the varaiable names
+
+I now no longer use flags, and color in current lift...variables are still there, but not used...
+
+I think I have done all in lifts.cpp
+
+demos all play back....
+
+
+
+add lift step defines
+
+#define PM_LIFT_STEP_TYPE_MOVE         1
+#define PM_LIFT_STEP_TYPE_WAIT_TIMER   2
+#define PM_LIFT_STEP_TYPE_WAIT_PROX    3
+#define PM_LIFT_STEP_TYPE_END          4
+#define PM_LIFT_STEP_TYPE_WAIT_EVENT   5
+#define PM_LIFT_STEP_TYPE_SEND_EVENT   6
+
+
+
+test out lift editor stuff...
+
+new lift color = 0;
+
+
+newly created lifts do not show any color...
+
+they have w and height of 0
+
+
+
+follow the trail of adding new lift steps
+
+
+create_lift:
+  2 x construct_lift_step
+ 
+get_new_lift_step:
+  5 x construct_lift_step
+   
+insert_lift_step:
+  1 x get_new_lift_step:
+ 
+insert_steps_until_quit
+   1 x insert_lift_step:
+
+where is cur[lift].num_steps  set?
+
+insert lift step
+delete lift step
+create lift
+
+OK this is all good
+
+I think I need to make this function optional setting from previous steps
+int mwLift::construct_lift_step(int l, int s, int step_type, int x, int y, int w, int h, int val)
+find_previous_move_step(l, s);
+make a version with move
+getting even closer....
+
+
+now in lift steps I want to rename type to flags, then step_type to type..done
+I cannot change the order without messing with already saved levels
+
+
+
+struct lift_step2
+{
+   int8_t type;
+   int8_t color;
+   int32_t flags;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
+};
+
+
+while I am at it I should change the flags order also
+
+
+old:
+
+#define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
+#define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
+#define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
+#define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+#define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+
+new:
+
+#define PM_LIFT_NO_DRAW          0b00010000
+#define PM_LIFT_SOLID_PLAYER     0b00001000
+#define PM_LIFT_SOLID_ENEMY      0b00000100
+#define PM_LIFT_SOLID_ITEM       0b00000010
+#define PM_LIFT_HIDE_LINES       0b00000001
+
+shift 23 >>
+
+
+   // set step type and color
+   for (int ll=0; ll<40; ll++)
+      for (int s=0; s<40; s++)
+      {
+         mLift.stp2[ll][s].type = mLift.stp[ll][s].type;
+         mLift.stp2[ll][s].flags = mLift.stp[ll][s].flags >> 23;
+         mLift.stp2[ll][s].color = mLift.stp[ll][s].color;
+         mLift.stp2[ll][s].x = mLift.stp[ll][s].x;
+         mLift.stp2[ll][s].y = mLift.stp[ll][s].y;
+         mLift.stp2[ll][s].w = mLift.stp[ll][s].w;
+         mLift.stp2[ll][s].h = mLift.stp[ll][s].h;
+         mLift.stp2[ll][s].val = mLift.stp[ll][s].val;
+      }
+
+
+
+
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 25600
+mMessageTextA  :  5000
+---------------:------
+total          :126920
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp2      : 32000
+mMessageTextA  :  5000
+---------------:------
+total          :133320
+
+
+
+struct lift_step
+{
+   int flags;
+   int8_t color;
+   int8_t type;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
+};
+== 16
+
+
+struct lift_step2
+{
+   int8_t type;
+   int8_t color;
+   int32_t flags;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
+};
+== 20
+
+
+4
+1
+1
+2
+2
+2
+2
+2
+16 x 40 x 40 = 25600
+
+1
+1
+4
+2
+2
+2
+2
+2
+----
+should also be 16  
+
+
+do it like this:
+
+struct lift_step2
+{
+   int32_t flags;
+   int8_t type;
+   int8_t color;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
+};
+
+
+
+that worked
+
+removed
+
+//#define PM_LIFT_TYPE_BITS        0b00000000000000000000000000011111
+//#define PM_LIFT_FLAG_BITS        0b00001111111111111111111111100000
+// #define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
+// #define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
+// #define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
+// #define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
+// #define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+// #define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
+//
+
+   // // set step type and color
+   // for (int ll=0; ll<40; ll++)
+   //    for (int s=0; s<40; s++)
+   //    {
+   //       mLift.stp2[ll][s].type = mLift.stp[ll][s].type;
+   //       mLift.stp2[ll][s].flags = mLift.stp[ll][s].flags >> 23;
+   //       mLift.stp2[ll][s].color = mLift.stp[ll][s].color;
+   //       mLift.stp2[ll][s].x = mLift.stp[ll][s].x;
+   //       mLift.stp2[ll][s].y = mLift.stp[ll][s].y;
+   //       mLift.stp2[ll][s].w = mLift.stp[ll][s].w;
+   //       mLift.stp2[ll][s].h = mLift.stp[ll][s].h;
+   //       mLift.stp2[ll][s].val = mLift.stp[ll][s].val;
+   //    }
+
+   // // set step type and color
+   // for (int ll=0; ll<40; ll++)
+   //    for (int s=0; s<40; s++)
+   //    {
+   //       mLift.stp[ll][s].step_type = mLift.stp[ll][s].type & PM_LIFT_TYPE_BITS;
+   //       //mLift.stp[ll][s].color = mLift.stp[ll][s].type >> 28;
+   //       mLift.stp[ll][s].color = (mLift.stp[ll][s].type >> 28) & 15;
+   //    }
+
+
+2026-11-11 10:59:32
+
+
+now many hours later I have this done....
+
+do I dare move on to lifts?
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   // uint16_t active;
+   // uint16_t flags;
+   // uint16_t mode;
+   // uint16_t mode_countdown_timer;
+   // uint16_t mode_reset_value;
+   // uint16_t color;
+   //
+   // uint16_t draw_mode;
+   // uint16_t draw_mode_val1;
+   // uint16_t draw_mode_val2;
+   // uint16_t draw_mode_val3;
+   //
+   // uint16_t current_step;
+   // uint16_t num_steps;
+   // uint16_t limit_counter;
+   // uint16_t limit_type;
+
+
+   int active;
+   int flags_old;
+   int mode;
+
+   int mode_countdown_timer;
+   int mode_reset_value;
+   int color_old;
+
+   int draw_mode;
+   int draw_mode_val1;
+   int draw_mode_val2;
+   int draw_mode_val3;
+
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+
+   char lift_name[40];
+};
+
+
+new:
+struct lift2
+{
+
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   int8_t active;
+   int8_t mode;
+
+   int16_t mode_countdown_timer;
+   int16_t mode_reset_value;
+   
+   int16_t draw_mode;
+   int16_t draw_mode_val1;
+   int16_t draw_mode_val2;
+   int16_t draw_mode_val3;
+
+   int8_t current_step;
+   int8_t num_steps;
+   int16_t limit_counter;
+   int16_t limit_type;
+
+   char lift_name[40];
+};
+
+
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur      :  5120
+mLift.stp      : 25600
+mMessageTextA  :  5000
+---------------:------
+total          :126920
+
+Variables used to save levels in pml format
+
+mLevel.l       : 40000
+mItem.item     : 32000
+mEnemy.Ef      :  6400
+mEnemy.Ei      : 12800
+mLift.cur2      :  3680
+mLift.stp      : 25600
+mMessageTextA  :  5000
+---------------:------
+total          :125480
+
+
+   for (int ll=0; ll<40; ll++)
+   {
+      mLift.cur2[ll].x = mLift.cur[ll].x;
+      mLift.cur2[ll].y = mLift.cur[ll].y;
+      mLift.cur2[ll].xinc = mLift.cur[ll].xinc;
+      mLift.cur2[ll].yinc = mLift.cur[ll].yinc;
+      mLift.cur2[ll].w = mLift.cur[ll].w;
+      mLift.cur2[ll].h = mLift.cur[ll].h;
+      mLift.cur2[ll].winc = mLift.cur[ll].winc;
+      mLift.cur2[ll].hinc = mLift.cur[ll].hinc;
+
+      mLift.cur2[ll].active = mLift.cur[ll].active;
+      mLift.cur2[ll].mode = mLift.cur[ll].mode;
+      mLift.cur2[ll].mode_countdown_timer = mLift.cur[ll].mode_countdown_timer;
+      mLift.cur2[ll].mode_reset_value = mLift.cur[ll].mode_reset_value;
+      mLift.cur2[ll].draw_mode = mLift.cur[ll].draw_mode;
+      mLift.cur2[ll].draw_mode_val1 = mLift.cur[ll].draw_mode_val1;
+      mLift.cur2[ll].draw_mode_val2 = mLift.cur[ll].draw_mode_val2;
+      mLift.cur2[ll].draw_mode_val3 = mLift.cur[ll].draw_mode_val3;
+      
+      mLift.cur2[ll].current_step = mLift.cur[ll].current_step;
+      mLift.cur2[ll].num_steps = mLift.cur[ll].num_steps;
+      mLift.cur2[ll].limit_counter = mLift.cur[ll].limit_counter;
+      mLift.cur2[ll].limit_type = mLift.cur[ll].limit_type;
+
+      strcpy(mLift.cur2[ll].lift_name, mLift.cur[ll].lift_name);
+   }
+
+It is done and demo are good
+a few ov and widget to fix..done...
+
+so that made lifts look a little better
+2026-11-11 11:38:36
+
+I still need to fix the packet exchange...or do I?
+just reduce the size...
+
+
+mLevel.overworld_area_array :  1040
+----------------------------:------
+total                       :127460
+#define STATE_SIZE 128900
+#define STATE_SIZE 127460
+
+netgame works fine
+
+
+
+what was I thinking with items?
+I don't think I will be able to reduce the state size to do anything meaningfull
+I think it was more about opening some space for more variables
+
+2026-11-11 11:44:49
+I don't feel like doing any of that now
+
+
+I do a little more work on level 58
+
+then I want to do portals
+
+
+
+
 
 
 

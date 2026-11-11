@@ -69,10 +69,11 @@ int mwSolid::lift_check_helper(int solid_x, int solid_y, int lift_check, int typ
             int y1 = mLevel.mLift.cur[d].y;
             int x2 = mLevel.mLift.cur[d].x + mLevel.mLift.cur[d].w;
             int y2 = mLevel.mLift.cur[d].y + mLevel.mLift.cur[d].h;
+            int flags = mLevel.mLift.stp[d][mLevel.mLift.cur[d].current_step].flags;
 
-            if ( ((type == 1) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-                 ((type == 2) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-                 ((type == 3) && (mLevel.mLift.cur[d].flags & PM_LIFT_SOLID_ITEM  )) )
+            if ( ((type == 1) && (flags & PM_LIFT_SOLID_PLAYER)) ||
+                 ((type == 2) && (flags & PM_LIFT_SOLID_ENEMY )) ||
+                 ((type == 3) && (flags & PM_LIFT_SOLID_ITEM  )) )
             {
                if ((dir == 0) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x1 - 8) && (solid_x > x1 - 18)) return 32+d; // right
                if ((dir == 1) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x2 + 2) && (solid_x > x2 - 8 )) return 32+d; // left

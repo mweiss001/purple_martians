@@ -3,7 +3,6 @@
 #define MWLIFT_H
 #include "mwRect.h"
 
-
 struct lift
 {
    float x;
@@ -15,38 +14,36 @@ struct lift
    float winc;
    float hinc;
 
-   int active;
-   int flags;
-   int mode;
-   int mode_countdown_timer;
-   int mode_reset_value;
-   int color;
+   int8_t active;
+   int8_t mode;
 
-   int draw_mode;
-   int draw_mode_val1;
-   int draw_mode_val2;
-   int draw_mode_val3;
+   int16_t mode_countdown_timer;
+   int16_t mode_reset_value;
 
-   int current_step;
-   int num_steps;
-   int limit_counter;
-   int limit_type;
+   int16_t draw_mode;
+   int16_t draw_mode_val1;
+   int16_t draw_mode_val2;
+   int16_t draw_mode_val3;
+
+   int8_t current_step;
+   int8_t num_steps;
+   int16_t limit_counter;
+   int16_t limit_type;
 
    char lift_name[40];
 };
 
 struct lift_step
 {
-   int type;
-   int x;
-   int y;
-   int w;
-   int h;
-   int val;
+   int32_t flags;
+   int8_t type;
+   int8_t color;
+   int16_t x;
+   int16_t y;
+   int16_t w;
+   int16_t h;
+   int16_t val;
 };
-
-
-
 
 
 
@@ -63,18 +60,14 @@ private:
    mwLevel& m_parent; // Store a reference to parent
 
 public:
-
    mwLift(mwLevel& parent) : m_parent(parent) { initialize(); } // default constructor
-
-//   mwLift(); // default constructor
 
 
    void initialize();
 
-   struct lift       cur[NUM_LIFTS];
-   struct lift_step  stp[NUM_LIFTS][40];
+   struct lift      cur[NUM_LIFTS];
+   struct lift_step stp[NUM_LIFTS][40];
    char lift_step_type_name[10][10];
-
 
    void copy_lift_from_other_instance(int l, const mwLift &other, int other_l);
 
@@ -110,15 +103,16 @@ public:
    void clear_lift_step(int l, int s);
 
 
-   int construct_lift(int l, char* lift_name);
-
    int get_empty_lift();
    int create_lift();
    void erase_lift(int lift);
 
 
    void delete_lift_step(int l, int s);
-   int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val);
+
+   void construct_lift_step(int l, int s, int type, int val);
+
+
 
    void show_all_lifts();
    int get_num_lifts();
@@ -126,7 +120,12 @@ public:
    int get_prev_lift(int l);
 
    void set_size_from_previous_step(int l, int s);
+
    int find_previous_move_step(int l, int s);
+   int find_previous_step(int l, int s);
+
+
+
    void move_lift_step(int l, int s);
    int get_new_lift_step(int l, int s);
    int insert_lift_step(int l, int s);

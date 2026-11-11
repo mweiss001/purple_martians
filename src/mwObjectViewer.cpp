@@ -152,12 +152,10 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       int step = mLevel.mLift.cur[lift].current_step;
 
       for (int s=0; s<mLevel.mLift.cur[lift].num_steps; s++) // iterate steps
-         mTriggerEvent.find_and_show_event_links(4, lift, s);
+         mTriggerEvent.find_and_show_event_links(PM_OBJECT_TYPE_LIFT, lift, s);
 
-
-      if ((mLevel.mLift.stp[lift][step].type & 31) != 1) step = mLevel.mLift.find_previous_move_step(lift, step);
-
-      int color = (mLevel.mLift.stp[lift][step].type >> 28) & 15;
+      if (mLevel.mLift.stp[lift][step].type != 1) step = mLevel.mLift.find_previous_move_step(lift, step);
+      int color = mLevel.mLift.stp[lift][step].color;
 
       int x1 = mLevel.mLift.stp[lift][step].x-1;
       int y1 = mLevel.mLift.stp[lift][step].y-1;
@@ -607,7 +605,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
          for (int x=0; x<NUM_LIFTS; x++)  // cycle lifts
             if (mLevel.mLift.cur[x].active)
                for (int y=0; y<mLevel.mLift.cur[x].num_steps; y++)  // cycle steps
-                  if ((mLevel.mLift.stp[x][y].type & 31) == 1) // look for move step
+                  if (mLevel.mLift.stp[x][y].type == 1) // look for move step
                   {
                      int w =  mLevel.mLift.stp[x][y].w / 2;
                      int h =  mLevel.mLift.stp[x][y].h / 2;
@@ -633,7 +631,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
 
          // lock current step also, only detect mouse on current step if current step is move step
          int y = mLevel.mLift.cur[x].current_step; // check only current step
-         if ((mLevel.mLift.stp[x][y].type & 31) == 1) // check only move step
+         if (mLevel.mLift.stp[x][y].type == 1) // check only move step
          {
             int w =  mLevel.mLift.stp[x][y].w / 2;
             int h =  mLevel.mLift.stp[x][y].h / 2;
@@ -650,7 +648,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
       /*
          // don't lock to current step, detect mouse on any move step and set that step as current step
          for (int y=0; y<mLevel.mLift.cur[x].num_steps; y++)  // cycle steps
-            if ((mLevel.mLift.stp[x][y].type & 31) == 1) // look for move step
+            if (mLevel.mLift.stp[x][y].step_type == 1) // look for move step
             {
                int w =  mLevel.mLift.stp[x][y].w / 2;
                int h =  mLevel.mLift.stp[x][y].h / 2;
@@ -740,8 +738,10 @@ void mwObjectViewer::ov_process_mouse_on_background()
       int my = mLevelEditor.hy-10;
 
       // snap to pos
-      mMiscFnx.mw_round(mx, snap);
-      mMiscFnx.mw_round(my, snap);
+      mx = mMiscFnx.mw_round(mx, snap);
+      my = mMiscFnx.mw_round(my, snap);
+
+
 
 
       int lsox=0, lsoy=0;
@@ -751,8 +751,8 @@ void mwObjectViewer::ov_process_mouse_on_background()
          if (mouse_move)
          {
             // snap pos
-            mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].x, snap);
-            mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].y, snap);
+            mLevel.mLift.stp[lift][step].x = mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].x, snap);
+            mLevel.mLift.stp[lift][step].y = mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].y, snap);
 
             // get offset from where mouse was initially clicked to lift step upper left
             lsox = mx - mLevel.mLift.stp[lift][step].x;
@@ -761,8 +761,8 @@ void mwObjectViewer::ov_process_mouse_on_background()
          if (mouse_adj)
          {
             // snap size
-            mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].w, snap);
-            mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].h, snap);
+            mLevel.mLift.stp[lift][step].w = mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].w, snap);
+            mLevel.mLift.stp[lift][step].h = mMiscFnx.mw_round(mLevel.mLift.stp[lift][step].h, snap);
 
             // enforce minimum size
             if (mLevel.mLift.stp[lift][step].w < 4) mLevel.mLift.stp[lift][step].w = 4;
@@ -782,8 +782,8 @@ void mwObjectViewer::ov_process_mouse_on_background()
          my = mLevelEditor.hy-10;
 
          // snap to pos
-         mMiscFnx.mw_round(mx, snap);
-         mMiscFnx.mw_round(my, snap);
+         mx = mMiscFnx.mw_round(mx, snap);
+         my = mMiscFnx.mw_round(my, snap);
 
 //         al_draw_textf(mFont.pixl, mColor.pc[15], mInput.mouse_x, mInput.mouse_y-32, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
 
@@ -940,8 +940,8 @@ void mwObjectViewer::ov_process_mouse_on_background()
       // snap non hires item secondaries to 20
       if ((mouse_on_obj) && (obt == 2) && (mLevel.mItem.item_secondary67(mLevel.mItem.item[num][0])) && (!mLevel.mItem.item_secondary67_hires(mLevel.mItem.item[num][0])) )
       {
-         mMiscFnx.mw_round(mLevel.mItem.item[num][6], 20);
-         mMiscFnx.mw_round(mLevel.mItem.item[num][7], 20);
+         mLevel.mItem.item[num][6] = mMiscFnx.mw_round(mLevel.mItem.item[num][6], 20);
+         mLevel.mItem.item[num][7] = mMiscFnx.mw_round(mLevel.mItem.item[num][7], 20);
       }
 
    } // end of if mInput.mouse_b[1][0] pressed
@@ -1223,8 +1223,18 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    if (obt == PM_OBJECT_TYPE_LIFT) // lifts
    {
       int step = mLevel.mLift.cur[n].current_step;
-      odbp(d, xa, xb, ya, bts, 13, 500, mLevel.mLift.cur[n].mode); // lift mode
-      odbp(d, xa, xb, ya, bts, 13, 504, mLevel.mLift.cur[n].draw_mode); // draw mode
+
+      int mode = mLevel.mLift.cur[n].mode;
+      int draw_mode = mLevel.mLift.cur[n].draw_mode;
+
+      odbp(d, xa, xb, ya, bts, 13, 500, mode); // lift mode
+      odbp(d, xa, xb, ya, bts, 13, 504, draw_mode); // draw mode
+
+      mLevel.mLift.cur[n].mode = mode;
+      mLevel.mLift.cur[n].draw_mode = draw_mode;
+
+
+
       if ((mLevel.mLift.cur[n].draw_mode == 10) || (mLevel.mLift.cur[n].draw_mode == 13)) // single block or tileset
       {
          ya+=4;
@@ -1292,7 +1302,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          int s = step;
 
          // if step is not a move step, find prev that is
-         if ((mLevel.mLift.stp[n][s].type & 31) != 1) s = mLevel.mLift.find_previous_move_step(n, s);
+         if ((mLevel.mLift.stp[n][s].flags & 31) != 1) s = mLevel.mLift.find_previous_move_step(n, s);
 
          mwRect<float> lr = mwRect<float>::fromX1Y1WH(x1, y1, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h);
          mLevel.mLift.draw_lift(n, lr);
@@ -1710,12 +1720,17 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=bts*8;
          }
          break;
+
+
+
          case PM_ITEM_TYPE_ROCKET:
-            odbp(d, xa, xb, ya, bts, 13, 1021, mLevel.mItem.item[n][3]); // stat | fall
-            //odbp(d, xa, xb, ya, bts, 13, 1023, mLevel.mItem.item[n][3]); // stat | fall | ride through door
+//            odbp(d, xa, xb, ya, bts, 13, 1021, mLevel.mItem.item[n][3]); // stat | fall
+
+            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][3], 13, 13, "Stationary", "Fall");
+
             ya+=4; // spacer
 
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_PLAYER_RIDE,              "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_PLAYER_RIDE,       "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_RIDE_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON " , 9+dim, 9, 15+dim, 15);
 
 

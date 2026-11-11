@@ -190,6 +190,12 @@ bool mwItem::is_item_carryable(int i)
    int type = item[i][0];
    int flags = item[i][2];
 
+
+   // this is an exception to make it work like the legacy mode used to
+   // the normal expected way would be:
+   //if (type == PM_ITEM_TYPE_ROCKET && flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+   // but that breaks all demo levels that use rockets
+
    if (type == PM_ITEM_TYPE_ROCKET)
    {
       // old -2 was carryable always

@@ -612,9 +612,6 @@ void mwDisplay::show_var_sizes()
 
 
 
-
-
-
    printf("\nVariables used to save levels in pml format\n\n"   );
    printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
    printf("mItem.item     :%6d\n",  (int)sizeof(mLevel.mItem.item)     );
@@ -634,6 +631,21 @@ void mwDisplay::show_var_sizes()
    sz+= sizeof(mLevel.mItem.mMessageText.messageTextA);
    printf("---------------:------\n");
    printf("total          :%6d\n",  sz );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

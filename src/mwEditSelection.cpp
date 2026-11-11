@@ -349,7 +349,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
             // shift x, y of move steps (now relative to the selection window ul corner)
             for (int s=0; s<ftLevel.mLift.cur[c].num_steps; s++)
-               if ((ftLevel.mLift.stp[c][s].type & 31) == 1)
+               if ((ftLevel.mLift.stp[c][s].flags & 31) == 1)
                {
                   ftLevel.mLift.stp[c][s].x -= x1;
                   ftLevel.mLift.stp[c][s].y -= y1;
@@ -515,7 +515,7 @@ void mwEditSelection::fill_ft_variables_from_selection_l2()
 
             // shift x, y of move steps (now relative to the selection window ul corner)
             for (int s=0; s<ftLevel.mLift.cur[c].num_steps; s++)
-               if ((ftLevel.mLift.stp[c][s].type & 31) == 1)
+               if ((ftLevel.mLift.stp[c][s].flags & 31) == 1)
                {
                   ftLevel.mLift.stp[c][s].x -= x1;
                   ftLevel.mLift.stp[c][s].y -= y1;
@@ -640,7 +640,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
       for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
          for (y=0; y<ftLevel.mLift.cur[b].num_steps; y++) // iterate lift steps in ft
          {
-            int step_type = ftLevel.mLift.stp[b][y].type & 31;
+            int step_type = ftLevel.mLift.stp[b][y].flags & 31;
             int step_val  = ftLevel.mLift.stp[b][y].val;
 
             if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
@@ -665,7 +665,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
             for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // iterate steps
             {
-               if ((mLevel.mLift.stp[l][s].type & 31) == 1) // shift move steps
+               if ((mLevel.mLift.stp[l][s].flags & 31) == 1) // shift move steps
                {
                   mLevel.mLift.stp[l][s].x += x3;
                   mLevel.mLift.stp[l][s].y += y3;

@@ -451,6 +451,20 @@ void mwWidget::mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int
 
 
 
+// overload for int16
+void mwWidget::mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
+                          int r, int backgroundType, int frameType, int textType,
+                          int bcol, int fcol, int bar_col, int tcol, int hcol, int highlight,
+                          int text_just, int16_t &var, int ul, int ll, int slinc, int stinc1, int stinc2, const char *txt, int update, bool disable_input)
+{
+   int var1 = var;
+   mStepSliderInt(xType, xa, xb, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, bar_col, tcol, hcol, highlight, text_just, var1, ul, ll, slinc, stinc1, stinc2, txt, update, disable_input);
+   var = var1;
+}
+
+
+
+
 
 void mwWidget::mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int yb,
                           int r, int backgroundType, int frameType, int textType,

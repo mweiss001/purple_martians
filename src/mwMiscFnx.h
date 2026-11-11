@@ -38,7 +38,7 @@ class mwMiscFnx
 
    int round20(int val);
 
-   void mw_round(int& val, int rnd);
+   int mw_round(int val, int rnd);
 
    float roundToDecimalPlaces(float value, int decimalPlaces);
 

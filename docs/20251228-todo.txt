@@ -45,6 +45,35 @@ player can still shoot down to kill cloners....
 
 
 
+make it so that while in the shaft you always have a spring
+use the spring to jump up and get a bomb
+extend jump on spring to get higher and send rocket
+only one rocket at a time
+
+
+can you take a spring through
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -58,8 +87,6 @@ work on level 61 multiplayer bomb toss
 tested wuth zaiden...
 notes...
 make mines tossable
-
-
 
 
 
@@ -142,6 +169,8 @@ one was a single line and one was double
 at the very simplest:
 A pair of vertical or horizonatal lines
 when passing through it you instantly jump to the other line
+
+
 
 
 

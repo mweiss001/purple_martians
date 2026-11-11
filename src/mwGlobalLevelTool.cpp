@@ -125,10 +125,10 @@ void mwGlobalLevelTool::changeBlockNumber(int oldNum, int newNum)
       if (mLevel.mEnemy.Ei[y][0] == 4)
          replaceTileIfMatch(mLevel.mEnemy.Ei[y][13], oldNum, newNum);
 
-   // lift changer
-   for (int l=0; l<NUM_LIFTS; l++)
-      if (mLevel.mLift.cur[l].active)
-         replaceTileIfMatch(mLevel.mLift.cur[l].draw_mode_val1, oldNum, newNum);
+   // // lift changer
+   // for (int l=0; l<NUM_LIFTS; l++)
+   //    if (mLevel.mLift.cur[l].active)
+   //       replaceTileIfMatch(mLevel.mLift.cur[l].draw_mode_val1, oldNum, newNum);
 
 
 
@@ -257,6 +257,22 @@ void mwGlobalLevelTool::execute()
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level_by_number(le[x], 1, 1);
+
+
+
+
+      // if (le[x] < 100)
+      // for (int l=0; l<NUM_LIFTS; l++)
+      //    if (mLevel.mLift.cur[l].active)
+      //    {
+      //       for (int s=0; s<10; s++)
+      //       {
+      //          printf("lev:%d lift:%d step:%d type:%d color:%d\n", le[x], l, s, mLevel.mLift.stp[l][s].type,  mLevel.mLift.stp[l][s].color);
+      //       }
+      //    }
+      //
+
+
 
 
 /*
@@ -419,7 +435,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (0)
+      if (1)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

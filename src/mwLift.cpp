@@ -3,8 +3,6 @@
 #include "pm.h"
 #include "mwLift.h"
 #include "mwFont.h"
-#include "mwBitmap.h"
-#include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "mwWidget.h"
 #include "mwColor.h"
@@ -23,13 +21,13 @@
 
 void mwLift::initialize()
 {
-   strcpy (lift_step_type_name[0], "BAD!");
-   strcpy (lift_step_type_name[1], "Move");
-   strcpy (lift_step_type_name[2], "Wait");
-   strcpy (lift_step_type_name[3], "Prox");
-   strcpy (lift_step_type_name[4], "End ");
-   strcpy (lift_step_type_name[5], "REvt");
-   strcpy (lift_step_type_name[6], "SEvt");
+   strcpy (lift_step_type_name[0],                            "BAD!");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_MOVE],       "Move");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_WAIT_TIMER], "Wait");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_WAIT_PROX],  "Prox");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_END],        "End ");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_WAIT_EVENT], "REvt");
+   strcpy (lift_step_type_name[PM_LIFT_STEP_TYPE_SEND_EVENT], "SEvt");
    clear_lifts();
 }
 
@@ -50,7 +48,6 @@ void mwLift::clear_lift(int l)
    cur[l].h = 0;
    cur[l].winc = 0;
    cur[l].hinc = 0;
-   cur[l].flags = 0;
 
    cur[l].draw_mode = 0;
    cur[l].draw_mode_val1 = 0;
@@ -60,7 +57,6 @@ void mwLift::clear_lift(int l)
    cur[l].mode = 0;
    cur[l].mode_countdown_timer = 0;
    cur[l].mode_reset_value = 0;
-   cur[l].color = 0;
    cur[l].current_step = 0;
    cur[l].num_steps = 0;
    cur[l].limit_type = 0;
@@ -74,7 +70,9 @@ void mwLift::clear_lift(int l)
 
 void mwLift::clear_lift_step(int l, int s)
 {
+   stp[l][s].flags = 0;
    stp[l][s].type = 0;
+   stp[l][s].color = 0;
    stp[l][s].x    = 0;
    stp[l][s].y    = 0;
    stp[l][s].w    = 0;
@@ -85,57 +83,62 @@ void mwLift::clear_lift_step(int l, int s)
 void mwLift::copy_lift_from_other_instance(int l, const mwLift &other, int other_l)
 {
    cur[l] = other.cur[other_l];
-
    for (int s=0; s<40; s++) // copy steps
       stp[l][s] = other.stp[other_l][s];
 }
 
-int mwLift::construct_lift(int lift, char* lift_name)
-{
-   clear_lift(lift);
-   strcpy(cur[lift].lift_name, lift_name);
-   cur[lift].active = 1;
-   cur[lift].draw_mode = 1;
-   cur[lift].draw_mode_val1 = 880;
-   return 1;
-}
 
-
-
-int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
+void mwLift::construct_lift_step(int l, int s, int type, int val)
 {
    clear_lift_step(l, s);
-   //printf("type:%d\n", type);
 
-   if ((type > 0) && (type < 16)) // get flags and color from previous steps
+   // default values
+   int color = 15;
+   int flags = 0;
+   int x=0;
+   int y=0;
+   int w=20;
+   int h=20;
+
+
+   int previous_step = 0;
+   if (type == PM_LIFT_STEP_TYPE_MOVE) // find previous move step
    {
-      int ps = 0;
-      if (type == 1) // find previous move step
-      {
-          ps = find_previous_move_step(l, s);
-          type = stp[l][ps].type;
-          val  = 20;
-          w    = stp[l][ps].w;
-          h    = stp[l][ps].h;
-      }
-      else // find any previous step
-      {
-         if (s == 0) ps = cur[l].num_steps - 1; // if step 0 get last step
-         else ps = s - 1;
+      previous_step = find_previous_move_step(l, s);
 
-         // get flags and color by masking off lower 5 bits of type
-         int cf = stp[l][ps].type & 0b11111111111111111111111111100000;
-         type |= cf; // merge with type
-      }
+      // get flags and color
+      flags = stp[l][previous_step].flags; // this is to get flags
+      color = stp[l][previous_step].color;
+
+      // copy from previous move step
+      x  = stp[l][previous_step].x;
+      y  = stp[l][previous_step].y;
+      w  = stp[l][previous_step].w;
+      h  = stp[l][previous_step].h;
+      val = stp[l][previous_step].val;
+
+   }
+   else // find any previous step
+   {
+      previous_step = find_previous_step(l, s);
+
+      // get flags and color
+      color = stp[l][previous_step].color;
+      flags = stp[l][previous_step].flags; // this is to get flags
+
    }
 
    stp[l][s].type = type;
+   stp[l][s].flags = flags;
+   stp[l][s].color = color;
+
    stp[l][s].x    = x;
    stp[l][s].y    = y;
    stp[l][s].w    = w;
    stp[l][s].h    = h;
    stp[l][s].val  = val;
-   return 1;
+
+
 }
 
 
@@ -189,7 +192,7 @@ void mwLift::show_all_lifts()
          int v1 = cur[l].mode_countdown_timer;
          int v2 = cur[l].mode_reset_value;
 
-         int col  = cur[l].color;
+         int col  = stp[l][0].color; // color from step 0
 
          int ns = cur[l].num_steps;
 
@@ -210,8 +213,12 @@ void mwLift::show_all_lifts()
             int w    = stp[l][s].w;
             int h    = stp[l][s].h;
             int val  = stp[l][s].val;
-            int type = stp[l][s].type & 31;
-            int step_color = (stp[l][s].type >> 28) & 15;
+
+//            int type = stp[l][s].type & 31;
+//            int step_color = (stp[l][s].type >> 28) & 15;
+
+            int type = stp[l][s].type;
+            int step_color = stp[l][s].color;
 
             int color = 9;
             char typemsg[10];
@@ -230,8 +237,9 @@ void mwLift::show_all_lifts()
                sprintf(typemsg,"bad step");
                color = 14;
             }
-            mMiscFnx.printBits(4, &stp[l][s].type);
+            mMiscFnx.printBits(4, &stp[l][s].flags);
             al_draw_textf(mFont.pr8, mColor.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d ", s, x, y, w, h, val, type, typemsg, step_color);
+            //al_draw_textf(mFont.pr8, mColor.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d ", s, x, y, w, h, val, type, typemsg, step_color);
             text_pos++;
          }
       }
@@ -258,26 +266,36 @@ int mwLift::find_previous_move_step(int lift, int step) // searches back from pa
    while (step)
    {
       step--;
-      if ((stp[lift][step].type & 31) == 1) return step;
+      if (stp[lift][step].type == PM_LIFT_STEP_TYPE_MOVE) return step;
    }
    printf("could not find move step!!\n");
    return -1; // bad !!!
 }
 
+
+int mwLift::find_previous_step(int lift, int step)
+{
+   if (step == 0) return cur[lift].num_steps-1;
+   else return step-1;
+}
+
+
+
+
+
+
+
+
 void mwLift::erase_lift(int lift)
 {
-   // slide down to close hole in array
-
    for (int l=lift; l<NUM_LIFTS-1; l++)
    {
-
       // check if lift number is referenced in bd or trigger
       for (int i=0; i<500; i++)
          if (((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_TRIGGER) && (mLevel.mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON)) || ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DAMAGEAREA) && (mLevel.mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_ON)))
             if (mLevel.mItem.item[i][10] == l+1) mLevel.mItem.item[i][10] = l; // change link to new lift
 
-
-
+      // slide down to close hole in array
       cur[l] = cur[l+1];
       for (int s=0; s<40; s++)
          stp[l][s] = stp[l+1][s];
@@ -301,7 +319,9 @@ void mwLift::delete_lift_step(int l, int step)
       stp[l][x].w    = stp[l][x+1].w ;
       stp[l][x].h    = stp[l][x+1].h ;
       stp[l][x].val  = stp[l][x+1].val ;
-      stp[l][x].type = stp[l][x+1].type ;
+      stp[l][x].flags = stp[l][x+1].flags ;
+      stp[l][x].color     = stp[l][x+1].color;
+      stp[l][x].type = stp[l][x+1].type;
    }
    cur[l].num_steps--;
 }
@@ -321,46 +341,57 @@ int mwLift::get_empty_lift() // find an inactive lift
 
 int mwLift::create_lift()
 {
-   char msg[1024];
-   int step = 0;
-
-   int l = get_empty_lift(); // find an inactive lift
+   // find an inactive lift
+   int l = get_empty_lift();
    if (l > -1)
    {
-
-      int initial_width = 80;
-      int initial_height = 20;
-      int initial_color = 12;
-      int initial_type = 1;
-      int initial_val = 20;
-
-
-      int cf = initial_color << 28; // shift 4 bits of color into place
-      cf |= PM_LIFT_SOLID_PLAYER;
-      cf |= PM_LIFT_SOLID_ENEMY;
-      cf |= PM_LIFT_SOLID_ITEM;
-      initial_type |= cf; ;     // merge with type
-
-      sprintf(msg, "lift %d", l);
-
-      construct_lift(l, msg);
+      clear_lift(l);
+      cur[l].active = 1;
       cur[l].draw_mode = 1;
+      cur[l].draw_mode_val1 = 880;
 
-      construct_lift_step(l, step, initial_type, 0, 0, initial_width, initial_height, initial_val);
-      cur[l].num_steps++; // add one to steps
 
-      if (mMiscFnx.getxy("Lift Initial Position", 4, l, step) == 1)
+      // first step
+
+      stp[l][0].type = PM_LIFT_STEP_TYPE_MOVE;
+      stp[l][0].flags = PM_LIFT_SOLID_PLAYER | PM_LIFT_SOLID_ENEMY | PM_LIFT_SOLID_ITEM;
+      stp[l][0].color = 10;
+      stp[l][0].w = 80;
+      stp[l][0].h = 20;
+      stp[l][0].val = 20;
+      cur[l].num_steps = 1;
+
+
+
+      // construct initial step
+//      construct_lift_step(l, 0, PM_LIFT_STEP_TYPE_MOVE, 0, 0, 0, 0, 0);
+
+      // next step
+      cur[l].num_steps++;
+
+
+      // set lift to step 0
+//      set_lift_to_step(l, 0);
+
+
+      if (mMiscFnx.getxy("Lift Initial Position", PM_OBJECT_TYPE_LIFT, l, 0) == 1)
       {
-         step++;
-         initial_type = (4 | cf);  // make type 4 step type with same flags as initial
-         construct_lift_step(l, step, initial_type, 0, 0, 0, 0, 0); // type 4 - loop to step zero
-         cur[l].num_steps++; // add one to steps
+         // add END step
+         construct_lift_step(l, 1, PM_LIFT_STEP_TYPE_END, 0);
+         cur[l].num_steps = 2;
 
-         set_lift_to_step(l, 0); // set step 0 for lift
+         // next step
+//         cur[l].num_steps++;
 
-         insert_steps_until_quit(l, step);
+         // set lift to step 0
+//         set_lift_to_step(l, 0);
 
-         mObjectViewer.object_viewer(4, l);
+         // continue to add step until quit
+         insert_steps_until_quit(l, 1);
+
+         // open in viewer
+         mObjectViewer.object_viewer(PM_OBJECT_TYPE_LIFT, l);
+
          return 1;
       }
       else
@@ -378,7 +409,7 @@ int mwLift::create_lift()
 
 void mwLift::move_lift_step(int lift, int step)
 {
-   if ((stp[lift][step].type & 31) == 1) mMiscFnx.getxy("Step Position", 4,  lift, step); // only if type = move
+   if (stp[lift][step].type == PM_LIFT_STEP_TYPE_MOVE) mMiscFnx.getxy("Step Position", PM_OBJECT_TYPE_LIFT,  lift, step);
 }
 
 int mwLift::get_new_lift_step(int lift, int step)
@@ -425,14 +456,15 @@ int mwLift::get_new_lift_step(int lift, int step)
       int ya = sty+2+bts;
       if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Move", 0))
       {
-         quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
+         construct_lift_step(lift, step, PM_LIFT_STEP_TYPE_MOVE, 20);
          set_size_from_previous_step(lift, step);
-         if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
+         if (mMiscFnx.getxy("Step Position", PM_OBJECT_TYPE_LIFT, lift, step) != 1) quit = 99;
+         quit = 1;
       }
-      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Time", 0))  quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
-      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Prox", 0))  quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
-      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Event", 0)) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
-      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Send Event", 0))     quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Time", 0))  { construct_lift_step(lift, step, PM_LIFT_STEP_TYPE_WAIT_TIMER, 100); quit = 1; }
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Prox", 0))  { construct_lift_step(lift, step, PM_LIFT_STEP_TYPE_WAIT_PROX,  80); quit = 1; }
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Wait For Event", 0)) { construct_lift_step(lift, step, PM_LIFT_STEP_TYPE_WAIT_EVENT, 0); quit = 1; }
+      if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Send Event", 0))     { construct_lift_step(lift, step, PM_LIFT_STEP_TYPE_SEND_EVENT, 0); quit = 1; }
       if (mWidget.mButton(5, xc, 0, ya, bts,   1, 2, 0, 1,    c1, c2, c3, 0, 0, "Done", 0))           quit = 99;
    } // end of while (!quit)
    return quit;
@@ -461,7 +493,9 @@ int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' bef
          stp[lift][x+1].w    = stp[lift][x].w;
          stp[lift][x+1].h    = stp[lift][x].h;
          stp[lift][x+1].val  = stp[lift][x].val;
+         stp[lift][x+1].flags = stp[lift][x].flags;
          stp[lift][x+1].type = stp[lift][x].type;
+         stp[lift][x+1].color = stp[lift][x].color;
       }
       clear_lift_step(lift, step);
       int step_ty = mLevelEditor.mWM.mW[7].rect.y1+ 38 + 7 * bts;
@@ -484,37 +518,29 @@ void mwLift::insert_steps_until_quit(int lift, int step)
 
 void mwLift::set_all_steps(int l, int s, int what)
 {
-   if (what == 1) // size
+   // size
+   if (what == 1)
    {
-      int w = stp[l][s].w;
-      int h = stp[l][s].h;
-
       for (int si=0; si<cur[l].num_steps; si++) // iterate steps
       {
-         if ((stp[l][si].type & 31) == 1)
+         if (stp[l][si].type == PM_LIFT_STEP_TYPE_MOVE)
          {
-            stp[l][si].w = w;
-            stp[l][si].h = h;
+            stp[l][si].w = stp[l][s].w;
+            stp[l][si].h = stp[l][s].h;
          }
       }
    }
-   if (what == 2) // color
+   // color
+   if (what == 2)
    {
-      int col = stp[l][s].type & PM_LIFT_COLOR_BITS; // mask off all except color
       for (int si=0; si<cur[l].num_steps; si++)      // iterate steps
-      {
-         stp[l][si].type &= ~PM_LIFT_COLOR_BITS;     // clear color bits
-         stp[l][si].type |= col;                     // merge
-      }
+         stp[l][si].color = stp[l][s].color;
    }
-   if (what == 3) // flags
+   // flags
+   if (what == 3)
    {
-      int flags = stp[l][s].type & PM_LIFT_FLAG_BITS; // mask off all except flags
-      for (int si=0; si<cur[l].num_steps; si++)       // iterate steps
-      {
-         stp[l][si].type &= ~PM_LIFT_FLAG_BITS;       // clear flag bits
-         stp[l][si].type |= flags;                    // merge
-      }
+      for (int si=0; si<cur[l].num_steps; si++)      // iterate steps
+         stp[l][si].flags = stp[l][s].flags;
    }
 }
 
@@ -570,7 +596,7 @@ void mwLift::step_popup_menu(int lift, int step)
    }
    else // regular step (not first or last)
    {
-      if ((stp[lift][step].type & 31) == 1) // only allow move for step type 1
+      if (stp[lift][step].type == PM_LIFT_STEP_TYPE_MOVE) // only allow move for step type 1
       {
          sprintf(mMenu.menu_string[3],"Move Step %d", step);
          sprintf(mMenu.menu_string[4],"Delete Step %d", step);
@@ -619,7 +645,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 
    // step details text header button
    sprintf(msg, "Step %d - Unkown",  s);
-   switch (stp[l][s].type & 31)
+   switch (stp[l][s].type)
    {
       case 1:  sprintf(msg, "Step %d - Move and Resize",  s);  break;
       case 2:  sprintf(msg, "Step %d - Wait For Timer",   s);  break;
@@ -632,28 +658,27 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    ya+=bts;
 
    // default buttons
-   int col = (stp[l][s].type >> 28) & 15;
+   int col = stp[l][s].color;
    sprintf(msg, "Step Color:%d", col);
    mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   col, 0, 15, 0, 0, msg,   d);
    ya+=bts;
 
    mWidget.mColorSelect(0, xa, xb, ya, bts, 1, col, 0, "Select Lift Step Color", d);
-   int cf = col << 28; // shift 4 bits of color into place
-   stp[l][s].type &= 0b00001111111111111111111111111111; // clear old color
-   stp[l][s].type |= cf; // merge color with type
+   stp[l][s].color = col;
+
 
    int dim = 48;
    int c2 = 14;
    int c3 = 15;
 
-   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_NO_DRAW,       "Draw Lift",             "Hide Lift",              c2, c2+dim, c3, c3+dim, 0, 0, 0);
-   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_PLAYER,  "Solid for Player:OFF",  "Solid for Player:ON ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
-   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_ENEMY,   "Solid for Enemy:OFF ",  "Solid for Enemy:ON  ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
-   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_SOLID_ITEM,    "Solid for Item:OFF  ",  "Solid for Item:ON   ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
-   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].type, PM_LIFT_HIDE_LINES,    "Draw Lift Lines",       "Hide Lift Lines",        c2, c2+dim, c3, c3+dim, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].flags, PM_LIFT_NO_DRAW,       "Draw Lift",             "Hide Lift",              c2, c2+dim, c3, c3+dim, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].flags, PM_LIFT_SOLID_PLAYER,  "Solid for Player:OFF",  "Solid for Player:ON ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].flags, PM_LIFT_SOLID_ENEMY,   "Solid for Enemy:OFF ",  "Solid for Enemy:ON  ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].flags, PM_LIFT_SOLID_ITEM,    "Solid for Item:OFF  ",  "Solid for Item:ON   ",   c2+dim, c2, c3+dim, c3, 0, 0, 0);
+   mWidget.mButtonToggleFlag(0, xa, xb,  ya, bts,    1, 2, 0, 0,    0, 0, stp[l][s].flags, PM_LIFT_HIDE_LINES,    "Draw Lift Lines",       "Hide Lift Lines",        c2, c2+dim, c3, c3+dim, 0, 0, 0);
 
    // specific buttons
-   switch (stp[l][s].type & 31)
+   switch (stp[l][s].type)
    {
       case 1: // move and resize
          mWidget.mStepSliderInt(0, xa, xb,  1, ya, bts-1,  2, 2, 1, 1,  13, 13, 15, 15, 15,0, 0,  stp[l][s].val, 1000, 1, 1,  1, 10, "Speed:",  1, d); ya+=bts+1;
@@ -683,6 +708,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
       break;
    }
 
+
    // frame and title
    int y1 = y;
    int y2 = ya-bts+(fs*2);
@@ -694,10 +720,11 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
 
 void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d)
 {
-   int t = stp[l][s].type & 31;
+   int t = stp[l][s].type;
    int v = stp[l][s].val;
-   int c = (stp[l][s].type >> 28) & 15;
-   if (stp[l][s].type & PM_LIFT_NO_DRAW) c = 0;
+   int c = stp[l][s].color;
+
+   if (stp[l][s].flags & PM_LIFT_NO_DRAW) c = 0;
    int x1 = xa;
    int x2 = x1 + 26; // first column (step number) is fixed size
    int x3 = x2 + 26; // second column (color)   is fixed size
@@ -707,7 +734,7 @@ void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, in
       mWidget.mButton(0, x1, x2-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "#",        1);
       mWidget.mButton(0, x2, x3-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "C",        1);
       mWidget.mButton(0, x3, x4-2, 0, ty1, ty2-2,  1, 2, 0, 1,   rc, 0, 15, 0, 0, "Type",     1);
-      mWidget.mButton(0, x4, xb-0, 0, ty1, ty2-2,  1, 2, 0, 21,   rc, 0, 15, 0, 0, "Details",  1);
+      mWidget.mButton(0, x4, xb-0, 0, ty1, ty2-2,  1, 2, 0, 21,  rc, 0, 15, 0, 0, "Details",  1);
    }
    else
    {
@@ -783,7 +810,6 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
 void mwLift::set_lift_to_step(int l, int s)
 {
    // set current step to passed step
-   // set current flags from passed step
    // set current incs to zero
 
    // if passed step is a move step:
@@ -791,11 +817,11 @@ void mwLift::set_lift_to_step(int l, int s)
    // - set limit and limit counter to immediately advance to next step
 
    // if passed step is not a move step:
-   // - find prev move step and use that to set lift xywh
    // - set limit and limit counter from passed step
+   // - find prev move step and use that to set lift xywh
 
    cur[l].current_step = s;
-   cur[l].flags = stp[l][s].type; // get all the flags from the step type
+   int step_type = stp[l][s].type;
 
    // set incs to 0
    cur[l].xinc = 0;
@@ -803,8 +829,7 @@ void mwLift::set_lift_to_step(int l, int s)
    cur[l].winc = 0;
    cur[l].hinc = 0;
 
-   int step_type = stp[l][s].type & 31;
-   if ((step_type) == 1)          // if step is a move step
+   if ((step_type) == PM_LIFT_STEP_TYPE_MOVE)
    {
       cur[l].limit_type    = 2;   // type 2 - wait for time
       cur[l].limit_counter = 0;   // no wait, immediate next mode
@@ -823,20 +848,6 @@ void mwLift::set_lift_to_step(int l, int s)
 }
 
 
-
-//
-// int mwLift::is_player_riding_lift(int l)
-// {
-//    for (int p=0; p<NUM_PLAYERS; p++)
-//       if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
-//          if ((m_parent.mPlayer.syn[p].player_ride) && (l == m_parent.mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
-//    return 0;
-// }
-//
-//
-
-
-
 bool mwLift::is_player_riding_lift(int l, int &pr)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -846,21 +857,16 @@ bool mwLift::is_player_riding_lift(int l, int &pr)
             pr = p; // player is riding this lift
             return true;
          }
-
    return false;
 }
 
 
-
-
-
-
-
-
-
 void mwLift::draw_lift_line(int l)
 {
-//   if ((!(cur[l].flags & PM_LIFT_HIDE_LINES)) || (mLoop.level_editor_running))
+   int s = cur[l].current_step;
+   int flags = stp[l][s].flags;
+
+   if ((!(flags & PM_LIFT_HIDE_LINES)) || (mLoop.level_editor_running))
 
    if (cur[l].num_steps > 1) // only draw lines if more than one step
    {
@@ -876,15 +882,16 @@ void mwLift::draw_lift_line(int l)
 
       for (int s=0; s<cur[l].num_steps; s++) // cycle steps
       {
-         if ((stp[l][s].type & PM_LIFT_TYPE_BITS) == 1) // filter for move steps
+         if (stp[l][s].type == PM_LIFT_STEP_TYPE_MOVE) // filter for move steps
          {
             // get center of step
             nx = stp[l][s].x + stp[l][s].w / 2;
             ny = stp[l][s].y + stp[l][s].h / 2;
 
-            if (!(stp[l][s].type & PM_LIFT_HIDE_LINES))
+            if (!(stp[l][s].flags & PM_LIFT_HIDE_LINES))
             {
-               col = (stp[l][s].type >> 28) & 15;
+               col = stp[l][s].color;
+
                al_draw_line( px, py, nx, ny, mColor.pc[col], 1);
                if (mLoop.eco_draw)
                {
@@ -901,9 +908,9 @@ void mwLift::draw_lift_line(int l)
             py = ny;
          }
       }
-      if (!(stp[l][0].type & PM_LIFT_HIDE_LINES))
+      if (!(stp[l][0].flags & PM_LIFT_HIDE_LINES))
       {
-         col = (stp[l][0].type >> 28) & 15;
+         col = stp[l][0].color;
          al_draw_line(sx, sy, nx, ny, mColor.pc[col], 1); // draw line from last to first
       }
 
@@ -920,13 +927,14 @@ void mwLift::draw_lift(int l, mwRect<float> lr)
       // in eco draw mode, force mode to plain rect
       if (mLoop.eco_draw) draw_mode = 2;
 
-      // get colors
-      int col = (cur[l].flags >> 28) & 15;
-      int tc = col + 160;
-      //int tc = mColor.get_contrasting_color(col);
-      ALLEGRO_FONT * f = mFont.pr8;
-      if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
+      int s = cur[l].current_step;
+      int col = stp[l][s].color;
+      int flags = stp[l][s].flags;
 
+      int tc = col + 160;
+      ALLEGRO_FONT * f = mFont.pr8;
+
+      if ((flags & PM_LIFT_NO_DRAW) && (!mLoop.level_editor_running)) col = 0;
 
       // legacy draw mode
       if (draw_mode == 1)
@@ -988,9 +996,11 @@ void mwLift::draw_lifts()
       {
          draw_lift_line(l);
 
-         if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
+         int flags = stp[l][cur[l].current_step].flags;
+
+         if ((!(flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
          {
-            int color = (cur[l].flags >> 28) & 15;
+            int color = stp[l][cur[l].current_step].color;
 
             // make a rect with current lift position and size
             mwRect<float> lr = mwRect<float>::fromX1Y1WH(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
@@ -1020,7 +1030,7 @@ void mwLift::draw_lifts()
 
 
             int cs = cur[l].current_step;
-            if (!(stp[l][cs].type & PM_LIFT_HIDE_LINES))
+            if (!(stp[l][cs].flags & PM_LIFT_HIDE_LINES))
             {
                switch (cur[l].limit_type) // limit type
                {
@@ -1104,19 +1114,6 @@ void mwLift::set_lift_xyinc(int l, int step)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 int mwLift::lift_check_prox(int l, int pd)
 {
    // check if player is within lift proximity
@@ -1134,11 +1131,11 @@ int mwLift::lift_check_prox(int l, int pd)
 
 void mwLift::next_step(int l)
 {
-   if (++cur[l].current_step > cur[l].num_steps - 1) cur[l].current_step = cur[l].num_steps -1; // increment step with bounds check
-   int s = cur[l].current_step;
-   cur[l].flags = stp[l][s].type; // set current lift flags from step type flags
+   // increment step with bounds check
+   if (++cur[l].current_step > cur[l].num_steps - 1) cur[l].current_step = cur[l].num_steps -1;
 
-   int step_type = stp[l][s].type & 31; // step type
+   int s = cur[l].current_step;
+   int step_type = stp[l][s].type; // step type
    int step_val  = stp[l][s].val;       // step val
 
    switch (step_type)
@@ -1159,11 +1156,14 @@ void mwLift::next_step(int l)
          cur[l].limit_counter = step_val;
       break;
       case 6: // send trig
-         mTriggerEvent.event[step_val] = 1; // set event
-         next_step(l); // recurse to immediately jump to next step
+         // set event
+         mTriggerEvent.event[step_val] = 1;
 
-         // if now in move step, do initial move
-         if ((stp[l][cur[l].current_step].type & 31) == 1)
+         // recurse to immediately jump to next step
+         next_step(l);
+
+         // continuing on, if now in move step, do initial move
+         if (stp[l][cur[l].current_step].type == 1)
          {
             cur[l].x += cur[l].xinc;
             cur[l].y += cur[l].yinc;
@@ -1181,6 +1181,14 @@ void mwLift::next_step(int l)
    }
 }
 
+
+
+
+
+
+
+
+
 void mwLift::move_lifts(int ignore_prox)
 {
    int p = 0;
@@ -1189,7 +1197,7 @@ void mwLift::move_lifts(int ignore_prox)
       {
          // find and clear all events this lift might send
          for (int s=0; s<cur[l].num_steps; s++)
-            if ((stp[l][s].type & 31) == 6)  // only step type 6 - send trigger event
+            if (stp[l][s].type == 6)  // only step type 6 - send trigger event
                mTriggerEvent.event[stp[l][s].val] = 0;
 
          int frozen = 0;

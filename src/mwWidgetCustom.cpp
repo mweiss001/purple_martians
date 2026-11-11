@@ -196,7 +196,10 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       int ty1 = (y2+y1)/2-10;
       al_draw_filled_rectangle(tx1-1, ty1-1, tx1+22, ty1+22, mColor.Black);
       al_draw_bitmap(mBitmap.tile[tn], tx1, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mLift.cur[v1].draw_mode_val1);
+
+      int val = mLevel.mLift.cur[v1].draw_mode_val1;
+      if (pressed) mBitmapTools.select_bitmap_from_level(val);
+      mLevel.mLift.cur[v1].draw_mode_val1 = val;
    }
 
    if (type == 321) // lift draw set start block
@@ -209,7 +212,10 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       al_draw_bitmap(mBitmap.tile[tn+0], tx1+0,  ty1, 0);
       al_draw_bitmap(mBitmap.tile[tn+1], tx1+20, ty1, 0);
       al_draw_bitmap(mBitmap.tile[tn+2], tx1+40, ty1, 0);
-      if (pressed) mBitmapTools.select_bitmap_from_level(mLevel.mLift.cur[v1].draw_mode_val1);
+
+      int val = mLevel.mLift.cur[v1].draw_mode_val1;
+      if (pressed) mBitmapTools.select_bitmap_from_level(val);
+      mLevel.mLift.cur[v1].draw_mode_val1 = val;
    }
 
 
@@ -588,6 +594,26 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
 
 
 
+
+
+// int16 overloads
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int &ya, int bts,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int16_t &var, int disable_input)
+{
+   int var1 = var;
+   bool ret = mButtonPD(xType, xa, xb, 1, ya, bts-2,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var1, disable_input);
+   var = var1;
+
+   ya+= bts;
+   return ret;
+}
+
+bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  int r, int backgroundType, int bcol, int fcol, int hcol, int tcol, int text_just,  int type, int16_t &var, int disable_input)
+{
+   int var1 = var;
+   bool ret = mButtonPD(xType, xa, xb, yType, ya, yb,  r, backgroundType, bcol, fcol, hcol, tcol, text_just,  type, var1, disable_input);
+   var = var1;
+   return ret;
+}
 
 
 

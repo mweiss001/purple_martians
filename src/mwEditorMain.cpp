@@ -120,7 +120,7 @@ void mwEditorMain::show_item_info(int x, int y, int color, int type, int num)
       break;
       case 4:
       {
-         int col = mLevel.mLift.cur[num].color;
+         int col = mLevel.mLift.stp[num][0].color; // get color from step 0
          int width = mLevel.mLift.cur[num].w;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)

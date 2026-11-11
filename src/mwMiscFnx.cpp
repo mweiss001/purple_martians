@@ -992,27 +992,13 @@ int mwMiscFnx::round20(int val) // pass it an int and it will round it to the ne
 }
 
 
-void mwMiscFnx::mw_round(int& val, int rnd) // pass it an int and it will round it to the nearest rnd
+int mwMiscFnx::mw_round(int val, int rnd) // pass it an int and it will round it to the nearest rnd
 {
-//   int v2 = 0;
-//
-//   int h = rnd/2; // half
-//   int m = val%rnd;
-//   if (m < h) v2 = val - m; // round down
-//   else v2 = val + (rnd - m); // round up
-//
-//
-//   printf("val:%d rnd:%d h:%d m:%d v2:%d\n", val, rnd, h, m, v2);
-//
-//   val = v2;
-//
-
    int h = rnd/2; // half
    int m = val%rnd;
    if (m < h) val -= m; // round down
    else val += (rnd - m); // round up
-
-
+   return val;
 }
 
 void mwMiscFnx::drawTextOnClearedBackground(int x, int y, const char* text, int text_color)

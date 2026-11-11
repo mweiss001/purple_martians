@@ -106,7 +106,7 @@ void mwTriggerEvent::show_all_events()
    for (int l=0; l<NUM_LIFTS; l++) // lifts
       if (mLevel.mLift.cur[l].active)
          for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // steps
-            if ((((mLevel.mLift.stp[l][s].type & 31) == 5) || ((mLevel.mLift.stp[l][s].type & 31) == 6)) && (mLevel.mLift.stp[l][s].val)) show_event_line(x, y, mLevel.mLift.stp[l][s].val, 4, l, s);
+            if ((((mLevel.mLift.stp[l][s].flags & 31) == 5) || ((mLevel.mLift.stp[l][s].flags & 31) == 6)) && (mLevel.mLift.stp[l][s].val)) show_event_line(x, y, mLevel.mLift.stp[l][s].val, 4, l, s);
 
    for (int e=0; e<100; e++) // enemies
    {
@@ -189,7 +189,7 @@ int mwTriggerEvent::is_pm_event_used(int ev)
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
       if (mLevel.mLift.cur[l].active)
          for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // iterate steps
-            if (((((mLevel.mLift.stp[l][s].type & 31) == 5) || (mLevel.mLift.stp[l][s].type & 31) == 6)) && (mLevel.mLift.stp[l][s].val == ev)) return 1;
+            if (((((mLevel.mLift.stp[l][s].flags & 31) == 5) || (mLevel.mLift.stp[l][s].flags & 31) == 6)) && (mLevel.mLift.stp[l][s].val == ev)) return 1;
 
    for (int e=0; e<100; e++) // iterate enemies
    {
@@ -283,7 +283,7 @@ void mwTriggerEvent::find_event_txrs_for_event(int ev, int &evan, int eva[][2])
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
       if (mLevel.mLift.cur[l].active)
          for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // iterate steps
-            if (((mLevel.mLift.stp[l][s].type & 31) == 6) && (mLevel.mLift.stp[l][s].val == ev))
+            if (((mLevel.mLift.stp[l][s].flags & 31) == 6) && (mLevel.mLift.stp[l][s].val == ev))
             {
                //printf("found a match with a lift:%d step:%d ", l, s);
                int pms = mLevel.mLift.find_previous_move_step(l, s);
@@ -349,7 +349,7 @@ void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
       if (mLevel.mLift.cur[l].active)
          for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++) // iterate steps
-            if (((mLevel.mLift.stp[l][s].type & 31) == 5) && (mLevel.mLift.stp[l][s].val == ev))
+            if (((mLevel.mLift.stp[l][s].flags & 31) == 5) && (mLevel.mLift.stp[l][s].val == ev))
             {
                //printf("found a match with a lift:%d step:%d ", l, s);
                int pms = mLevel.mLift.find_previous_move_step(l, s);
@@ -473,7 +473,7 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
    {
       int l = obj_num;
       int s = obj_ext;
-      int stype = mLevel.mLift.stp[l][s].type & 31;
+      int stype = mLevel.mLift.stp[l][s].flags & 31;
 
       if (stype == 5) // step type "wait for trig"
       {
@@ -546,7 +546,7 @@ and vinepod now
    for (int l=0; l<NUM_LIFTS; l++)
       if (mLevel.mLift.cur[l].active)
          for (int s=0; s<mLevel.mLift.cur[l].num_steps; s++)
-            if ((mLevel.mLift.stp[l][s].type & 31) == 6)  // only step type 6 - send trigger event
+            if ((mLevel.mLift.stp[l][s].flags & 31) == 6)  // only step type 6 - send trigger event
             {
                // get previous move step
                int pms = mLevel.mLift.find_previous_move_step(l, s);

@@ -155,7 +155,7 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
    return empty;
 }
 
-#define PML_SIZE 139720
+#define PML_SIZE 125480
 
 void mwLevel::pml_to_var(char * b) // for load level
 {
@@ -182,8 +182,6 @@ void mwLevel::var_to_pml(char * b) // for save level
    offset += sz; sz = sizeof(mLift.stp);                       memcpy(b+offset, mLift.stp,                       sz);
    offset += sz; sz = sizeof(mItem.mMessageText.messageTextA); memcpy(b+offset, mItem.mMessageText.messageTextA, sz);
 }
-
-
 
 void mwLevel::init_level_background() // fill level_background with block tiles
 {
@@ -918,11 +916,11 @@ void mwLevel::save_level(int level_num)
    compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), -1);
    int cmp_size = destLen;
 
-
    // write cmp to file
    FILE *fp = fopen(filename,"wb");
    fwrite(cmp, cmp_size, 1, fp);
    fclose(fp);
+
 }
 
 
