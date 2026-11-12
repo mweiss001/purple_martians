@@ -16,14 +16,11 @@ class mwScreen
    int viewport_look_player_motion;
    int viewport_look_rocket;
 
-
-
    // the position and size of the menu
    int menu_x;
    int menu_y;
    int menu_w;
    int menu_h;
-
 
    // the position of the level info text
    int menu_level_info_x;
@@ -55,9 +52,6 @@ class mwScreen
    void draw_hyst_rect();
 
    void set_map_var();
-   void mark_non_default_block(int x, int y, int tile);
-
-   void draw_tile_overlay(int tile, int x, int y);
 
    void draw_level_map_under_menu();
 
@@ -89,19 +83,13 @@ class mwScreen
    void proc_player_text_overlay_timer(int p);
    int draw_player_text_overlay();
 
-   int dif_from_now_to_nl();
-
    static void show_player_stat_box(int tx, int y, int p);
    void show_level_done();
 
-//   void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
-
    void draw_screen_overlay();
-
 
    ALLEGRO_COLOR col_clr(int p);
    ALLEGRO_COLOR col_clr2(int p);
-
 
    void drg_show(int x, int y); // demo record debug grid
 
@@ -117,7 +105,6 @@ class mwScreen
 
    void draw_server_debug_overlay(int &cx, int &cy);
    void draw_client_debug_overlay(int &cx, int &cy);
-
 
    void draw_demo_controls_overlay();
    int draw_demo_controls_overlay_players_small(int x, int y);
@@ -139,7 +126,6 @@ class mwScreen
 
    bool drag_move_demo_controls_active = 0;
    int demo_controls_pause_when_done{};
-
 
    void toggle_demo_controls_small_text();
    void set_demo_controls_tray_mode(bool val);

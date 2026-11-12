@@ -97,29 +97,6 @@ void mwScreen::set_map_var()
 }
 
 
-void mwScreen::mark_non_default_block(int x, int y, int tile)
-{
-   if ((mBitmap.tileFlags[tile & PM_BTILE_TILENUM_MASK] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS))
-   {
-      al_draw_line(x*20, y*20, x*20+20, y*20+20, mColor.pc[10], 1);
-      al_draw_line(x*20+20, y*20, x*20, y*20+20, mColor.pc[10], 1);
-   }
-}
-
-void mwScreen::draw_tile_overlay(int tile, int x, int y)
-{
-   int draw_overlay = 0;
-   int kb = (tile & 0b00000000000000001110000000000000) >> 13;
-   if (kb > 3) draw_overlay = 1;
-   if (tile & PM_BTILE_BOMBABLE) draw_overlay = 2;
-   if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
-
-   // only draw one overlay
-   if (draw_overlay == 1) al_draw_bitmap(mBitmap.tile[kb+154-4], x*20, y*20, 0);
-   if (draw_overlay == 2) al_draw_bitmap(mBitmap.tile[159],      x*20, y*20, 0);
-   if (draw_overlay == 3) al_draw_bitmap(mBitmap.tile[158],      x*20, y*20, 0);
-}
-
 
 
 void mwScreen::draw_level_map_under_menu() // used only in menu

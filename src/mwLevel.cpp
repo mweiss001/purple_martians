@@ -131,7 +131,7 @@ void mwLevel::change_block(int x, int y, int block)
          al_draw_bitmap(mBitmap.tile[block & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
          // check for overlays
-         if (block & PM_BTILE_SHOW_OVERLAY) mScreen.draw_tile_overlay(block, x, y);
+         if (block & PM_BTILE_SHOW_OVERLAY) draw_tile_overlay(block, x, y);
       }
    }
 }
@@ -191,43 +191,45 @@ void mwLevel::init_level_background() // fill level_background with block tiles
    al_set_target_bitmap(level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   // overworld tint areas
+   // tint background of overworld areas
    if (last_level_loaded == 1)
       for (int area=1; area<9; area++)
          if (overworld_area_array[area].visible)
          {
+            // get area geometry
             float x1 = overworld_area_array[area].x * 20;
             float x2 = x1 + overworld_area_array[area].w * 20;
-            float y1 = ((overworld_area_array[area].y-1) * 20) + 10;
-            float h = (overworld_area_array[area].h+1) * 20;
+            float y1 = overworld_area_array[area].y * 20 - 10;
+            float h = overworld_area_array[area].h * 20 - 20;
 
+            // custom adjust for specific areas
             if (area == 8) y1+=11;
-
             if (area == 6)
             {
                x1 = 0;
                x2 = 1999;
             }
 
+            // get area color and unmap to hsl
             ALLEGRO_COLOR area_color = mColor.pc[overworld_area_array[area].color];
-
             float ac_hue, ac_sat, ac_lit;
             mColor.map_rgb_to_hsl(area_color, ac_hue, ac_sat, ac_lit);
 
+            // draw lines while varying lit
             for (float y=0; y<h; y++)
             {
-               float ratio = y / h;
-               float iratio = 1-ratio;
-               float lightness = iratio/8;
-
-               al_draw_line(x1, y1+y, x2, y1+y, al_color_hsl(ac_hue, ac_lit, lightness), 1);
+               // adjust divisor lower like 8 for more brilliant colors
+               // 16 amd higher are more faded
+               // 10 or 12 is a nice compromise
+               float dc_lit = (1-y/h) / 12;
+               al_draw_line(x1, y1+y, x2, y1+y, al_color_hsl(ac_hue, ac_sat, dc_lit), 0);
             }
          }
 
 
 
-   bool force_draw_tile_overlays = false;
-   if (mLoop.level_editor_running && mEditorMain.show_tile_overlays) force_draw_tile_overlays = true;
+   bool force_draw_tile_overlays = mLoop.level_editor_running && mEditorMain.show_tile_overlays;
+   bool show_ndf_tiles = mLoop.level_editor_running && mEditorMain.show_non_default_blocks;
 
    al_hold_bitmap_drawing(1);
    for (int x=0; x<100; x++)
@@ -235,31 +237,46 @@ void mwLevel::init_level_background() // fill level_background with block tiles
       {
          int tile = l[x][y];
 
+         // masked tile to remove flags and get only tile number
+         int mtile = tile & PM_BTILE_TILENUM_MASK;
+
          // only draw tile if non-zero
-         if (tile & PM_BTILE_TILENUM_MASK) al_draw_bitmap(mBitmap.tile[tile & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
+         if (mtile) al_draw_bitmap(mBitmap.tile[mtile], x*20, y*20, 0);
 
          // draw tile overlays
-         if ((tile & PM_BTILE_SHOW_OVERLAY) || (force_draw_tile_overlays)) mScreen.draw_tile_overlay(tile, x, y);
+         if ((tile & PM_BTILE_SHOW_OVERLAY) || (force_draw_tile_overlays)) draw_tile_overlay(tile, x, y);
+
+         // mark tiles with non-default flags (level editor only)
+         if (show_ndf_tiles) if ((mBitmap.tileFlags[mtile] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS)) al_draw_bitmap(mBitmap.tile[152 & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
       }
    al_hold_bitmap_drawing(0);
-
-   // mark tiles with non-default flags in level editor only
-   // I do this outside the other l[100][100] iteration because if 'al_hold_bitmap_drawing()' is active, primitives will not draw
-   if (mLoop.level_editor_running && mEditorMain.show_non_default_blocks)
-      for (int x=0; x<100; x++)
-         for (int y=0; y<100; y++)
-            mScreen.mark_non_default_block(x, y, l[x][y]);
 
    // draw messages that are always on
    // for (int i=0; i<500; i++)
    //    if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
    //       mItem.draw_message(i, 2);
 
-
-   //   printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
-
+   //printf("%3d init_level_background time:%f\n", mLevel.last_level_loaded, (al_get_time() - t0)*1000);
 }
+
+
+void mwLevel::draw_tile_overlay(int tile, int x, int y)
+{
+   int draw_overlay = 0;
+   int kb = (tile & 0b00000000000000001110000000000000) >> 13;
+   if (kb > 3) draw_overlay = 1; // colored padlock
+   if (tile & PM_BTILE_BOMBABLE) draw_overlay = 2;
+   if ((tile & PM_BTILE_BREAKABLE_PSHOT) || (tile & PM_BTILE_BREAKABLE_ESHOT)) draw_overlay = 3;
+
+   // only draw one overlay
+   if (draw_overlay == 1) al_draw_bitmap(mBitmap.tile[kb+154-4], x*20, y*20, 0);
+   if (draw_overlay == 2) al_draw_bitmap(mBitmap.tile[159],      x*20, y*20, 0);
+   if (draw_overlay == 3) al_draw_bitmap(mBitmap.tile[158],      x*20, y*20, 0);
+}
+
+
+
 
 
 void mwLevel::get_new_background()
@@ -267,6 +284,8 @@ void mwLevel::get_new_background()
    al_set_target_bitmap(level_buffer);
    al_draw_bitmap(level_background, 0, 0, 0);
 }
+
+
 
 
 

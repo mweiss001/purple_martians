@@ -140,6 +140,9 @@ class mwLevel
    void change_block(int x, int y, int block);
    int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 
+   void draw_tile_overlay(int tile, int x, int y);
+
+
    void set_start_level();
    void set_start_level(int s);
 
