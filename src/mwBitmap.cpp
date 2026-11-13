@@ -47,6 +47,9 @@ void mwBitmap::create_bitmaps()
    M_dtilemap = create_and_clear_bitmap(176, 704);
    M_gtilemap = create_and_clear_bitmap(126, 434);
 
+   M_wtilemap = create_and_clear_bitmap(num_portal_tiles*64, 64);
+
+
 
    // this bitmap format is used for all other bitmaps
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
@@ -57,6 +60,9 @@ void mwBitmap::create_bitmaps()
    ptilemap = create_and_clear_bitmap(528, 352);
    dtilemap = create_and_clear_bitmap(176, 704);
    gtilemap = create_and_clear_bitmap(126, 434);
+
+   wtilemap = create_and_clear_bitmap(num_portal_tiles*64, 64);
+
 
 
    // create bottom message bitmaps
@@ -169,6 +175,26 @@ int mwBitmap::load_tiles()
             gate_tile[a][b] = al_create_sub_bitmap(gtilemap, b*42+1, a*62+1, 40, 60);
    }
 
+
+
+
+   // get portal tiles
+   wtilemap = al_load_bitmap("bitmaps/portal5_purple.png");
+   if (!wtilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/portal1_purple.png");
+      return 0;
+   }
+   else
+   {
+      al_set_target_bitmap(M_wtilemap);
+      al_draw_bitmap(wtilemap, 0, 0, 0);
+
+      for (int a=0; a<num_portal_tiles; a++)
+         portal_tile[a] = al_create_sub_bitmap(wtilemap, a*64, 0, 64, 64);
+   }
+
+
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
 
    return 1;
@@ -206,6 +232,10 @@ void mwBitmap::rebuild_bitmaps()
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_gtilemap, 0, 0, 0);
 
+   // rebuild portal tiles
+   al_set_target_bitmap(wtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_wtilemap, 0, 0, 0);
 
 
    t[1] = al_get_time();

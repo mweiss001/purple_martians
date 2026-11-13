@@ -4,7 +4,8 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-do something about viewport
+check that viewport has more sensible settings, to reduce vertigo
+
 
 I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
@@ -14,7 +15,6 @@ client had the error, but all counters were zero
 re-did to count and print all packets listed in pm.h
 waiting for more info...
 
-debug press fire to complete level does nothing
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -27,13 +27,25 @@ TO DO
 ------------------------------------------------------------------------------
 
 
-
-
 work on level 61 multiplayer bomb toss
-tested wuth zaiden...
+tested with zaiden...
 notes...
 make mines tossable
 
+also level 60 bomb toss
+
+then make demos for both
+
+
+----------------------------------------------------------------------
+make demo for psycho killer
+----------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------
+overworld, make top main stats not show all areas, skip extra and dev
+----------------------------------------------------------------------
 
 
 
@@ -98,6 +110,218 @@ the actual image might fit on 32x32
 
 so make a place to put them
 
+   ALLEGRO_BITMAP *wtilemap; // warp portal
+
+   ALLEGRO_BITMAP *M_wtilemap;
+
+   ALLEGRO_BITMAP *portal_tile[20];
+
+what size?
+20 x 64
+1280 x 64
+
+
+make a place to load them...
+
+portal1_purple.png 2304 wide 36 tiles
+------------------------------------------
+0-1 idle (2)
+18-2 (17) 1 blank
+19-35 (17) 1 blank
+18 and 19 blank
+
+portal2_purple.png 3648 wide 57 tiles
+------------------------------------------
+0-9 idle (10)
+32-10 (23)
+33-55 (23)
+56 blank
+
+portal3_purple.png 2752 wide 43 tiles
+------------------------------------------
+idle 0-16 (17)
+30-42 (13) 1 blank
+29-17 (13) 1 blank
+29 and 30 blank
+
+portal4_purple.png 2048 wide 32 tiles
+------------------------------------------
+idle 0-5 (6)
+18-6 (13) 1 blank
+31-19 (13) 1 blank
+18-19 blank
+
+portal5_purple.png 1792 wide 28 tiles
+------------------------------------------
+idle 0-3 (4)
+15-4 (12) 1 blank
+27-16 (12) 1 blank
+15-16 blank
+
+
+I now have collected all the data
+each tileset has a duplicated in and out
+when I load them I will not bother with those
+eventually that is
+
+for now I want to see how they would look in a level
+patch them into door??
+
+make a new draw type?
+
+do it
+
+now how will I animate it?
+
+I have something patched into the old animation sequence for the old warp style doors...actually I don't
+maybe I want to do something different
+
+I could make a door class that would include warps and portals
+
+you just tell it type, color, size and it will draw either on level buffer or direct to screen
+
+it will keep track of its own animation sequences and tiles
+
+----------------------------
+
+I have patched in the idle animation
+
+now how would I do the door move?
+
+I have a time when the player rotates into and out in the door...
+I will use those times to do the portal animation
+
+how can I tell in door draw that a player is using it?
+
+
+                  if ((num_steps > 0) && (num_steps < 2000))
+                  {
+                     int ddrns = m_parent.mPlayer.syn[p].door_draw_rot_num_steps = 12;
+                     m_parent.mPlayer.syn[p].door_num_steps = num_steps;
+                     m_parent.mPlayer.syn[p].paused = 1;
+                     m_parent.mPlayer.syn[p].paused_type = 2;
+                     m_parent.mPlayer.syn[p].paused_mode = 1;
+                     m_parent.mPlayer.syn[p].paused_mode_count = ddrns;
+                     m_parent.mPlayer.syn[p].door_item = i;
+                     m_parent.mPlayer.syn[p].door_draw_rot_inc = m_parent.mPlayer.syn[p].
+
+ 
+
+this will only tell me where the player is going or coming from?
+
+
+what is 13 for doors?
+
+this looks like the only mention:
+
+               if (item[i][13] == 1083) type = 0;
+               if (item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
+
+in glt, all door items have 13 == 0
+
+
+replace this:
+
+               int type = 1;
+               if (item[i][13] == 1083) type = 0;
+               if (item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
+
+
+with this:
+               if (item[i][1] != 0) mGameEvent.add(22, 0, 0, p, i, col, 1); // no event if door is invisible
+
+
+2026-11-13 07:41:25
+
+
+did a bunch of refactoring of door
+
+now looking into 
+
+player paused
+
+type is done with defines
+
+
+paused has a count which is used to count down in death mode
+also has a count
+
+reconcile...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -127,21 +351,7 @@ one was a single line and one was double
 at the very simplest:
 A pair of vertical or horizonatal lines
 when passing through it you instantly jump to the other line
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---------------------------------------------
 
 
 
@@ -191,6 +401,105 @@ more creators
 like cloner trigger pair
 cloner timer trigger set
 alter trigger set
+
+
+
+
+
+
+---------------------------------------
+Item variable refactor
+
+A few different ideas:
+
+- merge int and float arrays into common array of structs
+
+- reduce space by making some ints 16 or 8
+
+- make common flag variable to replace stat | fall and make it do many more things
+like bits for:
+stat / fall
+carry
+carry through door
+draw (in game)
+invisible until cloned
+secondary at 4567
+hires secondary
+invincible
+use 14 for ttl
+use 15 for cloner tracking
+
+many more for specific item types
+
+this is what I am imagining
+0 will always be type or zero if inactive
+1 will always be the bitmap or animation
+2 will be flags
+
+3 ???
+4,5 position
+6,7,8,9 secondary position (if required)
+
+then I will have 7 ints left:  3, 10,11,12,13,14,15
+
+just looking at these, I realize most can be 8 or 16 bit integers
+
+this is not about saving space, it is more about having more variables available
+
+
+---------------------------------------
+Enemy variable refactor
+
+I want a common flags for enemies:
+invincible to shots
+invincible to explosions
+invincible to damage
+count towards enemy count
+draw(in game only)
+invisible until cloned
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

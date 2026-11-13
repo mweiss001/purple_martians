@@ -292,7 +292,7 @@ void mwGameMoves::remove_doubled_moves()
 
 int mwGameMoves::has_player_acknowledged(int p)
 {
-   if (mLevel.mPlayer.syn[p].paused_type == 3) return 1; // headless server player
+   if (mLevel.mPlayer.syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return 1; // headless server player
    int start_pos = entry_pos;
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
@@ -498,7 +498,7 @@ void mwGameMoves::proc_game_move_shot_config(int shot, int damg)
 void mwGameMoves::proc_game_move_player_hidden(int p)
 {
    mLevel.mPlayer.syn[p].paused = 1;
-   mLevel.mPlayer.syn[p].paused_type = 3;
+   mLevel.mPlayer.syn[p].paused_type = PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER;
 }
 
 

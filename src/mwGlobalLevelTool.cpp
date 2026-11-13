@@ -260,6 +260,22 @@ void mwGlobalLevelTool::execute()
 
 
 
+//       for (int y=0; y<500; y++)
+//          if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
+//          {
+//             if (mLevel.mItem.item[y][13]) printf("l:%d door 13:%d\n", le[x], mLevel.mItem.item[y][13] );
+//
+// //            if (mLevel.mItem.item[y][13] == -1) printf("l:%d rocket 3 == -1 \n", le[x] );
+//
+//             //            printf("l:%d rocket 2:%d  3:%d\n", le[x],  mLevel.mItem.item[y][2],  mLevel.mItem.item[y][3]);
+//
+// //            mLevel.mItem.item[y][2] = 1;
+//   //          if (mLevel.mItem.item[y][3] == -2) mLevel.mItem.item[y][2] = 3;
+//     //        if (mLevel.mItem.item[y][3]) mLevel.mItem.item[y][3] = 1;
+//          }
+//
+//
+
 
       // if (le[x] < 100)
       // for (int l=0; l<NUM_LIFTS; l++)
@@ -435,7 +451,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (1)
+      if (0)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

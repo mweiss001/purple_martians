@@ -1170,12 +1170,8 @@ bool mwObjectViewer::odbp(int d, int xa, int xb, int &ya, int bts, int col, int 
 void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
    int n = num;
-   int type=0;
-   if (obt == PM_OBJECT_TYPE_ITEM)  type = mLevel.mItem.item[n][0];
-   if (obt == PM_OBJECT_TYPE_ENEMY) type = mLevel.mEnemy.Ei[n][0];
 
    mb = 0;
-
 
    // button x position
    int xa = x1+1;
@@ -1192,7 +1188,6 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
    int bts=16;
    int dim=128;
-
 
    // --------------------------------------------------
    // --- Common ---------------------------------------
@@ -1217,104 +1212,438 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    ya+=bts+4;
 
 
-   // --------------------------------------------------
-   // --- Lifts ----------------------------------------
-   // --------------------------------------------------
-   if (obt == PM_OBJECT_TYPE_LIFT) // lifts
+
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+// --- Items -------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+
+   if (obt == PM_OBJECT_TYPE_ITEM) // items
    {
-      int step = mLevel.mLift.cur[n].current_step;
-
-      int mode = mLevel.mLift.cur[n].mode;
-      int draw_mode = mLevel.mLift.cur[n].draw_mode;
-
-      odbp(d, xa, xb, ya, bts, 13, 500, mode); // lift mode
-      odbp(d, xa, xb, ya, bts, 13, 504, draw_mode); // draw mode
-
-      mLevel.mLift.cur[n].mode = mode;
-      mLevel.mLift.cur[n].draw_mode = draw_mode;
-
-
-
-      if ((mLevel.mLift.cur[n].draw_mode == 10) || (mLevel.mLift.cur[n].draw_mode == 13)) // single block or tileset
+      switch (mLevel.mItem.item[n][0]) // item subtypes
       {
-         ya+=4;
-         odbc(d, xa, xb, ya, bts, 8, 15, 320, n, 0, 0); // set single block
-         ya+=4;
-      }
-      if (( mLevel.mLift.cur[n].draw_mode == 11) || (mLevel.mLift.cur[n].draw_mode == 12)) // 3 block platform or column
-      {
-         ya+=4;
-         odbc(d, xa, xb, ya, bts, 8, 15, 321, n, 0, 0); // set start block
-         ya+=4;
-      }
-
-
-
-
-      if (mLevel.mLift.cur[n].mode)
-         odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");
-
-      mWidget.mButton(0, xa, xb,   1, ya, bts-2,   0, 2, 0, 21,   13, 15, 15,  0, 0, "Lift Name:", 1);
-      if (mWidget.mButton(3, xa+84, 0,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLevel.mLift.cur[n].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLevel.mLift.cur[n].lift_name, sizeof(mLevel.mLift.cur[n].lift_name));
-
-      ya+=bts;
-
-      // list of step buttons
-      // --------------------------------------------------------------------------------
-      int ysb = ya; // y pos of step buttons
-
-      // process mouse on list of step buttons
-      int step_pointer = -99;
-      if ((mInput.mouse_x > xa + 10) && (mInput.mouse_x < xb - 10)) // is mouse on step buttons?
-      {
-         int step0_y_offset = ysb + 14 + bts;
-         int mouse_step = (mInput.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
-         if ((mouse_step >= 0) && (mouse_step < mLevel.mLift.cur[n].num_steps))   // is this a valid step?
-         {
-            step_pointer = mouse_step;  // set step pointer to this step
-            if (mInput.mouse_b[1][0])
+         case PM_ITEM_TYPE_DOOR:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
+            if (mLevel.mItem.item[n][8]) // regular door (not exit only)
             {
-               step = mouse_step; // set current step to this step
-               mLevel.mLift.cur[n].current_step = step; // set current step in lift
+               ya+=4; // spacer
+               char msg[80];
+               sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][9]);
+               if (odbb(d, xa, xb, ya, bts, 9, msg))
+               {
+                  int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
+                  if (i > -1) mLevel.mItem.item[num][9] = i;
+               }
+               ya+=4; // spacer
+               odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][11]); // door entry type
+               odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
+               odbp(d, xa, xb, ya, bts, 11, 1051, mLevel.mItem.item[n][12]); // exit link show
             }
-            if (mInput.mouse_b[2][0]) mLevel.mLift.step_popup_menu(n, step_pointer); // step pop-up menu for this step
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], 0, "Select Door Color", d);
+            if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
+            break;
+         case PM_ITEM_TYPE_BONUS:
+            if (mLevel.mItem.item[n][6] == 0) // health bonus
+            {
+               odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+               ya+=4; // spacer
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
+               odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 100, 0, 1,  1, 10, "Health:");
+               mLevel.mItem.item[n][1] = 1035;
+               mLevel.mItem.item[n][2] = 1;
+               if (mLevel.mItem.item[n][7] == 10) mLevel.mItem.item[n][1] = 1023;
+               if (mLevel.mItem.item[n][7] == 50) mLevel.mItem.item[n][1] = 1027;
+            }
+            else if (mLevel.mItem.item[n][6] == 1) // purple coin
+            {
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3], 13, 13,  "Stationary",    "Fall");
+               ya+=4; // spacer
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
+               mLevel.mItem.item[n][1] = 197;
+               mLevel.mItem.item[n][2] = 0;
+            }
+            break;
+         case PM_ITEM_TYPE_EXIT:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbb(1, xa, xb, ya, bts, 12, "Enemy Count Lock");
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 100, 0, 1,  1, 10, "");
+            break;
+         case PM_ITEM_TYPE_KEY:
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3],  13, 13,  "Stationary",    "Fall");
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 13, 102, mLevel.mItem.item[n][1]); // key color
+            ya+=4; // spacer
+            if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][12],  7, 7,  "Remove All Blocks", "Remove Only Matching");
+            break;
+         case PM_ITEM_TYPE_START:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 11, 1078, mLevel.mItem.item[n][6]); // start mode
+            odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 9, 0, 1,  1, 0, "Start Index:");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][8],  11, 11, "Increase Index Only:OFF", "Increase Index Only:ON");
+            ya+=4; // spacer
+            if (odbb(d, xa, xb, ya, bts, 13, "Set Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+            odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][9],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
+            break;
+         case PM_ITEM_TYPE_ORB:
+         {
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbc(d, xa, xb, ya, bts, 7, 15, 94, n, 0, 0); // rotation
+            ya+=4; // spacer
+            odbc(d, xa, xb, ya, bts, 12, 15, 90, n, 0, 0); // orb trigger type
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 8, 92, mLevel.mItem.item[n][6]); // mode
+            int MODE = mLevel.mItem.item[n][6];
+            if ((MODE == 1) || (MODE == 3)) mLevel.mItem.item[n][2] &= ~PM_ITEM_ORB_STATE; // MODE:Stick On  or MODE:Timed On  - set initial state OFF
+            if ((MODE == 2) || (MODE == 4)) mLevel.mItem.item[n][2] |=  PM_ITEM_ORB_STATE; // MODE:Stick Off or MODE:Timed Off - set initial state ON
+            if (MODE == 0) // only show initial state for toggle mode
+               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
+            if ((MODE == 3) || (MODE == 4)) // only show timer for mode 3 and 4
+               odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][7], 400, 0, 1,  1, 10, "Time:");
+            ya+=4; // spacer
+            odbb(1, xa, xb, ya, bts, 11, "Continuously Set Event When:");
+            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][10], 99, 0, 1,  1, 0,  "On:",  "-");
+            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][11], 99, 0, 1,  1, 0,  "Off:", "-");
+            ya+=4; // spacer
+            odbb(1, xa, xb, ya, bts, 12, "Set Event When Switching:");
+            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][12], 99, 0, 1,  1, 0,  "On:",  "-");
+            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][13], 99, 0, 1,  1, 0,  "Off:", "-");
          }
-      }
+            break;
+         case PM_ITEM_TYPE_MINE:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:");
+            break;
+         case PM_ITEM_TYPE_BOMB:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
+            if (mLevel.mItem.item[num][12]) mLevel.mItem.item[num][1] = 537; // remote detonator
+            else // fuse
+            {
+               mLevel.mItem.item[num][1] = 464;
+               odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 2000, 1, 1,  1, 10, "Fuse Time:");
+            }
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][11],   4, 4,  "Sticky:Off", "Sticky:On");
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
+            break;
 
-      // draw the list of steps  - this has to go after, because it can eat the mouse clicks needed for previous section
-      int ycs = ysb + mLevel.mLift.draw_steps(xa, xb, ysb, n, step, step_pointer, d);
-      ycs +=bts;
+         case PM_ITEM_TYPE_MESSAGE:
+         {
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
+            ya+=4; // spacer
+            if (!(mLevel.mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+            {
+               odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:");
+               ya+=4; // spacer
+               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15);
+               ya+=4; // spacer
+               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
+               ya+=4; // spacer
+            }
+            if (odbb(d, xa, xb, ya, bts, 10, "Draw New Message Area")) mMiscFnx.get_block_range("Message Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            int q = 10;
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
+            ya+=4; // spacer
+            int frame_size = mLevel.mItem.get_frame_size(num);
+            if (odbp(d, xa, xb, ya, bts, 3, 7, frame_size)) mLevel.mItem.set_frame_size(num, frame_size);
+            ya+=4; // spacer
+            int tc=0, fc=0;
+            mMiscFnx.get_int_3216(mLevel.mItem.item[n][13], tc, fc);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, tc, 0, "Select Text Color", d);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, fc, 0, "Select Frame Color", d);
+            mMiscFnx.set_int_3216(mLevel.mItem.item[n][13], tc, fc);
+            if (odbb(d, xa, xb, ya, bts, 13, "Edit Message")) mLevel.mItem.edit_pmsg_text(n, 0);
+            ya+=bts*2; // leave space for OK and Cancel buttons
+            // draw the current one last to ensure it is on top
+            mObjectViewer.pop_msg_viewer_pos = ya+bts/2+2;
 
-      // draw buttons for the current step button and get y position for next item (lift)
-      int yld = ycs + mLevel.mLift.draw_current_step_buttons(xa, xb, ycs, n, step, d);
+
+            char pcc[500];
+            sprintf(pcc, "%s", mLevel.mItem.mMessageText.get_text(n).c_str());
+
+            mLevel.mItem.draw_message(n, 1, (xa+xb)/2, mObjectViewer.pop_msg_viewer_pos, 0, 0, pcc ); // show the message
+            ya+=bts*8;
+         }
+            break;
 
 
-      mLevelEditor.mWM.mW[7].rect.h = yld - mLevelEditor.mWM.mW[7].rect.y1-1; // global variable for height of ovw when variable due to lift
-      mLevelEditor.mWM.mW[7].set_size(mLevelEditor.mWM.mW[7].rect.w, mLevelEditor.mWM.mW[7].rect.h);
 
-      yld += bts;
+         case PM_ITEM_TYPE_ROCKET:
+            //            odbp(d, xa, xb, ya, bts, 13, 1021, mLevel.mItem.item[n][3]); // stat | fall
 
-      // draw current lift under step list buttons
-      if (bts == 16) // only if max button size
-      {
-         int x1 = xa+10;
-         int y1 = yld; // only see in 2 highest screen modes
-         int s = step;
+            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][3], 13, 13, "Stationary", "Fall");
 
-         // if step is not a move step, find prev that is
-         if ((mLevel.mLift.stp[n][s].flags & 31) != 1) s = mLevel.mLift.find_previous_move_step(n, s);
+            ya+=4; // spacer
 
-         mwRect<float> lr = mwRect<float>::fromX1Y1WH(x1, y1, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h);
-         mLevel.mLift.draw_lift(n, lr);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_PLAYER_RIDE,       "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_RIDE_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON " , 9+dim, 9, 15+dim, 15);
+
+
+            ya+=4; // spacer
+
+
+            if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, PM_ITEM_TYPE_ROCKET, n);
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 20,  1, 1,  1, 0, "Maximum Speed:");
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 200, 1, 1,  1, 0, "Acceleration:");
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 100, 0, 1,  1, 0, "Steerability:");
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
+            break;
+         case PM_ITEM_TYPE_SWITCH:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0001, "Green:OFF",  "Green:ON",   9+dim,  9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0010, "Red:OFF",    "Red:ON",    10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0100, "Blue:OFF",   "Blue:ON",   12+dim, 12, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15);
+            mLevel.mItem.set_switch_tile(n);
+            break;
+         case PM_ITEM_TYPE_SPRING:
+            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][7], 200, 40, 1,  1, 10, "Sproinginess:");
+            break;
+         case PM_ITEM_TYPE_TIMER:
+         {
+            int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
+            mLevel.mItem.get_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
+            int q = 11;
+            if (mLevel.mItem.item[n][2]) q = 10;
+            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][2], q, q, "Draw Mode:Hidden", "Draw Mode:Progress Bar");
+            if (mLevel.mItem.item[n][2])
+            {
+               if (odbb(d, xa, xb, ya, bts, q, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
+               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
+            }
+            ya+=4; q = 13; // spacer
+            odb0(d, xa, xb, ya, bts,  q, mLevel.mItem.item[n][10],  1000, 0, 1,   1, 10, "Timer 1:", "Off");
+            if (mLevel.mItem.item[n][10])
+            {
+               odbp(d, xa, xb, ya, bts, q, 160, t1_mode); // timer mode
+               if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
+               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][12],  99, 0, 1,   1, 0, "Input Event:", "Off");
+               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][13],  99, 0, 1,   1, 0, "Output Event:", "Off");
+               odbt(d, xa, xb, ya, bts,  15, t1_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
+            }
+            ya+=4; q = 14; // spacer
+            odb0(d, xa, xb, ya, bts,  q, mLevel.mItem.item[n][11],  1000, 0, 1,   1, 10, "Timer 2:", "Off");
+            if (mLevel.mItem.item[n][11])
+            {
+               odbp(d, xa, xb, ya, bts, q, 160, t2_mode); // timer mode
+               if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t2_mode);
+               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][14],  99, 0, 1,   1, 0, "Input Event:", "Off");
+               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][15],  99, 0, 1,   1, 0, "Output Event:", "Off");
+               odbt(d, xa, xb, ya, bts,  15, t2_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
+            }
+            state = 1;
+            time = mLevel.mItem.item[n][10]; // always start with full t1_timer
+            mLevel.mItem.set_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
+         }
+            break;
+         case PM_ITEM_TYPE_TRIGGER:
+         {
+            if (odbb(d, xa, xb, ya, bts, 14, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            int q = 14;
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
+            ya+=4; // spacer
+            // draw trigger field on/off with optional color select if on
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mLevel.mItem.item[n][2], 15+dim, 15);
+            if (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
+               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][2], 0, "Select Trigger Field Color", d);
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15) ;
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 9+dim, 9, 15+dim, 15 );
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 9+dim, 9, 15+dim, 15 );
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 9+dim, 9, 15+dim, 15 );
+            ya+=4; // spacer
+            odbb(1, xa, xb, ya, bts, 11, "Continuously Set Event When:");
+            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][11], 99, 0, 1,  1, 0,  "On:",  "-");
+            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][12], 99, 0, 1,  1, 0,  "Off:", "-");
+            ya+=4; // spacer
+            odbb(1, xa, xb, ya, bts, 12, "Set Event When Switching:");
+            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][13], 99, 0, 1,  1, 0,  "On:",  "-");
+            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][14], 99, 0, 1,  1, 0,  "Off:", "-");
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
+            if (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_LIFT_ON)
+            {
+               odbi(d, xa, xb, ya, bts, 6, mLevel.mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
+               odbc(d, xa, xb, ya, bts, 6, 15, 401, n, 0, 0); // X Alignment
+               odbc(d, xa, xb, ya, bts, 6, 15, 402, n, 0, 0); // Y Alignment
+            }
+         }
+            break;
+         case PM_ITEM_TYPE_ALTERTILES:
+         {
+            if (odbb(d, xa, xb, ya, bts, 12, "Get New Alter Tile Area")) mMiscFnx.get_block_range("Alter Tile Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],   15+96, mLevel.mItem.item[n][12],  "Show Area:OFF", "Show Area:ON");
+            if (mLevel.mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Area Color", d);
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 14, 301, mLevel.mItem.item[n][3]); // mode
+            if (mLevel.mItem.item[n][3]) // all modes except 0
+            {
+               ya+=2; // spacer
+               if (mLevel.mItem.item[n][3] == 4)
+               {
+                  if (odbb(d, xa, xb, ya, bts, 11, "Set Copy Source")) mMiscFnx.getxy("Copy Source", 95, 0, n);
+                  ya+=2; // spacer
+               }
+               else
+               {
+                  ya+=2; // spacer
+                  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 10, 1); ya+=6;   // Block 1
+                  if (mLevel.mItem.item[n][3] > 1) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 11, 2); ya+=6; } // Block 2
+                  if (mLevel.mItem.item[n][3] > 4) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 13, 3); ya+=6; } // Block 3
+                  if (mLevel.mItem.item[n][3] > 5) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 14, 4); ya+=6; } // Block 4
+               }
+               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
+            }
+         }
+            break;
+         case PM_ITEM_TYPE_DAMAGEAREA:
+         {
+            if (odbb(d, xa, xb, ya, bts, 10, "Get New Damage Area")) mMiscFnx.get_block_range("Damage Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            int q = 10;
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 8, 404, mLevel.mItem.item[n][2]); // draw type
+            ya+=4; // spacer
+            odbc(d, xa, xb, ya, bts, 8, 15, 96, n, 0, 0); // draw rotation
+            ya+=4; // spacer
+            odbp(d, xa, xb, ya, bts, 7, 402, mLevel.mItem.item[n][11]); // mode
+            int MODE = mLevel.mItem.item[n][11];
+            if (MODE == 0) mLevel.mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+            if (MODE == 2) mLevel.mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+            if (MODE == 3) mLevel.mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
+            ya+=4; // spacer
+            if (MODE == 1) // toggle
+               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", q+dim, q, 15+dim, 15);
+            if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
+            {
+               ya+=4; // spacer
+               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
+            }
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON", 10+dim, 10, 15+dim, 15);
+            if (mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_PLAYER)
+            {
+               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15);
+               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))  odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][12], 2000, -2000, 1,  1, 10, "Player Damage:");
+            }
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 10+dim, 10, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON", 10+dim, 10, 15+dim, 15);
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
+            if (mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_ON)
+            {
+               odbi(d, xa, xb, ya, bts, 6, mLevel.mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
+               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ", 6+dim, 6, 15+dim, 15);
+               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_MS))
+               {
+                  odbc(d, xa, xb, ya, bts, 6, 15, 411, n, 0, 0); // X Alignment
+                  odbc(d, xa, xb, ya, bts, 6, 15, 412, n, 0, 0); // Y Alignment
+               }
+            }
+         }
+            break;
+         case PM_ITEM_TYPE_GATE:
+         {
+            odbp(d, xa, xb, ya, bts, 8, 405, mLevel.mItem.item[n][1]); // draw mode
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][6], 99, 1, 1,  1, 10, "Level:");
+
+            ya+=4; // spacer
+            int q=12; // mode color
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][10], 400, 20, 1,  1, 10, "Level Icon size:");
+
+            ya+=4; // spacer
+            q = 13;
+            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Hover Info Pages",        "Show Hover Info Pages");
+            if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
+
+            char msg[200];
+            sprintf(msg, "Gate Info Page:%d", mLevelEditor.show_gate_info_page);
+            if (odbb(d, xa, xb, ya, bts, q, msg)) if (++mLevelEditor.show_gate_info_page > 3) mLevelEditor.show_gate_info_page = 0;
+
+            ya+=4; // spacer
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][11], 400, 20, 1,  1, 10, "Hover Level Icon size:");
+         }
+            break;
+         case PM_ITEM_TYPE_HIDER:
+         {
+            if (odbb(d, xa, xb, ya, bts, 10, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            int q = 10;
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
+            ya+=4; // spacer
+            q=7; // mode color
+            odbp(d, xa, xb, ya, bts, q, 403, mLevel.mItem.item[n][3]); // hider mode
+            int MODE = mLevel.mItem.item[n][3];
+            if (MODE == 0) mLevel.mItem.item[num][2] = 0;
+            if (MODE == 1) mLevel.mItem.item[num][2] = 1;
+            if (MODE == 2) mLevel.mItem.item[num][2] = 0;
+            if (MODE == 3) mLevel.mItem.item[num][2] = 1;
+            if ((MODE == 4) || (MODE == 5))
+            {
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],  q, q,  "Initial State:Show", "Initial State:Hide ");
+            }
+            if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
+            {
+               ya+=4; // spacer
+               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
+            }
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][10],   10+96, 10,  "Blind Erase:OFF", "Blind Erase:ON");
+
+
+         }
+            break;
       }
    }
 
 
-   // --------------------------------------------------
-   // --- Enemies --------------------------------------
-   // --------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+// --- Enemies -----------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------------
    if (obt == PM_OBJECT_TYPE_ENEMY)
    {
+      int type = mLevel.mEnemy.Ei[n][0];
       switch (type) // enemy subtypes
       {
          case PM_ENEMY_TYPE_BOUNCER: // bouncer
@@ -1554,428 +1883,93 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       }
    }
 
-   // --------------------------------------------------
-   // --- Items ----------------------------------------
-   // --------------------------------------------------
-   if (obt == PM_OBJECT_TYPE_ITEM) // items
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+// --- Lifts -------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------------------------------
+   if (obt == PM_OBJECT_TYPE_LIFT)
    {
-      switch (type) // item subtypes
+      int step = mLevel.mLift.cur[n].current_step;
+
+      int mode = mLevel.mLift.cur[n].mode;
+      int draw_mode = mLevel.mLift.cur[n].draw_mode;
+
+      odbp(d, xa, xb, ya, bts, 13, 500, mode); // lift mode
+      odbp(d, xa, xb, ya, bts, 13, 504, draw_mode); // draw mode
+
+      mLevel.mLift.cur[n].mode = mode;
+      mLevel.mLift.cur[n].draw_mode = draw_mode;
+
+      if ((mLevel.mLift.cur[n].draw_mode == 10) || (mLevel.mLift.cur[n].draw_mode == 13)) // single block or tileset
       {
-         case PM_ITEM_TYPE_DOOR:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
-            if (mLevel.mItem.item[n][8]) // regular door (not exit only)
-            {
-               ya+=4; // spacer
-               char msg[80];
-               sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][9]);
-               if (odbb(d, xa, xb, ya, bts, 9, msg))
-               {
-                  int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
-                  if (i > -1) mLevel.mItem.item[num][9] = i;
-               }
-               ya+=4; // spacer
-               odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][11]); // door entry type
-               odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
-               odbp(d, xa, xb, ya, bts, 11, 1051, mLevel.mItem.item[n][12]); // exit link show
-            }
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], 0, "Select Door Color", d);
-            if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
-         break;
-         case PM_ITEM_TYPE_BONUS:
-            if (mLevel.mItem.item[n][6] == 0) // health bonus
-            {
-               odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-               ya+=4; // spacer
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
-               odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 100, 0, 1,  1, 10, "Health:");
-               mLevel.mItem.item[n][1] = 1035;
-               mLevel.mItem.item[n][2] = 1;
-               if (mLevel.mItem.item[n][7] == 10) mLevel.mItem.item[n][1] = 1023;
-               if (mLevel.mItem.item[n][7] == 50) mLevel.mItem.item[n][1] = 1027;
-            }
-            else if (mLevel.mItem.item[n][6] == 1) // purple coin
-            {
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3], 13, 13,  "Stationary",    "Fall");
-               ya+=4; // spacer
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
-               mLevel.mItem.item[n][1] = 197;
-               mLevel.mItem.item[n][2] = 0;
-            }
-         break;
-         case PM_ITEM_TYPE_EXIT:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbb(1, xa, xb, ya, bts, 12, "Enemy Count Lock");
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 100, 0, 1,  1, 10, "");
-         break;
-         case PM_ITEM_TYPE_KEY:
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3],  13, 13,  "Stationary",    "Fall");
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 13, 102, mLevel.mItem.item[n][1]); // key color
-            ya+=4; // spacer
-            if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][12],  7, 7,  "Remove All Blocks", "Remove Only Matching");
-         break;
-         case PM_ITEM_TYPE_START:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 11, 1078, mLevel.mItem.item[n][6]); // start mode
-            odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 9, 0, 1,  1, 0, "Start Index:");
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][8],  11, 11, "Increase Index Only:OFF", "Increase Index Only:ON");
-            ya+=4; // spacer
-            if (odbb(d, xa, xb, ya, bts, 13, "Set Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-            odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][9],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
-         break;
-         case PM_ITEM_TYPE_ORB:
+         ya+=4;
+         odbc(d, xa, xb, ya, bts, 8, 15, 320, n, 0, 0); // set single block
+         ya+=4;
+      }
+      if (( mLevel.mLift.cur[n].draw_mode == 11) || (mLevel.mLift.cur[n].draw_mode == 12)) // 3 block platform or column
+      {
+         ya+=4;
+         odbc(d, xa, xb, ya, bts, 8, 15, 321, n, 0, 0); // set start block
+         ya+=4;
+      }
+
+      if (mLevel.mLift.cur[n].mode)
+         odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],      2000,        1,        1,        1,       10,      "Reset Timer:");
+
+      mWidget.mButton(0, xa, xb,   1, ya, bts-2,   0, 2, 0, 21,   13, 15, 15,  0, 0, "Lift Name:", 1);
+      if (mWidget.mButton(3, xa+84, 0,   1, ya+1, 12,   1, 1, 3, 3,   0, 15, 15,  10, 0, mLevel.mLift.cur[n].lift_name, 0)) mMiscFnx.edit_string_simple(xa+84, ya+1, mLevel.mLift.cur[n].lift_name, sizeof(mLevel.mLift.cur[n].lift_name));
+
+      ya+=bts;
+
+      // list of step buttons
+      // --------------------------------------------------------------------------------
+      int ysb = ya; // y pos of step buttons
+
+      // process mouse on list of step buttons
+      int step_pointer = -99;
+      if ((mInput.mouse_x > xa + 10) && (mInput.mouse_x < xb - 10)) // is mouse on step buttons?
+      {
+         int step0_y_offset = ysb + 14 + bts;
+         int mouse_step = (mInput.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
+         if ((mouse_step >= 0) && (mouse_step < mLevel.mLift.cur[n].num_steps))   // is this a valid step?
          {
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 7, 15, 94, n, 0, 0); // rotation
-            ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 12, 15, 90, n, 0, 0); // orb trigger type
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 8, 92, mLevel.mItem.item[n][6]); // mode
-            int MODE = mLevel.mItem.item[n][6];
-            if ((MODE == 1) || (MODE == 3)) mLevel.mItem.item[n][2] &= ~PM_ITEM_ORB_STATE; // MODE:Stick On  or MODE:Timed On  - set initial state OFF
-            if ((MODE == 2) || (MODE == 4)) mLevel.mItem.item[n][2] |=  PM_ITEM_ORB_STATE; // MODE:Stick Off or MODE:Timed Off - set initial state ON
-            if (MODE == 0) // only show initial state for toggle mode
-               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
-            if ((MODE == 3) || (MODE == 4)) // only show timer for mode 3 and 4
-               odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][7], 400, 0, 1,  1, 10, "Time:");
-            ya+=4; // spacer
-            odbb(1, xa, xb, ya, bts, 11, "Continuously Set Event When:");
-            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][10], 99, 0, 1,  1, 0,  "On:",  "-");
-            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][11], 99, 0, 1,  1, 0,  "Off:", "-");
-            ya+=4; // spacer
-            odbb(1, xa, xb, ya, bts, 12, "Set Event When Switching:");
-            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][12], 99, 0, 1,  1, 0,  "On:",  "-");
-            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][13], 99, 0, 1,  1, 0,  "Off:", "-");
+            step_pointer = mouse_step;  // set step pointer to this step
+            if (mInput.mouse_b[1][0])
+            {
+               step = mouse_step; // set current step to this step
+               mLevel.mLift.cur[n].current_step = step; // set current step in lift
+            }
+            if (mInput.mouse_b[2][0]) mLevel.mLift.step_popup_menu(n, step_pointer); // step pop-up menu for this step
          }
-         break;
-         case PM_ITEM_TYPE_MINE:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:");
-         break;
-         case PM_ITEM_TYPE_BOMB:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
-            if (mLevel.mItem.item[num][12]) mLevel.mItem.item[num][1] = 537; // remote detonator
-            else // fuse
-            {
-               mLevel.mItem.item[num][1] = 464;
-               odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 2000, 1, 1,  1, 10, "Fuse Time:");
-            }
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][11],   4, 4,  "Sticky:Off", "Sticky:On");
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
-         break;
+      }
 
-         case PM_ITEM_TYPE_MESSAGE:
-         {
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
-            ya+=4; // spacer
-            if (!(mLevel.mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-            {
-               odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:");
-               ya+=4; // spacer
-               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15);
-               ya+=4; // spacer
-               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
-               ya+=4; // spacer
-            }
-            if (odbb(d, xa, xb, ya, bts, 10, "Draw New Message Area")) mMiscFnx.get_block_range("Message Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            int q = 10;
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
-            ya+=4; // spacer
-            int frame_size = mLevel.mItem.get_frame_size(num);
-            if (odbp(d, xa, xb, ya, bts, 3, 7, frame_size)) mLevel.mItem.set_frame_size(num, frame_size);
-            ya+=4; // spacer
-            int tc=0, fc=0;
-            mMiscFnx.get_int_3216(mLevel.mItem.item[n][13], tc, fc);
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, tc, 0, "Select Text Color", d);
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, fc, 0, "Select Frame Color", d);
-            mMiscFnx.set_int_3216(mLevel.mItem.item[n][13], tc, fc);
-            if (odbb(d, xa, xb, ya, bts, 13, "Edit Message")) mLevel.mItem.edit_pmsg_text(n, 0);
-            ya+=bts*2; // leave space for OK and Cancel buttons
-            // draw the current one last to ensure it is on top
-            mObjectViewer.pop_msg_viewer_pos = ya+bts/2+2;
+      // draw the list of steps  - this has to go after, because it can eat the mouse clicks needed for previous section
+      int ycs = ysb + mLevel.mLift.draw_steps(xa, xb, ysb, n, step, step_pointer, d);
+      ycs +=bts;
 
+      // draw buttons for the current step button and get y position for next item (lift)
+      int yld = ycs + mLevel.mLift.draw_current_step_buttons(xa, xb, ycs, n, step, d);
 
-            char pcc[500];
-            sprintf(pcc, "%s", mLevel.mItem.mMessageText.get_text(n).c_str());
+      // global variable for height of ovw when variable due to lift
+      mLevelEditor.mWM.mW[7].rect.h = yld - mLevelEditor.mWM.mW[7].rect.y1-1;
+      mLevelEditor.mWM.mW[7].set_size(mLevelEditor.mWM.mW[7].rect.w, mLevelEditor.mWM.mW[7].rect.h);
 
-            mLevel.mItem.draw_message(n, 1, (xa+xb)/2, mObjectViewer.pop_msg_viewer_pos, 0, 0, pcc ); // show the message
-            ya+=bts*8;
-         }
-         break;
+      yld += bts;
 
+      // draw current lift under step list buttons
+      if (bts == 16) // only if max button size
+      {
+         int x1 = xa+10;
+         int y1 = yld; // only see in 2 highest screen modes
+         int s = step;
 
+         // if step is not a move step, find prev that is
+         if ((mLevel.mLift.stp[n][s].flags & 31) != 1) s = mLevel.mLift.find_previous_move_step(n, s);
 
-         case PM_ITEM_TYPE_ROCKET:
-//            odbp(d, xa, xb, ya, bts, 13, 1021, mLevel.mItem.item[n][3]); // stat | fall
-
-            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][3], 13, 13, "Stationary", "Fall");
-
-            ya+=4; // spacer
-
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_PLAYER_RIDE,       "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_RIDE_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON " , 9+dim, 9, 15+dim, 15);
-
-
-            ya+=4; // spacer
-
-
-            if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, PM_ITEM_TYPE_ROCKET, n);
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 20,  1, 1,  1, 0, "Maximum Speed:");
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 200, 1, 1,  1, 0, "Acceleration:");
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 100, 0, 1,  1, 0, "Steerability:");
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
-         break;
-         case PM_ITEM_TYPE_SWITCH:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0001, "Green:OFF",  "Green:ON",   9+dim,  9, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0010, "Red:OFF",    "Red:ON",    10+dim, 10, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b0100, "Blue:OFF",   "Blue:ON",   12+dim, 12, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][10], 0b1000, "Purple:OFF", "Purple:ON",  8+dim,  8, 15+dim, 15);
-            mLevel.mItem.set_switch_tile(n);
-         break;
-         case PM_ITEM_TYPE_SPRING:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][7], 200, 40, 1,  1, 10, "Sproinginess:");
-         break;
-         case PM_ITEM_TYPE_TIMER:
-         {
-            int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
-            mLevel.mItem.get_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
-            int q = 11;
-            if (mLevel.mItem.item[n][2]) q = 10;
-            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][2], q, q, "Draw Mode:Hidden", "Draw Mode:Progress Bar");
-            if (mLevel.mItem.item[n][2])
-            {
-               if (odbb(d, xa, xb, ya, bts, q, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
-               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
-               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
-               odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
-            }
-            ya+=4; q = 13; // spacer
-            odb0(d, xa, xb, ya, bts,  q, mLevel.mItem.item[n][10],  1000, 0, 1,   1, 10, "Timer 1:", "Off");
-            if (mLevel.mItem.item[n][10])
-            {
-               odbp(d, xa, xb, ya, bts, q, 160, t1_mode); // timer mode
-               if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
-               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][12],  99, 0, 1,   1, 0, "Input Event:", "Off");
-               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][13],  99, 0, 1,   1, 0, "Output Event:", "Off");
-               odbt(d, xa, xb, ya, bts,  15, t1_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
-            }
-            ya+=4; q = 14; // spacer
-            odb0(d, xa, xb, ya, bts,  q, mLevel.mItem.item[n][11],  1000, 0, 1,   1, 10, "Timer 2:", "Off");
-            if (mLevel.mItem.item[n][11])
-            {
-               odbp(d, xa, xb, ya, bts, q, 160, t2_mode); // timer mode
-               if (odbb(d, xa, xb, ya, bts, q, "Set Input Event from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t2_mode);
-               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][14],  99, 0, 1,   1, 0, "Input Event:", "Off");
-               odb0(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][15],  99, 0, 1,   1, 0, "Output Event:", "Off");
-               odbt(d, xa, xb, ya, bts,  15, t2_op_mode, q, q, "Output Mode:One Time", "Output Mode:Continuous");
-            }
-            state = 1;
-            time = mLevel.mItem.item[n][10]; // always start with full t1_timer
-            mLevel.mItem.set_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
-         }
-         break;
-         case PM_ITEM_TYPE_TRIGGER:
-         {
-            if (odbb(d, xa, xb, ya, bts, 14, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            int q = 14;
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
-            ya+=4; // spacer
-            // draw trigger field on/off with optional color select if on
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mLevel.mItem.item[n][2], 15+dim, 15);
-            if (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
-               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][2], 0, "Select Trigger Field Color", d);
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15) ;
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 9+dim, 9, 15+dim, 15 );
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 9+dim, 9, 15+dim, 15 );
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 9+dim, 9, 15+dim, 15 );
-            ya+=4; // spacer
-            odbb(1, xa, xb, ya, bts, 11, "Continuously Set Event When:");
-            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][11], 99, 0, 1,  1, 0,  "On:",  "-");
-            odb0(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][12], 99, 0, 1,  1, 0,  "Off:", "-");
-            ya+=4; // spacer
-            odbb(1, xa, xb, ya, bts, 12, "Set Event When Switching:");
-            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][13], 99, 0, 1,  1, 0,  "On:",  "-");
-            odb0(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][14], 99, 0, 1,  1, 0,  "Off:", "-");
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
-            if (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_LIFT_ON)
-            {
-               odbi(d, xa, xb, ya, bts, 6, mLevel.mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
-               odbc(d, xa, xb, ya, bts, 6, 15, 401, n, 0, 0); // X Alignment
-               odbc(d, xa, xb, ya, bts, 6, 15, 402, n, 0, 0); // Y Alignment
-            }
-         }
-         break;
-         case PM_ITEM_TYPE_ALTERTILES:
-         {
-            if (odbb(d, xa, xb, ya, bts, 12, "Get New Alter Tile Area")) mMiscFnx.get_block_range("Alter Tile Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],   15+96, mLevel.mItem.item[n][12],  "Show Area:OFF", "Show Area:ON");
-            if (mLevel.mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Area Color", d);
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 14, 301, mLevel.mItem.item[n][3]); // mode
-            if (mLevel.mItem.item[n][3]) // all modes except 0
-            {
-               ya+=2; // spacer
-               if (mLevel.mItem.item[n][3] == 4)
-               {
-                  if (odbb(d, xa, xb, ya, bts, 11, "Set Copy Source")) mMiscFnx.getxy("Copy Source", 95, 0, n);
-                  ya+=2; // spacer
-               }
-               else
-               {
-                  ya+=2; // spacer
-                                                      odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 10, 1); ya+=6;   // Block 1
-                  if (mLevel.mItem.item[n][3] > 1) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 11, 2); ya+=6; } // Block 2
-                  if (mLevel.mItem.item[n][3] > 4) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 13, 3); ya+=6; } // Block 3
-                  if (mLevel.mItem.item[n][3] > 5) {  odbc(d, xa, xb, ya, bts, 8, 15, 310, n, 14, 4); ya+=6; } // Block 4
-               }
-               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
-            }
-         }
-         break;
-         case PM_ITEM_TYPE_DAMAGEAREA:
-         {
-            if (odbb(d, xa, xb, ya, bts, 10, "Get New Damage Area")) mMiscFnx.get_block_range("Damage Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            int q = 10;
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 8, 404, mLevel.mItem.item[n][2]); // draw type
-            ya+=4; // spacer
-            odbc(d, xa, xb, ya, bts, 8, 15, 96, n, 0, 0); // draw rotation
-            ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 7, 402, mLevel.mItem.item[n][11]); // mode
-            int MODE = mLevel.mItem.item[n][11];
-            if (MODE == 0) mLevel.mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
-            if (MODE == 2) mLevel.mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
-            if (MODE == 3) mLevel.mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
-            ya+=4; // spacer
-            if (MODE == 1) // toggle
-               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", q+dim, q, 15+dim, 15);
-            if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
-            {
-               ya+=4; // spacer
-               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
-            }
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON", 10+dim, 10, 15+dim, 15);
-            if (mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_PLAYER)
-            {
-               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON", 10+dim, 10, 15+dim, 15);
-               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_INSTGIB))  odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][12], 2000, -2000, 1,  1, 10, "Player Damage:");
-            }
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON", 10+dim, 10, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON", 10+dim, 10, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 10+dim, 10, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON", 10+dim, 10, 15+dim, 15);
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ", 6+dim, 6, 15+dim, 15);
-            if (mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_ON)
-            {
-               odbi(d, xa, xb, ya, bts, 6, mLevel.mItem.item[n][10], 39, 0, 1,  1, 0, "Lift Number:");
-               odbt(d, xa, xb, ya, bts, mLevel.mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_MS, "Mirror Lift:OFF",           "Mirror Lift:ON ", 6+dim, 6, 15+dim, 15);
-               if (!(mLevel.mItem.item[n][3] & PM_ITEM_DAMAGE_LIFT_MS))
-               {
-                  odbc(d, xa, xb, ya, bts, 6, 15, 411, n, 0, 0); // X Alignment
-                  odbc(d, xa, xb, ya, bts, 6, 15, 412, n, 0, 0); // Y Alignment
-               }
-            }
-         }
-         break;
-         case PM_ITEM_TYPE_GATE:
-         {
-            odbp(d, xa, xb, ya, bts, 8, 405, mLevel.mItem.item[n][1]); // draw mode
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][6], 99, 1, 1,  1, 10, "Level:");
-
-            ya+=4; // spacer
-            int q=12; // mode color
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][10], 400, 20, 1,  1, 10, "Level Icon size:");
-
-            ya+=4; // spacer
-            q = 13;
-            odbt(d, xa, xb, ya, bts, 15, mLevelEditor.show_gate_info,        q, q,  "Hide Hover Info Pages",        "Show Hover Info Pages");
-            if (mLevelEditor.show_gate_info) mLevelEditor.show_gate_info_item = n;
-
-            char msg[200];
-            sprintf(msg, "Gate Info Page:%d", mLevelEditor.show_gate_info_page);
-            if (odbb(d, xa, xb, ya, bts, q, msg)) if (++mLevelEditor.show_gate_info_page > 3) mLevelEditor.show_gate_info_page = 0;
-
-            ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][11], 400, 20, 1,  1, 10, "Hover Level Icon size:");
-         }
-         break;
-         case PM_ITEM_TYPE_HIDER:
-         {
-            if (odbb(d, xa, xb, ya, bts, 10, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
-            int q = 10;
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
-            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
-            ya+=4; // spacer
-            q=7; // mode color
-            odbp(d, xa, xb, ya, bts, q, 403, mLevel.mItem.item[n][3]); // hider mode
-            int MODE = mLevel.mItem.item[n][3];
-            if (MODE == 0) mLevel.mItem.item[num][2] = 0;
-            if (MODE == 1) mLevel.mItem.item[num][2] = 1;
-            if (MODE == 2) mLevel.mItem.item[num][2] = 0;
-            if (MODE == 3) mLevel.mItem.item[num][2] = 1;
-            if ((MODE == 4) || (MODE == 5))
-            {
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],  q, q,  "Initial State:Show", "Initial State:Hide ");
-            }
-            if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
-            {
-               ya+=4; // spacer
-               if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-               odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
-            }
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][10],   10+96, 10,  "Blind Erase:OFF", "Blind Erase:ON");
-
-
-         }
-         break;
-     }
+         mwRect<float> lr = mwRect<float>::fromX1Y1WH(x1, y1, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h);
+         mLevel.mLift.draw_lift(n, lr);
+      }
    }
+
    // set height
    if (obt != PM_OBJECT_TYPE_LIFT)
    {

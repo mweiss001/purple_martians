@@ -54947,17 +54947,97 @@ this looks so good!!!
 
 
 
+orginal (draw ndf lines)
+  6 init_level_background time:11.346800
+  6 init_level_background time:5.579800
+  6 init_level_background time:11.387800
+  6 init_level_background time:5.525800
+
+draw ndf tile in its own loop
+  6 init_level_background time:5.624900
+  6 init_level_background time:13.010900
+  6 init_level_background time:5.418500
+  6 init_level_background time:13.344500
+  6 init_level_background time:5.597200
+  6 init_level_background time:13.129700
+
+draw ndf tile in main loop
+  6 init_level_background time:8.021300
+  6 init_level_background time:8.096800
+  6 init_level_background time:8.016300
+  6 init_level_background time:8.041300
+  6 init_level_background time:8.213600
+  6 init_level_background time:8.012300
+
+go with last one:
+
+
+         // mark tiles with non-default flags in level editor only
+         if (mLoop.level_editor_running && mEditorMain.show_non_default_blocks)
+            if ((mBitmap.tileFlags[tile & PM_BTILE_TILENUM_MASK] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS)) al_draw_bitmap(mBitmap.tile[152 & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
+
+      }
+   al_hold_bitmap_drawing(0);
+
+   // mark tiles with non-default flags in level editor only
+   // I do this outside the other l[100][100] iteration because if 'al_hold_bitmap_drawing()' is active, primitives will not draw
+   // what if I made the ndf marks a tile?
+
+
+   // if (mLoop.level_editor_running && mEditorMain.show_non_default_blocks)
+   //    for (int x=0; x<100; x++)
+   //       for (int y=0; y<100; y++)
+   //          mScreen.mark_non_default_block(x, y, l[x][y]);
+
+
+   // if (mLoop.level_editor_running && mEditorMain.show_non_default_blocks)
+   //    for (int x=0; x<100; x++)
+   //       for (int y=0; y<100; y++)
+   //          if ((mBitmap.tileFlags[l[x][y] & PM_BTILE_TILENUM_MASK] & PM_BTILE_ALL_FLAGS) != (l[x][y] & PM_BTILE_ALL_FLAGS)) al_draw_bitmap(mBitmap.tile[152 & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
 
 
 
 
 
 
+now:
+
+   // bool force_draw_tile_overlays = false;
+   // if (mLoop.level_editor_running && mEditorMain.show_tile_overlays) force_draw_tile_overlays = true;
+
+   bool force_draw_tile_overlays = mLoop.level_editor_running && mEditorMain.show_tile_overlays;
+   bool show_ndf_tiles = mLoop.level_editor_running && mEditorMain.show_non_default_blocks;
+
+
+   al_hold_bitmap_drawing(1);
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int tile = l[x][y];
+
+         // masked tile to remove flags and get only tile number
+         int mtile = tile & PM_BTILE_TILENUM_MASK;
+
+         // only draw tile if non-zero
+         if (mtile) al_draw_bitmap(mBitmap.tile[mtile], x*20, y*20, 0);
+
+         // draw tile overlays
+         if ((tile & PM_BTILE_SHOW_OVERLAY) || (force_draw_tile_overlays)) mScreen.draw_tile_overlay(tile, x, y);
+
+         // mark tiles with non-default flags (level editor only)
+         if (show_ndf_tiles) if ((mBitmap.tileFlags[mtile] & PM_BTILE_ALL_FLAGS) != (tile & PM_BTILE_ALL_FLAGS)) al_draw_bitmap(mBitmap.tile[152 & PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
+
+      }
+   al_hold_bitmap_drawing(0);
 
 
 
-
-
+  6 init_level_background time:8.016500
+  6 init_level_background time:5.497500
+  6 init_level_background time:8.057300
+  6 init_level_background time:5.477500
+  6 init_level_background time:7.979500
+  6 init_level_background time:5.485800
 
 
 

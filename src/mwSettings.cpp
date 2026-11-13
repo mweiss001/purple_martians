@@ -386,7 +386,7 @@ int mwSettings::settings_pages_redraw(int disable_input)
    if (current_page == 4)  page_netgame();
    if (current_page == 5)  if (page_demo(disable_input)) return 1;
    if (current_page == 6)  page_bottom_msg(disable_input);
-   if (current_page == 7)  page_level_stats();
+   if (current_page == 7)  page_stats();
    if (current_page == 8)  page_transitions();
    if (current_page == 10) page_viewport();
    if (current_page == 11) page_overlay();
@@ -1411,7 +1411,7 @@ void mwSettings::page_bottom_msg(int draw_only)
 // ---------------------------------------------------------------
 //  7 - level stats
 // ---------------------------------------------------------------
-void mwSettings::page_level_stats()
+void mwSettings::page_stats()
 {
 
    int line_spacing = 12;

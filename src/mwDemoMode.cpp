@@ -214,9 +214,7 @@ void mwDemoMode::set_active_local_player(int p)
 {
    // if p is active and not hidden, set active_local_player to p
    if (mLevel.mPlayer.is_player_active_and_not_hidden(p)) mLevel.mPlayer.active_local_player = p;
-
    mDrawSequence.ds_draw(0, 1);
-
 }
 
 

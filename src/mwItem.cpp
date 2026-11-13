@@ -164,7 +164,7 @@ bool mwItem::is_item_being_carried(int i)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (m_parent.mPlayer.syn[p].active)
-         if ((!m_parent.mPlayer.syn[p].paused) || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2))
+         if ((!m_parent.mPlayer.syn[p].paused) || (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DOOR_MOVE))
             if (i == m_parent.mPlayer.syn[p].carry_item-1) return true;
 
    return false;
@@ -506,7 +506,7 @@ void mwItem::proc_player_carry(int p)
    if (!m_parent.mPlayer.syn[p].carry_item) return;
 
    // player is paused and not in door travel
-   if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type != 2) return;
+   if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type != PM_PLAYER_PAUSED_TYPE_DOOR_MOVE) return;
 
 
    // get item number and type
@@ -538,7 +538,7 @@ void mwItem::proc_player_carry(int p)
    {
       int wall_stuck = player_drop_item(p, i);
 
-      if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
+      if (m_parent.mPlayer.syn[p].paused && m_parent.mPlayer.syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DOOR_MOVE) // dropped item while in door travel
       {
          itemf[i][2] = 0;
          itemf[i][3] = 0;

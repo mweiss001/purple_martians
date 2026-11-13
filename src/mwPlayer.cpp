@@ -40,7 +40,7 @@ void mwPlayer::proc_player_health(int p)
       syn[p].health = 0;
       loc[p].health_display = 200;
       syn[p].paused = 100;
-      syn[p].paused_type = 1;
+      syn[p].paused_type = PM_PLAYER_PAUSED_TYPE_DEATH_SEQUENCE;
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
 
@@ -367,12 +367,12 @@ void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
 
-   if (syn[p].paused_type == 2) m_parent.mItem.proc_player_door_move(p);
+   if (syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DOOR_MOVE) m_parent.mItem.proc_player_door_move(p);
 
-   if (syn[p].paused_type == 3) syn[p].paused = 1; // headless server player
+   if (syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) syn[p].paused = 1; // headless server player
 
 
-   if (syn[p].paused_type == 1) // frozen after player dies, until the timer runs out
+   if (syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DEATH_SEQUENCE) // frozen after player dies, until the timer runs out
    {
       syn[p].carry_item = 0;
       if (syn[p].paused == 100) // do only once per death
@@ -427,14 +427,19 @@ int mwPlayer::is_player_riding_rocket(int p)
 
 int mwPlayer::is_player_hidden(int p)
 {
-   if (syn[p].paused == 1 && syn[p].paused_type == 3) return 1;
+   if (syn[p].paused == 1 && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return 1;
    return 0;
 }
 
 bool mwPlayer::is_player_active_and_not_hidden(int p)
 {
    if (!syn[p].active) return false;
-   if (syn[p].paused == 1 && syn[p].paused_type == 3) return false;
+
+//   if (syn[p].paused == 1 && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return false;
+
+   if (is_player_hidden(p)) return false;
+
+
    return true;
 }
 
@@ -964,7 +969,7 @@ void mwPlayer::move_players()
    if (mMain.headless_server)
    {
       syn[0].paused = 1;
-      syn[0].paused_type = 3;
+      syn[0].paused_type = PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER;
    }
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -1008,7 +1013,9 @@ void mwPlayer::move_players()
 
 void mwPlayer::draw_player(int p, bool draw_icon_on_level_buffer)
 {
-   if (syn[p].paused_type != 3)
+   if (is_player_hidden(p)) return;
+
+//   if (syn[p].paused_type != PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER)
    {
       al_set_target_bitmap(m_parent.level_buffer);
       int px = syn[p].x;
@@ -1037,7 +1044,7 @@ void mwPlayer::draw_player(int p, bool draw_icon_on_level_buffer)
       }
 
       // death sequence star overlay
-      if ((syn[p].paused) && (syn[p].paused_type == 1))
+      if ((syn[p].paused) && (syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DEATH_SEQUENCE))
       {
          int pp = syn[p].paused;
          int st = 96; // frame to start at
@@ -1111,7 +1118,9 @@ void mwPlayer::draw_players(bool draw_icon_on_level_buffer)
 
 void mwPlayer::draw_player_direct_to_screen(int p)
 {
-   if (syn[p].paused_type == 3) return;
+//   if (syn[p].paused_type == 3) return;
+
+   if (is_player_hidden(p)) return;
 
    float scale = syn[p].draw_scale * mDisplay.scale_factor_current;
    float rot = syn[p].draw_rot;
@@ -1207,8 +1216,9 @@ int mwPlayer::find_inactive_player()
 int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((syn[p].active) && (syn[p].paused_type != 3)) // active and not hidden player in server headless
+      if (is_player_active_and_not_hidden(p))
          if (color == syn[p].color) return 1;
+
    return 0;
 }
 
@@ -1516,7 +1526,7 @@ int mwPlayer::have_all_players_acknowledged()
 
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if ((syn[p].active) && (syn[p].paused_type != 3))
+      if (is_player_active_and_not_hidden(p))
       {
          if (mGameMoves.has_player_acknowledged(p))
          {
@@ -1543,7 +1553,7 @@ void mwPlayer::proc_player_input()
 {
    if ((mGameState.level_done_mode == 0) || (mGameState.level_done_mode == 8)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((syn[p].active) && (syn[p].paused_type != 3)) // cycle all active players except hidden player in headless server
+         if (is_player_active_and_not_hidden(p))
          {
             int cm = syn[p].control_method;
             if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods

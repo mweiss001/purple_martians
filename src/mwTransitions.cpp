@@ -115,7 +115,6 @@ void mwTransitions::proc_level_done_mode()
          mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
       }
 
-
       // bring other netgame players home
       int c = mGameState.level_done_player; // captain of the ship!
       mLevel.mPlayer.syn[c].xinc = 0;
@@ -125,7 +124,7 @@ void mwTransitions::proc_level_done_mode()
       int xh = 120;
       int yh = 260;
       for (int p=0; p< NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (p != c) && (mLevel.mPlayer.syn[p].paused_type != 3)) // all active players except captain
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p) && (p != c))  // all active players except captain
          {
             // distance to home position
             float dx = xh - mLevel.mPlayer.syn[p].x;
@@ -152,7 +151,7 @@ void mwTransitions::proc_level_done_mode()
    {
       if (mGameState.level_done_timer == 100) mLog.add(LOG_OTH_LEVEL_DONE, mGameState.level_done_mode, -1, 0,0,0,0,0,0,0,0,0,0, "Players seek and zoom out");
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].x += mLevel.mPlayer.syn[p].xinc;
             mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
@@ -329,7 +328,7 @@ void mwTransitions::proc_level_done_mode()
 
       // set players paused and setup incs
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].paused = 5; // set player paused
 
@@ -357,7 +356,7 @@ void mwTransitions::proc_level_done_mode()
 
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].x += mLevel.mPlayer.syn[p].xinc;
             mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
@@ -378,7 +377,7 @@ void mwTransitions::proc_level_done_mode()
       float rot_inc = gate_enter_num_rotations * (ALLEGRO_PI * 2) / gate_enter_rotate_time;
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].draw_scale -= scale_inc;
             mLevel.mPlayer.syn[p].draw_rot -= rot_inc;
@@ -531,7 +530,7 @@ void mwTransitions::proc_level_done_mode()
       if ((mGameMoves.autosave_game_on_level_done) && (mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].paused = 5; // set player paused
 
@@ -563,7 +562,7 @@ void mwTransitions::proc_level_done_mode()
       if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * sound_fade);
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].x += mLevel.mPlayer.syn[p].xinc;
             mLevel.mPlayer.syn[p].y += mLevel.mPlayer.syn[p].yinc;
@@ -583,7 +582,7 @@ void mwTransitions::proc_level_done_mode()
       float rot_inc = level_done_num_rotations * (ALLEGRO_PI * 2) / level_done_rotate_time;
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mLevel.mPlayer.syn[p].active) && (mLevel.mPlayer.syn[p].paused_type != 3))
+         if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
             mLevel.mPlayer.syn[p].draw_scale -= scale_inc;
             mLevel.mPlayer.syn[p].draw_rot -= rot_inc;
@@ -898,7 +897,7 @@ void mwTransitions::proc_level_done_mode()
 
          // set players paused and setup incs
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((l2.mPlayer.syn[p].active) && (l2.mPlayer.syn[p].paused_type != 3))
+            if (l2.mPlayer.is_player_active_and_not_hidden(p))
             {
                l2.mPlayer.syn[p].paused = 5; // set player paused
 
@@ -945,7 +944,7 @@ void mwTransitions::proc_level_done_mode()
 
       // set player variables to final before drawing background (overworld)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((l2.mPlayer.syn[p].active) && (l2.mPlayer.syn[p].paused_type != 3))
+         if (l2.mPlayer.is_player_active_and_not_hidden(p))
          {
             l2.mPlayer.syn[p].x = px_final;
             l2.mPlayer.syn[p].y = py_final;
@@ -970,7 +969,7 @@ void mwTransitions::proc_level_done_mode()
 
       // set player variables to current before drawing players
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((l2.mPlayer.syn[p].active) && (l2.mPlayer.syn[p].paused_type != 3))
+         if (l2.mPlayer.is_player_active_and_not_hidden(p))
          {
             l2.mPlayer.syn[p].x = px_current;
             l2.mPlayer.syn[p].y = py_current;

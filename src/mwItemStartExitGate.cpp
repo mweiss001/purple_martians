@@ -304,7 +304,7 @@ void mwItem::proc_gate_collision(int p, int i)
     // debug set level complete
    if ((mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (m_parent.mPlayer.syn[p].fire) && (mLevel.data[lev].status < 2))
    {
-      //printf("debug set level complete \n");
+      printf("debug set level complete \n");
       mLevel.add_play_data_record(lev, 2);
       mLevel.load_level_by_number(1, 0, 0);
    }

@@ -18,11 +18,19 @@ class mwBitmap
    void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
 
+
+   int num_portal_tiles = 28;
+
+
    ALLEGRO_BITMAP *stilemap;
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;
    ALLEGRO_BITMAP *dtilemap;
    ALLEGRO_BITMAP *gtilemap;
+
+   ALLEGRO_BITMAP *wtilemap; // warp portal
+
+
 
    ALLEGRO_BITMAP *M_stilemap;
    ALLEGRO_BITMAP *M_btilemap;
@@ -30,11 +38,17 @@ class mwBitmap
    ALLEGRO_BITMAP *M_dtilemap;
    ALLEGRO_BITMAP *M_gtilemap;
 
+   ALLEGRO_BITMAP *M_wtilemap;
+
+
+
    ALLEGRO_BITMAP *sprite[NUM_SPRITES];
    ALLEGRO_BITMAP *tile[NUM_TILES];
    ALLEGRO_BITMAP *player_tile[16][32];
    ALLEGRO_BITMAP *door_tile[2][16][8];
    ALLEGRO_BITMAP *gate_tile[7][3];
+
+   ALLEGRO_BITMAP *portal_tile[100];
 
 
 

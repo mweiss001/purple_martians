@@ -41,14 +41,17 @@ void mwLevel::add_play_data_record(int lev, int type)
       {
          char sql[2000];
          sprintf(sql, "INSERT INTO play_data (level, time, completed, num_players, player_respawns, enemies_killed, enemies_left, coins_collected) VALUES(%d, %d, %d, %d, %d, %d, %d, %d);", lev, data[lev].time_par + 1200,  1, 0, 0,0,0,0);
+         //printf("sql:%s \n", sql);
          mSql.execute_sql(sql, mSql.db_play_data);
+         mLevel.calc_level_stats(lev);
       }
       else
       {
          mGmInfo.calc();
          mGmInfo.add();
+         mLevel.calc_level_stats(mLevel.play_level);
       }
-      mLevel.calc_level_stats(mLevel.play_level);
+
       check_achievements();
       save_data();
       level_stats_bmp_msg_type = 0;

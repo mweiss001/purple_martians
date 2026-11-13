@@ -9,7 +9,7 @@ struct psyn // synced between server and client
 
 
    int paused;
-   int paused_type; // 1 = death, 2 = door move
+   int paused_type; // 1 = death, 2 = door move, 3 = headless server
    int paused_mode;
    int paused_mode_count;
 

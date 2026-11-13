@@ -27,9 +27,6 @@ class mwSettings
    int frame_width = 4; // border width
 
 
-
-
-
    int current_page = 0;
    int show_advanced;
    int show_debug;
@@ -94,7 +91,7 @@ public:
    void page_bottom_msg(int disable_input);
 private:
 
-   void page_level_stats();
+   void page_stats();
    void page_transitions();
    void page_viewport();
    void page_overlay();

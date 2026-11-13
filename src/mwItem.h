@@ -283,6 +283,10 @@ item[][12] draw lines always, never, only when touched
 
 
 
+
+
+
+
 [2] - bonus
 item[][6] bonus type (0 - Health   1 - Purple Coin)
 item[][7] health bonus

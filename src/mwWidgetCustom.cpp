@@ -928,7 +928,8 @@ bool mwWidget::mButtonPD(int xType, int xa, int xb, int yType, int ya, int yb,  
       {
          {  0,    "Draw Type:Hidden"  },
          {  1,    "Draw Type:Door"  },
-         {  2,    "Draw Type:Warp"  }
+         {  2,    "Draw Type:Warp"  },
+         {  3,    "Draw Type:Portal"  }
       };
    }
 

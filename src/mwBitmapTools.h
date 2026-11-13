@@ -81,6 +81,11 @@ class mwBitmapTools
    void draw_flags_overlays(int x1, int y1, int flags, int b1_y_offset, int th);
 
 
+   void draw_portal(int index, int x, int y);
+
+   void debug_portal();
+
+
 
 
 

@@ -2135,6 +2135,30 @@ void mwBitmapTools::copy_tiles()
       {
          while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
 
+
+         debug_portal();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          //make_gate_tilemap();
 
          //move_tiles_and_refs(256, 1024, 48);
@@ -2320,6 +2344,96 @@ void mwBitmapTools::copy_tiles()
    al_destroy_bitmap(qtmp2);
 }
 
+
+
+void mwBitmapTools::draw_portal(int index, int x, int y)
+{
+   if (index >=0 && index < mBitmap.num_portal_tiles) al_draw_bitmap(mBitmap.portal_tile[index], x, y, 0);
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+28, y+10, 0, "%d", index);
+
+}
+
+
+void mwBitmapTools::debug_portal()
+{
+   //show all in 2 lines with number to see ranges and duplicates
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+   // portal set 1
+   // for (int a=0; a<19; a++)
+   // {
+   //    draw_portal(19+a, a*66, 100);
+   //    draw_portal(18-a, a*66, 170);
+   // }
+
+   // // portal set 2
+   // for (int a=0; a<24; a++)
+   // {
+   //    draw_portal(a,    a*66, 100); // first 9 tiles
+   //    draw_portal(33+a, a*66, 170);
+   //    draw_portal(32-a, a*66, 240);
+   // }
+
+   // // portal set 3
+   // for (int a=0; a<17; a++)
+   // {
+   //    draw_portal(a,    a*66, 100); // first 9 tiles
+   //    draw_portal(30+a, a*66, 170);
+   //    draw_portal(29-a, a*66, 240);
+   // }
+
+   // al_flip_display();
+   // mInput.tsw();
+   // return;
+
+   int quit = 0;
+
+   // portal set
+   int i1 = 0;
+   int i2 = 15;
+   int i3 = 16;
+
+   while (!quit)
+   {
+      mEventQueue.proc(1);
+
+      al_rest(0.10);
+
+      al_set_target_backbuffer(mDisplay.display);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+
+      for (int a=0; a<12; a++)
+      {
+         draw_portal(a,    a*66, 10); // first 9 tiles
+         draw_portal(16+a, a*66, 80);
+         draw_portal(15-a, a*66, 150);
+      }
+
+      draw_portal(i1, 200, 240);
+      draw_portal(i2, 300, 240);
+      draw_portal(i3, 400, 240);
+
+      al_flip_display();
+
+      // portal set
+      if (++i1 > 3) i1 = 0;
+      if (--i2 < 4) i2 = 15;
+      if (++i3 > 27) i3 = 16;
+
+
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+   }
+
+
+
+
+}
 
 
 
