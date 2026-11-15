@@ -338,7 +338,7 @@ void mwItem::detect_trigger_collisions(int i)
 
    if (flags & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+         if (m_parent.mPlayer.is_player_active_and_not_paused(p))
          {
             int x = m_parent.mPlayer.syn[p].x;
             int y = m_parent.mPlayer.syn[p].y;
@@ -637,7 +637,7 @@ void mwItem::proc_damage_area_collisions(int i)
    // players
    if (FLAGS & PM_ITEM_DAMAGE_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+         if (m_parent.mPlayer.is_player_active_and_not_paused(p))
          {
             int x = m_parent.mPlayer.syn[p].x;
             int y = m_parent.mPlayer.syn[p].y;

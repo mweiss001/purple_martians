@@ -167,6 +167,50 @@ void mwColor::map_rgb_to_hsl(ALLEGRO_COLOR c, float &h, float &s, float &l)
 
 
 
+void mwColor::modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj, bool clamp)
+{
+   // extract r, b, g, h, s, l from color
+   float r, g, b;
+   al_unmap_rgb_f(al_get_pixel(bmp, x, y), &r, &g, &b);
+   if (!(r==0 && g==0 && b==0)) // only if not black
+   {
+      float h, s, l;
+      al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+      h += h_adj;
+      if (h<0) h+=360;
+      if (h>360) h-=360;
+
+
+      s += s_adj;
+      if (clamp)
+      {
+         if (s<0) s = 0;
+         if (s>1) s = 1;
+      }
+      else // wrap
+      {
+         while (s<0) s+=1;
+         while (s>1) s-=1;
+      }
+
+      l += l_adj;
+      if (clamp)
+      {
+         if (l<0) l = 0;
+         if (l>1) l = 1;
+      }
+      else // wrap
+      {
+         while (l<0) l+=1;
+         while (l>1) l-=1;
+      }
+
+      al_set_target_bitmap(bmp);
+      al_put_pixel(x, y, al_color_hsl(h, s, l));
+   }
+}
+
 
 
 

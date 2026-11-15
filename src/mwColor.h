@@ -40,5 +40,11 @@ class mwColor
    bool compareColor(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float tolerance);
 
 
+   void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj, bool clamp = false);
+
+
+
+
+
 };
 extern mwColor mColor;

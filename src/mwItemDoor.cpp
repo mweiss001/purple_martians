@@ -27,7 +27,7 @@ void mwItem::change_linked_door_color_and_draw_type(int door)
    if (item[door][8] == 1)
    {
       int di = item[door][9];      // dest item
-      item[di][1] = item[door][1]; // set shape
+      item[di][1] = item[door][1]; // set draw type
       item[di][6] = item[door][6]; // set color
    }
 
@@ -35,118 +35,244 @@ void mwItem::change_linked_door_color_and_draw_type(int door)
    for (int i=0; i<500; i++)
       if ((item[i][0] == 1) && (item[i][9] == door))
       {
-         item[i][1] = item[door][1]; // set shape
+         item[i][1] = item[door][1]; // set draw type
          item[i][6] = item[door][6]; // set color
       }
 }
 
+
+
+int mwItem::find_source_door(int door)
+{
+   for (int i=0; i<500; i++)
+      if ((item[i][0] == 1) && (item[i][9] == door)) return i;
+   return -1;
+}
+
+
+void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot, bool player_hover, int door_entry_type, bool in, bool out)
+{
+   bool up = 0;
+   bool down = 0;
+
+   if (player_hover)
+   {
+      if (door_entry_type == 1) up = 1;
+      if (door_entry_type == 2) down = 1;
+   }
+
+   int xsize = 20;
+   int ysize = 20;
+
+   int xoffset = 0;
+   int yoffset = 0;
+
+
+   if (draw_type == 1 || draw_type == 2)
+   {
+      if (player_hover)
+      {
+         xsize = 30;
+         ysize = 26;
+         xoffset = -5;
+         yoffset = -6;
+      }
+
+      int set = 0; // new animated warp doors
+      if (draw_type == 1) set = 1; // original static shape doors
+
+      al_draw_scaled_bitmap(mBitmap.door_tile[set][col][ans], 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 );
+
+   }
+
+   if (draw_type == 3) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
+
+//   if (in)  al_draw_scaled_bitmap(mBitmap.sprite[1014]   , 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 ); // in
+//   if (out) al_draw_scaled_bitmap(mBitmap.sprite[1015]   , 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 ); // out
+
+   if (up)   al_draw_text(mFont.pr8, mColor.pc[15], x+3, y-14, 0, "up");
+   if (down) al_draw_text(mFont.pr8, mColor.pc[15], x-5, y-14, 0, "down");
+
+}
+
+
+
+
 int mwItem::draw_door(int i, int x, int y, int custom)
 {
-   ALLEGRO_BITMAP *tmp = NULL;
+
    int col = item[i][6];
-   int drawn = 0;
+   int draw_type = item[i][1];
+
+
+   if (custom)
+   {
+      if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
+      else                draw_door_tile(x, y, draw_type, col, 0, .4, 0, 0, 0, 0, 0);
+      return 1;
+   }
+
+
+   // do not draw exit only doors, they will be drawn when source door is drawn
+   // unless door is an orphan exit (no source door) in which case, draw and mark with red X, then return
+   if (item[i][8] == 0)
+   {
+      if (find_source_door(i) == -1)
+      {
+         if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
+         else                draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
+         al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+      }
+      return 1;
+   }
+
+   // if linked door is not valid, draw and mark with red X, then return
+   if (item[i][8] == 1)
+   {
+      int linked_door = item[i][9];
+
+      if (item[linked_door][0] != 1)
+      {
+         if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 1, 0, 0, 0, 0, 0);
+         else                draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
+         al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+         return 1;
+      }
+   }
+
+   // at this point I have 2 valid doors, if I didn't I should have quit by this point
+
+
+   int di = item[i][9];
+   float dx = itemf[di][0];
+   float dy = itemf[di][1];
+   int dcol = item[di][6];
+   int d_draw_type = item[di][1];
+
+
+   // these are just for symmetry
+   int si = i;
+   float sx = itemf[si][0];
+   float sy = itemf[si][1];
+   int scol = item[si][6];
+   int s_draw_type = item[si][1];
+
+   int door_entry_mode = item[si][11];
+
+
+   // determine if a player is touching the source door
+   bool player_touching_door = 0;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_door == i)) player_touching_door = 1;
 
 
 
-   if (item[i][1] == 1) tmp = mBitmap.door_tile[1][col][0]; // old style door static shape
+   // static door
+   if (s_draw_type == 1) draw_door_tile(sx, sy, s_draw_type, scol, 0, 0, 0, player_touching_door, door_entry_mode, 1, 0); // source door
+   if (d_draw_type == 1) draw_door_tile(dx, dy, d_draw_type, dcol, 0, 0, 0, 0, 0, 0, 1); // dest door
 
-   else if (item[i][1] == 2) // new style door animation sequence
+
+   // animated warp
+   if ((s_draw_type == 2) || (d_draw_type == 2))
    {
       int num_shapes = 8;
       int frames_per_cycle = 4;
-
       int tmr = mLoop.frame_num;
       if (mLoop.level_editor_running) tmr = al_get_timer_count(mEventQueue.fps_timer);
-      int an = (tmr % (num_shapes*frames_per_cycle)) / frames_per_cycle;
-      if (item[i][8] == 0) an = (num_shapes-1)-an;  // exit only, run the sequence backwards
-      tmp = mBitmap.door_tile[0][col][an];
-   }
-   else if (item[i][1] == 0) drawn = 1;
 
-   else if (item[i][1] == 3) // portal
-   {
-      // is a player currently using this door
+      // animation seq indexes
+      int san = (tmr % (num_shapes*frames_per_cycle)) / frames_per_cycle;
+      int dan = (num_shapes-1)-san;  // run the sequence backwards
 
-
-
-
-
-
-
-
-
-
-      int num_shapes = 4;
-      int frames_per_cycle = 4;
-
-      int tmr = mLoop.frame_num;
-      if (mLoop.level_editor_running) tmr = al_get_timer_count(mEventQueue.fps_timer);
-      int an = (tmr % (num_shapes*frames_per_cycle)) / frames_per_cycle;
-//      if (item[i][8] == 0) an = (num_shapes-1)-an;  // exit only, run the sequence backwards
-
-
-      // center
-      int cx = x + 10;
-      int cy = y + 10;
-      int sz = 64;
-      int tx = cx - sz/2;
-      int ty = cy - sz/2;
-
-      al_draw_scaled_bitmap(mBitmap.portal_tile[an], 0,0,64,64, tx, ty, sz, sz, 0);
-
-
-//      al_draw_bitmap(mBitmap.portal_tile[0], tx, ty, 0);
-
-//      if (item[i][8] == 0) al_draw_bitmap(mBitmap.sprite[1015], x, y, 0); // OUT
-//      else                 al_draw_bitmap(mBitmap.sprite[1014], x, y, 0); // IN
-
-
-      drawn = 1;
-      //return 1;
+      if (s_draw_type == 2) draw_door_tile(sx, sy, s_draw_type, scol, san, 0, 0, player_touching_door, door_entry_mode, 1, 0);  // source door
+      if (d_draw_type == 2) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 0, 0, 0, 0, 0, 1); // dest door
    }
 
-
-
-
-   if ((item[i][8] == 1) && (!custom)) // linked item destination
+   // portal
+   if ((s_draw_type == 3) || (d_draw_type == 3))
    {
-      // linked destination item position
-      int dx = itemf[item[i][9]][0];
-      int dy = itemf[item[i][9]][1];
-      int line_color = item[item[i][9]][6];
+      // get rotation from source and destination door positions
+      float rot = atan2(dy-sy, dx-sx);
 
-      if (item[i][12] == 1) // always draw line
-         al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
+      // default animation seq indexes
+      int san = 0;
+      int dan = 0;
 
-      if (!drawn)
+      // is any player currently using this door for a door move
+      int p = m_parent.mPlayer.find_player_using_door(i);
+
+      // idle
+      if (p == -1)
       {
-         for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
-            if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_door == i))
-            {
-               if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
-                  al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
+         // get the start tile index and the number of tiles in the idle sequence
+         int idle_start = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_start;
+         int num_tiles = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_length;
 
-               // bigger door when player touching it
-               al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
+         // how many frames before next tile
+         int frames_per_cycle = 4;
 
-               if (item[i][8] == 0) al_draw_scaled_bitmap(mBitmap.sprite[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-               else                 al_draw_scaled_bitmap(mBitmap.sprite[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+         // get timer when game running
+         int tmr = mLoop.frame_num;
 
-               if (item[i][11] == 1) // enter with <up>
-                  al_draw_text(mFont.pr8, mColor.pc[15],  x+3, y-14, 0, "up");
+         // get timer in level editor
+         if (mLoop.level_editor_running) tmr = al_get_timer_count(mEventQueue.fps_timer);
 
-               if (item[i][11] == 2) // enter with <down>
-                  al_draw_text(mFont.pr8, mColor.pc[15],  x-5, y-14, 0, "down");
-               drawn = 1;
-            }
+         // set both source and destination animation sequence based on timer mod
+         san = dan = idle_start + (tmr % (num_tiles*frames_per_cycle)) / frames_per_cycle;
+
       }
+      else
+      {
+         // get the start tile index and the number of tiles in the main sequence
+         int main_start = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_start;
+         float num_tiles = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_length-4;
+
+         // by default use the last shape in the sequence
+         san = main_start + num_tiles * 1; // source animation seq
+         dan = main_start + num_tiles * 1; // dest animation seq
+
+         // get the ratio of the progress in the mode
+         float ratio = (float)m_parent.mPlayer.syn[p].paused_mode_count / (float)m_parent.mPlayer.syn[p].door_draw_rot_num_steps;
+
+         // set the source and destination animation sequence based on the ratio
+         if (m_parent.mPlayer.syn[p].paused_mode == 1) san = main_start + num_tiles * (1-ratio); // rotate in
+         if (m_parent.mPlayer.syn[p].paused_mode == 3) dan = main_start + num_tiles * ratio;     // rotate out
+      }
+
+      // draw the source bitmap
+      if (s_draw_type == 3) draw_door_tile(sx, sy, s_draw_type, scol, san, 1, rot, player_touching_door, door_entry_mode, 1, 0);
+
+      // draw the destination bitmap
+      if (d_draw_type == 3) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 1, rot + ALLEGRO_PI, 0, 0, 0, 1);
+
    }
-   if (!drawn)
-   {
-      al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
-      if (item[i][8] == 0) al_draw_bitmap(mBitmap.sprite[1015], x, y, 0); // OUT
-      else                 al_draw_bitmap(mBitmap.sprite[1014], x, y, 0); // IN
-   }
+
+
+
+   // draw a line connecting the doors
+   bool draw_line = 0;
+   if (item[i][12] == 1) draw_line = 1; // always draw
+   if (item[i][12] == 2 && player_touching_door) draw_line = 1; // only draw when player touches
+   if (item[i][12] == 0) draw_line = 0; // never draw
+   if (custom) draw_line = 0; // never draw in custom mode
+   if (draw_line) al_draw_line(sx+10, sy+10, dx+10, dy+10, mColor.pc[scol], 1);
+
+   // draw the in / out text last
+
+
+   al_draw_bitmap(mBitmap.sprite[1014], sx, sy, 0 ); // in
+
+   al_draw_bitmap(mBitmap.sprite[1015], dx, dy, 0); // out
+
+
+
+
+
+
+
+
    return 1;
 }
 

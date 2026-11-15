@@ -3,9 +3,39 @@
 #ifndef PM_MWBITMAP_H
 #define PM_MWBITMAP_H
 
+
+struct portal_tileset
+{
+   int num_tiles;
+   int idle_start;
+   int idle_length;
+   int main_start;
+   int main_length;
+
+   int idle_cx;
+   int idle_cy;
+   int main_cxi;
+   int main_cyi;
+   int main_cxf;
+   int main_cyf;
+};
+
+
+
+
 class mwBitmap
 {
    public:
+
+   mwBitmap(); // default constructor
+
+
+   void initialize();
+
+
+   void draw_portal(int color, int index, int x, int y, float scale, float rot);
+
+//   void draw_portal_old(int index, int x, int y, float scale, float rot);
 
    void create_bitmaps();
    void rebuild_bitmaps();
@@ -19,7 +49,26 @@ class mwBitmap
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
 
 
-   int num_portal_tiles = 28;
+   struct portal_tileset portal_tilesets[6];
+   int current_portal_tileset = 5;
+
+   // int portal_tilesets_num_tiles    = 15;
+   // int portal_tilesets_idle_start   =  0;
+   // int portal_tilesets_idle_length  =  4;
+   // int portal_tilesets_main_start   =  4;
+   // int portal_tilesets_main_length  = 11;
+   // int portal_tilesets_idle_cx      = 28;
+   // int portal_tilesets_main_cxi     = 28;
+   // int portal_tilesets_main_cxf     = 25;
+   // int portal_tilesets_idle_cy      = 33;
+   // int portal_tilesets_main_cyi     = 33;
+   // int portal_tilesets_main_cyf     = 35;
+   //
+
+
+
+
+
 
 
    ALLEGRO_BITMAP *stilemap;
@@ -28,7 +77,8 @@ class mwBitmap
    ALLEGRO_BITMAP *dtilemap;
    ALLEGRO_BITMAP *gtilemap;
 
-   ALLEGRO_BITMAP *wtilemap; // warp portal
+//   ALLEGRO_BITMAP *wtilemap; // warp portal
+   ALLEGRO_BITMAP *ztilemap; // warp portal
 
 
 
@@ -38,7 +88,10 @@ class mwBitmap
    ALLEGRO_BITMAP *M_dtilemap;
    ALLEGRO_BITMAP *M_gtilemap;
 
-   ALLEGRO_BITMAP *M_wtilemap;
+//   ALLEGRO_BITMAP *M_wtilemap;
+
+
+   ALLEGRO_BITMAP *M_ztilemap;
 
 
 
@@ -48,7 +101,9 @@ class mwBitmap
    ALLEGRO_BITMAP *door_tile[2][16][8];
    ALLEGRO_BITMAP *gate_tile[7][3];
 
-   ALLEGRO_BITMAP *portal_tile[100];
+//   ALLEGRO_BITMAP *portal_tile_old[100];
+
+   ALLEGRO_BITMAP *portal_tile[16][15];
 
 
 

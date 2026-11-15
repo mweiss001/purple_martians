@@ -2978,6 +2978,7 @@ void mwTileSets::find_unique_colors_and_hues(ALLEGRO_BITMAP *b)
    std::sort(uniqueHues.begin(),   uniqueHues.end(),   [](const uniqueHue& a,   const uniqueHue& b)   { return a.hue < b.hue; });
 }
 
+/*
 void mwTileSets::modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj)
 {
    // extract r, b, g, h, s, l from color
@@ -3014,13 +3015,15 @@ void mwTileSets::modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, floa
    }
 }
 
+*/
+
 void mwTileSets::modify_selected(ALLEGRO_BITMAP *b, int mod, float val)
 {
    for (auto& p : selectedPixels)
    {
-      if (mod == 1) modify_hsl(b, p.x, p.y, val, 0, 0);
-      if (mod == 2) modify_hsl(b, p.x, p.y, 0, val, 0);
-      if (mod == 3) modify_hsl(b, p.x, p.y, 0, 0, val);
+      if (mod == 1) mColor.modify_hsl(b, p.x, p.y, val, 0, 0);
+      if (mod == 2) mColor.modify_hsl(b, p.x, p.y, 0, val, 0);
+      if (mod == 3) mColor.modify_hsl(b, p.x, p.y, 0, 0, val);
    }
 }
 
@@ -3175,7 +3178,6 @@ void mwTileSets::adjust_tile_set_color()
 
    al_destroy_bitmap(b2);
 }
-
 
 
 void mwTileSets::show_unique_colors(int x, int y)

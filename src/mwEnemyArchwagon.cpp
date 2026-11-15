@@ -57,7 +57,7 @@ void mwEnemy::move_archwagon(int e)
 
       if (Ei[e][2]) // attempt shoot right
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused) )
+            if (m_parent.mPlayer.is_player_active_and_not_paused(p))
                if ((EXint > m_parent.mPlayer.syn[p].x - Ei[e][17]) && (EXint < m_parent.mPlayer.syn[p].x) )
                   if ((EYint > m_parent.mPlayer.syn[p].y - swh) && (EYint < m_parent.mPlayer.syn[p].y + swl ))
                   {
@@ -67,7 +67,7 @@ void mwEnemy::move_archwagon(int e)
 
       if (!Ei[e][2]) // attempt shoot left
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused) )
+            if (m_parent.mPlayer.is_player_active_and_not_paused(p))
                if ((EXint > m_parent.mPlayer.syn[p].x ) && (EXint < m_parent.mPlayer.syn[p].x + Ei[e][17]))
                   if ((EYint > m_parent.mPlayer.syn[p].y  - swh) && (EYint < m_parent.mPlayer.syn[p].y + swl ))
                   {
@@ -260,7 +260,7 @@ void mwEnemy::move_arch_block_common(int e)
       // check for jump if player passes above
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused) )
+            if (m_parent.mPlayer.is_player_active_and_not_paused(p))
                if ((EXint < m_parent.mPlayer.syn[p].x + Ei[e][7]) && (EXint > m_parent.mPlayer.syn[p].x - Ei[e][7]) &&
                    (EYint > m_parent.mPlayer.syn[p].y)) Ei[e][5] = -160;
    }

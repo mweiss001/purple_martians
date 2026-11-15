@@ -19,9 +19,184 @@
 #include "mwLevelIcons.h"
 #include "mwMain.h"
 #include "mwSelectionWindow.h"
+#include "mwTileSets.h"
 
 
 mwBitmap mBitmap;
+
+
+
+mwBitmap::mwBitmap() // default constructor
+{
+   portal_tilesets[1].num_tiles    = 18;
+   portal_tilesets[1].idle_start   =  0;
+   portal_tilesets[1].idle_length  =  2;
+   portal_tilesets[1].main_start   =  2;
+   portal_tilesets[1].main_length  = 16;
+   portal_tilesets[1].idle_cx      = 32;
+   portal_tilesets[1].main_cxi     = 32;
+   portal_tilesets[1].main_cxf     = 35;
+   portal_tilesets[1].idle_cy      = 32;
+   portal_tilesets[1].main_cyi     = 32;
+   portal_tilesets[1].main_cyf     = 34;
+
+   portal_tilesets[2].num_tiles    = 33;
+   portal_tilesets[2].idle_start   =  0;
+   portal_tilesets[2].idle_length  = 10;
+   portal_tilesets[2].main_start   = 11;
+   portal_tilesets[2].main_length  = 22;
+   portal_tilesets[2].idle_cx      = 32;
+   portal_tilesets[2].main_cxi     = 32;
+   portal_tilesets[2].main_cxf     = 32;
+   portal_tilesets[2].idle_cy      = 32;
+   portal_tilesets[2].main_cyi     = 32;
+   portal_tilesets[2].main_cyf     = 32;
+
+   portal_tilesets[3].num_tiles    = 29;
+   portal_tilesets[3].idle_start   =  0;
+   portal_tilesets[3].idle_length  = 17;
+   portal_tilesets[3].main_start   = 17;
+   portal_tilesets[3].main_length  = 12;
+   portal_tilesets[3].idle_cx      = 32;
+   portal_tilesets[3].main_cxi     = 32;
+   portal_tilesets[3].main_cxf     = 32;
+   portal_tilesets[3].idle_cy      = 31;
+   portal_tilesets[3].main_cyi     = 31;
+   portal_tilesets[3].main_cyf     = 35;
+
+   portal_tilesets[4].num_tiles    = 18;
+   portal_tilesets[4].idle_start   =  0;
+   portal_tilesets[4].idle_length  =  6;
+   portal_tilesets[4].main_start   =  6;
+   portal_tilesets[4].main_length  = 12;
+   portal_tilesets[4].idle_cy      = 35;
+   portal_tilesets[4].main_cyi     = 35;
+   portal_tilesets[4].main_cxf     = 32;
+   portal_tilesets[4].idle_cx      = 32;
+   portal_tilesets[4].main_cxi     = 32;
+   portal_tilesets[4].main_cyf     = 35;
+
+   portal_tilesets[5].num_tiles    = 15;
+   portal_tilesets[5].idle_start   =  0;
+   portal_tilesets[5].idle_length  =  4;
+   portal_tilesets[5].main_start   =  4;
+   portal_tilesets[5].main_length  = 11;
+   portal_tilesets[5].idle_cx      = 28;
+   portal_tilesets[5].main_cxi     = 28;
+   portal_tilesets[5].main_cxf     = 25;
+   portal_tilesets[5].idle_cy      = 33;
+   portal_tilesets[5].main_cyi     = 33;
+   portal_tilesets[5].main_cyf     = 35;
+
+}
+
+
+void mwBitmap::draw_portal(int color, int index, int x, int y, float scale, float rot)
+{
+
+   if ((index < 0) || (index >= portal_tilesets[current_portal_tileset].num_tiles)) return;
+
+   // center of source tile
+   float cx = 32;
+   float cy = 32;
+
+   // idle
+   if (index < portal_tilesets[current_portal_tileset].idle_length)
+   {
+      cx = portal_tilesets[current_portal_tileset].idle_cx;
+      cy = portal_tilesets[current_portal_tileset].idle_cy;
+   }
+   else
+   {
+      float ms = portal_tilesets[current_portal_tileset].main_start;
+      float ml = portal_tilesets[current_portal_tileset].main_length;
+
+      // do ratio of where we are in the tileset
+      float ratio = (float)(index-ms) / ml;
+
+      // at the start (0) cx will be cx_initial
+      // at the end   (1) cx will be cx_final
+
+      float cxi = portal_tilesets[current_portal_tileset].main_cxi;
+      float cxf = portal_tilesets[current_portal_tileset].main_cxf;
+      float cxs = cxf - cxi;
+      cx = cxi + cxs*ratio;
+
+      float cyi = portal_tilesets[current_portal_tileset].main_cyi;
+      float cyf = portal_tilesets[current_portal_tileset].main_cyf;
+      float cys = cyf - cyi;
+      cy = cyi + cys*ratio;
+   }
+
+   al_draw_scaled_rotated_bitmap(mBitmap.portal_tile[color][index], cx, cy, x, y, scale, scale, rot, 0);
+
+//   al_draw_textf(mFont.pr8, al_map_rgb(255, 255, 255), x+28, y+10, 0, "%d", index);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+void mwBitmap::draw_portal_old(int index, int x, int y, float scale, float rot)
+{
+
+   if ((index < 0) || (index >= portal_tilesets[current_portal_tileset].num_tiles)) return;
+
+   // center of source tile
+   float cx = 32;
+   float cy = 32;
+
+   // idle
+   if (index < portal_tilesets[current_portal_tileset].idle_length)
+   {
+      cx = portal_tilesets[current_portal_tileset].idle_cx;
+      cy = portal_tilesets[current_portal_tileset].idle_cy;
+   }
+   else
+   {
+      float ms = portal_tilesets[current_portal_tileset].main_start;
+      float ml = portal_tilesets[current_portal_tileset].main_length;
+
+      // do ratio of where we are in the tileset
+      float ratio = (float)(index-ms) / ml;
+
+      // at the start (0) cx will be cx_initial
+      // at the end   (1) cx will be cx_final
+
+      float cxi = portal_tilesets[current_portal_tileset].main_cxi;
+      float cxf = portal_tilesets[current_portal_tileset].main_cxf;
+      float cxs = cxf - cxi;
+      cx = cxi + cxs*ratio;
+
+      float cyi = portal_tilesets[current_portal_tileset].main_cyi;
+      float cyf = portal_tilesets[current_portal_tileset].main_cyf;
+      float cys = cyf - cyi;
+      cy = cyi + cys*ratio;
+   }
+
+   al_draw_scaled_rotated_bitmap(mBitmap.portal_tile_old[index], cx, cy, x, y, scale, scale, rot, 0);
+
+   al_draw_textf(mFont.pr8, al_map_rgb(255, 255, 255), x+28, y+10, 0, "%d", index);
+
+
+
+}
+
+*/
+
 
 ALLEGRO_BITMAP * mwBitmap::create_and_clear_bitmap(int x, int y)
 {
@@ -47,8 +222,9 @@ void mwBitmap::create_bitmaps()
    M_dtilemap = create_and_clear_bitmap(176, 704);
    M_gtilemap = create_and_clear_bitmap(126, 434);
 
-   M_wtilemap = create_and_clear_bitmap(num_portal_tiles*64, 64);
+//   M_wtilemap = create_and_clear_bitmap(4000, 64);
 
+   M_ztilemap = create_and_clear_bitmap(960, 1024);
 
 
    // this bitmap format is used for all other bitmaps
@@ -61,7 +237,10 @@ void mwBitmap::create_bitmaps()
    dtilemap = create_and_clear_bitmap(176, 704);
    gtilemap = create_and_clear_bitmap(126, 434);
 
-   wtilemap = create_and_clear_bitmap(num_portal_tiles*64, 64);
+//   wtilemap = create_and_clear_bitmap(4000, 64);
+
+   ztilemap = create_and_clear_bitmap(960, 1024);
+
 
 
 
@@ -176,23 +355,55 @@ int mwBitmap::load_tiles()
    }
 
 
+   //
+   // // get portal tiles old
+   // char filename[256];
+   // sprintf(filename, "bitmaps/portal%d_purple.png", current_portal_tileset);
+   //
+   // wtilemap = al_load_bitmap(filename);
+   // if (!wtilemap)
+   // {
+   //    mInput.m_err("Can't load tiles from bitmaps/portalx_purple.png");
+   //    return 0;
+   // }
+   // else
+   // {
+   //
+   //    al_set_target_bitmap(M_wtilemap);
+   //    al_draw_bitmap(wtilemap, 0, 0, 0);
+   //
+   //    for (int a=0; a<portal_tilesets[current_portal_tileset].num_tiles; a++)
+   //       portal_tile_old[a] = al_create_sub_bitmap(wtilemap, a*64, 0, 64, 64);
+   // }
 
 
    // get portal tiles
-   wtilemap = al_load_bitmap("bitmaps/portal5_purple.png");
-   if (!wtilemap)
+   ztilemap = al_load_bitmap("bitmaps/portal_tiles.png");
+   if (!ztilemap)
    {
-      mInput.m_err("Can't load tiles from bitmaps/portal1_purple.png");
+      mInput.m_err("Can't load tiles from bitmaps/portal_tiles.png");
       return 0;
    }
    else
    {
-      al_set_target_bitmap(M_wtilemap);
-      al_draw_bitmap(wtilemap, 0, 0, 0);
+      al_set_target_bitmap(M_ztilemap);
+      al_draw_bitmap(ztilemap, 0, 0, 0);
 
-      for (int a=0; a<num_portal_tiles; a++)
-         portal_tile[a] = al_create_sub_bitmap(wtilemap, a*64, 0, 64, 64);
+      for (int c=0; c<16; c++)
+         for (int t=0; t<15; t++)
+            portal_tile[c][t] = al_create_sub_bitmap(ztilemap, t*64, c*64, 64, 64);
    }
+
+
+
+
+
+
+
+
+
+
+
 
 
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
@@ -232,10 +443,12 @@ void mwBitmap::rebuild_bitmaps()
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_gtilemap, 0, 0, 0);
 
+
    // rebuild portal tiles
-   al_set_target_bitmap(wtilemap);
+   al_set_target_bitmap(ztilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_wtilemap, 0, 0, 0);
+   al_draw_bitmap(M_ztilemap, 0, 0, 0);
+
 
 
    t[1] = al_get_time();

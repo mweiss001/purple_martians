@@ -128,6 +128,17 @@ class mwItem
    void proc_player_door_move(int p);
    void change_linked_door_color_and_draw_type(int door);
 
+
+//   void draw_door_tile(int x, int y, int set, int col, int ans, float scale, int door_entry_type, bool in, bool out);
+
+   void draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot, bool player_hover, int door_entry_type, bool in, bool out);
+
+
+   int find_source_door(int i);
+
+
+
+
    // mwItemKeySwitch.cpp
    int draw_key(int i, int x, int y, int tile);
    void proc_key_collision(int p, int i);

@@ -336,8 +336,7 @@ void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 void mwItem::bomb_players(int i, int t, int dr, float x, float y)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          float dist = sqrt( pow( (m_parent.mPlayer.syn[p].x - x), 2) + pow( (m_parent.mPlayer.syn[p].y - y), 2)   );
          if (dist < dr)
@@ -362,7 +361,7 @@ void mwItem::bomb_players(int i, int t, int dr, float x, float y)
             }
          }
       }
-   }
+
 }
 
 void mwItem::proc_lit_bomb(int i)

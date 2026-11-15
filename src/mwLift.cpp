@@ -851,7 +851,7 @@ void mwLift::set_lift_to_step(int l, int s)
 bool mwLift::is_player_riding_lift(int l, int &pr)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
          if ((m_parent.mPlayer.syn[p].player_ride) && (l == m_parent.mPlayer.syn[p].player_ride - 32))
          {
             pr = p; // player is riding this lift
@@ -1123,7 +1123,7 @@ int mwLift::lift_check_prox(int l, int pd)
    float by2 = cur[l].y + cur[l].h + pd - 10;
 
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
          if ((m_parent.mPlayer.syn[p].x > bx1) && (m_parent.mPlayer.syn[p].x < bx2) && (m_parent.mPlayer.syn[p].y > by1) && (m_parent.mPlayer.syn[p].y < by2)) return 1;
    return 0;
 }

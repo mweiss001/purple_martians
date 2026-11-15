@@ -15,6 +15,7 @@
 #include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwLoop.h"
+#include "mwMain.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwTileEditor.h"
@@ -2345,83 +2346,313 @@ void mwBitmapTools::copy_tiles()
 }
 
 
-
 void mwBitmapTools::draw_portal(int index, int x, int y)
 {
-   if (index >=0 && index < mBitmap.num_portal_tiles) al_draw_bitmap(mBitmap.portal_tile[index], x, y, 0);
+
+//   if (index >=0 && index < mBitmap.portal_tilesets[mBitmap.current_portal_tileset].num_tiles) al_draw_bitmap(mBitmap.portal_tile[index], x, y, 0);
    al_draw_textf(mFont.pr8, mColor.pc[15], x+28, y+10, 0, "%d", index);
+
+   float cx = 32;
+   float cy = 32;
+
+   if (index < mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_length)
+   {
+      cx = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_cx;
+      cy = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_cy;
+   }
+   else
+   {
+      float ms = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_start;
+      float ml = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_length;
+
+      // do ratio of where we are in the tileset
+      float ratio = (float)(index-ms) / ml;
+
+      // at the start (0) cx will be cx_initial
+      // at the end   (1) cx will be cx_final
+
+      float cxi = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_cxi;
+      float cxf = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_cxf;
+      float cxs = cxf - cxi;
+
+      cx = cxi + cxs*ratio;
+
+
+      float cyi = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_cyi;
+      float cyf = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_cyf;
+      float cys = cyf - cyi;
+
+      cy = cyi + cys*ratio;
+
+
+   }
+
+//   if (index >=0 && index < mBitmap.portal_tilesets[mBitmap.current_portal_tileset].num_tiles) al_draw_rotated_bitmap(mBitmap.portal_tile_old[index], cx, cy, x+32, y+32, 0, 0);
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+28, y+10, 0, "%d", index);
+
+
+   cx = x+32;
+   cy = y+32;
+
+//   cx += x;
+//   cy += y;
+
+
+   int bs = 30;
+
+
+
+
+
+   al_draw_line(cx, cy-bs, cx, cy+bs, mColor.Red, 0);
+   al_draw_line(cx-bs, cy, cx+bs, cy, mColor.Red, 0);
+
+
+
+
 
 }
 
 
 void mwBitmapTools::debug_portal()
 {
+
+   for (int x=0; x<16; x++)
+   {
+
+      float r, g, b;
+      al_unmap_rgb_f(mColor.pc[x], &r, &g, &b);
+      if (!(r==0 && g==0 && b==0)) // only if not black
+      {
+         float h, s, l;
+         al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+         printf("color:%d hue:%f\n", x, h);
+      }
+
+   }
+
+   // // draw and fill
+   // al_set_target_bitmap(mBitmap.ztilemap);
+   // al_clear_to_color(al_map_rgba(0,0,0,0));
+   // for (int c=0; c<16; c++)
+   //    for (int t=0; t<15; t++)
+   //       al_draw_bitmap(mBitmap.portal_tile_old[t], t*64, c*64, 0);
+   // al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+
+
+   // modify 1
+   // for (int t=0; t<15; t++)
+   //    for (int x=0; x<64; x++)
+   //       for (int y=0; y<64; y++)
+   //          mTileSets.modify_hsl(mBitmap.portal_tile[1][t], x, y, 60, 0, 0);
+   //
+   // al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+
+   // for (int c=1; c<16; c++)
+   // {
+   //    printf("\n\nmodify %d\n", c);
+   //
+   //    float r, g, b;
+   //    float h, s, l;
+   //
+   //    al_unmap_rgb_f(mColor.pc[c], &r, &g, &b);
+   //    if (!(r==0 && g==0 && b==0)) // only if not black
+   //    {
+   //       al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+   //
+   //    }
+   //    int adj = h - 265;
+   //    printf("color:%d hue:%f adjust:%d\n", c, h, adj);
+   //    for (int t=0; t<15; t++)
+   //    {
+   //       printf("tile:%d\n", t);
+   //       for (int x=0; x<64; x++)
+   //          for (int y=0; y<64; y++)
+   //             mTileSets.modify_hsl(mBitmap.portal_tile[c][t], x, y, adj, 0, 0);
+   //    }
+   //    al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+   //
+   // }
+   //
+   //
+
+   // al_set_target_bitmap(mBitmap.ztilemap);
+
+   for (int t=0; t<15; t++)
+   {
+      al_set_target_bitmap(mBitmap.portal_tile[0][t]);
+      al_draw_bitmap(mBitmap.portal_tile[8][t], 0, 0, 0);
+   }
+   al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+
+
+   // ALLEGRO_BITMAP *bmp = NULL;
+   // bmp = al_load_bitmap("bitmaps/portal5_purple.png");
+   // if (!bmp)
+   // {
+   //    mInput.m_err("Can't load tiles from bitmaps/portal5_gray.png");
+   //    return;
+   // }
+   // for (int t=0; t<15; t++)
+   // {
+   //    al_set_target_bitmap(mBitmap.portal_tile[13][t]);
+   //    al_draw_bitmap_region(bmp, t*64, 0, 64, 64, 0, 0, 0);
+   // }
+   // al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+   // al_destroy_bitmap(bmp);
+
+
+//   mMain.fast_exit(0);
+
+
+
+
+/*
+
+   hues: 265.5 271.6
+
+
+   color:1 hue:280.161285
+   color:2 hue:284.571411
+   color:3 hue:219.384613
+   color:4 hue:346.530609
+   color:5 hue:305.411774
+   color:6 hue:30.000004
+   color:7 hue:29.882353
+   color:8 hue:269.882355
+   color:9 hue:149.882355
+   color:10 hue:0.000000
+   color:11 hue:120.000000
+   color:12 hue:240.000000
+   color:13 hue:180.000000
+   color:14 hue:60.000000
+   color:15 hue:0.000000
+
+   when loading put into new one
+*/
+
+   // mTileSets.find_unique_colors_and_hues(mBitmap.portal_tile_old[0]);
+   // al_set_target_backbuffer(mDisplay.display);
+   // al_clear_to_color(al_map_rgba(0,0,0,0));
+   // mTileSets.show_unique_colors(100, 100);
+   // al_flip_display();
+   // mInput.tsw();
+
+
+   // for (int x=0; x<portal_tilesets[current_portal_tileset].num_tiles*64; x++)
+   //    for (int y=0; y<64; y++)
+   //       mTileSets.modify_hsl(wtilemap, x, y, 60, 0, 0);
+
+
+/*
+
+   int c = 8;
+
+   float r, g, b;
+   float h, s, l;
+   al_unmap_rgb_f(mColor.pc[c], &r, &g, &b);
+   al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+   float h_adj = h - 278;
+   float s_adj = .2;
+   float l_adj = 0;
+
+   printf("color:%d h:%f s:%f l:%f h_adj:%f\n", c, h, s, l, h_adj);
+
+   if (1) // do it !!!
+   {
+
+      // reset to initial purple before changing hue ---- !!!!!!
+      ALLEGRO_BITMAP *bmp = NULL;
+      bmp = al_load_bitmap("bitmaps/portal5_purple.png");
+      if (!bmp)
+      {
+         mInput.m_err("Can't load tiles from bitmaps/portal5_gray.png");
+         return;
+      }
+      for (int t=0; t<15; t++)
+      {
+         al_set_target_bitmap(mBitmap.portal_tile[c][t]);
+         al_draw_bitmap_region(bmp, t*64, 0, 64, 64, 0, 0, 0);
+      }
+      al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+      al_destroy_bitmap(bmp);
+
+
+      for (int t=0; t<15; t++)
+      {
+         printf("tile:%d\n", t);
+         for (int x=0; x<64; x++)
+            for (int y=0; y<64; y++)
+               mColor.modify_hsl(mBitmap.portal_tile[c][t], x, y, h_adj, s_adj, l_adj, 1);
+      }
+
+
+      al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
+   }
+   else // test
+   {
+      for (int x=0; x<64; x++)
+      {
+         printf("x:%d\n", x);
+         for (int y=0; y<64; y++)
+         {
+            mColor.modify_hsl(mBitmap.portal_tile[0][0], x, y, h_adj, s_adj, l_adj, 1);
+            mColor.modify_hsl(mBitmap.portal_tile[0][1], x, y, h_adj, s_adj+.1, l_adj, 1);
+         }
+      }
+
+      al_set_target_backbuffer(mDisplay.display);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_bitmap(mBitmap.portal_tile[0][0], 400, 400, 0);
+      al_draw_filled_rectangle(470, 400, 550, 464, mColor.pc[c]);
+      al_draw_bitmap(mBitmap.portal_tile[0][1], 555, 400, 0);
+      al_flip_display();
+      mInput.tsw();
+   }
+
+*/
+
+   mMain.fast_exit(0);
+
+
+
    //show all in 2 lines with number to see ranges and duplicates
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
-   // portal set 1
-   // for (int a=0; a<19; a++)
-   // {
-   //    draw_portal(19+a, a*66, 100);
-   //    draw_portal(18-a, a*66, 170);
-   // }
+   int quit = 1;
 
-   // // portal set 2
-   // for (int a=0; a<24; a++)
-   // {
-   //    draw_portal(a,    a*66, 100); // first 9 tiles
-   //    draw_portal(33+a, a*66, 170);
-   //    draw_portal(32-a, a*66, 240);
-   // }
-
-   // // portal set 3
-   // for (int a=0; a<17; a++)
-   // {
-   //    draw_portal(a,    a*66, 100); // first 9 tiles
-   //    draw_portal(30+a, a*66, 170);
-   //    draw_portal(29-a, a*66, 240);
-   // }
-
-   // al_flip_display();
-   // mInput.tsw();
-   // return;
-
-   int quit = 0;
+   int is = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_start;
+   int il = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_length;
+   int ms = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_start;
+   int ml = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_length;
 
    // portal set
-   int i1 = 0;
-   int i2 = 15;
-   int i3 = 16;
+   int idle = is;
+   int main = ms;
 
    while (!quit)
    {
       mEventQueue.proc(1);
 
-      al_rest(0.10);
+      al_rest(0.25);
 
       al_set_target_backbuffer(mDisplay.display);
       al_clear_to_color(al_map_rgba(0,0,0,0));
 
-      for (int a=0; a<12; a++)
-      {
-         draw_portal(a,    a*66, 10); // first 9 tiles
-         draw_portal(16+a, a*66, 80);
-         draw_portal(15-a, a*66, 150);
-      }
+      for (int a=0; a<mBitmap.portal_tilesets[mBitmap.current_portal_tileset].num_tiles; a++) draw_portal(a,    a*66, 10);
 
-      draw_portal(i1, 200, 240);
-      draw_portal(i2, 300, 240);
-      draw_portal(i3, 400, 240);
+      draw_portal(idle, 200, 240);
+      draw_portal(main, 300, 240);
+
 
       al_flip_display();
 
       // portal set
-      if (++i1 > 3) i1 = 0;
-      if (--i2 < 4) i2 = 15;
-      if (++i3 > 27) i3 = 16;
-
-
+      if (++idle >= is+il) idle = is;
+      if (++main >= ms+ml) main = ms;
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -2430,10 +2661,27 @@ void mwBitmapTools::debug_portal()
       }
    }
 
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

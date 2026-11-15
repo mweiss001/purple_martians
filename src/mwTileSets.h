@@ -162,11 +162,14 @@ class mwTileSets
    void copy_tiles_from_tilemap(const char* filename, int bs, int w, int h);
    void create_tileset_single_faded_rect(int bs, ALLEGRO_COLOR bc);
 
+
+//   void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj);
+
+
    private:
 
    void draw_tile_on_tilemap(ALLEGRO_BITMAP *tile, ALLEGRO_BITMAP *tilemap, int index);
    bool colors_equal(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2);
-   void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj);
 
 
    ALLEGRO_BITMAP * create_bitmap10_and_fill(ALLEGRO_BITMAP *tilemap, int sx, int sy);

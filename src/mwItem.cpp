@@ -592,13 +592,14 @@ void mwItem::proc_item_collision(int p, int i)
          (is_item_carryable(i)) && // item is carryable
          (m_parent.mPlayer.syn[p].fire) )   // fire pressed
    {
-      // check to see if another player is already carrying this item
-      int other_player_carrying = 0;
+
+      // check to see if this item is already being carried by a player
+      bool item_already_carried = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
-         if ((m_parent.mPlayer.syn[op].active) && (!m_parent.mPlayer.syn[op].paused) && (m_parent.mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
+         if (m_parent.mPlayer.is_player_active_and_not_paused(op) && (m_parent.mPlayer.syn[op].carry_item == i+1)) item_already_carried = 1;
 
       // allow carry
-       if ((!other_player_carrying) ||         // if no other player is carrying
+       if ((!item_already_carried) ||            // item is not already being carried or
           (type == PM_ITEM_TYPE_LIT_ROCKET))     // allow multiple player carry for rocket
           m_parent.mPlayer.syn[p].carry_item = i+1;
    }

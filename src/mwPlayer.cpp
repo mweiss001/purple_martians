@@ -39,8 +39,11 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
       loc[p].health_display = 200;
-      syn[p].paused = 100;
+      syn[p].paused = 1;
       syn[p].paused_type = PM_PLAYER_PAUSED_TYPE_DEATH_SEQUENCE;
+      syn[p].paused_mode_count = 100;
+
+
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
 
@@ -375,7 +378,7 @@ void mwPlayer::proc_player_paused(int p)
    if (syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DEATH_SEQUENCE) // frozen after player dies, until the timer runs out
    {
       syn[p].carry_item = 0;
-      if (syn[p].paused == 100) // do only once per death
+      if (syn[p].paused_mode_count == 100) // do only once per death
       {
          // does this player have any bomb remotes?
          for (int i=0; i<500; i++)
@@ -388,7 +391,7 @@ void mwPlayer::proc_player_paused(int p)
                //mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
             }
       }
-      if (--syn[p].paused > 0)
+      if (--syn[p].paused_mode_count > 0)
       {
          // shrink player
          syn[p].draw_scale -= 0.25;
@@ -419,27 +422,41 @@ void mwPlayer::reset_player_scale_and_rot(int p)
 }
 
 
-int mwPlayer::is_player_riding_rocket(int p)
+
+int mwPlayer::find_player_using_door(int i)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (syn[p].active && syn[p].paused && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_DOOR_MOVE && syn[p].door_item == i) return p;
+   return -1;
+}
+
+
+
+bool mwPlayer::is_player_riding_rocket(int p)
 {
    if ((syn[p].carry_item) && (m_parent.mItem.item[syn[p].carry_item-1][0] == PM_ITEM_TYPE_LIT_ROCKET)) return 1;
    return 0;
 }
 
-int mwPlayer::is_player_hidden(int p)
+bool mwPlayer::is_player_hidden(int p)
 {
-   if (syn[p].paused == 1 && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return 1;
+   if (syn[p].paused && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return 1;
    return 0;
 }
+
+
+bool mwPlayer::is_player_active_and_not_paused(int p)
+{
+   if (!syn[p].active) return false;
+   if (syn[p].paused) return false;
+   return true;
+}
+
 
 bool mwPlayer::is_player_active_and_not_hidden(int p)
 {
    if (!syn[p].active) return false;
-
-//   if (syn[p].paused == 1 && syn[p].paused_type == PM_PLAYER_PAUSED_TYPE_HEADLESS_SERVER) return false;
-
    if (is_player_hidden(p)) return false;
-
-
    return true;
 }
 

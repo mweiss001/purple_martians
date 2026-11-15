@@ -13,7 +13,7 @@ int mwEnemy::is_player_in_enemy_trigger_box(int e)
    int x2 = Ei[e][11] + Ei[e][13] + 10;
    int y2 = Ei[e][12] + Ei[e][14] + 10;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          int px = m_parent.mPlayer.syn[p].x;
          int py = m_parent.mPlayer.syn[p].y;
@@ -73,7 +73,7 @@ int mwEnemy::find_closest_player(int e)
    int closest_player = 0; // defaults to zero (will always return a valid player)
    float hd = 99999;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          float xlen = m_parent.mPlayer.syn[p].x - Ef[e][0];
          float ylen = m_parent.mPlayer.syn[p].y - Ef[e][1];
@@ -98,7 +98,7 @@ int mwEnemy::find_closest_player_flapper(int e)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       d[p] = -1;
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          float xlen = m_parent.mPlayer.syn[p].x - Ef[e][0];            // get x distance
          float ylen = m_parent.mPlayer.syn[p].y - Ef[e][1];            // get y distance
@@ -178,7 +178,7 @@ int mwEnemy::find_closest_player_trakbot(int e)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       d[p] = -1;
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          float xlen = m_parent.mPlayer.syn[p].x - Ef[e][0];            // get x distance
          float ylen = m_parent.mPlayer.syn[p].y - Ef[e][1];            // get y distance
@@ -215,7 +215,7 @@ int mwEnemy::find_closest_player_cannon(int e)
    int closest_player = -1; // default if no player within distance
    float hd = 99999;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+      if (m_parent.mPlayer.is_player_active_and_not_paused(p))
       {
          float xlen = m_parent.mPlayer.syn[p].x - Ef[e][0];
          float ylen = m_parent.mPlayer.syn[p].y - Ef[e][1];

@@ -101,7 +101,7 @@ void mwEnemy::move_trakbot(int e)
          float  ey = Ef[e][1];
          float ew = 15;
          for (int p=0; p<NUM_PLAYERS; p++) // if any player passes underneath
-            if ((m_parent.mPlayer.syn[p].active) && (!m_parent.mPlayer.syn[p].paused))
+            if (m_parent.mPlayer.is_player_active_and_not_paused(p))
             {
                float px = m_parent.mPlayer.syn[p].x;
                float py = m_parent.mPlayer.syn[p].y;

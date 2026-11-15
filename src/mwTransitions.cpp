@@ -330,7 +330,7 @@ void mwTransitions::proc_level_done_mode()
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
-            mLevel.mPlayer.syn[p].paused = 5; // set player paused
+            mLevel.mPlayer.syn[p].paused = 1; // set player paused
 
             // get distance between players current position and new position
             float dx = sx - mLevel.mPlayer.syn[p].x;
@@ -532,7 +532,7 @@ void mwTransitions::proc_level_done_mode()
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mLevel.mPlayer.is_player_active_and_not_hidden(p))
          {
-            mLevel.mPlayer.syn[p].paused = 5; // set player paused
+            mLevel.mPlayer.syn[p].paused = 1; // set player paused
 
             // get distance between player and exit
             float dx = mGameState.level_done_x - mLevel.mPlayer.syn[p].x;
@@ -899,7 +899,7 @@ void mwTransitions::proc_level_done_mode()
          for (int p=0; p<NUM_PLAYERS; p++)
             if (l2.mPlayer.is_player_active_and_not_hidden(p))
             {
-               l2.mPlayer.syn[p].paused = 5; // set player paused
+               l2.mPlayer.syn[p].paused = 1; // set player paused
 
                // set incs
                px_inc = (px_final - px_initial) / player_exit_transition_time;

@@ -5,13 +5,17 @@
 struct psyn // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
-   int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-
+   int control_method;
 
    int paused;
    int paused_type; // 1 = death, 2 = door move, 3 = headless server
    int paused_mode;
    int paused_mode_count;
+
+
+
+
+
 
 
 
@@ -228,7 +232,6 @@ public:
    void proc_player_xy_move(int p);
    void proc_player_paused(int p);
    void reset_player_scale_and_rot(int p);
-   int is_player_riding_rocket(int p);
    void proc_player_stuck_in_blocks(int p);
    void proc_player_riding_rocket(int p);
    void proc_player_bounds_check(int p);
@@ -242,8 +245,18 @@ public:
    void move_players();
 
 
-   int is_player_hidden(int p);
+   bool is_player_hidden(int p);
    bool is_player_active_and_not_hidden(int p);
+   bool is_player_active_and_not_paused(int p);
+   bool is_player_riding_rocket(int p);
+
+
+
+   int find_player_using_door(int i);
+
+
+   int is_player_color_used(int color);
+
 
    void draw_player_direct_to_screen(int p);
    void draw_players_direct_to_screen();
@@ -252,7 +265,9 @@ public:
    void draw_players(bool);
    void set_players_shape(int p);
    int find_inactive_player();
-   int is_player_color_used(int color);
+
+
+
 
    int get_new_client_color(int requested_color);
 
