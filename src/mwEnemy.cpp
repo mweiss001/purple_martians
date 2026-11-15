@@ -354,14 +354,12 @@ void mwEnemy::enemy_deathcount(int e)
          if (mLevel.mItem.item[c][0] == 0) // find empty item
          {
             for (int y=0; y<16; y++) mLevel.mItem.item[c][y] = 0; // clear item
-            mLevel.mItem.item[c][0] = 2;           // type - bonus
-            mLevel.mItem.item[c][1] = Ei[e][24];  // flower shape
-            mLevel.mItem.item[c][2] = 1; // draw mode normal
-            mLevel.mItem.item[c][3] = -1; // carryable
-            mLevel.mItem.item[c][6] = 0; // bonus type 0 - health
-            mLevel.mItem.item[c][7] = Ei[e][25];  //  life
-            mLevel.mItem.item[c][8] = 0;
-            mLevel.mItem.item[c][14] = 800; // time to live
+            mLevel.mItem.item[c][0] = PM_ITEM_TYPE_BONUS;         // type - bonus
+            mLevel.mItem.item[c][1] = Ei[e][24];                  // flower shape
+            mLevel.mItem.item[c][2] |= PM_ITEM_FLAG_CARRYABLE;
+            mLevel.mItem.item[c][6] = 0;                          // bonus type health
+            mLevel.mItem.item[c][7] = Ei[e][25];                  // health amount
+            mLevel.mItem.item[c][14] = 800;                       // time to live (20s)
 
             mLevel.mItem.itemf[c][0] = Ef[e][0];
             mLevel.mItem.itemf[c][1] = Ef[e][1];

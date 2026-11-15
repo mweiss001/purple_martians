@@ -421,8 +421,8 @@ int mwItem::create_message(int i)
    item[i][1] = 0;    // trigger event
    item[i][3] = 0;    // stationary
    item[i][2] = 0;    // flags
-   item[i][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
-   item[i][2] |= PM_ITEM_PMSG_FRAME12;
+   item[i][2] |= PM_ITEM_MESSAGE_SHOW_SCROLL;
+   item[i][2] |= PM_ITEM_MESSAGE_FRAME12;
    item[i][12] = 120;  // default message time
    mMiscFnx.set_int_3216(item[i][13], 15, 13); // default text color (white) and frame color (blue)
 

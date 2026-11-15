@@ -202,27 +202,31 @@ void mwWidget::draw_widget_text(int x1, int y1, int x2, int y2, int color, int l
 
 
 // wrapper that increments ya by bts
-int mwWidget::mColorSelect(int xType, int xa, int xb, int &ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input)
+int mwWidget::mColorSelect(int xType, int xa, int xb, int &ya, int yb, int start_color, int &v1, const char* txt, int disable_input)
 {
-   int ret = mColorSelect(xType, xa, xb, 1, ya, yb-2, type, v1, v2, txt, disable_input);
+   int ret = mColorSelect(xType, xa, xb, 1, ya, yb-2, start_color, v1, txt, disable_input);
    ya+= yb;
    return ret;
 }
 
 
-int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input)
+int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int start_color, int &v1, const char* txt, int disable_input)
 {
    int x1, y1, x2, y2;
    xyHelper(xType, xa, xb, yType, ya, yb, "", x1, y1, x2, y2);
 
-   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase
+   // erase background
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
 
-   // draw colors (1-15)
-   float a = x2-x1; // range
-   float b = a/15;  // color swatch width
-   if (b<2) b = 2;  // min width
-   for (int c=0; c<15; c++)
-      al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, mColor.pc[(int)c+1]);
+
+   int num_colors = 16-start_color;
+
+   // draw colors
+   float xw = x2-x1;
+   float swatch_width = xw / num_colors;  // color swatch width
+
+   for (int c=start_color; c<num_colors; c++)
+      al_draw_filled_rectangle(x1 + c*swatch_width, y1, x1 + (c+1) * swatch_width, y2, mColor.pc[c]);
 
 
    draw_widget_text(x1, y1,  x2, y2, 0, 0, txt);
@@ -230,25 +234,19 @@ int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb,
    // draw outline
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
 
-
    // check if mouse is on button
    bool mouseOnButton = false;
    if ((!disable_input) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) mouseOnButton = true;
 
-
    if (mouseOnButton && mInput.mouse_b[1][0])
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      int color = (int)(1+(mInput.mouse_x-x1)/b);
+      int color = (mInput.mouse_x - x1) / swatch_width;
 
-      if (type == 1) v1 = color;
-
+      v1 = color;
       return color;
-
    }
-
    return -1;
-
 }
 
 
@@ -964,7 +962,6 @@ bool mwWidget::mCheckBox(int xType, int xa, int xb, int &ya, int bts, int frame_
    ya += bts;
    return res;
 }
-
 
 
 

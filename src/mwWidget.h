@@ -39,8 +39,8 @@ public:
    bool mCheckBox(int xType, int xa, int xb, int yType, int ya, int yb, int frame_col, int &var, const char* t, int text_col, int box_col, bool disable_input);
 
 
-   int mColorSelect(int xType, int xa, int xb, int &ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input);
-   int mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* t, int disable_input);
+   int mColorSelect(int xType, int xa, int xb, int &ya, int yb, int start_color, int &v1, const char* txt, int disable_input);
+   int mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int start_color, int &v1, const char* t, int disable_input);
 
 
    void xyHelper(int xType, int xa, int xb, int yType, int ya, int yb, const char* txt, int &x1, int &y1, int &x2, int &y2);

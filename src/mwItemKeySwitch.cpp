@@ -23,24 +23,28 @@ void mwItem::proc_hider(int i)
    int et = item[i][1];                 // number of pm_event trigger we are looking for
    int trig = mTriggerEvent.event[et];  // is the trigger event set?
    if (et == 0) trig = 0;               // if event is zero, ignore
+
+   if (item[i][3] == 1) item[i][10] = 1;
+
+
    if (trig)
    {
-      if (item[i][3] == 2) item[i][2] = 0;
-      if (item[i][3] == 3) item[i][2] = 1;
-      if (item[i][3] == 4) item[i][2] = !item[i][2];
-      if (item[i][3] == 5) item[i][2] = 0;
+      if (item[i][3] == 2) item[i][10] = 0;
+      if (item[i][3] == 3) item[i][10] = 1;
+      if (item[i][3] == 4) item[i][10] = !item[i][10];
+      if (item[i][3] == 5) item[i][10] = 0;
    }
-   else if (item[i][3] == 5) item[i][2] = 1;
+   else if (item[i][3] == 5) item[i][10] = 1;
+
+
+
 }
-
-
-
 
 void mwItem::erase_hider_areas()
 {
    al_set_target_bitmap(m_parent.level_buffer);
    for (int i=0; i<500; i++)
-      if ((item[i][0] == PM_ITEM_TYPE_HIDER) && (item[i][2]) && (item[i][10]))
+      if ((item[i][0] == PM_ITEM_TYPE_HIDER) && (item[i][10]))
       {
          int x1 = item[i][6];
          int y1 = item[i][7];
@@ -114,6 +118,10 @@ void mwItem::proc_key_collision(int p, int i)
       int num_steps = scaler;
       item[i][11] = num_steps + 10;                       // add 10 for final sequence
       mGameEvent.add(20, 0, 0, p, item[i][1], 0, 0);
+
+      // this is to disable gravity
+      item[i][2] |= PM_ITEM_FLAG_STATIONARY;
+
    }
 }
 

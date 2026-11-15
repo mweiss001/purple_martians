@@ -201,8 +201,13 @@ class mwItem
    int draw_timer(int i, int x, int y, int custom);
    void proc_timer(int i);
 
-   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt);
-   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt);
+//   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt);
+//   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt);
+
+   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt, int draw_mode);
+   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt, int &draw_mode);
+
+
 
    float get_timer_ratio_for_event(int ev);
 
@@ -276,6 +281,7 @@ item[][4] = x pos
 item[][5] = y pos
 item[][14] = time to live
 item[][15] = tag with cloner item id
+
 
 
 
@@ -488,6 +494,7 @@ item[][10] level icon size
 
 
 
+
 [19] hider
 item[][1] = pm_event_trigger
 item[][2] = active
@@ -503,12 +510,6 @@ item[][10] = blind erase
 item[][11] = disable draw item
 item[][12] = disable draw enemy
 item[][13] = disable draw lift
-
-
-
-
-
-
 
 
 

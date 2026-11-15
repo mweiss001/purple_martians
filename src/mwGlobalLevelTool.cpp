@@ -259,6 +259,60 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_HIDER)
+         {
+
+            mLevel.mItem.item[y][10] = 1;
+
+            //            printf("lev:%d hider:%d blind_erase:%d mode:%d \n", le[x], y, mLevel.mItem.item[y][10], mLevel.mItem.item[y][3]);
+
+
+
+            //
+//            mLevel.mItem.item[y][13] = mLevel.mItem.item[y][2];
+
+            // if (mLevel.mItem.item[y][2]) mLevel.mItem.item[y][3] |= 0b10;
+            // else mLevel.mItem.item[y][3] &= ~0b10;
+
+//            mLevel.mItem.item[y][2] = 1;
+
+
+            // mLevel.mItem.item[y][3] = mLevel.mItem.item[y][2];
+            // mLevel.mItem.item[y][2] = 1; // stationary
+
+//            int temp_flags = mLevel.mItem.item[y][2];
+
+            // mLevel.mItem.item[y][2] = 0;
+            //
+            // // the only time stationary is set is if 3 == 0
+            // if (mLevel.mItem.item[y][3] == 0) mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_STATIONARY;
+            //
+            // if (mLevel.mItem.item[y][3] == -1) mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRYABLE;
+            //
+            // if (mLevel.mItem.item[y][3] == -2)
+            // {
+            //    mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRYABLE;
+            //    mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRY_THROUGH_DOOR;
+            //
+            // }
+            //
+            // mLevel.mItem.item[y][3] = 0;
+            //
+
+
+    //      mLevel.mItem.item[y][3] = temp_flags;
+
+
+
+
+         }
+
+
+
+
+
+
 
 //       for (int y=0; y<500; y++)
 //          if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
@@ -451,7 +505,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (0)
+      if (1)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

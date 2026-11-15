@@ -303,14 +303,33 @@ void mwDemoRecord::draw_current_section(mwWindow w)
 
    ya+=line_space;
 
-   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, col, 0, "Player Color", d);
 
-   if (cl != -1)
+//   int tmp_col = col; // so it doesnt get changed
+//   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, tmp_col, "Player Color", d);
+
+//   int cl = -1;
+//   mWidget.mColorSelect(0, x, x+200, ya, 16, 1, cl, "Player Color", d);
+
+   // int tmp_col = col; // so it doesnt get changed
+   // int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, tmp_col, "Player Color", d);
+
+   int cl = 0;
+   if (mWidget.mColorSelect(0, x, x+200, ya, 16, 1, cl, "Player Color", d) != -1)
    {
       int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
       if (gi != -1) mGameMoves.gma_change_color(gi, cl);
       refresh();
    }
+
+
+   // int cl = -1;
+   // mWidget.mColorSelect(0, x, x+200, ya, 16, 1, cl, "Player Color", d);
+   // if (cl != -1)
+   // {
+   //    int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+   //    if (gi != -1) mGameMoves.gma_change_color(gi, cl);
+   //    refresh();
+   // }
 
    ya+= 2; al_draw_line(w.rect.x1, ya, w.rect.x2, ya, mColor.pc[c], 1); ya+=3;
 
@@ -356,8 +375,15 @@ void mwDemoRecord::change_player_color_and_name_dialog(int gmInfoIndex)
 
       al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
       ya+=12;
-      int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, 0, "Player Color", 0);
-      if (cl != -1) col = cl;
+
+      // int tmp_col = col;
+      // int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, tmp_col, "Player Color", 0);
+      // if (cl != -1) col = cl;
+
+      mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, "Player Color", 0);
+
+
+
 
       ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5; // spacer line
 
@@ -463,8 +489,15 @@ void mwDemoRecord::add_new_section_dialog()
 
          al_draw_textf(mFont.pr8, mColor.pc[col], rect.XCenter(), ya, ALLEGRO_ALIGN_CENTER, "Player Color:%d", col);
          ya+=12;
-         int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, 0, "Player Color", 0);
-         if (cl != -1) mLevel.mPlayer.syn[player_num].color = cl;
+
+         // int tmp_col = col;
+         // int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, tmp_col,"Player Color", 0);
+         // if (cl != -1) mLevel.mPlayer.syn[player_num].color = cl;
+
+         int tmp_col = 0;
+         if (mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, "Player Color", 0) != -1) mLevel.mPlayer.syn[player_num].color = tmp_col;
+
+
 
          ya+=4; al_draw_line(rect.x1, ya, rect.x2, ya, mColor.pc[c], 1); ya+=5;
 

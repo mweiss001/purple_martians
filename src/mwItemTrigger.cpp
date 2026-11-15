@@ -22,8 +22,8 @@
 /*
 item[][0] = 6 - orb
 item[][1] = bitmap
-item[][2] = flags
-item[][3] = stat | fall | carry
+
+item[][3] = orb flags
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
 item[][6]  = MODE
@@ -50,7 +50,7 @@ item[][13] = TGOF pm_event
 
 int mwItem::proc_orb_shot_collision(int i)
 {
-   int s = 8; // collison box size
+   int s = 8; // collision box size
    float x = itemf[i][0];
    float y = itemf[i][1];
    for (int b=0; b<50; b++)
@@ -79,61 +79,62 @@ void mwItem::proc_orb(int i)
       if (--item[i][8] <= 0)
       {
          item[i][8] = 0;
-         item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
+         item[i][3] &= ~PM_ITEM_ORB_STATE;  // OFF
       }
-      else item[i][2] |= PM_ITEM_ORB_STATE; // ON
+      else item[i][3] |= PM_ITEM_ORB_STATE; // ON
    }
    if (MODE == 4) // timed OFF
    {
       if (--item[i][8] <= 0)
       {
          item[i][8] = 0;
-         item[i][2] |= PM_ITEM_ORB_STATE;    // ON
+         item[i][3] |= PM_ITEM_ORB_STATE;    // ON
       }
-      else item[i][2] &= ~PM_ITEM_ORB_STATE; // OFF
+      else item[i][3] &= ~PM_ITEM_ORB_STATE; // OFF
    }
 
 
-   if ((item[i][2] & PM_ITEM_ORB_TRIG_SHOT) && (proc_orb_shot_collision(i))) item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
+
+   if ((item[i][3] & PM_ITEM_ORB_TRIG_SHOT) && (proc_orb_shot_collision(i))) item[i][3] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
 
 
 
    // trigger stuff
-   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
+   if (item[i][3] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
    {
       if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]+1; // reset counter
-      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))                 // not triggered last time
+      if (!(item[i][3] & PM_ITEM_ORB_TRIG_PREV))                 // not triggered last time
       {
-         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
-         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;       // toggle state
-         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;       // stick ON
-         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;      // stick OFF
+         item[i][3] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
+         if (MODE == 0) item[i][3] ^= PM_ITEM_ORB_STATE;       // toggle state
+         if (MODE == 1) item[i][3] |= PM_ITEM_ORB_STATE;       // stick ON
+         if (MODE == 2) item[i][3] &= ~PM_ITEM_ORB_STATE;      // stick OFF
       }
    }
-   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                  // clear PREV flag
-   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                       // clear CURR flag
+   else item[i][3] &= ~PM_ITEM_ORB_TRIG_PREV;                  // clear PREV flag
+   item[i][3] &= ~PM_ITEM_ORB_TRIG_CURR;                       // clear CURR flag
 
 
 
    // STATE stuff
-   item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
-   item[i][2] &= ~PM_ITEM_ORB_TGOF;               // clear TGOF flag
-   if (item[i][2] & PM_ITEM_ORB_STATE)            // orb state ON
+   item[i][3] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
+   item[i][3] &= ~PM_ITEM_ORB_TGOF;               // clear TGOF flag
+   if (item[i][3] & PM_ITEM_ORB_STATE)            // orb state ON
    {
       item[i][1] = 419;                           // red orb
-      if (!(item[i][2] & PM_ITEM_ORB_PREV_STATE)) // prev OFF
+      if (!(item[i][3] & PM_ITEM_ORB_PREV_STATE)) // prev OFF
       {
-         item[i][2] |= PM_ITEM_ORB_TGON;          // set TGON flag
-         item[i][2] |= PM_ITEM_ORB_PREV_STATE;    // set PREV flag
+         item[i][3] |= PM_ITEM_ORB_TGON;          // set TGON flag
+         item[i][3] |= PM_ITEM_ORB_PREV_STATE;    // set PREV flag
       }
    }
    else                                           // orb state OFF
    {
       item[i][1] = 418;                           // green orb
-      if ((item[i][2] & PM_ITEM_ORB_PREV_STATE))  // prev ON
+      if ((item[i][3] & PM_ITEM_ORB_PREV_STATE))  // prev ON
       {
-         item[i][2] |=  PM_ITEM_ORB_TGOF;         // set TGOF flag
-         item[i][2] &= ~PM_ITEM_ORB_PREV_STATE;   // clear PREV flag
+         item[i][3] |=  PM_ITEM_ORB_TGOF;         // set TGOF flag
+         item[i][3] &= ~PM_ITEM_ORB_PREV_STATE;   // clear PREV flag
       }
    }
 
@@ -142,7 +143,7 @@ void mwItem::proc_orb(int i)
    mTriggerEvent.event[item[i][11]] = 0;
    mTriggerEvent.event[item[i][12]] = 0;
    mTriggerEvent.event[item[i][13]] = 0;
-   int FLAGS = item[i][2];
+   int FLAGS = item[i][3];
    if   (FLAGS & PM_ITEM_ORB_STATE)  mTriggerEvent.event[item[i][10]] = 1;
    if (!(FLAGS & PM_ITEM_ORB_STATE)) mTriggerEvent.event[item[i][11]] = 1;
    if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[item[i][12]] = 1;
@@ -153,10 +154,10 @@ void mwItem::proc_orb(int i)
 int mwItem::draw_orb(int i, int x, int y)
 {
    item[i][1] = 418;                                      // green orb
-   if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;  // red orb
+   if (item[i][3] & PM_ITEM_ORB_STATE) item[i][1] = 419;  // red orb
 
    // rotation
-   int rb = (item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+   int rb = (item[i][3] & PM_ITEM_ORB_ROTB) >> 14;
    float a=0, xo=0, yo=0; // angle, x and y offsets
    if (rb == 0) { a = 0;             xo = 10, yo = 9; } // floor
    if (rb == 1) { a = ALLEGRO_PI/2;  xo = 7,  yo = 7; } // wall left
@@ -182,11 +183,11 @@ int mwItem::draw_orb(int i, int x, int y)
 }
 void mwItem::proc_orb_collision(int p, int i)
 {
-   if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
-        ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (m_parent.mPlayer.syn[p].up)) ||
-        ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (m_parent.mPlayer.syn[p].down)) )
+   if (  (item[i][3] & PM_ITEM_ORB_TRIG_TOUCH) ||
+        ((item[i][3] & PM_ITEM_ORB_TRIG_UP)   && (m_parent.mPlayer.syn[p].up)) ||
+        ((item[i][3] & PM_ITEM_ORB_TRIG_DOWN) && (m_parent.mPlayer.syn[p].down)) )
    {
-      item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
+      item[i][3] |= PM_ITEM_ORB_TRIG_CURR;
 
 
       // custom final rocket orb
@@ -226,8 +227,8 @@ PM_ITEM_TRIGGER_DRAW_ON
 #define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
 #define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
-#define PM_ITEM_TRIGGER_PSHOT     0b0000000000001000
-#define PM_ITEM_TRIGGER_ESHOT     0b0000000000010000
+#define PM_ITEM_TRIGGER_PSHOT    0b0000000000001000
+#define PM_ITEM_TRIGGER_ESHOT    0b0000000000010000
 #define PM_ITEM_TRIGGER_CURR     0b0000000000100000
 #define PM_ITEM_TRIGGER_PREV     0b0000000001000000
 #define PM_ITEM_TRIGGER_TGON     0b0000000010000000
@@ -239,6 +240,9 @@ PM_ITEM_TRIGGER_DRAW_ON
 #define PM_ITEM_TRIGGER_LIFT_YC  0b0010000000000000
 #define PM_ITEM_TRIGGER_LIFT_YF  0b0100000000000000
 #define PM_ITEM_TRIGGER_LIFT_YL  0b1000000000000000
+
+
+
 
 */
 
@@ -393,7 +397,10 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
 
    if ((item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
    {
-      int col = item[i][2];
+      //int col = item[i][2];
+
+      int col = (item[i][3] & PM_ITEM_TRIGGER_COLOR) >> 17;
+
       float x1 = item[i][6];
       float y1 = item[i][7];
       float x2 = x1 + item[i][8];
@@ -500,13 +507,14 @@ void mwItem::proc_alter_tiles(int i)
    }
 }
 
+
 int mwItem::draw_alter_tiles(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.sprite[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
-   if (item[i][2]) // draw mode on
+   if (item[i][12]) // draw mode on
    {
       int col = item[i][12];
       float x1 = item[i][6];
@@ -515,9 +523,9 @@ int mwItem::draw_alter_tiles(int i, int x, int y)
       float y2 = y1 + item[i][9];
       mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
 
+      // draw copy area
       if (item[i][3] == 4)
       {
-         col = item[i][12];
          x1 = item[i][13];
          y1 = item[i][14];
          x2 = x1 + item[i][8];
@@ -724,7 +732,7 @@ int mwItem::draw_damage_area(int i, int xt, int yt, int custom)
 
    f.set_clipping_rectangle();
 
-   int draw_mode = item[i][2];
+   int draw_mode = item[i][13];
 
    // damage field drawing
    if (!custom)
@@ -975,8 +983,8 @@ void mwItem::proc_damage_area(int i)
 /*
 item[][0]  = 13 - Timer
 item[][1]  =
-item[][2]  = draw_mode 0 = Off 1 = progress bar
-item[][3]  = flags
+item[][2]  = flags
+item[][3]  = timer flags
 item[][4]  = x
 item[][5]  = y
 
@@ -991,6 +999,7 @@ item[][12] = t1 i/p event
 item[][13] = t1 o/p event
 item[][14] = t2 i/p event
 item[][15] = t2 o/p event
+
                                               00000000        00000000
                                       00000000        00000000
 #define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
@@ -999,14 +1008,15 @@ item[][15] = t2 o/p event
 #define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
 #define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
 #define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
+#define PM_ITEM_TIMER_DRAW_MODE     0b00000000000000000000000000000010
 
 */
 
 
 int mwItem::draw_timer(int i, int x, int y, int custom)
 {
-   int state, t1, t2, t1om, t2om, time;
-   get_timer_flags(item[i][3], state, t1, t2, t1om, t2om, time);
+   int state, t1, t2, t1om, t2om, time, draw_mode;
+   get_timer_flags(item[i][3], state, t1, t2, t1om, t2om, time, draw_mode);
 
    float x1 = item[i][6];
    float y1 = item[i][7];
@@ -1019,7 +1029,7 @@ int mwItem::draw_timer(int i, int x, int y, int custom)
    {
       al_draw_bitmap(mBitmap.sprite[987], x, y, 0); // draw item shape in level editor, invisible when game running
    }
-   if ((!custom) && (item[i][2]))
+   if ((!custom) && (draw_mode))
    {
       int percent = 0;
       if (state == 1)
@@ -1056,7 +1066,9 @@ void mwItem::proc_timer(int i)
    int t1_op_mode = 0;
    int t2_op_mode = 0;
    int cnt = 0;
-   get_timer_flags(item[i][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, cnt);
+   int draw_mode = 0;
+
+   get_timer_flags(item[i][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, cnt, draw_mode);
 
    // clear output events
    mTriggerEvent.event[item[i][13]] = 0;
@@ -1128,12 +1140,15 @@ void mwItem::proc_timer(int i)
          mTriggerEvent.event[item[i][15]] = 1; // emit timer 2 end event
       }
    }
-   set_timer_flags(item[i][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, cnt);
+   set_timer_flags(item[i][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, cnt, draw_mode);
 }
 
-void mwItem::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt)
+void mwItem::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt, int draw_mode)
 {
    pack = state -1;
+
+   if (draw_mode) pack += 0b00010;
+
    int H16 = cnt << 16;                       // shift to upper 16 bits
    H16 &= 0b11111111111111110000000000000000; // clear other bits
    pack += H16;
@@ -1152,11 +1167,13 @@ void mwItem::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int
    t2om &= 0b00000000000000000000000100000000; // clear other bits
    pack += t2om;
 
+
 }
 
-void mwItem::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt)
+void mwItem::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt, int &draw_mode)
 {
    cnt = pack >> 16;
+
    t1_mode = pack >> 13;
    t1_mode           &= 0b00000000000000000000000000000111;  // clear other bits
 
@@ -1164,13 +1181,15 @@ void mwItem::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, i
    t2_mode           &= 0b00000000000000000000000000000111;  // clear other bits
 
    t1_op_mode = pack >> 9;
-   t1_op_mode        &= 0b00000000000000000000000000000001;  // clear other bits
+   t1_op_mode        &= 0b00000000000000000000000000000001;
 
    t2_op_mode = pack >> 8;
-   t2_op_mode        &= 0b00000000000000000000000000000001;  // clear other bits
+   t2_op_mode        &= 0b00000000000000000000000000000001;
 
+   draw_mode = 0;
+   if (pack & 0b00000000000000000000000000000010) draw_mode = 1;
 
-   state = 1 + (pack &  0b00000000000000000000000000000001); // clear other bits
+   state = 1 + (pack &  0b00000000000000000000000000000001);
 }
 
 float mwItem::get_timer_ratio_for_event(int ev)
@@ -1184,8 +1203,8 @@ float mwItem::get_timer_ratio_for_event(int ev)
       }
    if (ti > -1)
    {
-      int state, t1, t2, t1om, t2om, cnt;
-      get_timer_flags(item[ti][3], state, t1, t2, t1om, t2om, cnt);
+      int state, t1, t2, t1om, t2om, cnt, draw_mode;
+      get_timer_flags(item[ti][3], state, t1, t2, t1om, t2om, cnt, draw_mode);
       float tot;
       if (state == 1) tot = item[ti][10];
       if (state == 2) tot = item[ti][11];

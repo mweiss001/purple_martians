@@ -71,6 +71,8 @@ public:
 
    void odbt(int d, int xa, int xb, int &ya, int bts, int &var, int bitflag, const char* txt0, const char* txt1, int bcol0, int bcol1, int tcol0, int tcol1);
 
+   void odct(int d, int xa, int xb, int &ya, int bts, int &var, int bitflag, const char* txt, int bcol, int tcol);
+
 
    bool odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt);
    bool odbc(int d, int xa, int xb, int &ya, int bts, int bcol, int tcol, int type, int& v1, int v2, int v3);

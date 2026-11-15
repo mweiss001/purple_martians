@@ -142,7 +142,7 @@ item[][13] text and frame color (packed)
 
 void mwItem::proc_pmsg_collision(int i)
 {
-   if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) proc_pmsg_reset_timer(i);
+   if (item[i][3] & PM_ITEM_MESSAGE_SHOW_SCROLL) proc_pmsg_reset_timer(i);
 }
 
 
@@ -166,7 +166,7 @@ void mwItem::proc_pmsg_countdown_timer(int i)
 
 void mwItem::proc_pmsg(int i)
 {
-   if (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
+   if (!(item[i][3] & PM_ITEM_MESSAGE_SHOW_ALWAYS)) // only if not show always
    {
       // count down the timer
       proc_pmsg_countdown_timer(i);
@@ -192,8 +192,8 @@ int mwItem::draw_pmsg(int i, int x, int y, int custom)
 {
    // when to draw scroll
    int show_scroll = 0;
-   if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) show_scroll = 1;
-   if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) show_scroll = 0;
+   if (item[i][3] & PM_ITEM_MESSAGE_SHOW_SCROLL) show_scroll = 1;
+   if (item[i][3] & PM_ITEM_MESSAGE_SHOW_ALWAYS) show_scroll = 0;
    if (mLoop.level_editor_running) show_scroll = 1;
    if (show_scroll) al_draw_bitmap(mBitmap.sprite[mBitmap.zz[0][36]], x, y, 0);
 
@@ -210,7 +210,7 @@ int mwItem::draw_pmsg(int i, int x, int y, int custom)
       // skip draw if always on (already drawn on level background)
       //if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 0;
 
-      if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) draw = 1;
+      if (item[i][3] & PM_ITEM_MESSAGE_SHOW_ALWAYS) draw = 1;
 
       if (draw) draw_message(i, 0);
    }
@@ -621,12 +621,12 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
 
 int mwItem::get_frame_size(int num)
 {
-   int f = item[num][2];
-   if (f & PM_ITEM_PMSG_FRAME0)  return 0;
-   if (f & PM_ITEM_PMSG_FRAME1)  return 1;
-   if (f & PM_ITEM_PMSG_FRAME2)  return 2;
-   if (f & PM_ITEM_PMSG_FRAME4)  return 4;
-   if (f & PM_ITEM_PMSG_FRAME12) return 12;
+   int f = item[num][3];
+   if (f & PM_ITEM_MESSAGE_FRAME0)  return 0;
+   if (f & PM_ITEM_MESSAGE_FRAME1)  return 1;
+   if (f & PM_ITEM_MESSAGE_FRAME2)  return 2;
+   if (f & PM_ITEM_MESSAGE_FRAME4)  return 4;
+   if (f & PM_ITEM_MESSAGE_FRAME12) return 12;
    return 0;
 }
 
@@ -634,17 +634,17 @@ int mwItem::get_frame_size(int num)
 void mwItem::set_frame_size(int num, int frame_size)
 {
    // clear all flags
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
+   item[num][3] &= ~PM_ITEM_MESSAGE_FRAME0;
+   item[num][3] &= ~PM_ITEM_MESSAGE_FRAME1;
+   item[num][3] &= ~PM_ITEM_MESSAGE_FRAME2;
+   item[num][3] &= ~PM_ITEM_MESSAGE_FRAME4;
+   item[num][3] &= ~PM_ITEM_MESSAGE_FRAME12;
 
-   if (frame_size == 0)  item[num][2] |= PM_ITEM_PMSG_FRAME0;
-   if (frame_size == 1)  item[num][2] |= PM_ITEM_PMSG_FRAME1;
-   if (frame_size == 2)  item[num][2] |= PM_ITEM_PMSG_FRAME2;
-   if (frame_size == 4)  item[num][2] |= PM_ITEM_PMSG_FRAME4;
-   if (frame_size == 12) item[num][2] |= PM_ITEM_PMSG_FRAME12;
+   if (frame_size == 0)  item[num][3] |= PM_ITEM_MESSAGE_FRAME0;
+   if (frame_size == 1)  item[num][3] |= PM_ITEM_MESSAGE_FRAME1;
+   if (frame_size == 2)  item[num][3] |= PM_ITEM_MESSAGE_FRAME2;
+   if (frame_size == 4)  item[num][3] |= PM_ITEM_MESSAGE_FRAME4;
+   if (frame_size == 12) item[num][3] |= PM_ITEM_MESSAGE_FRAME12;
 }
 
 

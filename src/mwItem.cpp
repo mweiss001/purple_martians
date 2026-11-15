@@ -170,71 +170,45 @@ bool mwItem::is_item_being_carried(int i)
    return false;
 }
 
-bool mwItem::is_item_moveable(int i, int type)
-{
-   bool moveable = item[i][3];
-   if (type == PM_ITEM_TYPE_LIT_ROCKET)   moveable = 0;
-   if (type == PM_ITEM_TYPE_TRIGGER)      moveable = 0;
-   if (type == PM_ITEM_TYPE_TIMER)        moveable = 0;
-   if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
-   if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
-   if (type == PM_ITEM_TYPE_GATE)         moveable = 0;
-   if (type == PM_ITEM_TYPE_HIDER)        moveable = 0;
-   if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
-   return moveable;
-}
-
-
 bool mwItem::is_item_carryable(int i)
 {
-   int type = item[i][0];
-   int flags = item[i][2];
-
-
    // this is an exception to make it work like the legacy mode used to
    // the normal expected way would be:
    //if (type == PM_ITEM_TYPE_ROCKET && flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
    // but that breaks all demo levels that use rockets
 
+   int type = item[i][0];
+   int flags = item[i][2];
+
    if (type == PM_ITEM_TYPE_ROCKET)
    {
       // old -2 was carryable always
-      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+      if (flags & PM_ITEM_FLAG_CARRY_THROUGH_DOOR) return true;
 
       // old 0 or 1 was not carryable until lit
       else return false;
    }
-
    if (type == PM_ITEM_TYPE_LIT_ROCKET)
    {
-      if (flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+      if (flags & PM_ITEM_FLAG_CARRYABLE) return true;
       else return false;
    }
 
-   // not rocket or lit rocket (all other items)
-   if ((type != PM_ITEM_TYPE_ROCKET) && (type != PM_ITEM_TYPE_LIT_ROCKET))
-   {
-      if (item[i][3] < 0) return true;
-   }
 
-   return false;
+   return item[i][2] & PM_ITEM_FLAG_CARRYABLE;
 }
 
 bool mwItem::is_item_carryable_through_door(int i)
 {
-   int type = item[i][0];
-   int flags = item[i][2];
-
-   if (type == PM_ITEM_TYPE_LIT_ROCKET)
-   {
-      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
-   }
-   else
-   {
-      if (item[i][3] == -2) return true;
-   }
-   return false;
+   return item[i][2] & PM_ITEM_FLAG_CARRY_THROUGH_DOOR;
 }
+
+bool mwItem::is_item_moveable(int i, int type)
+{
+   return !(item[i][2] & PM_ITEM_FLAG_STATIONARY);
+}
+
+
 
 
 
@@ -276,7 +250,6 @@ void mwItem::move_items()
          if (type == PM_ITEM_TYPE_LIT_BOMB)    proc_lit_bomb(i);
          if (type == PM_ITEM_TYPE_LIT_ROCKET)  proc_lit_rocket(i);
          if (type == PM_ITEM_TYPE_START)       proc_start(i);
-
          if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
 
 

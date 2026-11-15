@@ -85,47 +85,47 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    {
       if (pressed)
       {
-         if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_TOUCH)
          {
-            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
-            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mLevel.mItem.item[v1][3] |= PM_ITEM_ORB_TRIG_UP; // set flag
          }
-         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)
+         else if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_UP)
          {
-            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
-            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mLevel.mItem.item[v1][3] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
          }
-         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)
+         else if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_DOWN)
          {
-            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
-            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mLevel.mItem.item[v1][3] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
          }
-         else if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)
+         else if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_SHOT)
          {
-            mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
-            mLevel.mItem.item[v1][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+            mLevel.mItem.item[v1][3] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mLevel.mItem.item[v1][3] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
          }
       }
 
       sprintf(msg, "undef");
 
-      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
-      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
-      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
-      if (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
+      if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
 
    }
 
    if (type == 94) // orb rotation
    {
-      int rb = (mLevel.mItem.item[v1][2] & PM_ITEM_ORB_ROTB) >> 14;
+      int rb = (mLevel.mItem.item[v1][3] & PM_ITEM_ORB_ROTB) >> 14;
       if (pressed) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
       sprintf(msg, "Change Rotation");
       // set rb
       rb = rb << 14; // shift bits into place
-      mLevel.mItem.item[v1][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
-      mLevel.mItem.item[v1][2] |= rb; // merge
+      mLevel.mItem.item[v1][3] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      mLevel.mItem.item[v1][3] |= rb; // merge
    }
 
    if (type == 96) // block damage draw rotation

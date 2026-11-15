@@ -16,8 +16,8 @@
 /*
 item[][0] = 8 - bomb
 item[][1] = bitmap
-item[][2] =
-item[][3] = stat | fall | carry
+item[][2] = flags
+item[][3] =
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
 
@@ -31,16 +31,14 @@ item[][12] = type (0-fuse) (1-detonator)
 
 item[][13] = player that lit
 
-
 item[][14] = time to live
 item[][15] = tag with cloner item id
 
 
-
 item[][0] = 11 - rocket
 item[][1] = bitmap
-item[][2] =
-item[][3] = stat | fall | carry
+item[][2] = flags
+item[][3] =
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
 
@@ -58,31 +56,13 @@ item[][13] = player that lit
 item[][14] = time to live
 item[][15] = tag with cloner item id
 
-
-
-
-
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 void mwItem::proc_bomb_collision(int p, int i)
 {
+   // change to lit bomb
    item[i][0] = PM_ITEM_TYPE_LIT_BOMB;
    item[i][13] = p;            // mark player that lit bomb
 
@@ -105,7 +85,17 @@ void mwItem::proc_rocket_collision(int p, int i)
    item[i][13] = p;   // mark player that lit rocket
    item[i][1] = 1026; // new ans
 
-   itemf[i][3] = 0;   // stop if falling
+   // this is to disable gravity
+   item[i][2] |= PM_ITEM_FLAG_STATIONARY;
+
+
+   itemf[i][3] = 0;   // stop if falling (set yinc to zero)
+
+
+
+
+
+
    mGameEvent.add(26, 0, 0, p, i, 0, 0);
 }
 
@@ -141,7 +131,6 @@ void mwItem::proc_lit_rocket(int i)
 
       // change to lit bomb
       item[i][0] = PM_ITEM_TYPE_LIT_BOMB;
-      item[i][3] = 1;   // not carryable (fall)
       item[i][6] = 2;   // mode 2; explosion
       item[i][8] = 20;  // explosion timer count
       item[i][9] = 20;  // explosion timer limit

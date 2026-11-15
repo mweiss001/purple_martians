@@ -1142,6 +1142,15 @@ void mwObjectViewer::odbt(int d, int xa, int xb, int &ya, int bts, int &var, int
 
 
 
+
+void mwObjectViewer::odct(int d, int xa, int xb, int &ya, int bts, int &var, int bitflag, const char* txt, int bcol, int tcol)
+{
+   mWidget.mCheckBoxFlag(0, xa, xb, ya, bts,  0,  var, bitflag, txt, tcol, bcol, d);
+}
+
+
+
+
 // 42
 bool mwObjectViewer::odbb(int d, int xa, int xb, int &ya, int bts, int col, const char* txt)
 {
@@ -1159,6 +1168,10 @@ bool mwObjectViewer::odbp(int d, int xa, int xb, int &ya, int bts, int col, int 
 {
    return mWidget.mButtonPD(0, xa, xb, ya, bts,   1, 2, col, col, col, 15, 1, type, v1, d);
 }
+
+
+
+
 
 
 
@@ -1222,7 +1235,17 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (mLevel.mItem.item[n][0]) // item subtypes
       {
          case PM_ITEM_TYPE_DOOR:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+            // ya+=4; // spacer
+            //
+            // odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary        :OFF", "Stationary        :ON ", 9+dim, 9, 15+dim, 15);
+            // odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry             :OFF", "Carry             :ON ", 9+dim, 9, 15+dim, 15);
+            // odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door:OFF", "Carry Through Door:ON ", 9+dim, 9, 15+dim, 15);
+
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
             if (mLevel.mItem.item[n][8]) // regular door (not exit only)
@@ -1242,38 +1265,57 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], 0, "Select Door Color", d);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], "Select Door Color", d);
             if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
             break;
          case PM_ITEM_TYPE_BONUS:
             if (mLevel.mItem.item[n][6] == 0) // health bonus
             {
+               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
                odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
                ya+=4; // spacer
+
                odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
                odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 100, 0, 1,  1, 10, "Health:");
                mLevel.mItem.item[n][1] = 1035;
-               mLevel.mItem.item[n][2] = 1;
+               //mLevel.mItem.item[n][2] = 1;
                if (mLevel.mItem.item[n][7] == 10) mLevel.mItem.item[n][1] = 1023;
                if (mLevel.mItem.item[n][7] == 50) mLevel.mItem.item[n][1] = 1027;
             }
             else if (mLevel.mItem.item[n][6] == 1) // purple coin
             {
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3], 13, 13,  "Stationary",    "Fall");
+               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+
+//               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3], 13, 13,  "Stationary",    "Fall");
                ya+=4; // spacer
                odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][6], 11, 8,  "Type:Health Bonus", "Type:Purple Coin");
                mLevel.mItem.item[n][1] = 197;
-               mLevel.mItem.item[n][2] = 0;
+               //mLevel.mItem.item[n][2] = 0;
             }
             break;
          case PM_ITEM_TYPE_EXIT:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+
             ya+=4; // spacer
             odbb(1, xa, xb, ya, bts, 12, "Enemy Count Lock");
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 100, 0, 1,  1, 10, "");
             break;
          case PM_ITEM_TYPE_KEY:
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3],  13, 13,  "Stationary",    "Fall");
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+
+
+
+//            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][3],  13, 13,  "Stationary",    "Fall");
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 13, 102, mLevel.mItem.item[n][1]); // key color
             ya+=4; // spacer
@@ -1282,7 +1324,12 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][12],  7, 7,  "Remove All Blocks", "Remove Only Matching");
             break;
          case PM_ITEM_TYPE_START:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            //odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 11, 1078, mLevel.mItem.item[n][6]); // start mode
             odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][7], 9, 0, 1,  1, 0, "Start Index:");
@@ -1293,7 +1340,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             break;
          case PM_ITEM_TYPE_ORB:
          {
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbc(d, xa, xb, ya, bts, 7, 15, 94, n, 0, 0); // rotation
             ya+=4; // spacer
@@ -1301,10 +1354,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 8, 92, mLevel.mItem.item[n][6]); // mode
             int MODE = mLevel.mItem.item[n][6];
-            if ((MODE == 1) || (MODE == 3)) mLevel.mItem.item[n][2] &= ~PM_ITEM_ORB_STATE; // MODE:Stick On  or MODE:Timed On  - set initial state OFF
-            if ((MODE == 2) || (MODE == 4)) mLevel.mItem.item[n][2] |=  PM_ITEM_ORB_STATE; // MODE:Stick Off or MODE:Timed Off - set initial state ON
+            if ((MODE == 1) || (MODE == 3)) mLevel.mItem.item[n][3] &= ~PM_ITEM_ORB_STATE; // MODE:Stick On  or MODE:Timed On  - set initial state OFF
+            if ((MODE == 2) || (MODE == 4)) mLevel.mItem.item[n][3] |=  PM_ITEM_ORB_STATE; // MODE:Stick Off or MODE:Timed Off - set initial state ON
             if (MODE == 0) // only show initial state for toggle mode
-               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
+               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 8, 8, 15, 15);
             if ((MODE == 3) || (MODE == 4)) // only show timer for mode 3 and 4
                odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][7], 400, 0, 1,  1, 10, "Time:");
             ya+=4; // spacer
@@ -1318,12 +1371,23 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          }
             break;
          case PM_ITEM_TYPE_MINE:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][8], 200, 0, 1,  1, 10, "Damage:");
             break;
          case PM_ITEM_TYPE_BOMB:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][12],        12, 12,  "Type:Fuse Timer",    "Type:Remote Detonator");
             if (mLevel.mItem.item[num][12]) mLevel.mItem.item[num][1] = 537; // remote detonator
@@ -1340,13 +1404,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case PM_ITEM_TYPE_MESSAGE:
          {
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_MESSAGE_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON", 12+dim, 12, 15+dim, 15);
             ya+=4; // spacer
-            if (!(mLevel.mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+            if (!(mLevel.mItem.item[n][3] & PM_ITEM_MESSAGE_SHOW_ALWAYS))
             {
                odbi(d, xa, xb, ya, bts, 8, mLevel.mItem.item[n][12], 400, 0, 1,  1, 10, "Display time:");
                ya+=4; // spacer
-               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15);
+               odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_MESSAGE_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON", 9+dim, 9, 15+dim, 15);
                ya+=4; // spacer
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
@@ -1364,8 +1428,8 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             int tc=0, fc=0;
             mMiscFnx.get_int_3216(mLevel.mItem.item[n][13], tc, fc);
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, tc, 0, "Select Text Color", d);
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, fc, 0, "Select Frame Color", d);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, tc, "Select Text Color", d);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, fc, "Select Frame Color", d);
             mMiscFnx.set_int_3216(mLevel.mItem.item[n][13], tc, fc);
             if (odbb(d, xa, xb, ya, bts, 13, "Edit Message")) mLevel.mItem.edit_pmsg_text(n, 0);
             ya+=bts*2; // leave space for OK and Cancel buttons
@@ -1384,18 +1448,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
 
          case PM_ITEM_TYPE_ROCKET:
-            //            odbp(d, xa, xb, ya, bts, 13, 1021, mLevel.mItem.item[n][3]); // stat | fall
-
-            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][3], 13, 13, "Stationary", "Fall");
-
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary       :OFF", "Stationary       :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON ", 9+dim, 9, 15+dim, 15);
             ya+=4; // spacer
-
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_PLAYER_RIDE,       "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_ROCKET_RIDE_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON " , 9+dim, 9, 15+dim, 15);
-
-
-            ya+=4; // spacer
-
 
             if (odbb(d, xa, xb, ya, bts, 10, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, PM_ITEM_TYPE_ROCKET, n);
             ya+=4; // spacer
@@ -1406,7 +1462,18 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
             break;
          case PM_ITEM_TYPE_SWITCH:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+
+
+
+
+
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 10, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             ya+=4; // spacer
@@ -1417,18 +1484,25 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mLevel.mItem.set_switch_tile(n);
             break;
          case PM_ITEM_TYPE_SPRING:
-            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
+
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+
+
+//            odbp(d, xa, xb, ya, bts, 13, 1022, mLevel.mItem.item[n][3]); // stat | fall | carry | carry through door
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][7], 200, 40, 1,  1, 10, "Sproinginess:");
             break;
          case PM_ITEM_TYPE_TIMER:
          {
-            int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
-            mLevel.mItem.get_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
+            int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time, draw_mode;
+            mLevel.mItem.get_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time, draw_mode);
             int q = 11;
-            if (mLevel.mItem.item[n][2]) q = 10;
-            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][2], q, q, "Draw Mode:Hidden", "Draw Mode:Progress Bar");
-            if (mLevel.mItem.item[n][2])
+            if (draw_mode) q = 10;
+            odbt(d, xa, xb, ya, bts,  15, draw_mode, q, q, "Draw Mode:Hidden", "Draw Mode:Progress Bar");
+            if (draw_mode)
             {
                if (odbb(d, xa, xb, ya, bts, q, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
                odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
@@ -1458,7 +1532,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
             state = 1;
             time = mLevel.mItem.item[n][10]; // always start with full t1_timer
-            mLevel.mItem.set_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
+            mLevel.mItem.set_timer_flags(mLevel.mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time, draw_mode);
          }
             break;
          case PM_ITEM_TYPE_TRIGGER:
@@ -1471,9 +1545,20 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
-            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, mLevel.mItem.item[n][2], 15+dim, 15);
+            int col = (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_COLOR) >> 17;
+
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, col, 15+dim, 15);
             if (mLevel.mItem.item[n][3] & PM_ITEM_TRIGGER_DRAW_ON)
-               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][2], 0, "Select Trigger Field Color", d);
+            {
+               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, col, "Select Trigger Field Color", d);
+            }
+            mLevel.mItem.item[n][3] &= ~PM_ITEM_TRIGGER_COLOR;
+            mLevel.mItem.item[n][3] |= (col << 17);
+
+
+
+
+
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 9+dim, 9, 15+dim, 15);
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 9+dim, 9, 15+dim, 15) ;
@@ -1502,8 +1587,37 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             if (odbb(d, xa, xb, ya, bts, 12, "Get New Alter Tile Area")) mMiscFnx.get_block_range("Alter Tile Area", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],   15+96, mLevel.mItem.item[n][12],  "Show Area:OFF", "Show Area:ON");
-            if (mLevel.mItem.item[n][2]) mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Area Color", d);
+
+
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 0, mLevel.mItem.item[n][12], "Area Color", d);
+            /*
+
+            if (mLevel.mItem.item[n][12]
+
+
+
+            if (odbb(d, xa, xb, ya, bts, 14, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", mLevel.mItem.item[n][6], mLevel.mItem.item[n][7], mLevel.mItem.item[n][8], mLevel.mItem.item[n][9], 1);
+            int q = 14;
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][6], 1990, 0, 1,  1, 10, "x:");
+            odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][7], 1990, 0, 1,  1, 10, "y:");
+            odbi(d, xa, xb, ya,
+
+
+
+            int draw = 0;
+            if (mLevel.mItem.item[n][12]) draw = 1;
+
+            odbt(d, xa, xb, ya, bts, 15, draw,   0, 1,  "Show Area:OFF", "Show Area:ON");
+            if (draw)
+            {
+               if (mLevel.mItem.item[n][12] == 0) mLevel.mItem.item[n][12] = 10;
+               mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][12], 0, "Area Color", d);
+            }
+//            else mLevel.mItem.item[n][12] = 0;
+
+            printf("col:%d\n", mLevel.mItem.item[n][12]);
+
+*/
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 14, 301, mLevel.mItem.item[n][3]); // mode
             if (mLevel.mItem.item[n][3]) // all modes except 0
@@ -1536,7 +1650,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][8], 1990, 0, 1,  1, 10, "w:");
             odbi(d, xa, xb, ya, bts, q, mLevel.mItem.item[n][9], 1990, 0, 1,  1, 10, "h:");
             ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 8, 404, mLevel.mItem.item[n][2]); // draw type
+            odbp(d, xa, xb, ya, bts, 8, 404, mLevel.mItem.item[n][13]); // draw type
             ya+=4; // spacer
             odbc(d, xa, xb, ya, bts, 8, 15, 96, n, 0, 0); // draw rotation
             ya+=4; // spacer
@@ -1614,13 +1728,13 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             q=7; // mode color
             odbp(d, xa, xb, ya, bts, q, 403, mLevel.mItem.item[n][3]); // hider mode
             int MODE = mLevel.mItem.item[n][3];
-            if (MODE == 0) mLevel.mItem.item[num][2] = 0;
-            if (MODE == 1) mLevel.mItem.item[num][2] = 1;
-            if (MODE == 2) mLevel.mItem.item[num][2] = 0;
-            if (MODE == 3) mLevel.mItem.item[num][2] = 1;
+            if (MODE == 0) mLevel.mItem.item[num][10] = 0;
+            if (MODE == 1) mLevel.mItem.item[num][10] = 1;
+            if (MODE == 2) mLevel.mItem.item[num][10] = 0;
+            if (MODE == 3) mLevel.mItem.item[num][10] = 1;
             if ((MODE == 4) || (MODE == 5))
             {
-               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][2],  q, q,  "Initial State:Show", "Initial State:Hide ");
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][10],  q, q,  "Initial State:Show", "Initial State:Hide ");
             }
             if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
             {
@@ -1628,9 +1742,6 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
                odb0(d, xa, xb, ya, bts,  13, mLevel.mItem.item[n][1],  99, 0,  1,   1, 0, "Event Trigger:", "Off");
             }
-            ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][10],   10+96, 10,  "Blind Erase:OFF", "Blind Erase:ON");
-
 
          }
             break;
@@ -1875,7 +1986,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][7],       600,        0,        1,        1,       10,      "Jump Under Width:", "Off");
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][6],       500,        0,        1,        1,       10,      "Jump Timer Wait:", "Off");
             ya+=4; // spacer
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mEnemy.Ei[num][3], 0, "Select Crew Color", d);
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mEnemy.Ei[num][3], "Select Crew Color", d);
             ya+=4; // spacer
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][8],       1.0,      0.2,     0.05,     0.01,      0.1,      "Scale:");
          break;

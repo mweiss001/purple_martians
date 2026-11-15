@@ -10,6 +10,9 @@
 #include "mwEventQueue.h"
 
 // item[x][1]  draw type (0=hidden, 1=static door, 2=animated warp, 3=portal)
+
+
+
 // item[x][6]  color
 // item[x][7]  move type (0 = force instant, 1 = force move
 // item[x][8]  type (0 = no dest (exit only), 1 = linked dest
@@ -17,6 +20,7 @@
 // item[x][10] key held flag
 // item[x][11] door entry type (0 0-immed, 1 = up 2 = down)
 // item[x][12] draw lines always, never
+
 
 
 
@@ -142,17 +146,19 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       }
    }
 
-   // at this point I have 2 valid doors, if I didn't I should have quit by this point
 
 
+   // If I get here, I have 2 valid doors, if I didn't I should have quit by this point
+
+
+   // destination door
    int di = item[i][9];
    float dx = itemf[di][0];
    float dy = itemf[di][1];
    int dcol = item[di][6];
    int d_draw_type = item[di][1];
 
-
-   // these are just for symmetry
+   // source door (for symmetry)
    int si = i;
    float sx = itemf[si][0];
    float sy = itemf[si][1];

@@ -336,7 +336,7 @@ void mwLevel::create_area_msg(int area)
 
 
    // create the area name message
-   create_msg_helper(mx-20, my, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4 + PM_ITEM_PMSG_SHOW_ALWAYS, overworld_area_array[area].name);
+   create_msg_helper(mx-20, my, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4 + PM_ITEM_MESSAGE_SHOW_ALWAYS, overworld_area_array[area].name);
 
 
    // put a row of invisible semi-solid blocks beneath to stand on
@@ -347,7 +347,7 @@ void mwLevel::create_area_msg(int area)
    // create a trigger then same size as always on message to display area stats message directly below
    char msg[80];
    sprintf(msg, "Level Statistics Area:%d", area);
-   create_msg_helper_trigger(mx, my, mw, mh, 0, axc*20, my+mh+1, 0, 0, col, PM_ITEM_PMSG_FRAME4, msg );
+   create_msg_helper_trigger(mx, my, mw, mh, 0, axc*20, my+mh+1, 0, 0, col, PM_ITEM_MESSAGE_FRAME4, msg );
 
 
    // create trigger and message for what needs to be completed to unlock next area
@@ -367,23 +367,23 @@ void mwLevel::create_area_msg(int area)
 
    if (area == 1 && overworld_area_array[2].visible == 0)
    {
-      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 2 Surface\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4, "Complete 2 Surface\nlevels to unlock");
    }
    if (area == 2 && overworld_area_array[3].visible == 0)
    {
-      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 4 Outskirts\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4, "Complete 4 Outskirts\nlevels to unlock");
    }
    if (area == 3 && overworld_area_array[4].visible == 0)
    {
-      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 6 Suburbs\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4, "Complete 6 Suburbs\nlevels to unlock");
    }
    if (area == 4 && overworld_area_array[5].visible == 0)
    {
-      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete 8 Downtown\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4, "Complete 8 Downtown\nlevels to unlock");
    }
    if (area == 5 && overworld_area_array[6].locked == 1)
    {
-      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_PMSG_FRAME4, "Complete all Dungeon\nlevels to unlock");
+      create_msg_helper_trigger(tx, ty, tw, th, 0, mx, my, mw, mh, col, PM_ITEM_MESSAGE_FRAME4, "Complete all Dungeon\nlevels to unlock");
    }
 }
 

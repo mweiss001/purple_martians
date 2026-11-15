@@ -10,10 +10,24 @@ check that viewport has more sensible settings, to reduce vertigo
 I think edit selection draw fsel might be drawing on things it should not
 make sure target bitmaps are set properly
 
+
 rx packet buffer full? why? add some logging to see what packets...
 client had the error, but all counters were zero 
 re-did to count and print all packets listed in pm.h
 waiting for more info...
+
+level editor save and quit does not save
+add option for quit confirmation to level editor menu
+
+make a nice rearrange function for windows in level editor
+
+when making level fit height exactly also move windows to right
+
+
+
+
+
+
 
 
 ------------------------------------------------------------------------------
@@ -49,1093 +63,9 @@ overworld, make top main stats not show all areas, skip extra and dev
 
 
 
-
-
-Portal shapes for doors
------------------------
-
-https://actuallykron.itch.io/portals-premium
-
-I should patch them in....
-
-what size are they?
-64x64
-5 type of portals
-10 colors for each
-each has 3 animations, open, close and idle
-
-each one has 36 frames (well 36 but 2 are blank)
-
-how am I going to get them into my game?
-
-full size?
-
-
-one set is 36 frame x 10 colors 
-
-lets just say 40 frames wide x 64 = 2560
-10 frame high x 64 = 640
-2560x640 = 1.6M
-
-compared with
-sprite 704x704 = .5M
-tiles 1M
-
-level buffer 2000x2000 = 4M
-
-what if I went with 32x32?
-
-lets just say 40 frames wide x 32 = 1280
-10 frame high x 32 = 320
-1280x320 = .4M
-
-how will I test this?
-make some data structures and get them loaded
-I see why I held off...
-
-
-make a new class to test
-
-how large of a bitmap will I need for everything
-
-I think there is a lot of duplication
-
-how about just 18 for now, take them at full size
-see what I can do with them
-
-import into gimp to see what they look like and what grid they are on
-
-they are definitely on a 64x64 grid, but there is a fair amount of margin
-the actual image might fit on 32x32
-
-so make a place to put them
-
-   ALLEGRO_BITMAP *wtilemap; // warp portal
-
-   ALLEGRO_BITMAP *M_wtilemap;
-
-   ALLEGRO_BITMAP *portal_tile[20];
-
-what size?
-20 x 64
-1280 x 64
-
-
-make a place to load them...
-
-portal1_purple.png 2304 wide 36 tiles
-------------------------------------------
-0-1 idle (2)
-18-2 (17) 1 blank
-19-35 (17) 1 blank
-18 and 19 blank
-
-portal2_purple.png 3648 wide 57 tiles
-------------------------------------------
-0-9 idle (10)
-32-10 (23)
-33-55 (23)
-56 blank
-
-portal3_purple.png 2752 wide 43 tiles
-------------------------------------------
-idle 0-16 (17)
-30-42 (13) 1 blank
-29-17 (13) 1 blank
-29 and 30 blank
-
-portal4_purple.png 2048 wide 32 tiles
-------------------------------------------
-idle 0-5 (6)
-18-6 (13) 1 blank
-31-19 (13) 1 blank
-18-19 blank
-
-portal5_purple.png 1792 wide 28 tiles
-------------------------------------------
-idle 0-3 (4)
-15-4 (12) 1 blank
-27-16 (12) 1 blank
-15-16 blank
-
-
-I now have collected all the data
-each tileset has a duplicated in and out
-when I load them I will not bother with those
-eventually that is
-
-for now I want to see how they would look in a level
-patch them into door??
-
-make a new draw type?
-
-do it
-
-now how will I animate it?
-
-I have something patched into the old animation sequence for the old warp style doors...actually I don't
-maybe I want to do something different
-
-I could make a door class that would include warps and portals
-
-you just tell it type, color, size and it will draw either on level buffer or direct to screen
-
-it will keep track of its own animation sequences and tiles
-
-----------------------------
-
-I have patched in the idle animation
-
-now how would I do the door move?
-
-I have a time when the player rotates into and out in the door...
-I will use those times to do the portal animation
-
-how can I tell in door draw that a player is using it?
-
-
-                  if ((num_steps > 0) && (num_steps < 2000))
-                  {
-                     int ddrns = m_parent.mPlayer.syn[p].door_draw_rot_num_steps = 12;
-                     m_parent.mPlayer.syn[p].door_num_steps = num_steps;
-                     m_parent.mPlayer.syn[p].paused = 1;
-                     m_parent.mPlayer.syn[p].paused_type = 2;
-                     m_parent.mPlayer.syn[p].paused_mode = 1;
-                     m_parent.mPlayer.syn[p].paused_mode_count = ddrns;
-                     m_parent.mPlayer.syn[p].door_item = i;
-                     m_parent.mPlayer.syn[p].door_draw_rot_inc = m_parent.mPlayer.syn[p].
-
-
-this will only tell me where the player is going or coming from?
-
-
-what is 13 for doors?
-
-this looks like the only mention:
-
-               if (item[i][13] == 1083) type = 0;
-               if (item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
-
-in glt, all door items have 13 == 0
-
-replace this:
-
-               int type = 1;
-               if (item[i][13] == 1083) type = 0;
-               if (item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
-
-with this:
-               if (item[i][1] != 0) mGameEvent.add(22, 0, 0, p, i, col, 1); // no event if door is invisible
-
-2026-11-13 07:41:25
-
-did a bunch of refactoring of door
-
-now looking into 
-
-player paused
-
-type is done with defines
-
-paused has a count which is used to count down in death mode
-also has a count
-
-reconcile...
-
-   int active;  // all routines that process player will skip inactive
-   int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-
-   int paused;
-   int paused_type; // 1 = death, 2 = door move, 3 = headless server
-   int paused_mode;
-   int paused_mode_count;
-
-at the very least I want paused to be only 0 or 1
-in mode 1, use count
-if (m_parent.mPlayer.is_player_active_and_not_paused(p))
-done...now paused is either always 0 or 1
-
-where was I?
-
-Oh yeah, working on patching in the portal animation
-
-in door draw, check if a player is:
-paused
-paused_mode 2 Door Move
-door item matches this door
-
-then if that is tha case then draw differently
-
-make the function detect if any player is using door as src or dst
-done
-
-make the draw function use the center of the tile and rotate it
-
-
-
-
-I think the door should already know its rotation
-
-maybe it should be calculated on the fly, it can change if either door moves
-
-
-what about doors that are both src and dst
-
-
-
-I am having troubles lining them up, they are not centered
-
-
-what if I modified them and made them centered
-
-when I load them
-
-all up 2 pixels and right 4
-
-
-2026-11-14 03:38:23
-
-
-I think I want to import differently
-
-only get 1st sequence and adjust center
-
-Now I am thinking of a simple class to hold these bitmaps...not yet
-
-What I do want to do is mark the center of each tile
-
-I think the problem is my animation.
-I rotate and shrink the player at the same time as the portal animation
-
-
-
-I have the separate move part and the draw part.
-The move part controls the players size and rotation with variables in the players syn struct
-
-The only thing I could vary there is the timing of the stages
-
-I could use the rotation there for the door...
-
-For each animation, I want to store:
-number of tiles
-idle length
-center x and y
-
-what is the max length?
-
-portal1_purple.png 2304 wide 36 tiles
-------------------------------------------
-0-1 idle (2)
-18-2 (17) 1 blank
-19-35 (17) 1 blank
-18 and 19 blank
-
-portal2_purple.png 3648 wide 57 tiles
-------------------------------------------
-0-9 idle (10)
-32-10 (23)
-33-55 (23)
-56 blank
-
-portal3_purple.png 2752 wide 43 tiles
-------------------------------------------
-idle 0-16 (17)
-30-42 (13) 1 blank
-29-17 (13) 1 blank
-29 and 30 blank
-
-portal4_purple.png 2048 wide 32 tiles
-------------------------------------------
-idle 0-5 (6)
-18-6 (13) 1 blank
-31-19 (13) 1 blank
-18-19 blank
-
-portal5_purple.png 1792 wide 28 tiles
-------------------------------------------
-idle 0-3 (4)
-15-4 (12) 1 blank
-27-16 (12) 1 blank
-15-16 blank
-
-
-
-portal1_purple.png 1152 wide 18 tiles
--------------------------------------
-0-1 idle (2)
-2-17 (16) 1 blank
-num_tiles: 18
-
-portal2_purple.png 2112 wide 33 tiles
--------------------------------------
-0-9 idle (10)
-10-32 (23)
-
-
-portal3_purple.png 29 tiles
-------------------------------------------
-idle 0-16 (17)
-17-29 (12)
-
-
-
-
-portal4_purple.png 18 tiles
-------------------------------------------
-idle 0-5 (6)
-6-17 (12)
-
-
-portal5_purple.png 15 tiles
-------------------------------------------
-idle 0-3 (4)
-4-14 (11)
-
-
-
-class mwPortalTileSet...no!!!
-
-
-
-struct portal_tileset
-{
-   int num_tiles;
-   int idle_start;
-   int idle_length;
-   int main_start;
-   int main_length;
-
-   int idle_cx;
-   int idle_cy;
-   int main_cxi;
-   int main_cyi;
-   int main_cxf;
-   int main_cyf;
-};
-
-struct portal_tileset portal_tilesets[6];
-int current_portal_tileset = 5;
-
-mwBitmap::mwBitmap() // default constructor
-{
-   portal_tilesets[1].num_tiles    = 18;
-   portal_tilesets[1].idle_start   =  0;
-   portal_tilesets[1].idle_length  =  2;
-   portal_tilesets[1].main_start   =  2;
-   portal_tilesets[1].main_length  = 16;
-   portal_tilesets[1].idle_cx      = 32;
-   portal_tilesets[1].main_cxi     = 32;
-   portal_tilesets[1].main_cxf     = 35;
-   portal_tilesets[1].idle_cy      = 32;
-   portal_tilesets[1].main_cyi     = 32;
-   portal_tilesets[1].main_cyf     = 34;
-
-   portal_tilesets[2].num_tiles    = 33;
-   portal_tilesets[2].idle_start   =  0;
-   portal_tilesets[2].idle_length  = 10;
-   portal_tilesets[2].main_start   = 11;
-   portal_tilesets[2].main_length  = 22;
-   portal_tilesets[2].idle_cx      = 32;
-   portal_tilesets[2].main_cxi     = 32;
-   portal_tilesets[2].main_cxf     = 32;
-   portal_tilesets[2].idle_cy      = 32;
-   portal_tilesets[2].main_cyi     = 32;
-   portal_tilesets[2].main_cyf     = 32;
-
-   portal_tilesets[3].num_tiles    = 29;
-   portal_tilesets[3].idle_start   =  0;
-   portal_tilesets[3].idle_length  = 17;
-   portal_tilesets[3].main_start   = 18;
-   portal_tilesets[3].main_length  = 11;
-   portal_tilesets[3].idle_cx      = 32;
-   portal_tilesets[3].main_cxi     = 32;
-   portal_tilesets[3].main_cxf     = 32;
-   portal_tilesets[3].idle_cy      = 31;
-   portal_tilesets[3].main_cyi     = 31;
-   portal_tilesets[3].main_cyf     = 35;
-
-   portal_tilesets[4].num_tiles    = 18;
-   portal_tilesets[4].idle_start   =  0;
-   portal_tilesets[4].idle_length  =  6;
-   portal_tilesets[4].main_start   =  7;
-   portal_tilesets[4].main_length  = 11;
-   portal_tilesets[4].idle_cy      = 35;
-   portal_tilesets[4].main_cyi     = 35;
-   portal_tilesets[4].main_cxf     = 32;
-   portal_tilesets[4].idle_cx      = 32;
-   portal_tilesets[4].main_cxi     = 32;
-   portal_tilesets[4].main_cyf     = 35;
-
-   portal_tilesets[5].num_tiles    = 15;
-   portal_tilesets[5].idle_start   =  0;
-   portal_tilesets[5].idle_length  =  4;
-   portal_tilesets[5].main_start   =  5;
-   portal_tilesets[5].main_length  = 11;
-   portal_tilesets[5].idle_cx      = 28;
-   portal_tilesets[5].main_cxi     = 28;
-   portal_tilesets[5].main_cxf     = 25;
-   portal_tilesets[5].idle_cy      = 33;
-   portal_tilesets[5].main_cyi     = 33;
-   portal_tilesets[5].main_cyf     = 35;
-}
-
-
-drawing the line from source to dest is a little difficult
-the portals want to draw on top
-
-I can fix this in 2 ways:
-- make a separate pass to draw the linked lines
-- draw source and dest together (skip drawing dest unless orphan dest)
-
-I think I want to try option 2...
-
-if a door has muliple sources....
-
-now the draw type is only respected by the main door
-It does not matter what is set on the exit
-
-do I care?
-
-
-removed...
-   //
-   //
-   //
-   // if ((item[i][8] == 1) && (!custom)) // linked item destination
-   // {
-   //    // linked destination item position
-   //    int dx = itemf[item[i][9]][0];
-   //    int dy = itemf[item[i][9]][1];
-   //    int line_color = item[item[i][9]][6];
-   //
-   //    if (item[i][12] == 1) // always draw line
-   //       al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
-   //
-   //    if (!drawn)
-   //    {
-   //       for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
-   //          if ((m_parent.mPlayer.syn[p].active) && (m_parent.mPlayer.syn[p].marked_door == i))
-   //          {
-   //             if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
-   //                al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
-   //
-   //             // bigger door when player touching it
-   //             al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
-   //             al_draw_scaled_bitmap(mBitmap.sprite[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
-   //
-   //
-   //             if (item[i][11] == 1) // enter with <up>
-   //                al_draw_text(mFont.pr8, mColor.pc[15],  x+3, y-14, 0, "up");
-   //
-   //             if (item[i][11] == 2) // enter with <down>
-   //                al_draw_text(mFont.pr8, mColor.pc[15],  x-5, y-14, 0, "down");
-   //             drawn = 1;
-   //          }
-   //    }
-   // }
-   // if (!drawn)
-   // {
-   //    al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
-   //    if (item[i][8] == 0) al_draw_bitmap(mBitmap.sprite[1015], x, y, 0); // OUT
-   //    else                 al_draw_bitmap(mBitmap.sprite[1014], x, y, 0); // IN
-   // }
-   //
-   //
-
-
-      // int an = 0;
-      //
-      // // is any player currently using this door for a door move
-      // int source_player;
-      // int destination_player;
-      // if (m_parent.mPlayer.find_player_using_door(i, source_player, destination_player))
-      // {
-      //    int main_start = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_start;
-      //    float num_tiles = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].main_length - 4;
-      //
-      //    if (source_player != -1)
-      //    {
-      //       float ratio = 1;
-      //       int mode = m_parent.mPlayer.syn[source_player].paused_mode;
-      //
-      //       // rotate in
-      //       if (mode == 1) ratio -= (float)m_parent.mPlayer.syn[source_player].paused_mode_count / (float)m_parent.mPlayer.syn[source_player].door_draw_rot_num_steps;
-      //
-      //       an = main_start + num_tiles * ratio;
-      //
-      //    }
-      //    if (destination_player != -1)
-      //    {
-      //       float ratio = 1;
-      //       int mode = m_parent.mPlayer.syn[destination_player].paused_mode;
-      //       // rotate out
-      //       if (mode == 3) ratio = (float)m_parent.mPlayer.syn[destination_player].paused_mode_count / (float)m_parent.mPlayer.syn[destination_player].door_draw_rot_num_steps;
-      //       an = main_start + num_tiles * ratio;
-      //
-      //    }
-      // }
-      // else // idle
-      // {
-      //    int num_tiles = mBitmap.portal_tilesets[mBitmap.current_portal_tileset].idle_length;
-      //    int frames_per_cycle = 4;
-      //    int tmr = mLoop.frame_num;
-      //    if (mLoop.level_editor_running) tmr = al_get_timer_count(mEventQueue.fps_timer);
-      //    an = (tmr % (num_tiles*frames_per_cycle)) / frames_per_cycle;
-      // }
-      //
-      //
-      // // draw line from source to dest
-      // if ((si != 1) && (di != -1))
-      // {
-      //    float xlen = itemf[di][0] - itemf[si][0];
-      //    float ylen = itemf[di][1] - itemf[si][1];
-      //
-      //    int line_color = item[si][6];
-      //
-      //    al_draw_line(itemf[si][0]+10, itemf[si][1]+10, itemf[di][0]+10, itemf[di][1]+10, mColor.pc[line_color], 1);  // draw a line connecting them
-      //
-      // }
-
-
-
-//      mBitmap.draw_portal(an, x+10, y+10, 2, rot);
-
-
-
-
-2026-11-14 09:56:22
-
-I have a lot of this put together nicely...now I have a bug where at the end of the cycle
-when changing from the out portal to static I have a jump...
-I was not rotating....
-
-
-next make the in and out stuff work
-
-void mwItem::draw_door_tile(int x, int y, int set, int col, int ans, int scale, int door_entry_type, bool in, bool out)
-
-void mwBitmap::draw_portal(int index, int x, int y, float scale, float rot)
-
-
-maybe I should figure out how I am going to store more than one portal
-
-how many do I want?
-
-
-1 and 5 are very similar, go with 5
-
-I kind of like 3 the floor one
-
-maybe 2
-
-So I am down to 2 or 3
-
-5 has 15 tile (4 for idle)
-3 has 29 tiles (17 for idle)
-
-2 has 33 tiles (10 for idle)
-
-
-lets just do one...number 5
-
-
-do I want it at full resolution?
-
-was there not some padding?
-
-could I get it into a 40x40?
-lets see..no...even 50x50 will not work
-
-just do full...
-
-then I will want to do my own colors
-
-see how colorizing would work
-
-first get them into my own 15 tile thing
-
-what do I have for color tools?
-
-8 unique colors and 2 unique hues(dif 6)
-
-I think I can colorize
-
-yes I can
-
-next?
-
-add another dimension to array
-
-16 colors and 15 shapes
-
-am I abandoning the old?
-
-
-   ALLEGRO_BITMAP *portal_tile_old[100];
-
-   ALLEGRO_BITMAP *portal_tile[16][15];
-
-960x1024
-
-skip black??
-
-   M_ztilemap = create_and_clear_bitmap(960, 1024);
-   ztilemap = create_and_clear_bitmap(960, 1024);
-
-
-hues: 265.5 271.6
-
-find distance from 265 to target hue
-
-I have a list of hues somewhere, maybe in web
-
-fuckit get my own...
-
-
-
-color:1 hue:280.161285
-color:2 hue:284.571411
-color:3 hue:219.384613
-color:4 hue:346.530609
-color:5 hue:305.411774
-color:6 hue:30.000004
-color:7 hue:29.882353
-color:8 hue:269.882355
-color:9 hue:149.882355
-color:10 hue:0.000000
-color:11 hue:120.000000
-color:12 hue:240.000000
-color:13 hue:180.000000
-color:14 hue:60.000000
-color:15 hue:0.000000
-
-when loading put into new one
-
-
-load then put on new tilemap and save
-
-or I could just use existing colors...
-
-I now have a tilemap:
-
-   al_set_target_bitmap(mBitmap.ztilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   for (int c=0; c<16; c++)
-      for (int t=0; t<15; t++)
-         al_draw_bitmap(mBitmap.portal_tile_old[t], t*64, c*64, 0);
-
-   al_save_bitmap("bitmaps/portal_tiles.png", mBitmap.ztilemap);
-
-now make that the one you load
-
-   // get portal tiles old
-   char filename[256];
-   sprintf(filename, "bitmaps/portal%d_purple.png", current_portal_tileset);
-
-   wtilemap = al_load_bitmap(filename);
-   if (!wtilemap)
-   {
-      mInput.m_err("Can't load tiles from bitmaps/portalx_purple.png");
-      return 0;
-   }
-   else
-   {
-
-      al_set_target_bitmap(M_wtilemap);
-      al_draw_bitmap(wtilemap, 0, 0, 0);
-
-      for (int a=0; a<portal_tilesets[current_portal_tileset].num_tiles; a++)
-         portal_tile_old[a] = al_create_sub_bitmap(wtilemap, a*64, 0, 64, 64);
-   }
-  
-
-   // get portal tiles
-   ztilemap = al_load_bitmap("bitmaps/portal_tiles.png");
-   if (!ztilemap)
-   {
-      mInput.m_err("Can't load tiles from bitmaps/portal_tiles.png");
-      return 0;
-   }
-   else
-   {
-      al_set_target_bitmap(M_ztilemap);
-      al_draw_bitmap(ztilemap, 0, 0, 0);
-
-      for (int c=0; c<15; c++)
-         for (int t=0; t<15; t++)
-            portal_tile[c][t] = al_create_sub_bitmap(ztilemap, t*64, c*64, 64, 64);
-   }
-
-now see if I can colorize and save something
-
-I did, it took a long time...
-
-now see if I can use the new, yes I can
-
-
-now colorize all!!!
-
-well the colors did not come out like I had hoped
-
-
-some are great
-
-12 which should be blue is a beautiful purple
-move 12 to 8..done
-
-11 is a great green leave it
-
-3 is a great blue, move to 12
-move 3 to 12..done
-move 13 to 3..done
-move 1 to 10
-
-
-0 copy of 8
-1 violet - good
-2 mauve - good
-3 bluey - good
-4 reddy - good
-5 pink - good
-6 taan - good
-7 orange - good
-8 purple good
-9 aqua - good
-10 red - good
-11 green - good
-12 blue - good
-13 lt blue - good
-14 yellow - good
-15 white - good
-
-
-
-how can I do this?
-what did I do wrong
-
-can I copy color direct from source?
-you bet!
-
-I think I have as much of that done as I can
-
-I will probably try to do the rest manually
-
-I'll try to do a quick test setup
-color only one tile then display and compare with target color
-
-13 light blue
-color:13 h:180.000000 s:1.000000 l:0.500000 h_adj:-90.000000
-h - 270
-
-now do 9 aqua 
-color:9 h:149.882355 s:1.000000 l:0.500000 h_adj:-125.117645
-h-275
-
-now 7 orange
-color:7 h:29.882353 s:1.000000 l:0.500000 h_adj:-245.117645
-h-270
-s+.3
-
-revist yellow, it looks washed out...
-14 yellow
-h-278
-s+.2
-better now
-
-revist red, it looks washed out also
-10 red
-h-278
-s+0.3
-
-now 6 taan
-color:6 h:30.000004 s:1.000000 l:0.749020 h_adj:-248.000000
-h-278
-s-0.1
-l+0.1
-
-now 4 reddy
-color:4 h:346.530609 s:0.777778 l:0.494118 h_adj:68.530609
-   float h_adj = h - 278;
-   float s_adj = -0.1;
-   float l_adj = -0.05;
-
-
-now 3 bluey
-color:3 h:219.384613 s:1.000000 l:0.617647 h_adj:-58.615387
-   float h_adj = h - 278;
-   float s_adj = -0.1;
-   float l_adj = -0.05;
-
-now 2 mauve
-color:2 h:284.571411 s:0.686275 l:0.400000 h_adj:6.571411
-   float h_adj = h - 278;
-   float s_adj = -0.1;
-   float l_adj = -0.05;
-
-
-now 1 violet
-color:1 h:280.161285 s:0.729412 l:0.666667 h_adj:2.161285
-   float h_adj = h - 278;
-   float s_adj = -0.1;
-   float l_adj = +0.05;
-
-2026-11-14 18:58:35
-
-this took a long time, but I am ready to call it done
-
-
-revist purple, it is too blue
-10 red
-h-258
-s+0.2
-done
-
-
-
-need to fix custom draw
-and ov draw
-what do I do for custom draw?
-just draw at the start and exit..
-I think that is done
-
-
-I do not have the rotation correct...atan is y/x not x/y...fixed
-
-can I make the exit reversed optionally? its as easy as adding 
-//      mBitmap.draw_portal(dcol, dan, dx+10, dy+10, 2, rot);
-      mBitmap.draw_portal(dcol, dan, dx+10, dy+10, 2, rot +ALLEGRO_PI);
-
-make the size optional as well
-
-hidden exit only is not hidden
-
-in all modes, respect the draw type of dest door..I think I have that done
-
-
-make common draw to include portal
-
-will need to include rotation and size
-
-
-use scale
-
-modify how the old one uses it:
-
-1 = normal
-1.2 is expanded
-
-
-2026-11-14 21:02:50
-I now have a common draw
-can I do anything about the line getting drawn on top of the text?
-yes
-
-2026-11-14 21:14:48 commit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+----------------------------------------------------------------------
+make color sequences common and live in color class
+----------------------------------------------------------------------
 
 
 
@@ -1227,6 +157,8 @@ A few different ideas:
 
 - reduce space by making some ints 16 or 8
 
+
+THIS ONE:
 - make common flag variable to replace stat | fall and make it do many more things
 like bits for:
 stat / fall
@@ -1236,11 +168,21 @@ draw (in game)
 invisible until cloned
 secondary at 4567
 hires secondary
-invincible
+invincible to damage
 use 14 for ttl
 use 15 for cloner tracking
 
+use 4 bits for color:
+how many items have color:
+
+
 many more for specific item types
+
+
+item[][0] = active and type
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
 
 this is what I am imagining
 0 will always be type or zero if inactive
@@ -1258,6 +200,605 @@ just looking at these, I realize most can be 8 or 16 bit integers
 this is not about saving space, it is more about having more variables available
 
 
+start with door...
+
+replace 3 stat fall carry with new flags
+
+both systems will need to co-exist until done
+
+just this for now, until done for all:
+
+#define PM_ITEM_FLAG_STATIONARY               0b00000000000000001
+#define PM_ITEM_FLAG_CARRYABLE                0b00000000000000010
+#define PM_ITEM_FLAG_CARRY_THROUGH_DOOR       0b00000000000000100
+
+have I started with rocket?
+yes:
+#define PM_ITEM_ROCKET_PLAYER_RIDE          0b00000000000000001
+#define PM_ITEM_ROCKET_RIDE_THROUGH_DOOR    0b00000000000000010
+
+
+
+bool mwItem::is_item_carryable(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+
+   // this is an exception to make it work like the legacy mode used to
+   // the normal expected way would be:
+   //if (type == PM_ITEM_TYPE_ROCKET && flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+   // but that breaks all demo levels that use rockets
+
+   if (type == PM_ITEM_TYPE_ROCKET)
+   {
+      // old -2 was carryable always
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+
+      // old 0 or 1 was not carryable until lit
+      else return false;
+   }
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_PLAYER_RIDE) return true;
+      else return false;
+   }
+
+   // not rocket or lit rocket (all other items)
+   if ((type != PM_ITEM_TYPE_ROCKET) && (type != PM_ITEM_TYPE_LIT_ROCKET))
+   {
+      if (item[i][3] < 0) return true;
+   }
+
+   return false;
+}
+
+bool mwItem::is_item_carryable_through_door(int i)
+{
+   int type = item[i][0];
+   int flags = item[i][2];
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)
+   {
+      if (flags & PM_ITEM_ROCKET_RIDE_THROUGH_DOOR) return true;
+   }
+   else
+   {
+      if (item[i][3] == -2) return true;
+   }
+   return false;
+}
+
+
+
+start by multiplying all rocket 2 by 2 then use new flags for rockets
+
+#define PM_ITEM_FLAG_STATIONARY               0b00000000000000001
+#define PM_ITEM_FLAG_CARRYABLE                0b00000000000000010
+#define PM_ITEM_FLAG_CARRY_THROUGH_DOOR       0b00000000000000100
+
+have I started with rocket?
+yes:
+#define PM_ITEM_ROCKET_PLAYER_RIDE          0b00000000000000001
+#define PM_ITEM_ROCKET_RIDE_THROUGH_DOOR    0b00000000000000010
+
+1 - do all tests pass?
+2 - backup level dir
+3- run glt
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+             mLevel.mItem.item[y][2] = mLevel.mItem.item[y][2] * 2;
+4 - change flags
+// #define PM_ITEM_ROCKET_PLAYER_RIDE          0b00000000000000001
+// #define PM_ITEM_ROCKET_RIDE_THROUGH_DOOR    0b00000000000000010
+
+2 in OV and 3 in item move
+
+5 - test again ...good
+
+now implement STATIONARY for rockets
+this is different from other flags
+on or set should mean that stationary is true
+lets play it that way...
+
+odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary       :OFF", "Stationary       :ON ", 9+dim, 9, 15+dim, 15);
+odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
+odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON ", 9+dim, 9, 15+dim, 15);
+
+where do I test for stationary?
+
+bool mwItem::is_item_moveable(int i, int type)
+{
+   bool moveable = item[i][3];
+
+   if (type == PM_ITEM_ROCKET)  moveable = !(item[i][2] & PM_ITEM_FLAG_STATIONARY);
+
+   if (type == PM_ITEM_TYPE_LIT_ROCKET)   moveable = 0;
+   if (type == PM_ITEM_TYPE_TRIGGER)      moveable = 0;
+   if (type == PM_ITEM_TYPE_TIMER)        moveable = 0;
+   if (type == PM_ITEM_TYPE_ALTERTILES)   moveable = 0;
+   if (type == PM_ITEM_TYPE_DAMAGEAREA)   moveable = 0;
+   if (type == PM_ITEM_TYPE_GATE)         moveable = 0;
+   if (type == PM_ITEM_TYPE_HIDER)        moveable = 0;
+   if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) moveable = 0; // moving key
+   return moveable;
+}
+
+backup levels:
+
+glt:
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+            if (mLevel.mItem.item[y][3] == 0) mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_STATIONARY;
+         }
+
+test...good
+test changing in ov..good
+pde new rockets stationary off ride on door off == 2
+
+for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+            mLevel.mItem.item[y][3] = 0;
+         }
+
+test..still good...
+now do the same for doors
+
+test
+backup levels
+
+
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
+         {
+            mLevel.mItem.item[y][2] = 0;
+
+            // the only time stationary is set is if 3 == 0
+            if (mLevel.mItem.item[y][3] == 0) mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_STATIONARY;
+            
+            if (mLevel.mItem.item[y][3] == -1) mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRYABLE;
+            
+            if (mLevel.mItem.item[y][3] == -2)
+            {
+               mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRYABLE;
+               mLevel.mItem.item[y][2] |= PM_ITEM_FLAG_CARRY_THROUGH_DOOR;
+
+            }
+
+            mLevel.mItem.item[y][3] = 0;
+
+
+         }
+
+tests good
+
+
+
+            odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][3], 13, 13, "Stationary", "Fall");
+            ya+=4; // spacer
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary       :OFF", "Stationary       :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Ride Through Door:OFF", "Ride Through Door:ON ", 9+dim, 9, 15+dim, 15);
+
+in ov would check flags look better?
+
+have I ever done those in ov
+
+I have never done a check box in ov
+would you like to start?
+
+
+         mWidget.mCheckBoxFlag(1, xa,     20,  1,ya,16,0,  p, 0b01, "Other Players", 15, 15, 0);
+
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY, "Stationary",                 15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE, "Carry",                       15, 15);
+            odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
+
+            ya+=4; // spacer
+            
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary        :OFF", "Stationary        :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry             :OFF", "Carry             :ON ", 9+dim, 9, 15+dim, 15);
+            odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door:OFF", "Carry Through Door:ON ", 9+dim, 9, 15+dim, 15);
+
+            ya+=4; // spacer
+
+
+
+lets just go through the items, one at a time:
+bonus:
+
+thoughts:
+what if carry through door is set and carry is not?
+what if carry is set and stationary is also set?
+
+test this out on bonus....
+
+broke bonus...
+
+do I have fall backwards and I just never noticed with door?? no
+created bonus items do not fall!!!!..fixed
+
+now test carry and stationary...it does what I expected, player can carry, but as soon as dropped freezes....
+
+exit done
+key done
+start done
+
+
+
+orb is not working
+revert
+
+why???
+
+
+does orb use 2 for something?
+yes, orb uses 2 for flags already
+move orb flags from 2 to 3
+done!!!
+
+mines...done
+
+bombs...done
+
+message...does not have anything like that....
+message uses 2 for draw flags
+could I move them to 3??
+I kind of want to reserve 2...
+try it...I think it works...
+
+how the hell could this break stuff??
+messages were moveable, even though none of them are...
+messages..done
+
+switch...done
+spring...done
+
+the next ones will be more custom
+mostly just make sure nothing is using 2
+
+now timer...
+
+2 is being used for draw mode
+3 is existing flags...
+
+I think I might want to reserve a part of 2 for use by items
+
+how many draw modes do I have? 2 hidden or progress bar
+
+
+timer already has flags in 3, can I add one more bit there?
+
+
+                                              00000000        00000000
+                                      00000000        00000000
+#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
+#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
+#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
+#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
+#define PM_ITEM_TIMER_DRAW_MODE     0b00000000000000000000000000000010
+#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
+
+
+1 copy level
+2 change ov
+3 change glt
+4 change items (3)
+5 run glt
+6 test
+
+
+timer...done
+
+
+trigger...
+uses 2 for draw_type (color)
+uses 3 for flags (16 bits used)
+
+I could use 4 bits from flags for color
+
+do it fool!! got to move on
+
+
+#define PM_ITEM_TRIGGER_DRAW_ON  0b000000010000000000000000
+#define PM_ITEM_TRIGGER_COLOR    0b000111100000000000000000
+
+how do I pack and unpack
+
+unpack
+int col = (item[][3]  & PM_ITEM_TRIGGER_COLOR) >> 17;
+
+pack
+
+// first make sure bits are clear
+item[][3] &= ~PM_ITEM_TRIGGER_COLOR;
+
+item[][3] |= col << 17;
+I think I've got it....
+
+trigger done...
+
+
+alter....
+uses 2 for draw on
+uses 12 for draw color
+definitely combine them
+
+for now use 12, but later maybe move
+
+if any have draw do nothing
+if any have not draw set 12 to 0
+
+change this so v2 sets the starting color so I can include 0 if I want
+
+int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb, int type, int &v1, int v2, const char* txt, int disable_input)
+
+this whole color select needs to be revamped
+
+there are a few places where I do this:
+
+         int tmp_col = c;
+         int cl = mWidget.mColorSelect(0, xa, x2-2, ya, 16, 1, tmp_col,  "Player Color", 0);
+         if (cl != -1) v = cl;
+
+why?
+
+how about if nothing is clicked, not not change the passed variable
+it is already like that...
+
+I think in this case I do not want to set v unless a color is chosen
+
+I want to pass a color to start with but do not change it
+which is crazy because I do not do anything with the passed color anyway....
+
+do this:
+mWidget.mColorSelect(0, xa, x2-2, ya, 16, 1, v,  "Player Color", 0);
+
+
+
+
+what about this:
+
+   int tmp_col = col; // so it doesnt get changed
+   int cl = mWidget.mColorSelect(0, x, x+200, ya, 16, 1, tmp_col, "Player Color", d);
+   if (cl != -1)
+   {
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_color(gi, cl);
+      refresh();
+   }
+
+do this instead...its a little better
+
+
+   int cl = -1;
+   mWidget.mColorSelect(0, x, x+200, ya, 16, 1, cl, "Player Color", d);
+   if (cl != -1)
+   {
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_color(gi, cl);
+      refresh();
+   }
+
+
+or:
+
+   int cl = 0;
+   if (mWidget.mColorSelect(0, x, x+200, ya, 16, 1, cl, "Player Color", d) != -1)
+   {
+      int gi = mGameMoves.find_first_active_game_move_for_player(p, f1);
+      if (gi != -1) mGameMoves.gma_change_color(gi, cl);
+      refresh();
+   }
+
+
+
+next:
+
+      int tmp_col = col;
+      int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, tmp_col, "Player Color", 0);
+      if (cl != -1) col = cl;
+
+mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, "Player Color", 0);
+
+         int tmp_col = col;
+         int cl = mWidget.mColorSelect(0, xa, xb, ya, 16, 1, tmp_col,"Player Color", 0);
+         if (cl != -1) mLevel.mPlayer.syn[player_num].color = cl;
+
+int tmp_col = 0;
+if (mWidget.mColorSelect(0, xa, xb, ya, 16, 1, col, "Player Color", 0) != -1) mLevel.mPlayer.syn[player_num].color = tmp_col;
+
+2026-11-15 14:10:07
+done with color select refactor
+
+alter...done
+
+now damage:
+
+item[][2]  = damage draw type
+item[][3]  = flags
+
+item[][10] = lift number
+item[][11] = mode
+item[][12] = damage
+
+I might have 13 for draw type
+
+I think that just might work!!!
+
+damage...done
+
+gate...done
+
+hider uses 2   for what?
+
+
+
+[19] hider
+item[][1] = pm_event_trigger
+item[][2] = active
+item[][3] = mode
+
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+
+item[][10] = blind erase
+
+item[][11] = disable draw item
+item[][12] = disable draw enemy
+item[][13] = disable draw lift
+
+
+I think I want to kill 10 11 12 13
+blind erase is always on and the others are never used
+
+
+num levels:156
+lev:7 hider:0 blind_erase:1 mode:1
+lev:8 hider:0 blind_erase:1 mode:1
+lev:9 hider:0 blind_erase:1 mode:1
+lev:11 hider:0 blind_erase:1 mode:1
+lev:12 hider:0 blind_erase:1 mode:1
+lev:21 hider:0 blind_erase:1 mode:1
+lev:22 hider:0 blind_erase:1 mode:1
+lev:33 hider:0 blind_erase:1 mode:1
+lev:38 hider:0 blind_erase:1 mode:1
+lev:58 hider:0 blind_erase:1 mode:1
+lev:83 hider:0 blind_erase:1 mode:1
+lev:84 hider:0 blind_erase:1 mode:1
+
+it looks like I could kill more than that...
+10, 11, 12, 13 all gone...
+
+now 10 is mode..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------
 Enemy variable refactor
 
@@ -1268,7 +809,7 @@ invincible to damage
 count towards enemy count
 draw(in game only)
 invisible until cloned
-
+invincible until cloned
 
 
 

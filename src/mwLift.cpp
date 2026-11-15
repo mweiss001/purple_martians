@@ -663,7 +663,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    mWidget.mButton(0, xa, xb,   1, ya, bts-2,    1, 2, 0, 1,   col, 0, 15, 0, 0, msg,   d);
    ya+=bts;
 
-   mWidget.mColorSelect(0, xa, xb, ya, bts, 1, col, 0, "Select Lift Step Color", d);
+   mWidget.mColorSelect(0, xa, xb, ya, bts, 1, col, "Select Lift Step Color", d);
    stp[l][s].color = col;
 
 
