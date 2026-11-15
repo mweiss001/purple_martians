@@ -9,26 +9,50 @@
 #include "mwGameEvent.h"
 #include "mwEventQueue.h"
 
-// item[x][1]  draw type (0=hidden, 1=static door, 2=animated warp, 3=portal)
+
+/*
+
+item[][0] 1 - PM_ITEM_TYPE_DOOR
+
+item[][1] draw type
+#define PM_ITEM_DOOR_DRAW_HIDE      0
+#define PM_ITEM_DOOR_DRAW_STATIC    1
+#define PM_ITEM_DOOR_DRAW_WARP      2
+#define PM_ITEM_DOOR_DRAW_PORTAL    3
+
+item[][6]  color
+
+item[][7] move type
+#define PM_ITEM_DOOR_MOVE_AUTO     0
+#define PM_ITEM_DOOR_MOVE_INSTANT  1
+#define PM_ITEM_DOOR_MOVE_TRAVEL   2
+
+item[][8]  has linked destination
+item[][9]  linked destination item
+item[][10] key held flag
+
+item[][11] enter mode
+#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
+#define PM_ITEM_DOOR_ENTER_WITH_UP    1
+#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
+
+item[][12] draw connecting line
+#define PM_ITEM_DOOR_LINE_NEVER   0
+#define PM_ITEM_DOOR_LINE_ALWAYS  1
+#define PM_ITEM_DOOR_LINE_TOUCH   2
 
 
 
-// item[x][6]  color
-// item[x][7]  move type (0 = force instant, 1 = force move
-// item[x][8]  type (0 = no dest (exit only), 1 = linked dest
-// item[x][9]  linked destination item
-// item[x][10] key held flag
-// item[x][11] door entry type (0 0-immed, 1 = up 2 = down)
-// item[x][12] draw lines always, never
 
 
+*/
 
 
 void mwItem::change_linked_door_color_and_draw_type(int door)
 {
    // changes all linked doors to match door color and shape
    // first do the linked door if there is one...
-   if (item[door][8] == 1)
+   if (item[door][8])
    {
       int di = item[door][9];      // dest item
       item[di][1] = item[door][1]; // set draw type
@@ -46,24 +70,16 @@ void mwItem::change_linked_door_color_and_draw_type(int door)
 
 
 
-int mwItem::find_source_door(int door)
+int mwItem::find_source_door(int search_index)
 {
    for (int i=0; i<500; i++)
-      if ((item[i][0] == 1) && (item[i][9] == door)) return i;
+      if ((item[i][0] == PM_ITEM_TYPE_DOOR) && (item[i][9] == search_index)) return i;
    return -1;
 }
 
 
 void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot, bool player_hover, int door_entry_type, bool in, bool out)
 {
-   bool up = 0;
-   bool down = 0;
-
-   if (player_hover)
-   {
-      if (door_entry_type == 1) up = 1;
-      if (door_entry_type == 2) down = 1;
-   }
 
    int xsize = 20;
    int ysize = 20;
@@ -72,7 +88,7 @@ void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float
    int yoffset = 0;
 
 
-   if (draw_type == 1 || draw_type == 2)
+   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC || draw_type == PM_ITEM_DOOR_DRAW_WARP)
    {
       if (player_hover)
       {
@@ -82,20 +98,26 @@ void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float
          yoffset = -6;
       }
 
-      int set = 0; // new animated warp doors
-      if (draw_type == 1) set = 1; // original static shape doors
+      int set = 0;
+      if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) set = 1;
+      if (draw_type == PM_ITEM_DOOR_DRAW_WARP) set = 0;
 
       al_draw_scaled_bitmap(mBitmap.door_tile[set][col][ans], 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 );
 
    }
 
-   if (draw_type == 3) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
+   if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
+
+
+   if (player_hover)
+   {
+      if (door_entry_type == PM_ITEM_DOOR_ENTER_WITH_UP)   al_draw_text(mFont.pr8, mColor.pc[15], x+3, y-14, 0, "up");
+      if (door_entry_type == PM_ITEM_DOOR_ENTER_WITH_DOWN) al_draw_text(mFont.pr8, mColor.pc[15], x-5, y-14, 0, "down");
+   }
 
 //   if (in)  al_draw_scaled_bitmap(mBitmap.sprite[1014]   , 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 ); // in
 //   if (out) al_draw_scaled_bitmap(mBitmap.sprite[1015]   , 0, 0, 20, 20, x+xoffset, y+yoffset, xsize, ysize, 0 ); // out
 
-   if (up)   al_draw_text(mFont.pr8, mColor.pc[15], x+3, y-14, 0, "up");
-   if (down) al_draw_text(mFont.pr8, mColor.pc[15], x-5, y-14, 0, "down");
 
 }
 
@@ -111,8 +133,8 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
    if (custom)
    {
-      if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
-      else                draw_door_tile(x, y, draw_type, col, 0, .4, 0, 0, 0, 0, 0);
+      if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
+      else                                     draw_door_tile(x, y, draw_type, col, 0, .4, 0, 0, 0, 0, 0);
       return 1;
    }
 
@@ -123,8 +145,10 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    {
       if (find_source_door(i) == -1)
       {
-         if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
-         else                draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_door_tile(x, y, 1,         col, 0, 0, 0, 0, 0, 0, 0);
+         else                                     draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         al_draw_text(mFont.pixl, mColor.Red, x+10, y, ALLEGRO_ALIGN_CENTER, "no src");
+
          al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
          al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
       }
@@ -138,8 +162,9 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
       if (item[linked_door][0] != 1)
       {
-         if (draw_type == 0) draw_door_tile(x, y, 1,         col, 0, 1, 0, 0, 0, 0, 0);
-         else                draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_door_tile(x, y, 1,         col, 0, 1, 0, 0, 0, 0, 0);
+         else                                     draw_door_tile(x, y, draw_type, col, 0, 1, 0, 0, 0, 0, 0);
+         al_draw_text(mFont.pixl, mColor.Red, x+10, y, ALLEGRO_ALIGN_CENTER, "no dst");
          al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
          al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
          return 1;
@@ -176,12 +201,12 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
 
    // static door
-   if (s_draw_type == 1) draw_door_tile(sx, sy, s_draw_type, scol, 0, 0, 0, player_touching_door, door_entry_mode, 1, 0); // source door
-   if (d_draw_type == 1) draw_door_tile(dx, dy, d_draw_type, dcol, 0, 0, 0, 0, 0, 0, 1); // dest door
+   if (s_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(sx, sy, s_draw_type, scol, 0, 0, 0, player_touching_door, door_entry_mode, 1, 0); // source door
+   if (d_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(dx, dy, d_draw_type, dcol, 0, 0, 0, 0, 0, 0, 1); // dest door
 
 
    // animated warp
-   if ((s_draw_type == 2) || (d_draw_type == 2))
+   if ((s_draw_type == PM_ITEM_DOOR_DRAW_WARP) || (d_draw_type == PM_ITEM_DOOR_DRAW_WARP))
    {
       int num_shapes = 8;
       int frames_per_cycle = 4;
@@ -192,12 +217,12 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       int san = (tmr % (num_shapes*frames_per_cycle)) / frames_per_cycle;
       int dan = (num_shapes-1)-san;  // run the sequence backwards
 
-      if (s_draw_type == 2) draw_door_tile(sx, sy, s_draw_type, scol, san, 0, 0, player_touching_door, door_entry_mode, 1, 0);  // source door
-      if (d_draw_type == 2) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 0, 0, 0, 0, 0, 1); // dest door
+      if (s_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(sx, sy, s_draw_type, scol, san, 0, 0, player_touching_door, door_entry_mode, 1, 0);  // source door
+      if (d_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 0, 0, 0, 0, 0, 1); // dest door
    }
 
    // portal
-   if ((s_draw_type == 3) || (d_draw_type == 3))
+   if ((s_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) || (d_draw_type == PM_ITEM_DOOR_DRAW_PORTAL))
    {
       // get rotation from source and destination door positions
       float rot = atan2(dy-sy, dx-sx);
@@ -248,10 +273,10 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       }
 
       // draw the source bitmap
-      if (s_draw_type == 3) draw_door_tile(sx, sy, s_draw_type, scol, san, 1, rot, player_touching_door, door_entry_mode, 1, 0);
+      if (s_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(sx, sy, s_draw_type, scol, san, 1, rot, player_touching_door, door_entry_mode, 1, 0);
 
       // draw the destination bitmap
-      if (d_draw_type == 3) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 1, rot + ALLEGRO_PI, 0, 0, 0, 1);
+      if (d_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(dx, dy, d_draw_type, dcol, dan, 1, rot + ALLEGRO_PI, 0, 0, 0, 1);
 
    }
 
@@ -259,22 +284,16 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
    // draw a line connecting the doors
    bool draw_line = 0;
-   if (item[i][12] == 1) draw_line = 1; // always draw
-   if (item[i][12] == 2 && player_touching_door) draw_line = 1; // only draw when player touches
-   if (item[i][12] == 0) draw_line = 0; // never draw
+   if (item[i][12] == PM_ITEM_DOOR_LINE_ALWAYS) draw_line = 1; // always draw
+   if (item[i][12] == PM_ITEM_DOOR_LINE_TOUCH && player_touching_door) draw_line = 1; // only draw when player touches
+   if (item[i][12] == PM_ITEM_DOOR_LINE_NEVER) draw_line = 0; // never draw
    if (custom) draw_line = 0; // never draw in custom mode
    if (draw_line) al_draw_line(sx+10, sy+10, dx+10, dy+10, mColor.pc[scol], 1);
 
    // draw the in / out text last
 
-
    al_draw_bitmap(mBitmap.sprite[1014], sx, sy, 0 ); // in
-
    al_draw_bitmap(mBitmap.sprite[1015], dx, dy, 0); // out
-
-
-
-
 
 
 
@@ -299,12 +318,9 @@ void mwItem::proc_door_collision(int p, int i)
 
    int do_entry = 0;
 
-   // enter immediately
-   if (item[i][11] == 0) do_entry = 1;
+   if (item[i][11] == PM_ITEM_DOOR_ENTER_IMMEDIATE) do_entry = 1;
 
-
-   // enter with <up>
-   if (item[i][11] == 1)
+   if (item[i][11] == PM_ITEM_DOOR_ENTER_WITH_UP)
    {
       // to prevent immediate triggering when destination door, wait for release and re-press
 
@@ -320,7 +336,7 @@ void mwItem::proc_door_collision(int p, int i)
    }
 
    // enter with <down>
-   if (item[i][11] == 2)
+   if (item[i][11] == PM_ITEM_DOOR_ENTER_WITH_DOWN)
    {
       // to prevent immediate triggering when destination door, wait for release and re-press
 

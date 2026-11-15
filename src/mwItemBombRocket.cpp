@@ -1,11 +1,10 @@
 // mwItemBombRocket.cpp
 
 #include "pm.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwSolid.h"
 #include "mwSound.h"
@@ -14,13 +13,12 @@
 
 
 /*
-item[][0] = 8 - bomb
-item[][1] = bitmap
-item[][2] = flags
-item[][3] =
-item[][4] = x pos (2000)
-item[][5] = y pos (2000)
 
+
+---------------------------------------------------------------
+-- 8 - PM_ITEM_TYPE_BOMB
+---------------------------------------------------------------
+item[][1] = bitmap
 item[][6]  = exploding mode (0-inactive) (1-lit) (2-exploding) (3-armed)
 item[][7]  = damage range
 item[][8]  = fuse length counter
@@ -28,33 +26,20 @@ item[][9]  = fuse length value
 item[][10] = unused as far as I can tell
 item[][11] = sticky
 item[][12] = type (0-fuse) (1-detonator)
-
 item[][13] = player that lit
 
-item[][14] = time to live
-item[][15] = tag with cloner item id
 
-
-item[][0] = 11 - rocket
+---------------------------------------------------------------
+-- 11 - PM_ITEM_TYPE_ROCKET
+---------------------------------------------------------------
 item[][1] = bitmap
-item[][2] = flags
-item[][3] =
-item[][4] = x pos (2000)
-item[][5] = y pos (2000)
-
 item[][6]  = steerability
 item[][7]  = damage range
 item[][8]  = max speed
 item[][9]  = acceleration
 item[][10] = rotation
 item[][11] = current speed
-item[][12] = unused as far as I can tell
-
-
 item[][13] = player that lit
-
-item[][14] = time to live
-item[][15] = tag with cloner item id
 
 */
 

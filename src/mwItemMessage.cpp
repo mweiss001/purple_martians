@@ -1,7 +1,7 @@
 // mwItemMessage.cpp
 
 #include "pm.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWidget.h"
@@ -9,13 +9,13 @@
 #include "mwDisplay.h"
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
-#include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
 #include "mwTriggerEvent.h"
-#include "mwLevel.h"
 #include "mwLevelEditor.h"
 #include "mwObjectViewer.h"
+
+
 
 
 
@@ -107,17 +107,21 @@ in draw sequence, at the end, they are drawn
 
 /*
 
-[10] - msg
+
+
+---------------------------------------------------------------
+-- 10 - PM_ITEM_TYPE_MESSAGE
+---------------------------------------------------------------
 item[][1] event trigger
 
-item[][2] draw flags
-PM_ITEM_PMSG_SHOW_ALWAYS
-PM_ITEM_PMSG_SHOW_SCROLL
-PM_ITEM_PMSG_FRAME0
-PM_ITEM_PMSG_FRAME1
-PM_ITEM_PMSG_FRAME2
-PM_ITEM_PMSG_FRAME4
-PM_ITEM_PMSG_FRAME12
+item[][3] flags
+#define PM_ITEM_MESSAGE_SHOW_ALWAYS   0b00000000000000001
+#define PM_ITEM_MESSAGE_SHOW_SCROLL   0b00000000000000010
+#define PM_ITEM_MESSAGE_FRAME0        0b00000000000001000
+#define PM_ITEM_MESSAGE_FRAME1        0b00000000000010000
+#define PM_ITEM_MESSAGE_FRAME2        0b00000000000100000
+#define PM_ITEM_MESSAGE_FRAME4        0b00000000001000000
+#define PM_ITEM_MESSAGE_FRAME12       0b00000000010000000
 
 item[][4]  scroll x
 item[][5]  scroll y
@@ -126,10 +130,6 @@ item[][6]  msg x
 item[][7]  msg y
 item[][8]  msg w
 item[][9]  msg h
-
-I don't think these are used...
-item[][10]
-item[][11]
 
 item[][12] timer count and val  (packed)
 item[][13] text and frame color (packed)

@@ -248,37 +248,40 @@ item variable descriptions
 
 list of items
 
+#define PM_ITEM_TYPE_DOOR        1
+#define PM_ITEM_TYPE_BONUS       2
+#define PM_ITEM_TYPE_EXIT        3
+#define PM_ITEM_TYPE_KEY         4
+#define PM_ITEM_TYPE_START       5
+#define PM_ITEM_TYPE_ORB         6
+#define PM_ITEM_TYPE_MINE        7
+#define PM_ITEM_TYPE_BOMB        8
+#define PM_ITEM_TYPE_TRIGGER     9
+#define PM_ITEM_TYPE_MESSAGE    10
+#define PM_ITEM_TYPE_ROCKET     11
+#define PM_ITEM_TYPE_TIMER      13
+#define PM_ITEM_TYPE_SWITCH     14
+#define PM_ITEM_TYPE_SPRING     15
+#define PM_ITEM_TYPE_ALTERTILES 16
+#define PM_ITEM_TYPE_DAMAGEAREA 17
+#define PM_ITEM_TYPE_GATE       18
+#define PM_ITEM_TYPE_HIDER      19
 
-[1]  - door
-[2]  - bonus
-[3]  - exit
-[4]  - key
-[5]  - start
-[6]  - orb
-[7]  - mine
-[8]  - bomb
-[9]  - trigger
-[10] - pop-up msg
-[11] - rocket
-[12] - not used
-[13] - timer
-[14] - switch
-[15] - sproingy
-[16] - alter tiles
-[17] - damage area
-[18] - gate
-[19] - hider
+#define PM_ITEM_TYPE_EXPIRING   66
 
-[98] - lit rocket
-[99] - lit bomb
+#define PM_ITEM_TYPE_LIT_ROCKET 98
+#define PM_ITEM_TYPE_LIT_BOMB   99
+
+
 
 // common
 item[][0] = active and type
 item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+item[][2] = common flags
+
 item[][4] = x pos
 item[][5] = y pos
+
 item[][14] = time to live
 item[][15] = tag with cloner item id
 
@@ -288,104 +291,193 @@ item[][15] = tag with cloner item id
 
 // type specific
 
-[1] - door
-item[][1]  draw type (0=hidden, 1=static door, 2=animated warp)
+---------------------------------------------------------------
+-- 1 - PM_ITEM_TYPE_DOOR
+---------------------------------------------------------------
+item[][1] draw type
+#define PM_ITEM_DOOR_DRAW_HIDE      0
+#define PM_ITEM_DOOR_DRAW_STATIC    1
+#define PM_ITEM_DOOR_DRAW_WARP      2
+#define PM_ITEM_DOOR_DRAW_PORTAL    3
+
 item[][6]  color
-item[][7]  move type (0=auto, 1=force instant, 2=force move)
-item[][8]  type (0=exit only, 1=linked dest)
+
+item[][7] move type
+#define PM_ITEM_DOOR_MOVE_AUTO     0
+#define PM_ITEM_DOOR_MOVE_INSTANT  1
+#define PM_ITEM_DOOR_MOVE_TRAVEL   2
+
+item[][8]  has linked destination
 item[][9]  linked destination item
 item[][10] key held flag
-item[][11] door entry type (0=immed, 1=up, 2=down)
-item[][12] draw lines always, never, only when touched
+
+item[][11] enter mode
+#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
+#define PM_ITEM_DOOR_ENTER_WITH_UP    1
+#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
+
+item[][12] draw connecting line
+#define PM_ITEM_DOOR_LINE_NEVER   0
+#define PM_ITEM_DOOR_LINE_ALWAYS  1
+#define PM_ITEM_DOOR_LINE_TOUCH   2
 
 
 
-
-
-
-
-[2] - bonus
+---------------------------------------------------------------
+-- 2 - PM_ITEM_TYPE_BONUS
+---------------------------------------------------------------
 item[][6] bonus type (0 - Health   1 - Purple Coin)
-item[][7] health bonus
+item[][7] health bonus amount
 
 
-[3] - exit
+---------------------------------------------------------------
+-- 3 - PM_ITEM_TYPE_EXIT
+---------------------------------------------------------------
 item[][8] exit with x enemies left
 
 
-[4] - key
+
+---------------------------------------------------------------
+-- 4 - PM_ITEM_TYPE_KEY
+---------------------------------------------------------------
+item[][1]  tile
 item[][6]  block range x
 item[][7]  block range y
 item[][8]  block range w
 item[][9]  block range h
-item[][10] rotation for key move
+item[][10] rotation for key move  float rot = (float) item[i][10] / 1000;
 item[][11] counter for key move
 item[][12] matching keyed blocks only
 
-[5] - start
+
+
+
+---------------------------------------------------------------
+-- 5 - PM_ITEM_TYPE_START
+---------------------------------------------------------------
+item[][1] = tiles
 item[][6] mode
 item[][7] start index
 item[][8] no backsies
 item[][9] trigger
 
 
-[6] - orb
-item[][6]  = MODE
-item[][7]  = timer val
-item[][8]  = time count
-item[][9]  =
-item[][10] = STATE ON  pm_event
-item[][11] = STATE OFF pm_event
-item[][12] = TGON pm_event
-item[][13] = TGOF pm_event
 
+
+
+
+
+
+---------------------------------------------------------------
+-- 6 - PM_ITEM_TYPE_ORB
+---------------------------------------------------------------
+item[][1] = bitmap
+
+item[][3] = orb flags
 #define PM_ITEM_ORB_STATE       0b0000000000000001
 #define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
 #define PM_ITEM_ORB_TGON        0b0000000000000100
 #define PM_ITEM_ORB_TGOF        0b0000000000001000
-
 #define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
 #define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
 #define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
-#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
-#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_SHOT   0b0000000010000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000001000000000
+#define PM_ITEM_ORB_ROTB        0b1100000000000000
+
+item[][6]  = mode
+item[][7]  = timer val
+item[][8]  = timer count
+
+item[][10] = pm_event STATE ON
+item[][11] = pm_event STATE OFF
+item[][12] = pm_event TGON
+item[][13] = pm_event TGOF
 
 
 
 
-[7] - mine
+
+
+
+
+
+---------------------------------------------------------------
+-- 7 - PM_ITEM_TYPE_MINE
+---------------------------------------------------------------
+item[][1] = tile
 item[][8] mine damage
 
-[8] - bomb
-see mwItemBombRocket.cpp
+
+
+---------------------------------------------------------------
+-- 8 - PM_ITEM_TYPE_BOMB
+---------------------------------------------------------------
+item[][1] = bitmap
+item[][6]  = exploding mode (0-inactive) (1-lit) (2-exploding) (3-armed)
+item[][7]  = damage range
+item[][8]  = fuse length counter
+item[][9]  = fuse length value
+item[][10] = unused as far as I can tell
+item[][11] = sticky
+item[][12] = type (0-fuse) (1-detonator)
+item[][13] = player that lit
 
 
 
+---------------------------------------------------------------
+-- 9 - PM_ITEM_TYPE_TRIGGER
+---------------------------------------------------------------
+item[][3] = trigger flags
+#define PM_ITEM_TRIGGER_PLAYER   0b000000000000000000000001
+#define PM_ITEM_TRIGGER_ENEMY    0b000000000000000000000010
+#define PM_ITEM_TRIGGER_ITEM     0b000000000000000000000100
+#define PM_ITEM_TRIGGER_PSHOT    0b000000000000000000001000
+#define PM_ITEM_TRIGGER_ESHOT    0b000000000000000000010000
+#define PM_ITEM_TRIGGER_CURR     0b000000000000000000100000
+#define PM_ITEM_TRIGGER_PREV     0b000000000000000001000000
+#define PM_ITEM_TRIGGER_TGON     0b000000000000000010000000
+#define PM_ITEM_TRIGGER_TGOF     0b000000000000000100000000
+#define PM_ITEM_TRIGGER_LIFT_ON  0b000000000000001000000000
+#define PM_ITEM_TRIGGER_LIFT_XC  0b000000000000010000000000
+#define PM_ITEM_TRIGGER_LIFT_XF  0b000000000000100000000000
+#define PM_ITEM_TRIGGER_LIFT_XL  0b000000000001000000000000
+#define PM_ITEM_TRIGGER_LIFT_YC  0b000000000010000000000000
+#define PM_ITEM_TRIGGER_LIFT_YF  0b000000000100000000000000
+#define PM_ITEM_TRIGGER_LIFT_YL  0b000000001000000000000000
+#define PM_ITEM_TRIGGER_DRAW_ON  0b000000010000000000000000
+#define PM_ITEM_TRIGGER_COLOR    0b000111100000000000000000
 
-
-[9]  - Trigger
-item[][2] = draw_type (color)
-item[][3] = flags
 item[][6]  = trigger field x (2000)
 item[][7]  = trigger field y (2000)
 item[][8]  = trigger field w (2000)
 item[][9]  = trigger field x (2000)
-item[][10] = trigger field lift number
-item[][11] = CURR ON  pm_event
-item[][12] = CURR OFF pm_event
-item[][13] = TGON pm_event #
-item[][14] = TGOF pm_event #
 
-[10] - msg
+item[][10] = trigger field lift number
+
+item[][11] = pm_event CURR ON
+item[][12] = pm_event CURR OFF
+item[][13] = pm_event TGON
+item[][14] = pm_event TGOF
+
+
+
+
+
+---------------------------------------------------------------
+-- 10 - PM_ITEM_TYPE_MESSAGE
+---------------------------------------------------------------
 item[][1] event trigger
-item[][2] draw flags
-PM_ITEM_PMSG_SHOW_ALWAYS
-PM_ITEM_PMSG_SHOW_SCROLL
-PM_ITEM_PMSG_FRAME0
-PM_ITEM_PMSG_FRAME1
-PM_ITEM_PMSG_FRAME2
-PM_ITEM_PMSG_FRAME4
-PM_ITEM_PMSG_FRAME12
+
+item[][3] flags
+#define PM_ITEM_MESSAGE_SHOW_ALWAYS   0b00000000000000001
+#define PM_ITEM_MESSAGE_SHOW_SCROLL   0b00000000000000010
+#define PM_ITEM_MESSAGE_FRAME0        0b00000000000001000
+#define PM_ITEM_MESSAGE_FRAME1        0b00000000000010000
+#define PM_ITEM_MESSAGE_FRAME2        0b00000000000100000
+#define PM_ITEM_MESSAGE_FRAME4        0b00000000001000000
+#define PM_ITEM_MESSAGE_FRAME12       0b00000000010000000
 
 item[][4]  scroll x
 item[][5]  scroll y
@@ -395,25 +487,41 @@ item[][7]  msg y
 item[][8]  msg w
 item[][9]  msg h
 
-I don't think these are used...
-item[][10]
-item[][11]
-
 item[][12] timer count and val  (packed)
 item[][13] text and frame color (packed)
 
-[11] - rocket
-see mwItemBombRocket.cpp
 
-[12] not used
+---------------------------------------------------------------
+-- 11 - PM_ITEM_TYPE_ROCKET
+---------------------------------------------------------------
+item[][1] = bitmap
+item[][6]  = steerability
+item[][7]  = damage range
+item[][8]  = max speed
+item[][9]  = acceleration
+item[][10] = rotation
+item[][11] = current speed
+item[][13] = player that lit
 
 
 
-[13] - timer
-item[][2]  = draw_mode 0 = Off 1 = progress bar
+
+---------------------------------------------------------------
+-- 12 - not used
+---------------------------------------------------------------
+
+
+---------------------------------------------------------------
+-- 13 - PM_ITEM_TYPE_TIMER
+---------------------------------------------------------------
 item[][3]  = flags
-item[][4]  = x
-item[][5]  = y
+#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
+#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
+#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
+#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
+#define PM_ITEM_TIMER_DRAW_MODE     0b00000000000000000000000000000010
+#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
 
 item[][6]  = display x
 item[][7]  = display y
@@ -426,32 +534,43 @@ item[][12] = t1 i/p event
 item[][13] = t1 o/p event
 item[][14] = t2 i/p event
 item[][15] = t2 o/p event
-                                              00000000        00000000
-                                      00000000        00000000
-#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
-#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
-#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
-#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
-#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
-#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
 
 
-[14]  - switch
+
+
+---------------------------------------------------------------
+-- 14 - PM_ITEM_TYPE_SWITCH
+---------------------------------------------------------------
+item[][1]  tile
 item[][6]  block range x
 item[][7]  block range y
 item[][8]  block range w
 item[][9]  block range h
 item[][10] color flags
-item[][11]  lockout
+item[][11] lockout
 
-[15] - sproingy
+
+---------------------------------------------------------------
+-- 15 - PM_ITEM_TYPE_SPRING
+---------------------------------------------------------------
+item[][1] tile
 item[][6] jump length (only used in level editor)
 item[][7] sproinginess
 
-[16] - Alter Tiles
+---------------------------------------------------------------
+-- 16 - PM_ITEM_TYPE_ALTERTILES
+---------------------------------------------------------------
 item[][1] = pm_event_trigger
-item[][2] = draw on
+
 item[][3] = mode
+mode 1 set all to block 1
+mode 2 set all block 2 to block 1
+mode 3 toggle block 2 to block 1
+mode 4 copy area
+mode 5 cycle 3
+mode 6 cycle 4
+mode 7 cycle 4 but don't loop, one way only
+
 item[][6]  = field x (2000)
 item[][7]  = field y (2000)
 item[][8]  = field w (2000)
@@ -463,53 +582,66 @@ item[][13] = copy x or block 3
 item[][14] = copy y or block 4
 
 
-[17] - Damage Area
-item[][6]  = field x (2000)
-item[][7]  = field y (2000)
-item[][8]  = field w (2000)
-item[][9]  = field h (2000)
+
+---------------------------------------------------------------
+-- 17 - PM_ITEM_TYPE_DAMAGE
+---------------------------------------------------------------
+item[][1]  = event trigger number
+item[][3]  = damage flags
+#define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
+#define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
+#define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
+#define PM_ITEM_DAMAGE_PSHOT    0b00000000000001000
+#define PM_ITEM_DAMAGE_ESHOT    0b00000000000010000
+#define PM_ITEM_DAMAGE_CURR     0b00000000000100000
+#define PM_ITEM_DAMAGE_LIFT_ON  0b00000000001000000
+#define PM_ITEM_DAMAGE_LIFT_XC  0b00000000010000000
+#define PM_ITEM_DAMAGE_LIFT_XF  0b00000000100000000
+#define PM_ITEM_DAMAGE_LIFT_XL  0b00000001000000000
+#define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
+#define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
+#define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
+
+item[][6]  = field x
+item[][7]  = field y
+item[][8]  = field w
+item[][9]  = field h
 item[][10] = lift number
 item[][11] = mode
-item[][12] = damage
+item[][12] = player damage
+item[][13] = draw type
 
 
-[18] - gate
+---------------------------------------------------------------
+-- 18 - PM_ITEM_TYPE_GATE
+---------------------------------------------------------------
 item[][1] = draw mode
 0 Draw Mode:Legacy
 1 Draw Mode:Gold Colored Door
 2 Draw Mode:Wooden Door
 3 Draw Mode:Metal Door
 4 Draw Mode:Portcullis
-item[][2] =
-item[][3] = flags (not used)
 
-
-item[][4] = x pos
-item[][5] = y pos
-
-item[][6] = level
-item[][7] = current display page
-
-item[][10] level icon size
+item[][6]  = level
+item[][7]  = current display page
+item[][10] = level icon size
+item[][11] = hover level icon size
 
 
 
+---------------------------------------------------------------
+-- 19 - PM_ITEM_TYPE_HIDER
+---------------------------------------------------------------
+item[][1]  = pm_event_trigger
+item[][3]  = mode
+item[][6]  = block range x
+item[][7]  = block range y
+item[][8]  = block range w
+item[][9]  = block range h
+item[][10] = active
 
-[19] hider
-item[][1] = pm_event_trigger
-item[][2] = active
-item[][3] = mode
 
-item[][6]  block range x
-item[][7]  block range y
-item[][8]  block range w
-item[][9]  block range h
 
-item[][10] = blind erase
-
-item[][11] = disable draw item
-item[][12] = disable draw enemy
-item[][13] = disable draw lift
 
 
 

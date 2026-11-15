@@ -1,50 +1,47 @@
 // mwItemTrigger.cpp
 
 #include "pm.h"
-#include "mwItem.h"
-#include "mwFont.h"
+#include "mwLevel.h"
 #include "mwBitmap.h"
-#include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwLoop.h"
-#include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
-#include "mwDemoMode.h"
 #include "mwDemoRecord.h"
 #include "mwGameState.h"
 #include "mwNetgame.h"
 
 
-
-
 /*
-item[][0] = 6 - orb
+
+
+---------------------------------------------------------------
+-- 6 - PM_ITEM_TYPE_ORB
+---------------------------------------------------------------
 item[][1] = bitmap
 
 item[][3] = orb flags
-item[][4] = x pos (2000)
-item[][5] = y pos (2000)
-item[][6]  = MODE
-item[][7]  = timer val
-item[][8]  = time count
-item[][9]  =
-item[][10] = STATE ON  pm_event
-item[][11] = STATE OFF pm_event
-item[][12] = TGON pm_event
-item[][13] = TGOF pm_event
-
 #define PM_ITEM_ORB_STATE       0b0000000000000001
 #define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
 #define PM_ITEM_ORB_TGON        0b0000000000000100
 #define PM_ITEM_ORB_TGOF        0b0000000000001000
-
 #define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
 #define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
 #define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
-#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
-#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_SHOT   0b0000000010000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000001000000000
+#define PM_ITEM_ORB_ROTB        0b1100000000000000
+
+item[][6]  = mode
+item[][7]  = timer val
+item[][8]  = timer count
+
+item[][10] = pm_event STATE ON
+item[][11] = pm_event STATE OFF
+item[][12] = pm_event TGON
+item[][13] = pm_event TGOF
 
 */
 
@@ -203,46 +200,40 @@ void mwItem::proc_orb_collision(int p, int i)
 
 
 /*
-item[][0] = 9  - Trigger
-item[][1] =
-item[][2] = draw_type (color)
-item[][3] = flags
-item[][4] = x pos (2000)
-item[][5] = y pos (2000)
+---------------------------------------------------------------
+-- 9 - PM_ITEM_TYPE_TRIGGER
+---------------------------------------------------------------
+item[][3] = trigger flags
+#define PM_ITEM_TRIGGER_PLAYER   0b000000000000000000000001
+#define PM_ITEM_TRIGGER_ENEMY    0b000000000000000000000010
+#define PM_ITEM_TRIGGER_ITEM     0b000000000000000000000100
+#define PM_ITEM_TRIGGER_PSHOT    0b000000000000000000001000
+#define PM_ITEM_TRIGGER_ESHOT    0b000000000000000000010000
+#define PM_ITEM_TRIGGER_CURR     0b000000000000000000100000
+#define PM_ITEM_TRIGGER_PREV     0b000000000000000001000000
+#define PM_ITEM_TRIGGER_TGON     0b000000000000000010000000
+#define PM_ITEM_TRIGGER_TGOF     0b000000000000000100000000
+#define PM_ITEM_TRIGGER_LIFT_ON  0b000000000000001000000000
+#define PM_ITEM_TRIGGER_LIFT_XC  0b000000000000010000000000
+#define PM_ITEM_TRIGGER_LIFT_XF  0b000000000000100000000000
+#define PM_ITEM_TRIGGER_LIFT_XL  0b000000000001000000000000
+#define PM_ITEM_TRIGGER_LIFT_YC  0b000000000010000000000000
+#define PM_ITEM_TRIGGER_LIFT_YF  0b000000000100000000000000
+#define PM_ITEM_TRIGGER_LIFT_YL  0b000000001000000000000000
+#define PM_ITEM_TRIGGER_DRAW_ON  0b000000010000000000000000
+#define PM_ITEM_TRIGGER_COLOR    0b000111100000000000000000
 
 item[][6]  = trigger field x (2000)
 item[][7]  = trigger field y (2000)
 item[][8]  = trigger field w (2000)
 item[][9]  = trigger field x (2000)
+
 item[][10] = trigger field lift number
 
-item[][11] = CURR ON  pm_event
-item[][12] = CURR OFF pm_event
-item[][13] = TGON pm_event #
-item[][14] = TGOF pm_event #
-
-
-PM_ITEM_TRIGGER_DRAW_ON
-
-#define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
-#define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
-#define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
-#define PM_ITEM_TRIGGER_PSHOT    0b0000000000001000
-#define PM_ITEM_TRIGGER_ESHOT    0b0000000000010000
-#define PM_ITEM_TRIGGER_CURR     0b0000000000100000
-#define PM_ITEM_TRIGGER_PREV     0b0000000001000000
-#define PM_ITEM_TRIGGER_TGON     0b0000000010000000
-#define PM_ITEM_TRIGGER_TGOF     0b0000000100000000
-#define PM_ITEM_TRIGGER_LIFT_ON  0b0000001000000000
-#define PM_ITEM_TRIGGER_LIFT_XC  0b0000010000000000
-#define PM_ITEM_TRIGGER_LIFT_XF  0b0000100000000000
-#define PM_ITEM_TRIGGER_LIFT_XL  0b0001000000000000
-#define PM_ITEM_TRIGGER_LIFT_YC  0b0010000000000000
-#define PM_ITEM_TRIGGER_LIFT_YF  0b0100000000000000
-#define PM_ITEM_TRIGGER_LIFT_YL  0b1000000000000000
-
-
-
+item[][11] = pm_event CURR ON
+item[][12] = pm_event CURR OFF
+item[][13] = pm_event TGON
+item[][14] = pm_event TGOF
 
 */
 
@@ -412,29 +403,29 @@ int mwItem::draw_trigger(int i, int x, int y, int custom)
 
 
 /*
-item[][0] = 16 - Alter Tiles
+---------------------------------------------------------------
+-- 16 - PM_ITEM_TYPE_ALTERTILES
+---------------------------------------------------------------
 item[][1] = pm_event_trigger
-item[][2] = draw on
+
 item[][3] = mode
-item[][4] = x pos (2000)
-item[][5] = y pos (2000)
-item[][6] = field x (2000)
-item[][7] = field y (2000)
-item[][8] = field w (2000)
-item[][9] = field x (2000)
+mode 1 set all to block 1
+mode 2 set all block 2 to block 1
+mode 3 toggle block 2 to block 1
+mode 4 copy area
+mode 5 cycle 3
+mode 6 cycle 4
+mode 7 cycle 4 but don't loop, one way only
+
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
 item[][13] = copy x or block 3
 item[][14] = copy y or block 4
-
-
-mode 3 toggle
-mode 4 copy
-mode 5 cycle 3
-mode 6 cycle 4
-mode 7 cycle and don't loop, one way only
-
 */
 
 
@@ -543,11 +534,11 @@ int mwItem::draw_alter_tiles(int i, int x, int y)
 
 
 /*
-
-item[][0]  = 17 - Damage Area
+---------------------------------------------------------------
+-- 17 - PM_ITEM_TYPE_DAMAGE
+---------------------------------------------------------------
 item[][1]  = event trigger number
-item[][2]  = damage draw type
-item[][3]  = flags
+item[][3]  = damage flags
 #define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
 #define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
 #define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
@@ -562,18 +553,15 @@ item[][3]  = flags
 #define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
 #define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
 
-item[][4]  = x pos
-item[][5]  = y pos
 item[][6]  = field x
 item[][7]  = field y
 item[][8]  = field w
 item[][9]  = field h
 item[][10] = lift number
 item[][11] = mode
-item[][12] = damage
-
+item[][12] = player damage
+item[][13] = draw type
 */
-
 
 void mwItem::set_damage_area_location_from_lift(int i)
 {
@@ -981,12 +969,17 @@ void mwItem::proc_damage_area(int i)
 
 
 /*
-item[][0]  = 13 - Timer
-item[][1]  =
-item[][2]  = flags
-item[][3]  = timer flags
-item[][4]  = x
-item[][5]  = y
+---------------------------------------------------------------
+-- 13 - PM_ITEM_TYPE_TIMER
+---------------------------------------------------------------
+item[][3]  = flags
+#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
+#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
+#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
+#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
+#define PM_ITEM_TIMER_DRAW_MODE     0b00000000000000000000000000000010
+#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
 
 item[][6]  = display x
 item[][7]  = display y
@@ -999,16 +992,6 @@ item[][12] = t1 i/p event
 item[][13] = t1 o/p event
 item[][14] = t2 i/p event
 item[][15] = t2 o/p event
-
-                                              00000000        00000000
-                                      00000000        00000000
-#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
-#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001110000000000000
-#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000001110000000000
-#define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
-#define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
-#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
-#define PM_ITEM_TIMER_DRAW_MODE     0b00000000000000000000000000000010
 
 */
 

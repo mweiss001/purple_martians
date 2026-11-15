@@ -1,15 +1,26 @@
 // mwItemKeySwitch.cpp
 #include "pm.h"
-#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwDisplay.h"
-#include "mwTileSets.h"
 #include "mwTriggerEvent.h"
 
+
+/*
+---------------------------------------------------------------
+-- 19 - PM_ITEM_TYPE_HIDER
+---------------------------------------------------------------
+item[][1]  = pm_event_trigger
+item[][3]  = mode
+item[][6]  = block range x
+item[][7]  = block range y
+item[][8]  = block range w
+item[][9]  = block range h
+item[][10] = active
+*/
 
 
 int mwItem::draw_hider(int i, int x, int y, int tile)
@@ -55,6 +66,31 @@ void mwItem::erase_hider_areas()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+---------------------------------------------------------------
+-- item[][0] 4 - PM_ITEM_TYPE_KEY
+---------------------------------------------------------------
+item[][1]  tile
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+item[][10] rotation for key move  float rot = (float) item[i][10] / 1000;
+item[][11] counter for key move
+item[][12] matching keyed blocks only
+*/
 
 
 int mwItem::draw_key(int i, int x, int y, int tile)
@@ -175,6 +211,19 @@ void mwItem::proc_moving_key(int i)
    }
 }
 
+
+/*
+---------------------------------------------------------------
+-- 14 - PM_ITEM_TYPE_SWITCH
+---------------------------------------------------------------
+item[][1]  tile
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+item[][10] color flags
+item[][11] lockout
+*/
 
 void mwItem::proc_switch_collision(int p, int i)
 {

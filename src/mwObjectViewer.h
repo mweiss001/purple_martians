@@ -78,6 +78,11 @@ public:
    bool odbc(int d, int xa, int xb, int &ya, int bts, int bcol, int tcol, int type, int& v1, int v2, int v3);
    bool odbp(int d, int xa, int xb, int &ya, int bts, int col,  int type, int& v1);
 
+   void do_stat_fall_carry(int d, int xa, int xb, int &ya, int bts, int n, bool carry = 1);
+
+
+
+
    void ov_draw_buttons(int x1, int y1, int x2, int y2, int draw_only);
 
    void ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, int w, int h, int color, int crosshairs);

@@ -1,46 +1,31 @@
 // mw_ItemStartExitGate.cpp
 
 #include "pm.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwFont.h"
-#include "mwGameMoves.h"
 #include "mwMain.h"
 #include "mwConfig.h"
 #include "mwDemoMode.h"
 #include "mwScreen.h"
-#include "mwDisplay.h"
 #include "mwGameState.h"
-#include "mwInput.h"
 #include "mwLevelIcons.h"
 #include "mwNetgame.h"
-#include "mwTransitions.h"
 #include "mwTriggerEvent.h"
 
 /*
-// -----------------------------------------------------------------------
-// Start
-// -----------------------------------------------------------------------
 
-item[][0]  = 5 - Start
-item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
-item[][4]  = x pos
-item[][5]  = y pos
-
+---------------------------------------------------------------
+-- item[][0] 5 - PM_ITEM_TYPE_START
+---------------------------------------------------------------
+item[][1] = tiles
 item[][6] mode
 item[][7] start index
 item[][8] no backsies
-item[][9] trigger event number
-
-
-
-
+item[][9] trigger
 */
 
 
@@ -195,18 +180,13 @@ void mwItem::set_player_start_pos(int p)
 
 
 
+
+
+
 /*
-// -----------------------------------------------------------------------
-// Exit
-// -----------------------------------------------------------------------
-
-item[][0]  = 3 - Exit
-item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
-item[][4] = x pos
-item[][5] = y pos
-
+---------------------------------------------------------------
+- item[][0] 3 - PM_ITEM_TYPE_EXIT
+---------------------------------------------------------------
 item[][8] exit with x enemies left
 
 */
@@ -257,15 +237,11 @@ void mwItem::proc_exit_collision(int p, int i)
 
 
 
-
-
-
 /*
-// -----------------------------------------------------------------------
-// Gate
-// -----------------------------------------------------------------------
 
-item[][0] = 18 - Gate
+---------------------------------------------------------------
+-- 18 - PM_ITEM_TYPE_GATE
+---------------------------------------------------------------
 item[][1] = draw mode
 0 Draw Mode:Legacy
 1 Draw Mode:Gold Colored Door
@@ -273,18 +249,10 @@ item[][1] = draw mode
 3 Draw Mode:Metal Door
 4 Draw Mode:Portcullis
 
-item[][2] =
-item[][3] = flags (not used)
-
-item[][4] = x pos
-item[][5] = y pos
-
-item[][6] = level
-item[][7] = current display page
-
-item[][10] level icon size
-item[][11] hover level icon size
-
+item[][6]  = level
+item[][7]  = current display page
+item[][10] = level icon size
+item[][11] = hover level icon size
 
 */
 

@@ -1,18 +1,16 @@
 // mwItemEditorFnx.cpp
 
-
 #include "pm.h"
+#include "mwLevel.h"
 #include "mwBitmap.h"
-#include "mwWindowManager.h"
-#include "mwWindow.h"
-#include "mwItem.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
-#include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwInput.h"
 #include "mwObjectViewer.h"
+
+
 
 int mwItem::item_data(int x, int y)
 {
@@ -312,9 +310,13 @@ int mwItem::create_trigger(int i)
    // set the item location
    if (mMiscFnx.getxy("Trigger", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_TRIGGER, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_TRIGGER;
-   item[i][2] = 14; // draw color
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
    item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
    item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
+   int draw_color = 14;
+   item[i][3] &= ~PM_ITEM_TRIGGER_COLOR;
+   item[i][3] |= (draw_color << 17);
+
 
    // set the block range
    if (!mMiscFnx.get_block_range("Trigger Rectangle", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
@@ -331,7 +333,7 @@ int mwItem::create_alter_tiles(int i)
    // set the item location
    if (mMiscFnx.getxy("Alter Tiles Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_ALTERTILES, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_ALTERTILES;
-   item[i][2] = 1; // draw mode on
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
    item[i][12] = 12; // default color
 
    // set the alter area
@@ -348,11 +350,10 @@ int mwItem::create_damage_area(int i)
    // set the item location
    if (mMiscFnx.getxy("Damage Area Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DAMAGEAREA, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_DAMAGEAREA;
-   item[i][2] = 1;  // draw type
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
    item[i][3] |= PM_ITEM_DAMAGE_CURR;
-   item[i][12] = 100;
-   item[i][13] = 0;
-   item[i][14] = 100;
+   item[i][12] = 100; // player damage
+   item[i][13] = 1;  // draw type
 
    // set the damage area
    if (!mMiscFnx.get_block_range("Damage Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;
@@ -370,10 +371,10 @@ int mwItem::create_start(int i)
    if (mMiscFnx.getxy("Start", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_START, i) != 1) return 0;
 
    item[i][0] = PM_ITEM_TYPE_START ;
-   item[i][1] = 1021;         // default animation seq
-   item[i][2] = 1;            // draw mode
-   item[i][3] = 0;            // stationary
-   item[i][6] = 2;            // mode = checkpoint common
+   item[i][1] = 1021;
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
+   item[i][6] = 2; // mode = checkpoint common
+
 
    // find highest existing start index
    int hesi = -1;
@@ -389,11 +390,10 @@ int mwItem::create_exit(int i)
 {
    // set the item location
    if (mMiscFnx.getxy("Exit", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_EXIT, i) != 1) return 0;
-   item[i][0] = PM_ITEM_TYPE_EXIT ;           // type 3 - exit
-   item[i][1] = 1022;         // default animation seq
-   item[i][2] = 1;            // draw mode
-   item[i][3] = 0;            // stationary
-   item[i][8] = 100;          // num enemies left alive to activate this exit
+   item[i][0] = PM_ITEM_TYPE_EXIT ;
+   item[i][1] = 1022;
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
+   item[i][8] = 100; // num enemies left alive to activate this exit
    return 1;
 }
 
@@ -419,10 +419,10 @@ int mwItem::create_message(int i)
    if (mMiscFnx.getxy("Message Scroll", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_MESSAGE, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_MESSAGE;  // type 10 - msg
    item[i][1] = 0;    // trigger event
-   item[i][3] = 0;    // stationary
-   item[i][2] = 0;    // flags
-   item[i][2] |= PM_ITEM_MESSAGE_SHOW_SCROLL;
-   item[i][2] |= PM_ITEM_MESSAGE_FRAME12;
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
+   item[i][3] = 0;    // flags
+   item[i][3] |= PM_ITEM_MESSAGE_SHOW_SCROLL;
+   item[i][3] |= PM_ITEM_MESSAGE_FRAME4;
    item[i][12] = 120;  // default message time
    mMiscFnx.set_int_3216(item[i][13], 15, 13); // default text color (white) and frame color (blue)
 
@@ -453,7 +453,7 @@ int mwItem::create_door(int type)
             {
                item[c][0] = 1;    // type 1
                item[c][1] = 2;    // draw type
-               item[c][3] = 0;    // stationary
+               item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
                item[c][7] = 2;    // move type: move
                item[c][8] = 0;    // type: exit only
@@ -484,7 +484,7 @@ int mwItem::create_door(int type)
 
                item[c][0] = PM_ITEM_TYPE_DOOR;    // type 1
                item[c][1] = 2;    // draw type
-               item[c][3] = 0;    // stationary
+               item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
                item[c][7] = 2;    // move type: move
                item[c][8] = 1;    // type: linked exit
@@ -496,7 +496,7 @@ int mwItem::create_door(int type)
                   item[c][9] = d;  // linked exit
                   item[d][0] = PM_ITEM_TYPE_DOOR;  // type 1
                   item[d][1] = 2;  // draw type
-                  item[d][3] = 0;  // stationary
+                  item[c][2] = PM_ITEM_FLAG_STATIONARY;
                   item[d][6] = 13; // default color = lt blue
                   item[d][7] = 2;  // move type: move
                   item[d][8] = 0;  // type: exit only
@@ -530,7 +530,7 @@ int mwItem::create_door(int type)
             {
                item[c][0] = PM_ITEM_TYPE_DOOR;
                item[c][1] = 2;    // draw type
-               item[c][3] = 0;    // stationary
+               item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
                item[c][7] = 2;    // move type: move
                item[c][8] = 1;    // type: linked exit
@@ -544,7 +544,7 @@ int mwItem::create_door(int type)
 
                   item[d][0] = PM_ITEM_TYPE_DOOR;
                   item[d][1] = 2;    // draw type
-                  item[d][3] = 0;    // stationary
+                  item[c][2] = PM_ITEM_FLAG_STATIONARY;
                   item[d][6] = 13;   // default color = lt blue
                   item[d][7] = 2;    // move type: move
                   item[d][8] = 1;    // type: linked exit
@@ -578,7 +578,7 @@ int mwItem::create_item(int type)
       case PM_ITEM_TYPE_EXIT:       if (!create_exit(i))         clear_item(i); break;
       case PM_ITEM_TYPE_START:      if (!create_start(i))        clear_item(i); break;
       case PM_ITEM_TYPE_TRIGGER:    if (!create_trigger(i))      clear_item(i); break;
-      case PM_ITEM_TYPE_MESSAGE:    if (!create_message(i))         clear_item(i); break;
+      case PM_ITEM_TYPE_MESSAGE:    if (!create_message(i))      clear_item(i); break;
       case PM_ITEM_TYPE_TIMER:      if (!create_timer(i))        clear_item(i); break;
       case PM_ITEM_TYPE_ALTERTILES: if (!create_alter_tiles(i))  clear_item(i); break;
       case PM_ITEM_TYPE_DAMAGEAREA: if (!create_damage_area(i))  clear_item(i); break;
@@ -595,8 +595,9 @@ int mwItem::create_timer(int i)
 {
    // set the item location
    if (mMiscFnx.getxy("Timer Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_TIMER, i) != 1) return 0;
-   item[i][0] = 13;  // type 13 - timer
-   item[i][2] = 0; // default no progress bar display
+   item[i][0] = PM_ITEM_TYPE_TIMER;
+   item[1][2] = PM_ITEM_FLAG_STATIONARY;
+
 
    // open in viewer
    mObjectViewer.object_viewer(PM_OBJECT_TYPE_ITEM, i);
@@ -609,10 +610,11 @@ int mwItem::create_hider(int i)
 {
    // set the item location
    if (mMiscFnx.getxy("Hider Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_HIDER, i) != 1) return 0;
-   item[i][0] = 19; // type 13 - timer
-   item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
-   item[i][2] = 1;  // initial action: hide
+   item[i][0] = PM_ITEM_TYPE_HIDER;
+   item[1][2] = PM_ITEM_FLAG_STATIONARY;
+
    item[i][3] = 1;  // mode:1 (always hide)
+   item[i][10] = 1;  // initial action: hide
 
    // set the hidden area
    if (!mMiscFnx.get_block_range("Hidden Area", item[i][6], item[i][7], item[i][8], item[i][9], 1)) return 0;

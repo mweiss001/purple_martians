@@ -1,12 +1,11 @@
 // mwItem.cpp
 
 #include "pm.h"
-#include "mwItem.h"
+#include "mwLevel.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwGameEvent.h"
 #include "mwSolid.h"
@@ -600,6 +599,19 @@ void mwItem::proc_item_collision(int p, int i)
 
 
 
+
+
+/*
+---------------------------------------------------------------
+item[][0] 2 - PM_ITEM_TYPE_BONUS
+---------------------------------------------------------------
+item[][6] bonus type (0 - Health   1 - Purple Coin)
+item[][7] health bonus amount
+*/
+
+
+
+
 void mwItem::proc_bonus_collision(int p, int i)
 {
    if (item[i][6] == 0) // health bonus
@@ -620,11 +632,32 @@ void mwItem::proc_bonus_collision(int p, int i)
    }
 }
 
+
+
+/*
+---------------------------------------------------------------
+-- 7 - PM_ITEM_TYPE_MINE
+---------------------------------------------------------------
+item[][1] = tile
+item[][8] mine damage
+*/
+
 void mwItem::proc_mine_collision(int p, int i)
 {
    m_parent.mPlayer.syn[p].health -= (float)item[i][8] / 100;
    mGameEvent.add(11, 0, 0, p, 5, 0, item[i][8]);
 }
+
+
+
+/*
+---------------------------------------------------------------
+-- 15 - PM_ITEM_TYPE_SPRING
+---------------------------------------------------------------
+item[][1] tile
+item[][6] jump length (only used in level editor)
+item[][7] sproinginess
+*/
 
 
 void mwItem::proc_sproingy_collision(int p, int i)
