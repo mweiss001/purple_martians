@@ -30,6 +30,8 @@ Ef[][7]  shot speed
 */
 
 
+
+
 void mwEnemy::move_archwagon(int e)
 {
    int EXint = Ef[e][0];
@@ -55,7 +57,7 @@ void mwEnemy::move_archwagon(int e)
 
 
 
-      if (Ei[e][2]) // attempt shoot right
+      if (Ei[e][4]) // attempt shoot right
          for (int p=0; p<NUM_PLAYERS; p++)
             if (m_parent.mPlayer.is_player_active_and_not_paused(p))
                if ((EXint > m_parent.mPlayer.syn[p].x - Ei[e][17]) && (EXint < m_parent.mPlayer.syn[p].x) )
@@ -65,7 +67,7 @@ void mwEnemy::move_archwagon(int e)
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
 
-      if (!Ei[e][2]) // attempt shoot left
+      if (!Ei[e][4]) // attempt shoot left
          for (int p=0; p<NUM_PLAYERS; p++)
             if (m_parent.mPlayer.is_player_active_and_not_paused(p))
                if ((EXint > m_parent.mPlayer.syn[p].x ) && (EXint < m_parent.mPlayer.syn[p].x + Ei[e][17]))
@@ -83,12 +85,12 @@ void mwEnemy::move_archwagon(int e)
    int c = mBitmap.zz[4][b]; // num_of_shapes in seq
 
    // animate with h move
-   if (Ei[e][2] == 1) // right
+   if (Ei[e][4] == 1) // right
    {
       int x = (EXint/3) % c;
       Ei[e][1] = mBitmap.zz[x+5][b];
    }
-   if (Ei[e][2] == 0) // left
+   if (Ei[e][4] == 0) // left
    {
       int x = (EXint/3) % c;
       Ei[e][1] = mBitmap.zz[5+c-x][b];
@@ -138,12 +140,12 @@ void mwEnemy::move_arch_block_common(int e)
    if ((mSolid.is_left_solid(EXintL, EYint, 1, 2)) && (mSolid.is_right_solid(EXintR, EYint, 1, 2))) // stuck
    {
       int p = find_closest_player(e);
-      if (EXint < m_parent.mPlayer.syn[p].x-5) Ei[e][2] = 1;
-      if (EXint > m_parent.mPlayer.syn[p].x+5) Ei[e][2] = 0;
+      if (EXint < m_parent.mPlayer.syn[p].x-5) Ei[e][4] = 1;
+      if (EXint > m_parent.mPlayer.syn[p].x+5) Ei[e][4] = 0;
    }
    else
    {
-      if (Ei[e][2] == 1)  // move right
+      if (Ei[e][4] == 1)  // move right
       {
          int change_dir = 0;
          Ef[e][2] = Ef[e][6];
@@ -160,12 +162,12 @@ void mwEnemy::move_arch_block_common(int e)
          }
          if ((mSolid.is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
-            Ei[e][2] = 0; // change direction;
+            Ei[e][4] = 0; // change direction;
             Ef[e][0] -= Ef[e][2]; // take back last move
             EXint= Ef[e][0];
          }
       }
-      else if (Ei[e][2] == 0)  // move left
+      else if (Ei[e][4] == 0)  // move left
       {
          int change_dir = 0;
          Ef[e][2] = -Ef[e][6];
@@ -182,8 +184,8 @@ void mwEnemy::move_arch_block_common(int e)
          }
          if ((mSolid.is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
+            Ei[e][4] = 1; // change direction;
             Ef[e][0] -= Ef[e][2]; // take back last move
-            Ei[e][2] = 1; // change direction;
             EXint = Ef[e][0];
          }
       }
@@ -191,8 +193,8 @@ void mwEnemy::move_arch_block_common(int e)
       if (!Ei[e][8]) // follow mode
       {
          int p = find_closest_player(e);
-         if (EXint < m_parent.mPlayer.syn[p].x-5) Ei[e][2] = 1;
-         if (EXint > m_parent.mPlayer.syn[p].x+5) Ei[e][2] = 0;
+         if (EXint < m_parent.mPlayer.syn[p].x-5) Ei[e][4] = 1;
+         if (EXint > m_parent.mPlayer.syn[p].x+5) Ei[e][4] = 0;
       }
    }
 
@@ -327,6 +329,7 @@ void mwEnemy::move_crew(int e)
 }
 
 
+
 void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 {
    // default is to draw
@@ -350,7 +353,7 @@ void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
    }
 
    int flags = 0;
-   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+   if (Ei[e][4] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
 
    int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
    int col = Ei[e][3];
@@ -371,14 +374,14 @@ void mwEnemy::draw_crew_screen_direct(int e)
    float ex1=0, ey1=0;
    m_parent.calc_actual_screen_position(Ef[e][0]+10, Ef[e][1]+10, ex1, ey1);
 
-   float ps = Ef[e][8];  // player scale
-   float scale = sc * ps;       // final draw scale
+   float ps = Ef[e][8];      // player scale
+   float scale = sc * ps;    // final draw scale
 
-   float sd = 20 * (1-ps);      // size difference
-   float yo = (sd/2)*sc;        // half size difference, scaled
+   float sd = 20 * (1-ps);   // size difference
+   float yo = (sd/2)*sc;     // half size difference, scaled
 
    int flags = 0;
-   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+   if (Ei[e][4] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
 
    int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
    int col = Ei[e][3];

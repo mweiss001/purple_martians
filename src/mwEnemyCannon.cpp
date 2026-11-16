@@ -70,10 +70,12 @@ void mwEnemy::move_cannon(int e)
    {
       if ((Ei[e][31] == 2) || (Ei[e][31] == 3)) // hit type = bomb or damage field
       {
-         //Ei[e][9] -= 3;      // three hits
+         // take three hits
+         //Ei[e][9] -= 3;
          //if (Ei[e][9] < 0) Ei[e][9] = 0;
-         enemy_killed(e); // kill instantly no matter how many hits left
-         return;
+
+         // kill instantly no matter how many hits left
+         Ei[e][9] = 0;
       }
       if (Ei[e][9] == 0) // dead
       {
@@ -213,7 +215,7 @@ void mwEnemy::scale_bouncer_and_cannon_speed(int e)
 }
 
 
-// used only in sliders for button set new direction (cannon and podzilla)
+// used in level editor to set new direction for bouncer and cannon
 void mwEnemy::set_new_initial_direction(int e, int x2, int y2)
 {
    float xlen = x2 - Ef[e][0];                 // get the x distance between enemy and x2

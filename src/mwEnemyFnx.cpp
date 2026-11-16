@@ -91,7 +91,7 @@ int mwEnemy::find_closest_player(int e)
 // used only by flapper
 int mwEnemy::find_closest_player_flapper(int e)
 {
-   int dir = Ei[e][2];
+   int dir = Ei[e][4];
 
    float prox = Ei[e][17];
    float d[NUM_PLAYERS]; // array of distances for each player

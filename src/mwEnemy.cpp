@@ -596,25 +596,30 @@ Ef[][14] = rot
 
 
 
+
+
+
 // enemy types
 ----------------------------------
-1 - Bouncer
-2 - Cannon
-3 - Archwagon
-4 - BlokWalk
-5 - Jumpworm
-6 - Flapper
-7 - Vinepod
-8 - Trakbot
-9 - Cloner
+
+#define PM_ENEMY_TYPE_BOUNCER    1
+#define PM_ENEMY_TYPE_CANNON     2
+#define PM_ENEMY_TYPE_ARCHWAGON  3
+#define PM_ENEMY_TYPE_BLOCKWALK  4
+#define PM_ENEMY_TYPE_JUMPWORM   5
+#define PM_ENEMY_TYPE_FLAPPER    6
+#define PM_ENEMY_TYPE_VINEPOD    7
+#define PM_ENEMY_TYPE_TRAKBOT    8
+#define PM_ENEMY_TYPE_CLONER     9
+#define PM_ENEMY_TYPE_CREW       19
 
 similar types
 1 - Bouncer
 2 - Cannon
 
 3  - Archwagon
-4 - Block Walker
-
+4  - Block Walker
+19 - Crew
 
 
 
@@ -652,7 +657,6 @@ Ei[][17]  shot prox
 Ef[][7]  shot speed
 
 [4]--BlokWalk-----------------------------------------------------------------------------
-
 
 [3][4]--Archwagon BlokWalk Common --------------------------------------------------------
 Ei[][2]   direction (0=left, 1=right)

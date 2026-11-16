@@ -34,6 +34,7 @@ float Ef[][varnum]
 vartype 5 - initial direction
 vartype 6 - initial position
 
+
 vartype 8 - sec xc
 vartype 9 - sec y2
 
@@ -107,7 +108,7 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].name, "Initial Direction");
    sprintf(ge_data[i].snam, "idir");
    ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 2;
+   ge_data[i].varnum = 4;
    ge_data[i].adj_min = 0;
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
@@ -191,7 +192,7 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].name, "X ground speed (1/x)");
    sprintf(ge_data[i].snam, "xspd");
    ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 4;
+   ge_data[i].varnum = 3;
    ge_data[i].adj_min = 1;
    ge_data[i].adj_max = 12;
    ge_data[i].min_allowed = 1;

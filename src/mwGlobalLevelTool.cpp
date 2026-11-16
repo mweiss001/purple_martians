@@ -258,6 +258,49 @@ void mwGlobalLevelTool::execute()
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level_by_number(le[x], 1, 1);
 
+
+
+//      if ((mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_BOUNCER) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CANNON))
+//      mLevel.mEnemy.Ei[y][2] = 0;
+ //     if ((mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_ARCHWAGON) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_BLOCKWALK) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CREW))
+
+
+      for (int y=0; y<100; y++)
+         if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_FLAPPER)
+         {
+            mLevel.mEnemy.Ei[y][4] = mLevel.mEnemy.Ei[y][2];
+            mLevel.mEnemy.Ei[y][2] = 0;
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // for (int y=0; y<500; y++)
       //    if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
       //    {
@@ -506,7 +549,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (0)
+      if (1)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

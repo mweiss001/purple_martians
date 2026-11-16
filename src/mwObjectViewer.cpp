@@ -1706,7 +1706,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
@@ -1727,7 +1727,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
@@ -1744,11 +1744,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
          break;
          case PM_ENEMY_TYPE_JUMPWORM: // jumpworm
-            odbi(d, xa, xb, ya, bts, 11, mLevel.mEnemy.Ei[n][4],        12,        1,        1,        1,        0,     "X-Speed (Ground):1/");
+            odbi(d, xa, xb, ya, bts, 11, mLevel.mEnemy.Ei[n][3],        12,        1,        1,        1,        0,     "X-Speed (Ground):1/");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],        12,      0.4,     0.01,     0.01,      0.1,     "X-Speed (jump):");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        12,      0.4,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][11],      100,        0,        1,        1,       10,      "Jump Before Hole:", "Off");
@@ -1764,7 +1764,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case PM_ENEMY_TYPE_FLAPPER: // flapper
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][5],         8,      0.5,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         1,     0.01,     0.01,     0.01,      0.1,     "X-Accel:");
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        12, 12,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        12, 12,  "Initial Direction:Left ",    "Initial Direction:Right");
             ya+=4; // spacer
             odbf(d, xa, xb, ya, bts, 13, mLevel.mEnemy.Ef[n][3],         5,      0.0,     0.01,     0.01,      0.1,      "Y-Speed:");
             odbf(d, xa, xb, ya, bts, 13, mLevel.mEnemy.Ef[n][10],        8,      0.5,      0.1,     0.01,      0.1,      "Flap Speed:");
@@ -1890,7 +1890,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][2],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
+            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        13, 13,  "Initial Direction:Left ",    "Initial Direction:Right");
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][8],        13, 13,  "Follow Mode",                "Bounce Mode");
             ya+=4; // spacer
             odb0(d, xa, xb, ya, bts,  7, mLevel.mEnemy.Ei[n][10],      100,        0,        1,        1,       10,      "Turn Before Hole:", "Off");

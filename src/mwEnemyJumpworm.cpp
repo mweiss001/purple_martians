@@ -14,8 +14,13 @@
 /*
 
 Ei[][1]   tile to draw
-Ei[][2]   direction (0=left, 1=right)
-Ei[][4]   ground speed divider
+///////////////////////Ei[][2]   direction (0=left, 1=right)
+
+///////////////////Ei[][4]   ground speed divider
+
+Ei[][3]   ground speed divider
+Ei[][4]   direction (0=left, 1=right)
+
 
 Ei[][5]   jump/fall -160 max jump, 160 max fall
 Ei[][6]   jump wait (0=none)
@@ -47,7 +52,7 @@ void mwEnemy::move_jumpworm(int e)
    }
    enemy_player_hit_proc(e);
 
-   int sd = Ei[e][4]; // ground speed divider
+   int sd = Ei[e][3]; // ground speed divider
 
    int c = mLoop.frame_num % (10*sd);
    int mf = 0; // move frame
@@ -59,19 +64,18 @@ void mwEnemy::move_jumpworm(int e)
    while (cycle > 9) cycle -=10;
 
 
-
    // if change direction on next cycle 0
    if ((Ei[e][13]) && (cycle == 0))
    {
       Ei[e][13] = 0;
-      if (Ei[e][2])
+      if (Ei[e][4])
       {
-          Ei[e][2] = 0;
+          Ei[e][4] = 0;
           Ef[e][0] += 10;
       }
       else
       {
-          Ei[e][2] = 1;
+          Ei[e][4] = 1;
           Ef[e][0] -= 10;
       }
    }
@@ -93,7 +97,7 @@ void mwEnemy::move_jumpworm(int e)
    // x move when on ground (0-4 move) (5-9 retract)
    if ((cycle < 5) && (mf) && (!Ei[e][5]))
    {
-      if (Ei[e][2] == 1)  // move right
+      if (Ei[e][4] == 1)  // move right
       {
          int change_dir = 0;
          Ef[e][0] += 2;
@@ -116,7 +120,7 @@ void mwEnemy::move_jumpworm(int e)
             if (cycle == 3) Ei[e][14] +=2;
          }
       }
-      if (Ei[e][2] == 0)  // move left
+      if (Ei[e][4] == 0)  // move left
       {
          int change_dir = 0;
          Ef[e][0] -= 2;
@@ -227,21 +231,21 @@ void mwEnemy::move_jumpworm(int e)
    if ((Ei[e][5]) || (!on_solid))
    {
       float js = Ef[e][6]; // x speed for jump
-      if (Ei[e][2] == 1)                              // move right
+      if (Ei[e][4] == 1)                              // move right
       {
          if (mSolid.is_right_solid(EXint+js, EYint, 1, 2))
          {
-            Ei[e][2] = 0;                             // change direction
+            Ei[e][4] = 0;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost
             if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
          }
          else Ef[e][0] += js;                        // make the move
       }
-      else if (Ei[e][2] == 0)                         // move left
+      else if (Ei[e][4] == 0)                         // move left
       {
          if (mSolid.is_left_solid(EXint-js, EYint, 1, 2))
          {
-            Ei[e][2] = 1;                             // change direction
+            Ei[e][4] = 1;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost
             if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
         }
@@ -253,7 +257,7 @@ void mwEnemy::move_jumpworm(int e)
       Ei[e][1] = 704;              // only one shape for falling or jumping
       float ym = Ei[e][5] * Ef[e][3] / 100;
       float angle = atan2(ym, js);
-      if (!Ei[e][2]) angle = -angle;   // reverse angle depending on x direction
+      if (!Ei[e][4]) angle = -angle;   // reverse angle depending on x direction
       Ef[e][14] = angle;
    }
 }

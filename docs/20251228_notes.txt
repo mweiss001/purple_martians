@@ -56545,6 +56545,75 @@ test all the door variations
 every source and every destination
 and chains and multiple links to single door
 
+color widgets not showing white..fixed
+
+draw slightly larger when hovered?
+
+13 will be scale...should I glt everything and make all door size 100?
+
+can I draw direct to screen to make it look better?
+
+2026-11-16 04:52:39
+
+do some more door testing
+
+double set
+
+make door creator start with size 100
+
+I tested in the dev door demo level
+one issue I see is only mark doors with OUT if they are truly out only..done
+
+make group edit capable of changing draw_type and scale..done
+
+when portal is both src and dest, both portals get drawn...not the end of the world
+
+what about when many doors link to one? I would assume they all get drawn...yes
+
+this is fine, I am not sure I need or want to do anything about it
+
+
+variables in door:
+exit link and exit link item
+why do I need 2 variables for this?
+make -1 no link
+
+which var to use and which to leave blank?
+use 9, leave 8 unused
+start with glt...
+if (8 == 0) 9 = -1
+tests good, now do PDE's
+they test good also...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

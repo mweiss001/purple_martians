@@ -10,8 +10,12 @@
 
 //   Ei[][0] = type 12 "flapper"
 //   Ei[][1] = draw bitmap
-//   Ei[][2] = hflip - right(1) or left(0)
+/////////////////////////////   Ei[][2] = hflip - right(1) or left(0)
 //   Ei[][3] = base animation sequence
+
+
+//   Ei[][4] = direction 0-left 1-right
+
 
 //   Ei[][14] = base ypo for debug drawing
 
@@ -61,7 +65,7 @@ void mwEnemy::move_flapper(int e)
 
 
    // ------------ x move ---------------
-   if (Ei[e][2])  // move right
+   if (Ei[e][4])  // move right
    {
       Ef[e][2] += Ef[e][6];                         // accel
       if (Ef[e][2] > Ef[e][5]) Ef[e][2] = Ef[e][5]; // max speed
@@ -71,7 +75,7 @@ void mwEnemy::move_flapper(int e)
       {
          Ef[e][0] -= Ef[e][2];    // take back last move
          Ef[e][2] = -Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
-         Ei[e][2] = 0;            // change direction
+         Ei[e][4] = 0;            // change direction
       }
       // try to shoot right
 
@@ -95,7 +99,7 @@ void mwEnemy::move_flapper(int e)
       {
          Ef[e][0] -= Ef[e][2];   // take back last move
          Ef[e][2] = Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
-         Ei[e][2] = 1;           // change direction
+         Ei[e][4] = 1;           // change direction
       }
       // try to shoot left
       if (--Ei[e][16] < 0)

@@ -198,6 +198,50 @@ just looking at these, I realize most can be 8 or 16 bit integers
 
 this is not about saving space, it is more about having more variables available
 
+what will I add next for common flags
+
+secondary x, y, w, h in 6789
+hires
+draw sec field
+4 bits for color
+
+there are a few items that I can use this on:
+ones that use color
+door
+trigger
+damage
+alter
+
+ones that use 6789
+key
+switch
+trigger
+message
+timer
+alter
+damage
+hider
+
+
+block 6789
+key
+switch
+alter
+
+hires 6789
+trigger
+message
+timer
+damage
+hider
+
+draw 6789 field in color
+trigger
+alter
+damage
+
+
+
 
 
 ---------------------------------------
@@ -211,6 +255,131 @@ count towards enemy count
 draw(in game only)
 invisible until cloned
 invincible until cloned
+
+
+Look for a place to put it:
+
+what about 2? now it says draw mode
+
+I could probably rearrange things so that 2 is free
+
+start with bouncer and cannon
+test by setting to 0 in glt
+
+looks good
+
+next:
+
+arch, block, crew
+I think they all use 2 for direction
+
+what can I do about that?
+
+
+
+
+
+[3] - Archwagon -----------------------------------------------------------------------------
+Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
+
+
+[3][4]--Archwagon BlokWalk Common --------------------------------------------------------
+Ei[][2]   direction (0=left, 1=right)
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+
+
+//--19--crew --------------------------------------------------------------------------------
+Ei[][3]   color
+
+I think I can use 4....
+to start with do glt to move all 2 to 4
+then change all in code
+test...good
+change in ov...done
+change in pde..done
+change in group edit...not done
+test again...
+
+done...
+
+next:
+jumpworm
+
+[5]--jumpworm-----------------------------------------------------------------------------
+Ei[][1]   tile to draw
+Ei[][2]   direction (0=left, 1=right)
+Ei[][4]   ground speed divider
+
+jumpworm is already using 4
+
+could I move 4 to 3?
+does jump worm use 3??
+
+
+do it
+
+test
+backup
+copy 4 to 3 and blank 4
+change code refs 4 to 3 only 1... 
+test...good
+
+copy 2 to 4 and blank 2
+change code refs 2 to 4
+test...good
+change in ov...done
+change in pde..done
+
+test again
+
+next flapper
+
+//   Ei[][2] = hflip - right(1) or left(0)
+//   Ei[][3] = base animation sequence
+
+can I move 2 to 4?
+
+test
+backup
+copy 2 to 4 and blank 2
+change code refs 2 to 4
+test...good
+change in ov...done
+change in pde..done
+
+change all these in group edit
+
+   i++;
+   sprintf(ge_data[i].name, "Initial Direction");
+   sprintf(ge_data[i].snam, "idir");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 2;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 2;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 2;
+   cot[i][3][PM_ENEMY_TYPE_ARCHWAGON] = 1;
+   cot[i][3][PM_ENEMY_TYPE_BLOCKWALK] = 1;
+   cot[i][3][PM_ENEMY_TYPE_JUMPWORM] = 1;
+   cot[i][3][PM_ENEMY_TYPE_FLAPPER] = 1;
+   cot[i][3][PM_ENEMY_TYPE_CREW] = 1;
+
+done
+
+change jumpworm x speed in group edit
+done
+
+2026-11-16 07:37:07
+
+running out of time
+what enemies are left?
+
+#define PM_ENEMY_TYPE_VINEPOD    7
+#define PM_ENEMY_TYPE_TRAKBOT    8
+#define PM_ENEMY_TYPE_CLONER     9
+
+
+
 
 
 
