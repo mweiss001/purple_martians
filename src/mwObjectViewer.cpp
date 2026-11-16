@@ -1265,6 +1265,10 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
+
+            odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][13], 400, 50, 1,  10, 10, "Scale:");
+
+
             mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], "Select Door Color", d);
             if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
             break;

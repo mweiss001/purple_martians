@@ -131,7 +131,7 @@ class mwItem
 
 //   void draw_door_tile(int x, int y, int set, int col, int ans, float scale, int door_entry_type, bool in, bool out);
 
-   void draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot, bool player_hover, int door_entry_type, bool in, bool out);
+   void draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot);
 
 
    int find_source_door(int i);
@@ -294,21 +294,22 @@ item[][15] = tag with cloner item id
 ---------------------------------------------------------------
 -- 1 - PM_ITEM_TYPE_DOOR
 ---------------------------------------------------------------
+
 item[][1] draw type
 #define PM_ITEM_DOOR_DRAW_HIDE      0
 #define PM_ITEM_DOOR_DRAW_STATIC    1
 #define PM_ITEM_DOOR_DRAW_WARP      2
 #define PM_ITEM_DOOR_DRAW_PORTAL    3
 
-item[][6]  color
+item[][2] common item flags
+item[][3] unused
+item[][4] x
+item[][5] y
+item[][6] color
 
-item[][7] move type
-#define PM_ITEM_DOOR_MOVE_AUTO     0
-#define PM_ITEM_DOOR_MOVE_INSTANT  1
-#define PM_ITEM_DOOR_MOVE_TRAVEL   2
-
-item[][8]  has linked destination
-item[][9]  linked destination item
+item[][7]  move type (0=INSTANT 1=TRAVEl)
+item[][8]  unused
+item[][9]  linked destination item (-1 is none)
 item[][10] key held flag
 
 item[][11] enter mode
@@ -321,6 +322,7 @@ item[][12] draw connecting line
 #define PM_ITEM_DOOR_LINE_ALWAYS  1
 #define PM_ITEM_DOOR_LINE_TOUCH   2
 
+item[][13] scale (100 = 1.0)
 
 
 ---------------------------------------------------------------

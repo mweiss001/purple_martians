@@ -218,15 +218,14 @@ int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb,
    // erase background
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
 
-
    int num_colors = 16-start_color;
 
    // draw colors
    float xw = x2-x1;
    float swatch_width = xw / num_colors;  // color swatch width
 
-   for (int c=start_color; c<num_colors; c++)
-      al_draw_filled_rectangle(x1 + c*swatch_width, y1, x1 + (c+1) * swatch_width, y2, mColor.pc[c]);
+   for (int c=0; c<num_colors; c++)
+      al_draw_filled_rectangle(x1 + c*swatch_width, y1, x1 + (c+1) * swatch_width, y2, mColor.pc[start_color+c]);
 
 
    draw_widget_text(x1, y1,  x2, y2, 0, 0, txt);
@@ -241,7 +240,7 @@ int mwWidget::mColorSelect(int xType, int xa, int xb, int yType, int ya, int yb,
    if (mouseOnButton && mInput.mouse_b[1][0])
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-      int color = (mInput.mouse_x - x1) / swatch_width;
+      int color = start_color+ (mInput.mouse_x - x1) / swatch_width;
 
       v1 = color;
       return color;

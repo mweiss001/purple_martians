@@ -511,7 +511,7 @@ void mwPlayer::proc_player_collisions(int p)
 
    // items
    loc[p].potential_bomb_damage = 0;
-   syn[p].marked_door = -1; // so player can touch only one door
+   syn[p].door_hover = -1; // so player can touch only one door
    syn[p].hovered_gate = -1; // so player can touch only one gate
 
    for (int x=0; x<500; x++)

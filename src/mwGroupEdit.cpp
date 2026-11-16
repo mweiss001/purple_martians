@@ -626,6 +626,32 @@ void mwGroupEdit::init()
    cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
 
+   i++;
+   sprintf(ge_data[i].name, "Door Draw Type");
+   sprintf(ge_data[i].snam, "drwt");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 1;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 3;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 3;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Door Draw Scale");
+   sprintf(ge_data[i].snam, "drws");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 13;
+   ge_data[i].adj_min = 50;
+   ge_data[i].adj_max = 400;
+   ge_data[i].min_allowed = 50;
+   ge_data[i].max_allowed = 400;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+
+
+
+
 
 
 

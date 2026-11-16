@@ -258,12 +258,13 @@ void mwGlobalLevelTool::execute()
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level_by_number(le[x], 1, 1);
 
+      // for (int y=0; y<500; y++)
+      //    if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
+      //    {
+            // if (mLevel.mItem.item[y][8] == 0) mLevel.mItem.item[y][9] = -1;
+            // //mLevel.mItem.item[y][13] = 100;
+            // mLevel.mItem.item[y][8] = 0;
 
-      for (int y=0; y<500; y++)
-         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_HIDER)
-         {
-
-            mLevel.mItem.item[y][10] = 1;
 
             //            printf("lev:%d hider:%d blind_erase:%d mode:%d \n", le[x], y, mLevel.mItem.item[y][10], mLevel.mItem.item[y][3]);
 
@@ -306,7 +307,7 @@ void mwGlobalLevelTool::execute()
 
 
 
-         }
+//         }
 
 
 
@@ -505,7 +506,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (1)
+      if (0)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

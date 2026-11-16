@@ -53,7 +53,7 @@ struct psyn // synced between server and client
    float door_xinc;
    float door_yinc;
 
-   int marked_door;
+   int door_hover;
    int door_item;
    int door_num_steps;
 

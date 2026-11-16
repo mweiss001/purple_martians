@@ -445,20 +445,21 @@ int mwItem::create_door(int type)
 
       case 1: // single door item
       {
-         // first get an empty item
-         int c = get_empty_item(); // get 1st item
+         int c = get_empty_item();
          if (c != -1)
          {
             if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
             {
-               item[c][0] = 1;    // type 1
+               item[c][0] = PM_ITEM_TYPE_DOOR;
                item[c][1] = 2;    // draw type
                item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
-               item[c][7] = 2;    // move type: move
-               item[c][8] = 0;    // type: exit only
+               item[c][7] = 1;    // move type: move
+               item[c][9] = -1;   // type: exit only
                item[c][11] = 0;   // enter immed
                item[c][12] = 1;   // always draw line
+               item[c][13] = 100; // scale 1.0
+
             }
          }
       }
@@ -481,25 +482,26 @@ int mwItem::create_door(int type)
          {
             if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
             {
-
                item[c][0] = PM_ITEM_TYPE_DOOR;    // type 1
                item[c][1] = 2;    // draw type
                item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
                item[c][7] = 2;    // move type: move
-               item[c][8] = 1;    // type: linked exit
                item[c][11] = 0;   // enter immed
                item[c][12] = 1;   // always draw line
+               item[c][13] = 100; // scale 1.0
 
                if (mMiscFnx.getxy("Destination Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
                {
-                  item[c][9] = d;  // linked exit
+                  item[c][9] = d;  // set linked exit in source door
+
                   item[d][0] = PM_ITEM_TYPE_DOOR;  // type 1
                   item[d][1] = 2;  // draw type
-                  item[c][2] = PM_ITEM_FLAG_STATIONARY;
+                  item[d][2] = PM_ITEM_FLAG_STATIONARY;
                   item[d][6] = 13; // default color = lt blue
                   item[d][7] = 2;  // move type: move
-                  item[d][8] = 0;  // type: exit only
+                  item[d][9] = -1;  // type: exit only
+                  item[d][13] = 100; // scale 1.0
 
                } // end of get destination without cancel
                else item[c][0] = 0;
@@ -533,23 +535,23 @@ int mwItem::create_door(int type)
                item[c][2] = PM_ITEM_FLAG_STATIONARY;
                item[c][6] = 13;   // default color = lt blue
                item[c][7] = 2;    // move type: move
-               item[c][8] = 1;    // type: linked exit
                item[c][11] = 1;   // trigger with up
                item[c][12] = 1;   // always draw line
+               item[c][13] = 100; // scale 1.0
 
                if (mMiscFnx.getxy("2nd Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
                {
-                  item[c][9] = d;    // linked exit
-                  item[d][9] = c;    // linked exit
+                  item[c][9] = d;    // 1st door linked exit is 2nd door
+                  item[d][9] = c;    // 2nd door linked exit is 1st door
 
                   item[d][0] = PM_ITEM_TYPE_DOOR;
                   item[d][1] = 2;    // draw type
-                  item[c][2] = PM_ITEM_FLAG_STATIONARY;
+                  item[d][2] = PM_ITEM_FLAG_STATIONARY;
                   item[d][6] = 13;   // default color = lt blue
                   item[d][7] = 2;    // move type: move
-                  item[d][8] = 1;    // type: linked exit
                   item[d][11] = 1;   // trigger with up
                   item[d][12] = 1;   // always draw line
+                  item[d][13] = 100; // scale 1.0
 
 
                } // end of get destination without cancel
