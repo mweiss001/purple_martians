@@ -37,6 +37,11 @@ class mwEnemy
    void enemy_player_hit_proc(int e);
    void proc_enemy_collision_with_pshot(int e);
 
+
+   bool is_enemy_invincible(int e, int type);
+
+
+
    // member functions in other files
 
    // mwEnemyArchwagon.cpp
@@ -45,7 +50,7 @@ class mwEnemy
    void move_blokwalk(int e);
 
    void move_crew(int e);
-   void draw_crew(int e, int x, int y, int custom);
+   bool draw_crew(int e, int x, int y, int custom);
    void draw_crew_screen_direct(int e);
 
 
@@ -58,7 +63,7 @@ class mwEnemy
    void set_new_initial_direction(int e, int x2, int y2);
 
    // mwEnemyCloner.cpp
-   void draw_cloner(int e, int x, int c, int custom);
+   bool draw_cloner(int e, int x, int c, int custom);
    void cloner_create(int e);
    void move_cloner(int e);
 
@@ -71,8 +76,11 @@ class mwEnemy
    void move_jumpworm(int e);
 
    // mwEnemyTrakbot.cpp
-   void set_trakbot_mode(int e, int mode);
    void move_trakbot(int e);
+   void set_trakbot_mode(int e, int mode);
+   void set_mode_draw_variables(int e, int mode);
+
+
 
    // mwEnemyVinepod.cpp
    void move_podzilla(int e);
@@ -80,7 +88,7 @@ class mwEnemy
 
 //   void draw_vinepod_screen_direct(int e);
 
-   void draw_vinepod(int e, int x, int c, int custom);
+   bool draw_vinepod(int e, int x, int c, int custom);
    void draw_vinepod_controls(int num, int legend_highlight);
    void vinepod_fill_points_array(int e, int np, float pnts[], float dest[]);
    void vinepod_set_cp_thirds(int e);

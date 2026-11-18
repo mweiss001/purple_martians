@@ -12,6 +12,9 @@
 void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y)
 {
 
+   bool print = 1;
+
+
    char msg[80];
 
    int x = x1;
@@ -44,8 +47,11 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
 
 
+
    int lev = 0;
    int header = 0;
+
+
    int total = 0;
 
    if (i == -1) // header
@@ -53,6 +59,10 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       header = 1;
       lev = -1;
    }
+
+   int y_offset = 0;
+   if (header) y_offset = 4;
+
 
    if (i == 100) // totals
    {
@@ -76,15 +86,26 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
    // level name
    int width = 20*8;
+
+   int print_width = 24;
+
    if (draw)
    {
-      if (header)     al_draw_text( mFont.pr8, mColor.pc[15], x, y+4, 0, "Level");
-      else if (total) al_draw_text( mFont.pr8, mColor.pc[15], x, y,   0, "Totals");
+
+      if (header && print) printf("-------------------------------------------------------------\n");
+
+
+      if (header) strcpy(msg, "Level");
+      else if (total) strcpy(msg, "Totals");
       else if (lev > 0)
       {
-         if (level_stats_show_level_number) al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%2d %s", lev, data[lev].level_name); // prepend level number
-         else                               al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%s",          data[lev].level_name); // just level name
+         if (level_stats_show_level_number) sprintf(msg, "%2d %s", lev, data[lev].level_name); // prepend level number
+         else                               sprintf(msg, "%s",          data[lev].level_name); // just level name
       }
+      al_draw_text( mFont.pr8, mColor.pc[15], x, y+y_offset,   0, msg);
+
+      if (print) printf("%-*s", print_width, msg);
+
    }
    x += width + 8;
    vline[vli++] = x-4;
@@ -116,18 +137,29 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
    // level status
    width = 9*8;
+   print_width = 9;
+
    if (draw)
    {
-      char stxt[16];
-      if (header) al_draw_text( mFont.pr8, mColor.pc[ 15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Status");
+      col = 15;
+      if (header) strcpy(msg, "Status");
       else if (total)
       {
-         sprintf(stxt, "-"); col = 15;
-         if (tally[0][1] == tally[0][0]) { sprintf(stxt, "Complete"); col = 12; }
-         if (tally[0][2] == tally[0][0]) { sprintf(stxt, "Perfect"); col = 8; }
-         al_draw_text(mFont.pr8, mColor.pc[col],  x+width/2, y,   ALLEGRO_ALIGN_CENTER, stxt);
+         strcpy(msg, "-");
+         if (tally[0][1] == tally[0][0]) { sprintf(msg, "Complete"); col = 12; }
+         if (tally[0][2] == tally[0][0]) { sprintf(msg, "Perfect"); col = 8; }
       }
-      else al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, mLevel.level_status_text[mLevel.data[lev].status]);
+      else
+      {
+         strcpy(msg, mLevel.level_status_text[mLevel.data[lev].status]);
+         if (status == 3) col = 8;
+      }
+
+      al_draw_text( mFont.pr8, mColor.pc[col], x+width/2, y+y_offset, ALLEGRO_ALIGN_CENTER, msg);
+
+      if (print) printf("%-*s", print_width, msg);
+
+
    }
    x += width + 8;
    vline[vli++] = x-4;
@@ -137,23 +169,32 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    if (show_purple_coins)
    {
       width = 7*8;
+      print_width = 8;
+      col = 15;
+
       if (draw)
       {
          if (header)
          {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Purple");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Coins");
-         }
-         else if (total)
-         {
-            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", tally[0][5], tally[0][4]);
+            al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Purple");
+            al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Coins");
+            strcpy(msg, "Coins");
          }
          else
          {
-            int pc_col = 15;
-            if (status == 3) pc_col = 8;
-            al_draw_textf(mFont.pr8, mColor.pc[pc_col], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", data[lev].max_coins_collected, data[lev].tot_coins);
+            if (total)
+            {
+               sprintf(msg, "%d/%d", tally[0][5], tally[0][4]);
+               if (tally[0][5] == tally[0][4]) col = 8;
+            }
+            else
+            {
+               sprintf(msg, "%d/%d", data[lev].max_coins_collected, data[lev].tot_coins);
+               if (status == 3) col = 8;
+            }
+            al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y+y_offset*2, ALLEGRO_ALIGN_CENTER, msg);
          }
+         if (print) printf("%-*s", print_width, msg);
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -163,6 +204,9 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    if (show_best_time)
    {
       width = 10 * 8;
+      print_width = 18;
+      col = 15;
+
       if (draw)
       {
          if (header)
@@ -171,21 +215,21 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 //            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Best Time");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Overall");
-
-
+            strcpy(msg, "Best Time Overall");
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][9], msg));
+
          else
          {
-            if ((data[lev].time_best == 0) || (data[lev].status < 2))
-            {
-               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "n/a");
-            }
+            if (total) sprintf(msg, "%s", mMiscFnx.chrms(tally[0][9], msg));
             else
             {
-               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_best, msg));
+               if ((data[lev].time_best == 0) || (data[lev].status < 2)) strcpy(msg, "n/a");
+               else sprintf(msg, "%s", mMiscFnx.chrms(data[lev].time_best, msg));
             }
+            al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y, ALLEGRO_ALIGN_CENTER, msg);
          }
+         //if (print) printf("%-*s", print_width, msg);
+
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -194,6 +238,8 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    if (show_coin_time)
    {
       width = 10 * 8;
+      print_width = 10;
+      col = 15;
       if (draw)
       {
          if (header)
@@ -202,21 +248,27 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 //            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Best Time");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "All Coins");
+//            strcpy(msg, "Best Time All Coins");
+
+            strcpy(msg, "Best Time");
+
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][13], msg));
          else
          {
-            if ((data[lev].time_best_all_coins == 0) || (data[lev].status < 2))
-            {
-               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "n/a");
-            }
+            if (total) sprintf(msg, "%s", mMiscFnx.chrms(tally[0][13], msg));
             else
             {
-               int tc = 15;
-               if (data[lev].time_best_all_coins < data[lev].time_par) tc = 8;
-               al_draw_text(mFont.pr8, mColor.pc[tc], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_best_all_coins, msg));
+               if ((data[lev].time_best_all_coins == 0) || (data[lev].status < 2)) strcpy(msg, "n/a");
+               else
+               {
+                  if (data[lev].time_best_all_coins < data[lev].time_par) col = 8;
+
+                  sprintf(msg, "%s", mMiscFnx.chrms(data[lev].time_best_all_coins, msg));
+               }
+               al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y, ALLEGRO_ALIGN_CENTER, msg);
             }
          }
+         if (print) printf("%-*s", print_width, msg);
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -334,16 +386,42 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    if (show_time_played)
    {
       width = 9 * 8;
+      print_width = 11;
+      col = 15;
+
       if (draw)
       {
          if (header)
          {
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+            strcpy(msg, "Total Time");
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][10], msg));
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_total, msg));
+         else
+         {
+            if (total) sprintf(msg, "%s", mMiscFnx.chrms(tally[0][10], msg));
+            else sprintf(msg, "%s", mMiscFnx.chrms(data[lev].time_total, msg));
+            al_draw_text( mFont.pr8, mColor.pc[col], x+width/2, y+y_offset, ALLEGRO_ALIGN_CENTER, msg);
+
+
+         }
+         if (print) printf("%-*s", print_width, msg);
+
+
+         // show frames
+         if (total) printf(" %d", tally[0][10]);
+         else printf(" %d", data[lev].time_total);
+
+
+
+
+
+
+
+
+
       }
+
       x += width+8;
       vline[vli++] = x-4;
    }
@@ -380,6 +458,11 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       x += width+8;
       vline[vli++] = x-4;
    }
+
+   if (print) printf("\n");
+
+
+
 
    if (x > max_x) max_x = x; // max line length
 

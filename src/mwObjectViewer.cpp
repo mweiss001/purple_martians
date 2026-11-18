@@ -1174,7 +1174,6 @@ bool mwObjectViewer::odbp(int d, int xa, int xb, int &ya, int bts, int col, int 
 void mwObjectViewer::do_stat_fall_carry(int d, int xa, int xb, int &ya, int bts, int n, bool carry)
 {
    ya -= 3;
-
               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary",         15, 15);
               odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry",              15, 15);
    if (carry) odct(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door", 15, 15);
@@ -1183,6 +1182,24 @@ void mwObjectViewer::do_stat_fall_carry(int d, int xa, int xb, int &ya, int bts,
   //             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary        :OFF", "Stationary        :ON ", 9+dim, 9, 15+dim, 15);
   //             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Carry             :OFF", "Carry             :ON ", 9+dim, 9, 15+dim, 15);
   //  if (carry) odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRY_THROUGH_DOOR, "Carry Through Door:OFF", "Carry Through Door:ON ", 9+dim, 9, 15+dim, 15);
+}
+
+void mwObjectViewer::do_common_enemy_flags(int d, int xa, int xb, int &ya, int bts, int n)
+{
+   ya -= 3;
+
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_SKIP_COUNT,               "Skip Count",              15, 15);
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVISIBLE,                "Invisible",               15, 15);
+
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVINCIBLE_SHOTS,         "Invincible Shots",         15, 15);
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVINCIBLE_BOMBS,         "Invincible Bombs",         15, 15);
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVINCIBLE_DAMAGE,        "Invincible Damage",        15, 15);
+
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED,   "Skip Count Until Cloned",  15, 15);
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVISIBLE_UNTIL_CLONED,    "Invisible Until Cloned",   15, 15);
+   odct(d, xa, xb, ya, bts,  mLevel.mEnemy.Ei[n][2], PM_ENEMY_FLAG_INVINCIBLE_UNTIL_CLONED,   "Invincible Until Cloned",  15, 15);
+
+
 }
 
 
@@ -1671,6 +1688,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // enemy subtypes
       {
          case PM_ENEMY_TYPE_BOUNCER: // bouncer
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts,  9, mLevel.mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
@@ -1686,6 +1704,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case PM_ENEMY_TYPE_CANNON: // cannon
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts,  9, mLevel.mEnemy.Ef[n][5],        12,        0,     0.01,     0.01,      0.1,      "Speed:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ei[n][8],       100,        0,        1,        1,        0,      "Seek Count:");
@@ -1703,6 +1722,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case PM_ENEMY_TYPE_ARCHWAGON: // archwag
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
@@ -1724,6 +1744,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case PM_ENEMY_TYPE_BLOCKWALK: // block walker
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer
@@ -1744,6 +1765,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][4] ,       10,        0,     0.01,     0.01,      0.1,      "Health Decrement:" );
          break;
          case PM_ENEMY_TYPE_JUMPWORM: // jumpworm
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbi(d, xa, xb, ya, bts, 11, mLevel.mEnemy.Ei[n][3],        12,        1,        1,        1,        0,     "X-Speed (Ground):1/");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],        12,      0.4,     0.01,     0.01,      0.1,     "X-Speed (jump):");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        12,      0.4,     0.01,     0.01,      0.1,     "Y-Speed:");
@@ -1762,6 +1784,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][25],       50,        0,        1,        1,       10,      "Health Bonus:" );
          break;
          case PM_ENEMY_TYPE_FLAPPER: // flapper
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][5],         8,      0.5,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         1,     0.01,     0.01,     0.01,      0.1,     "X-Accel:");
             odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][4],        12, 12,  "Initial Direction:Left ",    "Initial Direction:Right");
@@ -1782,6 +1805,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case PM_ENEMY_TYPE_VINEPOD: // vinepod
          {
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             if (odbb(d, xa, xb, ya, bts, 10, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
             odbi(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ei[n][17],      400,        2,        1,        1,       10,      "Extend Time:");
             odbf(d, xa, xb, ya, bts,  4, mLevel.mEnemy.Ef[n][9],       400,        0,        1,        1,       10,      "Pause:");
@@ -1845,6 +1869,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          }
          break;
          case PM_ENEMY_TYPE_TRAKBOT: // trakbot
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][2],        10,      0.5,     0.01,     0.01,      0.1,      "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        10,      0.5,     0.01,     0.01,      0.1,      "Y-Speed:");
             ya+=4; // spacer
@@ -1867,7 +1892,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
          case PM_ENEMY_TYPE_CLONER: // cloner
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mEnemy.Ei[n][30],    12, 10,  "Not Invincible", "Invincible!");
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             ya+=4; // spacer
             if (odbb(d, xa, xb, ya, bts, 13, "Set Event Trigger from Object")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
             odb0(d, xa, xb, ya, bts, 13, mLevel.mEnemy.Ei[n][8],        99,        0,        1,        1,       10,      "Event Trigger:", "none");
@@ -1887,6 +1912,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
          case PM_ENEMY_TYPE_CREW: // crew
+            do_common_enemy_flags(d, xa, xb, ya, bts, n);
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][6],         9,      0.7,     0.01,     0.01,      0.1,     "X-Speed:");
             odbf(d, xa, xb, ya, bts, 12, mLevel.mEnemy.Ef[n][3],        16,      0.7,     0.01,     0.01,      0.1,     "Y-Speed:");
             ya+=4; // spacer

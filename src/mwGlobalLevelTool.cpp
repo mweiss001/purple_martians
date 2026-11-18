@@ -260,17 +260,46 @@ void mwGlobalLevelTool::execute()
 
 
 
+      for (int y=0; y<100; y++)
+        if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
+        {
+           if (mLevel.mEnemy.Ei[y][30] == 1)
+           {
+              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_SHOTS;
+              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_BOMBS;
+              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_DAMAGE;
+           }
+           mLevel.mEnemy.Ei[y][30] = 0;
+        }
+
+
+
+
+
+
+
 //      if ((mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_BOUNCER) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CANNON))
 //      mLevel.mEnemy.Ei[y][2] = 0;
  //     if ((mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_ARCHWAGON) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_BLOCKWALK) || (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CREW))
 
 
-      for (int y=0; y<100; y++)
-         if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_FLAPPER)
-         {
-            mLevel.mEnemy.Ei[y][4] = mLevel.mEnemy.Ei[y][2];
-            mLevel.mEnemy.Ei[y][2] = 0;
-         }
+//       for (int y=0; y<100; y++)
+//         if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_TRAKBOT)
+//         {
+//            mLevel.mEnemy.Ei[y][4] = 0;
+// //           printf("lev:%d trakbot:%d fall4:%d\n", le[x], y, mLevel.mEnemy.Ei[y][4]);
+//         }
+
+
+
+
+      //
+      // for (int y=0; y<100; y++)
+      //    if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_FLAPPER)
+      //    {
+      //       mLevel.mEnemy.Ei[y][4] = mLevel.mEnemy.Ei[y][2];
+      //
+      //    }
 
 
 

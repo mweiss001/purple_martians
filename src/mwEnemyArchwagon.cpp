@@ -22,6 +22,7 @@
 // see walker_archwagon_common
 
 Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
+Ei[][4]   direction
 Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger count
 Ei[][17]  shot prox
@@ -330,7 +331,7 @@ void mwEnemy::move_crew(int e)
 
 
 
-void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
+bool mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 {
    // default is to draw
    bool draw = true;
@@ -342,7 +343,7 @@ void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
    if (mGameState.level_done_mode == 37) draw = true;
 
 
-   if (!draw) return;
+   if (!draw) return 1;
 
    int x = Ef[e][0];
    int y = Ef[e][1];
@@ -362,7 +363,7 @@ void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
    float yo = 10 * (1-ps);      // adjust y offset
 
    al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10+yo, ps, ps, 0, flags);
-
+   return 1;
 }
 
 

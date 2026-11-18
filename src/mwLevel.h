@@ -150,6 +150,9 @@ class mwLevel
    int get_prev_level(int lev, int max_lev, int wrap);
 
 
+   int find_level_number_from_filename(std::string filename);
+
+
    int load_level_file_dialog();
    int load_level_visual_select();
    int load_level_by_number(int level_to_load, int load_only, int fail_silently);

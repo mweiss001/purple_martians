@@ -283,20 +283,22 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
 
    // draw the text last
-
-   if (player_hover)
+   if ((player_hover) && (s_draw_type != PM_ITEM_DOOR_DRAW_HIDE))
    {
       if (door_entry_mode == PM_ITEM_DOOR_ENTER_WITH_UP)   al_draw_text(mFont.pr8, mColor.pc[15], sx+3, sy-14, 0, "up");
       if (door_entry_mode == PM_ITEM_DOOR_ENTER_WITH_DOWN) al_draw_text(mFont.pr8, mColor.pc[15], sx-5, sy-14, 0, "down");
    }
 
+
    float m = 1;
+   if (s_draw_type != PM_ITEM_DOOR_DRAW_HIDE) al_draw_scaled_rotated_bitmap(mBitmap.sprite[1014], 10, 10, sx+10, sy+10, s_scale*m, s_scale*m, 0, 0 ); // IN
 
-   al_draw_scaled_rotated_bitmap(mBitmap.sprite[1014], 10, 10, sx+10, sy+10, s_scale*m, s_scale*m, 0, 0 ); // IN
-
-   // if the destination door also has an exit link, then use 'IN'
-   if (item[di][9] != -1) al_draw_scaled_rotated_bitmap(mBitmap.sprite[1014], 10, 10, dx+10, dy+10, d_scale*m, d_scale*m, 0, 0 ); // IN
-   else                   al_draw_scaled_rotated_bitmap(mBitmap.sprite[1015], 10, 10, dx+10, dy+10, d_scale*m, d_scale*m, 0, 0 ); // OUT
+   if (d_draw_type != PM_ITEM_DOOR_DRAW_HIDE)
+   {
+      // if the destination door also has an exit link, then use 'IN'
+      if (item[di][9] != -1) al_draw_scaled_rotated_bitmap(mBitmap.sprite[1014], 10, 10, dx+10, dy+10, d_scale*m, d_scale*m, 0, 0 ); // IN
+      else                   al_draw_scaled_rotated_bitmap(mBitmap.sprite[1015], 10, 10, dx+10, dy+10, d_scale*m, d_scale*m, 0, 0 ); // OUT
+   }
 
 
    return 1;

@@ -226,7 +226,8 @@ void mwLevel::create_msg_helper(int sx, int sy, int mx, int my, int mw, int mh, 
 {
    // create message
    int i = mItem.get_empty_item(10);
-   mItem.item[i][2] = mflags;
+   mItem.item[i][2] = PM_ITEM_FLAG_STATIONARY;
+   mItem.item[i][3] = mflags;
    mItem.item[i][4] = sx;
    mItem.item[i][5] = sy;
    mItem.item[i][6] = mx;
@@ -261,13 +262,15 @@ void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol
 
    // create trigger
    int i = mItem.get_empty_item(9);
+   mItem.item[i][2] = PM_ITEM_FLAG_STATIONARY;
    mItem.item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
 
    if (tcol)
    {
       mItem.item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
-      mItem.item[i][2] = tcol;
+      //mItem.item[i][2] = tcol; color???
    }
+
 
    mItem.item[i][4] = tx-20;
    mItem.item[i][5] = ty;
@@ -280,7 +283,8 @@ void mwLevel::create_msg_helper_trigger(int tx, int ty, int tw, int th, int tcol
    // create message
    i = mItem.get_empty_item(10);
    mItem.item[i][1] = ev;
-   mItem.item[i][2] = mflags;
+   mItem.item[i][2] = PM_ITEM_FLAG_STATIONARY;
+   mItem.item[i][3] = mflags;
    mItem.item[i][4] = mx-20;
    mItem.item[i][5] = my;
    mItem.item[i][6] = mx;
@@ -399,22 +403,28 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
    mLevel.l[x1][y1] = tile;
 
    // create 2 door items
-   int i0 = mItem.get_empty_item(1);
-   int i1 = mItem.get_empty_item(1);
+   int i0 = mItem.get_empty_item(PM_ITEM_TYPE_DOOR);
+   int i1 = mItem.get_empty_item(PM_ITEM_TYPE_DOOR);
 
    // main door
-   //mItem.item[i0][1] = 0; // hidden
+   mItem.item[i0][1] = 0; // hidden
+   mItem.item[i0][2] = PM_ITEM_FLAG_STATIONARY;
    mItem.item[i0][4] = x1*20; // x
    mItem.item[i0][5] = y1*20; // y
-   mItem.item[i0][8] = 1;  // type - linked dest
    mItem.item[i0][9] = i1; // linked dest item
    mItem.item[i0][11] = enter_type; // door entry type
+   mItem.item[i0][13] = 100; // scale
+
+
 
    // exit
-   //mItem.item[i1][1]  = 0; // hidden
+   mItem.item[i1][1]  = 0; // hidden
+   mItem.item[i1][2] = PM_ITEM_FLAG_STATIONARY;
    mItem.item[i1][4]  = x2*20; // x
    mItem.item[i1][5]  = y2*20; // y
-   //mItem.item[i1][8]  = 0; // type - exit only
+   mItem.item[i1][9] = -1;  // no exit link
+   mItem.item[i1][13] = 100; // scale
+
 }
 
 

@@ -212,7 +212,7 @@ int mwItem::sort_item()
 
    // fix linked doors
    for (int c=0; c<500; c++)
-      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][8] == 1)) // doors with exit links
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][9] != -1)) // doors with exit links
       {
          int old_linked_item_id = item[c][9];
          for (int d=0; d<500; d++)

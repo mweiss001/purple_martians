@@ -292,7 +292,10 @@ void mwItem::bomb_crosshairs(float x, float y)
 void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100; e++) // enemies in damage window?
-      if ((mLevel.mEnemy.Ei[e][0]) && (! (mLevel.mEnemy.Ei[e][0] == PM_ENEMY_TYPE_CLONER && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
+      if ((mLevel.mEnemy.Ei[e][0]) && (!mLevel.mEnemy.is_enemy_invincible(e, 2)))
+
+
+//      if ((mLevel.mEnemy.Ei[e][0]) && (! (mLevel.mEnemy.Ei[e][0] == PM_ENEMY_TYPE_CLONER && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
       {
          float dist = sqrt(pow(mLevel.mEnemy.Ef[e][0]-x, 2) + pow(mLevel.mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
@@ -301,7 +304,7 @@ void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
             if (t == 2)
             {
                mLevel.mEnemy.Ei[e][31] = 2; // set bomb hit
-               mLevel.mEnemy.Ei[e][26] = item[i][13];  // player that did bomb
+               mLevel.mEnemy.Ei[e][26] = item[i][13];  // player that lit bomb
             }
          }
       }

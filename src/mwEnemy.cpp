@@ -12,9 +12,28 @@
 #include "mwLevel.h"
 #include "mwDemoRecord.h"
 
+
+
+void mwEnemy::draw_enemies()
+{
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])  // if enemy active
+         draw_enemy(e, 0, 0, 0);
+}
+
+
 void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 {
    int type = Ei[e][0];
+   int tn = Ei[e][1];
+
+   int draw_flags = 0;
+   if (Ei[e][4] == 0) draw_flags = ALLEGRO_FLIP_HORIZONTAL;
+
+   float rot = Ef[e][14];
+   float sc =  Ef[e][12];
+   float op = Ef[e][10]; // opacity for deathcount
+
    int x = Ef[e][0];
    int y = Ef[e][1];
    if (custom)
@@ -23,59 +42,47 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       y = cy;
    }
 
-   if (type == 7) draw_vinepod(e, x, y, custom);
+   bool invisible = 0;
+   if ((Ei[e][2] & PM_ENEMY_FLAG_INVISIBLE) || (Ei[e][2] & PM_ENEMY_FLAG_INVISIBLE_UNTIL_CLONED)) invisible = 1;
+   if (mLoop.level_editor_running) invisible = 0;
 
-   if (type == 9) draw_cloner(e, x, y, custom);
-
-   if (type == 19) draw_crew(e, x, y, custom);
-   else
+   if (!invisible)
    {
-
-      int flags = 0;
-      if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-      if (Ei[e][2] == 1) flags = 0;
-      if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
-      if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-
-      int tn = Ei[e][1];
-      float rot = Ef[e][14];
-      float sc =  Ef[e][12];
-
-
-      if (type == 99) // use opacity for deathcount
+      bool drawn = false;
+      if (type == PM_ENEMY_TYPE_VINEPOD)  drawn = draw_vinepod(e, x, y, custom);
+      if (type == PM_ENEMY_TYPE_CLONER)   drawn = draw_cloner(e, x, y, custom);
+      if (type == PM_ENEMY_TYPE_CREW)     drawn = draw_crew(e, x, y, custom);
+      if (type == 99) // deathcount
       {
-         float op = Ef[e][10];
-         al_draw_tinted_scaled_rotated_bitmap(mBitmap.sprite[tn], al_map_rgba_f(op, op, op, op), 10, 10, x+10, y+10, sc, sc, rot, flags);
+         // draw with opacity
+         al_draw_tinted_scaled_rotated_bitmap(mBitmap.sprite[tn], al_map_rgba_f(op, op, op, op), 10, 10, x+10, y+10, sc, sc, rot, draw_flags);
+         drawn = true;
       }
-      else al_draw_scaled_rotated_bitmap(mBitmap.sprite[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
-      // if enemy is expiring show how many seconds it has left
-      if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+      if (!drawn) al_draw_scaled_rotated_bitmap(mBitmap.sprite[tn], 10, 10, x+10, y+10, sc, sc, rot, draw_flags);
+
+   }
+
+   // if enemy is expiring show how many seconds it has left
+   if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+   {
+      // show enemy number
+      al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y+26, ALLEGRO_ALIGN_CENTER, "%d", e);
+
+      // cannons show extra hits
+      if (Ei[e][0] == 2) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "%d", Ei[e][9]);
+
+      // enemy deathloop
+      if (Ei[e][0] == 99) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "!"); // dead man walking!
+   }
 
 
-
-      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
-      {
-
-
-         // show enemy number
-         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y+26, ALLEGRO_ALIGN_CENTER, "%d", e);
-
-
-         // cannons show extra hits
-         if (Ei[e][0] == 2) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "%d", Ei[e][9]);
-
-         // enemy deathloop
-         if (Ei[e][0] == 99) al_draw_textf(mFont.pr8, mColor.pc[10], x+10, y+10, ALLEGRO_ALIGN_CENTER, "!"); // dead man walking!
-
-
-      }
 
 
 
       //      if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
-
-
 
 
 //      if (Ei[e][0] == 5) // jumpworm
@@ -189,19 +196,10 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 //      }
 
 
-
-
-   }
 }
 
 
 
-void mwEnemy::draw_enemies()
-{
-   for (int e=0; e<100; e++)
-      if (Ei[e][0])  // if enemy active
-         draw_enemy(e, 0, 0, 0);
-}
 
 void mwEnemy::proc_enemy_collision_with_pshot(int e)
 {
@@ -225,6 +223,15 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 
          if ((x > x1-cx) && (x < x2+cx) && (y > y1-cy) && (y < y2+cy))
          {
+
+            // check if enemy is invincible, and do nothing to shot if it is
+            if (is_enemy_invincible(e, 1)) return;
+
+
+
+            // cloner and invincible
+//            if (Ei[e][0] == PM_ENEMY_TYPE_CLONER && Ei[e][30] == 1) return;
+
             //printf("hit!\n");
             int p = m_parent.mShot.p[c].player;         // player number of shot
             Ei[e][31] = 1;                     // flag that this enemy got shot
@@ -258,7 +265,18 @@ void mwEnemy::move_enemies()
 
          int enemy_type = Ei[e][0];
 
-         num_enemy++; // enemy count
+         //num_enemy++; // enemy count
+         if (!(Ei[e][2] & PM_ENEMY_FLAG_SKIP_COUNT) && !(Ei[e][2] & PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED))  num_enemy++; // enemy count
+
+
+///         if (Ei[e][2] & PM_ENEMY_FLAG_SKIP_COUNT) printf("found enemy:%d  type:%d  with skip_count\n", e, enemy_type);
+
+//         if (Ei[e][2] & PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED) printf("found enemy:%d  type:%d  with skip_count_until_cloned\n", e, enemy_type);
+
+
+
+
+
          if (enemy_type < 50) proc_enemy_collision_with_pshot(e);
 
          // check for time to live
@@ -737,16 +755,26 @@ Ei[][19] = wait limit
 Ei[][20] = flags
 Ei[][21] = unused
 
+
+
+
+
+
+
+
 [8]--trakbot-----------------------------------------------------------------------------
+Ei[][1]  shape
 Ei[][3]  base animation seq (17=trakbot with shot, 18=trakbot without shot)
-Ei[][4]  fall 160 max fall
+Ei[][4]  draw mode (h flip)
 Ei[][5]  mode
+Ei[][6]  fall 160 max fall
 Ei[][7]  drop mode(0=no, 1=yes)
 Ei[][8]  twirling counter
 Ei[][15] shoot holdoff value
 Ei[][16] shoot holdoff counter
 Ei[][17] shot prox
 Ei[][20] rot
+
 Ef[][7] shot speed
 
 [9]--cloner-----------------------------------------------------------------------------

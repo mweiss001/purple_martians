@@ -80,7 +80,7 @@ public:
 
    void do_stat_fall_carry(int d, int xa, int xb, int &ya, int bts, int n, bool carry = 1);
 
-
+   void do_common_enemy_flags(int d, int xa, int xb, int &ya, int bts, int n);
 
 
    void ov_draw_buttons(int x1, int y1, int x2, int y2, int draw_only);

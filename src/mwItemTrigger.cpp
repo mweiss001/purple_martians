@@ -658,12 +658,12 @@ void mwItem::proc_damage_area_collisions(int i)
             }
          }
    if (FLAGS & PM_ITEM_DAMAGE_ENEMY)
-      for (int e2=0; e2<100; e2++)
-         if (m_parent.mEnemy.Ei[e2][0])
+      for (int e=0; e<100; e++)
+         if ((m_parent.mEnemy.Ei[e][0]) && (!m_parent.mEnemy.is_enemy_invincible(e, 3)))
          {
-            int x = m_parent.mEnemy.Ef[e2][0];
-            int y = m_parent.mEnemy.Ef[e2][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mEnemy.Ei[e2][31] = 3; // flag that this enemy got hit
+            int x = m_parent.mEnemy.Ef[e][0];
+            int y = m_parent.mEnemy.Ef[e][1];
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) m_parent.mEnemy.Ei[e][31] = 3; // flag that this enemy got hit
          }
    if (FLAGS & PM_ITEM_DAMAGE_ITEM)
       for (int i=0; i<500; i++)

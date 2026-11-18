@@ -281,7 +281,7 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
    // change door refs in items
    for (int b=0; b<iib; b++)
-      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][8] == 1) // type linked dest item
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][9] != -1) // type linked dest item
       {
          // change link to new door
          for (auto lit : itemIDTranslations)
@@ -406,9 +406,6 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 
 
 
-
-
-
 void mwEditSelection::fill_ft_variables_from_selection_l2()
 {
    int eib=0;
@@ -463,7 +460,7 @@ void mwEditSelection::fill_ft_variables_from_selection_l2()
 
    // change door refs in items
    for (int b=0; b<iib; b++)
-      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][8] == 1) // type linked dest item
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][9] != 1) // type linked dest item
       {
          // change link to new door
          for (auto lit : itemIDTranslations)
@@ -548,14 +545,6 @@ void mwEditSelection::fill_ft_variables_from_selection_l2()
 
 
 
-
-
-
-
-
-
-
-
 void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 {
    // printf("do fcopy\n");
@@ -590,33 +579,33 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
       for (b=0; b<500; b++) // iterate items in ft
       {
-         if (ftLevel.mItem.item[b][0] == 6) // orb
+         if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_ORB)
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ftLevel.mItem.item[b][10], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ftLevel.mItem.item[b][11], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ftLevel.mItem.item[b][12], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ftLevel.mItem.item[b][13], clt, clt_last);
          }
-         if (ftLevel.mItem.item[b][0] == 9) // trigger
+         if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TRIGGER)
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ftLevel.mItem.item[b][11], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ftLevel.mItem.item[b][12], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ftLevel.mItem.item[b][13], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ftLevel.mItem.item[b][14], clt, clt_last);
          }
-         if (ftLevel.mItem.item[b][0] == 13) // timer
+         if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_TIMER)
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ftLevel.mItem.item[b][12], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ftLevel.mItem.item[b][13], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ftLevel.mItem.item[b][14], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ftLevel.mItem.item[b][15], clt, clt_last);
          }
-         if ((ftLevel.mItem.item[b][0] == 10) || (ftLevel.mItem.item[b][0] == 16) || (ftLevel.mItem.item[b][0] == 17)) // message, bm or bd
+         if ((ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_MESSAGE) || (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_ALTERTILES) || (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DAMAGEAREA))
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ftLevel.mItem.item[b][1], clt, clt_last);
          }
 
-         if (ftLevel.mItem.item[b][0] == 5) // start
+         if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_START)
          {
             clt_last += mTriggerEvent.add_item_link_translation(2, b, 9, ftLevel.mItem.item[b][1], clt, clt_last);
          }
@@ -625,11 +614,11 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
       }
       for (b=0; b<100; b++) // iterate enemies in ft
       {
-         if (ftLevel.mEnemy.Ei[b][0] == 9) // cloner
+         if (ftLevel.mEnemy.Ei[b][0] == PM_ENEMY_TYPE_CLONER)
          {
             clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ftLevel.mEnemy.Ei[b][8], clt, clt_last);
          }
-         if (ftLevel.mEnemy.Ei[b][0] == 7) // vinepod
+         if (ftLevel.mEnemy.Ei[b][0] == PM_ENEMY_TYPE_VINEPOD)
          {
             clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ftLevel.mEnemy.Ei[b][18], clt, clt_last);
             clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ftLevel.mEnemy.Ei[b][19], clt, clt_last);
@@ -812,16 +801,13 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
                   mLevel.mItem.item[c][6] += x3;
                   mLevel.mItem.item[c][7] += y3;
                }
-               if (mLevel.mItem.item[c][0] == 5) // start
+               if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_START)
                {
                   // do something here to prevent exact duplicates
                }
-               if (mLevel.mItem.item[c][0] == 10) // message
+               if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_MESSAGE)
                {
-                  //strcpy(mItem.pmsgtext[c], ftItem.pmsgtext[b]);
-
                   mLevel.mItem.mMessageText.set_text(c, ftLevel.mItem.mMessageText.get_text(b).c_str()); // message
-
                }
 
                // limits exceeded; erase
@@ -847,7 +833,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
    // find all newly added doors that link to something and fix those links
    for (c=0; c<500; c++)
-      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][8] == 1 && mLevel.mItem.item[c][15] >= 1000)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][9] != 1 && mLevel.mItem.item[c][15] >= 1000)
       {
          for (auto lit : itemIDTranslations)
             if (mLevel.mItem.item[c][9]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;

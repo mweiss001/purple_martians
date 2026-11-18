@@ -815,6 +815,46 @@ int mwLevel::load_level_by_number(int level_num, int load_only, int fail_silentl
    return load_level(filename, load_only, fail_silently);
 }
 
+
+int mwLevel::find_level_number_from_filename(std::string filename)
+{
+   // get the level number from the filename
+   // search filename for the string 'level' followed by three digits
+
+   int search_pos = 0;
+   int level_num = 0;
+   int done = 0;
+   while (!done)
+   {
+      // find the substring
+      size_t foundPos = filename.find("level", search_pos);
+
+      // check if the substring was found
+      if (foundPos != std::string::npos)
+      {
+         //printf("substring found at:%d\n", (int) foundPos);
+
+         // convert next 3 char to int
+         int num = atoi(filename.substr(foundPos+5, 3).c_str());
+
+         if (num)
+         {
+            level_num = num;
+            done = 1;
+         }
+         else search_pos +=5;
+      }
+      else
+      {
+         printf("error extracting level number from filename:%s\n", filename.c_str());
+         return 0;
+      }
+   }
+   return level_num;
+
+}
+
+
 int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
    //printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
@@ -843,38 +883,8 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
       pml_to_var(pml);
 
       // get the level number from the filename
-      // search filename for the string 'level' followed by three digits
-      std::string fn(filename);
-
-      int search_pos = 0;
-      int level_num = 0;
-      int done = 0;
-      while (!done)
-      {
-         // find the substring
-         size_t foundPos = fn.find("level", search_pos);
-
-         // check if the substring was found
-         if (foundPos != std::string::npos)
-         {
-            //printf("substring found at:%d\n", (int) foundPos);
-
-            // convert next 3 char to int
-            int num = atoi(fn.substr(foundPos+5, 3).c_str());
-
-            if (num)
-            {
-               level_num = num;
-               done = 1;
-            }
-            else search_pos +=5;
-         }
-         else
-         {
-            printf("error extracting level number from filename:%s\n", filename);
-            return 0;
-         }
-      }
+      int level_num = find_level_number_from_filename(filename);
+      if (!level_num) return 0;
 
 
       prev_level_loaded = last_level_loaded;
@@ -901,7 +911,7 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
             mEnemy.sort_enemy();
          }
 
-         level_check();
+         //level_check();
 
          mShot.clear_shots();
 
@@ -954,7 +964,7 @@ void mwLevel::save_level(int level_num)
    }
 
    last_level_loaded = level_num;
-   level_check();
+   //level_check();
 
    mItem.sort_item();
    mEnemy.sort_enemy();

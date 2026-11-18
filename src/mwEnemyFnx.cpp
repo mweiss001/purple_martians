@@ -24,6 +24,19 @@ int mwEnemy::is_player_in_enemy_trigger_box(int e)
 
 
 
+bool mwEnemy::is_enemy_invincible(int e, int type)
+{
+   // this works for all cases
+   if (Ei[e][2] & PM_ENEMY_FLAG_INVINCIBLE_UNTIL_CLONED) return true;
+
+   if ((type == 1) && (Ei[e][2] & PM_ENEMY_FLAG_INVINCIBLE_SHOTS)) return true;
+   if ((type == 2) && (Ei[e][2] & PM_ENEMY_FLAG_INVINCIBLE_BOMBS)) return true;
+   if ((type == 3) && (Ei[e][2] & PM_ENEMY_FLAG_INVINCIBLE_DAMAGE)) return true;
+   return false;
+}
+
+
+
 
 
 

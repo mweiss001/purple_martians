@@ -2,10 +2,9 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwBitmap.h"
-#include "mwSolid.h"
-#include "mwLoop.h"
 #include "mwLevel.h"
+#include "mwBitmap.h"
+#include "mwLoop.h"
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
 
@@ -25,12 +24,11 @@
 
 void mwEnemy::move_cloner(int e)
 {
-   if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
+   if (Ei[e][31]) // hit
    {
       enemy_killed(e);
       return;
    }
-   else Ei[e][31] = 0;
    enemy_player_hit_proc(e);
    if ((Ei[e][8]) && (mTriggerEvent.event[Ei[e][8]])) cloner_create(e);
 }
@@ -79,6 +77,13 @@ void mwEnemy::cloner_create(int e)
                         Ef[c][1] = new_y_pos;
                         Ei[c][27] = Ei[e][9]; // set time to live
                         Ei[c][28] = 1000+e;   // tag with cloner id
+
+                        // clear UNTIL_CLONED flags
+                        Ei[c][2] &= ~PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED;
+                        Ei[c][2] &= ~PM_ENEMY_FLAG_INVISIBLE_UNTIL_CLONED;
+                        Ei[c][2] &= ~PM_ENEMY_FLAG_INVINCIBLE_UNTIL_CLONED;
+
+
                         c = 100; // end loop
                         no++;    // one more object created
                      }
@@ -131,7 +136,7 @@ void mwEnemy::cloner_create(int e)
 
 
 
-void mwEnemy::draw_cloner(int e, int x, int c, int custom)
+bool mwEnemy::draw_cloner(int e, int x, int c, int custom)
 {
    // draw main shape
    if ((custom) || (mLoop.level_editor_running))
@@ -166,6 +171,7 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
       if ((q == 1) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(Ei[e][15], Ei[e][16], Ei[e][15] + Ei[e][19], Ei[e][16] + Ei[e][20], 8, 11+128, 11+192, 0); // source
       if ((q == 2) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(Ei[e][17], Ei[e][18], Ei[e][17] + Ei[e][19], Ei[e][18] + Ei[e][20], 8, 10+128, 10+192, 0); // destination
    }
+   return 0;
 }
 
 

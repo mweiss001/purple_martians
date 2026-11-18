@@ -435,8 +435,11 @@ void mwEnemy::draw_vinepod_screen_direct(int e)
 
 */
 
-void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
+bool mwEnemy::draw_vinepod(int e, int x, int y, int custom)
 {
+//   printf("draw_vinepod\n");
+
+
    float ld = 15;   // distance between leaves
 
    ALLEGRO_COLOR c2 = mColor.pc[9+128];
@@ -447,8 +450,6 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
       {
          // create and fill the spline array
          int np = Ei[e][17]+1; // number of points
-
-//         float dest[np*2] = {};
 
          float dest[1000] = {};
 
@@ -555,17 +556,11 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
             al_draw_filled_circle(Ei[e][3]+10, Ei[e][4]+10, 2, c2);
 
             // draw circle at end if fully extended
-            if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
-            {
-               int x1 = Ei[e][9];
-               int y1 = Ei[e][10];
-               al_draw_filled_circle(x1+10, y1+10, 2, c2);
-            }
+            if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) al_draw_filled_circle(Ei[e][9]+10, Ei[e][10]+10, 2, c2);
          }
       }
-
    }
-
+   return 0;
 }
 
 
