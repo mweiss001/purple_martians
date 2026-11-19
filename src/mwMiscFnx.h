@@ -50,6 +50,12 @@ class mwMiscFnx
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);
 
+   void warn_limits(float val, float ll, float ul);
+
+
+
+
+
    void swap_int(int &i1, int &i2);
 
    float mdw_rnd(float rmin, float rmax);

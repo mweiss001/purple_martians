@@ -367,6 +367,13 @@ int mwMiscFnx::check_limit(int val, int ll, int ul)
 }
 
 
+void mwMiscFnx::warn_limits(float val, float ll, float ul)
+{
+   if (val < ll) printf("Warning! %f < limit:%f", val, ll);
+   if (val > ul) printf("Warning! %f > limit:%f", val, ul);
+}
+
+
 
 
 void mwMiscFnx::enforce_limits(float &val, float ll, float ul)
@@ -374,8 +381,6 @@ void mwMiscFnx::enforce_limits(float &val, float ll, float ul)
    if (val < ll) val = ll;
    if (val > ul) val = ul;
 }
-
-
 
 
 void mwMiscFnx::enforce_limits(int &val, int ll, int ul)

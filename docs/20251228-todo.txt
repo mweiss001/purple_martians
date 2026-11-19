@@ -909,47 +909,58 @@ now set to 200
 
 11 Good and Evil        Perfect  2/2     52.0s     5:23        12922
 Totals                  -        171/183 1:35:09   2:49:23     406520
-
-2026-11-19 07:41:57 commit
-
-
-
-
-
-
+yes TAS
+13 cloners
+1 exit (10)
+changed exit to 0
+skip count 012345 789
+inv bomb   012345
 
 
-
-
-
-
-
-
-
+12 Bucket of Bad        Perfect  4/4     1:28      7:16        17467
+yes TAS
+6 cloners
+1 exit (100)
+changed 6 cloners to skip count
+12 Bucket of Bad        Perfect  4/4     1:28      7:16        17467
+Totals                  -        171/183 1:35:09   2:49:23     406520
 
 
 
 
+13 Falling Arrows       Perfect  4/4     1:13      5:13        12535
+yes TAS
+4 cloners
+1 exit (10)
+changed 4 cloners to skip count
+changed exit to 6 
+13 Falling Arrows       Perfect  4/4     1:13      5:13        12535
+Totals                  -        171/183 1:35:09   2:49:23     406520
 
 
+14, 15 good
 
 
+16 Big Apple            Perfect  4/4     1:15      6:07        14708
+yes TAS
+7 cloners
+1 exits (0)
+all good
 
 
+17 Little Rocket        Perfect  8/8     57.0s     5:26        13040
+yes TAS
+7 cloners
+1 exits (3)
+made 2 invincible cloners skip count
+made exit(0)
 
+17 Little Rocket        Perfect  8/8     57.0s     5:26        13041
+Totals                  -        171/183 1:35:09   2:49:23     406521
 
-
-
-
-
-
-
-
-
-
-
-
-
+made exit(1)
+17 Little Rocket        Perfect  8/8     57.0s     5:26        13040
+Totals                  -        171/183 1:35:09   2:49:23     406520
 
 
 

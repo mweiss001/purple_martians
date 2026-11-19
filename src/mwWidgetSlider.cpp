@@ -92,12 +92,14 @@ void mwWidget::mStepper(int xType, int xa, int xb, int yType, int ya, int yb,
 
    if (backgroundType == 2) draw_widget_area(tx1, y1, tx2, y2, bcol); // draw frame
 
+   // print warning if initial value is out of range
+   mMiscFnx.warn_limits(var, ll, ul);
+
    char msg[80];
    sprintf(msg, "%s%d", txt, var);
    draw_widget_text(tx1, y1, tx2, y2, tcol, text_just, msg);
 
    // add buttons
-
    if (mButton(0, b1x1, b1x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "-", 0)) var--;
    if (mButton(0, b2x1, b2x2, 0, y1, y2, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, "+", 0)) var++;
 
@@ -358,6 +360,8 @@ void mwWidget::mStepSliderFloat(int xType, int xa, int xb, int yType, int ya, in
    //    rx += bsp+2;
    // }
 
+   // print warning if initial value is out of range
+   mMiscFnx.warn_limits(var, ll, ul);
 
 
    // + - ++ --
@@ -423,6 +427,10 @@ void mwWidget::mStepSliderInt0(int xType, int xa, int xb, int yType, int ya, int
    //    if (mButton(2, bsp, xb-rx, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var+=stinc2;
    //    rx += bsp+2;
    // }
+
+
+   // print warning if initial value is out of range
+   mMiscFnx.warn_limits(var, ll, ul);
 
 
    if (stinc1)
@@ -495,6 +503,9 @@ void mwWidget::mStepSliderInt(int xType, int xa, int xb, int yType, int ya, int 
    //    if (mButton(2, bsp, xb-rx, yType, ya, yb, r, backgroundType, frameType, textType, bcol, fcol, tcol, hcol, highlight, msg, disable_input)) var+=stinc2;
    //    rx += bsp+2;
    // }
+
+   // print warning if initial value is out of range
+   mMiscFnx.warn_limits(var, ll, ul);
 
 
    if (stinc1)
