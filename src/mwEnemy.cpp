@@ -228,7 +228,6 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
             if (is_enemy_invincible(e, 1)) return;
 
 
-
             // cloner and invincible
 //            if (Ei[e][0] == PM_ENEMY_TYPE_CLONER && Ei[e][30] == 1) return;
 

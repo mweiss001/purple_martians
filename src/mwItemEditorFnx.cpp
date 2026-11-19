@@ -61,6 +61,7 @@ void mwItem::show_all_items()
    int text_pos = 0;
 
    int num_items = sort_item();
+
    text_pos = item_data(10, text_pos);
 
    int rh = 10; // row height
@@ -68,7 +69,6 @@ void mwItem::show_all_items()
    for (int i=0; i<num_items; i++)
    {
       al_draw_scaled_bitmap(mBitmap.sprite[item_tile[item[i][0]]], 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
-
       sprintf(msg,"item:[%2d] ",i );
       for (int j=0; j<16; j++)
       {
@@ -130,13 +130,8 @@ int mwItem::sort_item()
          {
             quit=0;      // as long as a iswap has been made
             iswap = 0;
-            if ((item[c][0] == 10) && (item[c+1][0] == 10)) // both messages
+            if ((item[c][0] == PM_ITEM_TYPE_MESSAGE) && (item[c+1][0] == PM_ITEM_TYPE_MESSAGE)) // both messages
             {
-               // strcpy(msg, pmsgtext[c]);
-               // strcpy(pmsgtext[c], pmsgtext[c+1]);
-               // strcpy(pmsgtext[c+1], msg);
-
-
                // get tmp string from 1st
                std::string tmp = mMessageText.get_text(c);
 
@@ -145,30 +140,20 @@ int mwItem::sort_item()
 
                // set 2nd from tmp
                mMessageText.set_text(c+1, tmp.c_str() );
-
             }
-            if ((item[c][0] == 10) && (item[c+1][0] != 10)) // first only
+            if ((item[c][0] == PM_ITEM_TYPE_MESSAGE) && (item[c+1][0] != PM_ITEM_TYPE_MESSAGE)) // first only
             {
-               // strcpy(pmsgtext[c+1], pmsgtext[c]);
-               // pmsgtext[c][0] = 0;
-
                // set 2nd to first
                mMessageText.set_text(c+1, mMessageText.get_text(c).c_str() );
                // remove first
                mMessageText.remove(c);
-
-
             }
-            if ((item[c][0] != 10) && (item[c+1][0] == 10)) // second only
+            if ((item[c][0] != PM_ITEM_TYPE_MESSAGE) && (item[c+1][0] == PM_ITEM_TYPE_MESSAGE)) // second only
             {
-               // strcpy(pmsgtext[c], pmsgtext[c+1]);
-               // pmsgtext[c+1][0] = 0;
-
                // set 1st to 2nd
                mMessageText.set_text(c, mMessageText.get_text(c+1).c_str() );
                // remove 2nd
                mMessageText.remove(c+1);
-
             }
             for (d=0; d<16; d++)
             {
@@ -224,12 +209,8 @@ int mwItem::sort_item()
    for (int c=0; c < 500; c++)
       if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
 
-
-
-
    // set number of starts...
-   mLevel.number_of_starts = item_num_of_type[5];
-
+   mLevel.number_of_starts = item_num_of_type[PM_ITEM_TYPE_START];
 
    return inum;
 }

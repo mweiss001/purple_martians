@@ -251,7 +251,7 @@ void mwEnemy::sort_enemy()
 int mwEnemy::create_cloner()
 {
    int aborted_create = 0;
-   int e = get_empty_enemy(9); // type 9 cloner
+   int e = get_empty_enemy(PM_ENEMY_TYPE_CLONER);
 
    Ef[e][12] = 1;  // scale
    Ef[e][14] = 0;  // rotation
@@ -266,11 +266,11 @@ int mwEnemy::create_cloner()
 
 
 
-   if (mMiscFnx.getxy("Cloner Location", 3, 9, e) == 1)
+   if (mMiscFnx.getxy("Cloner Location", 3, PM_ENEMY_TYPE_CLONER, e) == 1)
    {
       if (mMiscFnx.get_block_range("Cloner Source Area", Ei[e][15], Ei[e][16], Ei[e][19], Ei[e][20], 1))
       {
-         if (!mMiscFnx.getxy("Cloner Destination Area", 98, 9, e)) aborted_create = 1;
+         if (!mMiscFnx.getxy("Cloner Destination Area", 98, PM_ENEMY_TYPE_CLONER, e)) aborted_create = 1;
       }
       else aborted_create = 1;
    }
@@ -288,7 +288,7 @@ int mwEnemy::create_cloner()
 int mwEnemy::create_vinepod()
 {
    int aborted_create = 0;
-   int e = get_empty_enemy(7);
+   int e = get_empty_enemy(PM_ENEMY_TYPE_VINEPOD);
 
    Ei[e][1] = 374;   // shape
    Ei[e][2] = 0;     // draw type

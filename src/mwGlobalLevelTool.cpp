@@ -259,18 +259,25 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
+      for (int y=0; y<500; y++)
+         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+         {
+            printf("l:%d rocket 6:%d\n", le[x], mLevel.mItem.item[y][6] );
+         }
 
-      for (int y=0; y<100; y++)
-        if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
-        {
-           if (mLevel.mEnemy.Ei[y][30] == 1)
-           {
-              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_SHOTS;
-              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_BOMBS;
-              mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_DAMAGE;
-           }
-           mLevel.mEnemy.Ei[y][30] = 0;
-        }
+
+
+      // for (int y=0; y<100; y++)
+      //   if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
+      //   {
+      //      if (mLevel.mEnemy.Ei[y][30] == 1)
+      //      {
+      //         mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_SHOTS;
+      //         mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_BOMBS;
+      //         mLevel.mEnemy.Ei[y][2] |= PM_ENEMY_FLAG_INVINCIBLE_DAMAGE;
+      //      }
+      //      mLevel.mEnemy.Ei[y][30] = 0;
+      //   }
 
 
 
@@ -578,7 +585,7 @@ void mwGlobalLevelTool::execute()
       if (var == 3) sprintf(msg, "Checkpoint Individual");
 */
 
-      if (1)
+      if (0)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

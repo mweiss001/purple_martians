@@ -392,17 +392,17 @@ void mwObjectViewer::ov_process_mouse_on_background()
          int type = mLevel.mEnemy.Ei[e][0];
 
          // check to see if we can set this object to be the current object
-         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[3][type][0]))
+         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[PM_OBJECT_TYPE_ENEMY][type][0]))
          {
             // set this enemy to current object
-            obt = 3;
+            obt = PM_OBJECT_TYPE_ENEMY;
             num = e;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
 
          // if this object is already current object
-         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (obt == 3) && (num == e))
+         if ((mLevelEditor.hx>ex+msn) && (mLevelEditor.hx<ex+msp) && (mLevelEditor.hy>ey+msn) && (mLevelEditor.hy<ey+msp) && (obt == PM_OBJECT_TYPE_ENEMY) && (num == e))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -414,14 +414,14 @@ void mwObjectViewer::ov_process_mouse_on_background()
    {
       int e = num;
       int type = mLevel.mEnemy.Ei[e][0];
-      if ((type == 2) || (type == 3) || (type == 6) || (type == 8)) // cannon, archwagon, cannon, flapper and trakbot shot prox
+      if ((type == PM_ENEMY_TYPE_CANNON) || (type == PM_ENEMY_TYPE_ARCHWAGON) || (type == PM_ENEMY_TYPE_FLAPPER) || (type == PM_ENEMY_TYPE_TRAKBOT)) // shot prox
       {
-         float x0 = mLevel.mEnemy.Ef[e][0]+10;                       // center of enemy
+         float x0 = mLevel.mEnemy.Ef[e][0]+10;                // center of enemy
          float y0 = mLevel.mEnemy.Ef[e][1]+10;
-         float fx = mLevelEditor.hx;                                   // hi-res mouse pos
+         float fx = mLevelEditor.hx;                          // hi-res mouse pos
          float fy = mLevelEditor.hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-         float bdr = mLevel.mEnemy.Ei[e][17];                        // prox radius
+         float bdr = mLevel.mEnemy.Ei[e][17];                 // prox radius
          float dif = dst-bdr;                                 // difference
          if ((dif < 3 ) && (dif > -3))                        // mouse is on prox circle
          {
@@ -517,16 +517,16 @@ void mwObjectViewer::ov_process_mouse_on_background()
          int iy = mLevel.mItem.item[b][5];
          int type = mLevel.mItem.item[b][0];
          // check to see if we can set this object to be the current object
-         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[2][type][0]))
+         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (!viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mEditorMain.obj_filter[PM_OBJECT_TYPE_ITEM][type][0]))
          {
             // set this item to current object
-            obt = 2;
+            obt = PM_OBJECT_TYPE_ITEM;
             num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
          // if this object is already current object
-         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (obt == 2) && (num == b))
+         if ((mLevelEditor.hx>ix+msn) && (mLevelEditor.hx<ix+msp) && (mLevelEditor.hy>iy+msn) && (mLevelEditor.hy<iy+msp) && (obt == PM_OBJECT_TYPE_ITEM) && (num == b))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -597,7 +597,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
    // --  detect if mouse pointer is on lift
    // -----------------------------------------------------------
    mouse_on_lift = 0;
-   if (mEditorMain.obj_filter[4][1][0])
+   if (mEditorMain.obj_filter[PM_OBJECT_TYPE_LIFT][1][0])
    {
       // no lock...check all lifts and steps
       if ((!mInput.key[MAP_LOCK_KEY][0]) && (!viewer_lock))
@@ -614,7 +614,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
                      if ((mLevelEditor.hx > nx - w)  && (mLevelEditor.hx < nx + w) && (mLevelEditor.hy > ny - h)  && (mLevelEditor.hy < ny + h)) // is mouse on this step ?
                      {
                         mouse_on_lift = 1;
-                        obt = 4;
+                        obt = PM_OBJECT_TYPE_LIFT;
                         num = x;
                         lift = x;
                         step = y;
@@ -690,6 +690,8 @@ void mwObjectViewer::ov_process_mouse_on_background()
 
 
 
+
+
    if (mInput.mouse_b[3][0])
    {
       while (mInput.mouse_b[3][0])
@@ -742,8 +744,6 @@ void mwObjectViewer::ov_process_mouse_on_background()
       my = mMiscFnx.mw_round(my, snap);
 
 
-
-
       int lsox=0, lsoy=0;
       int lspx=0, lspy=0;
       if (mouse_on_lift)
@@ -792,9 +792,9 @@ void mwObjectViewer::ov_process_mouse_on_background()
 
          if (mouse_on_obj)
          {
-            if (obt == 2) ov_move_item( num, mx - mLevel.mItem.item[num][4], my - mLevel.mItem.item[num][5]);
-            if (obt == 3) ov_move_enemy(num, mx - mLevel.mEnemy.Ef[num][0],  my - mLevel.mEnemy.Ef[num][1]);
-            if (obt == 4) // lift
+            if (obt == PM_OBJECT_TYPE_ITEM) ov_move_item( num, mx - mLevel.mItem.item[num][4], my - mLevel.mItem.item[num][5]);
+            if (obt == PM_OBJECT_TYPE_ENEMY) ov_move_enemy(num, mx - mLevel.mEnemy.Ef[num][0],  my - mLevel.mEnemy.Ef[num][1]);
+            if (obt == PM_OBJECT_TYPE_LIFT) // lift
             {
                if (mouse_move)
                {
@@ -920,7 +920,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
             mLevel.mItem.item[num][7] = dist;
          }
-         if (mouse_on_bms) // move block manip source
+         if (mouse_on_bms) // move alter source
          {
             mLevel.mItem.item[num][13] = mLevelEditor.gx*20;
             mLevel.mItem.item[num][14] = mLevelEditor.gy*20;
@@ -938,7 +938,7 @@ void mwObjectViewer::ov_process_mouse_on_background()
       } // end of while mInput.mouse_b[1][0] pressed
 
       // snap non hires item secondaries to 20
-      if ((mouse_on_obj) && (obt == 2) && (mLevel.mItem.item_secondary67(mLevel.mItem.item[num][0])) && (!mLevel.mItem.item_secondary67_hires(mLevel.mItem.item[num][0])) )
+      if ((mouse_on_obj) && (obt == PM_OBJECT_TYPE_ITEM) && (mLevel.mItem.item_secondary67(mLevel.mItem.item[num][0])) && (!mLevel.mItem.item_secondary67_hires(mLevel.mItem.item[num][0])) )
       {
          mLevel.mItem.item[num][6] = mMiscFnx.mw_round(mLevel.mItem.item[num][6], 20);
          mLevel.mItem.item[num][7] = mMiscFnx.mw_round(mLevel.mItem.item[num][7], 20);
@@ -1099,8 +1099,8 @@ void mwObjectViewer::ov_process_keypress()
          if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_next_lift(num);
       break;
       case 22: // previous
-         if ((obt == PM_OBJECT_TYPE_ITEM) && (--num < mLevel.mItem.item_first_num[type])) num++;
-         if ((obt == PM_OBJECT_TYPE_ENEMY)  && (--num < mLevel.mEnemy.e_first_num[type])) num++;
+         if ((obt == PM_OBJECT_TYPE_ITEM)  && (--num < mLevel.mItem.item_first_num[type])) num++;
+         if ((obt == PM_OBJECT_TYPE_ENEMY) && (--num < mLevel.mEnemy.e_first_num[type])) num++;
          if (obt == PM_OBJECT_TYPE_LIFT) num = mLevel.mLift.get_prev_lift(num);
       break;
    } // end of switch (mb)
@@ -1434,7 +1434,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][8], 20,  1, 1,  1, 0, "Maximum Speed:");
             odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][9], 200, 1, 1,  1, 0, "Acceleration:");
-            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 100, 0, 1,  1, 0, "Steerability:");
+            odbi(d, xa, xb, ya, bts, 12, mLevel.mItem.item[n][6], 200, 0, 1,  1, 0, "Steerability:");
             ya+=4; // spacer
             odbi(d, xa, xb, ya, bts, 14, mLevel.mItem.item[n][7], 1200, 20, 1,  1, 10, "Damage Range:");
             break;
