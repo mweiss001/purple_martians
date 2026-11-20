@@ -800,8 +800,6 @@ int mwLoop::load_and_setup_level(int level, int type)
    //
 
 
-
-
 }
 
 

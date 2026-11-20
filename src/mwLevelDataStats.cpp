@@ -33,6 +33,9 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    int show_times_beat = 0;
    int show_times_quit = 0;
 
+   int show_enemies_left = 0;
+
+
    if (row_type == 1) // all columns
    {
       show_min_deaths = 1;
@@ -132,6 +135,12 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       tally[0][9]  += data[lev].time_best;
       tally[0][13] += data[lev].time_best_all_coins;
       tally[0][10] += data[lev].time_total;
+
+//      tally[0][14] += data[lev].min_enemies_left;
+
+
+
+
    }
 
 
@@ -273,6 +282,67 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       x += width + 8;
       vline[vli++] = x-4;
    }
+
+
+
+   if (show_enemies_left)
+   {
+      width = 8 * 8;
+      print_width = 13;
+      col = 15;
+      if (draw)
+      {
+         if (header)
+         {
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Enemies");
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Left");
+            strcpy(msg, "Enemies Left");
+         }
+         else
+         {
+            if (total) sprintf(msg, "%d", tally[0][14]);
+            else       sprintf(msg, "%d", data[lev].min_enemies_left);
+            al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y, ALLEGRO_ALIGN_CENTER, msg);
+         }
+         if (print) printf("%-*s", print_width, msg);
+      }
+      x += width + 8;
+      vline[vli++] = x-4;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -686,6 +756,17 @@ void mwLevel::show_level_stats(int xc, int y1, int msg_type)
 void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
 {
    //printf("draw_level_stats draw:%d  type:%d\n", draw, msg_type);
+
+
+// // debug show all levels in order
+//    int jnk;
+//    int jnk1;
+//    for (int lev=2; lev<100; lev++)
+//       show_level_stats_row(lev, 0, 0, 1, jnk, jnk1);
+
+
+
+
 
 
    int x1 = 2;   // these are based on a frame width of 2

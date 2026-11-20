@@ -108,6 +108,45 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) scale = .4;
 
       draw_door_tile(x, y, draw_type, col, 0, scale, 0);
+
+
+      // I want to also draw here if orphan
+
+      if (item[i][9] == -1)
+      {
+         if (find_source_door(i) == -1)
+         {
+            al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
+            al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+            al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
+            al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "src");
+         }
+      }
+
+      // if linked door is not valid, draw and mark with red X, then return
+      if (item[i][9] != -1)
+      {
+         int linked_door = item[i][9];
+
+         if (item[linked_door][0] != 1)
+         {
+            al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
+            al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "dst");
+            al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
+            al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+            return 1;
+         }
+      }
+
+
+
+
+
+
+
+
+
+
       return 1;
    }
 

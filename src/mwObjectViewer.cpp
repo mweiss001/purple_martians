@@ -1265,7 +1265,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             do_stat_fall_carry(d, xa, xb, ya, bts, n);
             ya+=4; // spacer
             odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
-            if (mLevel.mItem.item[n][8]) // regular door (not exit only)
+            if (mLevel.mItem.item[n][9] != -1) // regular door (not exit only)
             {
                ya+=4; // spacer
                char msg[80];

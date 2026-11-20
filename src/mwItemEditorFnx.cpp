@@ -579,7 +579,7 @@ int mwItem::create_timer(int i)
    // set the item location
    if (mMiscFnx.getxy("Timer Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_TIMER, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_TIMER;
-   item[1][2] = PM_ITEM_FLAG_STATIONARY;
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
 
 
    // open in viewer
@@ -594,7 +594,7 @@ int mwItem::create_hider(int i)
    // set the item location
    if (mMiscFnx.getxy("Hider Object", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_HIDER, i) != 1) return 0;
    item[i][0] = PM_ITEM_TYPE_HIDER;
-   item[1][2] = PM_ITEM_FLAG_STATIONARY;
+   item[i][2] = PM_ITEM_FLAG_STATIONARY;
 
    item[i][3] = 1;  // mode:1 (always hide)
    item[i][10] = 1;  // initial action: hide

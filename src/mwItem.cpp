@@ -227,7 +227,7 @@ void mwItem::move_items()
 
             if (action == 1)
             {
-               printf("l:%d - f:%d  item:%d item_type:%d [%s] out of bounds (x:%d y:%d) - deleting!\n", mLevel.play_level, mLoop.frame_num, i, item[i][0], item_name[item[i][0]], x, y);
+               printf("l:%d - frame:%d  item:%d item_type:%d [%s] out of bounds (x:%d y:%d) - deleting!\n", mLevel.play_level, mLoop.frame_num, i, item[i][0], item_name[item[i][0]], x, y);
                item[i][0] = 0; // remove if out of bounds
             }
             if (action == 2)
