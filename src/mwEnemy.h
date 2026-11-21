@@ -3,6 +3,26 @@
 #define MWENEMY_H
 
 
+struct object_variable_description
+{
+   int object_type; //  (item, enemy, lift)
+   int sub_type; // (item_type, enemy_type, step_type)
+   int var_type; // (int, bitfield, float)
+   int var_num; // (index into object array, item[][], Ei[][], Ef[][], step_var
+   int var_flag_bitmask;  // (if bitfield, the flags needed to get value)
+   int var_flag_bitshift; //  (if bitfield, the shift needed to get value)
+
+   std::string name;
+   float min_allowed;
+   float max_allowed;
+   float actual_min;
+   float actual_max;
+};
+
+
+
+
+
 // forward declaration
 class mwLevel;
 
@@ -14,7 +34,18 @@ class mwEnemy
 
    public:
 
-   mwEnemy(mwLevel& parent) : m_parent(parent) { fill_strings(); } // default constructor
+
+   void init();
+
+   mwEnemy(mwLevel& parent) : m_parent(parent) { init(); } // default constructor
+
+
+   void update_ovd(int object_type, int sub_type, int var_type, int var_num, int val);
+
+
+   std::vector<object_variable_description> ovd;
+
+
 
 
    int Ei[100][32];        // enemy ints

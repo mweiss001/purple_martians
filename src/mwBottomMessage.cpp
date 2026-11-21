@@ -316,7 +316,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
       {
          custom_drawn = 1;
          draw_text(xpos, 15, " went through a ");
-         draw_item(mBitmap.door_tile[z4][z3][0], "door", 15, xpos, 0, 0);
+         draw_item(mBitmap.door_tile[z3][0], "door", 15, xpos, 0, 0);
       }
       if (ev == 23) // locked exit
       {

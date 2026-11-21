@@ -1,6 +1,7 @@
 // mwItemBombRocket.cpp
 
 #include "pm.h"
+#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -138,90 +139,11 @@ void mwItem::proc_lit_rocket(int i)
 }
 
 
-int mwItem::seq_color2()
-{
-   int ca[40];
-   int ci = 0;
-
-   for (ci = 0; ci<40; ci++) ca[ci] = 0;
-
-   ci = 0;
-   int b = 10;
-   ca[ci] = b+192; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+192; ci++;
-
-
-   ci = 20;
-   b = 14;
-   ca[ci] = b+192; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+192; ci++;
-
-   int mod = mLoop.frame_num % 40;
-   return ca[mod];
-}
-
-int mwItem::seq_color3()
-{
-   int ca[20];
-   int ci = 0;
-
-   for (ci = 0; ci<20; ci++) ca[ci] = 0;
-
-   ci = 0;
-   int b = 10;
-   ca[ci] = b+192; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b; ci++;
-   ca[ci] = b+32; ci++;
-   ca[ci] = b+64; ci++;
-   ca[ci] = b+96; ci++;
-   ca[ci] = b+128; ci++;
-   ca[ci] = b+160; ci++;
-   ca[ci] = b+192; ci++;
-
-   int mod = mLoop.frame_num % 20;
-   return ca[mod];
-}
 
 void mwItem::bomb_block_crosshairs(int e, int f)
 {
    //int col = seq_color(16, 14, 10);
-   int col = seq_color2();
+   int col = mColor.seq_color2();
    if (col)
    {
       al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, mColor.pc[col], 1);
@@ -252,10 +174,10 @@ void mwItem::bomb_blocks(int i, int t, int dr, float x, float y)
             float xd = abs(x-cx);
             float yd = abs(y-cy);
             float br = sqrt(xd*xd+yd*yd);
-            if ((br < d) && (mLevel.l[e][f] & PM_BTILE_BOMBABLE))
+            if ((br < d) && (m_parent.l[e][f] & PM_BTILE_BOMBABLE))
             {
                if (t == 1) bomb_block_crosshairs(e, f);
-               if (t == 2) mLevel.change_block(e, f, 0);
+               if (t == 2) m_parent.change_block(e, f, 0);
             }
          }
       }
@@ -263,7 +185,7 @@ void mwItem::bomb_blocks(int i, int t, int dr, float x, float y)
 
 void mwItem::bomb_crosshairs(float x, float y)
 {
-   int col = seq_color3();
+   int col = mColor.seq_color3();
    float rad = 12;   // circle radius
 
 
@@ -292,19 +214,16 @@ void mwItem::bomb_crosshairs(float x, float y)
 void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100; e++) // enemies in damage window?
-      if ((mLevel.mEnemy.Ei[e][0]) && (!mLevel.mEnemy.is_enemy_invincible(e, 2)))
-
-
-//      if ((mLevel.mEnemy.Ei[e][0]) && (! (mLevel.mEnemy.Ei[e][0] == PM_ENEMY_TYPE_CLONER && mLevel.mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
+      if ((m_parent.mEnemy.Ei[e][0]) && (!m_parent.mEnemy.is_enemy_invincible(e, 2)))
       {
-         float dist = sqrt(pow(mLevel.mEnemy.Ef[e][0]-x, 2) + pow(mLevel.mEnemy.Ef[e][1]-y, 2));
+         float dist = sqrt(pow(m_parent.mEnemy.Ef[e][0]-x, 2) + pow(m_parent.mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
          {
-            if (t == 1) bomb_crosshairs(mLevel.mEnemy.Ef[e][0]+10, mLevel.mEnemy.Ef[e][1]+10);
+            if (t == 1) bomb_crosshairs(m_parent.mEnemy.Ef[e][0]+10, m_parent.mEnemy.Ef[e][1]+10);
             if (t == 2)
             {
-               mLevel.mEnemy.Ei[e][31] = 2; // set bomb hit
-               mLevel.mEnemy.Ei[e][26] = item[i][13];  // player that lit bomb
+               m_parent.mEnemy.Ei[e][31] = 2; // set bomb hit
+               m_parent.mEnemy.Ei[e][26] = item[i][13];  // player that lit bomb
             }
          }
       }
@@ -444,7 +363,7 @@ int mwItem::draw_lit_bomb(int i)
       al_draw_line(x+10, y+10, px+10, py+8, mColor.pc[207], 0);
 
       // show damage range circle
-      int col = seq_color2();
+      int col = mColor.seq_color2();
       if (col) al_draw_circle(x+10, y+10, item[i][7], mColor.pc[col], 2);
 
    }
@@ -470,7 +389,7 @@ int mwItem::draw_lit_bomb(int i)
       al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, mColor.pc[10], 0);
 
       // show damage range circle
-      int col = seq_color2();
+      int col = mColor.seq_color2();
       if (col) al_draw_circle(x+10, y+10, item[i][7], mColor.pc[col], 2);
 
    }
@@ -547,7 +466,7 @@ void mwItem::draw_rocket_lines(int i)
          float fxif = fxi+10;
          float fyif = fyi+10;
 
-         int col = seq_color2(); // color sequence
+         int col = mColor.seq_color2(); // color sequence
          if (col) al_draw_circle(fxf, fyf, item[i][7], mColor.pc[col], 2); // show damage range circle
          al_draw_filled_circle(fxf, fyf, 5, mColor.pc[col]); // show center
          al_draw_line(fxif, fyif, fxf, fyf, mColor.pc[10+80], 0); // draw connecting line

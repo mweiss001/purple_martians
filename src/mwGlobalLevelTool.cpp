@@ -259,11 +259,32 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
-      for (int y=0; y<500; y++)
-         if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
-         {
-            printf("l:%d rocket 6:%d\n", le[x], mLevel.mItem.item[y][6] );
-         }
+//       for (int y=0; y<100; y++)
+//       {
+//          // if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
+//          // {
+//          //    printf("l:%d y:%d Ei[][%d]:%d  \n", le[x], y, 15, mLevel.mEnemy.Ei[y][15]  );
+//          //    for (int z=0; z<32; z++)
+//          //       mLevel.mEnemy.update_ovd(PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, z, mLevel.mEnemy.Ei[y][z]);
+//          //
+//          // }
+//
+//          if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_TRAKBOT)
+//          {
+// //            mLevel.mEnemy.Ei[y][9] = 0;
+//             //            printf("l:%d y:%d Ei[][%d]:%d  \n", le[x], y, 15, mLevel.mEnemy.Ei[y][15]  );
+//             for (int z=0; z<32; z++)
+//                mLevel.mEnemy.update_ovd(PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_TRAKBOT, 0, z, mLevel.mEnemy.Ei[y][z]);
+//          }
+//       }
+//
+
+
+      // for (int y=0; y<500; y++)
+      //    if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_ROCKET)
+      //    {
+      //       printf("l:%d rocket 6:%d\n", le[x], mLevel.mItem.item[y][6] );
+      //    }
 
 
 
@@ -606,6 +627,13 @@ void mwGlobalLevelTool::execute()
 */
 
 //   show_block_list(blt);
+
+
+   // for (auto tmp: mLevel.mEnemy.ovd)
+   //    printf("%s: min:%f  max:%f\n", tmp.name.c_str(), tmp.actual_min, tmp.actual_max );
+
+
+
    mInput.tsw();
    mLevel.set_start_level(old_start_level);
 }

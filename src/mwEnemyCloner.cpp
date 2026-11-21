@@ -24,7 +24,7 @@
 
 void mwEnemy::move_cloner(int e)
 {
-   if (Ei[e][31]) // hit
+   if (Ei[e][31]) // enemy hit
    {
       enemy_killed(e);
       return;

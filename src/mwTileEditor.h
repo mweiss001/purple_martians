@@ -33,7 +33,6 @@ private:
    float rotate_degrees = 90;
 
 
-
    // mouse index if on main tile
    bool mouse_on_grid;
    int mx, my;
@@ -50,7 +49,9 @@ private:
    int draw_mode;
    float th = 1;
 
-   int tile_palette[3][3] = {0};
+
+   int tile_palette[4][4] = {0};
+
 
    ALLEGRO_COLOR highlight_color = al_map_rgb(255,255,255); // highlight color
    ALLEGRO_COLOR frame_color = al_map_rgb(127,127,127); // frame and gridline color

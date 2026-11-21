@@ -332,17 +332,27 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
    tile_palette[0][0] = 27;
    tile_palette[0][1] = 28;
    tile_palette[0][2] = 29;
-   
+   tile_palette[0][3] = 30;
+
    tile_palette[1][0] = 59;
    tile_palette[1][1] = 60;
    tile_palette[1][2] = 61;
+   tile_palette[1][3] = 62;
+
 
    tile_palette[2][0] = 91;
    tile_palette[2][1] = 92;
    tile_palette[2][2] = 93;
+   tile_palette[2][3] = 94;
 
-   for (int x=0; x<3; x++)
-      for (int y=0; y<3; y++)
+   tile_palette[3][0] = 123;
+   tile_palette[3][1] = 124;
+   tile_palette[3][2] = 125;
+   tile_palette[3][3] = 126;
+
+
+   for (int x=0; x<4; x++)
+      for (int y=0; y<4; y++)
       {
          int xi = (tile_palette[y][x] % 32) * 22 + 1;
          int yi = (tile_palette[y][x] / 32) * 22 + 1;
@@ -353,8 +363,8 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
 
    ALLEGRO_COLOR sfc = mColor.Green;
 
-   int x2 = x1 + size*60+1;
-   int y2 = y1 + size*60+18;
+   int x2 = x1 + size*80+1;
+   int y2 = y1 + size*80+18;
 
    // frame
    al_draw_rectangle(x1+o, y1+o, x2+o, y2+o, sfc, 1);
@@ -367,10 +377,10 @@ void mwTileEditor::tile_palette_select(int x1, int y1, int size)
    // grid coordinates
    float gx1 = x1+1;
    float gy1 = ya+15;
-   float gx2 = gx1 + size*60;
-   float gy2 = gy1 + size*60;
+   float gx2 = gx1 + size*80;
+   float gy2 = gy1 + size*80;
 
-   al_draw_scaled_bitmap(tile_palette_bitmap, 0,0,60,60, gx1, gy1, size*60, size*60, 0);
+   al_draw_scaled_bitmap(tile_palette_bitmap, 0,0,80,80, gx1, gy1, size*80, size*80, 0);
 
    // is mouse on grid?
    if (mInput.mouse_x > gx1 && mInput.mouse_x < gx2 && mInput.mouse_y > gy1 && mInput.mouse_y < gy2)
@@ -535,7 +545,7 @@ void mwTileEditor::selection_controls(int x, int y)
          }
 
          // allow changing tile while pasting
-         tile_palette_select(dx2+20, dy2+20, 3);
+         tile_palette_select(dx2+20, dy2+20, 2);
 
 
          if (mInput.mouse_b[2][0])
@@ -769,7 +779,7 @@ void mwTileEditor::edit_tile(int tile)
 
    // create bitmaps
    edit_tile_bitmap         = al_create_bitmap(20, 20);
-   tile_palette_bitmap      = al_create_bitmap(60, 60);
+   tile_palette_bitmap      = al_create_bitmap(80, 80);
    edit_tile_preview_bitmap = al_create_bitmap(20, 20);
 
    // set initial edit tile
@@ -917,8 +927,8 @@ void mwTileEditor::edit_tile(int tile)
       ya += draw_mode_controls(xa, ya);
       ya+=20;
 
-      tile_palette_select(xa, ya, 3);
-      ya+=220;
+      tile_palette_select(xa, ya, 2);
+      ya+=200;
 
       legacy_color_select(xa, ya, 11);
 

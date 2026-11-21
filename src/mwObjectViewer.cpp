@@ -1237,7 +1237,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
    if (mWidget.mButton(0, x2-12, x2-4,   1, by1, 9,     0, 0, 0, 3,    0, 0, 15, 14, 0,   "?", d)) mHelp.help("Viewer Basics");
    if (mWidget.mButton(0, xa, x27-1,  1, ya, bts-2,    1, 2, 0, 1,    9, 9, 15, 0, 0, "Prev", d)) mb = 22;
-   mWidget.mButtonToggle(0, x27+1, x57-1,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, viewer_lock, 0, 1, "Unlocked", "Locked", 6, 7, 15, 15, 0, 0, 0);
+   mWidget.mButtonToggle(0, x27+1, x57-1,  1, ya, bts-2,    1, 2, 0, 0,     0, 0, viewer_lock, 0, 1, "Unlocked", "Locked", 6, 7, 15, 15, 0, 0, d);
    if (mWidget.mButton(0, x57+1,   xb,  1, ya, bts-2,    1, 2, 0, 1,    9, 9, 15, 0, 0, "Next", d)) mb = 21;
    ya+=bts;
 
@@ -2006,18 +2006,11 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       yld += bts;
 
       // draw current lift under step list buttons
-      if (bts == 16) // only if max button size
-      {
-         int x1 = xa+10;
-         int y1 = yld; // only see in 2 highest screen modes
-         int s = step;
+      int s = step;
+      // if step is not a move step, find prev that is
+      if ((mLevel.mLift.stp[n][s].flags & 31) != PM_LIFT_STEP_TYPE_MOVE) s = mLevel.mLift.find_previous_move_step(n, s);
+      mLevel.mLift.draw_lift(n, mwRect<float>::fromX1Y1WH(xa+10, yld, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h));
 
-         // if step is not a move step, find prev that is
-         if ((mLevel.mLift.stp[n][s].flags & 31) != 1) s = mLevel.mLift.find_previous_move_step(n, s);
-
-         mwRect<float> lr = mwRect<float>::fromX1Y1WH(x1, y1, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h);
-         mLevel.mLift.draw_lift(n, lr);
-      }
    }
 
    // set height

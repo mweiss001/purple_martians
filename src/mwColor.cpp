@@ -2,6 +2,9 @@
 
 #include "pm.h"
 #include "mwColor.h"
+#include "mwLoop.h"
+
+
 
 mwColor mColor;
 
@@ -83,6 +86,67 @@ mwColor::mwColor()
    Aqua   = pc[13];
    Yellow = pc[14];
    White  = pc[15];
+
+
+
+   int ci = 0;
+   int base_color = 10;
+   flash_color_array[ci] = base_color+192; ci++;
+   flash_color_array[ci] = base_color+160; ci++;
+   flash_color_array[ci] = base_color+128; ci++;
+   flash_color_array[ci] = base_color+96; ci++;
+   flash_color_array[ci] = base_color+64; ci++;
+   flash_color_array[ci] = base_color+32; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color+32; ci++;
+   flash_color_array[ci] = base_color+64; ci++;
+   flash_color_array[ci] = base_color+96; ci++;
+   flash_color_array[ci] = base_color+128; ci++;
+   flash_color_array[ci] = base_color+160; ci++;
+   flash_color_array[ci] = base_color+192; ci++;
+
+
+   ci = 20;
+   base_color = 14;
+   flash_color_array[ci] = base_color+192; ci++;
+   flash_color_array[ci] = base_color+160; ci++;
+   flash_color_array[ci] = base_color+128; ci++;
+   flash_color_array[ci] = base_color+96; ci++;
+   flash_color_array[ci] = base_color+64; ci++;
+   flash_color_array[ci] = base_color+32; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color; ci++;
+   flash_color_array[ci] = base_color+32; ci++;
+   flash_color_array[ci] = base_color+64; ci++;
+   flash_color_array[ci] = base_color+96; ci++;
+   flash_color_array[ci] = base_color+128; ci++;
+   flash_color_array[ci] = base_color+160; ci++;
+   flash_color_array[ci] = base_color+192; ci++;
+
+
+   for (int i=0; i<8; i++)
+   {
+      flash_color_array2[i+0][0] = 10;
+      flash_color_array2[i+0][1] = 15;
+
+      flash_color_array2[i+8][0] = 14;
+      flash_color_array2[i+8][1] = 11;
+
+      flash_color_array2[i+16][0] = 15;
+      flash_color_array2[i+16][1] = 10;
+
+      flash_color_array2[i+24][0] = 11;
+      flash_color_array2[i+24][1] = 14;
+   }
+
+
+
+
 }
 
 void mwColor::show_palette()
@@ -102,17 +166,6 @@ void mwColor::show_palette()
       al_unmap_rgb(pc[x], &ur, &ug, &ub);
       printf("%2d r:%3d g:%3d b:%3d \n", x, ur, ug, ub);
    }
-}
-
-void mwColor::process_flash_color()
-{
-   if (++flash_counter > 32) flash_counter = 1;
-   if ((flash_counter  > 0)  && (flash_counter < 9))   { flash_color = 10;  flash_color2 = 15; }
-   if ((flash_counter  > 8)  && (flash_counter < 15))  { flash_color = 14;  flash_color2 = 11; }
-   if ((flash_counter  > 16) && (flash_counter < 23))  { flash_color = 15;  flash_color2 = 10; }
-   if ((flash_counter  > 24) && (flash_counter < 33))  { flash_color = 11;  flash_color2 = 14; }
-   Flash1 = pc[flash_color];
-   Flash2 = pc[flash_color2];
 }
 
 bool mwColor::compareColor(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float tolerance)
@@ -164,6 +217,49 @@ void mwColor::map_rgb_to_hsl(ALLEGRO_COLOR c, float &h, float &s, float &l)
 }
 
 
+
+
+ALLEGRO_COLOR mwColor::modify_hsl(ALLEGRO_COLOR color, float h_adj, float s_adj, float l_adj, bool clamp)
+{
+   // extract r, b, g, h, s, l from color
+   float r, g, b;
+   al_unmap_rgb_f(color, &r, &g, &b);
+   if (!(r==0 && g==0 && b==0)) // only if not black
+   {
+      float h, s, l;
+      al_color_rgb_to_hsl(r, g, b, &h, &s, &l);
+
+      h += h_adj;
+      if (h<0) h+=360;
+      if (h>360) h-=360;
+
+      s += s_adj;
+      if (clamp)
+      {
+         if (s<0) s = 0;
+         if (s>1) s = 1;
+      }
+      else // wrap
+      {
+         while (s<0) s+=1;
+         while (s>1) s-=1;
+      }
+
+      l += l_adj;
+      if (clamp)
+      {
+         if (l<0) l = 0;
+         if (l>1) l = 1;
+      }
+      else // wrap
+      {
+         while (l<0) l+=1;
+         while (l>1) l-=1;
+      }
+      return al_color_hsl(h, s, l);
+   }
+   return color;
+}
 
 
 
@@ -222,6 +318,52 @@ void mwColor::modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s
 
 
 
+
+
+
+
+
+
+// flash_color is used 56 time
+// flash_color2 is used once by tile helper mark tiles
+
+void mwColor::process_flash_color()
+{
+   if (++flash_counter > 31) flash_counter = 0;
+   flash_color  = flash_color_array2[flash_counter][0];
+   flash_color2 = flash_color_array2[flash_counter][1];
+}
+
+
+
+/*
+uses frame_num % 40
+20 red then 20 yellow
+used by:
+void mwItem::bomb_block_crosshairs(int e, int f)
+int mwItem::draw_lit_bomb(int i)
+void mwItem::draw_rocket_lines(int i)
+
+*/
+
+int mwColor::seq_color2()
+{
+   int mod = mLoop.frame_num % 40;
+   return flash_color_array[mod];
+}
+
+
+/*
+uses frame_num % 20
+20 red
+used by:
+void mwItem::bomb_crosshairs(float x, float y)
+*/
+int mwColor::seq_color3()
+{
+   int mod = mLoop.frame_num % 20;
+   return flash_color_array[mod];
+}
 
 
 

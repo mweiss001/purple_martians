@@ -83,8 +83,10 @@ int mwItem::find_source_door(int search_index)
 
 void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot)
 {
-   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.door_tile[1][col][ans], 10, 10, x+10, y+10, scale, scale, 0, 0 );
-   if (draw_type == PM_ITEM_DOOR_DRAW_WARP)   al_draw_scaled_rotated_bitmap(mBitmap.door_tile[0][col][ans], 10, 10, x+10, y+10, scale, scale, 0, 0 );
+//   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.door_tile[1][col][ans], 10, 10, x+10, y+10, scale, scale, 0, 0 );
+   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.sprite[159+col], 10, 10, x+10, y+10, scale, scale, 0, 0 );
+
+   if (draw_type == PM_ITEM_DOOR_DRAW_WARP)   al_draw_scaled_rotated_bitmap(mBitmap.door_tile[col][ans], 10, 10, x+10, y+10, scale, scale, 0, 0 );
    if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
 }
 
@@ -137,16 +139,6 @@ int mwItem::draw_door(int i, int x, int y, int custom)
             return 1;
          }
       }
-
-
-
-
-
-
-
-
-
-
       return 1;
    }
 
@@ -234,8 +226,8 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    // -------------------------------------------------------
    if ((s_draw_type == PM_ITEM_DOOR_DRAW_WARP) || (d_draw_type == PM_ITEM_DOOR_DRAW_WARP))
    {
-      int num_tiles = 8;
-      int frames_per_cycle = 4;
+      int num_tiles = 10;
+      int frames_per_cycle = 2;
 
       // get timer when game running
       int tmr = mLoop.frame_num;

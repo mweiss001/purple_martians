@@ -14,6 +14,74 @@
 
 
 
+
+
+
+
+
+void mwEnemy::init()
+{
+   fill_strings();
+
+   ovd.clear();
+
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 4, 0, 0, "draw boxes", 0, 1000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 5, 0, 0, "draw mode", 0, 1000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 8, 0, 0, "trigger event", 0, 1000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 9, 0, 0, "time to live for created objects", 0, 1000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 10, 0, 0, "max num of created objects", 0, 1000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 15, 0, 0, "copy box x", 0, 2000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 16, 0, 0, "copy box y", 0, 2000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 17, 0, 0, "dest box x", 0, 2000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 18, 0, 0, "dest box y", 0, 2000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 19, 0, 0, "copy box w", 0, 2000, 99999, -99999});
+   // ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 20, 0, 0, "copy box h", 0, 2000, 99999, -99999});
+
+
+
+   // for (int i=0; i<32; i++)
+   // {
+   //    char n[256];
+   //    sprintf(n, "Ei[10][%d]", i);
+   //
+   //    ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, i, 0, 0, n, 0, 1000, 99999, -99999});
+   // }
+
+
+   // for (int i=0; i<32; i++)
+   // {
+   //    char n[256];
+   //    sprintf(n, "Ei[][%d]", i);
+   //
+   //    ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_TRAKBOT, 0, i, 0, 0, n, 0, 1000, 99999, -99999});
+   // }
+
+
+
+
+
+
+}
+
+void mwEnemy::update_ovd(int object_type, int sub_type, int var_type, int var_num, int val)
+{
+   auto it = std::find_if(mLevel.mEnemy.ovd.begin(), mLevel.mEnemy.ovd.end(), [object_type, sub_type, var_type, var_num](const object_variable_description& o)
+      {
+         return o.object_type == object_type && o.sub_type == sub_type && o.var_type == var_type && o.var_num == var_num;
+   });
+
+   if (it != mLevel.mEnemy.ovd.end())
+   {
+      if (it->actual_min > val) it->actual_min = val;
+      if (it->actual_max < val) it->actual_max = val;
+   }
+}
+
+
+
+
+
+
 void mwEnemy::draw_enemies()
 {
    for (int e=0; e<100; e++)
@@ -393,15 +461,20 @@ void mwEnemy::enemy_player_hit_proc(int e)
    {
       if (Ei[e][22]) // player hit!
       {
+         // set retrigger amount
+         Ei[e][23] = 60;
+
+         // get player num
          int p = Ei[e][22]-1;
+
+         // take health
          m_parent.mPlayer.syn[p].health -= Ef[e][4];
 
          mGameEvent.add(41, 0, 0, p, Ei[e][0], 1, Ef[e][4]);
-         Ei[e][22] = 0;  // clear hit
-         Ei[e][23] = 60; // set retrigger amount
+
       }
    }
-   else Ei[e][22] = 0;
+   Ei[e][22] = 0; // clear player hit
 }
 
 void mwEnemy::enemy_killed(int e)
@@ -510,7 +583,9 @@ by function
 -- Variables used in draw
 -------------------------------------------------------------------------
 Ei[][1] // bitmap
-Ei[][2] // draw mode (v and h flips)
+Ei[][2] // common flags
+Ei[][3] // animation sequence
+Ei[][4] // draw mode (v and h flips)
 
 Ef[][0]  // x
 Ef[][1]  // y
@@ -540,6 +615,7 @@ Ef[e][4] // life dec
 -------------------------------------------------------------------------
 Ei[][1]  // draw bitmap
 Ei[][3]  // deathcount ans
+
 Ei[][24] // health bonus shape
 Ei[][25] // health bonus amount
 Ei[][30] // death loop count
@@ -548,7 +624,6 @@ Ef[][11]  // scale inc
 Ef[][12]  // scale
 Ef[][13]  // rot inc
 Ef[][14]  // rot
-
 
 -------------------------------------------------------------------------
 -- Variables used in enemy_player_hit_proc(int e)
@@ -575,9 +650,6 @@ Ef[][11] // scale multiplier
 Ef[][13] // rot inc
 
 
-
-
-
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 common variables (ones that can't be used by specific types)
@@ -586,7 +658,10 @@ total list
 -------------------------------------------------------------------------
 Ei[][0] = enemy type
 Ei[][1] = bitmap
-Ei[][2] = draw mode
+Ei[][2] = flags
+Ei[][3] = animation sequenece
+Ei[][4] = draw mode (h flip)
+
 
 Ei[][22] = player hit
 Ei[][23] = player hit retrigger
@@ -600,6 +675,7 @@ Ei[][30] = death loop count
 Ei[][31] = flag that this enemy got hit with shot
 
 
+
 Ef[][0] =  x
 Ef[][1] =  y
 Ef[][2] =  xinc
@@ -610,8 +686,6 @@ Ef[][11] = scale multiplier
 Ef[][12] = scale;
 Ef[][13] = rot inc
 Ef[][14] = rot
-
-
 
 
 
@@ -653,8 +727,6 @@ Ei[][7]   seek counter
 Ei[][8]   seek count
 Ei[][9]   extra hits to kill
 Ei[][10]  targetted player (-1) if none
-
-
 
 Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger counter
@@ -773,6 +845,10 @@ Ei[][15] shoot holdoff value
 Ei[][16] shoot holdoff counter
 Ei[][17] shot prox
 Ei[][20] rot
+
+
+
+
 
 Ef[][7] shot speed
 

@@ -1004,8 +1004,10 @@ void mwLift::draw_lifts()
 
             // make a rect with current lift position and size
             mwRect<float> lr = mwRect<float>::fromX1Y1WH(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
-
             draw_lift(l, lr);
+
+//            draw_lift(l, mwRect<float>::fromX1Y1WH(cur[l].x, cur[l].y, cur[l].w, cur[l].h));
+
 
             // outline frame if player is riding this lift
             int p = 0;

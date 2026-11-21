@@ -114,8 +114,6 @@ class mwItem
    int draw_rocket(int i, int x, int y, int shape);
    void draw_rocket_lines(int i);
 
-   int seq_color2();
-   int seq_color3();
    void bomb_block_crosshairs(int e, int f);
    void bomb_blocks(int i, int t, int dr, float x, float y);
    void bomb_crosshairs(float x, float y);

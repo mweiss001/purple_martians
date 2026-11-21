@@ -4,31 +4,6 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-check that viewport has more sensible settings, to reduce vertigo
-
-
-I think edit selection draw fsel might be drawing on things it should not
-make sure target bitmaps are set properly
-
-
-rx packet buffer full? why? add some logging to see what packets...
-client had the error, but all counters were zero 
-re-did to count and print all packets listed in pm.h
-waiting for more info...
-
-level editor save and quit does not save
-add option for quit confirmation to level editor menu
-
-make a nice rearrange function for windows in level editor
-
-when making level fit height exactly also move windows to right
-
-
-
-
-
-
-
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -53,8 +28,8 @@ then make demos for both
 
 ----------------------------------------------------------------------
 make demo for psycho killer
+done 4:00
 ----------------------------------------------------------------------
-
 
 
 ----------------------------------------------------------------------
@@ -64,22 +39,8 @@ overworld, make top main stats not show all areas, skip extra and dev
 
 
 ----------------------------------------------------------------------
-make color sequences common and live in color class
+check that viewport has more sensible settings, to reduce vertigo
 ----------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -90,20 +51,14 @@ I had 2 different types
 one was a single line and one was double
 
 at the very simplest:
-A pair of vertical or horizonatal lines
+A pair of vertical or horizontal lines
 when passing through it you instantly jump to the other line
 ---------------------------------------------
 
 
 
-
-
-
-
-
-
 ------------------------------------------------
-I would like to make the clients able to pause
+I would like to make the clients (and server) able to pause
 ------------------------------------------------
 
 when they hit escape, do not immediately exit
@@ -125,182 +80,11 @@ things I do not want them to be able to change:
 
 
 
-
-
---------------------------------------------------
-test items
-make custom tests for each item type
-
-
-
-
-
-
-
 ---------------------------
 more creators
 like cloner trigger pair
 cloner timer trigger set
 alter trigger set
-
-
-
-
-
-
----------------------------------------
-Item variable refactor
-
-A few different ideas:
-
-- merge int and float arrays into common array of structs
-
-- reduce space by making some ints 16 or 8
-
-
-THIS ONE:
-- make common flag variable to replace stat | fall and make it do many more things
-like bits for:
-stat / fall
-carry
-carry through door
-draw (in game)
-invisible until cloned
-secondary at 4567
-hires secondary
-invincible to damage
-use 14 for ttl
-use 15 for cloner tracking
-
-use 4 bits for color:
-how many items have color:
-
-many more for specific item types
-
-
-item[][0] = active and type
-item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
-
-this is what I am imagining
-0 will always be type or zero if inactive
-1 will always be the bitmap or animation
-2 will be flags
-
-3 ???
-4,5 position
-6,7,8,9 secondary position (if required)
-
-then I will have 7 ints left:  3, 10,11,12,13,14,15
-
-just looking at these, I realize most can be 8 or 16 bit integers
-
-this is not about saving space, it is more about having more variables available
-
-what will I add next for common flags
-
-secondary x, y, w, h in 6789
-hires
-draw sec field
-4 bits for color
-
-there are a few items that I can use this on:
-ones that use color
-door
-trigger
-damage
-alter
-
-ones that use 6789
-key
-switch
-trigger
-message
-timer
-alter
-damage
-hider
-
-
-block 6789
-key
-switch
-alter
-
-hires 6789
-trigger
-message
-timer
-damage
-hider
-
-draw 6789 field in color
-trigger
-alter
-damage
-
-
-
-
-
----------------------------------------
-Enemy variable refactor
-
-Common flags for enemies:
-
-Ei[][2]
-
-//                                                      3       2       1       0
-//                                               76543210765432107654321076543210
-#define PM_ENEMY_FLAG_SKIP_COUNT               0b00000000000000000000000000000001
-#define PM_ENEMY_FLAG_INVISIBLE                0b00000000000000000000000000000010
-#define PM_ENEMY_FLAG_INVINCIBLE_SHOTS         0b00000000000000000000000000000100
-#define PM_ENEMY_FLAG_INVINCIBLE_BOMBS         0b00000000000000000000000000001000
-#define PM_ENEMY_FLAG_INVINCIBLE_DAMAGE        0b00000000000000000000000000010000
-
-#define PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED  0b00000000000000000000000100000000
-#define PM_ENEMY_FLAG_INVISIBLE_UNTIL_CLONED   0b00000000000000000000001000000000
-#define PM_ENEMY_FLAG_INVINCIBLE_UNTIL_CLONED  0b00000000000000000000010000000000
-
-bug archwagons only face one way
-
-implemented all these buttons for every enemy
-
-test...
-now...where do I count enemies..done
-
-test makes demos complete 22 seconds earlier
-I will need to tweak levels
-
-
-2026-11-17 05:01:47
-
-next I should implement invisible ..done
-
-I think I broke the overworld level with items
-fix it
-
-fixed messages..door
-fixed triggers...done
-fixed doors...done
-
-fixed all 3 places in editSelection that deal woth door
-fixed item sort that deals with doors
-
-IN and OUT is still shown, even if doors are hidden
-fixed all this
-
-back to enemies...
-
-I think I have the hidden working
-
-
-
-
-
-
-
 
 
 
@@ -328,7 +112,6 @@ replace mode alt for other tilesets?
 wires has options
 pipes also, can be solid middle or cross
 
-
 - do more custom draw modes with 90 tileset rect draw
 
 - make more tile helper frame presets...
@@ -336,7 +119,6 @@ pipes also, can be solid middle or cross
 - make the 90 tileset replace draw take more advantage of all the extra tiles
 replace_helper_90(struct tileSet ts)...done
 replace_helper_90_frame(struct tileSet ts, int lv, int type)...to do
-
 
 
 --------------------------------------------------
@@ -362,7 +144,6 @@ help screens
 - redo block selection
 
 
-
 ------------------------------------------------------------------------------
 logging
 
@@ -379,7 +160,6 @@ separated by spaces
 I want a single function
 
 none of this really matters...fuck it
-
 
 
 -----------------------------------------------------------------------------
@@ -403,21 +183,12 @@ what if this gmInfo I am generating is saved in a database?
 that was where i was going with the stats thing anyway, was I not?
 ----------------------------------
 
-
-
 -----------------------------------------
 demoRecord
 make a cool method to determine is there is a shot possible that will kill an enemy
 at a certain frame and certain player,
 test all possible fire directions to see if any would hit an enemy that was not already hit
 -----------------------------------------
-
-
-
-
-
-
-
 
 
 
@@ -1485,6 +1256,234 @@ gmList
 - why does timeline show the current position tags and bleed over to transport tools?
 
 these are not important...I am done with demoRecord!!
+
+
+
+
+
+
+
+
+--------------------------------------------------
+object tests and common min max limits and testings
+--------------------------------------------------
+
+
+---------------------------------------
+Item variable refactor
+
+A few different ideas:
+
+- merge int and float arrays into common array of structs
+
+- reduce space by making some ints 16 or 8
+
+
+THIS ONE:
+- make common flag variable to replace stat | fall and make it do many more things
+like bits for:
+stat / fall
+carry
+carry through door
+draw (in game)
+invisible until cloned
+secondary at 4567
+hires secondary
+invincible to damage
+use 14 for ttl
+use 15 for cloner tracking
+
+use 4 bits for color:
+how many items have color:
+
+many more for specific item types
+
+
+item[][0] = active and type
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+
+this is what I am imagining
+0 will always be type or zero if inactive
+1 will always be the bitmap or animation
+2 will be flags
+
+3 ???
+4,5 position
+6,7,8,9 secondary position (if required)
+
+then I will have 7 ints left:  3, 10,11,12,13,14,15
+
+just looking at these, I realize most can be 8 or 16 bit integers
+
+this is not about saving space, it is more about having more variables available
+
+what will I add next for common flags
+
+secondary x, y, w, h in 6789
+hires
+draw sec field
+4 bits for color
+
+there are a few items that I can use this on:
+ones that use color
+door
+trigger
+damage
+alter
+
+ones that use 6789
+key
+switch
+trigger
+message
+timer
+alter
+damage
+hider
+
+
+block 6789
+key
+switch
+alter
+
+hires 6789
+trigger
+message
+timer
+damage
+hider
+
+draw 6789 field in color
+trigger
+alter
+damage
+
+
+
+
+
+---------------------------------------
+Enemy variable refactor
+
+Common flags for enemies:
+
+Ei[][2]
+
+//                                                      3       2       1       0
+//                                               76543210765432107654321076543210
+#define PM_ENEMY_FLAG_SKIP_COUNT               0b00000000000000000000000000000001
+#define PM_ENEMY_FLAG_INVISIBLE                0b00000000000000000000000000000010
+#define PM_ENEMY_FLAG_INVINCIBLE_SHOTS         0b00000000000000000000000000000100
+#define PM_ENEMY_FLAG_INVINCIBLE_BOMBS         0b00000000000000000000000000001000
+#define PM_ENEMY_FLAG_INVINCIBLE_DAMAGE        0b00000000000000000000000000010000
+
+#define PM_ENEMY_FLAG_SKIP_COUNT_UNTIL_CLONED  0b00000000000000000000000100000000
+#define PM_ENEMY_FLAG_INVISIBLE_UNTIL_CLONED   0b00000000000000000000001000000000
+#define PM_ENEMY_FLAG_INVINCIBLE_UNTIL_CLONED  0b00000000000000000000010000000000
+
+bug archwagons only face one way
+
+implemented all these buttons for every enemy
+
+test...
+now...where do I count enemies..done
+
+test makes demos complete 22 seconds earlier
+I will need to tweak levels
+
+
+2026-11-17 05:01:47
+
+next I should implement invisible ..done
+
+I think I broke the overworld level with items
+fix it
+
+fixed messages..door
+fixed triggers...done
+fixed doors...done
+
+fixed all 3 places in editSelection that deal woth door
+fixed item sort that deals with doors
+
+IN and OUT is still shown, even if doors are hidden
+fixed all this
+
+back to enemies...
+
+I think I have the hidden working
+
+I want to test all the enemy flags
+
+I want to add enemy flags to group edit
+
+
+I want a function that iterates all levels and enemies and finds actual min and max
+at the same time this could be the data structure that defines the allowed min and max
+
+
+what would it look like:
+
+for one enemy type
+
+all 16 floats
+
+struct ef
+{
+   bool used
+
+   int index
+   std::string name
+
+
+   float min_allowed
+   float max_allowed
+   
+   float actual_min
+   float actual_max
+
+}
+
+then make 10x16 array of these
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

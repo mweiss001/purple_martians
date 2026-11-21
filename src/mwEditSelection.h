@@ -35,6 +35,15 @@ class mwEditSelection
 
    void clear_ft_variables();
 
+   // temp backup for object filters
+   int temp_obj_filter[5][20][2];
+
+   void backup_object_filters();
+   void retore_object_filters();
+   void set_all_object_filters_on();
+
+
+
    std::vector<liftIDTranslation> liftIDTranslations{};
    std::vector<itemIDTranslation> itemIDTranslations{};
 

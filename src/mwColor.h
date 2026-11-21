@@ -5,18 +5,23 @@ class mwColor
    public:
    mwColor(); // constructor
 
-   void process_flash_color();
    void show_palette();
 
 
    ALLEGRO_COLOR pc[256];
+
+   char color_name[16][20];
+
+
+   void process_flash_color();
    int flash_color = 0;
    int flash_color2 = 0;
    int flash_counter = 0;
-   char color_name[16][20];
+   int flash_color_array[40];
+   int flash_color_array2[32][2];
 
-   ALLEGRO_COLOR Flash1;
-   ALLEGRO_COLOR Flash2;
+
+
    ALLEGRO_COLOR Black;
    ALLEGRO_COLOR Violet;
    ALLEGRO_COLOR Mauve;
@@ -36,11 +41,13 @@ class mwColor
 
 
    void map_rgb_to_hsl(ALLEGRO_COLOR, float &h, float &s, float &l);
-
    bool compareColor(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2, float tolerance);
-
-
    void modify_hsl(ALLEGRO_BITMAP *bmp, int x, int y, float h_adj, float s_adj, float l_adj, bool clamp = false);
+
+   ALLEGRO_COLOR modify_hsl(ALLEGRO_COLOR color, float h_adj, float s_adj, float l_adj, bool clamp = false);
+
+   int seq_color2();
+   int seq_color3();
 
 
 

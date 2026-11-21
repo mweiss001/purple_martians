@@ -1427,7 +1427,7 @@ void mwGroupEdit::draw_level_editor_background_overlays(int mouse_on_window)
             x = mLevel.mEnemy.Ef[num][0];
             y = mLevel.mEnemy.Ef[num][1];
          }
-         if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.Flash1, 1); // highlight
+         if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.pc[mColor.flash_color], 1); // highlight
          else                al_draw_rectangle(x,   y,   x+20,   y+20,   mColor.pc[10], 1);
       }
    }

@@ -57958,6 +57958,702 @@ fixed...
 2026-11-20 07:46:02 commit
 
 
+----------------------------------------------------------------------
+make color sequences common and live in color class .... done
+----------------------------------------------------------------------
+where are they now?
+bomb rocket has 2 that would be easy to move..done
+
+what else?
+
+screen overlay level done uses this:
+
+void mwColor::process_flash_color()
+{
+   if (++flash_counter > 32) flash_counter = 1;
+   if ((flash_counter  > 0)  && (flash_counter < 9))   { flash_color = 10;  flash_color2 = 15; }
+   if ((flash_counter  > 8)  && (flash_counter < 15))  { flash_color = 14;  flash_color2 = 11; }
+   if ((flash_counter  > 16) && (flash_counter < 23))  { flash_color = 15;  flash_color2 = 10; }
+   if ((flash_counter  > 24) && (flash_counter < 33))  { flash_color = 11;  flash_color2 = 14; }
+   Flash1 = pc[flash_color];
+   Flash2 = pc[flash_color2];
+}
+
+
+
+   for (int i=0; i<8; i++)
+   {
+      flash_color_array2[i+0][0] = 10;
+      flash_color_array2[i+0][1] = 15;
+      
+      flash_color_array2[i+8][0] = 14;
+      flash_color_array2[i+8][1] = 11;
+      
+      flash_color_array2[i+16][0] = 15;
+      flash_color_array2[i+16][1] = 10;
+
+      flash_color_array2[i+24][0] = 11;
+      flash_color_array2[i+24][1] = 14;
+   }
+
+
+BUG - I think edit selection draw fsel might be drawing on things it should not
+make sure target bitmaps are set properly
+hard to find
+look for set target bitmap in draw item and enemies
+enemies..none
+items..a few but they look good
+cannot reproduce
+
+why do I draw custom for items??
+
+   // draw items
+   for (int i=0; i<500; i++)
+      if ((ftLevel.mItem.item[i][0]) && (mEditorMain.obj_filter[PM_OBJECT_TYPE_ITEM][ftLevel.mItem.item[i][0]][0])) ftLevel.mItem.draw_item(i, 1, ftLevel.mItem.item[i][4], ftLevel.mItem.item[i][5]);
+
+   // draw enemies
+   for (int e=0; e<100; e++)
+      if ((ftLevel.mEnemy.Ei[e][0]) && (mEditorMain.obj_filter[PM_OBJECT_TYPE_ENEMY][ftLevel.mEnemy.Ei[e][0]][0])) ftLevel.mEnemy.draw_enemy(e, 0, 0, 0);
+
+I now set item float positions and draw normally...
+
+do I have a bug in editselection doors?
+code looks good....
+
+It happens when copying half a door set...
+
+         ftLevel.mLift.draw_lift(l, mwRect<float>::fromX1Y1WH(ftLevel.mLift.cur[l].x, ftLevel.mLift.cur[l].y, ftLevel.mLift.cur[l].w, ftLevel.mLift.cur[l].h));
+
+
+         mwRect<float> lr = mwRect<float>::fromX1Y1WH(x1, y1, mLevel.mLift.stp[n][s].w, mLevel.mLift.stp[n][s].h);
+         mLevel.mLift.draw_lift(n, lr);
+
+
+            // make a rect with current lift position and size
+            mwRect<float> lr = mwRect<float>::fromX1Y1WH(cur[l].x, cur[l].y, cur[l].w, cur[l].h);
+
+            draw_lift(l, lr);
+done working on this bug
+
+
+
+
+
+
+2026-11-21 06:50:52
+
+this is my big project for today:
+
+
+
+I want a function that iterates all levels and enemies and finds actual min and max
+at the same time this could be the data structure that defines the allowed min and max
+
+
+what would it look like:
+
+for one enemy type
+
+all 16 floats
+
+
+struct Efd
+{
+   bool used
+
+   int index
+   std::string name
+
+
+   float min_allowed
+   float max_allowed
+   
+   float actual_min
+   float actual_max
+
+}
+
+then make 10x16 array of these
+
+
+under mwEnemy:
+
+struct Efd
+{
+   bool used;
+   std::string name;
+   float min_allowed;
+   float max_allowed;
+   
+   float actual_min;
+   float actual_max;
+   
+};
+
+struct Efd Efds[32][16];
+
+manually fill:
+
+   bool used;
+   std::string name;
+   float min_allowed;
+   float max_allowed;
+
+do it for cloner to start
+
+   Efds[PM_ENEMY_TYPE_CLONER][0].used = 1;
+   Efds[PM_ENEMY_TYPE_CLONER][0].name = "x";
+   Efds[PM_ENEMY_TYPE_CLONER][0].min_allowed = 0;
+   Efds[PM_ENEMY_TYPE_CLONER][0].max_allowed = 1980;
+
+   Efds[PM_ENEMY_TYPE_CLONER][1].used = 1;
+   Efds[PM_ENEMY_TYPE_CLONER][1].name = "y";
+   Efds[PM_ENEMY_TYPE_CLONER][1].min_allowed = 0;
+   Efds[PM_ENEMY_TYPE_CLONER][1].max_allowed = 1980;
+   
+   Efds[PM_ENEMY_TYPE_CLONER][2].used = 1;
+   Efds[PM_ENEMY_TYPE_CLONER][2].name = "xinc";
+   Efds[PM_ENEMY_TYPE_CLONER][2].min_allowed = -100;
+   Efds[PM_ENEMY_TYPE_CLONER][2].max_allowed = 100;
+
+   Efds[PM_ENEMY_TYPE_CLONER][3].used = 1;
+   Efds[PM_ENEMY_TYPE_CLONER][3].name = "yinc";
+   Efds[PM_ENEMY_TYPE_CLONER][3].min_allowed = -100;
+   Efds[PM_ENEMY_TYPE_CLONER][3].max_allowed = 100;
+
+
+
+I don't think I need to differeniate between float and int
+I will have a common struct for both
+
+what I do need is to differeniate between a scalar varaible and flags or bitfields
+
+maybe I could rethink the whole flat array thing
+
+
+struct object_variable_description
+{
+   int object_type (item, enemy, lift)
+   int sub_type (item_type, enemy_type, step_type)
+   int var_type (int, float, bitfield)
+   int var_num (index into object array, item[][], Ei[][], Ef[][], step_var
+   int var_flag_bitmask (if bitfield, the flags needed to get value)
+   int var_flag_shifts  (if bitfield, the shift needed to get value)
+
+   std::string name;
+   float min_allowed;
+   float max_allowed;
+   
+   float actual_min;
+   float actual_max;
+   
+};
+
+then I could store these in a vector
+
+iterate by ot, st and I should get all vars related to a type
+
+there will be muliple flags for some variables
+I can find a specific one by searching for ot, st, vt, vn, vf
+
+
+struct object_variable_description
+{
+   int object_type; //  (item, enemy, lift)
+   int sub_type; // (item_type, enemy_type, step_type)
+   int var_type; // (int, float, bitfield)
+   int var_num; // (index into object array, item[][], Ei[][], Ef[][], step_var
+   int var_flag_bitmask;  // (if bitfield, the flags needed to get value)
+   int var_flag_bitshift; //  (if bitfield, the shift needed to get value)
+
+   std::string name;
+   float min_allowed;
+   float max_allowed;
+   float actual_min;
+   float actual_max;
+};
+
+std::vector<object_variable_description> ovd;   
+
+   ovd.clear();
+
+   ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 9, 0, 0, "time to live for created objects", 0, 1000, 0, 0});
+   ovd.push_back({PM_OBJECT_TYPE_ENEMY, PM_ENEMY_TYPE_CLONER, 0, 10, 0, 0, "max num of created objects", 0, 1000, 0, 0});
+
+now what?
+
+in glt do something
+
+find the specific ovd and modify it
+
+
+      for (int y=0; y<100; y++)
+         if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
+         {
+
+            // find ovd
+            int ot = PM_OBJECT_TYPE_ENEMY;
+            int st = PM_ENEMY_TYPE_CLONER;
+            int vt = 0;
+            int vn = 9;
+
+            auto it = std::find_if(mLevel.mEnemy.ovd.begin(), mLevel.mEnemy.ovd.end(), [ot, st, vt, vn](const object_variable_description& o)
+               {
+                  return o.object_type == ot && o.sub_type == st && o.var_type == vt && o.var_num == vn;
+            });
+
+            // 2. Always check if it was found before modifying!
+            if (it != mLevel.mEnemy.ovd.end())
+            {
+               printf("l:%d cloner 9:%d\n", le[x], mLevel.mItem.item[y][9] );
+               if (it->actual_min > mLevel.mEnemy.Ei[y][9]) it->actual_min = mLevel.mEnemy.Ei[y][9];
+               if (it->actual_max < mLevel.mEnemy.Ei[y][9]) it->actual_min = mLevel.mEnemy.Ei[y][9];
+            }
+            else
+            {
+               std::cout << "not found.\n";
+            }
+         }
+
+
+then show the results
+
+now...
+
+this is bigger than enemy
+for now leave it there
+
+
+make this a function
+
+
+
+         if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)
+         {
+
+            // find ovd
+            int ot = PM_OBJECT_TYPE_ENEMY;
+            int st = PM_ENEMY_TYPE_CLONER;
+            int vt = 0;
+            int vn = 9;
+            int val = mLevel.mEnemy.Ei[y][9];
+
+
+            auto it = std::find_if(mLevel.mEnemy.ovd.begin(), mLevel.mEnemy.ovd.end(), [ot, st, vt, vn](const object_variable_description& o)
+               {
+                  return o.object_type == ot && o.sub_type == st && o.var_type == vt && o.var_num == vn;
+            });
+
+            // 2. Always check if it was found before modifying!
+            if (it != mLevel.mEnemy.ovd.end())
+            {
+
+//               if (mLevel.mItem.item[y][9] >= 2000) printf("l:%d y:%d cloner 9:%d----------------------------------------------------\n", le[x], y, mLevel.mItem.item[y][9] );
+               printf("l:%d y:%d cloner 9:%d  %f  \n", le[x], y, val, it->actual_max );
+
+               if (it->actual_min > val) it->actual_min = val;
+               if (it->actual_max < val) it->actual_max = val;
+            }
+            else
+            {
+               std::cout << "not found.\n";
+            }
+         }
+
+
+
+
+
+2026-11-21 08:58:17
+
+
+in this manner I hope to clean up variables
+
+what is cloner 11? nothing right?
+
+set to zero, tests passed...
+now 12..good
+
+13 and 14 should also be nothing..yes
+
+29 - collision box size stays
+
+26-31 can be blanked
+
+15-20 are for rects
+
+21 should be unused..yes...
+
+6-7 should be unused also
+
+
+
+
+final:
+
+Ei[][4]  draw boxes (0 = none) (1 = source) (2 = dest) (3 = both)
+Ei[][5]  draw mode (0 = hidden, 1 = static shape, 2 = static ans, 3 = follow event timer
+Ei[][8]  trigger event
+Ei[][9]  time to live for created objects
+Ei[][10] max num of created objects
+Ei[e][15] = copy box x
+Ei[e][16] = copy box y
+Ei[e][17] = dest box x
+Ei[e][18] = dest box y
+Ei[e][19] = copy box width
+Ei[e][20] = copy box height
+
+
+Ei[10][0]: min:9.000000  max:9.000000
+Ei[10][1]: min:546.000000  max:550.000000
+Ei[10][2]: min:0.000000  max:257.000000
+Ei[10][3]: min:0.000000  max:60.000000
+Ei[10][4]: min:0.000000  max:3.000000
+Ei[10][5]: min:0.000000  max:3.000000
+Ei[10][6]: min:0.000000  max:0.000000
+Ei[10][7]: min:0.000000  max:0.000000
+Ei[10][8]: min:0.000000  max:52.000000
+Ei[10][9]: min:0.000000  max:3000.000000
+Ei[10][10]: min:0.000000  max:60.000000
+Ei[10][11]: min:0.000000  max:0.000000
+Ei[10][12]: min:0.000000  max:0.000000
+Ei[10][13]: min:0.000000  max:0.000000
+Ei[10][14]: min:0.000000  max:0.000000
+Ei[10][15]: min:0.000000  max:1920.000000
+Ei[10][16]: min:0.000000  max:1940.000000
+Ei[10][17]: min:0.000000  max:1920.000000
+Ei[10][18]: min:0.000000  max:1960.000000
+Ei[10][19]: min:0.000000  max:1780.000000
+Ei[10][20]: min:0.000000  max:300.000000
+Ei[10][21]: min:0.000000  max:0.000000
+Ei[10][22]: min:0.000000  max:0.000000
+Ei[10][23]: min:0.000000  max:0.000000
+Ei[10][24]: min:0.000000  max:25.000000
+Ei[10][25]: min:25.000000  max:25.000000
+Ei[10][26]: min:0.000000  max:0.000000
+Ei[10][27]: min:0.000000  max:0.000000
+Ei[10][28]: min:0.000000  max:0.000000
+Ei[10][29]: min:0.000000  max:10.000000
+Ei[10][30]: min:0.000000  max:0.000000
+Ei[10][31]: min:0.000000  max:0.000000
+
+
+
+common:
+
+Ei[][0] = enemy type
+Ei[][1] = bitmap
+Ei[][2] = flags
+
+
+Ei[][4] = draw mode h flip
+
+
+
+Ei[][22] = player hit
+Ei[][23] = player hit retrigger
+Ei[][24] = health bonus shape
+Ei[][25] = health bonus amount
+Ei[][26] = used to tell what player killed enemy
+Ei[][27] = time to live
+Ei[][28] = cloner create id
+Ei[][29] = collision box size
+Ei[][30] = death loop count
+Ei[][31] = flag that this enemy got hit with shot
+
+
+what do I do with health bonus shape? is it determined elsewhere?
+
+what is player hit?
+used to determine what player collided with enemy
+
+players detect if they collide wiith enemy and set 22 to their player number + 1
+
+void mwEnemy::enemy_player_hit_proc(int e)
+{
+   if (--Ei[e][23] < 0) // hit player retrigger
+   {
+      if (Ei[e][22]) // player hit!
+      {
+         int p = Ei[e][22]-1;
+         m_parent.mPlayer.syn[p].health -= Ef[e][4];
+
+         mGameEvent.add(41, 0, 0, p, Ei[e][0], 1, Ef[e][4]);
+         Ei[e][22] = 0;  // clear hit
+         Ei[e][23] = 60; // set retrigger amount
+      }
+   }
+   else Ei[e][22] = 0;
+}
+
+I can confidently state that the bonus shape 24, while used, is set manually when enemy is killed
+
+what about 3??
+animation sequence
+leave it alone
+
+
+I think I have cloner worked out...
+something else?
+
+trakbot
+
+
+Ei[][0]: min:8.000000  max:8.000000
+Ei[][1]: min:384.000000  max:384.000000
+Ei[][2]: min:0.000000  max:0.000000
+Ei[][3]: min:17.000000  max:90.000000
+Ei[][4]: min:0.000000  max:1.000000
+Ei[][5]: min:0.000000  max:7.000000
+Ei[][6]: min:0.000000  max:40.000000
+Ei[][7]: min:0.000000  max:1.000000
+Ei[][8]: min:0.000000  max:0.000000
+Ei[][9]: min:0.000000  max:10.000000
+Ei[][10]: min:0.000000  max:0.000000
+Ei[][11]: min:0.000000  max:0.000000
+Ei[][12]: min:0.000000  max:0.000000
+Ei[][13]: min:0.000000  max:0.000000
+Ei[][14]: min:0.000000  max:0.000000
+Ei[][15]: min:3.000000  max:200.000000
+Ei[][16]: min:0.000000  max:0.000000
+Ei[][17]: min:20.000000  max:1175.000000
+Ei[][18]: min:0.000000  max:0.000000
+Ei[][19]: min:0.000000  max:0.000000
+Ei[][20]: min:0.000000  max:0.000000
+Ei[][21]: min:0.000000  max:0.000000
+Ei[][22]: min:0.000000  max:0.000000
+Ei[][23]: min:0.000000  max:0.000000
+Ei[][24]: min:0.000000  max:7.000000
+Ei[][25]: min:7.000000  max:7.000000
+Ei[][26]: min:0.000000  max:0.000000
+Ei[][27]: min:0.000000  max:0.000000
+Ei[][28]: min:0.000000  max:0.000000
+Ei[][29]: min:0.000000  max:10.000000
+Ei[][30]: min:0.000000  max:0.000000
+Ei[][31]: min:0.000000  max:0.000000
+
+
+zero 24
+
+Ei[][1]  shape
+Ei[][3]  base animation seq (17=trakbot with shot, 18=trakbot without shot)
+Ei[][4]  draw mode (h flip)
+Ei[][5]  mode
+Ei[][6]  fall 160 max fall
+Ei[][7]  drop mode(0=no, 1=yes)
+Ei[][8]  twirling counter
+Ei[][15] shoot holdoff value
+Ei[][16] shoot holdoff counter
+Ei[][17] shot prox
+Ei[][20] rot
+
+what is 9??
+kill it...
+
+
+I would say trakbot is good, what else?
+bouncer and cannon
+
+I am getting bored of this...
+
+how about a demo for psycho killer
+does not have to be TAS!!!
+
+why are there too many tracks in timeline?
+
+and when saved they all get saved too...
+
+where does it go wrong?
+
+something is adding new moves to the end...
+
+
+file and path selected:C:\pm\savegame\demo\lev005.gm
+1mwGmInfo::fill() lastFrame:5502   ep:858
+2mwGmInfo::fill() lastFrame:5502   ep:860
+x:1 f:1 p:0 found active move
+x:859 f:1 p:0 found active move
+1mwGmInfo::fill() lastFrame:1   ep:860
+2mwGmInfo::fill() lastFrame:1   ep:862
+x:1 f:1 p:0 found active move
+x:859 f:1 p:0 found active move
+x:861 f:1 p:0 found active move
+
+
+after seek to frame I get more gamemoves...why?
+
+
+   if (frame <= mLoop.frame_num) mLoop.load_and_setup_level(mLevel.play_level, 4);
+
+
+the problem was in
+int mwLoop::load_and_setup_level(int level, int type)
+
+i added:
+
+   // after loading for demo
+   if (type == 4) return 1;
+
+before it could insert more game moves...
+
+fixed!!
+
+why does player not show when paused in demo record?...fixed
+if armed, it still shows when playing demo later, clear when leaving demo record...done
+
+So I have a demo for 58... 4:00
+I think I am getting closer to done!!
+2026-11-21 12:39:37
+
+I do not feel like adding any new features at this point
+Like new enemies or wrap
+
+
+I still want to see if I can improve the standard door warp
+
+its just some simple shapes...
+
+10 frames to get a ring from the outer to the inner
+void mwTileEditor::tile_palette_select(int x1, int y1, int size)
+
+
+ok now how to colorize and put into place
+
+
+the old one, doors are always static
+
+I wish to remove all the sequences and use something static
+
+
+put 14 static door shapes in sprites from 160 (1) to 174 (15)
+
+now use them....
+
+   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.sprite[159+col], 10, 10, x+10, y+10, scale, scale, 0, 0 );
+
+done...
+now remove from array...done
+
+now draw 16x10 with new shapes and save
+
+what size?
+
+176x704??
+
+16x22 = 352
+
+220x352
+
+now colorize somehow
+
+It actually might be easier to just create with the palette colors...
+
+try that...
+
+now I am at the point where why the fuck do I want to save them to disk? I can just dynamically create them..
+
+I am so ver happy with this
+
+2026-11-21 17:37:14 commit for now...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

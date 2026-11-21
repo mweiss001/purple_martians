@@ -260,7 +260,11 @@ int mwDemoRecord::load_demo_record(bool get_new)
 void mwDemoRecord::refresh()
 {
    int old_frame_num = mLoop.frame_num;
+
+
    mGmInfo.fill();
+
+
    load_lnk_arr();    // load games moves into link array
    mDemoMode.seek_to_frame(old_frame_num, 1);
 }
@@ -304,8 +308,6 @@ void mwDemoRecord::demo_record()
 {
    init();
    if (!load_mWM()) set_window_positions(2);
-
-
 
    double frame_start_timestamp;
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
@@ -358,7 +360,9 @@ void mwDemoRecord::demo_record()
          else
          {
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            mLevel.draw_scaled_level_region_to_display();
+//            mLevel.draw_scaled_level_region_to_display();
+            mDrawSequence.ds_draw(0, 0);
+
             mScreen.draw_screen_overlay();
             if (show_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, mDisplay.SCREEN_H-200);
          }
@@ -395,6 +399,8 @@ void mwDemoRecord::demo_record()
 
    mLevel.mPlayer.active_local_player = 0;
    mConfig.load_config(); // to restore colors and other settings
+
+   record_punch_in_armed = 0;
 
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
    mLoop.quit_action = 1; // menu

@@ -36,6 +36,10 @@ class mwBitmap
    void draw_portal(int color, int index, int x, int y, float scale, float rot);
 
 //   void draw_portal_old(int index, int x, int y, float scale, float rot);
+   void make_door_tiles();
+
+
+
 
    void create_bitmaps();
    void rebuild_bitmaps();
@@ -98,10 +102,13 @@ class mwBitmap
    ALLEGRO_BITMAP *sprite[NUM_SPRITES];
    ALLEGRO_BITMAP *tile[NUM_TILES];
    ALLEGRO_BITMAP *player_tile[16][32];
-   ALLEGRO_BITMAP *door_tile[2][16][8];
+//   ALLEGRO_BITMAP *door_tile[2][16][8];
+   ALLEGRO_BITMAP *door_tile[16][10];
+
    ALLEGRO_BITMAP *gate_tile[7][3];
 
-//   ALLEGRO_BITMAP *portal_tile_old[100];
+
+
 
    ALLEGRO_BITMAP *portal_tile[16][15];
 

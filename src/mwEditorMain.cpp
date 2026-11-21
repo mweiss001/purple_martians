@@ -403,7 +403,7 @@ void mwEditorMain::process_mouse_on_background()
          break;
          case 13: mLevel.load_level_visual_select(); break; // load level
          case 14: mLevel.save_level(mLevel.last_level_loaded); break; // save level
-         case 15: mLevelEditor.active = 0; break; // save and exit
+         case 15: mLevel.save_level(mLevel.last_level_loaded); mLevelEditor.active = 0; break; // save and exit
          case 16: mHelp.help("Level Editor Basics"); break;// help
          case 17: mLevelEditor.active = 0; break; // exit
       } // end of switch case
@@ -771,8 +771,14 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       strcpy(mMenu.menu_string[4],"Reload");
       strcpy(mMenu.menu_string[5],"Save");
       strcpy(mMenu.menu_string[6],"Save As");
-      strcpy(mMenu.menu_string[7],"Exit");
-      strcpy(mMenu.menu_string[8],"end");
+
+      if (mEditorMain.level_editor_quit_confirmation_dialog) strcpy(mMenu.menu_string[7],"Confirm Exit:ON");
+      else strcpy(mMenu.menu_string[7],"Confirm Exit:OFF");
+
+      strcpy(mMenu.menu_string[8],"Exit");
+      strcpy(mMenu.menu_string[9],"end");
+
+
       int ret = mMenu.tmenu(1, x1+2, by1);
       if (ret == 1)
       {
@@ -789,7 +795,10 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 4) mLevel.load_level_by_number(mLevel.last_level_loaded, 0, 0);
       if (ret == 5) mLevel.save_level(mLevel.last_level_loaded);
       if (ret == 6) mLevel.save_level_prompt();
-      if (ret == 7) mLevelEditor.active = 0;
+
+      if (ret == 7) mEditorMain.level_editor_quit_confirmation_dialog = !mEditorMain.level_editor_quit_confirmation_dialog;
+
+      if (ret == 8) mLevelEditor.active = 0;
       al_set_target_backbuffer(mDisplay.display);
    }
    x1+=(tl*8)+x_spacing;
@@ -818,7 +827,28 @@ void mwEditorMain::process_menu_bar(mwWindow &w)
       if (ret == 2) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
       if (ret == 3) mDisplay.set_scale_factor(mDisplay.scale_factor * 1.1, 0);
       if (ret == 4) mDisplay.set_scale_factor(1.0, 1);
-      if (ret == 5) mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 1);
+      if (ret == 5)
+      {
+         float level_size = mDisplay.SCREEN_H - BORDER_WIDTH*2;
+
+         mDisplay.set_scale_factor(level_size/2000, 1);
+
+         int wx = level_size + BORDER_WIDTH + 10;
+         int wy = BORDER_WIDTH + 10;
+
+
+         // set window positions
+
+         mLevelEditor.mWM.mW[1].set_pos(wx, wy); // Status Window
+         mLevelEditor.mWM.mW[2].set_pos(wx, wy + 240 ); // Selection Window
+         mLevelEditor.mWM.mW[3].set_pos(wx+330, wy); // Filters
+         mLevelEditor.mWM.mW[4].set_pos(wx, wy ); // Edit Selection
+         mLevelEditor.mWM.mW[5].set_pos(wx, wy ); // Group Edit List
+         mLevelEditor.mWM.mW[6].set_pos(wx, wy+300 ); // Group Edit Controls
+         mLevelEditor.mWM.mW[7].set_pos(wx, wy ); // Object Viewer
+         mLevelEditor.mWM.mW[9].set_pos(wx, wy ); // Tile Helper
+
+      }
       if (ret == 6) mDisplay.set_saved_display_transform(0);
       if (ret == 7) mDisplay.set_saved_display_transform(1);
       if (ret == 8) mDisplay.set_saved_display_transform(2);

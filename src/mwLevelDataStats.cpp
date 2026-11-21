@@ -12,7 +12,7 @@
 void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y)
 {
 
-   bool print = 1;
+   bool print = 0;
 
 
    char msg[80];
@@ -483,13 +483,6 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
          else printf(" %d", data[lev].time_total);
 
 
-
-
-
-
-
-
-
       }
 
       x += width+8;
@@ -529,7 +522,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       vline[vli++] = x-4;
    }
 
-   if (print) printf("\n");
+   if (draw && print) printf("\n");
 
 
 
@@ -766,9 +759,6 @@ void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
 
 
 
-
-
-
    int x1 = 2;   // these are based on a frame width of 2
    int x2 = w-2;
    int y = 2;
@@ -810,8 +800,8 @@ void mwLevel::draw_level_stats(int &w, int &h, int draw, int msg_type)
          if (overworld_area_array[area].visible) show_main = 1;
       if (show_main) show_level_stats_main_area(x1, x2, y, draw, bco, gy, ty, max_x);
 
-      if (overworld_area_array[7].visible) show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // extra
-      if (overworld_area_array[8].visible) show_level_stats_area(8, x1, x2, y, draw, bco, gy, ty, max_x); // demo
+//      if (overworld_area_array[7].visible) show_level_stats_area(7, x1, x2, y, draw, bco, gy, ty, max_x); // extra
+//      if (overworld_area_array[8].visible) show_level_stats_area(8, x1, x2, y, draw, bco, gy, ty, max_x); // demo
       show_level_stats_grand_total(x1, x2, y, draw, bco, gy, ty, max_x); // grand totals
 
    }

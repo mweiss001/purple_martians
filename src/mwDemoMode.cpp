@@ -315,6 +315,7 @@ void mwDemoMode::run_single_from_gate(const int lev)
 void mwDemoMode::seek_to_frame(const int frame, const int draw)
 {
    mSound.mute = true;
+
    // if seeking backwards or same frame, reload level and play forwards
    if (frame <= mLoop.frame_num) mLoop.load_and_setup_level(mLevel.play_level, 4);
 
@@ -326,6 +327,7 @@ void mwDemoMode::seek_to_frame(const int frame, const int draw)
       mLoop.move_frame();
    }
    mSound.mute = false;
+
    if (draw) mDrawSequence.ds_draw(0, 0);
 }
 

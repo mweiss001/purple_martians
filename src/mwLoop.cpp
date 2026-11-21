@@ -695,9 +695,9 @@ int mwLoop::load_and_setup_level(int level, int type)
 {
 //   printf("int mwLoop::load_and_setup_level(int level, int type)\n");
 
-
    // load new level or die trying
    if (!mLevel.load_level_by_number(level, 0, 0)) return 0;
+
 
    // reset game moves (except in demo mode)
    if (type != 4) mGameMoves.new_level();
@@ -757,6 +757,10 @@ int mwLoop::load_and_setup_level(int level, int type)
    if (type == 5) return 1;
 
    if (mDemoMode.play_mode_active && mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) return 1;
+
+
+   // after loading for demo
+   if (type == 4) return 1;
 
 
 
