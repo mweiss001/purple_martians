@@ -115,7 +115,7 @@ void mwNetgame::headless_server_setup()
    mLog.log_types[LOG_NET].action = LOG_ACTION_PRINT;
 
    // always have session logging on
-//   mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
+   mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
 
 
    // add these for troubleshooting

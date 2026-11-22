@@ -15,13 +15,27 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+what do I really need to do before release?
+
+test the netgame and server stuff
+remove all extra exits in levels
+go through the levels one more time
+
+
+
+
+
+
+
+
+
+
+
+
 
 One fun thing I have noticed, is that since I have changed stationary and carry to be separate,
 Now I can have a stationary object that can be moved, but as soon as I let go of it, it freezes!!!
 This could be the start of a cool level idea where I need to keep lifting doors!!
-
-
-
 
 
 
@@ -44,7 +58,7 @@ done 4:00
 ----------------------------------------------------------------------
 overworld, make top main stats not show all areas, skip extra and dev
 ----------------------------------------------------------------------
-
+done
 
 
 ----------------------------------------------------------------------
@@ -87,13 +101,13 @@ things I do not want them to be able to change:
 - shot config
 
 
-
-
 ---------------------------
 more creators
 like cloner trigger pair
 cloner timer trigger set
 alter trigger set
+
+
 
 
 

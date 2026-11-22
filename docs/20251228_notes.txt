@@ -58846,6 +58846,48 @@ I think I am fully done with doors
 
 2026-11-22 11:54:33
 
+I think I want to test headless server...
+
+what server should I use?
+
+I found o7040 192.168.1.138
+
+demo's playback on other machines does not add up
+
+m36
+416156
+
+e6430
+367216
+
+it is not copying TAS...why??
+
+   sprintf(sys_cmd, "mkdir %s\\savegame\\demo ", filepath);                       printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy savegame\\demo\\*.gm %s\\savegame\\demo ", filepath);   printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\savegame\\demo\\TAS ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy savegame\\demo\\TAS\\*.gm %s\\savegame\\demo\\TAS ", filepath);   printf("%s\n",sys_cmd);   system(sys_cmd);
+
+now it does
+
+the server does not seem to be saving sessions....
+
+where does that happen?
+
+void mwNetgame::headless_server_setup()
+{
+
+   // always have session logging on
+   mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
+
+
+   if (mLog.log_types[LOG_NET_SESSION].action) mNetgame.session_update_at_level_done();
+
+
+
+
+
+
 
 
 

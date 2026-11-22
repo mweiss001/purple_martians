@@ -70,8 +70,14 @@ void mwMain::pm_copy_misc(const char* filepath)
    char sys_cmd[500];
    sprintf(sys_cmd, "copy license.txt %s\\pm.exe /Y", filepath);                  printf("%s\n",sys_cmd);   system(sys_cmd);
 
+
+
    sprintf(sys_cmd, "mkdir %s\\savegame\\demo ", filepath);                       printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy savegame\\demo\\*.gm %s\\savegame\\demo ", filepath);   printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\savegame\\demo\\TAS ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy savegame\\demo\\TAS\\*.gm %s\\savegame\\demo\\TAS ", filepath);   printf("%s\n",sys_cmd);   system(sys_cmd);
+
 
    sprintf(sys_cmd, "mkdir %s\\bitmaps ", filepath);                              printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy bitmaps\\* %s\\bitmaps ", filepath);                    printf("%s\n",sys_cmd);   system(sys_cmd);

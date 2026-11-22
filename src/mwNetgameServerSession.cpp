@@ -132,9 +132,6 @@ void mwNetgame::session_open(const char* address, const char* hostname, int p, i
    if (endreason == 1) session_close(p, endreason);
 }
 
-
-
-
 /*
 called closing session or level done
 
