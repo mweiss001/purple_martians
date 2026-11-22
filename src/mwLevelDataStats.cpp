@@ -479,8 +479,12 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
 
          // show frames
-         if (total) printf(" %d", tally[0][10]);
-         else printf(" %d", data[lev].time_total);
+         // if (total) printf(" %d", tally[0][10]);
+         // else printf(" %d", data[lev].time_total);
+
+         if (total) printf("Total Time:%d\n", tally[0][10]);
+
+
 
 
       }

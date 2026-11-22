@@ -10,75 +10,72 @@
 #include "mwGameEvent.h"
 #include "mwEventQueue.h"
 
-
 /*
 
 item[][0] 1 - PM_ITEM_TYPE_DOOR
+item[][1] linked destination item (-1 is none)
+item[][2] common item flags
+item[][3] not used
+item[][4] x
+item[][5] y
 
-item[][1] draw type
+item[][6] enter mode
+#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
+#define PM_ITEM_DOOR_ENTER_WITH_UP    1
+#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
+
+item[][7] move type (0=INSTANT 1=TRAVEl)
+
+item[][8] draw type
 #define PM_ITEM_DOOR_DRAW_HIDE      0
 #define PM_ITEM_DOOR_DRAW_STATIC    1
 #define PM_ITEM_DOOR_DRAW_WARP      2
 #define PM_ITEM_DOOR_DRAW_PORTAL    3
 
-item[][2] common item flags
-item[][3] unused
-item[][4] x
-item[][5] y
-item[][6] color
-
-
-item[][7]  move type (0=INSTANT 1=TRAVEl)
-item[][8]  unused
-item[][9]  linked destination item (-1 is none)
-item[][10] key held flag
-
-
-item[][11] enter mode
-#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
-#define PM_ITEM_DOOR_ENTER_WITH_UP    1
-#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
-
+item[][9]  color
+item[][10] scale (100 = 1.0)
+item[][11] rotation (0-none 1-normal 2-180)
 item[][12] draw connecting line
 #define PM_ITEM_DOOR_LINE_NEVER   0
 #define PM_ITEM_DOOR_LINE_ALWAYS  1
 #define PM_ITEM_DOOR_LINE_TOUCH   2
 
-item[][13] scale (100 = 1.0)
-
+item[][13] key held flag
 
 
 */
 
 
-void mwItem::change_linked_door_color_and_draw_type(int door)
+void mwItem::change_linked_doors_to_match(int si)
 {
-   // changes all linked doors to match door color, shape and size
-   // first do the linked door if there is one...
-   if (item[door][9] != -1)
-   {
-      int di = item[door][9];        // dest item
-      item[di][1]  = item[door][1];  // copy draw type
-      item[di][6]  = item[door][6];  // copy color
-      item[di][13] = item[door][13]; // copy size
+   // changes all linked doors to match color, shape and size
 
+   // first do the linked door if there is one...
+   if (item[si][1] != -1)
+   {
+      int di = item[si][1];        // dest item
+      item[di][8]  = item[si][8];  // copy draw type
+      item[di][9]  = item[si][9];  // copy color
+      item[di][10] = item[si][10]; // copy scale
+      item[di][11] = item[si][11]; // copy rot
    }
 
    // then look for any doors that link to this door
    for (int i=0; i<500; i++)
-      if ((item[i][0] == PM_ITEM_TYPE_DOOR) && (item[i][9] == door))
+      if ((item[i][0] == PM_ITEM_TYPE_DOOR) && (item[i][1] == si))
       {
-         item[i][1]  = item[door][1];  // copy type
-         item[i][6]  = item[door][6];  // copy color
-         item[i][13] = item[door][13]; // copy size
+         item[i][8]  = item[si][8];  // copy draw type
+         item[i][9]  = item[si][9];  // copy color
+         item[i][10] = item[si][10]; // copy scale
+         item[i][11] = item[si][11]; // copy rot
       }
 }
 
 
-int mwItem::find_source_door(int search_index)
+int mwItem::find_source_door(int si)
 {
    for (int i=0; i<500; i++)
-      if ((item[i][0] == PM_ITEM_TYPE_DOOR) && (item[i][9] == search_index)) return i;
+      if ((item[i][0] == PM_ITEM_TYPE_DOOR) && (item[i][1] == si)) return i;
    return -1;
 }
 
@@ -87,19 +84,45 @@ int mwItem::find_source_door(int search_index)
 void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot)
 {
    float yo = ((20*scale) - 20)/2;
-   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.sprite[159+col], 10, 10, x+10, y+10-yo, scale, scale, 0, 0 );
-   if (draw_type == PM_ITEM_DOOR_DRAW_WARP)   al_draw_scaled_rotated_bitmap(mBitmap.door_tile[col][ans], 10, 10, x+10, y+10-yo, scale, scale, 0, 0 );
+   if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.sprite[159+col],     10, 10, x+10, y+10-yo, scale, scale, rot, 0 );
+   if (draw_type == PM_ITEM_DOOR_DRAW_WARP)   al_draw_scaled_rotated_bitmap(mBitmap.door_tile[col][ans], 10, 10, x+10, y+10-yo, scale, scale, rot, 0 );
    if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
 }
+
+void mwItem::mark_orphan(int x, int y, const char *txt1, const char *txt2)
+{
+   al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, txt1);
+   al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, txt2);
+   al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
+   al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+}
+
 
 
 
 int mwItem::draw_door(int i, int x, int y, int custom)
 {
-   float scale = (float)item[i][13] / 100;
+   int draw_type = item[i][8];
+   int col       = item[i][9];
+   float scale   = (float)item[i][10] / 100;
 
-   int col = item[i][6];
-   int draw_type = item[i][1];
+   bool orphan_src = 0;
+   bool orphan_dst = 0;
+
+   int link = item[i][1];
+
+   // no link, destination only
+   if (link == -1)
+   {
+      // no source door, set orphan destination
+      if (find_source_door(i) == -1) orphan_dst = 1;
+   }
+   // linked destination
+   else
+   {
+      // linked destination is not valid, set orphan source
+      if (item[link][0] != PM_ITEM_TYPE_DOOR) orphan_src = 1;
+   }
 
    // this is for drawing in the point item and draw item boxes only
    if (custom)
@@ -107,106 +130,73 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       // if invisible, show static shape
       if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_type = PM_ITEM_DOOR_DRAW_STATIC;
 
-      // draw at scale 1, except for portals that are too big and scale .4 works better
+      // draw at scale 1, portals use scale 0.4
       scale = 1;
-      if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) scale = .4;
+      if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) scale = 0.4;
 
       draw_door_tile(x, y, draw_type, col, 0, scale, 0);
-
-      // I want to also draw here if orphan
-
-      if (item[i][9] == -1)
-      {
-         if (find_source_door(i) == -1)
-         {
-            al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
-            al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
-            al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
-            al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "src");
-         }
-      }
-
-      // if linked door is not valid, draw and mark with red X, then return
-      if (item[i][9] != -1)
-      {
-         int linked_door = item[i][9];
-
-         if (item[linked_door][0] != 1)
-         {
-            al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
-            al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "dst");
-            al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
-            al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
-            return 1;
-         }
-      }
+      if (orphan_src) mark_orphan(x, y, "no", "dst");
+      if (orphan_dst) mark_orphan(x, y, "no", "src");
       return 1;
    }
 
 
    // do not draw exit only doors, they will be drawn when source door is drawn
    // unless door is an orphan exit (no source door) in which case, draw and mark with red X, then return
-   if (item[i][9] == -1)
+   if (link == -1)
    {
-      if (find_source_door(i) == -1)
+      if (orphan_dst)
       {
          // if invisible, show static shape
          if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_type = PM_ITEM_DOOR_DRAW_STATIC;
-
          draw_door_tile(x, y, draw_type, col, 0, scale, 0);
-
-         al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
-         al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
-
-         al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
-         al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "src");
-
+         mark_orphan(x, y, "no", "src");
       }
       return 1;
    }
 
    // if linked door is not valid, draw and mark with red X, then return
-   if (item[i][9] != -1)
+   if (link != -1)
    {
-      int linked_door = item[i][9];
-
-      if (item[linked_door][0] != 1)
+      if (orphan_src)
       {
          // if invisible, show static shape
          if (draw_type == PM_ITEM_DOOR_DRAW_HIDE) draw_type = PM_ITEM_DOOR_DRAW_STATIC;
          draw_door_tile(x, y, draw_type, col, 0, scale, 0);
-         al_draw_text(mFont.pixl, mColor.White, x+10, y,   ALLEGRO_ALIGN_CENTER, "no");
-         al_draw_text(mFont.pixl, mColor.White, x+10, y+8, ALLEGRO_ALIGN_CENTER, "dst");
-         al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
-         al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
+         mark_orphan(x, y, "no", "dst");
          return 1;
       }
    }
 
-   // If I get here, I have 2 valid doors, if I didn't I should have quit by this point
+
+   // If I get here, I have 2 valid doors, if I didn't, I should have quit by this point
 
    // source door
    int si = i;
    float sx = itemf[si][0];
    float sy = itemf[si][1];
-   int scol = item[si][6];
-   int s_draw_type = item[si][1];
-   float s_scale = scale;
-
-   int door_entry_mode = item[si][11];
+   int s_draw_type = item[si][8];
+   int scol = item[si][9];
+   float s_scale = (float)item[i][10] / 100;
 
    // destination door
-   int di = item[i][9];
+   int di = item[i][1];
    float dx = itemf[di][0];
    float dy = itemf[di][1];
-   int dcol = item[di][6];
-   int d_draw_type = item[di][1];
-
-   float d_scale = (float)item[di][13] / 100;
-
+   int d_draw_type = item[di][8];
+   int dcol = item[di][9];
+   float d_scale = (float)item[di][10] / 100;
 
    // get rotation from source and destination door positions
    float rot = atan2(dy-sy, dx-sx);
+
+   float s_rot = 0;
+   if (item[si][11] == 1) s_rot = rot;
+   if (item[si][11] == 2) s_rot = rot + ALLEGRO_PI;
+
+   float d_rot = 0;
+   if (item[di][11] == 1) d_rot = rot;
+   if (item[di][11] == 2) d_rot = rot + ALLEGRO_PI;
 
 
    // determine if a player is hovering the source door
@@ -221,10 +211,10 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    // -------------------------------------------------------
    // static door
    // -------------------------------------------------------
-   if (s_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(sx, sy, s_draw_type, scol, 0, s_scale, rot); // source door
+   if (s_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(sx, sy, s_draw_type, scol, 0, s_scale, s_rot); // source door
 
    // only draw if the destination door has no exit link
-   if (item[di][9] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(dx, dy, d_draw_type, dcol, 0, d_scale, rot); // dest door
+   if (item[di][1] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_STATIC) draw_door_tile(dx, dy, d_draw_type, dcol, 0, d_scale, d_rot); // dest door
 
    // -------------------------------------------------------
    // animated warp
@@ -244,16 +234,10 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       int san = (tmr % (num_tiles*frames_per_cycle)) / frames_per_cycle;
       int dan = (num_tiles-1)-san;  // run the sequence backwards
 
-      if (s_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(sx, sy, s_draw_type, scol, san, s_scale, rot);  // source door
+      if (s_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(sx, sy, s_draw_type, scol, san, s_scale, s_rot);  // source door
 
       // only draw if the destination door has no exit link
-      if (item[di][9] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(dx, dy, d_draw_type, dcol, dan, d_scale, rot); // dest door
-
-
-
-
-
-
+      if (item[di][1] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_WARP) draw_door_tile(dx, dy, d_draw_type, dcol, dan, d_scale, d_rot); // dest door
 
 
    }
@@ -311,10 +295,10 @@ int mwItem::draw_door(int i, int x, int y, int custom)
       }
 
       // draw the source bitmap
-      if (s_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(sx, sy, s_draw_type, scol, san, s_scale, rot);
+      if (s_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(sx, sy, s_draw_type, scol, san, s_scale, s_rot);
 
       // draw the destination bitmap
-      if (item[di][9] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(dx, dy, d_draw_type, dcol, dan, d_scale, rot + ALLEGRO_PI);
+      if (item[di][1] == -1) if (d_draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_door_tile(dx, dy, d_draw_type, dcol, dan, d_scale, d_rot);
 
    }
 
@@ -333,11 +317,12 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    if (draw_line) al_draw_line(sx+10, sy+10-syo, dx+10, dy+10-dyo, mColor.pc[scol], 1);
 
 
+
    // draw the text last
    if ((player_hover) && (s_draw_type != PM_ITEM_DOOR_DRAW_HIDE))
    {
-      if (door_entry_mode == PM_ITEM_DOOR_ENTER_WITH_UP)   al_draw_text(mFont.pr8, mColor.pc[15], sx+3, sy-14-syo, 0, "up");
-      if (door_entry_mode == PM_ITEM_DOOR_ENTER_WITH_DOWN) al_draw_text(mFont.pr8, mColor.pc[15], sx-5, sy-14-syo, 0, "down");
+      if (item[si][6] == PM_ITEM_DOOR_ENTER_WITH_UP)   al_draw_text(mFont.pr8, mColor.pc[15], sx+3, sy-14-syo, 0, "up");
+      if (item[si][6] == PM_ITEM_DOOR_ENTER_WITH_DOWN) al_draw_text(mFont.pr8, mColor.pc[15], sx-5, sy-14-syo, 0, "down");
    }
 
 
@@ -352,7 +337,7 @@ int mwItem::draw_door(int i, int x, int y, int custom)
    if (d_draw_type != PM_ITEM_DOOR_DRAW_HIDE)
    {
       // only draw 'OUT' if this destination door is NOT also a source door for something else (has an exit link)
-      if (item[di][9] == -1) al_draw_scaled_rotated_bitmap(mBitmap.sprite[1015], 10, 10, dx+10, dy+10-dyo, d_scale, d_scale, 0, 0 ); // OUT
+      if (item[di][1] == -1) al_draw_scaled_rotated_bitmap(mBitmap.sprite[1015], 10, 10, dx+10, dy+10-dyo, d_scale, d_scale, 0, 0 ); // OUT
    }
 
 
@@ -362,7 +347,7 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 void mwItem::proc_door_collision(int p, int i)
 {
    // do nothing if exit only
-   if (item[i][9] == -1) return;
+   if (item[i][1] == -1) return;
 
    // this is to make sure player can only be hovering one door
    if (m_parent.mPlayer.syn[p].door_hover != -1) return;
@@ -376,38 +361,38 @@ void mwItem::proc_door_collision(int p, int i)
 
    int do_entry = 0;
 
-   if (item[i][11] == PM_ITEM_DOOR_ENTER_IMMEDIATE) do_entry = 1;
+   if (item[i][6] == PM_ITEM_DOOR_ENTER_IMMEDIATE) do_entry = 1;
 
-   if (item[i][11] == PM_ITEM_DOOR_ENTER_WITH_UP)
+   if (item[i][6] == PM_ITEM_DOOR_ENTER_WITH_UP)
    {
       // to prevent immediate triggering when destination door, wait for release and re-press
 
       // if key held is old, ignore
-      if (item[i][10] && item[i][10] < mLoop.frame_num-1) item[i][10] = 0;
+      if (item[i][13] && item[i][13] < mLoop.frame_num-1) item[i][13] = 0;
 
       // up pressed and !pressed last frame
-      if ((m_parent.mPlayer.syn[p].up) && (!item[i][10])) do_entry = 1;
+      if ((m_parent.mPlayer.syn[p].up) && (!item[i][13])) do_entry = 1;
 
 
       // set or clear key pressed last frame
-      if (m_parent.mPlayer.syn[p].up) item[i][10] = mLoop.frame_num;
-      else item[i][10] = 0;
+      if (m_parent.mPlayer.syn[p].up) item[i][13] = mLoop.frame_num;
+      else item[i][13] = 0;
 
    }
 
-   if (item[i][11] == PM_ITEM_DOOR_ENTER_WITH_DOWN)
+   if (item[i][6] == PM_ITEM_DOOR_ENTER_WITH_DOWN)
    {
       // to prevent immediate triggering when destination door, wait for release and re-press
 
       // if key held is old, ignore
-      if (item[i][10] && item[i][10] < mLoop.frame_num-1) item[i][10] = 0;
+      if (item[i][13] && item[i][13] < mLoop.frame_num-1) item[i][13] = 0;
 
       // down pressed and !pressed last frame
-      if ((m_parent.mPlayer.syn[p].down) && (!item[i][10])) do_entry = 1;
+      if ((m_parent.mPlayer.syn[p].down) && (!item[i][13])) do_entry = 1;
 
       // set or clear key pressed last frame
-      if (m_parent.mPlayer.syn[p].down) item[i][10] = mLoop.frame_num;
-      else item[i][10] = 0;
+      if (m_parent.mPlayer.syn[p].down) item[i][13] = mLoop.frame_num;
+      else item[i][13] = 0;
    }
 
 
@@ -415,13 +400,13 @@ void mwItem::proc_door_collision(int p, int i)
    if (do_entry)
    {
       // clear the key hold for the door you just left
-      item[i][10] = 0;
+      item[i][13] = 0;
 
       // check if dest item is same as source item
-      if (item[i][9] == i) return;
+      if (item[i][1] == i) return;
 
       // send event unless door is invisible
-      if (item[i][1] != PM_ITEM_DOOR_DRAW_HIDE) mGameEvent.add(22, 0, 0, p, i, item[i][6], 1);
+      if (item[i][8] != PM_ITEM_DOOR_DRAW_HIDE) mGameEvent.add(22, 0, 0, p, i, item[i][9], 1);
 
 
       // check if player needs to drop carried item
@@ -439,7 +424,7 @@ void mwItem::proc_door_collision(int p, int i)
 
 
       // linked door item number
-      int li = item[i][9];
+      int li = item[i][1];
       if ((li < 0) || (li > 499)) return;
 
       // destination
@@ -457,14 +442,14 @@ void mwItem::proc_door_collision(int p, int i)
 
       if (travel)
       {
-         float s_scale = (float)item[i][13] / 100;
+         float s_scale = (float)item[i][10] / 100;
 
          // I would love to have this line here, things line up better, but it breaks demos...:(
          //s_scale *= door_hover_scale_multiplier;
 
          float syo = ((20*s_scale) - 20)/2;
 
-         float d_scale = (float)item[li][13] / 100;
+         float d_scale = (float)item[li][10] / 100;
          float dyo = ((20*d_scale) - 20)/2;
 
 
@@ -536,8 +521,8 @@ void mwItem::proc_door_collision(int p, int i)
             itemf[c][1] = m_parent.mPlayer.syn[p].y;
          }
 
-         // reset the ket held flag
-         item[li][10] = mLoop.frame_num;
+         // reset the key held flag
+         item[li][13] = mLoop.frame_num;
       }
    }
 }
@@ -584,22 +569,22 @@ void mwItem::proc_player_door_move(int p)
          m_parent.mPlayer.syn[p].xinc=0;
          m_parent.mPlayer.syn[p].yinc=0;
 
-         float d_scale = (float)item[door_item][13] / 100;
+         float d_scale = (float)item[door_item][10] / 100;
          float dyo = ((20*d_scale) - 20)/2;
 
          // snap to dest...
-         if (item[door_item][9] == -1) // regular dest
+         if (item[door_item][1] == -1) // regular dest
          {
             m_parent.mPlayer.syn[p].x  = item[door_item][6] * 20;
             m_parent.mPlayer.syn[p].y  = item[door_item][7] * 20 - dyo;
          }
-         if (item[door_item][9] != -1) // linked item dest
+         if (item[door_item][1] != -1) // linked item dest
          {
-            int li = item[door_item][9]; // linked item number
+            int li = item[door_item][1]; // linked item number
             m_parent.mPlayer.syn[p].x  = itemf[li][0];
             m_parent.mPlayer.syn[p].y  = itemf[li][1] - dyo;
             // set destination key held to prevent immediate retriggering
-            item[li][10] = mLoop.frame_num;
+            item[li][13] = mLoop.frame_num;
          }
        }
    } // end of mode 2
@@ -615,10 +600,10 @@ void mwItem::proc_player_door_move(int p)
       else // next mode (done)
       {
          // if linked item exit
-         if (item[door_item][9] != -1) // liked item dest
+         if (item[door_item][1] != -1) // liked item dest
          {
-            int li = item[door_item][9]; // linked item number
-            item[li][10] = mLoop.frame_num;   // key hold off
+            int li = item[door_item][1]; // linked item number
+            item[li][13] = mLoop.frame_num;   // key hold off
          }
          m_parent.mPlayer.syn[p].paused = 0;  // the entire thing is done
       }

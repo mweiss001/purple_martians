@@ -146,7 +146,166 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
 {
    al_set_target_bitmap(mLevel.level_buffer);
 
-   if (obt == PM_OBJECT_TYPE_LIFT)  // lifts
+   if (obt == PM_OBJECT_TYPE_ITEM)
+   {
+      int type = mLevel.mItem.item[num][0];
+      int obj_x = mLevel.mItem.item[num][4]+10;
+      int obj_y = mLevel.mItem.item[num][5]+10;
+      int color = 13;
+      if (legend_highlight == 1) color = mColor.flash_color;
+      mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
+
+      switch (type)
+      {
+         case PM_ITEM_TYPE_DOOR:
+         {
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            if (mLevel.mItem.item[num][1] == -1)  // exit only, no destination
+            {
+               // find src door(s)
+               for (int i=0; i<500; i++)
+                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][1] == num))
+                  {
+                     int x2 = mLevel.mItem.item[i][4]+10;
+                     int y2 = mLevel.mItem.item[i][5]+10;
+                     mMiscFnx.crosshairs_full(x2, y2, color, 1);
+                     al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
+                  }
+            }
+            if (mLevel.mItem.item[num][1] != -1)  // draw destination
+            {
+               // dest item
+               int di = mLevel.mItem.item[num][1];
+               int x2 = mLevel.mItem.item[di][4]+10;
+               int y2 = mLevel.mItem.item[di][5]+10;
+               mMiscFnx.crosshairs_full(x2, y2, color, 1);
+               al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
+            }
+         }
+         break;
+         case PM_ITEM_TYPE_KEY:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            mLevel.mItem.proc_key_block_range(num, 2); // show blocks that will be affected
+         break;
+
+         case PM_ITEM_TYPE_START:
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+
+         case PM_ITEM_TYPE_SWITCH:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            mLevel.mItem.proc_switch_block_range(num, 2); // show blocks that will be affected
+         break;
+         case PM_ITEM_TYPE_BOMB:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
+            al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
+         break;
+         case PM_ITEM_TYPE_TRIGGER:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case PM_ITEM_TYPE_ORB:
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case PM_ITEM_TYPE_MESSAGE:
+         {
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            int mx = mLevel.mItem.item[num][6];
+            int my = mLevel.mItem.item[num][7];
+            int mw = mLevel.mItem.item[num][8];
+            int mh = mLevel.mItem.item[num][9];
+            ov_draw_overlay_rectangle_and_crosshairs(mx, my, mw, mh, color, 1);
+            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my-10,   ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my+mh+2, ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         }
+         break;
+         case PM_ITEM_TYPE_ROCKET:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
+            al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
+         break;
+         case PM_ITEM_TYPE_TIMER:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 11;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case PM_ITEM_TYPE_SPRING:
+         {
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
+            int y = mLevel.mItem.get_sproingy_jump_height(num);
+            mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
+         }
+         break;
+         case PM_ITEM_TYPE_ALTERTILES:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 12;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            if (mLevel.mItem.item[num][3] == 4)
+            {
+               (legend_highlight == 3) ? color = mColor.flash_color : color = 11;
+               ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][13], mLevel.mItem.item[num][14], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            }
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case PM_ITEM_TYPE_DAMAGEAREA:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case PM_ITEM_TYPE_HIDER:
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
+         break;
+      }
+   }
+   if (obt == PM_OBJECT_TYPE_ENEMY)
+   {
+      int type = mLevel.mEnemy.Ei[num][0];
+      int obj_x = mLevel.mEnemy.Ef[num][0]+10;
+      int obj_y = mLevel.mEnemy.Ef[num][1]+10;
+
+      int color = 13;
+      if (legend_highlight == 1) color = mColor.flash_color;
+      mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
+
+      if ((type == PM_ENEMY_TYPE_CANNON) || (type == PM_ENEMY_TYPE_ARCHWAGON) || (type == PM_ENEMY_TYPE_FLAPPER) || (type == PM_ENEMY_TYPE_TRAKBOT)) // // draw yellow shot prox circle for cannon, archwagon, flapper, trakbot
+      {
+         (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
+         al_draw_circle(obj_x, obj_y, mLevel.mEnemy.Ei[num][17], mColor.pc[color], 1);
+      }
+      if (type == PM_ENEMY_TYPE_FLAPPER)
+      {
+         (legend_highlight == 3) ? color = mColor.flash_color : color = 10;
+
+         // draw red height above player line
+         int hab = mLevel.mEnemy.Ei[num][20];
+         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mColor.pc[color], 3);
+
+         // draw flap height
+         int fh = mLevel.mEnemy.Ei[num][21];
+         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mColor.pc[12], 1);
+         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mColor.pc[12], 1);
+      }
+      if (type == PM_ENEMY_TYPE_VINEPOD)
+      {
+         mLevel.mEnemy.draw_vinepod_controls(num, legend_highlight);
+         mTriggerEvent.find_and_show_event_links(obt, num, 0);
+      }
+      if (type == PM_ENEMY_TYPE_CLONER)
+      {
+         int color2 = 11;
+         if (legend_highlight == 2) color2 = mColor.flash_color;
+         ov_draw_overlay_rectangle_and_crosshairs(mLevel.mEnemy.Ei[num][15], mLevel.mEnemy.Ei[num][16], mLevel.mEnemy.Ei[num][19], mLevel.mEnemy.Ei[num][20], color2, 1);
+
+         int color3 = 10;
+         if (legend_highlight == 3) color3 = mColor.flash_color;
+         ov_draw_overlay_rectangle_and_crosshairs(mLevel.mEnemy.Ei[num][17], mLevel.mEnemy.Ei[num][18], mLevel.mEnemy.Ei[num][19], mLevel.mEnemy.Ei[num][20], color3, 1);
+         mTriggerEvent.find_and_show_event_links(obt, num, 0);
+      }
+   }
+   if (obt == PM_OBJECT_TYPE_LIFT)
    {
       int lift = num;
       int step = mLevel.mLift.cur[lift].current_step;
@@ -174,170 +333,9 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
       al_draw_line(xc, y2, xc, 2000, mColor.pc[color], 1);
       al_draw_line(0, yc, x1, yc, mColor.pc[color], 1);
       al_draw_line(x2, yc, 2000, yc, mColor.pc[color], 1);
-
-   }
-   if (obt == PM_OBJECT_TYPE_ENEMY)  // enemies
-   {
-      int type = mLevel.mEnemy.Ei[num][0];
-      int obj_x = mLevel.mEnemy.Ef[num][0]+10;
-      int obj_y = mLevel.mEnemy.Ef[num][1]+10;
-
-      int color = 13;
-      if (legend_highlight == 1) color = mColor.flash_color;
-      mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
-
-      if ((type == PM_ENEMY_TYPE_CANNON) || (type == PM_ENEMY_TYPE_ARCHWAGON) || (type == PM_ENEMY_TYPE_FLAPPER) || (type == PM_ENEMY_TYPE_TRAKBOT)) // // draw yellow shot prox circle for cannon, archwagon, flapper, trakbot
-      {
-         (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-         al_draw_circle(obj_x, obj_y, mLevel.mEnemy.Ei[num][17], mColor.pc[color], 1);
-      }
-      if (type == PM_ENEMY_TYPE_FLAPPER) // flapper
-      {
-         (legend_highlight == 3) ? color = mColor.flash_color : color = 10;
-
-         // draw red height above player line
-         int hab = mLevel.mEnemy.Ei[num][20];
-         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mColor.pc[color], 3);
-
-         // draw flap height
-         int fh = mLevel.mEnemy.Ei[num][21];
-         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mColor.pc[12], 1);
-         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mColor.pc[12], 1);
-      }
-      if (type == PM_ENEMY_TYPE_VINEPOD)
-      {
-         mLevel.mEnemy.draw_vinepod_controls(num, legend_highlight);
-         mTriggerEvent.find_and_show_event_links(obt, num, 0);
-      }
-      if (type == PM_ENEMY_TYPE_CLONER) // cloner
-      {
-         int color2 = 11;
-         if (legend_highlight == 2) color2 = mColor.flash_color;
-         ov_draw_overlay_rectangle_and_crosshairs(mLevel.mEnemy.Ei[num][15], mLevel.mEnemy.Ei[num][16], mLevel.mEnemy.Ei[num][19], mLevel.mEnemy.Ei[num][20], color2, 1);
-
-         int color3 = 10;
-         if (legend_highlight == 3) color3 = mColor.flash_color;
-         ov_draw_overlay_rectangle_and_crosshairs(mLevel.mEnemy.Ei[num][17], mLevel.mEnemy.Ei[num][18], mLevel.mEnemy.Ei[num][19], mLevel.mEnemy.Ei[num][20], color3, 1);
-         mTriggerEvent.find_and_show_event_links(obt, num, 0);
-      }
-   }
-   if (obt == PM_OBJECT_TYPE_ITEM)  // items
-   {
-      int type = mLevel.mItem.item[num][0];
-      int obj_x = mLevel.mItem.item[num][4]+10;
-      int obj_y = mLevel.mItem.item[num][5]+10;
-      int color = 13;
-      if (legend_highlight == 1) color = mColor.flash_color;
-      mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
-      switch (type)
-      {
-         case PM_ITEM_TYPE_DOOR: // door
-         {
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            if (mLevel.mItem.item[num][9] == -1)  // exit only, no destination
-            {
-               // find src door(s)
-               int num_src = 0;
-               for (int i=0; i<500; i++)
-                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][9] == num))
-                  {
-                     num_src++;
-                     int x2 = mLevel.mItem.item[i][4]+10;
-                     int y2 = mLevel.mItem.item[i][5]+10;
-                     mMiscFnx.crosshairs_full(x2, y2, color, 1);
-                     al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
-                  }
-            }
-            if (mLevel.mItem.item[num][9] != -1)  // draw destination
-            {
-               // dest item
-               int di = mLevel.mItem.item[num][9];
-               int x2 = mLevel.mItem.item[di][4]+10;
-               int y2 = mLevel.mItem.item[di][5]+10;
-               mMiscFnx.crosshairs_full(x2, y2, color, 1);
-               al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
-            }
-         }
-         break;
-         case PM_ITEM_TYPE_KEY: // key
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            mLevel.mItem.proc_key_block_range(num, 2); // show blocks that will be affected
-         break;
-
-         case PM_ITEM_TYPE_START: // start
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-
-         case PM_ITEM_TYPE_SWITCH: // switch
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            mLevel.mItem.proc_switch_block_range(num, 2); // show blocks that will be affected
-         break;
-         case PM_ITEM_TYPE_BOMB: // bomb
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-            al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
-         break;
-         case PM_ITEM_TYPE_TRIGGER: // trigger
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-         case PM_ITEM_TYPE_ORB: // orb
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-         case PM_ITEM_TYPE_MESSAGE: // message
-         {
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            int mx = mLevel.mItem.item[num][6];
-            int my = mLevel.mItem.item[num][7];
-            int mw = mLevel.mItem.item[num][8];
-            int mh = mLevel.mItem.item[num][9];
-            ov_draw_overlay_rectangle_and_crosshairs(mx, my, mw, mh, color, 1);
-            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my-10,   ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
-            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my+mh+2, ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
-         break;
-         case PM_ITEM_TYPE_ROCKET: // rocket
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-            al_draw_circle(obj_x, obj_y, mLevel.mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
-         break;
-         case PM_ITEM_TYPE_TIMER: // timer
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 11;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-         case PM_ITEM_TYPE_SPRING: // sproingy
-         {
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
-            int y = mLevel.mItem.get_sproingy_jump_height(num);
-            mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
-         }
-         break;
-         case PM_ITEM_TYPE_ALTERTILES: // alter tiles
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 12;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            if (mLevel.mItem.item[num][3] == 4)
-            {
-               (legend_highlight == 3) ? color = mColor.flash_color : color = 11;
-               ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][13], mLevel.mItem.item[num][14], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            }
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-         case PM_ITEM_TYPE_DAMAGEAREA: // damage area
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-            mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         break;
-         case PM_ITEM_TYPE_HIDER: // hider
-            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            ov_draw_overlay_rectangle_and_crosshairs(mLevel.mItem.item[num][6], mLevel.mItem.item[num][7], mLevel.mItem.item[num][8], mLevel.mItem.item[num][9], color, 1);
-         break;
-
-      } // end of switch case
    }
 }
+
 void mwObjectViewer::ov_process_mouse_on_background()
 {
    int lift=0, step=0;
@@ -1264,37 +1262,39 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case PM_ITEM_TYPE_DOOR:
             do_stat_fall_carry(d, xa, xb, ya, bts, n);
             ya+=4; // spacer
-            if (mLevel.mItem.item[n][9] == -1) // exit only
+            if (mLevel.mItem.item[n][1] == -1) // exit only
             {
                if (odbb(d, xa, xb, ya, bts, 5, "Set Type to Linked Item"))
                {
                   int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
-                  if (i > -1) mLevel.mItem.item[num][9] = i;
+                  if (i > -1) mLevel.mItem.item[num][1] = i;
                }
             }
-            if (mLevel.mItem.item[n][9] != -1) // regular door (not exit only)
+            if (mLevel.mItem.item[n][1] != -1) // regular door (not exit only)
             {
-               if (odbb(d, xa, xb, ya, bts, 5, "Set Type to Exit Only")) mLevel.mItem.item[n][9] = -1;
+               if (odbb(d, xa, xb, ya, bts, 5, "Set Type to Exit Only")) mLevel.mItem.item[n][1] = -1;
                ya+=4; // spacer
                char msg[80];
-               sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][9]);
+               sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][1]);
                if (odbb(d, xa, xb, ya, bts, 12, msg))
                {
                   int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
-                  if (i > -1) mLevel.mItem.item[num][9] = i;
+                  if (i > -1) mLevel.mItem.item[num][1] = i;
                }
                ya+=4; // spacer
-               odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][11]); // door entry type
+               odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][6]); // door entry type
                odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
                odbp(d, xa, xb, ya, bts, 11, 1051, mLevel.mItem.item[n][12]); // exit link show
             }
             ya+=4; // spacer
-            odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
-            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], "Select Door Color", d);
-            odbi(d, xa, xb, ya, bts, 13, mLevel.mItem.item[n][13], 400, 50, 1,  10, 10, "Scale:");
+            odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][8]); // draw type
+            mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][9], "Select Door Color", d);
+            odbi(d, xa, xb, ya, bts, 13, mLevel.mItem.item[n][10], 400, 50, 1,  10, 10, "Scale:");
+            odbc(d, xa, xb, ya, bts, 13, 15, 1800, mLevel.mItem.item[n][11], 0, 0); // rotation
+
 
             ya+=4; // spacer
-            if (odbb(d, xa, xb, ya, bts, 6, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
+            if (odbb(d, xa, xb, ya, bts, 6, "Change Linked to Match")) mLevel.mItem.change_linked_doors_to_match(n);
             break;
          case PM_ITEM_TYPE_BONUS:
             if (mLevel.mItem.item[n][6] == 0) // health bonus
@@ -2089,30 +2089,30 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
       switch (type)
       {
-         case PM_ENEMY_TYPE_BOUNCER: // bouncer
+         case PM_ENEMY_TYPE_BOUNCER:
          break;
-         case PM_ENEMY_TYPE_CANNON: // cannon
+         case PM_ENEMY_TYPE_CANNON:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ENEMY_TYPE_ARCHWAGON: // archwagon
+         case PM_ENEMY_TYPE_ARCHWAGON:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ENEMY_TYPE_BLOCKWALK: // blockwalk
+         case PM_ENEMY_TYPE_BLOCKWALK:
          break;
-         case PM_ENEMY_TYPE_JUMPWORM: // jumpworm
+         case PM_ENEMY_TYPE_JUMPWORM:
          break;
-         case PM_ENEMY_TYPE_FLAPPER: // flapper
+         case PM_ENEMY_TYPE_FLAPPER:
             num_legend_lines = 4;
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
             legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
-         case PM_ENEMY_TYPE_VINEPOD: // vinepod
+         case PM_ENEMY_TYPE_VINEPOD:
          {
             sprintf(lmsg[2],"Extended Position");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
@@ -2135,12 +2135,12 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
             num_legend_lines = legend_count;
          }
          break;
-         case PM_ENEMY_TYPE_TRAKBOT: // trakbot
+         case PM_ENEMY_TYPE_TRAKBOT:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Bullet Proximity");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ENEMY_TYPE_CLONER: // cloner
+         case PM_ENEMY_TYPE_CLONER:
             num_legend_lines = 4;
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
@@ -2149,7 +2149,7 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
          break;
       }
    }
-   if (obt == PM_OBJECT_TYPE_ITEM)  // items
+   if (obt == PM_OBJECT_TYPE_ITEM)
    {
       int w = 196;
       int type = mLevel.mItem.item[num][0];
@@ -2167,84 +2167,77 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
 
       switch (type)
       {
-         case PM_ITEM_TYPE_DOOR: // door
+         case PM_ITEM_TYPE_BONUS: break;
+         case PM_ITEM_TYPE_EXIT:  break;
+         case PM_ITEM_TYPE_START: break;
+         case PM_ITEM_TYPE_ORB:   break;
+         case PM_ITEM_TYPE_MINE:  break;
+         case PM_ITEM_TYPE_GATE:  break;
+
+         case PM_ITEM_TYPE_DOOR:
          {
             num_legend_lines = 3;
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
-            if (mLevel.mItem.item[num][9] == -1)  // exit only, no destination
+            if (mLevel.mItem.item[num][1] == -1)  // exit only, no destination
             {
+               sprintf(lmsg[1],"Exit Door Location");
                // find src door(s)
                int num_src = 0;
                for (int i=0; i<500; i++)
-                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][9] == num))
-                  {
-                     num_src++;
-                  }
-               sprintf(lmsg[1],"Exit Door Location");
+                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][1] == num)) num_src++;
                if (num_src == 0) sprintf(lmsg[2],"No Source Door");
                if (num_src == 1) sprintf(lmsg[2],"Source Door Position");
                if (num_src >  1) sprintf(lmsg[2],"Source Door Positions");
             }
-
-            if (mLevel.mItem.item[num][9] != -1)  // draw destination
+            if (mLevel.mItem.item[num][1] != -1)  // draw destination
             {
                sprintf(lmsg[1],"Door Location");
                sprintf(lmsg[2],"Destination");
             }
          }
          break;
-         case PM_ITEM_TYPE_BONUS: // bonus
-         break;
-         case PM_ITEM_TYPE_EXIT: // exit
-         break;
-         case PM_ITEM_TYPE_KEY: // key
+         case PM_ITEM_TYPE_KEY:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Block Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case PM_ITEM_TYPE_START: // start
-         break;
-         case PM_ITEM_TYPE_ORB: // orb
-         break;
-         case PM_ITEM_TYPE_MINE: // mine
-         break;
-         case PM_ITEM_TYPE_BOMB: // bomb
+         case PM_ITEM_TYPE_BOMB:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ITEM_TYPE_TRIGGER: // trigger
+         case PM_ITEM_TYPE_TRIGGER:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Trigger Field");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ITEM_TYPE_MESSAGE: // message
+         case PM_ITEM_TYPE_MESSAGE:
             num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case PM_ITEM_TYPE_ROCKET: // rocket
+         case PM_ITEM_TYPE_ROCKET:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ITEM_TYPE_TIMER: // timer
+         case PM_ITEM_TYPE_TIMER:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Display Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ITEM_TYPE_SWITCH: // switch
+         case PM_ITEM_TYPE_SWITCH:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Block Range");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case PM_ITEM_TYPE_SPRING: // sproingy
+         case PM_ITEM_TYPE_SPRING:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Jump Height");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
-         case PM_ITEM_TYPE_ALTERTILES: // alter tiles
+         case PM_ITEM_TYPE_ALTERTILES:
             num_legend_lines = 3;
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 12;
             sprintf(lmsg[2],"Alter Area");
@@ -2255,14 +2248,12 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
                legend_line_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 11;
             }
          break;
-         case PM_ITEM_TYPE_DAMAGEAREA: // damage area
+         case PM_ITEM_TYPE_DAMAGEAREA:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Damage Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case PM_ITEM_TYPE_GATE: // gate
-         break;
-         case PM_ITEM_TYPE_HIDER: // hider
+         case PM_ITEM_TYPE_HIDER:
             num_legend_lines = 3;
             sprintf(lmsg[2],"Hidden Area");
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
@@ -2281,8 +2272,6 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
    for (int x=1; x<num_legend_lines; x++)// draw text lines
       al_draw_text(mFont.pr8, mColor.pc[legend_color[x]], xc, y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
-
-
 
 
 

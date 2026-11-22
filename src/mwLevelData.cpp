@@ -407,23 +407,23 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
    int i1 = mItem.get_empty_item(PM_ITEM_TYPE_DOOR);
 
    // main door
-   mItem.item[i0][1] = 0; // hidden
+   mItem.item[i0][1] = i1; // linked dest item
    mItem.item[i0][2] = PM_ITEM_FLAG_STATIONARY;
    mItem.item[i0][4] = x1*20; // x
    mItem.item[i0][5] = y1*20; // y
-   mItem.item[i0][9] = i1; // linked dest item
-   mItem.item[i0][11] = enter_type; // door entry type
-   mItem.item[i0][13] = 100; // scale
+   mItem.item[i0][6] = enter_type; // door entry type
+   mItem.item[i0][8] = 0; // hidden
+   mItem.item[i0][10] = 100; // scale
 
 
 
    // exit
-   mItem.item[i1][1]  = 0; // hidden
+   mItem.item[i1][1] = -1;  // no exit link
    mItem.item[i1][2] = PM_ITEM_FLAG_STATIONARY;
    mItem.item[i1][4]  = x2*20; // x
    mItem.item[i1][5]  = y2*20; // y
-   mItem.item[i1][9] = -1;  // no exit link
-   mItem.item[i1][13] = 100; // scale
+   mItem.item[i1][8]  = 0; // hidden
+   mItem.item[i1][10] = 100; // scale
 
 }
 

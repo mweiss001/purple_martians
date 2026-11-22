@@ -128,7 +128,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       mLevel.mItem.item[v1][3] |= rb; // merge
    }
 
-   if (type == 96) // block damage draw rotation
+   if (type == 96) // damage draw rotation
    {
       // get rb
       int rb = (mLevel.mItem.item[v1][3] & PM_ITEM_DAMAGE_ROTB) >> 14;
@@ -142,7 +142,7 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
    }
 
 
-   if (type == 310) // block manip block 1, 2, 3, 4
+   if (type == 310) // alter block 1, 2, 3, 4
    {
       int tn = mLevel.mItem.item[v1][v2] & PM_BTILE_TILENUM_MASK;
       sprintf(msg, "Block %d: %-4d", v3, tn);
@@ -539,6 +539,18 @@ bool mwWidget::mButtonCustom(int xType, int xa, int xb, int yType, int ya, int y
       if (v1 == 1) sprintf(msg,  "Y Top Justified");
       if (v1 == 2) sprintf(msg,  "Y Bottom Justified");
    }
+
+
+   if (type == 1800)
+   {
+      if (pressed) v1++;
+      if ((v1 < 0) || (v1 > 2)) v1 = 0;
+      if (v1 == 0) sprintf(msg,  "Rotate:None");
+      if (v1 == 1) sprintf(msg,  "Rotate:Normal");
+      if (v1 == 2) sprintf(msg,  "Rotate:180");
+   }
+
+
 
 
 

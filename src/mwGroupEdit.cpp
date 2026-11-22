@@ -631,7 +631,7 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].name, "Door Draw Type");
    sprintf(ge_data[i].snam, "drwt");
    ge_data[i].vartyp = 2;
-   ge_data[i].varnum = 1;
+   ge_data[i].varnum = 8;
    ge_data[i].adj_min = 0;
    ge_data[i].adj_max = 3;
    ge_data[i].min_allowed = 0;
@@ -642,7 +642,7 @@ void mwGroupEdit::init()
    sprintf(ge_data[i].name, "Door Draw Scale");
    sprintf(ge_data[i].snam, "drws");
    ge_data[i].vartyp = 2;
-   ge_data[i].varnum = 13;
+   ge_data[i].varnum = 10;
    ge_data[i].adj_min = 50;
    ge_data[i].adj_max = 400;
    ge_data[i].min_allowed = 50;
@@ -650,10 +650,21 @@ void mwGroupEdit::init()
    cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
 
    i++;
+   sprintf(ge_data[i].name, "Door Draw Rotation");
+   sprintf(ge_data[i].snam, "drot");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 11;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 2;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 2;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
    sprintf(ge_data[i].name, "Door Color");
    sprintf(ge_data[i].snam, "dcol");
    ge_data[i].vartyp = 2;
-   ge_data[i].varnum = 6;
+   ge_data[i].varnum = 9;
    ge_data[i].adj_min = 1;
    ge_data[i].adj_max = 15;
    ge_data[i].min_allowed = 1;

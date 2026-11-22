@@ -124,10 +124,11 @@ class mwItem
 
    float door_hover_scale_multiplier = 1.1;
    int find_source_door(int i);
+   void mark_orphan(int x, int y, const char *txt1, const char *txt2);
    int draw_door(int i, int x, int y, int custom);
    void proc_door_collision(int p, int i);
    void proc_player_door_move(int p);
-   void change_linked_door_color_and_draw_type(int door);
+   void change_linked_doors_to_match(int si);
    void draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot);
 
 
@@ -280,43 +281,41 @@ item[][14] = time to live
 item[][15] = tag with cloner item id
 
 
-
-
-
 // type specific
 
 ---------------------------------------------------------------
 -- 1 - PM_ITEM_TYPE_DOOR
 ---------------------------------------------------------------
 
-item[][1] draw type
+item[][1] linked destination item (-1 is none)
+item[][2] common item flags
+item[][3] not used
+item[][4] x
+item[][5] y
+
+item[][6] enter mode
+#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
+#define PM_ITEM_DOOR_ENTER_WITH_UP    1
+#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
+
+item[][7] move type (0=INSTANT 1=TRAVEl)
+
+item[][8] draw type
 #define PM_ITEM_DOOR_DRAW_HIDE      0
 #define PM_ITEM_DOOR_DRAW_STATIC    1
 #define PM_ITEM_DOOR_DRAW_WARP      2
 #define PM_ITEM_DOOR_DRAW_PORTAL    3
 
-item[][2] common item flags
-item[][3] unused
-item[][4] x
-item[][5] y
-item[][6] color
-
-item[][7]  move type (0=INSTANT 1=TRAVEl)
-item[][8]  unused
-item[][9]  linked destination item (-1 is none)
-item[][10] key held flag
-
-item[][11] enter mode
-#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
-#define PM_ITEM_DOOR_ENTER_WITH_UP    1
-#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
-
+item[][9]  color
+item[][10] scale (100 = 1.0)
+item[][11] rotation (0-none 1-normal 2-180)
 item[][12] draw connecting line
 #define PM_ITEM_DOOR_LINE_NEVER   0
 #define PM_ITEM_DOOR_LINE_ALWAYS  1
 #define PM_ITEM_DOOR_LINE_TOUCH   2
 
-item[][13] scale (100 = 1.0)
+item[][13] key held flag
+
 
 
 ---------------------------------------------------------------

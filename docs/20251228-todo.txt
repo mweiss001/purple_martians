@@ -16,6 +16,15 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+One fun thing I have noticed, is that since I have changed stationary and carry to be separate,
+Now I can have a stationary object that can be moved, but as soon as I let go of it, it freezes!!!
+This could be the start of a cool level idea where I need to keep lifting doors!!
+
+
+
+
+
+
 work on level 61 multiplayer bomb toss
 tested with zaiden...
 notes...

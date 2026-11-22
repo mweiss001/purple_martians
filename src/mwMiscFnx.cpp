@@ -1043,8 +1043,7 @@ int main() {
 
 
 
-
-
+// only used to get door item in object viewer
 int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 {
    mLevel.init_level_background();

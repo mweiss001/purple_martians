@@ -58628,7 +58628,88 @@ done
 when copying a ring of doors with edit selection the first one has a broken link
 it is set to 1
 
-OV does not show exit link properly..fixed
+ov does not show exit link properly..fixed
+
+Are doors finally done?
+
+add another setting, rotation
+0 = no rotaion
+1 = normal rotaion
+2 = 180
+
+mButtonCustom 1800
+
+
+
+move color from 6 to 9
+move enter from 11 to 6
+
+mLevel.mItem.item[y][9] = mLevel.mItem.item[y][6];
+mLevel.mItem.item[y][6] = mLevel.mItem.item[y][11];
+
+
+next
+move rotation from 3 to 11
+move key held flags from...don't need to
+move scale from 13 to 10
+
+mLevel.mItem.item[y][11] = mLevel.mItem.item[y][3];
+mLevel.mItem.item[y][10] = mLevel.mItem.item[y][13];
+
+
+
+item[][0] 1 - PM_ITEM_TYPE_DOOR
+item[][1] linked destination item (-1 is none)
+item[][2] common item flags
+item[][3] not used
+item[][4] x
+item[][5] y
+
+item[][6] enter mode
+#define PM_ITEM_DOOR_ENTER_IMMEDIATE  0
+#define PM_ITEM_DOOR_ENTER_WITH_UP    1
+#define PM_ITEM_DOOR_ENTER_WITH_DOWN  2
+
+item[][7] move type (0=INSTANT 1=TRAVEl)
+
+item[][8] draw type
+#define PM_ITEM_DOOR_DRAW_HIDE      0
+#define PM_ITEM_DOOR_DRAW_STATIC    1
+#define PM_ITEM_DOOR_DRAW_WARP      2
+#define PM_ITEM_DOOR_DRAW_PORTAL    3
+
+item[][9]  color
+item[][10] scale (100 = 1.0)
+item[][11] rotation (0-none 1-normal 2-180)
+item[][12] draw connecting line
+#define PM_ITEM_DOOR_LINE_NEVER   0
+#define PM_ITEM_DOOR_LINE_ALWAYS  1
+#define PM_ITEM_DOOR_LINE_TOUCH   2
+
+item[][13] key held flag
+
+
+I think I have been through all the sources and have all this fixed...
+test demos...good
+test overworld..good
+test all creators..good
+
+I think I am done with doors
+test a bit...
+
+edit selection copy doors is broken
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

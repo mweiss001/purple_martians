@@ -305,11 +305,11 @@ void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
    }
    // change door refs in items
    for (int b=0; b<iib; b++)
-      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][9] != -1) // type linked dest item
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][1] != -1) // type linked dest item
       {
          // change link to new door
          for (auto lit : itemIDTranslations)
-            if (ftLevel.mItem.item[b][9] == lit.oldItemNumber) ftLevel.mItem.item[b][9] = lit.newItemNumber;
+            if (ftLevel.mItem.item[b][1] == lit.oldItemNumber) ftLevel.mItem.item[b][1] = lit.newItemNumber;
       }
 
 
@@ -492,11 +492,11 @@ void mwEditSelection::fill_ft_variables_from_selection_l2()
 
    // change door refs in items
    for (int b=0; b<iib; b++)
-      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][9] != 1) // type linked dest item
+      if (ftLevel.mItem.item[b][0] == PM_ITEM_TYPE_DOOR && ftLevel.mItem.item[b][1] != 1) // type linked dest item
       {
          // change link to new door
          for (auto lit : itemIDTranslations)
-            if (ftLevel.mItem.item[b][9] == lit.oldItemNumber) ftLevel.mItem.item[b][9] = lit.newItemNumber;
+            if (ftLevel.mItem.item[b][1] == lit.oldItemNumber) ftLevel.mItem.item[b][1] = lit.newItemNumber;
       }
 
    // enemies
@@ -869,10 +869,10 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
    // find all newly added doors that link to something and fix those links
    for (c=0; c<500; c++)
-      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][9] != 1 && mLevel.mItem.item[c][15] >= 1000)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][1] != 1 && mLevel.mItem.item[c][15] >= 1000)
       {
          for (auto lit : itemIDTranslations)
-            if (mLevel.mItem.item[c][9]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][9] = lit.newItemNumber;
+            if (mLevel.mItem.item[c][1]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
       }
 
    // clear all temporary marks for newly added door

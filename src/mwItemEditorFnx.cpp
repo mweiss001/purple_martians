@@ -197,12 +197,12 @@ int mwItem::sort_item()
 
    // fix linked doors
    for (int c=0; c<500; c++)
-      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][9] != -1)) // doors with exit links
+      if ((item[c][0] == PM_ITEM_TYPE_DOOR) && (item[c][1] != -1)) // doors with exit links
       {
-         int old_linked_item_id = item[c][9];
+         int old_linked_item_id = item[c][1];
          for (int d=0; d<500; d++)
             if ((item[d][0] == PM_ITEM_TYPE_DOOR) && (item[d][15]-1000 == old_linked_item_id)) // found a door with old_link in 15
-               item[c][9] = d;  // update to new link number
+               item[c][1] = d;  // update to new link number
       }
 
    // erase what we put in 15
@@ -423,26 +423,31 @@ int mwItem::create_door(int type)
 {
    switch (type)
    {
-
       case 1: // single door item
       {
          int c = get_empty_item();
-         if (c != -1)
+         if (c == -1)
          {
-            if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
-            {
-               item[c][0] = PM_ITEM_TYPE_DOOR;
-               item[c][1] = 2;    // draw type
-               item[c][2] = PM_ITEM_FLAG_STATIONARY;
-               item[c][6] = 13;   // default color = lt blue
-               item[c][7] = 1;    // move type: move
-               item[c][9] = -1;   // type: exit only
-               item[c][11] = 0;   // enter immed
-               item[c][12] = 1;   // always draw line
-               item[c][13] = 100; // scale 1.0
-
-            }
+            printf("Door Creator Error: could not find empty item\n");
+            return sort_item();
          }
+
+         if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) != 1)
+         {
+            clear_item(c);
+            return sort_item();
+         }
+
+         item[c][0] = PM_ITEM_TYPE_DOOR;
+         item[c][1] = -1;   // type: exit only
+         item[c][2] = PM_ITEM_FLAG_STATIONARY;
+
+         item[c][8]  = 2;    // draw type: warp
+         item[c][9]  = 13;   // color: lt blue
+         item[c][10] = 100;  // scale: 1.0
+         item[c][11] = 0;    // rotation: none
+         item[c][12] = 1;    // draw line: always
+
       }
       break;
       case 2: // one way door with linked item exit
@@ -450,96 +455,126 @@ int mwItem::create_door(int type)
          // first check to see if we can find 2 empty items
          int found_empty_items = 0;
          int c, d;
-         c = get_empty_item(); // get 1st item
+
+         // get 1st item
+         c = get_empty_item();
          if (c != -1)
          {
-            item[c][0] = 1; // mark it so we don't find it as empty again
-            d = get_empty_item(); // get 2nd item
+            // mark 1st item it so we don't find it as empty again
+            item[c][0] = PM_ITEM_TYPE_DOOR;
+
+            // get 2nd item
+            d = get_empty_item();
+
+            // error getting 2nd item
             if (d != -1) found_empty_items = 1;
+
             else item[c][0] = 0;
          }
 
-         if (found_empty_items)
+         if (!found_empty_items)
          {
-            if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
-            {
-               item[c][0] = PM_ITEM_TYPE_DOOR;    // type 1
-               item[c][1] = 2;    // draw type
-               item[c][2] = PM_ITEM_FLAG_STATIONARY;
-               item[c][6] = 13;   // default color = lt blue
-               item[c][7] = 2;    // move type: move
-               item[c][11] = 0;   // enter immed
-               item[c][12] = 1;   // always draw line
-               item[c][13] = 100; // scale 1.0
+            printf("Door Creator Error: could not find empty items\n");
+            return sort_item();
+         }
 
-               if (mMiscFnx.getxy("Destination Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
-               {
-                  item[c][9] = d;  // set linked exit in source door
+         if (mMiscFnx.getxy("Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) != 1)
+         {
+            clear_item(c);
+            clear_item(d);
+            return sort_item();
+         }
 
-                  item[d][0] = PM_ITEM_TYPE_DOOR;  // type 1
-                  item[d][1] = 2;  // draw type
-                  item[d][2] = PM_ITEM_FLAG_STATIONARY;
-                  item[d][6] = 13; // default color = lt blue
-                  item[d][7] = 2;  // move type: move
-                  item[d][9] = -1;  // type: exit only
-                  item[d][13] = 100; // scale 1.0
+         item[c][0] = PM_ITEM_TYPE_DOOR;
+         item[c][2] = PM_ITEM_FLAG_STATIONARY;
+         item[c][6]  = 0;    // enter: immed
+         item[c][7]  = 1;    // move type: travel
+         item[c][8]  = 2;    // draw type: warp
+         item[c][9]  = 13;   // color: lt blue
+         item[c][10] = 100;  // scale: 1.0
+         item[c][11] = 0;    // rotation: none
+         item[c][12] = 1;    // draw line: always
 
-               } // end of get destination without cancel
-               else item[c][0] = 0;
+         if (mMiscFnx.getxy("Destination Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) != 1)
+         {
+            clear_item(c);
+            clear_item(d);
+            return sort_item();
+         }
 
-             } // end of get location without cancel
-             else item[c][0] = 0;
-          } // end of found empty items
+         item[c][1] = d;  // set linked exit in source door
+         item[d][0] = PM_ITEM_TYPE_DOOR;
+         item[d][1] = -1;    // link type: exit only
+         item[d][2] = PM_ITEM_FLAG_STATIONARY;
+         item[d][8]  = 2;    // draw type: warp
+         item[d][9]  = 13;   // color: lt blue
+         item[d][10] = 100;  // scale: 1.0
+         item[d][11] = 0;    // rotation: none
       }
+
       break;
       case 3: // two way door set
       {
+         // first check to see if we can find 2 empty items
          int found_empty_items = 0;
          int c, d;
 
-         // first check to see if we can find 2 empty items
-         c = get_empty_item(); // get 1st item
+         // get 1st item
+         c = get_empty_item();
          if (c != -1)
          {
-            item[c][0] = 1; // mark it so we don't find it as empty again
-            d = get_empty_item(); // get 2nd item
+            // mark 1st item it so we don't find it as empty again
+            item[c][0] = PM_ITEM_TYPE_DOOR;
+
+            // get 2nd item
+            d = get_empty_item();
+
+            // error getting 2nd item
             if (d != -1) found_empty_items = 1;
             else item[c][0] = 0;
          }
 
-         if (found_empty_items)
+         if (!found_empty_items)
          {
-            if (mMiscFnx.getxy("1st Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) == 1)
-            {
-               item[c][0] = PM_ITEM_TYPE_DOOR;
-               item[c][1] = 2;    // draw type
-               item[c][2] = PM_ITEM_FLAG_STATIONARY;
-               item[c][6] = 13;   // default color = lt blue
-               item[c][7] = 2;    // move type: move
-               item[c][11] = 1;   // trigger with up
-               item[c][12] = 1;   // always draw line
-               item[c][13] = 100; // scale 1.0
+            printf("Door Creator Error: could not find empty items\n");
+            return sort_item();
+         }
 
-               if (mMiscFnx.getxy("2nd Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) == 1)
-               {
-                  item[c][9] = d;    // 1st door linked exit is 2nd door
-                  item[d][9] = c;    // 2nd door linked exit is 1st door
+         if (mMiscFnx.getxy("1st Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, c) != 1)
+         {
+            clear_item(c);
+            clear_item(d);
+            return sort_item();
+         }
 
-                  item[d][0] = PM_ITEM_TYPE_DOOR;
-                  item[d][1] = 2;    // draw type
-                  item[d][2] = PM_ITEM_FLAG_STATIONARY;
-                  item[d][6] = 13;   // default color = lt blue
-                  item[d][7] = 2;    // move type: move
-                  item[d][11] = 1;   // trigger with up
-                  item[d][12] = 1;   // always draw line
-                  item[d][13] = 100; // scale 1.0
+         item[c][0] = PM_ITEM_TYPE_DOOR;
+         item[c][2] = PM_ITEM_FLAG_STATIONARY;
+         item[c][6]  = 1;    // enter: with up
+         item[c][7]  = 1;    // move type: travel
+         item[c][8]  = 2;    // draw type: warp
+         item[c][9]  = 13;   // color: lt blue
+         item[c][10] = 100;  // scale: 1.0
+         item[c][11] = 0;    // rotation: none
+         item[c][12] = 1;    // draw line: always
 
+         if (mMiscFnx.getxy("2nd Door", PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, d) != 1)
+         {
+            clear_item(c);
+            clear_item(d);
+            return sort_item();
+         }
 
-               } // end of get destination without cancel
-               else clear_item(c);
-            } // end of get location without cancel
-            else clear_item(c);
-         } // end of found empty items
+         item[c][1] = d;  // 1st door linked exit is 2nd door
+         item[d][1] = c;  // 2nd door linked exit is 1st door
+
+         item[d][0] = PM_ITEM_TYPE_DOOR;
+         item[d][2] = PM_ITEM_FLAG_STATIONARY;
+         item[d][6]  = 1;    // enter: with up
+         item[d][7]  = 1;    // move type: travel
+         item[d][8]  = 2;    // draw type: warp
+         item[d][9]  = 13;   // color: lt blue
+         item[d][10] = 100;  // scale: 1.0
+         item[d][11] = 0;    // rotation: none
       }
       break;
    }

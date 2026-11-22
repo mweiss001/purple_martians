@@ -259,6 +259,42 @@ void mwGlobalLevelTool::execute()
       mLevel.load_level_by_number(le[x], 1, 1);
 
 
+
+
+
+      //
+      // for (int y=0; y<500; y++)
+      //    if (mLevel.mItem.item[y][0] == PM_ITEM_TYPE_DOOR)
+      //    {
+      //       mLevel.mItem.item[y][3] = 0;
+      //       mLevel.mItem.item[y][13] = 0;
+      //    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //       for (int y=0; y<100; y++)
 //       {
 //          // if (mLevel.mEnemy.Ei[y][0] == PM_ENEMY_TYPE_CLONER)

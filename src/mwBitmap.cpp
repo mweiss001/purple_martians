@@ -197,6 +197,10 @@ int mwBitmap::load_tiles()
    al_set_target_bitmap(M_dtilemap);
    al_draw_bitmap(dtilemap, 0, 0, 0);
 
+
+
+
+
    // get gate tiles
    gtilemap = al_load_bitmap("bitmaps/gate_tiles.png");
    if (!gtilemap)
@@ -238,14 +242,14 @@ int mwBitmap::load_tiles()
 
 void mwBitmap::make_door_tiles()
 {
-
-   for (int a=0; a<16; a++)
-      for (int b=0; b<10; b++)
+   for (int a=0; a<16; a++) // 16 colors
+      for (int b=0; b<10; b++) // 10 tiles in animation sequence
       {
+         // create sub bitmap from tilemap
          door_tile[a][b] = al_create_sub_bitmap(dtilemap, b*22+1, a*22+1, 20, 20);
-
          al_set_target_bitmap(door_tile[a][b]);
          al_clear_to_color(al_map_rgba(0,0,0,0));
+
 
          // get the base color from pallet color
          ALLEGRO_COLOR color = mColor.pc[a];
@@ -258,22 +262,14 @@ void mwBitmap::make_door_tiles()
          for (int p=0; p<5; p++)
             ca[p+0] = ca[p+10] = ca[9-p] = ca[19-p] = mColor.modify_hsl(color, 0, 0, p*-0.10, 1);
 
-         // 10 rectangles from outer to inner, offset into color array by position in animation sequence
+         // draw 10 rectangles from outer to inner, offset into color array by position in animation sequence
          for (int p=0; p<10; p++)
             al_draw_rectangle(0.5+p, 0.5+p, 19.5-p, 19.5-p, ca[(9-p)+b], 1);
 
-         // mid color outline
+         // outline
          al_draw_rectangle(0.5, 0.5, 19.5, 19.5, ca[2], 1);
 
-         // 4 corners
-//         al_draw_filled_rectangle( 0.5, 0.5,     2.5, 2.5, mColor.pc[a]);
-//         al_draw_filled_rectangle(18.5, 0.5,    20.5, 2.5, mColor.pc[a]);
-
-//         al_draw_filled_rectangle(0.5,  18.5,    2.5, 20.5, mColor.pc[a]);
-//         al_draw_filled_rectangle(18.5, 18.5,   20.5, 20.5, mColor.pc[a]);
-
-
-
+         // corners
          al_draw_line( 0.5, 0.5,     0.5, 2.5, ca[0], 1);
          al_draw_line( 0.5, 0.5,     2.5, 0.5, ca[0], 1);
 
@@ -286,10 +282,8 @@ void mwBitmap::make_door_tiles()
          al_draw_line(18.5, 19.5,   20.5, 19.5, ca[0], 1);
          al_draw_line(19.5, 18.5,   19.5, 20.5, ca[0], 1);
 
-
-
       }
-   al_save_bitmap("bitmaps/door_tiles.png", dtilemap);
+   //al_save_bitmap("bitmaps/door_tiles.png", dtilemap);
 }
 
 
