@@ -58557,6 +58557,106 @@ I am so ver happy with this
 2026-11-21 17:37:14 commit for now...
 
 
+do something about doors drawing twice
+
+when you draw destination, see if it is also source, if yes then don't draw??
+which one should take precedence?
+
+hovered should always take precedence
+
+dest scale is ignored
+
+
+2 way linked set does not show I/O...fixed
+broke something and demos don't work...
+
+it is in
+void mwItem::proc_door_collision(int p, int i)
+   if (do_entry)
+      if (travel)
+
+      
+         float s_scale = (float)item[i][13] / 100 * door_hover_scale_multiplier;
+         float syo = ((20*s_scale) - 20)/2;
+
+         float d_scale = (float)item[li][13] / 100;
+         float dyo = ((20*d_scale) - 20)/2;
+      
+
+         // snap player to the source door
+         m_parent.mPlayer.syn[p].x = itemf[i][0];
+         m_parent.mPlayer.syn[p].y = itemf[i][1];
+
+         m_parent.mPlayer.syn[p].y = itemf[i][1]-syo; <----------------------------------
+
+the dest door is fine, demo's still play
+
+
+         // get the x and y distances between player and exit
+         dy-=dyo;
+
+         float xlen = m_parent.mPlayer.syn[p].x - dx;
+         float ylen = m_parent.mPlayer.syn[p].y - dy;
+
+void mwItem::proc_player_door_move(int p)
+{
+         float d_scale = (float)item[door_item][13] / 100;
+         float dyo = ((20*d_scale) - 20)/2;
+
+         // snap to dest...
+         if (item[door_item][9] == -1) // regular dest
+         {
+            m_parent.mPlayer.syn[p].x  = item[door_item][6] * 20;
+            m_parent.mPlayer.syn[p].y  = item[door_item][7] * 20 - dyo;
+         }
+
+try it with hover multiplier...that was it!!
+
+         float s_scale = (float)item[i][13] / 100;
+//         s_scale *= door_hover_scale_multiplier;
+         float syo = ((20*s_scale) - 20)/2;
+
+now demo's play!!
+
+add to group edit,
+door type
+color
+size
+done
+
+
+when copying a ring of doors with edit selection the first one has a broken link
+it is set to 1
+
+OV does not show exit link properly..fixed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

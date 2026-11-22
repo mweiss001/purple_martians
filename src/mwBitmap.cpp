@@ -22,94 +22,44 @@
 #include "mwSelectionWindow.h"
 #include "mwTileSets.h"
 
-
 mwBitmap mBitmap;
-
-
 
 mwBitmap::mwBitmap() // default constructor
 {
-   portal_tilesets[1].num_tiles    = 18;
-   portal_tilesets[1].idle_start   =  0;
-   portal_tilesets[1].idle_length  =  2;
-   portal_tilesets[1].main_start   =  2;
-   portal_tilesets[1].main_length  = 16;
-   portal_tilesets[1].idle_cx      = 32;
-   portal_tilesets[1].main_cxi     = 32;
-   portal_tilesets[1].main_cxf     = 35;
-   portal_tilesets[1].idle_cy      = 32;
-   portal_tilesets[1].main_cyi     = 32;
-   portal_tilesets[1].main_cyf     = 34;
 
-   portal_tilesets[2].num_tiles    = 33;
-   portal_tilesets[2].idle_start   =  0;
-   portal_tilesets[2].idle_length  = 10;
-   portal_tilesets[2].main_start   = 11;
-   portal_tilesets[2].main_length  = 22;
-   portal_tilesets[2].idle_cx      = 32;
-   portal_tilesets[2].main_cxi     = 32;
-   portal_tilesets[2].main_cxf     = 32;
-   portal_tilesets[2].idle_cy      = 32;
-   portal_tilesets[2].main_cyi     = 32;
-   portal_tilesets[2].main_cyf     = 32;
-
-   portal_tilesets[3].num_tiles    = 29;
-   portal_tilesets[3].idle_start   =  0;
-   portal_tilesets[3].idle_length  = 17;
-   portal_tilesets[3].main_start   = 17;
-   portal_tilesets[3].main_length  = 12;
-   portal_tilesets[3].idle_cx      = 32;
-   portal_tilesets[3].main_cxi     = 32;
-   portal_tilesets[3].main_cxf     = 32;
-   portal_tilesets[3].idle_cy      = 31;
-   portal_tilesets[3].main_cyi     = 31;
-   portal_tilesets[3].main_cyf     = 35;
-
-   portal_tilesets[4].num_tiles    = 18;
-   portal_tilesets[4].idle_start   =  0;
-   portal_tilesets[4].idle_length  =  6;
-   portal_tilesets[4].main_start   =  6;
-   portal_tilesets[4].main_length  = 12;
-   portal_tilesets[4].idle_cy      = 35;
-   portal_tilesets[4].main_cyi     = 35;
-   portal_tilesets[4].main_cxf     = 32;
-   portal_tilesets[4].idle_cx      = 32;
-   portal_tilesets[4].main_cxi     = 32;
-   portal_tilesets[4].main_cyf     = 35;
-
-   portal_tilesets[5].num_tiles    = 15;
-   portal_tilesets[5].idle_start   =  0;
-   portal_tilesets[5].idle_length  =  4;
-   portal_tilesets[5].main_start   =  4;
-   portal_tilesets[5].main_length  = 11;
-   portal_tilesets[5].idle_cx      = 28;
-   portal_tilesets[5].main_cxi     = 28;
-   portal_tilesets[5].main_cxf     = 25;
-   portal_tilesets[5].idle_cy      = 33;
-   portal_tilesets[5].main_cyi     = 33;
-   portal_tilesets[5].main_cyf     = 35;
 
 }
 
 
 void mwBitmap::draw_portal(int color, int index, int x, int y, float scale, float rot)
 {
-   if ((index < 0) || (index >= portal_tilesets[current_portal_tileset].num_tiles)) return;
+   int num_tiles    = 15;
+   int main_start   =  4;
+   int main_length  = 11;
+
+   int idle_cx      = 28;
+   int main_cxi     = 28;
+   int main_cxf     = 25;
+   int idle_cy      = 33;
+   int main_cyi     = 33;
+   int main_cyf     = 35;
+
+   if ((index < 0) || (index >= num_tiles)) return;
 
    // center of source tile
    float cx = 32;
    float cy = 32;
 
    // idle
-   if (index < portal_tilesets[current_portal_tileset].idle_length)
+   if (index < main_start)
    {
-      cx = portal_tilesets[current_portal_tileset].idle_cx;
-      cy = portal_tilesets[current_portal_tileset].idle_cy;
+      cx = idle_cx;
+      cy = idle_cy;
    }
    else
    {
-      float ms = portal_tilesets[current_portal_tileset].main_start;
-      float ml = portal_tilesets[current_portal_tileset].main_length;
+      float ms = main_start;
+      float ml = main_length;
 
       // do ratio of where we are in the tileset
       float ratio = (float)(index-ms) / ml;
@@ -117,13 +67,13 @@ void mwBitmap::draw_portal(int color, int index, int x, int y, float scale, floa
       // at the start (0) cx will be cx_initial
       // at the end   (1) cx will be cx_final
 
-      float cxi = portal_tilesets[current_portal_tileset].main_cxi;
-      float cxf = portal_tilesets[current_portal_tileset].main_cxf;
+      float cxi = main_cxi;
+      float cxf = main_cxf;
       float cxs = cxf - cxi;
       cx = cxi + cxs*ratio;
 
-      float cyi = portal_tilesets[current_portal_tileset].main_cyi;
-      float cyf = portal_tilesets[current_portal_tileset].main_cyf;
+      float cyi = main_cyi;
+      float cyf = main_cyf;
       float cys = cyf - cyi;
       cy = cyi + cys*ratio;
    }
@@ -155,9 +105,7 @@ void mwBitmap::create_bitmaps()
    M_stilemap = create_and_clear_bitmap(704, 704);
    M_btilemap = create_and_clear_bitmap(704, 1408);
    M_ptilemap = create_and_clear_bitmap(528, 352);
-//   M_dtilemap = create_and_clear_bitmap(176, 704);
    M_dtilemap = create_and_clear_bitmap(220, 352);
-
    M_gtilemap = create_and_clear_bitmap(126, 434);
    M_ztilemap = create_and_clear_bitmap(960, 1024);
 
@@ -168,11 +116,9 @@ void mwBitmap::create_bitmaps()
    stilemap = create_and_clear_bitmap(704, 704);
    btilemap = create_and_clear_bitmap(704, 1408);
    ptilemap = create_and_clear_bitmap(528, 352);
-//   dtilemap = create_and_clear_bitmap(176, 704);
    dtilemap = create_and_clear_bitmap(220, 352);
    gtilemap = create_and_clear_bitmap(126, 434);
    ztilemap = create_and_clear_bitmap(960, 1024);
-
 
    // create bottom message bitmaps
    mBottomMessage.bmsg_create_bitmaps();
@@ -246,59 +192,10 @@ int mwBitmap::load_tiles()
       }
    }
 
-
-
-
-
-
-
-
-   // al_set_target_bitmap(dtilemap);
-   // for (int y=0; y<16; y++)
-   //    for (int x=0; x<10; x++)
-   //       al_draw_bitmap(mBitmap.sprite[654+x], x*22+1, y*22+1, 0);
-   // al_save_bitmap("bitmaps/door_tiles.png", dtilemap);
-
-
-   // get door tiles
-   dtilemap = al_load_bitmap("bitmaps/door_tiles.png");
-    if (!dtilemap)
-    {
-       mInput.m_err("Can't load tiles from bitmaps/door_tiles.png");
-       return 0;
-    }
-    else
-   {
-      al_set_target_bitmap(M_dtilemap);
-      al_draw_bitmap(dtilemap, 0, 0, 0);
-      for (int a=0; a<16; a++)
-         for (int b=0; b<10; b++)
-            door_tile[a][b] = al_create_sub_bitmap(dtilemap, b*22+1,      a*22+1, 20, 20);
-
-   }
-
-
+   // create door tiles
    make_door_tiles();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   al_set_target_bitmap(M_dtilemap);
+   al_draw_bitmap(dtilemap, 0, 0, 0);
 
    // get gate tiles
    gtilemap = al_load_bitmap("bitmaps/gate_tiles.png");
@@ -332,12 +229,10 @@ int mwBitmap::load_tiles()
             portal_tile[c][t] = al_create_sub_bitmap(ztilemap, t*64, c*64, 64, 64);
    }
 
-
    if (!load_sprit()) return 0; // get animation sequences and shape attributes
 
    return 1;
 }
-
 
 
 
@@ -347,6 +242,8 @@ void mwBitmap::make_door_tiles()
    for (int a=0; a<16; a++)
       for (int b=0; b<10; b++)
       {
+         door_tile[a][b] = al_create_sub_bitmap(dtilemap, b*22+1, a*22+1, 20, 20);
+
          al_set_target_bitmap(door_tile[a][b]);
          al_clear_to_color(al_map_rgba(0,0,0,0));
 
@@ -354,58 +251,42 @@ void mwBitmap::make_door_tiles()
          ALLEGRO_COLOR color = mColor.pc[a];
 
          // prefade a bit, otherwise first few colors are very similar
-         color = mColor.modify_hsl(color, 0, 0, -0.06, 1);
+         color = mColor.modify_hsl(color, 0, 0, -0.12, 1);
 
          // make an array of faded colors
          ALLEGRO_COLOR ca[20];
          for (int p=0; p<5; p++)
             ca[p+0] = ca[p+10] = ca[9-p] = ca[19-p] = mColor.modify_hsl(color, 0, 0, p*-0.10, 1);
 
-         // mid color outline
-//         al_draw_rectangle(0.5, 0.5, 19.5, 19.5, ca[2], 1);
-
-         // center
-//         al_draw_filled_rectangle( 9.5, 9.5,     11.5, 11.5, mColor.pc[a+128]);
-
-         // faded rectangles from outer to inner
-//         for (int p=0; p<10; p++)
-//            al_draw_rectangle(0.5+p, 0.5+p, 19.5-p, 19.5-p, mColor.pc[a+p*16], 1);
-
          // 10 rectangles from outer to inner, offset into color array by position in animation sequence
          for (int p=0; p<10; p++)
             al_draw_rectangle(0.5+p, 0.5+p, 19.5-p, 19.5-p, ca[(9-p)+b], 1);
 
-
-
-
-//          // faded rectangles in
-//          for (int p=0; p<9; p++)
-//          {
-//             int q = 8-p;
-//
-//             ALLEGRO_COLOR col2 = mColor.modify_hsl(color, 0, 0, p*-0.04, 1);
-//             al_draw_rectangle(0.5-p+b, 0.5-p+b, 19.5+p-b, 19.5+p-b, col2, 1);
-//
-//             al_draw_rectangle(0.5+q+b, 0.5+q+b, 19.5-q-b, 19.5-q-b, col2, 1);
-// //            al_draw_rectangle(0.5+p+b, 0.5+p+b, 19.5-p-b, 19.5-p-b, col2, 1);
-//
-// //            al_draw_rectangle(0.5-p+b, 0.5-p+b, 19.5+p-b, 19.5+p-b, mColor.pc[a+p*64], 1);
-//          }
-//
-//
-//
-
          // mid color outline
          al_draw_rectangle(0.5, 0.5, 19.5, 19.5, ca[2], 1);
 
-
-
          // 4 corners
-         al_draw_filled_rectangle( 0.5, 0.5,     2.5, 2.5, mColor.pc[a]);
-         al_draw_filled_rectangle(18.5, 0.5,    20.5, 2.5, mColor.pc[a]);
+//         al_draw_filled_rectangle( 0.5, 0.5,     2.5, 2.5, mColor.pc[a]);
+//         al_draw_filled_rectangle(18.5, 0.5,    20.5, 2.5, mColor.pc[a]);
 
-         al_draw_filled_rectangle(0.5,  18.5,    2.5, 20.5, mColor.pc[a]);
-         al_draw_filled_rectangle(18.5, 18.5,   20.5, 20.5, mColor.pc[a]);
+//         al_draw_filled_rectangle(0.5,  18.5,    2.5, 20.5, mColor.pc[a]);
+//         al_draw_filled_rectangle(18.5, 18.5,   20.5, 20.5, mColor.pc[a]);
+
+
+
+         al_draw_line( 0.5, 0.5,     0.5, 2.5, ca[0], 1);
+         al_draw_line( 0.5, 0.5,     2.5, 0.5, ca[0], 1);
+
+         al_draw_line(18.5, 0.5,    20.5, 0.5, ca[0], 1);
+         al_draw_line(19.5, 0.5,    19.5, 2.5, ca[0], 1);
+
+         al_draw_line(0.5,  18.5,    0.5, 20.5, ca[0], 1);
+         al_draw_line(0.5,  19.5,    2.5, 19.5, ca[0], 1);
+
+         al_draw_line(18.5, 19.5,   20.5, 19.5, ca[0], 1);
+         al_draw_line(19.5, 18.5,   19.5, 20.5, ca[0], 1);
+
+
 
       }
    al_save_bitmap("bitmaps/door_tiles.png", dtilemap);

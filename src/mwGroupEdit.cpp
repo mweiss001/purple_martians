@@ -649,6 +649,16 @@ void mwGroupEdit::init()
    ge_data[i].max_allowed = 400;
    cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
 
+   i++;
+   sprintf(ge_data[i].name, "Door Color");
+   sprintf(ge_data[i].snam, "dcol");
+   ge_data[i].vartyp = 2;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = 1;
+   ge_data[i].adj_max = 15;
+   ge_data[i].min_allowed = 1;
+   ge_data[i].max_allowed = 15;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
 
 
 

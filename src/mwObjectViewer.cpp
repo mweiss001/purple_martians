@@ -234,12 +234,12 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
          case PM_ITEM_TYPE_DOOR: // door
          {
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
-            if (mLevel.mItem.item[num][8] == 0)  // exit only, no destination
+            if (mLevel.mItem.item[num][9] == -1)  // exit only, no destination
             {
                // find src door(s)
                int num_src = 0;
                for (int i=0; i<500; i++)
-                  if ((mLevel.mItem.item[i][0] == 1) && (mLevel.mItem.item[i][9] == num))
+                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][9] == num))
                   {
                      num_src++;
                      int x2 = mLevel.mItem.item[i][4]+10;
@@ -248,7 +248,7 @@ void mwObjectViewer::ov_draw_overlays(int legend_highlight)
                      al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
                   }
             }
-            if (mLevel.mItem.item[num][8] == 1)  // draw destination
+            if (mLevel.mItem.item[num][9] != -1)  // draw destination
             {
                // dest item
                int di = mLevel.mItem.item[num][9];
@@ -1264,30 +1264,37 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case PM_ITEM_TYPE_DOOR:
             do_stat_fall_carry(d, xa, xb, ya, bts, n);
             ya+=4; // spacer
-            odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[num][8], 12, 12,  "Door Type:Exit Only",  "Door Type:Normal");
+            if (mLevel.mItem.item[n][9] == -1) // exit only
+            {
+               if (odbb(d, xa, xb, ya, bts, 5, "Set Type to Linked Item"))
+               {
+                  int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
+                  if (i > -1) mLevel.mItem.item[num][9] = i;
+               }
+            }
             if (mLevel.mItem.item[n][9] != -1) // regular door (not exit only)
             {
+               if (odbb(d, xa, xb, ya, bts, 5, "Set Type to Exit Only")) mLevel.mItem.item[n][9] = -1;
                ya+=4; // spacer
                char msg[80];
                sprintf(msg, "Destination Door:%d", mLevel.mItem.item[num][9]);
-               if (odbb(d, xa, xb, ya, bts, 9, msg))
+               if (odbb(d, xa, xb, ya, bts, 12, msg))
                {
                   int i = mMiscFnx.get_item(PM_OBJECT_TYPE_ITEM, PM_ITEM_TYPE_DOOR, num);
                   if (i > -1) mLevel.mItem.item[num][9] = i;
                }
                ya+=4; // spacer
                odbp(d, xa, xb, ya, bts, 11, 1050, mLevel.mItem.item[n][11]); // door entry type
-               odbt(d, xa, xb, ya, bts,  15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
+               odbt(d, xa, xb, ya, bts, 15, mLevel.mItem.item[n][7], 11, 11, "Move Type:Instant", "Move Type:Travel ");
                odbp(d, xa, xb, ya, bts, 11, 1051, mLevel.mItem.item[n][12]); // exit link show
             }
             ya+=4; // spacer
             odbp(d, xa, xb, ya, bts, 13, 1052, mLevel.mItem.item[n][1]); // draw type
-
-            odbi(d, xa, xb, ya, bts, 11, mLevel.mItem.item[n][13], 400, 50, 1,  10, 10, "Scale:");
-
-
             mWidget.mColorSelect(0, xa, xb, ya, bts, 1, mLevel.mItem.item[n][6], "Select Door Color", d);
-            if (odbb(d, xa, xb, ya, bts, 13, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
+            odbi(d, xa, xb, ya, bts, 13, mLevel.mItem.item[n][13], 400, 50, 1,  10, 10, "Scale:");
+
+            ya+=4; // spacer
+            if (odbb(d, xa, xb, ya, bts, 6, "Change Linked to Match")) mLevel.mItem.change_linked_door_color_and_draw_type(n);
             break;
          case PM_ITEM_TYPE_BONUS:
             if (mLevel.mItem.item[n][6] == 0) // health bonus
@@ -2164,12 +2171,12 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
          {
             num_legend_lines = 3;
             legend_line_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
-            if (mLevel.mItem.item[num][8] == 0)  // exit only, no destination
+            if (mLevel.mItem.item[num][9] == -1)  // exit only, no destination
             {
                // find src door(s)
                int num_src = 0;
                for (int i=0; i<500; i++)
-                  if ((mLevel.mItem.item[i][0] == 1) && (mLevel.mItem.item[i][9] == num))
+                  if ((mLevel.mItem.item[i][0] == PM_ITEM_TYPE_DOOR) && (mLevel.mItem.item[i][9] == num))
                   {
                      num_src++;
                   }
@@ -2179,7 +2186,7 @@ void mwObjectViewer::ov_title(int x1, int x2, int y1, int y2, int color)
                if (num_src >  1) sprintf(lmsg[2],"Source Door Positions");
             }
 
-            if (mLevel.mItem.item[num][8] == 1)  // draw destination
+            if (mLevel.mItem.item[num][9] != -1)  // draw destination
             {
                sprintf(lmsg[1],"Door Location");
                sprintf(lmsg[2],"Destination");
