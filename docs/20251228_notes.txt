@@ -58699,6 +58699,190 @@ test a bit...
 
 edit selection copy doors is broken
 
+it looks like it goes into ft nicely, draws well there...
+
+               // mark newly added doors with original item number + 1000
+               if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 1000 + b;
+
+
+
+   // fix door links
+   // ---------------------------------------------
+   itemIDTranslations.clear();
+
+   // add all newly added doors to link translation table with current id
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000) itemIDTranslations.push_back({mLevel.mItem.item[c][15], c});
+
+   // find all newly added doors that link to something and fix those links
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][1] != 1 && mLevel.mItem.item[c][15] >= 1000)
+      {
+         for (auto lit : itemIDTranslations)
+            if (mLevel.mItem.item[c][1]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
+      }
+
+   // clear all temporary marks for newly added door
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR) mLevel.mItem.item[c][15] = 0;
+
+
+lets temp disable sort and see what happens
+
+sort also sets itemf...
+
+
+
+this is the fix:
+
+   // find all newly added doors
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000)
+      {
+         // does this door link to something
+         if (mLevel.mItem.item[c][1] != -1)
+         {
+             // convert old link id to new
+            for (auto lit : itemIDTranslations)
+               if (mLevel.mItem.item[c][1] + 1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
+         }
+      }
+
+
+original:
+   // find all newly added doors that link to something and fix those links
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][1] != 1 && mLevel.mItem.item[c][15] >= 1000)
+      {
+         for (auto lit : itemIDTranslations)
+            if (mLevel.mItem.item[c][1]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
+      }
+
+found the bug!! (mLevel.mItem.item[c][1] != -1)
+
+   // find all newly added doors that link to something and fix those links
+   for (c=0; c<500; c++)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000 && mLevel.mItem.item[c][1] != -1)
+      {
+         for (auto lit : itemIDTranslations)
+            if (mLevel.mItem.item[c][1]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
+      }
+
+OK back to testing
+
+I would really like to have more group edit categories
+
+I want to be able to modify flags, colors
+
+I have something similar with vinepod flags
+enemy is hard coded and var num 20 is hard coded
+
+do one for item common flags
+
+vartype 10 - item common flags
+varnum = flag bits
+
+
+I think I have it!!!
+
+what items should have stationary changeable?
+
+PM_ITEM_TYPE_DOOR
+PM_ITEM_TYPE_BONUS
+PM_ITEM_TYPE_EXIT
+PM_ITEM_TYPE_KEY  
+PM_ITEM_TYPE_START
+PM_ITEM_TYPE_ORB 
+PM_ITEM_TYPE_MINE
+PM_ITEM_TYPE_BOMB
+PM_ITEM_TYPE_ROCKET
+PM_ITEM_TYPE_SWITCH
+PM_ITEM_TYPE_SPRING
+
+not:
+
+
+
+
+#define PM_ITEM_TYPE_TRIGGER     9
+#define PM_ITEM_TYPE_MESSAGE    10
+#define PM_ITEM_TYPE_TIMER      13
+#define PM_ITEM_TYPE_ALTERTILES 16
+#define PM_ITEM_TYPE_DAMAGEAREA 17
+#define PM_ITEM_TYPE_GATE       18
+#define PM_ITEM_TYPE_HIDER      19
+
+now about carry?
+same except key
+
+PM_ITEM_TYPE_DOOR
+PM_ITEM_TYPE_BONUS
+PM_ITEM_TYPE_EXIT
+PM_ITEM_TYPE_START
+PM_ITEM_TYPE_ORB 
+PM_ITEM_TYPE_MINE
+PM_ITEM_TYPE_BOMB
+PM_ITEM_TYPE_ROCKET
+PM_ITEM_TYPE_SWITCH
+PM_ITEM_TYPE_SPRING
+
+I want to make a color control also
+done for doors!!!
+what else would it make sense for?...nothing in items
+
+what about some custom 2 or 3 variable ones?
+door draw type..done
+
+now remove color and door draw from other dumber
+
+now add 
+move type, enter type, rotation, exit link
+
+I now have group edit stuff for everything I could want on doors
+
+2026-11-22 11:47:15
+back to testing doors...
+I think I am fully done with doors
+
+2026-11-22 11:54:33
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

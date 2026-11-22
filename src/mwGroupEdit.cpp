@@ -41,6 +41,29 @@ vartype 9 - sec y2
 vartype 7 - vinepod flags
 varnum = flag bits
 
+
+vartype 10 - item common flags
+varnum = flag bits
+
+vartype 11 - item color
+varnum = var num
+
+vartype 12 - door draw type
+varnum = var num
+
+vartype 13 - door draw rotation
+varnum = var num
+
+vartype 14 - door move type
+varnum = var num
+
+vartype 15 - door enter type
+varnum = var num
+
+vartype 16 - door exit link show
+varnum = var num
+
+
 */
 
 
@@ -437,6 +460,58 @@ void mwGroupEdit::init()
 
 
 
+   i++;
+   sprintf(ge_data[i].name, "Stationary");
+   sprintf(ge_data[i].snam, "stat");
+   ge_data[i].vartyp = 10;
+   ge_data[i].varnum = PM_ITEM_FLAG_STATIONARY;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+   cot[i][2][PM_ITEM_TYPE_BONUS] = 1;
+   cot[i][2][PM_ITEM_TYPE_EXIT] = 1;
+   cot[i][2][PM_ITEM_TYPE_KEY] = 1;
+   cot[i][2][PM_ITEM_TYPE_START] = 1;
+   cot[i][2][PM_ITEM_TYPE_ORB] = 1;
+   cot[i][2][PM_ITEM_TYPE_MINE] = 1;
+   cot[i][2][PM_ITEM_TYPE_BOMB] = 1;
+   cot[i][2][PM_ITEM_TYPE_ROCKET] = 1;
+   cot[i][2][PM_ITEM_TYPE_SWITCH] = 1;
+   cot[i][2][PM_ITEM_TYPE_SPRING] = 1;
+
+
+   i++;
+   sprintf(ge_data[i].name, "Carry");
+   sprintf(ge_data[i].snam, "cary");
+   ge_data[i].vartyp = 10;
+   ge_data[i].varnum = PM_ITEM_FLAG_CARRYABLE;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+   cot[i][2][PM_ITEM_TYPE_BONUS] = 1;
+   cot[i][2][PM_ITEM_TYPE_EXIT] = 1;
+   cot[i][2][PM_ITEM_TYPE_START] = 1;
+   cot[i][2][PM_ITEM_TYPE_ORB] = 1;
+   cot[i][2][PM_ITEM_TYPE_MINE] = 1;
+   cot[i][2][PM_ITEM_TYPE_BOMB] = 1;
+   cot[i][2][PM_ITEM_TYPE_ROCKET] = 1;
+   cot[i][2][PM_ITEM_TYPE_SWITCH] = 1;
+   cot[i][2][PM_ITEM_TYPE_SPRING] = 1;
+
+
+   i++;
+   sprintf(ge_data[i].name, "Carry Though Door");
+   sprintf(ge_data[i].snam, "crtd");
+   ge_data[i].vartyp = 10;
+   ge_data[i].varnum = PM_ITEM_FLAG_CARRY_THROUGH_DOOR;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+   cot[i][2][PM_ITEM_TYPE_BONUS] = 1;
+   cot[i][2][PM_ITEM_TYPE_EXIT] = 1;
+   cot[i][2][PM_ITEM_TYPE_START] = 1;
+   cot[i][2][PM_ITEM_TYPE_ORB] = 1;
+   cot[i][2][PM_ITEM_TYPE_MINE] = 1;
+   cot[i][2][PM_ITEM_TYPE_BOMB] = 1;
+   cot[i][2][PM_ITEM_TYPE_ROCKET] = 1;
+   cot[i][2][PM_ITEM_TYPE_SWITCH] = 1;
+   cot[i][2][PM_ITEM_TYPE_SPRING] = 1;
+
+
 
 
 
@@ -626,18 +701,6 @@ void mwGroupEdit::init()
    ge_data[i].max_allowed = 8;
    cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
-
-   i++;
-   sprintf(ge_data[i].name, "Door Draw Type");
-   sprintf(ge_data[i].snam, "drwt");
-   ge_data[i].vartyp = 2;
-   ge_data[i].varnum = 8;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 3;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 3;
-   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
-
    i++;
    sprintf(ge_data[i].name, "Door Draw Scale");
    sprintf(ge_data[i].snam, "drws");
@@ -649,26 +712,49 @@ void mwGroupEdit::init()
    ge_data[i].max_allowed = 400;
    cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
 
-   i++;
-   sprintf(ge_data[i].name, "Door Draw Rotation");
-   sprintf(ge_data[i].snam, "drot");
-   ge_data[i].vartyp = 2;
-   ge_data[i].varnum = 11;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 2;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 2;
-   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
 
    i++;
    sprintf(ge_data[i].name, "Door Color");
    sprintf(ge_data[i].snam, "dcol");
-   ge_data[i].vartyp = 2;
+   ge_data[i].vartyp = 11;
    ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 1;
-   ge_data[i].adj_max = 15;
-   ge_data[i].min_allowed = 1;
-   ge_data[i].max_allowed = 15;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Door Draw Type");
+   sprintf(ge_data[i].snam, "ddrt");
+   ge_data[i].vartyp = 12;
+   ge_data[i].varnum = 8;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Door Draw Rotation");
+   sprintf(ge_data[i].snam, "drot");
+   ge_data[i].vartyp = 13;
+   ge_data[i].varnum = 11;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+
+   i++;
+   sprintf(ge_data[i].name, "Door Move Type");
+   sprintf(ge_data[i].snam, "drmt");
+   ge_data[i].vartyp = 14;
+   ge_data[i].varnum = 7;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Door Enter Type");
+   sprintf(ge_data[i].snam, "dret");
+   ge_data[i].vartyp = 15;
+   ge_data[i].varnum = 6;
+   cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
+
+   i++;
+   sprintf(ge_data[i].name, "Door Exit Link Show");
+   sprintf(ge_data[i].snam, "dxls");
+   ge_data[i].vartyp = 16;
+   ge_data[i].varnum = 12;
    cot[i][2][PM_ITEM_TYPE_DOOR] = 1;
 
 
@@ -706,6 +792,7 @@ void mwGroupEdit::init()
    cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
 
 
+
    i++;
    sprintf(ge_data[i].name, "Use Spline");
    sprintf(ge_data[i].snam, "ussp");
@@ -726,6 +813,12 @@ void mwGroupEdit::init()
    ge_data[i].vartyp = 7;
    ge_data[i].varnum = PM_ENEMY_VINEPOD_FIRE_SHOT;
    cot[i][3][PM_ENEMY_TYPE_VINEPOD] = 1;
+
+
+
+
+
+
 
    //printf("i:%d\n", i);
 
@@ -1014,25 +1107,65 @@ void mwGroupEdit::draw_list_items(int x1, int y1, int &x2, int &y2, int &ni)
             // valid variables
             for (int ge_num=0; ge_num<100; ge_num++)
                if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
+               {
+                  int vt = ge_data[ge_num].vartyp;
+                  int vn = ge_data[ge_num].varnum;
+
+                  if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][vn]);
+                  if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mEnemy.Ei[num][vn]);
+                  if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mLevel.mEnemy.Ef[num][vn]);
+
+                  if (vt == 7)  // vinepod flag
                   {
-                     int vt = ge_data[ge_num].vartyp;
-                     int vn = ge_data[ge_num].varnum;
-
-                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][vn]);
-                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mEnemy.Ei[num][vn]);
-                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mLevel.mEnemy.Ef[num][vn]);
-
-                     if (vt == 7)  // vinepod flag
-                     {
-                        if (mLevel.mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
-                        else                         al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
-                     }
-
-                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][6] + mLevel.mItem.item[num][8]/2); // secondary x center
-                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][7] + mLevel.mItem.item[num][9]);   // secondary y2
-
-                     xt+=40;
+                     if (mLevel.mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
+                     else                                al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
                   }
+
+                  if (vt == 10)  // item common flags
+                  {
+                     if (mLevel.mItem.item[num][2] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
+                     else                                al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
+                  }
+                  if (vt == 11) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][vn]); // item color
+
+                  if (vt == 12)
+                  {
+                     if (mLevel.mItem.item[num][vn] == 0) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "hide");
+                     if (mLevel.mItem.item[num][vn] == 1) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "stat");
+                     if (mLevel.mItem.item[num][vn] == 2) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "warp");
+                     if (mLevel.mItem.item[num][vn] == 3) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "port");
+                  }
+
+                  if (vt == 13)
+                  {
+                     if (mLevel.mItem.item[num][vn] == 0) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "none");
+                     if (mLevel.mItem.item[num][vn] == 1) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "norm");
+                     if (mLevel.mItem.item[num][vn] == 2) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "180");
+                  }
+                  if (vt == 14)
+                  {
+                     if (mLevel.mItem.item[num][vn] == 0) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "inst");
+                     if (mLevel.mItem.item[num][vn] == 1) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "trav");
+                  }
+                  if (vt == 15)
+                  {
+                     if (mLevel.mItem.item[num][vn] == 0) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "inst");
+                     if (mLevel.mItem.item[num][vn] == 1) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "up");
+                     if (mLevel.mItem.item[num][vn] == 2) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "dn");
+                  }
+                  if (vt == 16)
+                  {
+                     if (mLevel.mItem.item[num][vn] == 0) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "nevr");
+                     if (mLevel.mItem.item[num][vn] == 1) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "alws");
+                     if (mLevel.mItem.item[num][vn] == 2) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "hovr");
+                  }
+
+
+                  if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][6] + mLevel.mItem.item[num][8]/2); // secondary x center
+                  if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mLevel.mItem.item[num][7] + mLevel.mItem.item[num][9]);   // secondary y2
+
+                  xt+=40;
+               }
             // check for max xpos
             if (xt > x2) x2 = xt;
          }
@@ -1153,206 +1286,338 @@ int mwGroupEdit::show_controls(int x, int y, int w, int &h, int d)
    for (int i=0; i<NUM_OBJ; i++)
       if (obj_list[i][0]) ni++;
 
-   if (ni)
+   if (ni == 0)
    {
-      set_valid_controls();
+      h = 12;
+      return 0;
+   }
+   set_valid_controls();
 
-      for (int ge_num=0; ge_num<100; ge_num++)
-         if (ge_data[ge_num].valid)
+   for (int ge_num=0; ge_num<100; ge_num++)
+      if (ge_data[ge_num].valid)
+      {
+         nc++;
+         int gvt = ge_data[ge_num].vartyp;
+         int gvn = ge_data[ge_num].varnum;
+
+         // get height
+         int height = 2 + bts;
+         if (!ge_data[ge_num].collapsed)
          {
-            nc++;
-            int gvt = ge_data[ge_num].vartyp;
-            int gvn = ge_data[ge_num].varnum;
+            if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9)) height += bts * 4;
+            else height += bts;
+         }
 
-            // get height
-            int height = 2 + bts;
-            if (!ge_data[ge_num].collapsed)
+         // make rect for control widget
+         mwRect<int> rect = mwRect<int>::fromX1Y1WH(x+2, by, w-5, height);
+
+         // detect mouse
+         int mouse_detect = 0;
+         if (rect.contains(mInput.mouse_x, mInput.mouse_y)) mouse_detect = 1;
+
+         // set color
+         int fcol = 13;
+         if (mouse_detect) fcol = 10;
+
+         // clear and frame
+         rect.draw_filled_rectangle(mColor.pc[fcol+208]);
+         rect.draw_rectangle(mColor.pc[fcol], 1);
+
+         int x1 = rect.x1;
+         int x2 = rect.x2;
+         int x3 = x2 - 60;
+         int x4 = x1 + 160;
+         int y1 = rect.y1+2;
+
+         // old dumb version
+         // sprintf(msg, "%s", ge_data[ge_num].name);
+         // //adjust button size to text
+         // int sl = (strlen(msg)+2)*4;
+         // int tx1 = x4 - sl + 3;
+         // int tx2 = x4 + sl - 1;
+         // mWidget.mButtonToggle(0, tx1, tx2,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, msg, msg, 12, 12, 15, 15, 0, 0, d);
+
+         // better using new auto width
+         // mWidget.mButtonToggle(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, ge_data[ge_num].name, ge_data[ge_num].name, 12, 12, 15, 15, 0, 0, d);
+
+         // plain button with no toggle
+         mWidget.mButton(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 1,     12, 0, 15, 0, 0, ge_data[ge_num].name, d);
+         mWidget.mButtonToggle(0, x2-12, x2-4,  y1, bts,    1, 0, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
+         if (!ge_data[ge_num].collapsed)
+         {
+            if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9))
             {
-               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9)) height += bts * 4;
-               else height += bts;
-            }
+               // find min max and average
+               float mins = 9999;
+               float maxs = -9999;
+               float tally = 0;
 
-            // make rect for control widget
-            mwRect<int> rect = mwRect<int>::fromX1Y1WH(x+2, by, w-5, height);
+               for (int i=0; i<NUM_OBJ; i++)
+                  if (obj_list[i][0])
+                  {
+                     float val = get_var(gvt, gvn, obj_list[i][1]);
+                     if (val < mins) mins = val;
+                     if (val > maxs) maxs = val;
+                     tally += val;
+                  }
+               float avg = tally / (float) ni;
 
-            // detect mouse
-            int mouse_detect = 0;
-            if (rect.contains(mInput.mouse_x, mInput.mouse_y)) mouse_detect = 1;
+               //sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+               sprintf(msg, "min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+               mWidget.mButton(0, x1+12, x2-12,   1, y1, bts-2,    1, 0, 1, 1,   0, 13, 15, 0, 0, msg,    d);
+               y1+=bts;
 
-            // set color
-            int fcol = 13;
-            if (mouse_detect) fcol = 10;
+               float mna = ge_data[ge_num].min_allowed;
+               float mxa = ge_data[ge_num].max_allowed;
 
-            // clear and frame
-            rect.draw_filled_rectangle(mColor.pc[fcol+208]);
-            rect.draw_rectangle(mColor.pc[fcol], 1);
 
-            int x1 = rect.x1;
-            int x2 = rect.x2;
-            int x3 = x2 - 60;
-            int x4 = x1 + 160;
-            int y1 = rect.y1+2;
+               // auto set incs based on range
+               float adj1 = .1;
+               float rng = mxa - mna;
+               if (rng > 10) adj1 = 1;
+               if (rng > 100) adj1 = 10;
+               float adj2 = adj1/10;
 
-            // old dumb version
-            // sprintf(msg, "%s", ge_data[ge_num].name);
-            // //adjust button size to text
-            // int sl = (strlen(msg)+2)*4;
-            // int tx1 = x4 - sl + 3;
-            // int tx2 = x4 + sl - 1;
-            // mWidget.mButtonToggle(0, tx1, tx2,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, msg, msg, 12, 12, 15, 15, 0, 0, d);
 
-            // better using new auto width
-            // mWidget.mButtonToggle(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, ge_data[ge_num].name, ge_data[ge_num].name, 12, 12, 15, 15, 0, 0, d);
 
-            // plain button with no toggle
-            mWidget.mButton(5, x4, 0,  1, y1, bts-2,    1, 2, 0, 1,     12, 0, 15, 0, 0, ge_data[ge_num].name, d);
-            mWidget.mButtonToggle(0, x2-12, x2-4,  y1, bts,    1, 0, 0, 0,     0, 0, ge_data[ge_num].collapsed, 0, 1, "-", "+", 0, 0, 15, 15, 0, 0, d);
-            if (!ge_data[ge_num].collapsed)
-            {
-               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9))
+               mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, adj2, adj2, adj1, "v1:", 0, d); y1+=bts;
+               mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, adj2, adj2, adj1, "v2:", 0, d); y1+=bts;
+               mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
+
+               if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))
                {
-                  // find min max and average
-                  float mins = 9999;
-                  float maxs = -9999;
-                  float tally = 0;
+                  float mn = ge_data[ge_num].adj_min;
+                  float mx = ge_data[ge_num].adj_max;
+                  if (ge_data[ge_num].adj_mode == 0) // randomize
+                  {
+                     for (int i=0; i<NUM_OBJ; i++)
+                        if (obj_list[i][0])
+                           set_var(gvt, gvn, obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
+                  }
+                  if (ge_data[ge_num].adj_mode == 1) // increment
+                  {
+                     float inc = (mx-mn)/ni;
+                     float val = mn;
+                     for (int i=0; i<NUM_OBJ; i++)
+                        if (obj_list[i][0])
+                        {
+                           set_var(gvt, gvn, obj_list[i][1], val);
+                           val += inc;
+                        }
+                  }
+                  if (ge_data[ge_num].adj_mode == 2) // set all to min
+                  {
+                     for (int i=0; i<NUM_OBJ; i++)
+                        if (obj_list[i][0])
+                           set_var(gvt, gvn, obj_list[i][1], mn);
+                  }
+                  if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
+                  {
+                     float val = get_var(gvt, gvn, obj_list[0][1]);
+                     for (int i=0; i<NUM_OBJ; i++)
+                        if (obj_list[i][0])
+                           set_var(gvt, gvn, obj_list[i][1], val);
+                  }
 
-                  for (int i=0; i<NUM_OBJ; i++)
+
+               } // end of Apply!
+            } // end of types 2, 3, 4, 8, 9
+
+            // initial direction
+            // ---------------------------------------------------------
+            if (gvt == 5)
+            {
+               if (mWidget.mButton(0, x1+10, x4-30,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Random", d))
+               {
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                      if (obj_list[i][0])
                      {
-                        float val = get_var(gvt, gvn, obj_list[i][1]);
-                        if (val < mins) mins = val;
-                        if (val > maxs) maxs = val;
-                        tally += val;
-                     }
-                  float avg = tally / (float) ni;
-
-                  //sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  sprintf(msg, "min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  mWidget.mButton(0, x1+12, x2-12,   1, y1, bts-2,    1, 0, 1, 1,   0, 13, 15, 0, 0, msg,    d);
-                  y1+=bts;
-
-                  float mna = ge_data[ge_num].min_allowed;
-                  float mxa = ge_data[ge_num].max_allowed;
-
-
-                  // auto set incs based on range
-                  float adj1 = .1;
-                  float rng = mxa - mna;
-                  if (rng > 10) adj1 = 1;
-                  if (rng > 100) adj1 = 10;
-                  float adj2 = adj1/10;
-
-
-
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_min, mxa, mna, adj2, adj2, adj1, "v1:", 0, d); y1+=bts;
-                  mWidget.mStepSliderFloat(0, x1+2, x2-2,  1, y1, bts-2,  2, 2, 1, 1,  3, 3, 15, 15, 15,0, 0,  ge_data[ge_num].adj_max, mxa, mna, adj2, adj2, adj1, "v2:", 0, d); y1+=bts;
-                  mWidget.mButtonPD(0, x1+2, x3-1, 1, y1, bts-2,   1, 2,   8, 8, 8, 15, 1, 100, ge_data[ge_num].adj_mode, d); // action type
-
-                  if (mWidget.mButton(0, x3+1, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Apply",    d))
-                  {
-                     float mn = ge_data[ge_num].adj_min;
-                     float mx = ge_data[ge_num].adj_max;
-                     if (ge_data[ge_num].adj_mode == 0) // randomize
-                     {
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
-                     }
-                     if (ge_data[ge_num].adj_mode == 1) // increment
-                     {
-                        float inc = (mx-mn)/ni;
-                        float val = mn;
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                           {
-                              set_var(gvt, gvn, obj_list[i][1], val);
-                              val += inc;
-                           }
-                     }
-                     if (ge_data[ge_num].adj_mode == 2) // set all to min
-                     {
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], mn);
-                     }
-                     if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
-                     {
-                        float val = get_var(gvt, gvn, obj_list[0][1]);
-                        for (int i=0; i<NUM_OBJ; i++)
-                           if (obj_list[i][0])
-                              set_var(gvt, gvn, obj_list[i][1], val);
-                     }
-
-
-                  } // end of Apply!
-               } // end of types 2, 3, 4
-               else if (gvt == 5) // initial direction
-               {
-                  if (mWidget.mButton(0, x1+10, x4-30,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Random", d))
-                  {
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int num = obj_list[i][1];
-                           mLevel.mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
-                        }
-                  }
-                  if (mWidget.mButton(0, x4-28, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Aim at Start Block", d))
-                  {
-                     int sbx = 0, sby = 0; // start block x and y
-                     for (int c=0; c<500; c++)
-                        if (mLevel.mItem.item[c][0] == 5)
-                        {
-                           sbx = mLevel.mItem.item[c][4];
-                           sby = mLevel.mItem.item[c][5];
-                        }
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int num = obj_list[i][1];
-                           mLevel.mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
-                        }
-                  } // end of aim at start block
-               } // end of type 5
-               else if (gvt == 6) // initial position
-               {
-                  if (mWidget.mButton(0, x1+10, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Randomize Position Within Selection", d))
-                  {
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0])
-                        {
-                           int typ = obj_list[i][0];
-                           int num = obj_list[i][1];
-                           object_initial_position_random(typ, num);
-                        }
-                  }
-               }
-
-               else if (gvt == 7) // vinepod flags
-               {
-                  int fx3 = x1 + 100;
-                  int fx4 = x1 + 200;
-                  if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
-                  if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
-                  if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
-                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                     {
-                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
-                        else                             mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                        int num = obj_list[i][1];
+                        mLevel.mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
                      }
                }
+               if (mWidget.mButton(0, x4-28, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Aim at Start Block", d))
+               {
+                  int sbx = 0, sby = 0; // start block x and y
+                  for (int c=0; c<500; c++)
+                     if (mLevel.mItem.item[c][0] == 5)
+                     {
+                        sbx = mLevel.mItem.item[c][4];
+                        sby = mLevel.mItem.item[c][5];
+                     }
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0])
+                     {
+                        int num = obj_list[i][1];
+                        mLevel.mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
+                     }
+               } // end of aim at start block
+            } // end of type 5
 
-            } // end of not collapsed
-            by+=height+y_spacing;
-         } // end of valid ge_num
+            // initial position
+            // ---------------------------------------------------------
+            if (gvt == 6)
+            {
+               if (mWidget.mButton(0, x1+10, x2-2,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Randomize Position Within Selection", d))
+               {
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0])
+                     {
+                        int typ = obj_list[i][0];
+                        int num = obj_list[i][1];
+                        object_initial_position_random(typ, num);
+                     }
+               }
+            }
 
-      h = by-y-y_spacing + 16;
-   } // end of more than 0 items in list
-   else h = 12;
+
+            // vinepod flags
+            // ---------------------------------------------------------
+            if (gvt == 7)
+            {
+               int fx3 = x1 + 100;
+               int fx4 = x1 + 200;
+               if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+               if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+               if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                  {
+                     if (mMiscFnx.mdw_rnd(0, 10) > 5) mLevel.mEnemy.Ei[obj_list[i][1]][20] |= gvn;
+                     else                             mLevel.mEnemy.Ei[obj_list[i][1]][20] &= ~ gvn;
+                  }
+            }
+
+            // item common flags
+            // ---------------------------------------------------------
+            if (gvt == 10)
+            {
+               int fx3 = x1 + 100;
+               int fx4 = x1 + 200;
+               if (mWidget.mButton(0, x1+6, fx3-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all off", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][2] &= ~ gvn;
+               if (mWidget.mButton(0, fx3+4, fx4-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "all on", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][2] |= gvn;
+               if (mWidget.mButton(0, fx4+4, x2-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "random", d))
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                  {
+                     if (mMiscFnx.mdw_rnd(0, 10) > 5) mLevel.mItem.item[obj_list[i][1]][2] |= gvn;
+                     else                             mLevel.mItem.item[obj_list[i][1]][2] &= ~ gvn;
+                  }
+            }
+
+            // item color
+            // ---------------------------------------------------------
+            if (gvt == 11)
+            {
+               int col = mWidget.mColorSelect(0, x1+6, x2-4, 1, y1, bts-2,   1, col, "Set Color", d);
+               if (col != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = col;
+            }
+
+
+            if (gvt == 12)
+            {
+               int ww = (x2-x1) / 4;
+
+               int setval = -1;
+               if (mWidget.mButton(1, x1+3+ww*0, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Hidden", d)) setval = 0;
+               if (mWidget.mButton(1, x1+3+ww*1, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Static", d)) setval = 1;
+               if (mWidget.mButton(1, x1+3+ww*2, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Warp",   d)) setval = 2;
+               if (mWidget.mButton(1, x1+3+ww*3, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Portal", d)) setval = 3;
+
+
+               if (setval != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = setval;
+            }
+
+
+            if (gvt == 13)
+            {
+               int ww = (x2-x1) / 3;
+
+               int setval = -1;
+               if (mWidget.mButton(1, x1+3+ww*0, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "None",    d)) setval = 0;
+               if (mWidget.mButton(1, x1+3+ww*1, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Normal",  d)) setval = 1;
+               if (mWidget.mButton(1, x1+3+ww*2, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "180 deg", d)) setval = 2;
+
+
+               if (setval != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = setval;
+            }
+
+            if (gvt == 14)
+            {
+               int ww = (x2-x1) / 2;
+
+               int setval = -1;
+               if (mWidget.mButton(1, x1+3+ww*0, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Instant",    d)) setval = 0;
+               if (mWidget.mButton(1, x1+3+ww*1, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Travel",  d)) setval = 1;
+
+
+               if (setval != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = setval;
+            }
+
+            if (gvt == 15)
+            {
+               int ww = (x2-x1) / 3;
+
+               int setval = -1;
+               if (mWidget.mButton(1, x1+3+ww*0, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Instant",    d)) setval = 0;
+               if (mWidget.mButton(1, x1+3+ww*1, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "With Up",    d)) setval = 1;
+               if (mWidget.mButton(1, x1+3+ww*2, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "With Down",  d)) setval = 2;
+
+               if (setval != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = setval;
+            }
+
+
+            if (gvt == 16)
+            {
+               int ww = (x2-x1) / 3;
+
+               int setval = -1;
+               if (mWidget.mButton(1, x1+3+ww*0, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Never",    d)) setval = 0;
+               if (mWidget.mButton(1, x1+3+ww*1, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Always",    d)) setval = 1;
+               if (mWidget.mButton(1, x1+3+ww*2, ww-4,   1, y1, bts-2,    1, 2, 0, 1,   10, 0, 15, 0, 0, "Hovered",  d)) setval = 2;
+
+               if (setval != -1)
+                  for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     if (obj_list[i][0]) mLevel.mItem.item[obj_list[i][1]][gvn] = setval;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         } // end of not collapsed
+         by+=height+y_spacing;
+      } // end of valid ge_num
+
+   h = by-y-y_spacing + 16;
+
    return nc;
 }
 

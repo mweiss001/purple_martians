@@ -1431,7 +1431,6 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             break;
 
 
-
          case PM_ITEM_TYPE_ROCKET:
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_STATIONARY,         "Stationary       :OFF", "Stationary       :ON ", 9+dim, 9, 15+dim, 15);
             odbt(d, xa, xb, ya, bts,  mLevel.mItem.item[n][2], PM_ITEM_FLAG_CARRYABLE,          "Player Ride      :OFF", "Player Ride      :ON ", 9+dim, 9, 15+dim, 15);

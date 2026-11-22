@@ -230,7 +230,6 @@ int mwEditSelection::load_selection(const char* filename)
    return 1;
 }
 
-
 void mwEditSelection::fill_ft_variables_from_selection(int save_to_disk)
 {
    bool mirror_x = 0;
@@ -869,7 +868,7 @@ void mwEditSelection::copy_ft_variables_to_level(int qx1, int qy1)
 
    // find all newly added doors that link to something and fix those links
    for (c=0; c<500; c++)
-      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][1] != 1 && mLevel.mItem.item[c][15] >= 1000)
+      if (mLevel.mItem.item[c][0] == PM_ITEM_TYPE_DOOR && mLevel.mItem.item[c][15] >= 1000 && mLevel.mItem.item[c][1] != -1)
       {
          for (auto lit : itemIDTranslations)
             if (mLevel.mItem.item[c][1]+1000 == lit.oldItemNumber) mLevel.mItem.item[c][1] = lit.newItemNumber;
