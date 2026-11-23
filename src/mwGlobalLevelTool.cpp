@@ -211,7 +211,7 @@ void mwGlobalLevelTool::execute()
    char fn[20] = "levels/level000.PML";
 
    // level range to look for
-   for (int x=0; x<400; x++)
+   for (int x=1; x<400; x++)
    {
       int h, d, rem = x;
 
@@ -260,7 +260,15 @@ void mwGlobalLevelTool::execute()
 
 
 
-
+      // for (int xx=0; xx<100; xx++)
+      //    for (int y=0; y<100; y++)
+      //    {
+      //       int t = mLevel.l[xx][y];
+      //       int bt = t & PM_BTILE_TILENUM_MASK;
+      //       if ( ((t & PM_BTILE_BREAKABLE_PSHOT) || (t & PM_BTILE_BREAKABLE_ESHOT))  && (!(t &PM_BTILE_SHOW_OVERLAY))) printf("l:%d x:%d y:%d breakable \n", le[x], xx, y );
+      //       if ( (t & PM_BTILE_BOMBABLE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 64) && (bt != 65) && (bt != 66) && (bt != 67) ) printf("l:%d x:%d y:%d bomb \n", le[x], xx, y );
+      //       if ( (t & PM_BTILE_KEY_ACTIVE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 80) && (bt != 81) && (bt != 82) && (bt != 83) ) printf("l:%d x:%d y:%d key \n", le[x], xx, y );
+      //    }
 
       //
       // for (int y=0; y<500; y++)

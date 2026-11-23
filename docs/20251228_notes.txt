@@ -58880,14 +58880,14 @@ void mwNetgame::headless_server_setup()
    // always have session logging on
    mLog.log_types[LOG_NET_SESSION].action = LOG_ACTION_LOG;
 
-
    if (mLog.log_types[LOG_NET_SESSION].action) mNetgame.session_update_at_level_done();
 
 
-
-
-
-
+notes:
+Until there is a current session,
+the sections, "current session" and "save game files for current session" do not show
+Until there is a current save game the section "current saved game" does not show
+Otherwise, all seems to work...
 
 
 
