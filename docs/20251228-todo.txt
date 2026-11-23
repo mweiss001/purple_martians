@@ -37,10 +37,55 @@ Check for:
 7
 8
 9
-10
-11 
+10 - The Dead Zone -- looks great!
+11 - Good and Evil -- classic good looks, did not change
+12 - Bucket of Bad
 
-rearranged..9 is no longer done
+needs some works to look better
+
+
+
+   data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
+   data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
+   data_helper(4,   7200,  "Switch Puzzle");       // 3:00 demo 2:20
+   data_helper(5,   6400,  "Kill Kill Kill");      // 2:40 demo 2:18
+   data_helper(6,   9600,  "Breakable");           // 4:00 demo 2:58
+   data_helper(7,   2400,  "Ranger Bob");          // 1:00 demo 0:46.5
+   data_helper(8,   8400,  "Switch Pit");          // 3:30 demo 2:52
+   data_helper(9,   3200,  "Bomb Run");            // 1:20 demo 0:55.7
+   data_helper(10,  9600,  "The Dead Zone");       // 4:00 demo 3:15
+   data_helper(11,  14400, "Good and Evil");       // 6:00 demo 4:45
+   data_helper(12,  16800, "Bucket of Bad");       // 7:00 demo 6:10
+   data_helper(13,  14400, "Falling Arrows");      // 6:00 demo 4:41
+   data_helper(14,  600,   "Block Puzzle");        // 0:15 demo 0:08.8
+   data_helper(15,  1800,  "Smash");               // 0:45 demo 0:34.1
+   data_helper(16,  14400, "Big Apple");           // 6:00 demo 4:01
+   data_helper(17,  16800, "Little Rocket");       // 7:00 demo 5:08
+   data_helper(18,  12000, "Incinerator");         // 5:00 demo 4:04
+   data_helper(19,  16800, "Crazy Fox");           // 7:00 demo 5.24
+   data_helper(20,  7200,  "Strange Things");      // 3:00 demo 2:22
+   data_helper(21,  4200,  "Long One");            // 1:45 demo 1:25
+   data_helper(22,  4800,  "Rocket Stew");         // 2:00 demo 1:28
+   data_helper(23,  19200, "Amazing");             // 8:00 demo 5:58
+   data_helper(24,  7200,  "Wendy");               // 3:00 demo 2:26
+   data_helper(25,  10400, "Psycho Killer");       // 4:20 demo 4:00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
