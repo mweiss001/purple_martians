@@ -12,7 +12,7 @@
 void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y)
 {
 
-   bool print = 0;
+   bool print = 1;
 
 
    char msg[80];
@@ -67,7 +67,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    if (header) y_offset = 4;
 
 
-   if (i == 100) // totals
+   if (i == 200) // totals
    {
       total = 1;
       lev = -1;
@@ -83,7 +83,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
    // WTF???
 
-   if ((i > -1) && (i < 100)) lev = i;
+   if ((i > -1) && (i < 200)) lev = i;
 
 
 
@@ -166,7 +166,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
       al_draw_text( mFont.pr8, mColor.pc[col], x+width/2, y+y_offset, ALLEGRO_ALIGN_CENTER, msg);
 
-      if (print) printf("%-*s", print_width, msg);
+//      if (print) printf("%-*s", print_width, msg);
 
 
    }
@@ -203,7 +203,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             }
             al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y+y_offset*2, ALLEGRO_ALIGN_CENTER, msg);
          }
-         if (print) printf("%-*s", print_width, msg);
+//         if (print) printf("%-*s", print_width, msg);
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -277,7 +277,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
                al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y, ALLEGRO_ALIGN_CENTER, msg);
             }
          }
-         if (print) printf("%-*s", print_width, msg);
+//         if (print) printf("%-*s", print_width, msg);
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -563,7 +563,7 @@ void mwLevel::show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty
 
 void mwLevel::show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int col)
 {
-   show_level_stats_row(100, x1, x2, draw, max_x, y);
+   show_level_stats_row(200, x1, x2, draw, max_x, y);
    y+=4;
    if (draw) al_draw_line(x1, y, x2, y, mColor.pc[col], 1);
 
@@ -622,7 +622,7 @@ void mwLevel::show_level_stats_main_area(int x1, int x2, int &y, int draw, int b
    for (int area=2; area<7; area++)
       if (overworld_area_array[area].visible)
       {
-         for (int i=0; i<100; i++)
+         for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
             if (data[i].area == area) y_size+=8;
          y_size+=4;
       }
@@ -647,7 +647,7 @@ void mwLevel::show_level_stats_main_area(int x1, int x2, int &y, int draw, int b
       {
          //int c = overworld_area_array[area].color;
 
-         for (int i=0; i<100; i++)
+         for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
             if (area_array[i][1] == area)
                show_level_stats_row(area_array[i][0], x1, x2, draw, max_x, y);
 
@@ -677,7 +677,7 @@ void mwLevel::show_level_stats_area(int area, int x1, int x2, int &y, int draw, 
    int y_size = 58;
 
    // add 8 for every level
-   for (int i=0; i<100; i++)
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
       if (data[i].area == area) y_size+=8;
 
    // area color
@@ -694,7 +694,7 @@ void mwLevel::show_level_stats_area(int area, int x1, int x2, int &y, int draw, 
    y+=4;
 
    // draw rows
-   for (int i=0; i<100; i++)
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
       if (area_array[i][1] == area)
          show_level_stats_row(area_array[i][0], x1, x2, draw, max_x, y);
 
@@ -730,11 +730,8 @@ void mwLevel::show_level_stats(int xc, int y1, int msg_type)
       al_clear_to_color(mColor.pc[0]);
 
 
-
       // draw
       draw_level_stats(level_stats_bmp_w, level_stats_bmp_h, 1, msg_type);
-
-
 
       level_stats_bmp_msg_type = msg_type;
    }

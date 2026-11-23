@@ -5,7 +5,6 @@
 class mwVisualLevel
 {
 
-
 // visual level select
 // --------------------
 public:

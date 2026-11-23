@@ -119,7 +119,7 @@ void mwLevelIcons::create()
 
    // attempt to create level icons for all levels from 2 to max_level
    for (int level=2; level<max_level; level++)
-      if (level != 70)
+      if (level != PM_OVERWORLD_BASE_LEVEL)
       {
          create_level_icon(level, save_web);
 
@@ -136,7 +136,7 @@ void mwLevelIcons::create()
 
    // do level 1 and 70
    // this has to be last, because gates drawn on these levels require level_icons created above
-   create_level_icon(70, save_web);
+   create_level_icon(PM_OVERWORLD_BASE_LEVEL, save_web);
    create_level_icon(1, save_web);
    load_icons_to_tilemap();
 

@@ -226,7 +226,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       }
       if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mLevel.mPlayer.syn[0].left)) )  left_held = 0;
 
-
       if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mLevel.mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
@@ -237,19 +236,15 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       }
       if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mLevel.mPlayer.syn[0].down))) down_held = 0;
 
-
       if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mLevel.mPlayer.syn[0].up)) && (up_held == 0))
       {
          if (--highlight < 0) highlight = 0;
-
          if ((menu_num == 1) && (!mLevel.resume_allowed) && (highlight == 2)) highlight = 1; // skip
-
          up_held = 1;
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mLevel.mPlayer.syn[0].up))) up_held = 0;
-
 
       if (menu_num == 1) // classic mode
       {
@@ -263,13 +258,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       {
          // shortcut keys
          if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
-
          if (mInput.key[ALLEGRO_KEY_Q][0])                                    return 6; // level editor
-
-
-
-
-
       }
       if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
       if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 0;

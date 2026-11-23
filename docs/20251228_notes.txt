@@ -58892,6 +58892,55 @@ Otherwise, all seems to work...
 
 
 
+can I automate the overlay checks?
+when would I not want to use them?
+Find blocks that have the breakable flags set but not the overlay
+
+      for (int xx=0; xx<100; xx++)
+         for (int y=0; y<100; y++)
+         {
+            int t = mLevel.l[xx][y];
+            int bt = t & PM_BTILE_TILENUM_MASK;
+            if ( ((t & PM_BTILE_BREAKABLE_PSHOT) || (t & PM_BTILE_BREAKABLE_ESHOT))  && (!(t &PM_BTILE_SHOW_OVERLAY))) printf("l:%d x:%d y:%d breakable \n", le[x], xx, y );
+            if ( (t & PM_BTILE_BOMBABLE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 64) && (bt != 65) && (bt != 66) && (bt != 67) ) printf("l:%d x:%d y:%d bomb \n", le[x], xx, y );
+            if ( (t & PM_BTILE_KEY_ACTIVE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 80) && (bt != 81) && (bt != 82) && (bt != 83) ) printf("l:%d x:%d y:%d key \n", le[x], xx, y );
+up to 100 done
+now can I find places where the overlay is set, but no flags that would require it...
+
+
+
+
+
+
+2026-11-23 03:47:25
+
+
+----------------------------------------------------------------------
+could I rearrange the levels once again?
+the limit of 100 is arbirtary
+I would like dev demo's to be all 120+
+training levels to all be 100-119
+main levels to roughly follow the order that I would play them in
+could I make the visual level select have the levels in the order by area??
+
+move these to 120+
+
+Level                   Total Time
+90 Archwagons           1:51
+91 Trakbots             18.9s
+92 Bouncers and Cannons 1:11
+96 Flappers             3.9s
+97 Jumpworms            1:18
+94 Vinepods             37.7s
+95 Blokwalks            36.4s
+93 Cloners              35.5s
+98 Lifts                1:11
+85 Doors                1:48
+86 Triggers and Timers  1:26
+87 Alter Tiles          27.5s
+88 Damage Area          1:24
+89 Orbs                 48.2s
+Totals                  13:40      Total Time:32801
 
 
 
@@ -58902,19 +58951,765 @@ Otherwise, all seems to work...
 
 
 
+move these to 120
+
+120 85 Doors                
+121 86 Triggers and Timers  
+122 87 Alter Tiles          
+123 88 Damage Area          
+124 89 Orbs                 
+125 90 Archwagons           
+126 91 Trakbots             
+127 92 Bouncers and Cannons 
+128 93 Cloners              
+129 94 Vinepods             
+130 95 Blokwalks            
+131 96 Flappers             
+132 97 Jumpworms            
+133 98 Lifts                
 
 
 
 
 
+make room first
+bug in level viewer, blank levels are not blank..
+
+
+increase gate level upper limit to 199
+
+make level icons for levels up to 150
+
+I'm getting errors trying to change gate to above 100
+
+changed these to 150:
+
+   int area_array[150][2];
+   struct level_data data[150];
+
+   // load all levels to get purple coin counts
+   for (int lv=1; lv<150; lv++)
+      if (mLevel.load_level_by_number(lv, 1, 1))
+
+   for (int i=0; i<150; i++)
+   {
+      strcpy(data[i].level_name, "");
+      data[i].status = 1;
+      data[i].area = 0;
+      data[i].time_par = 0;
+
+   for (int i=0; i<150; i++)
+   {
+      area_array[i][0] = 0;
+      area_array[i][1] = 0;
+   }
+
+
+changed these:
+
+   // ---------------------------------------
+   // Advanced Information Levels
+   // ---------------------------------------
+   data_helper(120,  4800,  "Doors");                // 2:00 demo 1:48
+   data_helper(121,  3600,  "Triggers and Timers");  // 1:30 demo 1:26
+   data_helper(122,  2400,  "Alter Tiles");          // 1:00 demo 0:28.4
+   data_helper(123,  3600,  "Damage Area");          // 1:30 demo 1:24
+   data_helper(124,  2400,  "Orbs");                 // 1:00 demo 0:51.8
+   data_helper(125,  4800,  "Archwagons");           // 2:00 demo 1:51
+   data_helper(126,  800,   "Trakbots");             // 0:20 demo 0:18.9
+   data_helper(127,  3600,  "Bouncers and Cannons"); // 1:30 demo 1:11
+   data_helper(128,  1800,  "Cloners");              // 0:45 demo 0:35.8
+   data_helper(129,  1800,  "Vinepods");             // 0:45 demo 0:37.7
+   data_helper(130,  3600,  "Blokwalks");            // 1:30 demo 0:36.4
+   data_helper(131,  600,   "Flappers");             // 0:15 demo 0:03.9
+   data_helper(132,  3600,  "Jumpworms");            // 1:30 demo 1:18
+   data_helper(133,  3600,  "Lifts");                // 1:30 demo 1:11
+
+
+
+renamed all savegame demo files
+opened each one and changed the level number
+
+
+I think I want to make a define
+
+#define PM_MAX_LEVEL_NUM 200
+
+   int area_array[PM_MAX_LEVEL_NUM][2];
+   struct level_data data[PM_MAX_LEVEL_NUM];
+
+
+int mwLevel::get_total_purple_coins(int level)
+{
+   if (level > 1 && level < PM_MAX_LEVEL_NUM) return data[mLevel.play_level].tot_coins;
+   return 0;
+}
+
+
+void mwLevel::unlock_all_levels_and_areas()
+{
+   // only change levels that were locked to start with
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+      if (data[i].status < 1) data[i].status = 1;
+
+   // make all areas visible and unlocked
+   for (int i=1; i<9; i++)
+   {
+      overworld_area_array[i].visible = 1;
+      overworld_area_array[i].locked = 0;
+   }
+   save_data();
+   level_stats_bmp_msg_type = 0;                  // to force recreation
+   load_level_by_number(mLevel.play_level, 0, 0); // reload play level
+}
+
+void mwLevel::clear_data()
+{
+   mSql.execute_sql("DELETE FROM play_data", mSql.db_play_data);
+
+   mPlayer.syn[0].overworld_last_touched_gate_level = 0; // no gate will be found and player will start from start block
+   mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
+
+
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+   {
+      area_array[i][0] = 0;
+      area_array[i][1] = 0;
+   }
+
+   for (int i=0; i<20; i++)
+   {
+      strcpy(overworld_area_array[i].name, "");
+      overworld_area_array[i].color = 0;
+      overworld_area_array[i].visible = 0;
+      overworld_area_array[i].locked = 0;
+      overworld_area_array[i].x = 0;
+      overworld_area_array[i].y = 0;
+      overworld_area_array[i].w = 0;
+      overworld_area_array[i].h = 0;
+   }
+
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+   {
+      strcpy(data[i].level_name, "");
+      data[i].status = 1;
+      data[i].area = 0;
+      data[i].time_par = 0;
+      data[i].time_best = 0;
+      data[i].time_best_all_coins = 0;
+      data[i].time_worst = 0;
+      data[i].time_average = 0;
+      data[i].time_total = 0;
+      data[i].times_played = 0;
+      data[i].times_beat = 0;
+      data[i].times_quit = 0;
+      data[i].min_respawns = 0;
+      data[i].max_coins_collected = 0;
+      data[i].max_enemies_killed = 0;
+      data[i].tot_coins = 0;
+      data[i].min_enemies_left = 0;
+      data[i].min_enemies_left_par = 0;
+   }
+
+   set_level_names_and_par_time();
+   fill_overworld_area_array();
+
+   // load all levels to get purple coin counts
+   for (int lv=1; lv<PM_MAX_LEVEL_NUM; lv++)
+      if (mLevel.load_level_by_number(lv, 1, 1))
+      {
+         for (int i=0; i<500; i++)
+            if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 1)) data[lv].tot_coins++;
+      }
+
+   load_level_by_number(1, 1, 0); // load overworld level to force initial setup
+   save_data();
+   level_stats_bmp_msg_type = 0;
+}
+
+
+   // find all gates in the area
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+      if ((mItem.item[i][0] == PM_ITEM_TYPE_GATE) && (mItem.item[i][4] >= x*20) && (mItem.item[i][4] < (x+w)*20) && (mItem.item[i][5] >= y*20) && (mItem.item[i][5] <= (y+h)*20))
+
+
+float mwLevel::calc_area_percent_complete(int area)
+{
+   int total = 0;
+   int complete = 0;
+   for (int l=2; l<PM_MAX_LEVEL_NUM; l++)
+      if (data[l].area == area)
+      {
+         total++;
+         if (data[l].status > 1) complete++;
+      }
+   if (total == 0) return 0;
+   return (float)complete / (float)total;
+}
+
+int mwLevel::count_area_levels_complete(int area)
+{
+   int complete = 0;
+   for (int l=2; l<PM_MAX_LEVEL_NUM; l++)
+      if (data[l].area == area && data[l].status > 1) complete++;
+   return complete;
+}
 
 
 
 
+void mwLevel::show_level_stats_area(int area, int x1, int x2, int &y, int draw, int bco, int &gy, int &ty, int &max_x)
+{
+   // base y size
+   int y_size = 58;
+
+   // add 8 for every level
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+      if (data[i].area == area) y_size+=8;
+
+   // area color
+   int ac = overworld_area_array[area].color;
+
+   // fill with background color
+   if (draw) al_draw_filled_rectangle(x1, y, x2, y+y_size, mColor.pc[ac+bco]);
+
+   // draw title and column header
+   show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, ac, overworld_area_array[area].name);
+
+   // line before levels
+   if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+   y+=4;
+
+   // draw rows
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+      if (area_array[i][1] == area)
+         show_level_stats_row(area_array[i][0], x1, x2, draw, max_x, y);
+
+   // line after levels
+   if (draw) al_draw_line(x1, y+4, x2, y+4, mColor.pc[ac], 1);
+   y+=8;
+
+   // draw totals
+   show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, ac);
+
+   // draw thicker outline
+   if (draw) show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, ac);
+
+   // adjust y for next section
+   y-=5;
+}
+
+I am finally testing all demos good after all these changes
+
+now put all training levels at 100
+
+101 80 Training Level 1 
+102 81 Training Level 2 
+103 82 Training Level 3 
+104 83 Training Level 4 
+105 84 Training Level 5 
+106 9 Bomb Intro      
+107 37 Sacrifice      
+108 25 One Cannon     
+
+   data_helper(101,  1200,  "Training Level 1");    // 0:30 demo 0:21.2
+   data_helper(102,  4800,  "Training Level 2");    // 2:00 demo 0:53.4
+   data_helper(103,  8400,  "Training Level 3");    // 3:30 demo 2:12
+   data_helper(104,  6000,  "Training Level 4");    // 2:30 demo 1:14
+   data_helper(105,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
+   data_helper(106,  6000,  "Bomb Intro");          // 2:30 demo 1:35
+   data_helper(107,  800,   "Sacrifice");           // 0:20 demo 0:13.3
+   data_helper(108,  1000,  "One Cannon");          // 0:25 demo 0:21.9
+
+tests good...
+
+make visual level select do up to 150
+
+2026-11-23 05:44:48
+
+OK now what?
+
+any more rearranging?
+
+
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+System ID: Windows
+Desktop Resolution: 3840x2160
+-------------------------------------------------------------
+Level                   Total Time
+104 Training Level 4    1:14
+103 Training Level 3    2:12
+102 Training Level 2    53.4s
+101 Training Level 1    21.2s
+106 Bomb Intro          1:22
+105 Training Level 5    52.8s
+107 Sacrifice           13.3s
+108 One Cannon          21.9s
+Totals                  7:31       Total Time:18067
+
+-------------------------------------------------------------
+Level                   Total Time
+ 5 Kill Kill Kill       3:13
+51 Cannon Bees          2:23
+38 Come Over            1:06
+ 2 Switch Nest          1:31
+ 3 Blue Key Fall        26.3s
+39 Bomb Run             53.6s
+44 Too Many Lifts       2:45
+21 Long One             1:25
+14 Block Puzzle         8.8s
+24 Wendy                2:26
+ 7 Ranger Bob           45.3s
+58 Psycho Killer        4:00
+34 Crush                1:04
+15 Smash                33.3s
+30 Coral Cave           3:19
+28 Nowhere to Stand     46.2s
+33 Kates Gate           1:55
+22 Rocket Stew          1:28
+ 8 Switch Pit           3:25
+35 Bomb Toss            3:06
+20 Strange Things       2:19
+13 Falling Arrows       5:13
+ 6 Breakable            3:35
+36 Spike Cave           1:38
+26 Long Fall            1:06
+10 The Dead Zone        4:23
+29 Brain Trust          4:50
+ 4 Switch Puzzle        3:05
+19 Crazy Fox            5:43
+17 Little Rocket        5:26
+12 Bucket of Bad        7:16
+11 Good and Evil        5:23
+16 Big Apple            6:07
+23 Amazing              6:50
+18 Incinerator          5:21
+41 Ender                4:01
+32 Yellow Cake          4:04
+31 Beginnings           6:22
+64 Escape Rocket!       5:28
+Totals                  2:05:08    Total Time:300342
+
+-------------------------------------------------------------
+Level                   Total Time
+40 Edward               1:05
+56 Zaiden               2:32
+27 Gauntlet             1:38
+54 Old Training Level   31.9s
+53 Lifts With Names     2:59
+50 Welcome              30.2s
+57 Valentine            2:43
+42 Cloner Chain         5:59
+48 Mayhem               38.6s
+55 Ancient Ruins        1:59
+43 Cathedral            1:45
+52 Boules               1:07
+46 Bucket List          32.8s
+49 Rocket Square        2:02
+45 Chimney of Death     28.6s
+47 Begin Again          27.1s
+60 Bomb Toss            0.0s
+61 Bomb Toss 2          0.0s
+Totals                  27:03      Total Time:64946
+
+-------------------------------------------------------------
+Level                   Total Time
+125 Archwagons          1:51
+126 Trakbots            18.9s
+127 Bouncers and Cannons1:11
+131 Flappers            3.9s
+132 Jumpworms           1:18
+129 Vinepods            37.7s
+130 Blokwalks           36.4s
+128 Cloners             35.5s
+133 Lifts               1:11
+120 Doors               1:48
+121 Triggers and Timers 1:26
+122 Alter Tiles         27.5s
+123 Damage Area         1:24
+
+
+39 main
+
+18 extras
+
+put all extras from 60+
+
+bomb toss 95 and 96..done
+
+where should I put 70 (overworld copy)...199
+#define PM_OVERWORLD_BASE_LEVEL 199
+done
+
+
+now move some extras to 70 ...
+
+70 27 Gauntlet             1:38
+71 40 Edward               1:05
+72 42 Cloner Chain         5:59
+73 43 Cathedral            1:45
+74 45 Chimney of Death     28.6s
+75 46 Bucket List          32.8s
+76 47 Begin Again          27.1s
+77 48 Mayhem               38.6s
+78 49 Rocket Square        2:02
+79 50 Welcome              30.2s
+80 52 Boules               1:07
+81 53 Lifts With Names     2:59
+82 54 Old Training Level   31.9s
+83 55 Ancient Ruins        1:59
+84 56 Zaiden               2:32
+85 57 Valentine            2:43
+done
+-------------------------------------------------------------
+Level                   Total Time
+71 Edward               1:05
+84 Zaiden               2:32
+70 Gauntlet             1:38
+82 Old Training Level   31.9s
+81 Lifts With Names     2:59
+79 Welcome              30.2s
+85 Valentine            2:43
+72 Cloner Chain         5:59
+77 Mayhem               38.6s
+83 Ancient Ruins        1:59
+73 Cathedral            1:45
+80 Boules               1:07
+75 Bucket List          32.8s
+78 Rocket Square        2:02
+74 Chimney of Death     28.6s
+76 Begin Again          27.1s
+95 Bomb Toss            0.0s
+96 Bomb Toss 2          0.0s
+Totals                  27:03      Total Time:64946
+
+
+
+step 1 - level data
+step 2 - move levels in le
+step 3 - redo level icons
+step 4 - redo gates
+step 5 - redo demos
+test
+
+now anything to change here?
+
+
+-------------------------------------------------------------
+Level                   Total Time
+ 5 Kill Kill Kill       3:13
+51 Cannon Bees          2:23
+38 Come Over            1:06
+ 2 Switch Nest          1:31
+ 3 Blue Key Fall        26.3s
+39 Bomb Run             53.6s
+44 Too Many Lifts       2:45
+21 Long One             1:25
+14 Block Puzzle         8.8s
+24 Wendy                2:26
+ 7 Ranger Bob           45.3s
+58 Psycho Killer        4:00
+34 Crush                1:04
+15 Smash                33.3s
+30 Coral Cave           3:19
+28 Nowhere to Stand     46.2s
+33 Kates Gate           1:55
+22 Rocket Stew          1:28
+ 8 Switch Pit           3:25
+35 Bomb Toss            3:06
+20 Strange Things       2:19
+13 Falling Arrows       5:13
+ 6 Breakable            3:35
+36 Spike Cave           1:38
+26 Long Fall            1:06
+10 The Dead Zone        4:23
+29 Brain Trust          4:50
+ 4 Switch Puzzle        3:05
+19 Crazy Fox            5:43
+17 Little Rocket        5:26
+12 Bucket of Bad        7:16
+11 Good and Evil        5:23
+16 Big Apple            6:07
+23 Amazing              6:50
+18 Incinerator          5:21
+41 Ender                4:01
+32 Yellow Cake          4:04
+31 Beginnings           6:22
+64 Escape Rocket!       5:28
+Totals                  2:05:08    Total Time:300342
+
+
+
+   data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
+   data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
+   data_helper(4,   7200,  "Switch Puzzle");       // 3:00 demo 2:20
+   data_helper(5,   6400,  "Kill Kill Kill");      // 2:40 demo 2:18
+   data_helper(6,   9600,  "Breakable");           // 4:00 demo 2:58
+   data_helper(7,   2400,  "Ranger Bob");          // 1:00 demo 0:46.5
+   data_helper(8,   8400,  "Switch Pit");          // 3:30 demo 2:52
+   data_helper(10,  9600,  "The Dead Zone");       // 4:00 demo 3:15
+   data_helper(11,  14400, "Good and Evil");       // 6:00 demo 4:45
+   data_helper(12,  16800, "Bucket of Bad");       // 7:00 demo 6:10
+   data_helper(13,  14400, "Falling Arrows");      // 6:00 demo 4:41
+   data_helper(14,  600,   "Block Puzzle");        // 0:15 demo 0:08.8
+   data_helper(15,  1800,  "Smash");               // 0:45 demo 0:34.1
+   data_helper(16,  14400, "Big Apple");           // 6:00 demo 4:01
+   data_helper(17,  16800, "Little Rocket");       // 7:00 demo 5:08
+   data_helper(18,  12000, "Incinerator");         // 5:00 demo 4:04
+   data_helper(19,  16800, "Crazy Fox");           // 7:00 demo 5.24
+   data_helper(20,  7200,  "Strange Things");      // 3:00 demo 2:22
+   data_helper(21,  4200,  "Long One");            // 1:45 demo 1:25
+   data_helper(22,  4800,  "Rocket Stew");         // 2:00 demo 1:28
+   data_helper(23,  19200, "Amazing");             // 8:00 demo 5:58
+   data_helper(24,  7200,  "Wendy");               // 3:00 demo 2:26
+   data_helper(26,  4800,  "Long Fall");           // 2:00 demo 1:06
+   data_helper(28,  3600,  "Nowhere to Stand");    // 1:30 demo 0:49.2
+   data_helper(29,  13200, "Brain Trust");         // 5:30 demo 3:58
+   data_helper(30,  7200,  "Coral Cave");          // 3:00 demo 2:30
+   data_helper(31,  19200, "Beginnings");          // 8:00 demo 6:03
+   data_helper(32,  9600,  "Yellow Cake");         // 4:00 demo 3:19
+   data_helper(33,  6000,  "Kates Gate");          // 2:30 demo 2:06
+   data_helper(34,  3600,  "Crush");               // 1:30 demo 1:04
+   data_helper(35,  12000, "Bomb Toss");           // 5:00 demo 3:36
+   data_helper(36,  4800,  "Spike Cave");          // 2:00 demo 1:38
+   data_helper(38,  3200,  "Come Over");           // 1:20 demo 1:06
+   data_helper(39,  3200,  "Bomb Run");            // 1:20 demo 0:55.7
+   data_helper(41,  9600,  "Ender");               // 4:00 demo 3:27
+   data_helper(44,  9600,  "Too Many Lifts");      // 4:00 demo 2:59
+   data_helper(51,  6000,  "Cannon Bees");         // 2:30 demo 2:21
+   data_helper(58,  10400, "Psycho Killer");       // 4:20 demo 4:00
+   data_helper(64,  12000, "Escape Rocket!");      // 5:00 demo 4:38
+
+
+close up some gaps like:
+9 and 27 ...what should I put there
+39 to 9
+58 to 25
+44 to 27
+done...
+
+step 1 - level data
+step 2 - move levels in le
+step 3 - redo level icons
+step 4 - redo gates
+step 5 - redo demos
+test
+
+51 to 37
+41 to 39
+
+escape rocket can stay at 64
+
+All done
+
+new list:
+
+   data_helper(1,   0,     "Overworld Map");
+
+
+   data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
+   data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
+   data_helper(4,   7200,  "Switch Puzzle");       // 3:00 demo 2:20
+   data_helper(5,   6400,  "Kill Kill Kill");      // 2:40 demo 2:18
+   data_helper(6,   9600,  "Breakable");           // 4:00 demo 2:58
+   data_helper(7,   2400,  "Ranger Bob");          // 1:00 demo 0:46.5
+   data_helper(8,   8400,  "Switch Pit");          // 3:30 demo 2:52
+   data_helper(9,   3200,  "Bomb Run");            // 1:20 demo 0:55.7
+   data_helper(10,  9600,  "The Dead Zone");       // 4:00 demo 3:15
+   data_helper(11,  14400, "Good and Evil");       // 6:00 demo 4:45
+   data_helper(12,  16800, "Bucket of Bad");       // 7:00 demo 6:10
+   data_helper(13,  14400, "Falling Arrows");      // 6:00 demo 4:41
+   data_helper(14,  600,   "Block Puzzle");        // 0:15 demo 0:08.8
+   data_helper(15,  1800,  "Smash");               // 0:45 demo 0:34.1
+   data_helper(16,  14400, "Big Apple");           // 6:00 demo 4:01
+   data_helper(17,  16800, "Little Rocket");       // 7:00 demo 5:08
+   data_helper(18,  12000, "Incinerator");         // 5:00 demo 4:04
+   data_helper(19,  16800, "Crazy Fox");           // 7:00 demo 5.24
+   data_helper(20,  7200,  "Strange Things");      // 3:00 demo 2:22
+   data_helper(21,  4200,  "Long One");            // 1:45 demo 1:25
+   data_helper(22,  4800,  "Rocket Stew");         // 2:00 demo 1:28
+   data_helper(23,  19200, "Amazing");             // 8:00 demo 5:58
+   data_helper(24,  7200,  "Wendy");               // 3:00 demo 2:26
+   data_helper(25,  10400, "Psycho Killer");       // 4:20 demo 4:00
+   data_helper(26,  4800,  "Long Fall");           // 2:00 demo 1:06
+   data_helper(27,  9600,  "Too Many Lifts");      // 4:00 demo 2:59
+   data_helper(28,  3600,  "Nowhere to Stand");    // 1:30 demo 0:49.2
+   data_helper(29,  13200, "Brain Trust");         // 5:30 demo 3:58
+   data_helper(30,  7200,  "Coral Cave");          // 3:00 demo 2:30
+   data_helper(31,  19200, "Beginnings");          // 8:00 demo 6:03
+   data_helper(32,  9600,  "Yellow Cake");         // 4:00 demo 3:19
+   data_helper(33,  6000,  "Kates Gate");          // 2:30 demo 2:06
+   data_helper(34,  3600,  "Crush");               // 1:30 demo 1:04
+   data_helper(35,  12000, "Bomb Toss");           // 5:00 demo 3:36
+   data_helper(37,  6000,  "Cannon Bees");         // 2:30 demo 2:21
+   data_helper(36,  4800,  "Spike Cave");          // 2:00 demo 1:38
+   data_helper(38,  3200,  "Come Over");           // 1:20 demo 1:06
+   data_helper(39,  9600,  "Ender");               // 4:00 demo 3:27
+
+   data_helper(64,  12000, "Escape Rocket!");      // 5:00 demo 4:38
+
+   data_helper(70,  4000,  "Gauntlet");            // 1:40 demo 1:38
+   data_helper(71,  4200,  "Edward");              // 1:45 demo 1:05
+   data_helper(72,  16800, "Cloner Chain");        // 7:00 demo 6:14
+   data_helper(73,  4800,  "Cathedral");           // 2:00 demo 1:45
+   data_helper(74,  1800,  "Chimney of Death");    // 0:45 demo 0:28.6
+   data_helper(75,  2400,  "Bucket List");         // 1:00 demo 0:38.8
+   data_helper(76,  2400,  "Begin Again");         // 1:00 demo 0:27.1
+   data_helper(77,  2400,  "Mayhem");              // 1:00 demo 0:41.8
+   data_helper(78,  9600,  "Rocket Square");       // 4:00 demo 2:37
+   data_helper(79,  1600,  "Welcome");             // 0:40 demo 0:30.2
+   data_helper(80,  3600,  "Boules");              // 1:30 demo 1:07
+   data_helper(81,  8400,  "Lifts With Names");    // 3:30 demo 2:59
+   data_helper(82,  2400,  "Old Training Level");  // 1:00 demo 0:31.9
+   data_helper(83,  7200,  "Ancient Ruins");       // 3:00 demo 1:59
+   data_helper(84,  9600,  "Zaiden");              // 4:00 demo 2:44
+   data_helper(85,  7200,  "Valentine");           // 3:00 demo 2:43
+
+   data_helper(95,  2400,  "Bomb Toss");           // 2:00 demo not done
+   data_helper(96,  2400,  "Bomb Toss 2");         // 2:00 demo not done
+
+   // ---------------------------------------
+   // Training Levels
+   // ---------------------------------------
+   data_helper(101,  1200,  "Training Level 1");    // 0:30 demo 0:21.2
+   data_helper(102,  4800,  "Training Level 2");    // 2:00 demo 0:53.4
+   data_helper(103,  8400,  "Training Level 3");    // 3:30 demo 2:12
+   data_helper(104,  6000,  "Training Level 4");    // 2:30 demo 1:14
+   data_helper(105,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
+   data_helper(106,  6000,  "Bomb Intro");          // 2:30 demo 1:35
+   data_helper(107,  800,   "Sacrifice");           // 0:20 demo 0:13.3
+   data_helper(108,  1000,  "One Cannon");          // 0:25 demo 0:21.9
+
+   // ---------------------------------------
+   // Advanced Information Levels
+   // ---------------------------------------
+   data_helper(120,  4800,  "Doors");                // 2:00 demo 1:48
+   data_helper(121,  3600,  "Triggers and Timers");  // 1:30 demo 1:26
+   data_helper(122,  2400,  "Alter Tiles");          // 1:00 demo 0:28.4
+   data_helper(123,  3600,  "Damage Area");          // 1:30 demo 1:24
+   data_helper(124,  2400,  "Orbs");                 // 1:00 demo 0:51.8
+   data_helper(125,  4800,  "Archwagons");           // 2:00 demo 1:51
+   data_helper(126,  800,   "Trakbots");             // 0:20 demo 0:18.9
+   data_helper(127,  3600,  "Bouncers and Cannons"); // 1:30 demo 1:11
+   data_helper(128,  1800,  "Cloners");              // 0:45 demo 0:35.8
+   data_helper(129,  1800,  "Vinepods");             // 0:45 demo 0:37.7
+   data_helper(130,  3600,  "Blokwalks");            // 1:30 demo 0:36.4
+   data_helper(131,  600,   "Flappers");             // 0:15 demo 0:03.9
+   data_helper(132,  3600,  "Jumpworms");            // 1:30 demo 1:18
+   data_helper(133,  3600,  "Lifts");                // 1:30 demo 1:11
 
 
 
 
+\pm\pm.exe
+
+Purple Martians Version 7.24.0811.1b
+Allegro Version: 5.2.11.3
+GCC Version: 13.1.0 - C++20
+System ID: Windows
+Desktop Resolution: 3840x2160
+play_all_demos_and_save_stats time:8.690366
+-------------------------------------------------------------
+Level                   Total Time
+104 Training Level 4    1:14
+103 Training Level 3    2:12
+102 Training Level 2    53.4s
+101 Training Level 1    21.2s
+106 Bomb Intro          1:22
+105 Training Level 5    52.8s
+107 Sacrifice           13.3s
+108 One Cannon          21.9s
+Totals                  7:31       Total Time:18067
+
+-------------------------------------------------------------
+Level                   Total Time
+ 5 Kill Kill Kill       3:13
+37 Cannon Bees          2:23
+38 Come Over            1:06
+ 2 Switch Nest          1:31
+ 3 Blue Key Fall        26.3s
+ 9 Bomb Run             53.6s
+27 Too Many Lifts       2:45
+21 Long One             1:25
+14 Block Puzzle         8.8s
+24 Wendy                2:26
+ 7 Ranger Bob           45.3s
+25 Psycho Killer        4:00
+34 Crush                1:04
+15 Smash                33.3s
+30 Coral Cave           3:19
+28 Nowhere to Stand     46.2s
+33 Kates Gate           1:55
+22 Rocket Stew          1:28
+ 8 Switch Pit           3:25
+35 Bomb Toss            3:06
+20 Strange Things       2:19
+13 Falling Arrows       5:13
+ 6 Breakable            3:35
+36 Spike Cave           1:38
+26 Long Fall            1:06
+10 The Dead Zone        4:23
+29 Brain Trust          4:50
+ 4 Switch Puzzle        3:05
+19 Crazy Fox            5:43
+17 Little Rocket        5:26
+12 Bucket of Bad        7:16
+11 Good and Evil        5:23
+16 Big Apple            6:07
+23 Amazing              6:50
+18 Incinerator          5:21
+39 Ender                4:01
+32 Yellow Cake          4:04
+31 Beginnings           6:22
+64 Escape Rocket!       5:28
+Totals                  2:05:08    Total Time:300342
+
+-------------------------------------------------------------
+Level                   Total Time
+71 Edward               1:05
+84 Zaiden               2:32
+70 Gauntlet             1:38
+82 Old Training Level   31.9s
+81 Lifts With Names     2:59
+79 Welcome              30.2s
+85 Valentine            2:43
+72 Cloner Chain         5:59
+77 Mayhem               38.6s
+83 Ancient Ruins        1:59
+73 Cathedral            1:45
+80 Boules               1:07
+75 Bucket List          32.8s
+78 Rocket Square        2:02
+74 Chimney of Death     28.6s
+76 Begin Again          27.1s
+95 Bomb Toss            0.0s
+96 Bomb Toss 2          0.0s
+Totals                  27:03      Total Time:64946
+
+-------------------------------------------------------------
+Level                   Total Time
+125 Archwagons          1:51
+126 Trakbots            18.9s
+127 Bouncers and Cannons1:11
+131 Flappers            3.9s
+132 Jumpworms           1:18
+129 Vinepods            37.7s
+130 Blokwalks           36.4s
+128 Cloners             35.5s
+133 Lifts               1:11
+120 Doors               1:48
+121 Triggers and Timers 1:26
+122 Alter Tiles         27.5s
+123 Damage Area         1:24
+124 Orbs                48.2s
+Totals                  13:40      Total Time:32801
+
+-------------------------------------------------------------
+Level                   Total Time
+Totals                  2:53:23    Total Time:416156
 
 
 

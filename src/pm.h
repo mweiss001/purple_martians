@@ -39,6 +39,11 @@
 #define NUM_LIFTS 40
 
 
+#define PM_MAX_LEVEL_NUM 200
+
+#define PM_OVERWORLD_BASE_LEVEL 199
+
+
 #define STATE_SIZE 127460
 
 

@@ -16,6 +16,12 @@ TO DO
 ------------------------------------------------------------------------------
 
 
+
+
+
+
+
+
 This is where I am going through levels one at a time.
 ------------------------------------------------------
 
@@ -31,45 +37,13 @@ Check for:
 7
 8
 9
-10 took a long time....
-
+10
 11 
 
+rearranged..9 is no longer done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-can I automate the overlay checks?
-when would I not want to use them?
-Find blocks that have the breakable flags set but not the overlay
-
-      for (int xx=0; xx<100; xx++)
-         for (int y=0; y<100; y++)
-         {
-            int t = mLevel.l[xx][y];
-            int bt = t & PM_BTILE_TILENUM_MASK;
-            if ( ((t & PM_BTILE_BREAKABLE_PSHOT) || (t & PM_BTILE_BREAKABLE_ESHOT))  && (!(t &PM_BTILE_SHOW_OVERLAY))) printf("l:%d x:%d y:%d breakable \n", le[x], xx, y );
-            if ( (t & PM_BTILE_BOMBABLE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 64) && (bt != 65) && (bt != 66) && (bt != 67) ) printf("l:%d x:%d y:%d bomb \n", le[x], xx, y );
-            if ( (t & PM_BTILE_KEY_ACTIVE) && (!(t &PM_BTILE_SHOW_OVERLAY)) && (bt != 80) && (bt != 81) && (bt != 82) && (bt != 83) ) printf("l:%d x:%d y:%d key \n", le[x], xx, y );
-up to 100 done
-now can I find places where the overlay is set, but no flags that would require it...
 
 
 
@@ -114,6 +88,16 @@ done 4:00
 overworld, make top main stats not show all areas, skip extra and dev
 ----------------------------------------------------------------------
 done
+
+----------------------------------------------------------------------
+on web, when I show level numbers can I also show level names?
+could I have a text file with level numbers and names?
+could be generated from code, or could be the master that code reads from
+could be embedded in each level
+----------------------------------------------------------------------
+
+
+
 
 
 ----------------------------------------------------------------------

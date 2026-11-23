@@ -857,6 +857,8 @@ int mwLevel::find_level_number_from_filename(std::string filename)
 
 int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 {
+   valid_level_loaded = 0;
+
    //printf("\nmwLevel::load_level_filename(filename:%s, load_only:%d, fail_silently:%d)\n", filename, load_only, fail_silently);
    char msg[1024];
    FILE *fp = fopen(filename, "rb");
@@ -889,7 +891,6 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
       prev_level_loaded = last_level_loaded;
       last_level_loaded = level_num;
-      valid_level_loaded = 0;
       resume_allowed = 0;
 
       if (!load_only)

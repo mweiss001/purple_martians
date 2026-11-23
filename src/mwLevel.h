@@ -225,8 +225,8 @@ class mwLevel
    void fill_overworld_area_array();
 
    void fill_area_array(int area, int xasc, int &aai);
-   int area_array[100][2];
-   struct level_data data[100];
+   int area_array[PM_MAX_LEVEL_NUM][2];
+   struct level_data data[PM_MAX_LEVEL_NUM];
    struct overworld_area overworld_area_array[20];
 
    const char* level_status_text[4]  = { "Locked", "Ready", "Complete", "Perfect" };

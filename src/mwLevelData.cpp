@@ -142,7 +142,7 @@ float mwLevel::calc_area_percent_complete(int area)
 {
    int total = 0;
    int complete = 0;
-   for (int l=0; l<99; l++)
+   for (int l=0; l<PM_MAX_LEVEL_NUM; l++)
       if (data[l].area == area)
       {
          total++;
@@ -155,7 +155,7 @@ float mwLevel::calc_area_percent_complete(int area)
 int mwLevel::count_area_levels_complete(int area)
 {
    int complete = 0;
-   for (int l=0; l<99; l++)
+   for (int l=0; l<PM_MAX_LEVEL_NUM; l++)
       if (data[l].area == area && data[l].status > 1) complete++;
    return complete;
 }
@@ -415,8 +415,6 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
    mItem.item[i0][8] = 0; // hidden
    mItem.item[i0][10] = 100; // scale
 
-
-
    // exit
    mItem.item[i1][1] = -1;  // no exit link
    mItem.item[i1][2] = PM_ITEM_FLAG_STATIONARY;
@@ -440,7 +438,7 @@ void mwLevel::set_overworld_barriers()
    // copy visible areas from level 70
    for (int i=1; i<9; i++)
       if (overworld_area_array[i].visible)
-         mEditSelection.copy_area_from_l2(70, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h);
+         mEditSelection.copy_area_from_l2(PM_OVERWORLD_BASE_LEVEL, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h);
 
 
    // for some reason I have to do all the copying first, then modify
@@ -463,10 +461,7 @@ void mwLevel::set_overworld_barriers()
             create_door_helper(99, y,   2, y, 0, 12);
          }
 
-
-         // if area is visible (which I have already tested for),
-         // remove blocks from bottom of area above
-         // and create doors from area above
+         // remove blocks from bottom of area above and create doors from area above
          // only for areas 2 - 5
          if (i >= 2 && i <= 5)
          {
@@ -535,7 +530,7 @@ void mwLevel::fill_area_array(int area, int xasc, int &aai)
 
    // find all gates in the area
    for(int i=0; i<500; i++)
-      if ((mItem.item[i][0] == 18) && (mItem.item[i][4] >= x1) && (mItem.item[i][4] <= x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] <= y2))
+      if ((mItem.item[i][0] == PM_ITEM_TYPE_GATE) && (mItem.item[i][4] >= x1) && (mItem.item[i][4] <= x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] <= y2))
       {
          results_array[results_array_index][0] = mItem.item[i][6]; // level num
          results_array[results_array_index][1] = mItem.item[i][4]; // x
@@ -602,8 +597,8 @@ void mwLevel::overworld_area_array_add(int area, const char* name, int color, in
    overworld_area_array[area].h = h;
 
    // find all gates in the area
-   for (int i=0; i<100; i++)
-      if ((mItem.item[i][0] == 18) && (mItem.item[i][4] >= x*20) && (mItem.item[i][4] < (x+w)*20) && (mItem.item[i][5] >= y*20) && (mItem.item[i][5] <= (y+h)*20))
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
+      if ((mItem.item[i][0] == PM_ITEM_TYPE_GATE) && (mItem.item[i][4] >= x*20) && (mItem.item[i][4] < (x+w)*20) && (mItem.item[i][5] >= y*20) && (mItem.item[i][5] <= (y+h)*20))
       {
          int lev = mItem.item[i][6];
          data[lev].area = area;
@@ -616,7 +611,7 @@ void mwLevel::overworld_area_array_add(int area, const char* name, int color, in
 void mwLevel::fill_overworld_area_array()
 {
    // load base overworld level
-   load_level_by_number(70, 1, 0);
+   load_level_by_number(PM_OVERWORLD_BASE_LEVEL, 1, 0);
 
    overworld_area_array_add(1, "Surface",     11,   1, 0,    0,  0,   100,  12);
    overworld_area_array_add(2, "Outskirts",   13,   0, 0,    0,  12,  100,  10);
@@ -646,6 +641,7 @@ void mwLevel::data_helper(int i, int time_par, const char *name)
 void mwLevel::set_level_names_and_par_time()
 {
    data_helper(1,   0,     "Overworld Map");
+
    data_helper(2,   4800,  "Switch Nest");         // 2:00 demo 1:35
    data_helper(3,   1400,  "Blue Key Fall");       // 0:35 demo 0:27.9
    data_helper(4,   7200,  "Switch Puzzle");       // 3:00 demo 2:20
@@ -653,6 +649,7 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(6,   9600,  "Breakable");           // 4:00 demo 2:58
    data_helper(7,   2400,  "Ranger Bob");          // 1:00 demo 0:46.5
    data_helper(8,   8400,  "Switch Pit");          // 3:30 demo 2:52
+   data_helper(9,   3200,  "Bomb Run");            // 1:20 demo 0:55.7
    data_helper(10,  9600,  "The Dead Zone");       // 4:00 demo 3:15
    data_helper(11,  14400, "Good and Evil");       // 6:00 demo 4:45
    data_helper(12,  16800, "Bucket of Bad");       // 7:00 demo 6:10
@@ -668,8 +665,9 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(22,  4800,  "Rocket Stew");         // 2:00 demo 1:28
    data_helper(23,  19200, "Amazing");             // 8:00 demo 5:58
    data_helper(24,  7200,  "Wendy");               // 3:00 demo 2:26
+   data_helper(25,  10400, "Psycho Killer");       // 4:20 demo 4:00
    data_helper(26,  4800,  "Long Fall");           // 2:00 demo 1:06
-   data_helper(27,  4000,  "Gauntlet");            // 1:40 demo 1:38
+   data_helper(27,  9600,  "Too Many Lifts");      // 4:00 demo 2:59
    data_helper(28,  3600,  "Nowhere to Stand");    // 1:30 demo 0:49.2
    data_helper(29,  13200, "Brain Trust");         // 5:30 demo 3:58
    data_helper(30,  7200,  "Coral Cave");          // 3:00 demo 2:30
@@ -678,61 +676,62 @@ void mwLevel::set_level_names_and_par_time()
    data_helper(33,  6000,  "Kates Gate");          // 2:30 demo 2:06
    data_helper(34,  3600,  "Crush");               // 1:30 demo 1:04
    data_helper(35,  12000, "Bomb Toss");           // 5:00 demo 3:36
+   data_helper(37,  6000,  "Cannon Bees");         // 2:30 demo 2:21
    data_helper(36,  4800,  "Spike Cave");          // 2:00 demo 1:38
    data_helper(38,  3200,  "Come Over");           // 1:20 demo 1:06
-   data_helper(39,  3200,  "Bomb Run");            // 1:20 demo 0:55.7
-   data_helper(40,  4200,  "Edward");              // 1:45 demo 1:05
-   data_helper(41,  9600,  "Ender");               // 4:00 demo 3:27
-   data_helper(42,  16800, "Cloner Chain");        // 7:00 demo 6:14
-   data_helper(43,  4800,  "Cathedral");           // 2:00 demo 1:45
-   data_helper(44,  9600,  "Too Many Lifts");      // 4:00 demo 2:59
-   data_helper(45,  1800,  "Chimney of Death");    // 0:45 demo 0:28.6
-   data_helper(46,  2400,  "Bucket List");         // 1:00 demo 0:38.8
-   data_helper(47,  2400,  "Begin Again");         // 1:00 demo 0:27.1
-   data_helper(48,  2400,  "Mayhem");              // 1:00 demo 0:41.8
-   data_helper(49,  9600,  "Rocket Square");       // 4:00 demo 2:37
-   data_helper(50,  1600,  "Welcome");             // 0:40 demo 0:30.2
-   data_helper(51,  6000,  "Cannon Bees");         // 2:30 demo 2:21
-   data_helper(52,  3600,  "Boules");              // 1:30 demo 1:07
-   data_helper(53,  8400,  "Lifts With Names");    // 3:30 demo 2:59
-   data_helper(54,  2400,  "Old Training Level");  // 1:00 demo 0:31.9
-   data_helper(55,  7200,  "Ancient Ruins");       // 3:00 demo 1:59
-   data_helper(56,  9600,  "Zaiden");              // 4:00 demo 2:44
-   data_helper(57,  7200,  "Valentine");           // 3:00 demo 2:43
-   data_helper(58,  10400, "Psycho Killer");       // 4:20 demo 4:00
-   data_helper(60,  2400,  "Bomb Toss");           // 2:00 demo not done
-   data_helper(61,  2400,  "Bomb Toss 2");         // 2:00 demo not done
+   data_helper(39,  9600,  "Ender");               // 4:00 demo 3:27
+
    data_helper(64,  12000, "Escape Rocket!");      // 5:00 demo 4:38
+
+   data_helper(70,  4000,  "Gauntlet");            // 1:40 demo 1:38
+   data_helper(71,  4200,  "Edward");              // 1:45 demo 1:05
+   data_helper(72,  16800, "Cloner Chain");        // 7:00 demo 6:14
+   data_helper(73,  4800,  "Cathedral");           // 2:00 demo 1:45
+   data_helper(74,  1800,  "Chimney of Death");    // 0:45 demo 0:28.6
+   data_helper(75,  2400,  "Bucket List");         // 1:00 demo 0:38.8
+   data_helper(76,  2400,  "Begin Again");         // 1:00 demo 0:27.1
+   data_helper(77,  2400,  "Mayhem");              // 1:00 demo 0:41.8
+   data_helper(78,  9600,  "Rocket Square");       // 4:00 demo 2:37
+   data_helper(79,  1600,  "Welcome");             // 0:40 demo 0:30.2
+   data_helper(80,  3600,  "Boules");              // 1:30 demo 1:07
+   data_helper(81,  8400,  "Lifts With Names");    // 3:30 demo 2:59
+   data_helper(82,  2400,  "Old Training Level");  // 1:00 demo 0:31.9
+   data_helper(83,  7200,  "Ancient Ruins");       // 3:00 demo 1:59
+   data_helper(84,  9600,  "Zaiden");              // 4:00 demo 2:44
+   data_helper(85,  7200,  "Valentine");           // 3:00 demo 2:43
+
+   data_helper(95,  2400,  "Bomb Toss");           // 2:00 demo not done
+   data_helper(96,  2400,  "Bomb Toss 2");         // 2:00 demo not done
 
    // ---------------------------------------
    // Training Levels
    // ---------------------------------------
-   data_helper(80,  1200,  "Training Level 1");    // 0:30 demo 0:21.2
-   data_helper(81,  4800,  "Training Level 2");    // 2:00 demo 0:53.4
-   data_helper(82,  8400,  "Training Level 3");    // 3:30 demo 2:12
-   data_helper(83,  6000,  "Training Level 4");    // 2:30 demo 1:14
-   data_helper(84,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
-   data_helper(9,   6000,  "Bomb Intro");          // 2:30 demo 1:35
-   data_helper(25,  1000,  "One Cannon");          // 0:25 demo 0:21.9
-   data_helper(37,  800,   "Sacrifice");           // 0:20 demo 0:13.3
+   data_helper(101,  1200,  "Training Level 1");    // 0:30 demo 0:21.2
+   data_helper(102,  4800,  "Training Level 2");    // 2:00 demo 0:53.4
+   data_helper(103,  8400,  "Training Level 3");    // 3:30 demo 2:12
+   data_helper(104,  6000,  "Training Level 4");    // 2:30 demo 1:14
+   data_helper(105,  3600,  "Training Level 5");    // 1:30 demo 0:52.8
+   data_helper(106,  6000,  "Bomb Intro");          // 2:30 demo 1:35
+   data_helper(107,  800,   "Sacrifice");           // 0:20 demo 0:13.3
+   data_helper(108,  1000,  "One Cannon");          // 0:25 demo 0:21.9
 
    // ---------------------------------------
-   // Advanced Information Levels
+   // Dev Demo Levels
    // ---------------------------------------
-   data_helper(85,  4800,  "Doors");                // 2:00 demo 1:48
-   data_helper(86,  3600,  "Triggers and Timers");  // 1:30 demo 1:26
-   data_helper(87,  2400,  "Alter Tiles");          // 1:00 demo 0:28.4
-   data_helper(88,  3600,  "Damage Area");          // 1:30 demo 1:24
-   data_helper(89,  2400,  "Orbs");                 // 1:00 demo 0:51.8
-   data_helper(90,  4800,  "Archwagons");           // 2:00 demo 1:51
-   data_helper(91,  800,   "Trakbots");             // 0:20 demo 0:18.9
-   data_helper(92,  3600,  "Bouncers and Cannons"); // 1:30 demo 1:11
-   data_helper(93,  1800,  "Cloners");              // 0:45 demo 0:35.8
-   data_helper(94,  1800,  "Vinepods");             // 0:45 demo 0:37.7
-   data_helper(95,  3600,  "Blokwalks");            // 1:30 demo 0:36.4
-   data_helper(96,  600,   "Flappers");             // 0:15 demo 0:03.9
-   data_helper(97,  3600,  "Jumpworms");            // 1:30 demo 1:18
-   data_helper(98,  3600,  "Lifts");                // 1:30 demo 1:11
+   data_helper(120,  4800,  "Doors");                // 2:00 demo 1:48
+   data_helper(121,  3600,  "Triggers and Timers");  // 1:30 demo 1:26
+   data_helper(122,  2400,  "Alter Tiles");          // 1:00 demo 0:28.4
+   data_helper(123,  3600,  "Damage Area");          // 1:30 demo 1:24
+   data_helper(124,  2400,  "Orbs");                 // 1:00 demo 0:51.8
+   data_helper(125,  4800,  "Archwagons");           // 2:00 demo 1:51
+   data_helper(126,  800,   "Trakbots");             // 0:20 demo 0:18.9
+   data_helper(127,  3600,  "Bouncers and Cannons"); // 1:30 demo 1:11
+   data_helper(128,  1800,  "Cloners");              // 0:45 demo 0:35.8
+   data_helper(129,  1800,  "Vinepods");             // 0:45 demo 0:37.7
+   data_helper(130,  3600,  "Blokwalks");            // 1:30 demo 0:36.4
+   data_helper(131,  600,   "Flappers");             // 0:15 demo 0:03.9
+   data_helper(132,  3600,  "Jumpworms");            // 1:30 demo 1:18
+   data_helper(133,  3600,  "Lifts");                // 1:30 demo 1:11
 }
 
 
@@ -753,7 +752,7 @@ void mwLevel::clear_data()
    mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
 
 
-   for (int i=0; i<100; i++)
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
    {
       area_array[i][0] = 0;
       area_array[i][1] = 0;
@@ -771,7 +770,7 @@ void mwLevel::clear_data()
       overworld_area_array[i].h = 0;
    }
 
-   for (int i=0; i<100; i++)
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
    {
       strcpy(data[i].level_name, "");
       data[i].status = 1;
@@ -797,7 +796,7 @@ void mwLevel::clear_data()
    fill_overworld_area_array();
 
    // load all levels to get purple coin counts
-   for (int lv=0; lv<100; lv++)
+   for (int lv=1; lv<PM_MAX_LEVEL_NUM; lv++)
       if (mLevel.load_level_by_number(lv, 1, 1))
       {
          for (int i=0; i<500; i++)
@@ -844,7 +843,7 @@ void mwLevel::save_data()
 
 int mwLevel::get_total_purple_coins(int level)
 {
-   if (level > 1 && level < 100) return data[mLevel.play_level].tot_coins;
+   if (level > 1 && level < PM_MAX_LEVEL_NUM) return data[mLevel.play_level].tot_coins;
    return 0;
 }
 
@@ -852,7 +851,7 @@ int mwLevel::get_total_purple_coins(int level)
 void mwLevel::unlock_all_levels_and_areas()
 {
    // only change levels that were locked to start with
-   for (int i=0; i<100; i++)
+   for (int i=0; i<PM_MAX_LEVEL_NUM; i++)
       if (data[i].status < 1) data[i].status = 1;
 
    // make all areas visible and unlocked

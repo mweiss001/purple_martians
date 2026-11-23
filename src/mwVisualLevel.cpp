@@ -280,7 +280,9 @@ void mwVisualLevel::lev_draw(int full, int sel, int cur)
             int level = my*20 + mx;
             int col = 11;
             if (!mLevel.load_level_by_number(level, 0, 1)) col = 10;
+
             if (mLevel.valid_level_loaded) mLevel.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0, 0);
+            al_set_target_bitmap(le_temp);
             al_draw_textf(mFont.pr8, mColor.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar

@@ -170,7 +170,7 @@ void mwLoop::game_menu()
 
          if (top_menu_sel == 0) // visual level select
          {
-            int r = mVisualLevel.visual_level_select(100);
+            int r = mVisualLevel.visual_level_select(200);
             if (r == 1) top_menu_sel = 1; // start new game
             if (r == 3) top_menu_sel = 6; // start level editor
          }
@@ -266,7 +266,7 @@ void mwLoop::game_menu()
          }
 
 
-         if (top_menu_sel == 6) mLevelEditor.loop(70); // level editor
+         if (top_menu_sel == 6) mLevelEditor.loop(PM_OVERWORLD_BASE_LEVEL); // level editor
 
          if (top_menu_sel == 6) top_menu_sel = 0;
 

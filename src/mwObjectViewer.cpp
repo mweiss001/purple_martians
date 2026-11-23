@@ -1633,7 +1633,7 @@ void mwObjectViewer::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          {
             odbp(d, xa, xb, ya, bts, 8, 405, mLevel.mItem.item[n][1]); // draw mode
             ya+=4; // spacer
-            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][6], 99, 1, 1,  1, 10, "Level:");
+            odbi(d, xa, xb, ya, bts, 10, mLevel.mItem.item[n][6], 199, 1, 1,  1, 10, "Level:");
 
             ya+=4; // spacer
             int q=12; // mode color
