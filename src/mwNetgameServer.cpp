@@ -99,11 +99,14 @@ void mwNetgame::headless_server_setup()
 
    mMain.classic_mode = 0;
 
+   mLevel.set_start_level(1);
+
    //printf("unlock all levels and areas\n");
    mLevel.unlock_all_levels_and_areas();
 
    // make the hidden server player color taan (6)
    mLevel.mPlayer.syn[0].color = 6;
+
 
 
    //printf("mLog.clear_all_log_actions()\n");

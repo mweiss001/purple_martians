@@ -350,6 +350,11 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          return;
       }
 
+
+
+
+
+
       if (strcmp(argument_array[1],"-rc") == 0 ) // server remote control
       {
          mNetgame.server_remote_control = 1;
@@ -438,21 +443,28 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
 
-      if (strcmp(argument_array[1],"-sh") == 0 )
-      {
-         int pl = atoi(argument_array[2]);
-         if ((pl > 0) && (pl < 400))
-         {
-            mNetgame.headless_server_setup();
-            mLevel.set_start_level(pl);
-            mLogo.show_splash_screen = 0;
-            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
-            mLoop.quit_action = 0;
-            mLoop.done_action = 1;
-            return;
-         }
-         else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
-      }
+
+      // why do I have this? headless server is overworld only, right?
+
+      // if (strcmp(argument_array[1],"-sh") == 0 )
+      // {
+      //    int pl = atoi(argument_array[2]);
+      //    if ((pl > 0) && (pl < 400))
+      //    {
+      //       mNetgame.headless_server_setup();
+      //       mLevel.set_start_level(pl);
+      //       mLogo.show_splash_screen = 0;
+      //       mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
+      //       mLoop.quit_action = 0;
+      //       mLoop.done_action = 1;
+      //       return;
+      //    }
+      //    else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
+      // }
+      //
+
+
+
 
       if (strcmp(argument_array[1],"-rc") == 0 ) // server remote control
       {

@@ -69,9 +69,10 @@ mFont.load_fonts();
 mBitmap.load_tiles();
 mLevelIcons.load(0);
 
+
 if no icons already exist, they are created
 /bitmaps/level_icons (from leve1 1 to 399)
-web/assets/icons (from leve1 1 to 99)
+web/assets/icons (from leve1 1 to 199)
 
 or if mLevelIcons.load(1); is called with 1, then they are all recreated
 this could be used to rebuild them if things change
@@ -105,6 +106,47 @@ whenever draw is called, if the tilemap needs reloading it is done
 void mwLevelIcons::draw_level_icon(int x, int y, int draw_size, int level)
 {
    if (reload_needed) reload();
+
+
+
+
+to recreate web icons:
+
+remove the folder: '/bitmaps/level_icons' to force recreation
+
+delete all 'levxxx.png' files in the folder 'web\assets\icons'
+
+set this to true:
+bool save_web_on_create = 1;
+
+after running you should set it back to false
+otherwise release version will try to create the web icons
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 
