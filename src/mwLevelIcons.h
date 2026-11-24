@@ -25,10 +25,13 @@ private:
    int size = 200;
    int max_level = 400;
 
-   void create_level_icon(int level, int save_web);
+   bool save_web_on_create = 1;
+   bool save_web_on_update_overworld = 1;
+
+
+   void create_level_icon(int level, bool save_web);
 
    int load_icons_to_tilemap();
-
 
    void create();
    int get_level_num_from_filepath(const char* fn);

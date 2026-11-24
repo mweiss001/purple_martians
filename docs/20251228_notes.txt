@@ -59778,6 +59778,70 @@ struct level_data
 
 
 
+bug on server
+------------------
+no web icons for > 100
+should erase all level and player data when first deployed
+(but not every time is the server is restarted)
+I can accomplish this by erasing everything in the data folder
+
+
+when brand new and no data
+starting first connected client shows as level 1...should never show overworld
+after first level complete then starts looking proper
+
+I want to implement level names on the web pages
+
+how?
+statically or dynamically
+dynamic - have the game write a files to the web dir with all the names
+
+
+
+To reload web icons (player and level),
+delete all files in the folder 'web\assets\icons'
+int mwBitmap::load_tiles()
+{
+   // get player tiles
+
+   if (1)
+   {
+      // save a set of icons to disk
+      for (int a=0; a<16; a++)
+      {
+         char fn[80];
+         sprintf(fn, "web/assets/icons/player_icon_%d.png", a);
+         al_save_bitmap(fn, player_tile[a][2]);
+      }
+   }
+
+mwLevelIcons:
+bool save_web_on_create = 1;
+bool save_web_on_update_overworld = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

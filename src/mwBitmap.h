@@ -11,7 +11,6 @@ class mwBitmap
 
    void initialize();
 
-   void draw_portal(int color, int index, int x, int y, float scale, float rot);
 
    void make_door_tiles();
 

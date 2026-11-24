@@ -1,22 +1,21 @@
 #include "pm.h"
 #include "mwLevelIcons.h"
-
-#include "mwBitmap.h"
-#include "mwColor.h"
-#include "mwDisplay.h"
-#include "mwFileIterator.h"
-#include "mwFont.h"
 #include "mwLevel.h"
-#include "mwLoop.h"
 #include "mwScreen.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwColor.h"
+#include "mwFileIterator.h"
+#include "mwLoop.h"
+
 
 mwLevelIcons mLevelIcons;
 
 
-// called from set overworld barriers to update the icon for level 1
+// only called from set overworld barriers to update the icon for level 1
 void mwLevelIcons::update_level_icon(int level)
 {
-   create_level_icon(level, 0);
+   create_level_icon(level, save_web_on_update_overworld);
 
    int index = 0;
    if (find_level_icon_index(index, level))
@@ -40,13 +39,14 @@ void mwLevelIcons::update_level_icon(int level)
 }
 
 
+
 /*
   loads the level (if it exists)
   does custom plain load then manually sets up level
   draws on bitmap size x size
   saves the bitmap as a level icon file
 */
-void mwLevelIcons::create_level_icon(int level, int save_web)
+void mwLevelIcons::create_level_icon(int level, bool save_web)
 {
    //printf("mwLevelIcons::create_level_icon(level:%d)\n", level);
 
@@ -76,7 +76,7 @@ void mwLevelIcons::create_level_icon(int level, int save_web)
       sprintf(fname,"bitmaps/level_icons/lev%03d.png", level);
       if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
 
-      if (save_web && level < 100)
+      if (save_web && level < 200)
       {
          sprintf(fname,"web/assets/icons/lev%03d.png", level);
          if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
@@ -91,11 +91,9 @@ void mwLevelIcons::create()
 {
    printf("mwLevelIcons::create()\n");
 
-   bool save_web = true;
+//   bool save_web = 1;
 
    if (profile) t0 = al_get_time();
-
-
 
    // count number of level files
    int num_lev_files = mFileIterator.iterate("levels");
@@ -103,6 +101,7 @@ void mwLevelIcons::create()
    if (num_lev_files > 500)
    {
       printf("Error creating level icons. Number of level files (%d) is more than 500\n", num_lev_files);
+      printf("(There are probably many backup copies in the levels folder)\n");
       return;
    }
 
@@ -121,7 +120,7 @@ void mwLevelIcons::create()
    for (int level=2; level<max_level; level++)
       if (level != PM_OVERWORLD_BASE_LEVEL)
       {
-         create_level_icon(level, save_web);
+         create_level_icon(level, save_web_on_create);
 
          // show progress bar
          int pc = level*100 / max_level;
@@ -136,8 +135,8 @@ void mwLevelIcons::create()
 
    // do level 1 and 70
    // this has to be last, because gates drawn on these levels require level_icons created above
-   create_level_icon(PM_OVERWORLD_BASE_LEVEL, save_web);
-   create_level_icon(1, save_web);
+   create_level_icon(PM_OVERWORLD_BASE_LEVEL, save_web_on_create);
+   create_level_icon(1, save_web_on_create);
    load_icons_to_tilemap();
 
 

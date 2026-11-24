@@ -31,57 +31,6 @@ mwBitmap::mwBitmap() // default constructor
 }
 
 
-void mwBitmap::draw_portal(int color, int index, int x, int y, float scale, float rot)
-{
-   int num_tiles    = 15;
-   int main_start   =  4;
-   int main_length  = 11;
-
-   int idle_cx      = 28;
-   int main_cxi     = 28;
-   int main_cxf     = 25;
-   int idle_cy      = 33;
-   int main_cyi     = 33;
-   int main_cyf     = 35;
-
-   if ((index < 0) || (index >= num_tiles)) return;
-
-   // center of source tile
-   float cx = 32;
-   float cy = 32;
-
-   // idle
-   if (index < main_start)
-   {
-      cx = idle_cx;
-      cy = idle_cy;
-   }
-   else
-   {
-      float ms = main_start;
-      float ml = main_length;
-
-      // do ratio of where we are in the tileset
-      float ratio = (float)(index-ms) / ml;
-
-      // at the start (0) cx will be cx_initial
-      // at the end   (1) cx will be cx_final
-
-      float cxi = main_cxi;
-      float cxf = main_cxf;
-      float cxs = cxf - cxi;
-      cx = cxi + cxs*ratio;
-
-      float cyi = main_cyi;
-      float cyf = main_cyf;
-      float cys = cyf - cyi;
-      cy = cyi + cys*ratio;
-   }
-   al_draw_scaled_rotated_bitmap(mBitmap.portal_tile[color][index], cx, cy, x, y, scale, scale, rot, 0);
-//   al_draw_textf(mFont.pr8, al_map_rgb(255, 255, 255), x+28, y+10, 0, "%d", index);
-}
-
-
 
 
 ALLEGRO_BITMAP * mwBitmap::create_and_clear_bitmap(int x, int y)
@@ -98,6 +47,7 @@ void mwBitmap::create_bitmaps()
    // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
 
+
    // these bitmap flags are only for the M_XXX memory bitmaps
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
@@ -110,7 +60,7 @@ void mwBitmap::create_bitmaps()
    M_ztilemap = create_and_clear_bitmap(960, 1024);
 
    // this bitmap format is used for all other bitmaps
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PRESERVE_TEXTURE);
 
    // create tilemap bitmaps
    stilemap = create_and_clear_bitmap(704, 704);
@@ -128,8 +78,6 @@ void mwBitmap::create_bitmaps()
 int mwBitmap::load_tiles()
 {
    //printf("load tiles\n");
-
-
 
    // get sprites
    stilemap = al_load_bitmap("bitmaps/sprites.png");
@@ -180,6 +128,7 @@ int mwBitmap::load_tiles()
          for (int b=0; b<24; b++)
             player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*22+1, a*22+1, 20, 20);
    }
+
 
    if (0)
    {

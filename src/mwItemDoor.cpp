@@ -81,12 +81,69 @@ int mwItem::find_source_door(int si)
 
 
 
+
+
+void mwItem::draw_portal(int color, int index, int x, int y, float scale, float rot)
+{
+   int num_tiles    = 15;
+   int main_start   =  4;
+   int main_length  = 11;
+
+   int idle_cx      = 28;
+   int main_cxi     = 28;
+   int main_cxf     = 25;
+   int idle_cy      = 33;
+   int main_cyi     = 33;
+   int main_cyf     = 35;
+
+   if ((index < 0) || (index >= num_tiles)) return;
+
+   // center of source tile
+   float cx = 32;
+   float cy = 32;
+
+   // idle
+   if (index < main_start)
+   {
+      cx = idle_cx;
+      cy = idle_cy;
+   }
+   else
+   {
+      float ms = main_start;
+      float ml = main_length;
+
+      // do ratio of where we are in the tileset
+      float ratio = (float)(index-ms) / ml;
+
+      // at the start (0) cx will be cx_initial
+      // at the end   (1) cx will be cx_final
+
+      float cxi = main_cxi;
+      float cxf = main_cxf;
+      float cxs = cxf - cxi;
+      cx = cxi + cxs*ratio;
+
+      float cyi = main_cyi;
+      float cyf = main_cyf;
+      float cys = cyf - cyi;
+      cy = cyi + cys*ratio;
+   }
+   al_draw_scaled_rotated_bitmap(mBitmap.portal_tile[color][index], cx, cy, x, y, scale, scale, rot, 0);
+   //   al_draw_textf(mFont.pr8, al_map_rgb(255, 255, 255), x+28, y+10, 0, "%d", index);
+}
+
+
+
+
+
+
 void mwItem::draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot)
 {
    float yo = ((20*scale) - 20)/2;
    if (draw_type == PM_ITEM_DOOR_DRAW_STATIC) al_draw_scaled_rotated_bitmap(mBitmap.sprite[159+col],     10, 10, x+10, y+10-yo, scale, scale, rot, 0 );
    if (draw_type == PM_ITEM_DOOR_DRAW_WARP)   al_draw_scaled_rotated_bitmap(mBitmap.door_tile[col][ans], 10, 10, x+10, y+10-yo, scale, scale, rot, 0 );
-   if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) mBitmap.draw_portal(col, ans, x+10, y+10, scale, rot);
+   if (draw_type == PM_ITEM_DOOR_DRAW_PORTAL) draw_portal(col, ans, x+10, y+10, scale, rot);
 }
 
 void mwItem::mark_orphan(int x, int y, const char *txt1, const char *txt2)
@@ -96,9 +153,6 @@ void mwItem::mark_orphan(int x, int y, const char *txt1, const char *txt2)
    al_draw_line(x, y, x+20, y+20, mColor.Red, 2);
    al_draw_line(x+20, y, x, y+20, mColor.Red, 2);
 }
-
-
-
 
 int mwItem::draw_door(int i, int x, int y, int custom)
 {

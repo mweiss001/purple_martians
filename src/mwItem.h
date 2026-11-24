@@ -121,15 +121,15 @@ class mwItem
    void bomb_players(int i, int t, int dr, float x, float y);
 
    // mwItemDoor.cpp
-
    float door_hover_scale_multiplier = 1.1;
    int find_source_door(int i);
    void mark_orphan(int x, int y, const char *txt1, const char *txt2);
-   int draw_door(int i, int x, int y, int custom);
    void proc_door_collision(int p, int i);
    void proc_player_door_move(int p);
    void change_linked_doors_to_match(int si);
+   void draw_portal(int color, int index, int x, int y, float scale, float rot);
    void draw_door_tile(int x, int y, int draw_type, int col, int ans, float scale, float rot);
+   int draw_door(int i, int x, int y, int custom);
 
 
 
