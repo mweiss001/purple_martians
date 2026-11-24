@@ -59708,15 +59708,73 @@ Level                   Total Time
 Totals                  2:53:23    Total Time:416156
 
 
+2026-11-23 12:45:23
+
+BROKE NETGAME!!!!
 
 
 
+Variables used for netgame state exchange
+
+mPlayer.syn                 :  2080
+mEnemy.Ei                   : 12800
+mEnemy.Ef                   :  6400
+mItem.item                  : 32000
+mItem.itemf                 :  8000
+mLift.cur                   :  3680
+mLevel.l                    : 40000
+mShot.p                     :  1200
+mShot.e                     :  1200
+mTriggerEvent.event         :  4000
+mGameState                  :    60
+mMessageTextA               :  5000
+mLevel.area_array           :  1600
+mLevel.data                 : 18400
+mLevel.overworld_area_array :  1040
+----------------------------:------
+total                       :137460
 
 
+#define STATE_SIZE 127460
+
+exactly 10000
+
+   int area_array[PM_MAX_LEVEL_NUM][2];
+   struct level_data data[PM_MAX_LEVEL_NUM];
+
+2
+   int area_array[PM_MAX_LEVEL_NUM][2];
 
 
+struct level_data
+{
+  
+
+6
+   char level_name[24];
 
 
+17
+   int area;
+   int status;
+   int min_respawns;
+   int max_coins_collected;
+   int tot_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+   int times_played;
+   int times_beat;
+   int times_quit;
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+};
+
+17+6+2 = 25 * 100 = 2500 x 4 = 10000
 
 
 
