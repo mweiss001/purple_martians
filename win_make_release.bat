@@ -1,4 +1,4 @@
-set version=7.24.0811.1
+set version=8.0.261124.beta
 
 mkdir purple_martians_%version%_windows
 mkdir purple_martians_%version%_windows\screenshots
@@ -18,3 +18,5 @@ xcopy savegame\demo purple_martians_%version%_windows\savegame\demo /y /i /s
 xcopy snd purple_martians_%version%_windows\snd /y /i
 
 xcopy levels\level0* purple_martians_%version%_windows\levels  /y /i
+xcopy levels\level1* purple_martians_%version%_windows\levels  /y /i
+

@@ -59880,6 +59880,149 @@ tries to start on level 15
 
 
 
+fixed
+
+now:
+- web blank at start
+
+-----------------------
+start sh
+-----------------------
+more sections show in session, but all are blank
+status shows overworld
+
+-----------------------
+connect 1 client
+-----------------------
+sessions table shows the one client
+status shows the one client
+
+The only thing wrong...
+sessions timeline shows 'Level 1'
+and hovering prompts to download level 1
+
+http://192.168.1.138/downloads/e6430
+
+file not found...
+
+-----------------------
+connect 2nd client 
+-----------------------
+sessions table shows the 2 clients
+status shows 2 clients
+
+But the sessions timeline is still wrong:
+shows 'Level 1' and 2nd client
+and hovering prompts to download level 1
+
+-----------------------
+connect 3rd client 
+-----------------------
+sessions table shows 3 clients
+status shows 3 clients
+
+But the sessions timeline is still wrong:
+shows 'Level 3' and 1st client
+and hovering prompts to download level 3
+http://192.168.1.138/downloads/m36
+
+-----------------------
+go from overworld to level 101
+-----------------------
+sessions table shows 3 clients
+status shows 3 clients
+
+But the sessions timeline is still wrong:
+shows client 2 and level 1 and 3
+
+-----------------------
+complete level 101
+-----------------------
+sessions table shows 3 clients
+status shows 3 clients
+
+sessions timeline now show level 101 and can download
+client 2 good
+client 1 and 3 overlap (could be because they have the same name? even though player number is different)
+
+
+-----------------------
+client 3 quit, change name and rejoin
+-----------------------
+status shows 1-Forest 2-Jenny 3-Trees
+sessions table good, shows all 4
+timeline has a blank track for trees
+
+
+-----------------------
+go from overworld to level 101
+-----------------------
+now trees has a section in timeline
+the 2 forests overlap in their own track
+
+-----------------------
+complete level 101
+-----------------------
+all good
+
+
+
+So after all of this testing, here are my comments:
+
+BUG 1 ----------------------------
+
+If clients have the same name, they will have the same track in timeline
+this is probably not what I want...
+this might be ok, as long as they do not overlap...
+then I could see the same client join, quit and rejoin
+
+potential fixes:
+- I could do something like test if tracks overlap
+
+- I could check player names when they join and prevent duplicates
+change last char to a digit
+
+BUG 2 ----------------------------
+If there are no saved games, the timeline will try to use a session as a game
+
+
+
+2026-11-24 07:05:56
+
+I am deploying to pmh, the main server....
+
+then I want to do a test release
+
+bump version 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
