@@ -9,8 +9,8 @@ set srv=%2
 
 
 IF [%2]==[] (
-set srv=96.45.9.166
-REM set srv=scat
+REM set srv=96.45.9.166
+set srv=scat
 )
 
 

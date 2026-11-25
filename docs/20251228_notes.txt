@@ -59993,7 +59993,22 @@ I am deploying to pmh, the main server....
 
 then I want to do a test release
 
-bump version 
+bump version  8.0.261124.beta
+
+
+do linux version...what system?
+scat 24.02
+o7040 24.02
+pmh 24.02
+
+just do scat
+
+
+
+
+
+
+
 
 
 

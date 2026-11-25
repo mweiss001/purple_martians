@@ -4,7 +4,7 @@ cp /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
 
-version=7.24.0811.3a
+version=8.0.261124.beta
 
 fd='purple_martians_'"$version"'_linux'
 
@@ -25,6 +25,7 @@ cp bitmaps/*          "$fd"/bitmaps
 cp help/*             "$fd"/help
 cp snd/*              "$fd"/snd
 cp levels/level0*     "$fd"/levels
+cp levels/level1*     "$fd"/levels
 cp linux_libs/*       "$fd"/linux_libs
 cp -r savegame/demo/* "$fd"/savegame/demo
 
