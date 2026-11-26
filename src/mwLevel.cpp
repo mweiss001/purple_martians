@@ -760,19 +760,15 @@ int mwLevel::load_level_l2(int level)
       //printf("already loaded!!!\n");
       return 1;
    }
-   if (load_level_by_number(level, 1, 0))
+   if (load_level_by_number(level, 1, 1))
    {
 
       // printf("\nmwLevel::load_level_l2(%d)\n", level);
       //printf("loading!!!\n");
       valid_level_loaded = 1;
       mLift.lift_setup();
-      for (int x=0; x<500; x++)
-         if (mItem.item[x][0]) // only if active set x y
-         {
-            mItem.itemf[x][0] = mItem.item[x][4];
-            mItem.itemf[x][1] = mItem.item[x][5];
-         }
+      mItem.set_initial_positons();
+
       setup_players_after_level_load(2);
 
       // copy player data from mLevel
@@ -895,16 +891,11 @@ int mwLevel::load_level(const char* filename, int load_only, int fail_silently)
 
       if (!load_only)
       {
-         if (level_num == 1) set_overworld_barriers();
+         if (level_num == PM_OVERWORLD_LEVEL) set_overworld_barriers();
 
          valid_level_loaded = 1;
          mLift.lift_setup();
-         for (int x=0; x<500; x++)
-            if (mItem.item[x][0]) // only if active set x y
-            {
-               mItem.itemf[x][0] = mItem.item[x][4];
-               mItem.itemf[x][1] = mItem.item[x][5];
-            }
+         mItem.set_initial_positons();
 
          if (mLoop.level_editor_running)
          {
@@ -970,6 +961,7 @@ void mwLevel::save_level(int level_num)
    mItem.sort_item();
    mEnemy.sort_enemy();
    mLift.lift_setup();
+
 
    // put variables in pml
    char pml[PML_SIZE];

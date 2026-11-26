@@ -27,6 +27,7 @@
 #include "mwEditorMain.h"
 #include "mwGameState.h"
 #include "mwHelp.h"
+#include "mwLevelIcons.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
 #include "mwTransitions.h"
@@ -2113,6 +2114,14 @@ void mwSettings::page_misc()
    ya += bts;
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+   if (mWidget.mButton(5, cfp_txc,  0,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Recreate Level Icons",       0)) mLevelIcons.create_regular_level_icons();
+   ya += bts/2;
+   if (mWidget.mButton(5, cfp_txc,  0,   ya, bts,    1, 2, 0, 1,   12, 0, 15, 0, 0, "Recreate Web Level Icons",   0)) mLevelIcons.create_webpage_level_icons();
+
+   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
 
    /*
    int old_mln = mVisualLevel.max_level_num;

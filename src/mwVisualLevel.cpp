@@ -499,8 +499,6 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 
 void mwVisualLevel::load_visual_level_select(int max_level_num, int &sel_x, int &sel_y, int &sel_size, int &grid_cols, int &grid_rows, int &grid_size, int &grid_width, int &grid_height)
 {
-   if (mLevelIcons.reload_needed) mLevelIcons.reload();
-
    int mod_size = 10;
    int min_size = 10;
 

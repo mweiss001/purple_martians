@@ -34,6 +34,9 @@ class mwItem
    int item_secondary67(int type);
    int item_secondary67_hires(int type);
 
+   void set_initial_positons();
+
+
    void draw_items();
    void draw_item(int i, int custom, int cx, int cy);
    int draw_bonus(int i, int x, int y, int shape);
@@ -57,7 +60,6 @@ class mwItem
    void proc_sproingy_collision(int p, int i);
    float get_sproingy_jump_height(int num);
    int get_sp(float jh);
-
 
 
 

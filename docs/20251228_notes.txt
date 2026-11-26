@@ -60005,158 +60005,37 @@ just do scat
 
 
 
+30 File(s) copied
+C:\pm>win_copy_to_pmh.bat git_reclone
 
+Erase and Reclone from Git
 
+ssh scat "cd ~/dev; rm purple_martians -rf; git clone --depth=1 https://github.com/mweiss001/purple_martians; cd purple_martians; chmod 777 -R .; chown m:m -R .;"
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ECDSA key sent by the remote host is
+SHA256:dlHX0LyAas24f5F0Qmy+BStFR4AXol19lRd2xa49l9E.
+Please contact your system administrator.
+Add correct host key in C:\\Users\\m/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in C:\\Users\\m/.ssh/known_hosts:1
+Host key for scat has changed and you have requested strict checking.
+Host key verification failed.
 
+C:\pm>
 
 
+2026-11-25 05:15:33
 
+made a beta release and did some testing yesterday
 
+I have some things to fix, put them on the list...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+web server sessions pages don't work on 2nd day..actually they just don't work from dev machine...?
+cleared cache and I was fine..
 
 
 

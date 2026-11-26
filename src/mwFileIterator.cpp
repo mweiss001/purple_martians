@@ -14,37 +14,49 @@ mwFileIterator::mwFileIterator()
 void mwFileIterator::initialize()
 {
    num_filenames = 0;
-
    files.clear();
-
-
 }
+
+
 
 int add_file(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
-   // why do I need to create a new one? al_create_fs_entry(al_get_fs_entry_name(fs))
+   bool add = true;
 
+   // test for filter
+   if (strlen(mFileIterator.ext_filter) != 0)
+   {
+      // get the extension
+      const char *pext = al_get_path_extension(al_create_path(al_get_fs_entry_name(fs)));
+      if (strcmp(pext, mFileIterator.ext_filter)) add = false;
+   }
 
-   mFileIterator.files.push_back(al_create_fs_entry(al_get_fs_entry_name(fs)));
+   if (add)
+   {
+      // push to vector
+      mFileIterator.files.push_back(al_create_fs_entry(al_get_fs_entry_name(fs)));
 
-   if (mFileIterator.num_filenames > 999) return 0; // only get 1000 max
-   mFileIterator.filenames[mFileIterator.num_filenames++] = al_create_fs_entry(al_get_fs_entry_name(fs));
-
+      // add to array
+      if (mFileIterator.num_filenames > 999) return 0; // only get 1000 max
+      mFileIterator.filenames[mFileIterator.num_filenames++] = al_create_fs_entry(al_get_fs_entry_name(fs));
+   }
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
 
-int mwFileIterator::iterate(const char* fname)
+int mwFileIterator::iterate(const char* fname, const char* filter)
 {
+   strcpy(ext_filter, filter);
+
    initialize();
 
-   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-
    // iterate files in folder and put in filename array
-   al_for_each_fs_entry(FS_fname, add_file, NULL);
+   al_for_each_fs_entry(al_create_fs_entry(fname), add_file, NULL);
 
    return num_filenames;
 }
+
+
 
 int mwFileIterator::get_most_recent(const char* fname)
 {

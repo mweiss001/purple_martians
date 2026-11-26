@@ -428,6 +428,7 @@ void mwLevel::create_door_helper(int x1, int y1, int x2, int y2, int enter_type,
 
 
 // only ever called from load level after loading level 1
+// completely erases and recreates level (then why do I even bother loading first?)
 void mwLevel::set_overworld_barriers()
 {
    //printf("void mwLevel::set_overworld_barriers()\n");
@@ -435,7 +436,7 @@ void mwLevel::set_overworld_barriers()
    // fully clear the level
    zero_level_data();
 
-   // copy visible areas from level 70
+   // copy visible areas from PM_OVERWORLD_BASE_LEVEL
    for (int i=1; i<9; i++)
       if (overworld_area_array[i].visible)
          mEditSelection.copy_area_from_l2(PM_OVERWORLD_BASE_LEVEL, overworld_area_array[i].x, overworld_area_array[i].y, overworld_area_array[i].w, overworld_area_array[i].h);
@@ -508,8 +509,12 @@ void mwLevel::set_overworld_barriers()
          }
       }
 
-   save_level(1); // save overworld level
-   if (!mMain.headless_server) mLevelIcons.update_level_icon(1);
+   // save overworld level
+   save_level(PM_OVERWORLD_LEVEL);
+
+   // update overworld level icon ...  only local player and server (but not headless server)
+   if (!mMain.headless_server && !mNetgame.ima_client) mLevelIcons.update_level_icon(PM_OVERWORLD_LEVEL);
+
 }
 
 

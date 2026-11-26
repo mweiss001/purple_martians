@@ -112,9 +112,6 @@ int mwItem::sort_item()
       quit=1; // quit if no iswap
       for (c=0; c < 499; c++)
       {
-         itemf[c][0] = item[c][4];
-         itemf[c][1] = item[c][5];
-
          if (item[c][0] < item[c+1][0]) iswap = 1; // sort by first value 'type'
 
          else if (item[c][0] == item[c+1][0]) // if type is the same, do secondary sort within same item type
@@ -128,7 +125,7 @@ int mwItem::sort_item()
 
          if (iswap)
          {
-            quit=0;      // as long as a iswap has been made
+            quit=0;      // as long as an iswap has been made
             iswap = 0;
             if ((item[c][0] == PM_ITEM_TYPE_MESSAGE) && (item[c+1][0] == PM_ITEM_TYPE_MESSAGE)) // both messages
             {
@@ -160,12 +157,6 @@ int mwItem::sort_item()
                temp = item[c][d];
                item[c][d] = item[c+1][d];
                item[c+1][d] = temp;
-            }
-            for (d=0; d<4; d++)
-            {
-               float ftemp = itemf[c][d];
-               itemf[c][d] = itemf[c+1][d];
-               itemf[c+1][d] = ftemp;
             }
          }
       }
@@ -208,6 +199,9 @@ int mwItem::sort_item()
    // erase what we put in 15
    for (int c=0; c < 500; c++)
       if (item[c][0] == PM_ITEM_TYPE_DOOR) item[c][15] = 0;
+
+   set_initial_positons();
+
 
    // set number of starts...
    mLevel.number_of_starts = item_num_of_type[PM_ITEM_TYPE_START];

@@ -4,6 +4,10 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
+fix linux make release....
+make sure libs are all copied properly
+
+
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -14,6 +18,195 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+
+
+
+--------------------
+creating level icons
+--------------------
+need to sort all that mess out
+for release, I auto generate them, that makes sense
+how about whenever I save a level, I also generate the icon for that level?
+
+maybe I could have buttons in settings:
+- recreate level icons (erases and recreates the main ones)
+- recreate web level icons (erases and recreates the web ones)
+
+why are clients trying to save overworld in web assets
+clients should never try to save overworld icon at all, let alone web...
+
+the only case to update overworld web icon would be a server
+
+local players would only update the normal one 
+(but what if a local player became a server?)
+
+this is complex....
+
+test...do I have the headless server updating level icons?
+that would be unnecessary as headless server is always fully unlocked...
+
+where does this updating take place?
+
+// only ever called from load level after loading level 1
+void mwLevel::set_overworld_barriers()
+{
+...
+   // save overworld level
+   save_level(1);
+   
+   if (!mMain.headless_server) mLevelIcons.update_level_icon(1);
+}
+
+
+so the answer is no, I do not have headless server updating level icons
+
+I think for a start I should have set overworld barriers quit right at the start if they are a client
+
+If I go even further back, why does load level even bother loading level1, when it is just going to get completely recreated?
+
+is it possible for headless server to create web icons?
+88 files <300k
+why bother?
+
+its not about space as much as it is about not saving them in git...
+I don't want to commit binary blobs that are trivially recreateable....
+
+I just looked and no, headless server has all bitmap and image stuff disabled
+
+so back to it...
+
+the only time web icons are created will be a button in settings,
+it will set save web, and run the thing
+
+
+so these are never used?
+
+   bool save_web_on_update_overworld = 1;
+
+Tell me again:
+- Headless server will never create any level icons
+- Clients will never create any level icons
+
+Local players will update overworld
+Servers will update overworld, (but never web icons)
+
+
+The function has been renamed:
+
+mLevelIcons.update_overworld_level_icon();
+
+and is only ever called from:
+
+void mwLevel::set_overworld_barriers()
+
+   // update overworld level icon ...  only local player and server (but not headless server)
+   if (!mMain.headless_server && !mNetgame.ima_client) mLevelIcons.update_overworld_level_icon();
+
+I think this part is done..
+next, how do I create web icons when I want to?
+
+
+2026-11-25 18:36:34
+have I made things simpler?
+to recreate regular level icons, erase folder 'bitmaps/level_icons'
+
+
+
+2026-11-26 05:19:23
+I kind of want to make changes to my file iterator class, to only find files with a certain extension
+done...
+
+I think I have the level icon thing working...
+cleanup and document
+
+2026-11-26 07:35:29..push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -101,7 +294,7 @@ test the netgame and server stuff
 remove all extra exits in levels
 go through the levels one more time
 
-
+turn off the extra printing in stats
 
 
 
@@ -123,16 +316,6 @@ also level 60 bomb toss
 then make demos for both
 
 
-----------------------------------------------------------------------
-make demo for psycho killer
-done 4:00
-----------------------------------------------------------------------
-
-
-----------------------------------------------------------------------
-overworld, make top main stats not show all areas, skip extra and dev
-----------------------------------------------------------------------
-done
 
 ----------------------------------------------------------------------
 on web, when I show level numbers can I also show level names?

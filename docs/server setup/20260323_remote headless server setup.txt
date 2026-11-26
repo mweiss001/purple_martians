@@ -333,6 +333,12 @@ faster way to send src to linux
 
 
 
+pscp -pw zaiden m@192.168.1.142:dev/purple_martians/*.tar.gz  c:\pm\
+
+
+
+
+
 pscp -pw zaiden c:\pm\src\mwItemStart*  m@192.168.1.142:dev/purple_martians/src/
 
 pscp -pw zaiden c:\pm\src\mwLev*  m@192.168.1.142:dev/purple_martians/src/

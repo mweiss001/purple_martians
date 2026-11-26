@@ -175,7 +175,6 @@ int mwMain::initial_setup()
 
 
 
-
    // --- things not to load for headless server ---------------
    if (!headless_server)
    {
@@ -195,17 +194,14 @@ int mwMain::initial_setup()
       mBitmap.create_bitmaps();
       prof.add("mBitmap.create_bitmaps()");
 
-
       mBitmap.load_tiles();
       prof.add("mBitmap.load_tiles()");
-
 
       mLevel.create_bitmaps();
       prof.add("mLevel.create_bitmaps()");
 
       l2.create_bitmaps();
       prof.add("l2.create_bitmaps()");
-
 
       if(!al_init_font_addon())
       {
@@ -220,17 +216,13 @@ int mwMain::initial_setup()
       mFont.load_fonts();
       prof.add("mFont.load_fonts()");
 
-
-
       // --- allegro add ons ------------
       if(!al_init_native_dialog_addon())
       {
          mInput.m_err("Failed to initialize native dialog addon.\n");
          return 0;
       }
-
       prof.add("al_init_native_dialog_addon()");
-
 
 
       // --- keyboard -------------------
@@ -240,9 +232,7 @@ int mwMain::initial_setup()
          return 0;
       }
       al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
-
       prof.add("al_install_keyboard()");
-
 
 
       // --- mouse ----------------------
@@ -274,19 +264,16 @@ int mwMain::initial_setup()
          }
          al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
       }
-
       prof.add("al_install_joystick()");
 
       al_set_display_icon(mDisplay.display, mBitmap.sprite[401]);
       prof.add("al_set_display_icon()");
-
 
       al_inhibit_screensaver(true);
       prof.add("al_inhibit_screensaver(true)");
 
       mSound.load_sound();
       prof.add("mSound.load_sound()");
-
 
    }
 
@@ -295,10 +282,11 @@ int mwMain::initial_setup()
    prof.add("mLevel.load_data()");
 
    // this needs to be after mLevel.load_data();
-   if (!headless_server) mLevelIcons.load(0);
-   prof.add("mLevelIcons.load(0)");
-
-//   if (!headless_server) mLevelIcons.load(1);
+   if (!headless_server)
+   {
+      mLevelIcons.load();
+      prof.add("mLevelIcons.load()");
+   }
 
 
    // init players
@@ -308,14 +296,17 @@ int mwMain::initial_setup()
    prof.add("init players");
 
 
-   mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
+   mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config fileZ
+
+
+   // set start level
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
+
 
    prof.add("set start level");
 
    // prof.show();
-
 
 
    return 1;

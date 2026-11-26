@@ -11,32 +11,32 @@ class mwLevelIcons
 {
 
 public:
-   void load(int rebuild_all = 0);
+   void load();
    void reload();
    bool reload_needed = true;
    void draw_level_icon(int level, int x, int y, int size);
+
    void update_level_icon(int level);
 
-private:
+   void create_regular_level_icons();
+   void create_webpage_level_icons();
 
+
+private:
    bool profile = false;
    double t0;
 
-   int size = 200;
-   int max_level = 400;
+   int regular_level_icon_size = 200;
+   int regular_level_icon_last_level = 400;
 
-   bool save_web_on_create = 1;
-   bool save_web_on_update_overworld = 1;
+   int webpage_level_icon_size = 200;
+   int webpage_level_icon_last_level = 150;
 
-
-   void create_level_icon(int level, bool save_web);
-
+   void create_level_icon(int level, bool save_web = false);
    int load_icons_to_tilemap();
-
-   void create();
    int get_level_num_from_filepath(const char* fn);
-   void add(const char* filepath, int index);
    bool find_level_icon_index(int &index, int level);
+
 
    ALLEGRO_BITMAP * tilemap = nullptr;
    ALLEGRO_BITMAP * M_tilemap = nullptr;
@@ -49,57 +49,52 @@ extern mwLevelIcons mLevelIcons;
 
 
 /*
+used to draw level icons on gates
+used in visual level select
 
-used by many things
+regular level_icons
+-------------------
+There is a png file for each level in 'bitmaps/level_icons' lev001.png etc...
+These are not saved in git or supplied with release, they are dynamically created when needed
 
-- to draw gate icons in 2 different sizes
-- in visual level select
-- copied to web folder for web pages
+int regular_level_icon_size = 200; // determines their size
+int regular_level_icon_last_level = 400; // determines the max level
 
-creates bitmap files for each level in 200x200 png format
-in dir /bitmaps/level_icons
-
-these are generated, not saved in git
-
-in initial setup load is called
+in initial setup, 'load()' is called
 it must be after bitmaps are all created and level data has been setup
 
 mLevel.setup_data();
 mFont.load_fonts();
 mBitmap.load_tiles();
-mLevelIcons.load(0);
+mLevelIcons.load();
+
+'load()'
+----------------------------
+destroys and recreates tilemaps
+clears and rebuilds level_icons vector
+
+iterates all level_icon files in "bitmaps/level_icons"
+- draws on tilemap
+- adds to vector that relates position on tilemap to level number
+
+if no png files are found they are all recreated with: create_regular_level_icons();
+this can also be run manually from settings
 
 
-if no icons already exist, they are created
-/bitmaps/level_icons (from leve1 1 to 399)
-web/assets/icons (from leve1 1 to 199)
-
-or if mLevelIcons.load(1); is called with 1, then they are all recreated
-this could be used to rebuild them if things change
-all it does is erase all files in '/bitmaps/level_icons' and let them get automatically re-created
-
-then load() iterates all the icon files and puts them in a big tilemap
+then load() iterates all the icon files and puts them in one large tilemap
 it also makes a memory bitmap version as well to quickly restore when the video bitmap is changed
 it stores the level number and position in the tilemap in a vector
 
 then there is the draw function:
-
 void draw_level_icon(int x, int y, int size, int level);
-
 this is used by everything that needs to draw a level icon
 
-when the tilemap needs to be recreated, like all the other video bitmaps:
 
-in 'void mwBitmap::rebuild_bitmaps()'
-
-// rebuild level_icons
-
-   // delay loading, just set flag that it needs to be done
-   // this is to prevent the delay in the middle of a game
-   mLevelIcons.reload_needed = true;
-
-   // if last loaded level is overworld, or we are in visual level select, reload now
-   if (mLevel.last_level_loaded == 1 || mLoop.visual_level_select_running) mLevelIcons.reload();
+rebuilding level_icons tilemap
+------------------------------
+if the display is changed all video bitmaps nee to be recreated
+I do not do this immediately, I just set a flag that it needs to be done:
+mLevelIcons.reload_needed = true;
 
 whenever draw is called, if the tilemap needs reloading it is done
 
@@ -110,39 +105,21 @@ void mwLevelIcons::draw_level_icon(int x, int y, int draw_size, int level)
 
 
 
-to recreate web icons:
-
-remove the folder: '/bitmaps/level_icons' to force recreation
-
-delete all 'levxxx.png' files in the folder 'web\assets\icons'
-
-set this to true:
-bool save_web_on_create = 1;
-
-after running you should set it back to false
-otherwise release version will try to create the web icons
 
 
 
+web level_icons
+---------------
+Used by the web pages on headless server
 
+These ARE saved in git (headless server has no display and no way to generate them)
 
+There is a png file for each level in web/assets/icons' lev001.png etc...
 
+To recreate, run 'create_webpage_level_icons()' by clicking the button in settings
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int webpage_level_icon_size = 200;
+int webpage_level_icon_last_level = 150;
 
 
 

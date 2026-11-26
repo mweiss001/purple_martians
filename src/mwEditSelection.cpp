@@ -965,14 +965,9 @@ void mwEditSelection::draw_fsel()
              al_draw_bitmap(mBitmap.tile[ftLevel.l[x][y]& PM_BTILE_TILENUM_MASK], x*20, y*20, 0);
    }
 
-   // set all item positions before drawing
-   for (int i=0; i<500; i++)
-      if (ftLevel.mItem.item[i][0])
-      {
-         ftLevel.mItem.itemf[i][0] = ftLevel.mItem.item[i][4];
-         ftLevel.mItem.itemf[i][1] = ftLevel.mItem.item[i][5];
-      }
 
+   // set all item positions before drawing
+   ftLevel.mItem.set_initial_positons();
 
    // draw items
    for (int i=0; i<500; i++)

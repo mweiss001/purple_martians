@@ -7,11 +7,14 @@ class mwFileIterator
    mwFileIterator(); // default constructor
    void initialize();
 
-   int iterate(const char* fname);
+
+   int iterate(const char* fname, const char* filter = "");
+   char ext_filter[16] = {};
+
 
    int get_most_recent(const char* fname);
-
    char* get_most_recent_fname(const char* fname, char* tmp);
+
 
    ALLEGRO_FS_ENTRY *filenames[1000] = { nullptr };
 

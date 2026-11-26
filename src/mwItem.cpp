@@ -86,6 +86,19 @@ int mwItem::item_secondary67_hires(int type)
 
 
 
+void mwItem::set_initial_positons()
+{
+   for (int x=0; x<500; x++)
+      if (item[x][0]) // only if active set x y
+      {
+         itemf[x][0] = item[x][4];
+         itemf[x][1] = item[x][5];
+      }
+
+}
+
+
+
 void mwItem::draw_items()
 {
    for (int i=0; i<500; i++)

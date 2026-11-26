@@ -1,22 +1,27 @@
 #include "pm.h"
 #include "mwLevelIcons.h"
 #include "mwLevel.h"
+#include "mwFileIterator.h"
 #include "mwScreen.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
-#include "mwFileIterator.h"
-#include "mwLoop.h"
 
 
 mwLevelIcons mLevelIcons;
 
 
-// only called from set overworld barriers to update the icon for level 1
+
+// only called from set overworld barriers, and only if local player or server (not headless)
+// updates a single level icon (overworld)
 void mwLevelIcons::update_level_icon(int level)
 {
-   create_level_icon(level, save_web_on_update_overworld);
+   // printf("mwLevelIcons::update_level_icon(%d)\n", level);
 
+   // create a new level icon
+   create_level_icon(level);
+
+   // update the level_icon tilemap
    int index = 0;
    if (find_level_icon_index(index, level))
    {
@@ -26,8 +31,8 @@ void mwLevelIcons::update_level_icon(int level)
       ALLEGRO_BITMAP *tmp = al_load_bitmap(fn);
 
       // draw in place on tilemap
-      int x = (index % 10) * size;
-      int y = (index / 10) * size;
+      int x = (index % 10) * regular_level_icon_size;
+      int y = (index / 10) * regular_level_icon_size;
       al_set_target_bitmap(M_tilemap);
       al_draw_bitmap(tmp, x, y, 0);
 
@@ -39,93 +44,40 @@ void mwLevelIcons::update_level_icon(int level)
 }
 
 
+// creates regular level icons up to regular_level_icon_last_level
+// loads levels, draws on temp bitmap, and saves
+// erases all files first
+//
+// this gets called when loading level icons and none are found
+// or manually from a button in settings
 
-/*
-  loads the level (if it exists)
-  does custom plain load then manually sets up level
-  draws on bitmap size x size
-  saves the bitmap as a level icon file
-*/
-void mwLevelIcons::create_level_icon(int level, bool save_web)
+
+void mwLevelIcons::create_regular_level_icons()
 {
-   //printf("mwLevelIcons::create_level_icon(level:%d)\n", level);
-
-   if (mLevel.load_level_by_number(level, 1, 1)) // load only, then do custom setup
-   {
-      mLevel.valid_level_loaded = 1;
-      mLevel.mLift.lift_setup();
-      for (int x=0; x<500; x++)
-         if (mLevel.mItem.item[x][0]) // only if active set x y
-         {
-            mLevel.mItem.itemf[x][0] = mLevel.mItem.item[x][4];
-            mLevel.mItem.itemf[x][1] = mLevel.mItem.item[x][5];
-         }
-
-      // draw blocks on level_background
-      mLevel.init_level_background();
-
-      // temp bitmap to draw level on
-      ALLEGRO_BITMAP *tmp = al_create_bitmap(size, size);
-
-      // draw level
-      al_set_target_bitmap(tmp);
-      mLevel.draw_level2(tmp,  0, 0, size, 1, 1, 1, 1, 0, 0);
-
-      // save level icon
-      char fname[256];
-      sprintf(fname,"bitmaps/level_icons/lev%03d.png", level);
-      if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
-
-      if (save_web && level < 200)
-      {
-         sprintf(fname,"web/assets/icons/lev%03d.png", level);
-         if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
-      }
-      al_destroy_bitmap(tmp);
-   }
-}
-
-
-// if no level icons are found, this will create them
-void mwLevelIcons::create()
-{
-   printf("mwLevelIcons::create()\n");
-
-//   bool save_web = 1;
+   //printf("mwLevelIcons::create_regular_level_icons()\n");
 
    if (profile) t0 = al_get_time();
-
-   // count number of level files
-   int num_lev_files = mFileIterator.iterate("levels");
-   //printf("num_lev_files:%d\n", num_lev_files);
-   if (num_lev_files > 500)
-   {
-      printf("Error creating level icons. Number of level files (%d) is more than 500\n", num_lev_files);
-      printf("(There are probably many backup copies in the levels folder)\n");
-      return;
-   }
 
    // create directory if it does not already exist
    al_make_directory("bitmaps/level_icons");
 
-   // get initial variable state to restore later
-   int old_start_level          = mLevel.start_level;
-   int old_level_editor_running = mLoop.level_editor_running;
-
-   // this needs to be off to draw level properly
-   mLoop.level_editor_running = 0;
+   // erase all files if there are any
+   int num_files = mFileIterator.iterate("bitmaps/level_icons");
+   for (int i=0; i<num_files; i++)
+      al_remove_fs_entry(mFileIterator.filenames[i]);
 
 
-   // attempt to create level icons for all levels from 2 to max_level
-   for (int level=2; level<max_level; level++)
-      if (level != PM_OVERWORLD_BASE_LEVEL)
+   // create level icons from start_level to end_level inclusive
+   for (int level=1; level<=regular_level_icon_last_level; level++)
+      if ((level != PM_OVERWORLD_LEVEL) && (level != PM_OVERWORLD_BASE_LEVEL))
       {
-         create_level_icon(level, save_web_on_create);
+         create_level_icon(level);
 
          // show progress bar
-         int pc = level*100 / max_level;
+         int range = regular_level_icon_last_level - 2;
+         int progress = 100 * (level-2) / range;
          al_set_target_backbuffer(mDisplay.display);
-         mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
+         mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, progress );
          al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
          al_flip_display();
       }
@@ -133,19 +85,97 @@ void mwLevelIcons::create()
    // iterate level icon files, draw on tilemap, save index to vector
    load_icons_to_tilemap();
 
-   // do level 1 and 70
-   // this has to be last, because gates drawn on these levels require level_icons created above
-   create_level_icon(PM_OVERWORLD_BASE_LEVEL, save_web_on_create);
-   create_level_icon(1, save_web_on_create);
+   // these have to be last, because gates drawn on these levels require level_icons created above
+   create_level_icon(PM_OVERWORLD_BASE_LEVEL);
+   create_level_icon(PM_OVERWORLD_LEVEL);
+
+   // iterate level icon files, draw on tilemap, save index to vector
    load_icons_to_tilemap();
 
-
-   // restore initial variable state
-   mLoop.level_editor_running = old_level_editor_running;
-   if (old_start_level)  mLevel.set_start_level(old_start_level);
-
-   if (profile) printf("void mwLevelIcons::create() - %3.2fms\n", (al_get_time()- t0)*1000);
+   if (profile) printf("mwLevelIcons::create_regular_level_icons() - %3.2fms\n", (al_get_time()- t0)*1000);
 }
+
+
+void mwLevelIcons::create_webpage_level_icons()
+{
+   // printf("mwLevelIcons::create_webpage_level_icons()\n");
+
+   if (profile) t0 = al_get_time();
+
+   // erase all level icon files
+   int num_files = mFileIterator.iterate("web/assets/icons");
+   for (int i=0; i<num_files; i++)
+   {
+      const char *filename = al_get_path_filename(al_create_path(al_get_fs_entry_name(mFileIterator.filenames[i])));
+      if (strncmp(filename, "lev", 3 ) == 0) al_remove_fs_entry(mFileIterator.filenames[i]);
+   }
+
+   // create level icons from start_level to end_level inclusive
+   for (int level=1; level<=webpage_level_icon_last_level; level++)
+   {
+      create_level_icon(level, 1);
+
+      // show progress bar
+      int range = webpage_level_icon_last_level - 2;
+      int progress = 100 * (level-2) / range;
+      al_set_target_backbuffer(mDisplay.display);
+      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, progress );
+      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
+      al_flip_display();
+   }
+
+   if (profile) printf("mwLevelIcons::create_webpage_level_icons() - %3.2fms\n", (al_get_time()- t0)*1000);
+}
+
+
+
+
+/*
+   creates a single icon for either regular or webpage icons
+   loads and draws level on temp bitmap
+   saves the bitmap to png file in appropriate folder
+*/
+void mwLevelIcons::create_level_icon(int level, bool save_web)
+{
+   //printf("mwLevelIcons::create_level_icon(level:%d, save_web:%d)\n", level, save_web);
+
+   if (!l2.load_level_by_number(level, 1, 1)) return;
+
+   if (!save_web)
+   {
+      // temp bitmap to draw level on
+      ALLEGRO_BITMAP *tmp = al_create_bitmap(regular_level_icon_size, regular_level_icon_size);
+      al_set_target_bitmap(tmp);
+
+      // draw level
+      l2.draw_level3(tmp, level,  0, 0, regular_level_icon_size, 1, 1, 1, 1, 0, 0);
+
+      // save
+      char fname[256];
+      sprintf(fname,"bitmaps/level_icons/lev%03d.png", level);
+      if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
+
+      al_destroy_bitmap(tmp);
+
+   }
+   if (save_web)
+   {
+      // temp bitmap to draw level on
+      ALLEGRO_BITMAP *tmp = al_create_bitmap(webpage_level_icon_size, webpage_level_icon_size);
+      al_set_target_bitmap(tmp);
+
+      // draw level
+      l2.draw_level3(tmp, level,  0, 0, webpage_level_icon_size, 1, 1, 1, 1, 0, 0);
+
+      // save
+      char fname[256];
+      sprintf(fname,"web/assets/icons/lev%03d.png", level);
+      if (!al_save_bitmap(fname, tmp)) printf("error saving %s\n",fname);
+
+      al_destroy_bitmap(tmp);
+   }
+}
+
 
 
 int mwLevelIcons::get_level_num_from_filepath(const char* fn)
@@ -183,18 +213,18 @@ calls reload to copy M_tilemap to tilemap
 int mwLevelIcons::load_icons_to_tilemap()
 {
    // count number of icon files
-   int num_files = mFileIterator.iterate("bitmaps/level_icons");
+   int num_files = mFileIterator.iterate("bitmaps/level_icons", ".png");
    if (num_files == 0)
    {
       printf("mwLevelIcons::load_icons_to_tilemap  --  No level icon files found.\n");
    }
    else
    {
-      //printf("mwLevelIcons::load_icons_to_tilemap --  %d level icon files found\n", num_files);
+      // printf("mwLevelIcons::load_icons_to_tilemap --  %d level icon files found\n", num_files);
 
       // get size of tilemaps (tilemap will be 10 icons wide and as tall as it needs to be to hold all )
-      int w = size * 10;
-      int h = size * ((num_files/10) + 1);
+      int w = regular_level_icon_size * 10;
+      int h = regular_level_icon_size * ((num_files/10) + 1);
 
       // destroy and create tilemaps
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -207,7 +237,6 @@ int mwLevelIcons::load_icons_to_tilemap()
       tilemap = al_create_bitmap(w, h);
       if (tilemap == nullptr) printf("Error loading level icons - failed creating video bitmap %d x %d\n", w, h);
 
-
       // clear level_icons vector
       level_icons.clear();
 
@@ -216,57 +245,44 @@ int mwLevelIcons::load_icons_to_tilemap()
       // - draw on tilemap
       // - add to vector that relates position on tilemap to level number
       for (int i=0; i<num_files; i++)
-         add(al_get_fs_entry_name(mFileIterator.filenames[i]), i);
+      {
+         // get filename and level number
+         const char *fn = al_get_fs_entry_name(mFileIterator.filenames[i]);
+         int lev_num = get_level_num_from_filepath(fn);
 
+         // load bitmap from file
+         ALLEGRO_BITMAP *tmp = al_load_bitmap(fn);
 
-      // copy M_tilemap to tilemap
-      reload();
+         // draw in place on M_tilemap
+         int x = (i % 10) * regular_level_icon_size;
+         int y = (i / 10) * regular_level_icon_size;
+         al_set_target_bitmap(M_tilemap);
+         al_draw_bitmap(tmp, x, y, 0);
+
+         // done with temp bitmap
+         al_destroy_bitmap(tmp);
+
+         // push index and level num to vector
+         level_icons.push_back({i, lev_num });
+
+      }
+
+      reload(); // copy M_tilemap to tilemap
 
    }
    return num_files;
 }
 
-void mwLevelIcons::add(const char* fn, int index)
-{
-   // load bitmap from file
-   ALLEGRO_BITMAP *tmp = al_load_bitmap(fn);
-
-   // draw in place on M_tilemap
-   int x = (index % 10) * size;
-   int y = (index / 10) * size;
-   al_set_target_bitmap(M_tilemap);
-   al_draw_bitmap(tmp, x, y, 0);
-
-   al_destroy_bitmap(tmp);
-
-   // get level number from filename
-   int lev = get_level_num_from_filepath(fn);
-
-   // push index and level num to vector
-   struct level_icon li;
-   li.index = index;
-   li.level_num = lev;
-   level_icons.push_back(li);
-}
-
 
 // load all level icon files and draw level icons on tilemaps
-void mwLevelIcons::load(int rebuild_all)
+void mwLevelIcons::load()
 {
    //printf("mwLevelIcons::load()\n");
 
    if (profile) t0 = al_get_time();
 
-   if (rebuild_all)
-   {
-      // erase all files
-      int num_files = mFileIterator.iterate("bitmaps/level_icons");
-      for (int i=0; i<num_files; i++)
-         al_remove_fs_entry(mFileIterator.filenames[i]);
-   }
-
    // load icons from files (if no files found, run create)
-   if (!load_icons_to_tilemap()) create();
+   if (!load_icons_to_tilemap()) create_regular_level_icons();
 
    if (profile)  printf("void mwLevelIcons::load() - %3.1fms\n", (al_get_time()- t0)*1000);
 }
@@ -290,25 +306,18 @@ bool mwLevelIcons::find_level_icon_index(int &index, int level)
    return false;
 }
 
-void mwLevelIcons::draw_level_icon(int level, int x, int y, int draw_size)
+void mwLevelIcons::draw_level_icon(int level, int dx, int dy, int draw_size)
 {
    if (reload_needed) reload();
    int index = 0;
    if (find_level_icon_index(index, level))
    {
-      // printf("level %d icon drawn\n", level);
+      // get location of tilemap region to grab from
+      int sx = (index % 10) * regular_level_icon_size;
+      int sy = (index / 10) * regular_level_icon_size;
 
-      // get sub bitmap of region to draw
-      int sx = (index % 10) * size;
-      int sy = (index / 10) * size;
-
-      ALLEGRO_BITMAP *tmp = al_create_sub_bitmap(tilemap, sx, sy, size, size);
-      al_draw_scaled_bitmap(tmp, 0, 0, size, size, x, y, draw_size, draw_size, 0);
-      al_destroy_bitmap(tmp);
-
-      // or I can do this in one line (not sure if this leaks memory)
-      //al_draw_scaled_bitmap(al_create_sub_bitmap(tilemap, sx, sy, size, size), 0, 0, size, size, x, y, draw_size, draw_size, 0);
-
+      // draw
+      al_draw_scaled_bitmap(tilemap, sx, sy, regular_level_icon_size, regular_level_icon_size, dx, dy, draw_size, draw_size, 0);
    }
    else printf("level %d icon not found\n", level);
 }
