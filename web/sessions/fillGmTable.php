@@ -1,6 +1,8 @@
 <?php
 
 include 'database.php';
+//include 'levelNames.php';
+
 
 function showPlayerCell($muid)
 {
@@ -29,11 +31,13 @@ function showPlayerCell($muid)
  
 function showLevelCell($level)
 {
+   include 'levelNames.php';
    echo "<div class='levelCell'>";
    $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
    $alt = "alt='icon not found'";
    echo "<img src=$iconpath $alt class='playersCellIcon'>";
-   echo sprintf("[%02d]", $level);
+//   echo sprintf("[%02d]", $level);
+   echo sprintf("%02d-%s", $level, $levelName[$level]);
    echo "</div>";
 }
 

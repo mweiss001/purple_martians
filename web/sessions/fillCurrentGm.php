@@ -1,6 +1,7 @@
 <?php
 
 include 'database.php';
+include 'levelNames.php';
 
 function showPlayerNumIconNameHost($num, $col, $name, $sid, $host)
 {
@@ -75,7 +76,14 @@ if ($res->fetchColumn() == 0) { doMainHTML("Current Saved Game: muid: [$currentG
 
 $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$currentGmMuid'");
 $row = $res->fetch(PDO::FETCH_ASSOC);
-doMainHTML("Current Saved Game: $currentGmMuid", $row['filename'], 1); 
+//doMainHTML("Current Saved Game: $currentGmMuid", $row['filename'], 1); 
+
+
+$title_text = "Current Saved Game: $currentGmMuid " . "Level:" . $row['level'] . " - " . $levelName[$row['level']];
+//$title_text = "Current Saved Game: $currentGmMuid ";
+
+
+doMainHTML($title_text, $row['filename'], 1); 
 
 
 if (!$min)
@@ -88,7 +96,9 @@ if (!$min)
       echo '<div class="currentGm divSectionSubSectionPretext">';
          echo "muid     : "            . $row['muid']             . "\n";
          echo "Filename : "            . $row['filename']         . "\n";
-         echo "Level    : "            . $row['level']            . "\n";
+         echo "Level    : "            . $row['level'] . " - " . $levelName[$row['level']]           . "\n";
+//         echo "Level    : "            . $row['level']   . "\n";
+
          echo "Moves    : "            . $row['num_entries']      . "\n";
          echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dts'])) . "\n";
          echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dte'])) . "\n";
