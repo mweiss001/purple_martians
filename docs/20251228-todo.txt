@@ -4,8 +4,6 @@
 BUGS!!
 ------------------------------------------------------------------------------
 
-fix linux make release....
-make sure libs are all copied properly
 
 
 
@@ -310,6 +308,39 @@ help screens
 - redo block selection
 
 
+
+
+
+
+-------------------------------------------
+code documentation
+-------------------------------------------
+update sections:
+game moves: to include new player name game move
+level done: many changes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 logging
 
@@ -355,6 +386,18 @@ make a cool method to determine is there is a shot possible that will kill an en
 at a certain frame and certain player,
 test all possible fire directions to see if any would hit an enemy that was not already hit
 -----------------------------------------
+
+
+
+
+
+What if I made servers that had leaderboards and best records?
+they would not be able to be gamed, they would have to be played live on the server to count
+
+What if I had a server that could host multiple servers? Would each need a separate IP?
+
+
+
 
 
 

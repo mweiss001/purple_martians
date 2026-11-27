@@ -28,8 +28,6 @@
 
 
 
-
-
 #define NUM_SPRITES 1024
 #define NUM_TILES 2048
 

@@ -60141,14 +60141,49 @@ cleanup and document
 
 2026-11-26 07:35:29..push
 
-
-
 2026-11-26 18:07:00
 
 fix linux make release....
 test...
-
 bump version
+
+
+2026-11-27 04:04:43
+work on web server
+do the names thing
+
+make the web icon thing also create the file:
+
+levelNamesExport.js
+
+export const levelNames = [
+   "",
+   "Overworld Map",
+   "Switch Nest",
+   "Blue Key Fall",
+   "Switch Puzzle",
+   "Kill Kill Kill",
+   "Breakable",
+...
+
+done
+
+now use it...
+
+how do I do web dev again?
+
+use server and web page on o7040
+- commit
+- redo all on o7040
+
+
+
+
+
+
+
+
+
 
 
 

@@ -138,6 +138,29 @@ void mwLevel::calc_level_stats(int lev)
 }
 
 
+
+
+
+void mwLevel::make_level_names_js_export()
+{
+   //printf("make_level_names_js_export()\n");
+
+   FILE *filepntr = fopen("web/sessions/levelNamesExport.js","w");
+
+   fprintf(filepntr, "export const levelNames = [\n");
+
+   for (int level=0; level<150; level++)
+      fprintf(filepntr, "   \"%s\",\n", data[level].level_name);
+
+   fprintf(filepntr, "]\n");
+
+   fclose(filepntr);
+}
+
+
+
+
+
 float mwLevel::calc_area_percent_complete(int area)
 {
    int total = 0;
@@ -829,6 +852,12 @@ void mwLevel::load_data()
       clear_data();
       save_data();
    }
+
+
+
+
+
+
 }
 
 void mwLevel::save_data()
