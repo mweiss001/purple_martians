@@ -139,21 +139,17 @@ void mwLevel::calc_level_stats(int lev)
 
 
 
-
-
-void mwLevel::make_level_names_js_export()
+void mwLevel::make_level_names_php_include()
 {
-   //printf("make_level_names_js_export()\n");
-
-   FILE *filepntr = fopen("web/sessions/levelNamesExport.js","w");
-
-   fprintf(filepntr, "export const levelNames = [\n");
-
+   // printf("make_level_names_php_include()\n");
+   FILE *filepntr = fopen("web/sessions/levelNames.php","w");
+   fprintf(filepntr, "<?php\n\n$levelName = [\n");
    for (int level=0; level<150; level++)
-      fprintf(filepntr, "   \"%s\",\n", data[level].level_name);
-
-   fprintf(filepntr, "]\n");
-
+   {
+      if (strlen(data[level].level_name)) fprintf(filepntr, "   \"%s\",\n", data[level].level_name);
+      else                                fprintf(filepntr, "   \"%s\",\n", "no level name");
+   }
+   fprintf(filepntr, "];\n\n?>");
    fclose(filepntr);
 }
 

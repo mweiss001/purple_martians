@@ -60172,10 +60172,45 @@ now use it...
 
 how do I do web dev again?
 
-use server and web page on o7040
+use server and web page on o7040 (192.168.1.138)
 - commit
 - redo all on o7040
 
+play a test level or 2 to get some data
+
+view in web on o7040
+
+then open files in \\o7040 and modify
+
+
+I think I might need to do this in php instead of js
+
+
+
+file: levelNames.php
+
+<?php
+
+function getLevelName($level)
+{
+   if ($level == 1) return "Overworld";
+   if ($level == 101) return "Training Level 1";
+   
+   return "unkown";
+   
+}
+
+
+?>
+
+this will work
+
+this will also work:
+
+$levelName = [
+   101 => "Training Level 1",
+   102 => "Training Level 2"
+];
 
 
 
@@ -60195,3 +60230,14 @@ use server and web page on o7040
 
 
 
+
+
+
+
+
+
+
+
+
+
+ 

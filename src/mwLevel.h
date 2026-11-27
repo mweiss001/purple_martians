@@ -201,9 +201,9 @@ class mwLevel
 
 
 
+   void make_level_names_php_include();
 
 
-   void make_level_names_js_export();
 
 
 
