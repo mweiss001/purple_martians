@@ -100,7 +100,7 @@ void mwLevelIcons::create_webpage_level_icons()
 {
    // printf("mwLevelIcons::create_webpage_level_icons()\n");
 
-   mLevel.make_level_names_php_include();
+   mLevel.make_level_name_web_includes();
 
    if (profile) t0 = al_get_time();
 

@@ -139,18 +139,34 @@ void mwLevel::calc_level_stats(int lev)
 
 
 
-void mwLevel::make_level_names_php_include()
+void mwLevel::make_level_name_web_includes()
 {
+   char level_name[50];
+
    // printf("make_level_names_php_include()\n");
-   FILE *filepntr = fopen("web/sessions/levelNames.php","w");
-   fprintf(filepntr, "<?php\n\n$levelName = [\n");
+
+   FILE *filepntr_PHP = fopen("web/sessions/levelNames.php","w");
+   fprintf(filepntr_PHP, "<?php\n\n$levelName = [\n");
+
+   FILE *filepntr_JS = fopen("web/sessions/levelNames.js","w");
+   fprintf(filepntr_JS, "export const levelName = [\n");
+
    for (int level=0; level<150; level++)
    {
-      if (strlen(data[level].level_name)) fprintf(filepntr, "   \"%s\",\n", data[level].level_name);
-      else                                fprintf(filepntr, "   \"%s\",\n", "no level name");
+                                          strcpy(level_name, "no level name");
+      if (strlen(data[level].level_name)) strcpy(level_name, data[level].level_name);
+
+      fprintf(filepntr_PHP, "   \"%s\",\n", level_name);
+      fprintf(filepntr_JS,  "   \"%s\",\n", level_name);
+
    }
-   fprintf(filepntr, "];\n\n?>");
-   fclose(filepntr);
+
+   fprintf(filepntr_PHP, "];\n\n?>");
+   fprintf(filepntr_JS, "]\n");
+
+   fclose(filepntr_PHP);
+   fclose(filepntr_JS);
+
 }
 
 

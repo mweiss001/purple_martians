@@ -60217,6 +60217,52 @@ $levelName = [
 redid with php version
 commit and test
 
+It works.
+
+levelnames.php
+
+<?php
+
+$levelName = [
+   "no level name",
+   "Overworld Map",
+   "Switch Nest",
+   "Blue Key Fall",
+...
+];
+
+include 'levelNames.php';
+
+echo "Level    : "            . $row['level'] . " - " . $levelName[$row['level']]           . "\n";
+
+where are all the places to use this?
+
+fillCurrentGm.php
+title bar and in text descrition
+
+fillGmTable.php
+table
+
+
+
+status
+------
+looks like it is js
+do I need to do the same lookup table in js?
+
+
+timeline
+--------
+js
+
+
+
+
+
+
+
+
+
 
 
 
