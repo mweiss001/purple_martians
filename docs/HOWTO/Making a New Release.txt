@@ -6,23 +6,31 @@ Step 1: Choose a version number and change it in three places:
 --------------------------------------------------------------
 
 pm.h
-#define PM_VERSION "7.24.240211.0"
+#define PM_VERSION "8.0.261126.beta"
 
 win_make_release.bat
-set version=7.24.240211.0
+set version=8.0.261126.beta
 
 lin_make_release
-version=7.24.240211.0
+version=8.0.261126.beta
+
 
 
 -------------------------------------------------------
-Step 2: rebuild entire project in codeblocks
+Step 2: rebuild entire project
 -------------------------------------------------------
+
+
+recreate web icons
+
 
 
 -------------------------------------------------------
 Step 3: git commit
 -------------------------------------------------------
+
+
+
 
 
 
@@ -42,12 +50,26 @@ You now have the zip file for the release....
 -------------------------------------------------------
 Step 5: linux version
 -------------------------------------------------------
-as of 20260322 I am making releases with u24
+
+20261126
+I am making releases with u24 on scat (192.168.1.142)
 Allegro Version: 5.2.12.0
 GCC Version: 13.3.0 - C++20
 
+win_copy_to_pmh.bat   git_reclone     192.168.1.142
+
+win_copy_to_pmh.bat   lin_build_and_release   192.168.1.142
 
 
+
+
+
+
+
+
+
+
+as of 20260322 I am making releases with u24
 
 
 Note:

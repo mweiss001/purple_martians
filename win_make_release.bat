@@ -1,4 +1,4 @@
-set version=8.0.261124.beta
+set version=8.0.261126.beta
 
 mkdir purple_martians_%version%_windows
 mkdir purple_martians_%version%_windows\screenshots

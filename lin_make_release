@@ -4,7 +4,7 @@ cp /usr/lib/x86_64-linux-gnu/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
 
-version=8.0.261124.beta
+version=8.0.261126.beta
 
 fd='purple_martians_'"$version"'_linux'
 
