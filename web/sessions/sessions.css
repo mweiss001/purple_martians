@@ -7,17 +7,9 @@
   --currentGmColor      : hsl(360, 100%, 50%);    
   --timelineHeight      : 600px;
   --colorSliderWidth    : 60px;
-
   --rangeTableTextSize  : 0.6rem;
-
   --testvar : 32px;
-
-
   --ssChartHeight       : 300px;
-
-
-
-
 }
 
 
@@ -38,22 +30,15 @@ a:link
 a:visited { color: #b39ddb; } /* A light purple/violet for visited links */
 a:hover { color: #FFFFFF; } /* White on hover */
 
-
 #chartContainer
 {
    height: var(--timelineHeight);
 }
 
-
 .csChartContainer
 {
    height: var(--ssChartHeight);
 }
-
-
-
-
-
 
 
 .colorSlider
@@ -516,10 +501,8 @@ custom version for sessionsTable
 
 /*
 used in:
-
 currentGm
 currentSession
-
 statusPage
 
 */
@@ -538,14 +521,17 @@ statusPage
 
 
 
-
-
-
 /*
   
   these are used in gmTable
 
 */
+
+
+
+/* ---------- icon size for both players and level cell ---------- */
+.playersCellIcon { width: 16px; height: 16px; }
+
 
 /* ---------- container for players cell ---------- */
 .playersCell
@@ -556,26 +542,12 @@ statusPage
    padding: 0px;
 }
 
-
-/*
-
-.playersCellIcon { width: 12px; height: 12px; }
-
-.playersCellIcon { width: 16px; height: 16px; }
-.playersCellIcon { width: 20px; height: 20px; }
-
-.playersCellIcon { width: var(--testvar); height: var(--testvar); }
-
-*/
-
-.playersCellIcon { width: 16px; height: 16px; }
-
 /* ---------- container for level cell ---------- */
 .levelCell
 {
    display: flex;      
    align-items: center;
-   justify-content:center;
+/*   justify-content:center; */
    gap: 8px;
    padding: 0px;
 }

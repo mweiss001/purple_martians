@@ -4,22 +4,23 @@ include 'database.php';
 
 function showSessionPlayerIconNameHost($sid, $col, $name, $host, $validId)
 {
+   echo "Current Session: ";
+
    if (!$validId)
    {
-      echo "Current Session: [$sid] not found";
+      echo "[$sid] not found";
       return;
    }
 
+   echo '<span style="font-weight: normal; ; font-size: 24px">' . $sid . '</span>';
+
    $iconpath = "/assets/icons/player_icon_$col.png";
-   echo "Current Session: $sid";
-      echo "<div class='iconTextContainer'>";
-         echo "<img class='iconTextContainerIcon' src=$iconpath alt='icon not found'";
-         echo "<span class='iconTextContainerText'>$name</span>";
-         echo "<span class='iconTextContainerText'>($host)</span>";
-      echo "</div>";
+   echo "<img class='iconTextContainerIcon' src=$iconpath alt='icon not found'>";
+
+   echo '<span style="font-weight: normal; ; font-size: 24px">' . $name . '</span>';
+   echo '<span style="font-weight: normal; ; font-size: 18px">(' . $host . ')</span>';
+      
 }
-
-
 
 
 $id = 0;

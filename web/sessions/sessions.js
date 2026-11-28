@@ -1,6 +1,9 @@
 
 import { playerColors, setupTopPageLinks } from './common.js';
 
+import { levelName } from './levelNames.js';
+
+
 const playerColorsHSL = [
   [   0,    0,   53 ],
   [ 280,   73,   67 ],
@@ -33,10 +36,8 @@ function getHSL(p, lm)
 function getHSLC(p, lm, cs)
 {
    var h = playerColorsHSL[p][0];
-
    h+=cs;
    if (h>360) h-=360;
-
    var s = playerColorsHSL[p][1];
    var l = playerColorsHSL[p][2] * lm;
    var ret = "hsl(" + h + ", " + s + "%, " + l + "%)";
@@ -66,17 +67,6 @@ var option =
       feature:
       {
           dataZoom: { show: true, yAxisIndex: 'none'  },
-
-
-
-
-
-
-
-
-
-
-
       }
    },
 
@@ -85,7 +75,6 @@ var option =
    xAxis:
    {
       type: "time",
-
       axisLabel: { show: false },
 
 /*
@@ -102,12 +91,6 @@ var option =
         interval: 'auto' 
        },
 */
-
-
-
-
-
-
 
 
       // vertical line at mouse position
@@ -160,7 +143,7 @@ var option =
             var size  = api.size([0,1]);
 
             // relative height of the bars  
-            var height = size[1] * 0.8;
+            var height = size[1] * 0.9;
 
             // calculate width
             var width = end[0] - start[0];
@@ -171,7 +154,14 @@ var option =
 
             // text to show on element 
             var elementName = api.value(5); // player name
-            if (api.value(2) == 0) elementName = `Level:${api.value(6)}`; // level number for type = gm
+            //if (api.value(2) == 0) elementName = `Level:${api.value(6)}`; // level number for type = gm
+            if (api.value(2) == 0)
+            {
+               //var levtxt =  "Level:" + api.value(6);
+               //var levtxt =  "Level:" + levelName[api.value(6)];
+               var levtxt =  "Level:" + api.value(6) + "\n" + levelName[api.value(6)];
+               elementName = levtxt; // level number for type = gm
+            }
 
             // create rect and clip to chart area 
             var rect = echarts.graphic.clipRectByRect
@@ -179,8 +169,6 @@ var option =
                { x: start[0], y: start[1] - height / 2, width: end[0] - start[0], height: height},
                { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height},
             )
-
-
 
 
             if (rect !== undefined) rect.r = 4; // rounded corners
@@ -357,6 +345,7 @@ var option =
             name += '<img src="' + icon + '" style="width: 100px; height: 100px; vertical-align: middle;">';
             name += '<div style="display: flex; flex-direction:column; justify-content:space-evenly">';
             name += `Level:${level}` + link + '</div></div><hr>';
+
          }            
 
          // get date objects from start and end
@@ -364,6 +353,9 @@ var option =
          const d2 = new Date(params.data.value[1]);
 
          // get start, end and duration in string format
+
+         const lvn  = levelName[level];
+
          const d1s = dateFns.format(d1, 'yyyy-MM-dd HH:mm:ss');
          const d2s = dateFns.format(d2, 'yyyy-MM-dd HH:mm:ss');
          const dur = getDuration(d1, d2);
@@ -371,7 +363,9 @@ var option =
          var s1 = '<span style="white-space:pre">';
          var eol = "</span><br>"; // end of line
 
-         var txt =    name;
+         var txt = name;
+
+         txt +=    s1 + 'Name: '         + lvn  + eol;
          txt +=    s1 + 'Start: '        + d1s  + eol;
          txt +=    s1 + 'End:   '        + d2s  + eol;
          txt +=    s1 + 'Duration:     ' + dur  + eol;

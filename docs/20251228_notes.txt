@@ -60256,6 +60256,79 @@ timeline
 js
 
 
+make sure to get the modified files from server before committing...
+
+save all files in windows and close them in editors
+
+On the server, erase and recreate tmp, then copy to tmp folder....
+cd ~
+sudo rm -r tmp
+mkdir tmp
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+
+pscp -r -pw zaiden m@192.168.1.138:tmp/* c:\pm\web 
+
+commit and see the changed files
+
+2026-11-27 07:26:43
+
+reload o7040 and test that php still works, then work on js...
+
+2026-11-28 02:29:12
+
+im back baby...
+reloaded o7040 and test that php still works...done
+
+then work on js...
+status.js
+import { levelName } from './levelNames.js';
+
+status is done
+now timeline..done
+
+gm list, level icon and name in table, left justify..done
+current gm title
+
+2026-11-28 04:43:19
+
+I have the titlebars for current session and current game looking good
+
+I have the gm_list cell 'level' left just, but I am not sure of the width of 'players' since I adjusted the icon size for both
+reverted to 16
+.playersCellIcon { width: 16px; height: 16px; }
+/* .playersCellIcon { width: 32px; height: 32px; } */
+
+timeline uses level name
+
+status now uses level name
+
+I think I am done with the integrating level name into web pages
+
+2026-11-28 04:50:59
+
+get files from o7040
+
+commit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

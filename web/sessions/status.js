@@ -1,4 +1,7 @@
 import { setupTopPageLinks, getDHMSfromFrame } from './common.js';
+import { levelName } from './levelNames.js';
+
+
 
 document.addEventListener('DOMContentLoaded', (event) =>
 {
@@ -46,7 +49,7 @@ function updateStatusText(data)
 function updateLevelText(data)
 {
    const levelText = document.getElementById('levelText');
-   levelText.innerHTML  =   "Level   : " + data[0].level;
+   levelText.innerHTML  =   "Level   : " + data[0].level + " (" + levelName[data[0].level] + ")";
    levelText.innerHTML += "\nTime    : " + getDHMSfromFrame(data[0].level_time);
    levelText.innerHTML += "\nMoves   : " + data[0].moves;
    levelText.innerHTML += "\nEnemies : " + data[0].enemies;

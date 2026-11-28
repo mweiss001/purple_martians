@@ -52,7 +52,6 @@ function doMainHTML($title, $filename, $validMuid)
          echo '</div>';
       echo '</div>';
 
-
       if (!$validMuid) echo "</div>";
                 
 }
@@ -76,11 +75,16 @@ if ($res->fetchColumn() == 0) { doMainHTML("Current Saved Game: muid: [$currentG
 
 $res = $db->query("SELECT *, STRFTIME('%Y-%m-%d %H:%M:%S', dt_start, 'localtime') AS dts, STRFTIME('%Y-%m-%d %H:%M:%S', dt_end, 'localtime') AS dte FROM gm WHERE muid='$currentGmMuid'");
 $row = $res->fetch(PDO::FETCH_ASSOC);
-//doMainHTML("Current Saved Game: $currentGmMuid", $row['filename'], 1); 
 
 
-$title_text = "Current Saved Game: $currentGmMuid " . "Level:" . $row['level'] . " - " . $levelName[$row['level']];
-//$title_text = "Current Saved Game: $currentGmMuid ";
+$title_text = "Current Saved Game: ";
+
+$title_text .= '<span style="font-weight: normal; ; font-size: 24px">';
+$title_text .= $currentGmMuid . '</span>';
+
+
+$title_text .= '<span style="font-weight: normal; font-size: 18px">';
+$title_text .= "(Level:" . $row['level'] . " - " . $levelName[$row['level']] . ")</span>";
 
 
 doMainHTML($title_text, $row['filename'], 1); 
@@ -96,9 +100,7 @@ if (!$min)
       echo '<div class="currentGm divSectionSubSectionPretext">';
          echo "muid     : "            . $row['muid']             . "\n";
          echo "Filename : "            . $row['filename']         . "\n";
-         echo "Level    : "            . $row['level'] . " - " . $levelName[$row['level']]           . "\n";
-//         echo "Level    : "            . $row['level']   . "\n";
-
+         echo "Level    : "            . $row['level'] . " - " . $levelName[$row['level']]  . "\n";
          echo "Moves    : "            . $row['num_entries']      . "\n";
          echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dts'])) . "\n";
          echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dte'])) . "\n";

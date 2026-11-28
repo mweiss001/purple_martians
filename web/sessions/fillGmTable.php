@@ -1,7 +1,6 @@
 <?php
 
 include 'database.php';
-//include 'levelNames.php';
 
 
 function showPlayerCell($muid)
@@ -23,7 +22,6 @@ function showPlayerCell($muid)
          $alt = 'alt="icon not found" ';
          $title = " title=\"Player number: $num\nPlayer name: $name\nHostname: $host\nSession id: $sid\"  ";
          echo "<img src=$iconpath $alt $title class='playersCellIcon'>";
-//         echo "</a>";
       }
    echo "</div>";
 }
@@ -36,7 +34,6 @@ function showLevelCell($level)
    $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
    $alt = "alt='icon not found'";
    echo "<img src=$iconpath $alt class='playersCellIcon'>";
-//   echo sprintf("[%02d]", $level);
    echo sprintf("%02d-%s", $level, $levelName[$level]);
    echo "</div>";
 }
@@ -115,7 +112,8 @@ if ($id)
                      echo "<td>$dts</td>";
                      echo "<td>$duration</td>";
 
-                     echo "<td>";
+
+                     echo "<td style=\"text-align: left;\">";
                      showLevelCell($level);
                      echo "</td>";
 
