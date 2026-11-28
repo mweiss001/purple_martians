@@ -60310,30 +60310,312 @@ I think I am done with the integrating level name into web pages
 
 get files from o7040
 
+cd ~
+sudo rm -r tmp
+mkdir tmp
+sudo cp -r /var/www/html/* ~/tmp
+
+
+
 commit
 
 
 
 
 
+--------------------------------------------
+add muid to sessions
+the main reason is:
+if I want to persist sessions and gms over multiple years and servers
+I cant have session id starting at 1 everytime
+
+do it fool!!
+
+how big is muid now?
+16 char (A-Z)
+this uses 128 bits (8x16)
+the number of unique ids is 26^16 = 4.0 e22
+
+what is a normal uuid?
+also 128 bits
+the number of unique ids is 2^128 = 3.4 e38
+
+I think it is good enough
+
+what if I used upper and lower?
+52^16 = 2.6 e27
+
+and 0-9?
+62X16 = 4.7 e28
+
+what if I used a length of 24?
+26^24 = 9.1 e33
+52^24 = 1.5 e41
+
+length of 32?
+26^32 = 1.9 e45
+
+I am sticking with 26^16
+
+how do I implement it?
+
+
+
+
+existing:
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS sessions( \
+               id                        INTEGER PRIMARY KEY, \
+               dt_start                  DATETIME, \
+               dt_end                    DATETIME, \
+               duration                  INT, \
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
+               muid           TEXT PRIMARY KEY, \
+               filename       TEXT, \
+               dt_start       TEXT, \
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
+               id                INTEGER PRIMARY KEY, \
+               gm_muid           TEXT, \
+               session_id        INT  ); ");
+   execute_sql(sql, db_sessions);
+
+
+new:
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS sessions( \
+               muid                      TEXT PRIMARY KEY, \
+               dt_start                  DATETIME, \
+               dt_end                    DATETIME, \
+               duration                  INT, \
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
+               muid           TEXT PRIMARY KEY, \
+               filename       TEXT, \
+               dt_start       TEXT, \
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
+               id                INTEGER PRIMARY KEY, \
+               gm_muid           TEXT, \
+               session_muid      TEXT  ); ");
+   execute_sql(sql, db_sessions);
+
+done
+
+
+next...
+
+
+now going through mwNetgameServerSessions
+
+
+// called once per second in mLoop
+void mwNetgame::session_check_active_in_db()
+{
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
+
+   // find all open sessions in database
+   std::vector<std::vector<int>> matrix = {};
+   mSql.execute_sql_and_return_2d_vector_int("SELECT muid FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
+
+
+
+player.loc stores session id as int, this will need to be changed to std::string
+
+   // used by server for session
+   int session_id;
+
+   std::string session_muid;
+
+make it char16
+
+   // used by server for session
+   int session_id;
+   char session_muid[16];
+
+
+
+// called once per second in mLoop
+void mwNetgame::session_check_active_in_db()
+{
+   if (!mLog.log_types[LOG_NET_SESSION].action) return;
+
+   // fill a vector with session_muid's from all open sessions in database
+   std::vector<std::string> ret = {};
+   mSql.execute_sql_and_return_vector_string("SELECT muid FROM sessions WHERE endreason='open'", mSql.db_sessions, ret );
+
+   // iterate
+   for (const auto &muid : ret)
+   {
+      // check if id matches a currently active player
+      int still_active = 0;
+      for (int p=1; p<8; p++)
+         if (muid == mLevel.mPlayer.loc[p].session_muid) still_active = 1;
+
+      if (!still_active)
+      {
+         printf("\nFound orphaned open session in database, setting endreason to 'unknown'\n");
+         char sql[80];
+         sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE muid=%s", muid.c_str());
+         mSql.execute_sql(sql, mSql.db_sessions);
+      }
+   }
+}
+
+
+
+next
+
+void mwNetgame::session_open(const char* address, const char* hostname, int p, int endreason)
+{
+
+
+I will need to create muid
+how do I do it for gm?
+
+
+   HEADER_muid = mMiscFnx.generate_muid();
+
+
+   // check if muid already exists
+   char sql[500];
+   sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
+   {
+      printf("muid: '%s' exists  --  not inserting\n", HEADER_muid.c_str());
+   }
+   else
+   {
+      printf("muid: '%s' does not exist  --  inserting\n", HEADER_muid.c_str());
+      sprintf(sql, "INSERT INTO gm (muid, filename, dt_start, dt_end, duration, level, num_entries) \
+                             VALUES( '%s', '%s',     '%s',     '%s',   %d,       %d,    %d)" ,
+                                     HEADER_muid.c_str(), fname, dts, dte, dur, HEADER_level, HEADER_num_entries);
+      //printf("sql:%s\n", sql);
+      mSql.execute_sql(sql, mSql.db_sessions);
+      create_gm_session_links();
+   }
+}
+
+
+
+
+
+   // generate a new muid
+   std::string muid;
+   bool muid_created = false;
+
+
+   while (muid_created == false)
+   {
+      // generate a new muid
+      std::string muid = mMiscFnx.generate_muid();
+
+      // check if muid already exists
+      char sql[500];
+      sprintf(sql, "SELECT COUNT(*) FROM sessions WHERE muid='%s'", muid.c_str());
+      if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
+      {
+         printf("muid: '%s' exists  --  holy shit!!!\n", muid.c_str());
+      }
+      else
+      {
+         muid_created = true;
+         printf("muid: '%s' created and tested for uniqueness\n", muid.c_str());
+      }
+   }
+
+   char sql[500];
+   sprintf(sql,
+   "INSERT INTO sessions (muid, dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', '%s', %d, '%s', %d, %d, '%s', 'open');" ,
+                          muid.c_str(), ts.c_str(),   ip, port, hostname, p,          mLevel.mPlayer.syn[p].color, name.c_str());
+
+   mSql.execute_sql(sql, mSql.db_sessions);
+
+   sprintf(mLevel.mPlayer.loc[p].session_muid, "%s", muid.c_str() );
+
+//   mLevel.mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
+
+   mGameMoves.create_gm_session_link(mLevel.mPlayer.loc[p].session_muid);
+
+
+   // close immediately if server full endreason
+   if (endreason == 1) session_close(p, endreason);
+}
 
 
 
 
 
 
+need to fix this:
+
+mGameMoves.create_gm_session_link(mLevel.mPlayer.loc[p].session_id);
+
+
+
+// creates a link from the passed 'session_id' to the current HEADER_muid
+// first checks if the link already exists
+void mwGameMoves::create_gm_session_link(int session_id)
+{
+   char sql[500];
+   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
+   else
+   {
+      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(NULL, '%s', %d)", HEADER_muid.c_str(), session_id);
+      //printf("sql:%s\n", sql);
+      mSql.execute_sql(sql, mSql.db_sessions);
+   }
+}
+
+// iterates all players with valid session_id
+// calls 'create_gm_session_link(int session_id)' to create links to the current HEADER_muid
+void mwGameMoves::create_gm_session_links()
+{
+   if (mNetgame.ima_server)
+      for (int p=1; p<8; p++)
+         if (mLevel.mPlayer.loc[p].session_id) create_gm_session_link(mLevel.mPlayer.loc[p].session_muid);
+}
+
+// creates a link from the passed 'session_id' to the current HEADER_muid
+// first checks if the link already exists
+void mwGameMoves::create_gm_session_link(std::string session_muid)
+{
+   char sql[500];
+   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_muid=%s", HEADER_muid.c_str(), session_muid.c_str());
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: gm_muid: %s session_muid: %s\n", HEADER_muid.c_str(), session_muid.c_str());
+   else
+   {
+      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_muid) VALUES(NULL, '%s', %s)", HEADER_muid.c_str(), session_muid.c_str());
+      //printf("sql:%s\n", sql);
+      mSql.execute_sql(sql, mSql.db_sessions);
+   }
+}
+
+
+
+next:
+
+void mwNetgame::session_update(int p, char * m_endreason)
+{
+
+
+   // get session id from player
+   int sid = mLevel.mPlayer.loc[p].session_id;
+   if (!sid)
+   {
+      printf("session_update_sql(%d, %s) - session_id is zero! exiting\n", p, m_endreason);
+      return;
+   }
 
 
 
 
 
+removed all traces of old session_id
 
-
-
-
-
-
-
+test with m36 and e6430
 
 
 

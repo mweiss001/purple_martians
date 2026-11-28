@@ -1409,19 +1409,27 @@ void mwGameMoves::create_gm_session_links()
 {
    if (mNetgame.ima_server)
       for (int p=1; p<8; p++)
-         if (mLevel.mPlayer.loc[p].session_id) create_gm_session_link(mLevel.mPlayer.loc[p].session_id);
+      {
+         // get session id from player
+         char muid[17];
+         strcpy(muid, mLevel.mPlayer.loc[p].session_muid);
+         if (strlen(muid) == 16) create_gm_session_link(muid);
+
+            //if (mLevel.mPlayer.loc[p].session_id) create_gm_session_link(mLevel.mPlayer.loc[p].session_muid);
+      }
+
 }
 
 // creates a link from the passed 'session_id' to the current HEADER_muid
 // first checks if the link already exists
-void mwGameMoves::create_gm_session_link(int session_id)
+void mwGameMoves::create_gm_session_link(std::string session_muid)
 {
    char sql[500];
-   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
-   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
+   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_muid=%s", HEADER_muid.c_str(), session_muid.c_str());
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: gm_muid: %s session_muid: %s\n", HEADER_muid.c_str(), session_muid.c_str());
    else
    {
-      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(NULL, '%s', %d)", HEADER_muid.c_str(), session_id);
+      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_muid) VALUES(NULL, '%s', %s)", HEADER_muid.c_str(), session_muid.c_str());
       //printf("sql:%s\n", sql);
       mSql.execute_sql(sql, mSql.db_sessions);
    }

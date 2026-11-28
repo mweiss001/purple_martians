@@ -12,13 +12,6 @@ struct psyn // synced between server and client
    int paused_mode;
    int paused_mode_count;
 
-
-
-
-
-
-
-
    int level_done_ack;
 
    int overworld_last_touched_gate_level;
@@ -130,6 +123,7 @@ struct ploc // not synced between server and client (but synced from server to r
    double ping;
    double ping_avg;
 
+
    double pdsync;
    double pdsync_avg;
 
@@ -156,7 +150,8 @@ struct ploc // not synced between server and client (but synced from server to r
    float cpu;
 
    // used by server for session
-   int session_id;
+//   int session_id;
+   char session_muid[17];
 
 
    // used only by server remote_control

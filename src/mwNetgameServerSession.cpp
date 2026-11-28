@@ -23,7 +23,11 @@ void mwNetgame::session_close(int p, int er)
    if (er == 8) sprintf(endreason, "server quit");
 
    session_update(p, endreason);
-   mLevel.mPlayer.loc[p].session_id = 0;
+//   mLevel.mPlayer.loc[p].session_id = 0;
+
+   strcpy(mLevel.mPlayer.loc[p].session_muid, "");
+
+
 }
 
 // this is called every frame from server_control() to check and clean up active sessions
@@ -31,7 +35,18 @@ void mwNetgame::session_check_active()
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if ((mLevel.mPlayer.loc[p].session_id) && (!mLevel.mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+   {
+
+      // get session id from player
+      char muid[17];
+      strcpy(muid, mLevel.mPlayer.loc[p].session_muid);
+      if ((strlen(muid) == 16) && (!mLevel.mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+
+
+
+      //if ((mLevel.mPlayer.loc[p].session_id) && (!mLevel.mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+   }
+
 }
 
 
@@ -40,25 +55,23 @@ void mwNetgame::session_check_active_in_db()
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
-   // find all open sessions in database
-   std::vector<std::vector<int>> matrix = {};
-   mSql.execute_sql_and_return_2d_vector_int("SELECT id FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
+   // fill a vector with session_muid's from all open sessions in database
+   std::vector<std::string> ret = {};
+   mSql.execute_sql_and_return_vector_string("SELECT muid FROM sessions WHERE endreason='open'", mSql.db_sessions, ret );
 
    // iterate
-   for (auto m : matrix)
+   for (const auto &muid : ret)
    {
-      int id = m[0];
-
       // check if id matches a currently active player
       int still_active = 0;
       for (int p=1; p<8; p++)
-         if (mLevel.mPlayer.loc[p].session_id == id) still_active = 1;
+         if (muid == mLevel.mPlayer.loc[p].session_muid) still_active = 1;
 
       if (!still_active)
       {
          printf("\nFound orphaned open session in database, setting endreason to 'unknown'\n");
          char sql[80];
-         sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE id=%d", id);
+         sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE muid=%s", muid.c_str());
          mSql.execute_sql(sql, mSql.db_sessions);
       }
    }
@@ -66,12 +79,52 @@ void mwNetgame::session_check_active_in_db()
 
 
 
+
+
+//
+//
+//    // find all open sessions in database
+// //   std::vector<std::vector<int>> matrix = {};
+// //   mSql.execute_sql_and_return_2d_vector_int("SELECT muid FROM sessions WHERE endreason='open'", mSql.db_sessions, matrix );
+//
+//    // iterate
+//    for (auto m : matrix)
+//    {
+//       int id = m[0];
+//
+//       // check if id matches a currently active player
+//       int still_active = 0;
+//       for (int p=1; p<8; p++)
+//          if (mLevel.mPlayer.loc[p].session_id == id) still_active = 1;
+//
+//       if (!still_active)
+//       {
+//          printf("\nFound orphaned open session in database, setting endreason to 'unknown'\n");
+//          char sql[80];
+//          sprintf(sql, "UPDATE sessions SET endreason='unknown' WHERE id=%d", id);
+//          mSql.execute_sql(sql, mSql.db_sessions);
+//       }
+//    }
+// }
+
+
+
 void mwNetgame::session_flush_active_at_server_exit()
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if (mLevel.mPlayer.loc[p].session_id)
-         session_close(p, 8);
+   {
+      // get session id from player
+      char muid[17];
+      strcpy(muid, mLevel.mPlayer.loc[p].session_muid);
+      if (strlen(muid) == 16) session_close(p, 8);
+
+      //
+      // if (mLevel.mPlayer.loc[p].session_id)
+      //    session_close(p, 8);
+
+
+   }
 }
 
 
@@ -84,12 +137,23 @@ void mwNetgame::session_update_at_level_done()
    // printf("frame:%d - session_save_active_at_level_done() level:%d  ffs:%d  )\n ", mLoop.frame_num, mLevel.play_level, mLoop.ff_state);
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
    for (int p=1; p<8; p++)
-      if (mLevel.mPlayer.loc[p].session_id)
+   {
+      // get session_muid from player
+      char muid[17];
+      strcpy(muid, mLevel.mPlayer.loc[p].session_muid);
+      if (strlen(muid) == 16)
       {
          if (mLevel.play_level != 1) mLevel.mPlayer.syn[p].stat_next_levels++;
          if (p == mGameState.level_done_player) mLevel.mPlayer.syn[p].stat_exits++;
          session_update(p);
       }
+   }
+      // if (mLevel.mPlayer.loc[p].session_id)
+      // {
+      //    if (mLevel.play_level != 1) mLevel.mPlayer.syn[p].stat_next_levels++;
+      //    if (p == mGameState.level_done_player) mLevel.mPlayer.syn[p].stat_exits++;
+      //    session_update(p);
+      // }
 
 }
 
@@ -118,14 +182,44 @@ void mwNetgame::session_open(const char* address, const char* hostname, int p, i
 
    std::string name = mLevel.mPlayer.getName(p);
 
+
+
+   // generate a new muid
+   std::string muid;
+   bool muid_created = false;
+
+
+   while (muid_created == false)
+   {
+      // generate a new muid
+      std::string muid = mMiscFnx.generate_muid();
+
+      // check if muid already exists
+      char sql[500];
+      sprintf(sql, "SELECT COUNT(*) FROM sessions WHERE muid='%s'", muid.c_str());
+      if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
+      {
+         printf("muid: '%s' exists  --  holy shit!!!\n", muid.c_str());
+      }
+      else
+      {
+         muid_created = true;
+         printf("muid: '%s' created and tested for uniqueness\n", muid.c_str());
+      }
+   }
+
    char sql[500];
    sprintf(sql,
-   "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
-                          ts.c_str(),   ip, port, hostname, p,          mLevel.mPlayer.syn[p].color, name.c_str());
+   "INSERT INTO sessions (muid, dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', '%s', %d, '%s', %d, %d, '%s', 'open');" ,
+                          muid.c_str(), ts.c_str(),   ip, port, hostname, p,          mLevel.mPlayer.syn[p].color, name.c_str());
 
-   mLevel.mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
+   mSql.execute_sql(sql, mSql.db_sessions);
 
-   mGameMoves.create_gm_session_link(mLevel.mPlayer.loc[p].session_id);
+   sprintf(mLevel.mPlayer.loc[p].session_muid, "%s", muid.c_str() );
+
+//   mLevel.mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
+
+   mGameMoves.create_gm_session_link(mLevel.mPlayer.loc[p].session_muid);
 
 
    // close immediately if server full endreason
@@ -148,13 +242,24 @@ void mwNetgame::session_update(int p, char * m_endreason)
 {
    if (!mLog.log_types[LOG_NET_SESSION].action) return;
 
+
    // get session id from player
-   int sid = mLevel.mPlayer.loc[p].session_id;
-   if (!sid)
+   char muid[17];
+   strcpy(muid, mLevel.mPlayer.loc[p].session_muid);
+   if (strlen(muid) < 16)
    {
-      printf("session_update_sql(%d, %s) - session_id is zero! exiting\n", p, m_endreason);
+      printf("session_update_sql p:%d muid:%s  endreason:%s) - session_muid length is less than 16! exiting\n", p, muid, m_endreason);
       return;
    }
+
+
+   // // get session id from player
+   // int sid = mLevel.mPlayer.loc[p].session_id;
+   // if (!sid)
+   // {
+   //    printf("session_update_sql(%d, %s) - session_id is zero! exiting\n", p, m_endreason);
+   //    return;
+   // }
 
 
    // by default the session is still open
@@ -217,12 +322,14 @@ void mwNetgame::session_update(int p, char * m_endreason)
                         rx_packets_total          , \
                         rx_packets_avg_per_sec    , \
                         rx_packets_max_per_frame  , \
-                        dt_start FROM sessions WHERE id=?";
+                        dt_start FROM sessions WHERE muid='?'";
 
    sqlite3_prepare_v2(mSql.db_sessions, sql, -1, &stmt, nullptr);
 
    // bind parameters
-   sqlite3_bind_int(stmt, 1, sid);
+   sqlite3_bind_text(stmt, 1, muid, -1, SQLITE_TRANSIENT);
+
+
 
    // execute and step through results
    int step_result = sqlite3_step(stmt);
@@ -331,7 +438,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
       rx_packets_max_per_frame =?,\
       duration                 =?,\
       dt_end                   =?,\
-      endreason                =? WHERE id=?";
+      endreason                =? WHERE muid='?'";
    sqlite3_prepare_v2(mSql.db_sessions, sql2, -1, &stmt, nullptr);
 
 
@@ -360,7 +467,11 @@ void mwNetgame::session_update(int p, char * m_endreason)
    sqlite3_bind_int(stmt,  22,  duration);
    sqlite3_bind_text(stmt, 23,  dt_end.c_str(), -1, SQLITE_TRANSIENT);
    sqlite3_bind_text(stmt, 24,  endreason, -1, SQLITE_TRANSIENT);
-   sqlite3_bind_int(stmt,  25,  sid);
+
+   sqlite3_bind_text(stmt, 25, muid, -1, SQLITE_TRANSIENT);
+
+
+//   sqlite3_bind_int(stmt,  25,  sid);
 
    // execute and step through results
    step_result = sqlite3_step(stmt);

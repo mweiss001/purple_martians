@@ -47,7 +47,7 @@ void mwSql::create_tables()
    char sql[2000];
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS sessions( \
-               id                        INTEGER PRIMARY KEY, \
+               muid                      TEXT, \
                dt_start                  DATETIME, \
                dt_end                    DATETIME, \
                duration                  INT, \
@@ -96,7 +96,7 @@ void mwSql::create_tables()
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
                id                INTEGER PRIMARY KEY, \
                gm_muid           TEXT, \
-               session_id        INT  ); ");
+               session_muid      TEXT  ); ");
    execute_sql(sql, db_sessions);
 
 
@@ -266,6 +266,39 @@ int mwSql::execute_sql_and_return_2d_vector_int(const char *sql, sqlite3 *db, st
       for (int i=0; i<sqlite3_column_count(stmt); i++)
          row.push_back(sqlite3_column_int(stmt, i));
       matrix.push_back(row); // Add row to 2D vector
+   }
+
+   sqlite3_finalize(stmt);
+   return 0;
+}
+
+
+int mwSql::execute_sql_and_return_vector_string(const char *sql, sqlite3 *db, std::vector<std::string> &ret )
+{
+   if (db == nullptr)
+   {
+      printf("Error! Database not open.\n%s\n", sql);
+      return 2;
+   }
+
+   sqlite3_stmt* stmt;
+   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+   if (rc != SQLITE_OK)
+   {
+      printf("Failed to prepare statement: %s\n %s\n", sql, sqlite3_errmsg(db));
+      sqlite3_finalize(stmt);
+      return 2;
+   }
+
+   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+   {
+      const unsigned char* rawText = sqlite3_column_text(stmt, 0);
+
+      // 4. Safely convert to std::string (handling potential NULL values)
+      std::string result = rawText ? reinterpret_cast<const char*>(rawText) : "";
+
+      ret.push_back(result);
    }
 
    sqlite3_finalize(stmt);

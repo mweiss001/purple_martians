@@ -5,9 +5,27 @@ BUGS!!
 ------------------------------------------------------------------------------
 
 
-
-
 sessions table
+- dont allow overlapping sessions (happens when name is the same)
+maybe don't allow duplicate names in netgame, like I now do with color
+
+
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+TO DO
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+web pages to do:
+
+timeline 
 - dont allow overlapping sessions (happens when name is the same)
 maybe don't allow duplicate names in netgame, like I now do with color
 
@@ -25,63 +43,45 @@ maybe don't allow duplicate names in netgame, like I now do with color
 
 
 
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
 
 
-TO DO
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
 
 
-show level names in web pages...how??
-
-// common.js
-
-// share variables and functions
-
-export const playerColors = [
-   "#888888", 
-   "#bf6ce8", 
-   "#8820ac",
-   "#3c7fff",
-   "#e01c48",
-   "#ff00e8",
-   "#ffbf7f",
-   "#ff7f00",
-   "#7f00ff",
-   "#01ff7f",
-   "#ff0000",
-   "#01ff00",
-   "#0000ff",
-   "#01ffff",
-   "#ffff00",
-   "#ffffff",
-]
 
 
-levelNamesExport.js
 
-export const levelNames = [
-   "#888888", 
-   "#bf6ce8", 
-   "#8820ac",
-   "#3c7fff",
-   "#e01c48",
-   "#ff00e8",
-   "#ffbf7f",
-   "#ff7f00",
-   "#7f00ff",
-   "#01ff7f",
-   "#ff0000",
-   "#01ff00",
-   "#0000ff",
-   "#01ffff",
-   "#ffff00",
-   "#ffffff",
-]
+--------------------------------------------
+add muid to sessions
+the main reason is:
+if I want to persist sessions and gms over multiple years and servers
+I cant have session id starting at 1 everytime
+
+what about players
+more like installations
+when the game is first run after being installed, generate a unique id for that player and system
+and also the server
+I am unsure of the benefits of this
+----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -192,16 +192,6 @@ then make demos for both
 
 
 
-----------------------------------------------------------------------
-on web, when I show level numbers can I also show level names?
-could I have a text file with level numbers and names?
-could be generated from code, or could be the master that code reads from
-could be embedded in each level
-----------------------------------------------------------------------
-
-
-
-
 
 ----------------------------------------------------------------------
 check that viewport has more sensible settings, to reduce vertigo
@@ -247,8 +237,6 @@ more creators
 like cloner trigger pair
 cloner timer trigger set
 alter trigger set
-
-
 
 
 
